@@ -1,0 +1,1396 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="This chapter unifies deterministic and noisy interpolants, defines Schrödinger bridges in path space, and distinguishes finite-noise bridges from optimal" name="description"/>
+<meta content="Mahdi Shafiei" name="author"/>
+<link href="https://docs.avitai.bio/artifex/user-guide/concepts/probability-paths-04-bridges/" rel="canonical"/>
+<link href="../probability-paths-03-flow/" rel="prev"/>
+<link href="../probability-paths-05-generalizations/" rel="next"/>
+<link href="../../../assets/images/favicon.png" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.7.7" name="generator"/>
+<title>Probability Paths 4 — Stochastic Interpolants and Bridges - Artifex</title>
+<link href="../../../assets/stylesheets/main.ec1eaa64.min.css" rel="stylesheet"/>
+<link href="../../../assets/stylesheets/palette.ab4e12ef.min.css" rel="stylesheet"/>
+<script src="../../../assets/vendor/iframe-worker/index.js"></script>
+<link href="../../../assets/_mkdocstrings.css" rel="stylesheet"/>
+<link href="../../../_static/extra.css" rel="stylesheet"/>
+<script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+<meta content="article" property="og:type"/>
+<meta content="The Artifex Generative Models Book" property="og:site_name"/>
+<meta content="Probability Paths 4 — Stochastic Interpolants and Bridges" property="og:title"/>
+<meta content="This chapter unifies deterministic and noisy interpolants, defines Schrödinger bridges in path space, and distinguishes finite-noise bridges from optimal" property="og:description"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/probability-paths-04-bridges/" property="og:url"/>
+<meta content="2026-07-20" property="article:modified_time"/>
+<meta content="summary" name="twitter:card"/>
+<meta content="Probability Paths 4 — Stochastic Interpolants and Bridges" name="twitter:title"/>
+<meta content="This chapter unifies deterministic and noisy interpolants, defines Schrödinger bridges in path space, and distinguishes finite-noise bridges from optimal" name="twitter:description"/>
+<meta content="Generative models, Machine learning, Probabilistic modeling, research, specialization, canonical_chapter, probability-paths-bridges, practitioner, researcher" name="keywords"/>
+<meta content="Probability Paths 4 — Stochastic Interpolants and Bridges" name="citation_title"/>
+<meta content="Mahdi Shafiei" name="citation_author"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/probability-paths-04-bridges/" name="citation_public_url"/>
+<meta content="en" name="citation_language"/>
+<meta content="Probability Paths 4 — Stochastic Interpolants and Bridges" name="DC.title"/>
+<meta content="Mahdi Shafiei" name="DC.creator"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/probability-paths-04-bridges/" name="DC.identifier"/>
+<meta content="Text.LearningResource" name="DC.type"/>
+<meta content="2026-07-20" name="DCTERMS.modified"/>
+<meta content="https://github.com/avitai/artifex/blob/main/LICENSE" name="DCTERMS.license"/>
+<meta content="research" name="DCTERMS.educationLevel"/>
+<meta content="practitioner, researcher" name="DCTERMS.audience"/>
+<link href="https://github.com/avitai/artifex/blob/main/LICENSE" rel="license"/>
+<script id="artifex-book-metadata" type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Chapter",
+  "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/probability-paths-04-bridges/",
+  "url": "https://docs.avitai.bio/artifex/user-guide/concepts/probability-paths-04-bridges/",
+  "name": "Probability Paths 4 \u2014 Stochastic Interpolants and Bridges",
+  "description": "This chapter unifies deterministic and noisy interpolants, defines Schr\u00f6dinger bridges in path space, and distinguishes finite-noise bridges from optimal",
+  "identifier": "probability-paths-bridges",
+  "inLanguage": "en",
+  "isAccessibleForFree": true,
+  "learningResourceType": "Canonical chapter",
+  "educationalLevel": "research",
+  "educationalUse": "specialization",
+  "audience": [
+    
+      {"@type": "EducationalAudience", "audienceType": "practitioner"},
+    
+      {"@type": "EducationalAudience", "audienceType": "researcher"}
+    
+  ],
+  "dateModified": "2026-07-20",
+  "keywords": ["Generative models", "Machine learning", "Probabilistic modeling", "research", "specialization", "canonical_chapter", "probability-paths-bridges", "practitioner", "researcher"],
+  "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+  "author": [
+    
+      {"@type": "Person", "name": "Mahdi Shafiei"}
+    
+  ],
+  "isPartOf": {
+    "@type": "Book",
+    "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/#book",
+    "url": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/",
+    "name": "The Artifex Generative Models Book",
+    "bookEdition": "Living Web Edition",
+    "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+    "author": [
+      
+        {"@type": "Person", "name": "Mahdi Shafiei"}
+      
+    ]
+  }
+}
+</script>
+<link href="../../../assets/vendor/katex/katex.min.css" id="artifex-katex-stylesheet" integrity="sha384-UA8juhPf75SzzAMA/4fo3yOU7sBJ0om7SCD2GHq0fZqZco6tr1UCV7nUbk9J90JM" rel="stylesheet"/>
+<script defer="" integrity="sha384-T/0lMUdJpd2S1ZHtRiofG3htU3xPCrFVeAQ1UUE2TJwlEJSV5NUwn30kP28n238E" src="../../../assets/vendor/mermaid/mermaid.min.js"></script>
+<script defer="" src="../../../assets/vendor/katex/katex-shadow.js"></script>
+<script defer="" src="../../../javascripts/mermaid-math.js"></script>
+<script defer="" src="../../../javascripts/mathjax.js"></script>
+<script defer="" integrity="sha384-OrHfGTnIbkl0do3N76qW/uWr38o91N05sbSPuYBPLH+hG8X/dNSrjZf3AGjzrCwC" src="../../../assets/vendor/mathjax/tex-mml-chtml.js"></script>
+</head>
+<body data-md-color-accent="amber" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#probability-paths-4-stochastic-interpolants-and-bridges">
+          Skip to content
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header md-header--shadow" data-md-component="header">
+<nav aria-label="Header" class="md-header__inner md-grid">
+<a aria-label="Artifex" class="md-header__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            Artifex
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+            
+              Probability Paths 4 — Stochastic Interpolants and Bridges
+            
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-label="Switch to dark mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: light)" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_1" hidden="" title="Switch to dark mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+<input aria-label="Switch to light mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-primary="indigo" data-md-color-scheme="slate" id="__palette_1" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_0" hidden="" title="Switch to light mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+</form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div aria-label="Search" class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Search" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="Search" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="Search" class="md-search__options">
+<a aria-label="Share" class="md-search__icon md-icon" data-clipboard="" data-clipboard-text="" data-md-component="search-share" href="javascript:void(0)" tabindex="-1" title="Share">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"></path></svg>
+</a>
+<button aria-label="Clear" class="md-search__icon md-icon" tabindex="-1" title="Clear" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            Initializing search
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Navigation" class="md-nav md-nav--primary" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="Artifex" class="md-nav__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+    Artifex
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../..">
+<span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../getting-started/installation/">
+<span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Generative Models Book
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Generative Models Book
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    
+  
+    Start Here — The Landscape
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../first-course-01-generative-systems/">
+<span class="md-ellipsis">
+    
+  
+    First Course — New to Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../probability-01-objects/">
+<span class="md-ellipsis">
+    
+  
+    Foundations
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../autoregressive-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Model Families
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_5" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_5" id="__nav_3_5_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Connections and Compositions
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_5_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_5">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Connections and Compositions
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gradients-01-taxonomy/">
+<span class="md-ellipsis">
+    
+  
+    Gradients and Geometry in Generative Modeling
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../density-latent-energy-01-objects/">
+<span class="md-ellipsis">
+    
+  
+    Density, Latent, Energy, and Score
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_5_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_5_3" id="__nav_3_5_3_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Probability Paths and Stochastic Transport
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_5_3_label" class="md-nav" data-md-level="3">
+<label class="md-nav__title" for="__nav_3_5_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Probability Paths and Stochastic Transport
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../probability-paths-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    1. Couplings and Conservation
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../probability-paths-02-diffusion/">
+<span class="md-ellipsis">
+    
+  
+    2. Diffusion and Probability Flow
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../probability-paths-03-flow/">
+<span class="md-ellipsis">
+    
+  
+    3. Flow Matching and Rectification
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
+    
+  
+    4. Interpolants and Bridges
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
+<span class="md-ellipsis">
+    
+  
+    4. Interpolants and Bridges
+  
+
+    
+  </span>
+</a>
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#4-stochastic-interpolants-and-schrodinger-bridges">
+<span class="md-ellipsis">
+      
+        4. Stochastic Interpolants and Schrödinger Bridges
+      
+    </span>
+</a>
+<nav aria-label="4. Stochastic Interpolants and Schrödinger Bridges" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-4-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 4 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#schrodinger-bridge">
+<span class="md-ellipsis">
+      
+        Schrödinger bridge
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#static-endpoint-projection-and-dynamic-lift">
+<span class="md-ellipsis">
+      
+        Static endpoint projection and dynamic lift
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#relation-to-optimal-transport">
+<span class="md-ellipsis">
+      
+        Relation to optimal transport
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#paired-translation-and-inverse-problems">
+<span class="md-ellipsis">
+      
+        Paired translation and inverse problems
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-discrete-bridge-intuition">
+<span class="md-ellipsis">
+      
+        Worked discrete bridge intuition
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#brownian-bridge-schrodinger-bridge-and-diffusion-bridge">
+<span class="md-ellipsis">
+      
+        Brownian bridge, Schrödinger bridge, and diffusion bridge
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#misconception-checks-interpolants-and-bridges">
+<span class="md-ellipsis">
+      
+        Misconception checks: interpolants and bridges
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#independent-practice-and-assessment-map-interpolants-and-bridges">
+<span class="md-ellipsis">
+      
+        Independent practice and assessment map: interpolants and bridges
+      
+    </span>
+</a>
+<nav aria-label="Independent practice and assessment map: interpolants and bridges" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#feedback-contract-interpolants-and-bridges">
+<span class="md-ellipsis">
+      
+        Feedback contract: interpolants and bridges
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#outcome-to-task-alignment-interpolants-and-bridges">
+<span class="md-ellipsis">
+      
+        Outcome-to-task alignment: interpolants and bridges
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-4-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 4 synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../probability-paths-05-generalizations/">
+<span class="md-ellipsis">
+    
+  
+    5. Generalized State Spaces
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../probability-paths-06-practice/">
+<span class="md-ellipsis">
+    
+  
+    6. Comparison and Research
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../probability-paths-and-stochastic-transport/">
+<span class="md-ellipsis">
+    
+  
+    Continuous View (All Chapters)
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../general-markov-01-operators/">
+<span class="md-ellipsis">
+    
+  
+    General Markov Generators
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../few-step-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Transitions and Few-Step Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../geometric-01-symmetry/">
+<span class="md-ellipsis">
+    
+  
+    Geometric and Equivariant Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../representations-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Representations and Multimodal Systems
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../steering-01-targets/">
+<span class="md-ellipsis">
+    
+  
+    Conditioning, Steering, Constraints, and Selection
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../world-models-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    World Models and Causal Simulators
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../landscape-01-copulas/">
+<span class="md-ellipsis">
+    
+  
+    Extended Generative Landscape
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../normalization-01-queries/">
+<span class="md-ellipsis">
+    
+  
+    Research Practice
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../models/vae-guide/">
+<span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/core/base/">
+<span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../examples/overview/">
+<span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../zoo/">
+<span class="md-ellipsis">
+    
+  
+    Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../training/overview/">
+<span class="md-ellipsis">
+    
+  
+    Training
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../data/overview/">
+<span class="md-ellipsis">
+    
+  
+    Data &amp; Modalities
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../inference/overview/">
+<span class="md-ellipsis">
+    
+  
+    Inference &amp; Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../benchmarks/">
+<span class="md-ellipsis">
+    
+  
+    Evaluation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../guides/extensions/">
+<span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../extensions/">
+<span class="md-ellipsis">
+    
+  
+    Advanced Topics
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../cli/">
+<span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../community/contributing/">
+<span class="md-ellipsis">
+    
+  
+    Community
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/configs/protein-extension/">
+<span class="md-ellipsis">
+    
+  
+    Reference Library
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#4-stochastic-interpolants-and-schrodinger-bridges">
+<span class="md-ellipsis">
+      
+        4. Stochastic Interpolants and Schrödinger Bridges
+      
+    </span>
+</a>
+<nav aria-label="4. Stochastic Interpolants and Schrödinger Bridges" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-4-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 4 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#schrodinger-bridge">
+<span class="md-ellipsis">
+      
+        Schrödinger bridge
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#static-endpoint-projection-and-dynamic-lift">
+<span class="md-ellipsis">
+      
+        Static endpoint projection and dynamic lift
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#relation-to-optimal-transport">
+<span class="md-ellipsis">
+      
+        Relation to optimal transport
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#paired-translation-and-inverse-problems">
+<span class="md-ellipsis">
+      
+        Paired translation and inverse problems
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-discrete-bridge-intuition">
+<span class="md-ellipsis">
+      
+        Worked discrete bridge intuition
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#brownian-bridge-schrodinger-bridge-and-diffusion-bridge">
+<span class="md-ellipsis">
+      
+        Brownian bridge, Schrödinger bridge, and diffusion bridge
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#misconception-checks-interpolants-and-bridges">
+<span class="md-ellipsis">
+      
+        Misconception checks: interpolants and bridges
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#independent-practice-and-assessment-map-interpolants-and-bridges">
+<span class="md-ellipsis">
+      
+        Independent practice and assessment map: interpolants and bridges
+      
+    </span>
+</a>
+<nav aria-label="Independent practice and assessment map: interpolants and bridges" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#feedback-contract-interpolants-and-bridges">
+<span class="md-ellipsis">
+      
+        Feedback contract: interpolants and bridges
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#outcome-to-task-alignment-interpolants-and-bridges">
+<span class="md-ellipsis">
+      
+        Outcome-to-task alignment: interpolants and bridges
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-4-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 4 synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<nav aria-label="Breadcrumb" class="md-path">
+<ol class="md-path__list">
+<li class="md-path__item">
+<a class="md-path__link" href="../../..">
+<span class="md-ellipsis">
+    Home
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    Generative Models Book
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../gradients-01-taxonomy/">
+<span class="md-ellipsis">
+    Connections and Compositions
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../probability-paths-01-foundations/">
+<span class="md-ellipsis">
+    Probability Paths and Stochastic Transport
+  </span>
+</a>
+</li>
+</ol>
+</nav>
+<article class="md-content__inner md-typeset">
+<h1 id="probability-paths-4-stochastic-interpolants-and-bridges">Probability Paths 4 — Stochastic Interpolants and Bridges<a class="headerlink" href="#probability-paths-4-stochastic-interpolants-and-bridges" title="Permanent link">¤</a></h1><aside aria-label="Learning path" class="admonition abstract artifex-learning-path"><p class="admonition-title">Learning path</p><p><strong>Required knowledge</strong></p><ul class="artifex-learning-path__links" data-learning-path-role="required"><li><a href="../probability-paths-03-flow/">Probability Paths 3 — Flow Matching and Rectification</a></li></ul><p><strong>Readiness check:</strong> can you explain the central object and reproduce one worked example from each required chapter? If not, follow its link before continuing.</p><p><strong>Newly unlocked in the default route</strong></p><ul class="artifex-learning-path__links" data-learning-path-role="unlocks"><li><a href="../probability-paths-05-generalizations/">Probability Paths 5 — Generalized State Spaces</a></li></ul></aside>
+<p>This chapter unifies deterministic and noisy interpolants, defines Schrödinger bridges in path space, and distinguishes finite-noise bridges from optimal transport. Read it continuously in the <a href="../probability-paths-and-stochastic-transport/#4-stochastic-interpolants-and-schrodinger-bridges">complete guide</a>.</p>
+<h2 id="4-stochastic-interpolants-and-schrodinger-bridges">4. Stochastic Interpolants and Schrödinger Bridges<a class="headerlink" href="#4-stochastic-interpolants-and-schrodinger-bridges" title="Permanent link">¤</a></h2>
+<h3 id="chapter-4-prerequisites-and-learning-objectives">Chapter 4 prerequisites and learning objectives<a class="headerlink" href="#chapter-4-prerequisites-and-learning-objectives" title="Permanent link">¤</a></h3>
+<p>This chapter assumes stochastic dynamics, KL divergence, and the path
+distinctions from Chapter 1. By the end, you should be able to:</p>
+<ol>
+<li><strong>O1 — Build a stochastic interpolant:</strong> identify the endpoint coupling,
+   interpolation map, latent noise schedule, induced marginal path, and learned
+   targets.</li>
+<li><strong>O2 — Define a Schrödinger bridge:</strong> formulate path-space relative-entropy
+   projection with a declared reference process and two endpoint constraints.</li>
+<li><strong>O3 — Connect static and dynamic views:</strong> relate endpoint matrix scaling,
+   reference bridges, Doob transforms, and controlled stochastic dynamics.</li>
+<li><strong>O4 — Separate bridges from OT:</strong> state what finite reference noise changes
+   and what assumptions are required in a zero-noise limit.</li>
+<li><strong>O5 — Diagnose identifiability and support:</strong> determine what unpaired
+   endpoint marginals cannot specify and when reference zeros make a bridge
+   infeasible.</li>
+<li><strong>O6 — Transfer to a bridge experiment:</strong> design reference, endpoint,
+   discretization, and semantic-coupling ablations with calibrated evidence.</li>
+</ol>
+<p>A stochastic interpolant constructs</p>
+<div class="arithmatex">\[
+X_t=I(t,X_0,X_1)+\gamma(t)Z,
+\]</div>
+<p>where <span class="arithmatex">\(Z\)</span> supplies controllable noise and <span class="arithmatex">\(\gamma(0)=\gamma(1)=0\)</span>. <a href="https://arxiv.org/abs/2303.08797">Stochastic Interpolants</a> derive velocity and score-based dynamics from this shared construction. Deterministic interpolation appears when <span class="arithmatex">\(\gamma=0\)</span>; diffusion-like paths arise for suitable schedules and couplings.</p>
+<p>The framework is a unifying language, not a claim that all choices are identical. <span class="arithmatex">\(I\)</span>, <span class="arithmatex">\(\gamma\)</span>, endpoint coupling, learned target, and sampler determine the actual algorithm.</p>
+<figure class="book-figure" id="fig-probability-paths-and-stochastic-transport-chapter-4-prerequisites-and-learning-objectives"><pre class="mermaid"><code>%%{init: {'themeCSS': '.nodeLabel p { color: #111827 !important; } .flowchart-link { stroke: #78879a !important; stroke-width: 2px !important; } marker path { fill: #78879a !important; stroke: #78879a !important; }'}}%%
+flowchart TB
+    accTitle: A bridge is a relative-entropy projection of a reference path law
+    accDescr: Endpoint marginals constrain a path-space optimization relative to a declared stochastic reference. Endpoint potentials reweight reference paths, forward and backward fitting enforce both marginals, and finite learning and simulation approximate the resulting bridge.
+    R[Reference path law R] --&gt; K[Reference endpoint joint and conditional bridges]
+    P0[Required initial marginal] --&gt; IPF[Endpoint potential fitting]
+    P1[Required terminal marginal] --&gt; IPF
+    K --&gt; IPF
+    IPF --&gt; B[Schrodinger bridge path law]
+    B --&gt; D[Forward and backward controlled dynamics]
+    D --&gt; F[Finite learned bridge and solver]
+    R -. changes feasible paths and cost .-&gt; B</code></pre><figcaption class="book-object-caption"><span class="book-object-number">Figure PATH.5.</span> A bridge is a relative-entropy projection of a reference path law</figcaption></figure>
+<p>For <span class="arithmatex">\(t\in(0,1)\)</span>, the score of the Gaussian-latent interpolant obeys</p>
+<div class="arithmatex">\[
+\nabla_x\log p_t(x)
+=-\gamma(t)^{-1}\mathbb E[Z\mid X_t=x]
+\]</div>
+<p>under the framework's regularity assumptions. Velocity and score objectives
+therefore arise from the same declared interpolant, but their finite losses and
+endpoint conditioning differ. The
+<a href="https://arxiv.org/abs/2303.08797">stochastic-interpolant source</a> also derives a
+family of forward and backward Fokker--Planck dynamics with adjustable diffusion;
+these dynamics share the constructed marginal path, not one common path law.</p>
+<h3 id="schrodinger-bridge">Schrödinger bridge<a class="headerlink" href="#schrodinger-bridge" title="Permanent link">¤</a></h3>
+<p>Given a reference path measure <span class="arithmatex">\(R\)</span>—often Brownian diffusion—the Schrödinger bridge solves</p>
+<div class="arithmatex">\[
+\min_{P:\,P_0=p_0,\,P_1=p_1}
+D_{\mathrm{KL}}(P\|R).
+\]</div>
+<p>It selects the path law closest in relative entropy to the reference while matching both endpoint marginals. This differs from merely learning any transport between endpoints. <a href="https://proceedings.neurips.cc/paper/2021/hash/940392f5f32a7ade1cc201767cf83e31-Abstract.html">Diffusion Schrödinger Bridge</a> uses iterative forward/backward fitting for generative modeling.</p>
+<h3 id="static-endpoint-projection-and-dynamic-lift">Static endpoint projection and dynamic lift<a class="headerlink" href="#static-endpoint-projection-and-dynamic-lift" title="Permanent link">¤</a></h3>
+<p>Let <span class="arithmatex">\(R_{01}\)</span> be the joint law of <span class="arithmatex">\((X_0,X_1)\)</span> under the reference. The static
+Schrödinger problem is</p>
+<div class="arithmatex">\[
+\min_{\pi\in\Pi(p_0,p_1)}D_{\mathrm{KL}}(\pi\|R_{01}).
+\]</div>
+<p>Under standard positivity conditions, the solution has scaling form
+<span class="arithmatex">\(\pi^*(dx_0,dx_1)=a(x_0)R_{01}(dx_0,dx_1)b(x_1)\)</span>. The full path law then keeps
+the reference conditional bridge between endpoints:</p>
+<div class="arithmatex">\[
+P^*(d\omega)
+=\int R(d\omega\mid x_0,x_1)\,\pi^*(dx_0,dx_1).
+\]</div>
+<p>This factorization separates two roles: endpoint potentials choose how much
+mass each reference bridge receives, while the reference process specifies the
+conditional temporal fluctuations. Iterative proportional fitting or Sinkhorn
+scaling alternately enforces the two marginals in finite settings.</p>
+<p>For a reference diffusion with drift <span class="arithmatex">\(b_R\)</span> and noise scale <span class="arithmatex">\(\sqrt\varepsilon\)</span>,
+the dynamic control view penalizes deviation from the reference:</p>
+<div class="arithmatex">\[
+\min_u\ \mathbb E\!\left[\frac{1}{2\varepsilon}
+\int_0^1\|u_t(X_t)\|^2dt\right],
+\quad
+dX_t=[b_R(t,X_t)+u_t(X_t)]dt+\sqrt\varepsilon\,dW_t,
+\]</div>
+<p>subject to both endpoint marginals. The exact coefficient depends on convention,
+but the invariant is stable: changing <span class="arithmatex">\(R\)</span> or <span class="arithmatex">\(\varepsilon\)</span> changes the
+optimization problem.</p>
+<h3 id="relation-to-optimal-transport">Relation to optimal transport<a class="headerlink" href="#relation-to-optimal-transport" title="Permanent link">¤</a></h3>
+<p>For Brownian reference with noise level tending to zero, entropic transport can converge toward dynamic optimal transport under suitable assumptions. At nonzero noise, the Schrödinger bridge is a stochastic entropy-regularized transport with different path law and cost. “SB equals OT” without the limiting regime is false.</p>
+<p>The <a href="https://arxiv.org/abs/1412.4430">stochastic-control treatment</a> makes the
+relationship precise for controlled references and studies zero-noise limits.
+One must specify the scaling of the reference noise, topology of convergence,
+cost, endpoint regularity, and whether the statement concerns endpoint
+couplings, marginal paths, or controlled path laws. A finite-<span class="arithmatex">\(\varepsilon\)</span>
+entropic plan is often smoother and computationally convenient; that is a
+different object, not a defective OT solution.</p>
+<h3 id="paired-translation-and-inverse-problems">Paired translation and inverse problems<a class="headerlink" href="#paired-translation-and-inverse-problems" title="Permanent link">¤</a></h3>
+<p>Bridges can connect two nontrivial data distributions, making them useful for translation, restoration, and trajectory inference. If only unpaired endpoints are available, the bridge is selected relative to the reference process—not necessarily the semantic pairing a user intends. Conditioning observations or boundary constraints changes the bridge problem and identification assumptions.</p>
+<h3 id="worked-discrete-bridge-intuition">Worked discrete bridge intuition<a class="headerlink" href="#worked-discrete-bridge-intuition" title="Permanent link">¤</a></h3>
+<p>On a finite Markov chain, choose a reference transition matrix and endpoint distributions. Reweighting reference paths by endpoint potentials can satisfy both marginals while minimally changing path KL. Changing the reference transition graph changes which paths are possible and therefore changes the bridge, even with identical endpoints.</p>
+<p>For an explicit one-step example, let the reference endpoint joint be uniform,</p>
+<div class="arithmatex">\[
+R_{01}=\begin{pmatrix}1/4&amp;1/4\\1/4&amp;1/4\end{pmatrix},
+\]</div>
+<p>and require <span class="arithmatex">\(p_0=(3/4,1/4)\)</span> and <span class="arithmatex">\(p_1=(2/5,3/5)\)</span>. Row scaling first gives
+<span class="arithmatex">\(\bigl(\begin{smallmatrix}3/8&amp;3/8\\1/8&amp;1/8\end{smallmatrix}\bigr)\)</span>; column
+scaling then gives</p>
+<div class="arithmatex">\[
+\pi^*=p_0p_1^\top
+=\begin{pmatrix}3/10&amp;9/20\\1/10&amp;3/20\end{pmatrix}.
+\]</div>
+<p>Because the reference endpoints are independent, the KL projection is the
+independent coupling with the required marginals. A non-product reference would
+retain some reference dependence after scaling.</p>
+<h3 id="brownian-bridge-schrodinger-bridge-and-diffusion-bridge">Brownian bridge, Schrödinger bridge, and diffusion bridge<a class="headerlink" href="#brownian-bridge-schrodinger-bridge-and-diffusion-bridge" title="Permanent link">¤</a></h3>
+<p>A Brownian bridge usually conditions a reference process on fixed endpoint
+values. A Schrödinger bridge constrains endpoint <strong>distributions</strong> and selects a
+new path law by KL projection. “Diffusion bridge” may refer broadly to
+conditioned diffusions or to learned generative bridge methods. Always ask
+which endpoints are fixed, which are distributions, and which reference law is
+being conditioned or controlled.</p>
+<details class="question">
+<summary>Retrieval practice: interpolants and bridges</summary>
+<ol>
+<li>Which object makes a Schrödinger bridge relative rather than an absolute shortest path between endpoints?</li>
+<li>What happens to the bridge problem when the reference noise or dynamics changes?</li>
+<li>Why are deterministic optimal transport and a finite-noise Schrödinger bridge not the same coupling?</li>
+<li>What information can paired data add that endpoint marginals alone cannot identify?</li>
+</ol>
+<p><strong>Solutions.</strong> (1) The declared reference path measure. (2) The path-space KL objective and therefore the optimal controlled process change. (3) The bridge trades endpoint matching against relative entropy to a stochastic reference; optimal transport is recovered only in specific limiting formulations. (4) A semantic or observational coupling between source and target records.</p>
+</details>
+<h3 id="misconception-checks-interpolants-and-bridges">Misconception checks: interpolants and bridges<a class="headerlink" href="#misconception-checks-interpolants-and-bridges" title="Permanent link">¤</a></h3>
+<ul>
+<li><strong>“The endpoints identify the bridge.”</strong> They identify constraints; the
+  reference path law selects among feasible paths.</li>
+<li><strong>“A Brownian bridge and a Schrödinger bridge are synonyms.”</strong> One commonly
+  pins endpoint values; the other imposes endpoint marginals through a KL
+  projection.</li>
+<li><strong>“Sinkhorn scaling proves a learned diffusion bridge is exact.”</strong> Matrix
+  scaling solves a discretized static projection; learning, time discretization,
+  and state approximation remain.</li>
+<li><strong>“Small noise can simply be set to zero.”</strong> A convergence theorem and
+  scaling regime are required; finite-noise formulas may become singular.</li>
+</ul>
+<h3 id="independent-practice-and-assessment-map-interpolants-and-bridges">Independent practice and assessment map: interpolants and bridges<a class="headerlink" href="#independent-practice-and-assessment-map-interpolants-and-bridges" title="Permanent link">¤</a></h3>
+<ol>
+<li><strong>P1.1 — Predict before computing: endpoint scaling.</strong> <em>Type: predict · Difficulty: foundation · Typical time: 9 min.</em> For the displayed uniform <span class="arithmatex">\(R_{01}\)</span> and required marginals, predict whether the KL-minimizing coupling is dependent. Verify the row and column sums of <span class="arithmatex">\(\pi^*\)</span>.</li>
+<li><strong>P1.2 — Execute two IPF updates.</strong> <em>Type: derive · Difficulty: core · Typical time: 10 min.</em> Starting from <span class="arithmatex">\(R_{01}\)</span>, perform the displayed row scaling and column scaling, state why a second row update is unnecessary here, and identify what property of the reference makes this happen.</li>
+<li><strong>P1.3 — Diagnose reference support failure.</strong> <em>Type: diagnose · Difficulty: core · Typical time: 10 min.</em> Replace <span class="arithmatex">\(R_{01}\)</span> by a diagonal matrix with entries <span class="arithmatex">\(1/2\)</span>. Can any finite-KL coupling have endpoint relation <span class="arithmatex">\(X_1=1-X_0\)</span> with both endpoints uniform? Justify using absolute continuity.</li>
+<li><strong>P1.4 — Compare bridge meanings.</strong> <em>Type: compare · Difficulty: foundation · Typical time: 9 min.</em> Classify fixed-value Brownian conditioning, distribution-constrained Schrödinger bridging, and deterministic quadratic-cost OT by endpoint object, stochastic reference, and optimized quantity.</li>
+<li><strong>P1.5 — Audit a zero-noise claim.</strong> <em>Type: evaluate · Difficulty: stretch · Typical time: 14 min.</em> A paper says “our bridge is OT because <span class="arithmatex">\(\varepsilon\)</span> is small.” List the minimum mathematical and finite-compute evidence needed to support an approximation claim, and reject the stronger identity claim.</li>
+<li><strong>P1.6 — Transfer to unpaired translation.</strong> <em>Type: transfer · Difficulty: stretch · Typical time: 20 min.</em> Design a bridge study between two unpaired image domains. Declare reference dynamics, endpoint constraints, semantic side information, support, fitting algorithm, finite solver, baselines, and a test for reference-induced rather than semantic pairing.</li>
+</ol>
+<h4 id="feedback-contract-interpolants-and-bridges">Feedback contract: interpolants and bridges<a class="headerlink" href="#feedback-contract-interpolants-and-bridges" title="Permanent link">¤</a></h4>
+<div class="md-typeset__table book-table-container"><table id="tbl-probability-paths-and-stochastic-transport-feedback-contract-interpolants-and-bridges-1"><caption class="book-object-caption"><span class="book-object-number">Table PATH.14.</span> Feedback contract: interpolants and bridges — table 1</caption>
+<thead>
+<tr>
+<th>Task</th>
+<th>Evidence of success</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>P1.1</td>
+<td>The product coupling and both exact marginals are verified.</td>
+</tr>
+<tr>
+<td>P1.2</td>
+<td>Both scaling steps are correct and independence explains immediate convergence.</td>
+</tr>
+<tr>
+<td>P1.3</td>
+<td>Reference zeros imply infinite KL for the requested antidiagonal coupling.</td>
+</tr>
+<tr>
+<td>P1.4</td>
+<td>Endpoint values, endpoint distributions, path-law KL, and transport cost are not conflated.</td>
+</tr>
+<tr>
+<td>P1.5</td>
+<td>Limit assumptions and finite-<span class="arithmatex">\(\varepsilon\)</span> convergence evidence are both required.</td>
+</tr>
+<tr>
+<td>P1.6</td>
+<td>Identifiability, reference choice, approximation layers, and semantic evaluation are explicit.</td>
+</tr>
+</tbody>
+</table></div>
+<details class="tip">
+<summary>Graduated hints for P1</summary>
+<div class="md-typeset__table book-table-container"><table id="tbl-probability-paths-and-stochastic-transport-feedback-contract-interpolants-and-bridges-2"><caption class="book-object-caption"><span class="book-object-number">Table PATH.15.</span> Feedback contract: interpolants and bridges — table 2</caption>
+<thead>
+<tr>
+<th>Task</th>
+<th>Hint 1 — Direction</th>
+<th>Hint 2 — Setup</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>P1.1</td>
+<td>The uniform joint is an independent reference.</td>
+<td>Multiply <span class="arithmatex">\(p_0p_1^\top\)</span> and sum rows and columns.</td>
+</tr>
+<tr>
+<td>P1.2</td>
+<td>First match rows, then columns.</td>
+<td>Column factors are <span class="arithmatex">\(4/5\)</span> and <span class="arithmatex">\(6/5\)</span>.</td>
+</tr>
+<tr>
+<td>P1.3</td>
+<td>Finite KL requires <span class="arithmatex">\(\pi\ll R_{01}\)</span>.</td>
+<td>The requested relation needs antidiagonal mass where the reference has zero mass.</td>
+</tr>
+<tr>
+<td>P1.4</td>
+<td>Ask whether an endpoint is a point or a law.</td>
+<td>OT has no finite stochastic reference unless one is added.</td>
+</tr>
+<tr>
+<td>P1.5</td>
+<td>“Small” is numerical; a limit is mathematical.</td>
+<td>Require scaling, topology, assumptions, and an <span class="arithmatex">\(\varepsilon\)</span> sweep against an OT oracle.</td>
+</tr>
+<tr>
+<td>P1.6</td>
+<td>Endpoint marginals alone do not identify semantic pairs.</td>
+<td>Compare multiple references and use paired holdout or cycle/task evidence where legitimate.</td>
+</tr>
+</tbody>
+</table></div>
+</details>
+<h4 id="outcome-to-task-alignment-interpolants-and-bridges">Outcome-to-task alignment: interpolants and bridges<a class="headerlink" href="#outcome-to-task-alignment-interpolants-and-bridges" title="Permanent link">¤</a></h4>
+<div class="md-typeset__table book-table-container"><table id="tbl-probability-paths-and-stochastic-transport-outcome-to-task-alignment-interpolants-and-bridges"><caption class="book-object-caption"><span class="book-object-number">Table PATH.16.</span> Outcome-to-task alignment: interpolants and bridges</caption>
+<thead>
+<tr>
+<th>Learning objective</th>
+<th>Independently assessed by</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>O1 — Build a stochastic interpolant</td>
+<td>P1.4, P1.6</td>
+</tr>
+<tr>
+<td>O2 — Define a Schrödinger bridge</td>
+<td>P1.1, P1.3, P1.4</td>
+</tr>
+<tr>
+<td>O3 — Connect static and dynamic views</td>
+<td>P1.1, P1.2, P1.4</td>
+</tr>
+<tr>
+<td>O4 — Separate bridges from OT</td>
+<td>P1.4, P1.5</td>
+</tr>
+<tr>
+<td>O5 — Diagnose identifiability and support</td>
+<td>P1.3, P1.6</td>
+</tr>
+<tr>
+<td>O6 — Transfer to a bridge experiment</td>
+<td>P1.6</td>
+</tr>
+</tbody>
+</table></div>
+<details class="success">
+<summary>Complete solutions to P1</summary>
+<ol>
+<li><strong>P1.1.</strong> The minimizing coupling is independent because projecting a uniform product reference onto fixed marginals preserves product form. Its rows sum to <span class="arithmatex">\((3/10+9/20,1/10+3/20)=(3/4,1/4)\)</span> and columns to <span class="arithmatex">\((3/10+1/10,9/20+3/20)=(2/5,3/5)\)</span>. <strong>Check.</strong> All entries are positive, so the KL is finite.</li>
+<li><strong>P1.2.</strong> Row factors three-halves and one-half give rows <span class="arithmatex">\((3/8,3/8)\)</span> and <span class="arithmatex">\((1/8,1/8)\)</span>. Their columns are both <span class="arithmatex">\(1/2\)</span>; multiplying columns by <span class="arithmatex">\((2/5)/(1/2)=4/5\)</span> and <span class="arithmatex">\((3/5)/(1/2)=6/5\)</span> gives <span class="arithmatex">\(\pi^*\)</span>. Because both rows had identical conditional column proportions, column scaling preserves the row totals. <strong>Check.</strong> A general dependent reference requires further alternating updates.</li>
+<li><strong>P1.3.</strong> No. Every finite-KL coupling must be absolutely continuous with respect to the diagonal reference, hence can place mass only on <span class="arithmatex">\((0,0)\)</span> and <span class="arithmatex">\((1,1)\)</span>. The relation <span class="arithmatex">\(X_1=1-X_0\)</span> requires antidiagonal mass, where <span class="arithmatex">\(R_{01}=0\)</span>, producing infinite KL. <strong>Check.</strong> Matching endpoint marginals alone does not guarantee feasible path support.</li>
+<li><strong>P1.4.</strong> A Brownian point bridge conditions a stochastic reference on <span class="arithmatex">\(X_0=x_0,X_1=x_1\)</span>. A Schrödinger bridge constrains <span class="arithmatex">\(P_0=p_0,P_1=p_1\)</span> and minimizes path-space KL to a reference. Deterministic quadratic OT chooses a coupling or continuity-equation flow minimizing squared displacement or kinetic action, with no finite stochastic reference in the basic formulation. <strong>Check.</strong> All can share endpoint locations in a special case while optimizing different objects.</li>
+<li><strong>P1.5.</strong> A defensible approximation claim states the reference-noise scaling, cost, endpoint assumptions, topology and quantity of convergence, and cites or proves the relevant limit. Finite experiments sweep <span class="arithmatex">\(\varepsilon\)</span>, discretization, and solver tolerance against an OT coupling/action oracle with uncertainty. A single small nonzero value remains a finite-noise entropic bridge, so identity with OT is unsupported. <strong>Rubric.</strong> Distinguish theorem assumptions from empirical closeness.</li>
+<li><strong>P1.6.</strong> Declare a Brownian, latent, or domain-informed reference; empirical endpoint marginals; any labels, paired subset, observation operator, or cycle constraint; feasible support; IPF/forward-backward learning; and solver schedule. Compare references and OT/diffusion/paired baselines at matched cost, evaluating endpoint realism, paired holdout task accuracy, diversity, reversibility, path cost, and sensitivity. If pair semantics change substantially across references while endpoint metrics remain fixed, the pairing is reference-induced rather than identified by marginals. <strong>Rubric.</strong> Do not call cycle consistency alone proof of the true semantic coupling.</li>
+</ol>
+</details>
+<h3 id="chapter-4-synthesis">Chapter 4 synthesis<a class="headerlink" href="#chapter-4-synthesis" title="Permanent link">¤</a></h3>
+<p>Stochastic interpolants expose a broad design space; Schrödinger bridges choose a stochastic path by relative entropy to a reference. Their relationship to flow matching and OT depends on construction and limiting assumptions. Chapter 5 adds augmented-space and discrete transports, then states what shared marginals do not guarantee.</p>
+<hr/>
+<p><strong>Previous:</strong> <a href="../probability-paths-03-flow/">3. Flow Matching</a> · <strong>Continue:</strong> <a href="../probability-paths-05-generalizations/">5. Generalized State Spaces</a> · <a href="../probability-paths-and-stochastic-transport/">Complete guide</a></p>
+</article>
+</div>
+<script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  Back to top
+</button>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+<div class="md-social">
+<a class="md-social__link" href="https://github.com/avitai/artifex" rel="noopener" target="_blank" title="github.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</a>
+<a class="md-social__link" href="https://pypi.org/project/avitai-artifex/" rel="noopener" target="_blank" title="pypi.org">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-66.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.3v101.8c0 29 25.2 46 53.4 54.3 33.8 9.9 66.3 11.7 106.8 0 26.9-7.8 53.4-23.5 53.4-54.3v-40.7H226.2v-13.6h160.2c31.1 0 42.6-21.7 53.4-54.2 11.2-33.5 10.7-65.7 0-108.6M286.2 444.7a20.4 20.4 0 1 1 0-40.7 20.4 20.4 0 1 1 0 40.7M167.8 248.1h106.8c29.7 0 53.4-24.5 53.4-54.3V91.9c0-29-24.4-50.7-53.4-55.6-35.8-5.9-74.7-5.6-106.8.1-45.2 8-53.4 24.7-53.4 55.6v40.7h106.9v13.6h-147c-31.1 0-58.3 18.7-66.8 54.2-9.8 40.7-10.2 66.1 0 108.6 7.6 31.6 25.7 54.2 56.8 54.2H101v-48.8c0-35.3 30.5-66.4 66.8-66.4m-6.6-183.4a20.4 20.4 0 1 1 0 40.8 20.4 20.4 0 1 1 0-40.8"></path></svg>
+</a>
+<a class="md-social__link" href="https://twitter.com/mahdi_shafiei" rel="noopener" target="_blank" title="twitter.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M459.4 151.7c.3 4.5.3 9.1.3 13.6 0 138.7-105.6 298.6-298.6 298.6-59.5 0-114.7-17.2-161.1-47.1 8.4 1 16.6 1.3 25.3 1.3 49.1 0 94.2-16.6 130.3-44.8-46.1-1-84.8-31.2-98.1-72.8 6.5 1 13 1.6 19.8 1.6 9.4 0 18.8-1.3 27.6-3.6-48.1-9.7-84.1-52-84.1-103v-1.3c14 7.8 30.2 12.7 47.4 13.3-28.3-18.8-46.8-51-46.8-87.4 0-19.5 5.2-37.4 14.3-53C87.4 130.8 165 172.4 252.1 176.9c-1.6-7.8-2.6-15.9-2.6-24C249.5 95.1 296.3 48 354.4 48c30.2 0 57.5 12.7 76.7 33.1 23.7-4.5 46.5-13.3 66.6-25.3-7.8 24.4-24.4 44.8-46.1 57.8 21.1-2.3 41.6-8.1 60.4-16.2-14.3 20.8-32.2 39.3-52.6 54.3"></path></svg>
+</a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.path", "navigation.top", "navigation.prune", "toc.follow", "search.highlight", "search.share", "search.suggest", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "content.mermaid"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+<script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+<script src="../../../javascripts/reading-layout.js"></script>
+</body>
+</html>

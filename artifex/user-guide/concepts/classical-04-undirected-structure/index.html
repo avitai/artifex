@@ -1,0 +1,1437 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="This chapter introduces undirected energies and then separates covariance, precision, DAG, latent, score-based, constraint-based, and task-specific dependency" name="description"/>
+<meta content="Mahdi Shafiei" name="author"/>
+<link href="https://docs.avitai.bio/artifex/user-guide/concepts/classical-04-undirected-structure/" rel="canonical"/>
+<link href="../classical-03-directed-graphs/" rel="prev"/>
+<link href="../classical-05-sequences-functions/" rel="next"/>
+<link href="../../../assets/images/favicon.png" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.7.7" name="generator"/>
+<title>Classical Models 4 — Undirected Models and Structure Learning - Artifex</title>
+<link href="../../../assets/stylesheets/main.ec1eaa64.min.css" rel="stylesheet"/>
+<link href="../../../assets/stylesheets/palette.ab4e12ef.min.css" rel="stylesheet"/>
+<script src="../../../assets/vendor/iframe-worker/index.js"></script>
+<link href="../../../assets/_mkdocstrings.css" rel="stylesheet"/>
+<link href="../../../_static/extra.css" rel="stylesheet"/>
+<script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+<meta content="article" property="og:type"/>
+<meta content="The Artifex Generative Models Book" property="og:site_name"/>
+<meta content="Classical Models 4 — Undirected Models and Structure Learning" property="og:title"/>
+<meta content="This chapter introduces undirected energies and then separates covariance, precision, DAG, latent, score-based, constraint-based, and task-specific dependency" property="og:description"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/classical-04-undirected-structure/" property="og:url"/>
+<meta content="2026-07-15" property="article:modified_time"/>
+<meta content="summary" name="twitter:card"/>
+<meta content="Classical Models 4 — Undirected Models and Structure Learning" name="twitter:title"/>
+<meta content="This chapter introduces undirected energies and then separates covariance, precision, DAG, latent, score-based, constraint-based, and task-specific dependency" name="twitter:description"/>
+<meta content="Generative models, Machine learning, Probabilistic modeling, foundation, required, canonical_chapter, classical-undirected-structure, newcomer, practitioner, researcher" name="keywords"/>
+<meta content="Classical Models 4 — Undirected Models and Structure Learning" name="citation_title"/>
+<meta content="Mahdi Shafiei" name="citation_author"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/classical-04-undirected-structure/" name="citation_public_url"/>
+<meta content="en" name="citation_language"/>
+<meta content="Classical Models 4 — Undirected Models and Structure Learning" name="DC.title"/>
+<meta content="Mahdi Shafiei" name="DC.creator"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/classical-04-undirected-structure/" name="DC.identifier"/>
+<meta content="Text.LearningResource" name="DC.type"/>
+<meta content="2026-07-15" name="DCTERMS.modified"/>
+<meta content="https://github.com/avitai/artifex/blob/main/LICENSE" name="DCTERMS.license"/>
+<meta content="foundation" name="DCTERMS.educationLevel"/>
+<meta content="newcomer, practitioner, researcher" name="DCTERMS.audience"/>
+<link href="https://github.com/avitai/artifex/blob/main/LICENSE" rel="license"/>
+<script id="artifex-book-metadata" type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Chapter",
+  "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/classical-04-undirected-structure/",
+  "url": "https://docs.avitai.bio/artifex/user-guide/concepts/classical-04-undirected-structure/",
+  "name": "Classical Models 4 \u2014 Undirected Models and Structure Learning",
+  "description": "This chapter introduces undirected energies and then separates covariance, precision, DAG, latent, score-based, constraint-based, and task-specific dependency",
+  "identifier": "classical-undirected-structure",
+  "inLanguage": "en",
+  "isAccessibleForFree": true,
+  "learningResourceType": "Canonical chapter",
+  "educationalLevel": "foundation",
+  "educationalUse": "required",
+  "audience": [
+    
+      {"@type": "EducationalAudience", "audienceType": "newcomer"},
+    
+      {"@type": "EducationalAudience", "audienceType": "practitioner"},
+    
+      {"@type": "EducationalAudience", "audienceType": "researcher"}
+    
+  ],
+  "dateModified": "2026-07-15",
+  "keywords": ["Generative models", "Machine learning", "Probabilistic modeling", "foundation", "required", "canonical_chapter", "classical-undirected-structure", "newcomer", "practitioner", "researcher"],
+  "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+  "author": [
+    
+      {"@type": "Person", "name": "Mahdi Shafiei"}
+    
+  ],
+  "isPartOf": {
+    "@type": "Book",
+    "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/#book",
+    "url": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/",
+    "name": "The Artifex Generative Models Book",
+    "bookEdition": "Living Web Edition",
+    "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+    "author": [
+      
+        {"@type": "Person", "name": "Mahdi Shafiei"}
+      
+    ]
+  }
+}
+</script>
+<link href="../../../assets/vendor/katex/katex.min.css" id="artifex-katex-stylesheet" integrity="sha384-UA8juhPf75SzzAMA/4fo3yOU7sBJ0om7SCD2GHq0fZqZco6tr1UCV7nUbk9J90JM" rel="stylesheet"/>
+<script defer="" integrity="sha384-T/0lMUdJpd2S1ZHtRiofG3htU3xPCrFVeAQ1UUE2TJwlEJSV5NUwn30kP28n238E" src="../../../assets/vendor/mermaid/mermaid.min.js"></script>
+<script defer="" src="../../../assets/vendor/katex/katex-shadow.js"></script>
+<script defer="" src="../../../javascripts/mermaid-math.js"></script>
+<script defer="" src="../../../javascripts/mathjax.js"></script>
+<script defer="" integrity="sha384-OrHfGTnIbkl0do3N76qW/uWr38o91N05sbSPuYBPLH+hG8X/dNSrjZf3AGjzrCwC" src="../../../assets/vendor/mathjax/tex-mml-chtml.js"></script>
+</head>
+<body data-md-color-accent="amber" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#classical-models-4-undirected-models-and-structure-learning">
+          Skip to content
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header md-header--shadow" data-md-component="header">
+<nav aria-label="Header" class="md-header__inner md-grid">
+<a aria-label="Artifex" class="md-header__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            Artifex
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+            
+              Classical Models 4 — Undirected Models and Structure Learning
+            
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-label="Switch to dark mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: light)" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_1" hidden="" title="Switch to dark mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+<input aria-label="Switch to light mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-primary="indigo" data-md-color-scheme="slate" id="__palette_1" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_0" hidden="" title="Switch to light mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+</form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div aria-label="Search" class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Search" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="Search" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="Search" class="md-search__options">
+<a aria-label="Share" class="md-search__icon md-icon" data-clipboard="" data-clipboard-text="" data-md-component="search-share" href="javascript:void(0)" tabindex="-1" title="Share">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"></path></svg>
+</a>
+<button aria-label="Clear" class="md-search__icon md-icon" tabindex="-1" title="Clear" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            Initializing search
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Navigation" class="md-nav md-nav--primary" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="Artifex" class="md-nav__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+    Artifex
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../..">
+<span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../getting-started/installation/">
+<span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Generative Models Book
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Generative Models Book
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    
+  
+    Start Here — The Landscape
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../first-course-01-generative-systems/">
+<span class="md-ellipsis">
+    
+  
+    First Course — New to Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Foundations
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_3_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Foundations
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../probability-01-objects/">
+<span class="md-ellipsis">
+    
+  
+    1. Probability and Generative Modeling
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_3_2" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_3_2" id="__nav_3_3_2_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    2. Classical Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_3_2_label" class="md-nav" data-md-level="3">
+<label class="md-nav__title" for="__nav_3_3_2">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    2. Classical Generative Models
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../classical-01-latent-foundations/">
+<span class="md-ellipsis">
+    
+  
+    1. Exponential and Latent-Variable Foundations
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../classical-02-factor-analysis/">
+<span class="md-ellipsis">
+    
+  
+    2. Factor Analysis and Matrix Factorization
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../classical-03-directed-graphs/">
+<span class="md-ellipsis">
+    
+  
+    3. Directed Graphical Models
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
+    
+  
+    4. Undirected Models and Structure Learning
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
+<span class="md-ellipsis">
+    
+  
+    4. Undirected Models and Structure Learning
+  
+
+    
+  </span>
+</a>
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#6-undirected-models-and-energies">
+<span class="md-ellipsis">
+      
+        6. Undirected Models and Energies
+      
+    </span>
+</a>
+<nav aria-label="6. Undirected Models and Energies" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#undirected-and-dependency-structure-learning-objectives">
+<span class="md-ellipsis">
+      
+        Undirected and dependency-structure learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#restricted-boltzmann-machines">
+<span class="md-ellipsis">
+      
+        Restricted Boltzmann Machines
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#learning-dependency-graphs-from-data">
+<span class="md-ellipsis">
+      
+        Learning Dependency Graphs from Data
+      
+    </span>
+</a>
+<nav aria-label="Learning Dependency Graphs from Data" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#gaussian-graphical-models-zeros-in-the-precision-matrix">
+<span class="md-ellipsis">
+      
+        Gaussian graphical models: zeros in the precision matrix
+      
+    </span>
+</a>
+<nav aria-label="Gaussian graphical models: zeros in the precision matrix" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-example-marginal-association-without-an-edge">
+<span class="md-ellipsis">
+      
+        Worked example: marginal association without an edge
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#discrete-neighborhoods-and-tractable-special-cases">
+<span class="md-ellipsis">
+      
+        Discrete neighborhoods and tractable special cases
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#hidden-variables-turn-sparse-structure-into-dense-dependence">
+<span class="md-ellipsis">
+      
+        Hidden variables turn sparse structure into dense dependence
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#directed-structure-score-constraints-and-equivalence-classes">
+<span class="md-ellipsis">
+      
+        Directed structure: score, constraints, and equivalence classes
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#a-selected-adjacency-is-not-yet-a-generator">
+<span class="md-ellipsis">
+      
+        A selected adjacency is not yet a generator
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#undirected-and-dependency-structure-synthesis">
+<span class="md-ellipsis">
+      
+        Undirected and dependency-structure synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../classical-05-sequences-functions/">
+<span class="md-ellipsis">
+    
+  
+    5. Topics, Functions, and Sequential Inference
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../classical-06-practice/">
+<span class="md-ellipsis">
+    
+  
+    6. Worked Synthesis and Retrieval
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../classical-generative-models/">
+<span class="md-ellipsis">
+    
+  
+    Continuous View (All Chapters)
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../bayesian-learning-01-object/">
+<span class="md-ellipsis">
+    
+  
+    3. Bayesian Learning and Model Assessment
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../inference-01-objects-and-queries/">
+<span class="md-ellipsis">
+    
+  
+    4. Latent Variables and Inference
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../objectives-01-discrepancies/">
+<span class="md-ellipsis">
+    
+  
+    5. Objectives and Statistical Distances
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../information-coding-01-measures/">
+<span class="md-ellipsis">
+    
+  
+    6. Information, Coding, and Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../graphical-models-01-directed/">
+<span class="md-ellipsis">
+    
+  
+    7. Graphical Models and Structured Probability
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../message-passing-01-factor-graphs/">
+<span class="md-ellipsis">
+    
+  
+    8. Graphical Inference and Message Passing
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../filtering-01-bayes-recursions/">
+<span class="md-ellipsis">
+    
+  
+    9. Filtering and Smoothing for State-Space Generators
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../sampling-01-monte-carlo/">
+<span class="md-ellipsis">
+    
+  
+    10. Sampling and Continuous Time
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../smc-01-targets/">
+<span class="md-ellipsis">
+    
+  
+    11. Sequential Monte Carlo and Particle Methods
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../optimization-01-differentiation/">
+<span class="md-ellipsis">
+    
+  
+    12. Optimization and Learning Dynamics
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../generative-models-notation/">
+<span class="md-ellipsis">
+    
+  
+    13. Canonical Notation
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../autoregressive-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Model Families
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gradients-01-taxonomy/">
+<span class="md-ellipsis">
+    
+  
+    Connections and Compositions
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../normalization-01-queries/">
+<span class="md-ellipsis">
+    
+  
+    Research Practice
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../models/vae-guide/">
+<span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/core/base/">
+<span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../examples/overview/">
+<span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../zoo/">
+<span class="md-ellipsis">
+    
+  
+    Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../training/overview/">
+<span class="md-ellipsis">
+    
+  
+    Training
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../data/overview/">
+<span class="md-ellipsis">
+    
+  
+    Data &amp; Modalities
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../inference/overview/">
+<span class="md-ellipsis">
+    
+  
+    Inference &amp; Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../benchmarks/">
+<span class="md-ellipsis">
+    
+  
+    Evaluation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../guides/extensions/">
+<span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../extensions/">
+<span class="md-ellipsis">
+    
+  
+    Advanced Topics
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../cli/">
+<span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../community/contributing/">
+<span class="md-ellipsis">
+    
+  
+    Community
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/configs/protein-extension/">
+<span class="md-ellipsis">
+    
+  
+    Reference Library
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#6-undirected-models-and-energies">
+<span class="md-ellipsis">
+      
+        6. Undirected Models and Energies
+      
+    </span>
+</a>
+<nav aria-label="6. Undirected Models and Energies" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#undirected-and-dependency-structure-learning-objectives">
+<span class="md-ellipsis">
+      
+        Undirected and dependency-structure learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#restricted-boltzmann-machines">
+<span class="md-ellipsis">
+      
+        Restricted Boltzmann Machines
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#learning-dependency-graphs-from-data">
+<span class="md-ellipsis">
+      
+        Learning Dependency Graphs from Data
+      
+    </span>
+</a>
+<nav aria-label="Learning Dependency Graphs from Data" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#gaussian-graphical-models-zeros-in-the-precision-matrix">
+<span class="md-ellipsis">
+      
+        Gaussian graphical models: zeros in the precision matrix
+      
+    </span>
+</a>
+<nav aria-label="Gaussian graphical models: zeros in the precision matrix" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-example-marginal-association-without-an-edge">
+<span class="md-ellipsis">
+      
+        Worked example: marginal association without an edge
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#discrete-neighborhoods-and-tractable-special-cases">
+<span class="md-ellipsis">
+      
+        Discrete neighborhoods and tractable special cases
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#hidden-variables-turn-sparse-structure-into-dense-dependence">
+<span class="md-ellipsis">
+      
+        Hidden variables turn sparse structure into dense dependence
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#directed-structure-score-constraints-and-equivalence-classes">
+<span class="md-ellipsis">
+      
+        Directed structure: score, constraints, and equivalence classes
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#a-selected-adjacency-is-not-yet-a-generator">
+<span class="md-ellipsis">
+      
+        A selected adjacency is not yet a generator
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#undirected-and-dependency-structure-synthesis">
+<span class="md-ellipsis">
+      
+        Undirected and dependency-structure synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<nav aria-label="Breadcrumb" class="md-path">
+<ol class="md-path__list">
+<li class="md-path__item">
+<a class="md-path__link" href="../../..">
+<span class="md-ellipsis">
+    Home
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    Generative Models Book
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../probability-01-objects/">
+<span class="md-ellipsis">
+    Foundations
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../classical-01-latent-foundations/">
+<span class="md-ellipsis">
+    2. Classical Generative Models
+  </span>
+</a>
+</li>
+</ol>
+</nav>
+<article class="md-content__inner md-typeset">
+<h1 id="classical-models-4-undirected-models-and-structure-learning">Classical Models 4 — Undirected Models and Structure Learning<a class="headerlink" href="#classical-models-4-undirected-models-and-structure-learning" title="Permanent link">¤</a></h1><aside aria-label="Learning path" class="admonition abstract artifex-learning-path"><p class="admonition-title">Learning path</p><p><strong>Required knowledge</strong></p><ul class="artifex-learning-path__links" data-learning-path-role="required"><li><a href="../classical-03-directed-graphs/">Classical Models 3 — Directed Graphical Models</a></li></ul><p><strong>Readiness check:</strong> can you explain the central object and reproduce one worked example from each required chapter? If not, follow its link before continuing.</p><p><strong>Newly unlocked in the default route</strong></p><ul class="artifex-learning-path__links" data-learning-path-role="unlocks"><li><a href="../classical-05-sequences-functions/">Classical Models 5 — Topics, Functions, and Sequential Inference</a></li></ul></aside>
+<p>This chapter introduces undirected energies and then separates covariance,
+precision, DAG, latent, score-based, constraint-based, and task-specific
+dependency learning. For uninterrupted reading, use the <a href="../classical-generative-models/#6-undirected-models-and-energies">continuous
+view</a>.</p>
+<h2 id="6-undirected-models-and-energies">6. Undirected Models and Energies<a class="headerlink" href="#6-undirected-models-and-energies" title="Permanent link">¤</a></h2>
+<h3 id="undirected-and-dependency-structure-learning-objectives">Undirected and dependency-structure learning objectives<a class="headerlink" href="#undirected-and-dependency-structure-learning-objectives" title="Permanent link">¤</a></h3>
+<p>This projection assumes exponential families, conditional independence, and
+matrix algebra. By the end, you should be able to distinguish an energy from its
+normalized undirected law, derive RBM conditional structure, relate zeros in a
+Gaussian precision matrix to conditional independence, work the marginal-
+association counterexample, and compare neighborhood selection, score-based DAG
+search, equivalence classes, and latent-induced dependence.</p>
+<p>An undirected graphical model has</p>
+<div class="arithmatex">\[
+p(x)=\frac1Z\prod_{c\in\mathcal C}\psi_c(x_c)
+=\frac{e^{-E(x)}}Z.
+\]</div>
+<p>Local factors make constraints and symmetric relations easy to express, but the partition function couples all configurations. Conditional random fields apply the same structure to <span class="arithmatex">\(p(y\mid x)\)</span>.</p>
+<p>For a pairwise Markov random field,</p>
+<div class="arithmatex">\[
+p(x)\propto\prod_i\psi_i(x_i)\prod_{(i,j)\in E}\psi_{ij}(x_i,x_j).
+\]</div>
+<p>On a tree, messages from <span class="arithmatex">\(i\)</span> to <span class="arithmatex">\(j\)</span> take the form</p>
+<div class="arithmatex">\[
+m_{i\to j}(x_j)=\sum_{x_i}\psi_i(x_i)\psi_{ij}(x_i,x_j)
+\prod_{k\in N(i)\setminus j}m_{k\to i}(x_i).
+\]</div>
+<p>After two passes, local products of incoming messages yield exact node marginals. On graphs with loops, the same updates become loopy belief propagation: often useful, but no longer guaranteed to converge or return exact marginals.</p>
+<h3 id="restricted-boltzmann-machines">Restricted Boltzmann Machines<a class="headerlink" href="#restricted-boltzmann-machines" title="Permanent link">¤</a></h3>
+<p>An RBM uses visible <span class="arithmatex">\(v\)</span> and hidden <span class="arithmatex">\(h\)</span> units with bipartite energy</p>
+<div class="arithmatex">\[
+E(v,h)=-b^\top v-c^\top h-v^\top Wh.
+\]</div>
+<p>The bipartite graph makes <span class="arithmatex">\(p(h\mid v)\)</span> and <span class="arithmatex">\(p(v\mid h)\)</span> factorize, enabling block Gibbs updates. The <a href="../sampling-and-continuous-time/#4-gibbs-blocks-and-auxiliary-variables">canonical Gibbs and blocking contract</a> explains why acceptance is one without implying rapid mixing. The marginal likelihood still contains an intractable partition function, motivating contrastive divergence. Deep belief networks stacked RBMs historically before end-to-end VAEs and GANs became dominant.</p>
+<p>Contrastive divergence initializes a short Markov chain at data and uses its endpoint as an approximate negative-phase sample. It is not the exact likelihood gradient unless the chain reaches equilibrium. Persistent contrastive divergence keeps chains across updates to reduce repeated burn-in, but changing parameters mean the chain target also moves. These limitations reappear in modern neural EBMs.</p>
+<p>A <strong>deep belief network</strong> is a historical hybrid with an undirected top pair and directed lower layers; it is not the generic name for any deep Bayesian network. A <strong>deep Boltzmann machine</strong> remains undirected across layers and requires approximate posterior inference.</p>
+<h2 id="learning-dependency-graphs-from-data">Learning Dependency Graphs from Data<a class="headerlink" href="#learning-dependency-graphs-from-data" title="Permanent link">¤</a></h2>
+<p>So far the graph has been part of the model specification. In many applications,
+however, the graph is unknown and must be selected from repeated observations.
+Before choosing an algorithm, identify which graph is being learned:</p>
+<figure class="book-figure" id="fig-classical-generative-models-learning-dependency-graphs-from-data"><pre class="mermaid"><code>flowchart TB
+    subgraph upper[" "]
+        direction LR
+        observations["Repeated measurements of a fixed set of variables"] --&gt; dependency["Dependency graph&lt;br/&gt;which conditional independences organize one joint law?"]
+        relational["One or more observed relational structures"] --&gt; random["Random-graph law&lt;br/&gt;which probability generates nodes, edges, and attributes?"]
+    end
+    subgraph lower[" "]
+        direction LR
+        regimes["Observational and interventional regimes"] --&gt; causal["Causal graph&lt;br/&gt;which mechanisms support interventions and counterfactuals?"]
+        task["Features, labels, and a prediction task"] --&gt; computation["Learned computation graph&lt;br/&gt;which information paths improve the declared task?"]
+    end
+    upper ~~~ lower</code></pre><figcaption class="book-object-caption"><span class="book-object-number">Figure CLASS.8.</span> Learning Dependency Graphs from Data</figcaption></figure>
+<p>These objects can share an adjacency-matrix representation while answering
+different questions. This section concerns the first object: selecting the
+factorization or conditional-independence structure of a distribution over a
+fixed collection of variables. The <a href="../random-graphs-and-relational-generators/#five-objects-that-are-often-confused">random-graph
+volume</a>
+owns graph-valued observations, the <a href="../causal-generative-models-explained/#5-causal-discovery-bayesian-structure-learning-and-gflownets">causal
+volume</a>
+owns intervention semantics, and the <a href="../graphical-models-and-structured-probability/#four-levels-of-graphical-fit">graphical-inference
+model volume</a>
+owns the factorization, separation, and graph-semantics contract, while the
+<a href="../graphical-inference-and-message-passing/#five-graphs-that-answer-different-questions">graphical-inference volume</a>
+owns queries once the factors have been declared.</p>
+<h3 id="gaussian-graphical-models-zeros-in-the-precision-matrix">Gaussian graphical models: zeros in the precision matrix<a class="headerlink" href="#gaussian-graphical-models-zeros-in-the-precision-matrix" title="Permanent link">¤</a></h3>
+<p>Let <span class="arithmatex">\(X\in\mathbb R^D\)</span> have a nonsingular Gaussian law</p>
+<div class="arithmatex">\[
+X\sim\mathcal N(\mu,\Sigma),
+\qquad
+\Theta=\Sigma^{-1}.
+\]</div>
+<p>For distinct coordinates <span class="arithmatex">\(i\)</span> and <span class="arithmatex">\(j\)</span>,</p>
+<div class="arithmatex">\[
+\begin{aligned}
+\Theta_{ij}=0
+&amp;\quad\Longleftrightarrow\quad
+X_i\perp X_j\mid R_{ij},\\
+R_{ij}
+&amp;=X_{\{1,\ldots,D\}\setminus\{i,j\}}.
+\end{aligned}
+\]</div>
+<p>Thus the off-diagonal support of the <strong>precision</strong> matrix, not the covariance
+matrix, defines the undirected conditional-independence graph. The equivalence
+uses the nonsingular multivariate-Gaussian model. Zero covariance does not
+encode conditional independence for arbitrary non-Gaussian distributions, and
+a nonzero covariance between two Gaussian coordinates can coexist with their
+conditional independence given the remaining coordinates.</p>
+<p>For centered IID observations <span class="arithmatex">\(x^{(1)},\ldots,x^{(N)}\)</span> with sample covariance
+<span class="arithmatex">\(S=N^{-1}\sum_n x^{(n)}x^{(n)\top}\)</span>, the average Gaussian log likelihood,
+up to constants independent of <span class="arithmatex">\(\Theta\)</span>, is</p>
+<div class="arithmatex">\[
+\begin{aligned}
+\ell(\Theta)
+&amp;=\frac12\bigl[
+\log\det\Theta-\operatorname{tr}(S\Theta)
+\bigr],\\
+&amp;\hspace{7em}\Theta\succ0.
+\end{aligned}
+\]</div>
+<p>When <span class="arithmatex">\(D\)</span> is not small relative to <span class="arithmatex">\(N\)</span>, the unregularized sample covariance may
+be noisy or singular. One graphical-lasso convention defines</p>
+<div class="arithmatex">\[
+\widehat\Theta_\lambda
+=\underset{\Theta\succ0}{\arg\min}\;\mathcal J_\lambda(\Theta),
+\]</div>
+<p>where</p>
+<div class="arithmatex">\[
+\begin{aligned}
+\mathcal J_\lambda(\Theta)
+&amp;=-\log\det\Theta+\operatorname{tr}(S\Theta)\\
+&amp;\quad+\lambda\sum_{i\ne j}|\Theta_{ij}|.
+\end{aligned}
+\]</div>
+<p>Here the diagonal is not penalized; implementations that use
+<span class="arithmatex">\(\lVert\Theta\rVert_1\)</span> instead must state whether diagonal entries are included.
+The penalty estimates parameters and selects edges simultaneously. It does not
+make <span class="arithmatex">\(\lambda\)</span> a property of nature: changing <span class="arithmatex">\(\lambda\)</span> changes the selected
+graph. Cross-validated held-out likelihood, stability under resampling,
+domain constraints, and error control answer different selection questions and
+need not choose the same graph.</p>
+<h4 id="worked-example-marginal-association-without-an-edge">Worked example: marginal association without an edge<a class="headerlink" href="#worked-example-marginal-association-without-an-edge" title="Permanent link">¤</a></h4>
+<p>Consider the precision matrix</p>
+<div class="arithmatex">\[
+\Theta=
+\begin{bmatrix}
+2&amp;-1&amp;0\\
+-1&amp;2&amp;-1\\
+0&amp;-1&amp;2
+\end{bmatrix}.
+\]</div>
+<p>Its inverse is</p>
+<div class="arithmatex">\[
+\Sigma=\Theta^{-1}
+=\frac14
+\begin{bmatrix}
+3&amp;2&amp;1\\
+2&amp;4&amp;2\\
+1&amp;2&amp;3
+\end{bmatrix}.
+\]</div>
+<p>The covariance <span class="arithmatex">\(\Sigma_{13}=1/4\)</span> is nonzero, so <span class="arithmatex">\(X_1\)</span> and <span class="arithmatex">\(X_3\)</span> are marginally
+associated. Yet <span class="arithmatex">\(\Theta_{13}=0\)</span>. Direct Gaussian conditioning gives</p>
+<div class="arithmatex">\[
+\begin{aligned}
+C_{13\mid2}
+&amp;\equiv\operatorname{Cov}(X_1,X_3\mid X_2),\\
+C_{13\mid2}
+&amp;=\Sigma_{13}-\Sigma_{12}\Sigma_{22}^{-1}\Sigma_{23},\\
+&amp;=\frac14-\frac12(1)\frac12=0.
+\end{aligned}
+\]</div>
+<p>The chain <span class="arithmatex">\(1-2-3\)</span> therefore explains the endpoint association through the
+middle variable. Thresholding the covariance matrix would add the wrong edge;
+thresholding an estimated precision matrix without uncertainty analysis can
+still add or delete edges because the estimate is noisy.</p>
+<h3 id="discrete-neighborhoods-and-tractable-special-cases">Discrete neighborhoods and tractable special cases<a class="headerlink" href="#discrete-neighborhoods-and-tractable-special-cases" title="Permanent link">¤</a></h3>
+<p>For binary spins <span class="arithmatex">\(x_i\in\{-1,+1\}\)</span>, a pairwise Ising model has</p>
+<div class="arithmatex">\[
+\begin{aligned}
+p(x)&amp;=\frac1Z\exp\bigl(U(x)\bigr),\\
+U(x)&amp;=\sum_i h_i x_i+\sum_{i&lt;j}J_{ij}x_ix_j.
+\end{aligned}
+\]</div>
+<p>Under this strictly positive pairwise model, <span class="arithmatex">\(J_{ij}=0\)</span> removes the direct
+conditional dependence between <span class="arithmatex">\(X_i\)</span> and <span class="arithmatex">\(X_j\)</span>. The global normalizer is
+usually expensive, but each node conditional is logistic. <strong>Neighborhood
+selection</strong> fits one sparse conditional regression per node; a symmetric graph
+then needs an explicit AND or OR reconciliation rule. <strong>Pseudolikelihood</strong>
+multiplies such node conditionals and avoids evaluating <span class="arithmatex">\(Z\)</span>, but it is not the
+joint likelihood. Its statistical guarantees require the stated sparsity,
+signal, regularity, sample-size, and model-correctness assumptions.</p>
+<p>Trees provide an important exact boundary. For a discrete distribution, the
+Chow--Liu construction selects the maximum-weight spanning tree using empirical
+pairwise mutual informations. At the population level it gives the
+tree-structured distribution minimizing forward KL divergence to the target;
+with finite samples, mutual-information estimation and small edge gaps create
+structure uncertainty. A tractable tree approximation is not evidence that
+the data-generating graph is truly a tree.</p>
+<h3 id="hidden-variables-turn-sparse-structure-into-dense-dependence">Hidden variables turn sparse structure into dense dependence<a class="headerlink" href="#hidden-variables-turn-sparse-structure-into-dense-dependence" title="Permanent link">¤</a></h3>
+<p>A sparse graph on observed and hidden variables need not remain sparse after
+the hidden variables are marginalized. Partition a joint Gaussian precision
+matrix between observed variables <span class="arithmatex">\(O\)</span> and latent variables <span class="arithmatex">\(H\)</span>. The marginal
+observed precision is the Schur complement</p>
+<div class="arithmatex">\[
+\begin{aligned}
+\Theta_{O,\mathrm{marg}}
+&amp;=K_{OO}-K_{OH}K_{HH}^{-1}K_{HO}\\
+&amp;=S-L.
+\end{aligned}
+\]</div>
+<p>where <span class="arithmatex">\(S=K_{OO}\)</span> may be sparse and
+<span class="arithmatex">\(L=K_{OH}K_{HH}^{-1}K_{HO}\succeq0\)</span> has rank no greater than the number of
+latent coordinates. One hidden common neighbor can therefore induce many
+nonzero observed precision entries. Sparse-plus-low-rank estimators attempt to
+separate direct observed interactions from latent common variation, but that
+decomposition is not automatic: recovery needs sufficient samples, signal,
+rank and sparsity control, and geometric conditions that keep the sparse and
+low-rank components distinguishable.</p>
+<p>For example, take</p>
+<div class="arithmatex">\[
+\begin{aligned}
+K_{OO}&amp;=2I_2,\\
+K_{OH}&amp;=\begin{bmatrix}1\\1\end{bmatrix},\\
+K_{HH}&amp;=2.
+\end{aligned}
+\]</div>
+<p>The low-rank correction is</p>
+<div class="arithmatex">\[
+L=\frac12
+\begin{bmatrix}1&amp;1\\1&amp;1\end{bmatrix}.
+\]</div>
+<p>There is no direct observed-to-observed precision edge in <span class="arithmatex">\(K_{OO}\)</span>, yet</p>
+<div class="arithmatex">\[
+\Theta_{O,\mathrm{marg}}
+=2I_2-L
+=\begin{bmatrix}3/2&amp;-1/2\\-1/2&amp;3/2\end{bmatrix}.
+\]</div>
+<p>The induced off-diagonal entry is a concrete warning: an observed dependency
+edge may summarize an unobserved common cause rather than a direct relation.</p>
+<h3 id="directed-structure-score-constraints-and-equivalence-classes">Directed structure: score, constraints, and equivalence classes<a class="headerlink" href="#directed-structure-score-constraints-and-equivalence-classes" title="Permanent link">¤</a></h3>
+<p>For a Bayesian network, structure learning searches over DAG factorizations
+rather than precision-matrix supports. Common strategies are:</p>
+<div class="md-typeset__table book-table-container"><table id="tbl-classical-generative-models-directed-structure-score-constraints-and-equivalence-classes"><caption class="book-object-caption"><span class="book-object-number">Table CLASS.10.</span> Directed structure: score, constraints, and equivalence classes</caption>
+<thead>
+<tr>
+<th>Strategy</th>
+<th>Main signal</th>
+<th>Output and boundary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>score based</td>
+<td>likelihood, marginal likelihood, BIC, or another decomposable score</td>
+<td>one optimum, a search path, or weighted structures; combinatorial search and prior/score choices remain</td>
+</tr>
+<tr>
+<td>constraint based</td>
+<td>conditional-independence tests</td>
+<td>a graph or equivalence class under Markov, faithfulness, test, and sampling assumptions</td>
+</tr>
+<tr>
+<td>hybrid</td>
+<td>constraints restrict a score search</td>
+<td>inherits both sets of assumptions and tuning choices</td>
+</tr>
+<tr>
+<td>Bayesian</td>
+<td><span class="arithmatex">\(p(G\mid D)\propto p(D\mid G)p(G)\)</span></td>
+<td>a posterior or approximation over graphs relative to the declared prior and mechanism family</td>
+</tr>
+</tbody>
+</table></div>
+<p>Many DAGs encode the same observational conditional independences. The three
+graphs <span class="arithmatex">\(X\to Y\to Z\)</span>, <span class="arithmatex">\(X\leftarrow Y\leftarrow Z\)</span>, and
+<span class="arithmatex">\(X\leftarrow Y\to Z\)</span> share a skeleton and contain no unshielded collider, so
+an observational score that is equivalent across Markov-equivalent DAGs
+should not be read as orienting their edges. A fixed variable ordering,
+interventions, temporal assumptions, or a restricted functional/noise family
+can reduce the class, but each adds an assumption rather than extracting
+orientation from the same observational facts for free.</p>
+<p>The <a href="../causal-generative-models-explained/#the-target-of-discovery">causal-discovery chapter</a>
+develops these identification conditions, continuous acyclicity constraints,
+latent confounding, interventional data, and posterior sampling over DAGs. In
+this chapter a learned DAG is only a factorization of an observational joint
+law unless causal semantics have been separately justified.</p>
+<h3 id="a-selected-adjacency-is-not-yet-a-generator">A selected adjacency is not yet a generator<a class="headerlink" href="#a-selected-adjacency-is-not-yet-a-generator" title="Permanent link">¤</a></h3>
+<p>An adjacency matrix by itself specifies neither local probability factors nor
+a normalized joint law. After selecting structure, one must fit conditional
+distributions or potentials, declare the support and base measure, and establish
+the relevant normalizer, inference, and sampling procedures. Gaussian
+graphical models are a favorable case: a positive-definite fitted precision
+matrix immediately defines a normalized Gaussian law. A collection of
+unreconciled neighborhood regressions or attention weights does not.</p>
+<p>Graph learning inside a GNN supplies another instructive boundary.
+<a href="https://openreview.net/forum?id=fVMr2sTow5">Variational graph structure learning by marginal
+likelihood</a> learns a distribution
+over adjacencies jointly with a GNN for a declared node-prediction task. Its
+adjacency is conditioned on that task, architecture, graph prior, variational
+family, and approximation. It is not automatically the Markov graph of a joint
+distribution over measured variables, the law of a random graph, or a causal
+graph. Conversely, results on <a href="https://proceedings.neurips.cc/paper_files/paper/2025/hash/1ecbfd5ea3a5745d5302c0c3ee35eb3a-Abstract-Conference.html">learning Bayes nets with a fixed chordal
+skeleton and bounded
+indegree</a>
+are distribution-learning results under that structural regime, not generic
+evidence that unrestricted DAG search is easy.</p>
+<div class="admonition failure">
+<p class="admonition-title">Counterexample: predictive edges need not recover dependencies</p>
+<p>Suppose a label is predictable from either of two strongly correlated features. A task-trained graph can retain one route and suppress the other with no loss in prediction, even when both variables participate in the observational dependency law. Predictive adequacy, conditional-independence recovery, and causal recovery use different targets.</p>
+</div>
+<details class="question">
+<summary>Retrieval practice: which graph was learned?</summary>
+<ol>
+<li>Why does <span class="arithmatex">\(\Sigma_{13}\ne0\)</span> not force an edge <span class="arithmatex">\(1-3\)</span> in a Gaussian graphical model?</li>
+<li>What does the graphical-lasso penalty parameter control?</li>
+<li>How can one latent Gaussian variable make an observed precision matrix dense?</li>
+<li>Why should a score-equivalent Bayesian-network learner return an equivalence class rather than one confident orientation?</li>
+<li>What is still missing after an adjacency matrix has been selected?</li>
+</ol>
+<p><strong>Solutions.</strong> (1) Gaussian edges correspond to nonzero precision entries, or equivalently nonzero partial correlations after conditioning on the other coordinates; the worked example has nonzero marginal covariance but zero conditional covariance. (2) It trades likelihood fit against sparsity and therefore changes both parameter shrinkage and edge selection; it is a tuning choice, not a discovered physical constant. (3) Marginalization subtracts the low-rank Schur-complement term <span class="arithmatex">\(K_{OH}K_{HH}^{-1}K_{HO}\)</span>, whose off-diagonal entries can connect many observed variables. (4) Markov-equivalent DAGs encode the same observational independences and receive the same score under the stated criterion; selecting one orientation would hide unresolved structure. (5) Local normalized conditionals or potentials, their parameters, support and base measure, and valid normalization, inference, and sampling procedures.</p>
+</details>
+<h2 id="undirected-and-dependency-structure-synthesis">Undirected and dependency-structure synthesis<a class="headerlink" href="#undirected-and-dependency-structure-synthesis" title="Permanent link">¤</a></h2>
+<p>Undirected energies specify local compatibility only after a base measure and
+normalizer are supplied. Sparse precision or neighborhood structure represents
+conditional rather than marginal independence, and hidden variables can make
+marginals dense. Learning an adjacency or equivalence class is therefore a
+model-selection result, not yet a complete generator.</p>
+<hr/>
+<p><strong>Continue:</strong> <a href="../classical-05-sequences-functions/">5. Topics, Functions, and Sequential Inference</a> · <a href="../classical-generative-models/">Continuous view</a></p>
+</article>
+</div>
+<script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  Back to top
+</button>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+<div class="md-social">
+<a class="md-social__link" href="https://github.com/avitai/artifex" rel="noopener" target="_blank" title="github.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</a>
+<a class="md-social__link" href="https://pypi.org/project/avitai-artifex/" rel="noopener" target="_blank" title="pypi.org">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-66.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.3v101.8c0 29 25.2 46 53.4 54.3 33.8 9.9 66.3 11.7 106.8 0 26.9-7.8 53.4-23.5 53.4-54.3v-40.7H226.2v-13.6h160.2c31.1 0 42.6-21.7 53.4-54.2 11.2-33.5 10.7-65.7 0-108.6M286.2 444.7a20.4 20.4 0 1 1 0-40.7 20.4 20.4 0 1 1 0 40.7M167.8 248.1h106.8c29.7 0 53.4-24.5 53.4-54.3V91.9c0-29-24.4-50.7-53.4-55.6-35.8-5.9-74.7-5.6-106.8.1-45.2 8-53.4 24.7-53.4 55.6v40.7h106.9v13.6h-147c-31.1 0-58.3 18.7-66.8 54.2-9.8 40.7-10.2 66.1 0 108.6 7.6 31.6 25.7 54.2 56.8 54.2H101v-48.8c0-35.3 30.5-66.4 66.8-66.4m-6.6-183.4a20.4 20.4 0 1 1 0 40.8 20.4 20.4 0 1 1 0-40.8"></path></svg>
+</a>
+<a class="md-social__link" href="https://twitter.com/mahdi_shafiei" rel="noopener" target="_blank" title="twitter.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M459.4 151.7c.3 4.5.3 9.1.3 13.6 0 138.7-105.6 298.6-298.6 298.6-59.5 0-114.7-17.2-161.1-47.1 8.4 1 16.6 1.3 25.3 1.3 49.1 0 94.2-16.6 130.3-44.8-46.1-1-84.8-31.2-98.1-72.8 6.5 1 13 1.6 19.8 1.6 9.4 0 18.8-1.3 27.6-3.6-48.1-9.7-84.1-52-84.1-103v-1.3c14 7.8 30.2 12.7 47.4 13.3-28.3-18.8-46.8-51-46.8-87.4 0-19.5 5.2-37.4 14.3-53C87.4 130.8 165 172.4 252.1 176.9c-1.6-7.8-2.6-15.9-2.6-24C249.5 95.1 296.3 48 354.4 48c30.2 0 57.5 12.7 76.7 33.1 23.7-4.5 46.5-13.3 66.6-25.3-7.8 24.4-24.4 44.8-46.1 57.8 21.1-2.3 41.6-8.1 60.4-16.2-14.3 20.8-32.2 39.3-52.6 54.3"></path></svg>
+</a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.path", "navigation.top", "navigation.prune", "toc.follow", "search.highlight", "search.share", "search.suggest", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "content.mermaid"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+<script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+<script src="../../../javascripts/reading-layout.js"></script>
+</body>
+</html>

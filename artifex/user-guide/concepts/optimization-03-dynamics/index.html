@@ -1,0 +1,1294 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="This chapter develops optimizer state, Fisher geometry, curvature boundaries, adversarial games, and structured optimizer evidence. Read it continuously in the" name="description"/>
+<meta content="Mahdi Shafiei" name="author"/>
+<link href="https://docs.avitai.bio/artifex/user-guide/concepts/optimization-03-dynamics/" rel="canonical"/>
+<link href="../optimization-02-stochastic-gradients/" rel="prev"/>
+<link href="../optimization-04-latent-learning/" rel="next"/>
+<link href="../../../assets/images/favicon.png" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.7.7" name="generator"/>
+<title>Optimization 3 — Geometry and Dynamics - Artifex</title>
+<link href="../../../assets/stylesheets/main.ec1eaa64.min.css" rel="stylesheet"/>
+<link href="../../../assets/stylesheets/palette.ab4e12ef.min.css" rel="stylesheet"/>
+<script src="../../../assets/vendor/iframe-worker/index.js"></script>
+<link href="../../../assets/_mkdocstrings.css" rel="stylesheet"/>
+<link href="../../../_static/extra.css" rel="stylesheet"/>
+<script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+<meta content="article" property="og:type"/>
+<meta content="The Artifex Generative Models Book" property="og:site_name"/>
+<meta content="Optimization 3 — Geometry and Dynamics" property="og:title"/>
+<meta content="This chapter develops optimizer state, Fisher geometry, curvature boundaries, adversarial games, and structured optimizer evidence. Read it continuously in the" property="og:description"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/optimization-03-dynamics/" property="og:url"/>
+<meta content="2026-07-15" property="article:modified_time"/>
+<meta content="summary" name="twitter:card"/>
+<meta content="Optimization 3 — Geometry and Dynamics" name="twitter:title"/>
+<meta content="This chapter develops optimizer state, Fisher geometry, curvature boundaries, adversarial games, and structured optimizer evidence. Read it continuously in the" name="twitter:description"/>
+<meta content="Generative models, Machine learning, Probabilistic modeling, advanced, specialization, canonical_chapter, optimization-dynamics, practitioner, researcher" name="keywords"/>
+<meta content="Optimization 3 — Geometry and Dynamics" name="citation_title"/>
+<meta content="Mahdi Shafiei" name="citation_author"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/optimization-03-dynamics/" name="citation_public_url"/>
+<meta content="en" name="citation_language"/>
+<meta content="Optimization 3 — Geometry and Dynamics" name="DC.title"/>
+<meta content="Mahdi Shafiei" name="DC.creator"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/optimization-03-dynamics/" name="DC.identifier"/>
+<meta content="Text.LearningResource" name="DC.type"/>
+<meta content="2026-07-15" name="DCTERMS.modified"/>
+<meta content="https://github.com/avitai/artifex/blob/main/LICENSE" name="DCTERMS.license"/>
+<meta content="advanced" name="DCTERMS.educationLevel"/>
+<meta content="practitioner, researcher" name="DCTERMS.audience"/>
+<link href="https://github.com/avitai/artifex/blob/main/LICENSE" rel="license"/>
+<script id="artifex-book-metadata" type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Chapter",
+  "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/optimization-03-dynamics/",
+  "url": "https://docs.avitai.bio/artifex/user-guide/concepts/optimization-03-dynamics/",
+  "name": "Optimization 3 \u2014 Geometry and Dynamics",
+  "description": "This chapter develops optimizer state, Fisher geometry, curvature boundaries, adversarial games, and structured optimizer evidence. Read it continuously in the",
+  "identifier": "optimization-dynamics",
+  "inLanguage": "en",
+  "isAccessibleForFree": true,
+  "learningResourceType": "Canonical chapter",
+  "educationalLevel": "advanced",
+  "educationalUse": "specialization",
+  "audience": [
+    
+      {"@type": "EducationalAudience", "audienceType": "practitioner"},
+    
+      {"@type": "EducationalAudience", "audienceType": "researcher"}
+    
+  ],
+  "dateModified": "2026-07-15",
+  "keywords": ["Generative models", "Machine learning", "Probabilistic modeling", "advanced", "specialization", "canonical_chapter", "optimization-dynamics", "practitioner", "researcher"],
+  "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+  "author": [
+    
+      {"@type": "Person", "name": "Mahdi Shafiei"}
+    
+  ],
+  "isPartOf": {
+    "@type": "Book",
+    "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/#book",
+    "url": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/",
+    "name": "The Artifex Generative Models Book",
+    "bookEdition": "Living Web Edition",
+    "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+    "author": [
+      
+        {"@type": "Person", "name": "Mahdi Shafiei"}
+      
+    ]
+  }
+}
+</script>
+<script defer="" src="../../../javascripts/mathjax.js"></script>
+<script defer="" integrity="sha384-OrHfGTnIbkl0do3N76qW/uWr38o91N05sbSPuYBPLH+hG8X/dNSrjZf3AGjzrCwC" src="../../../assets/vendor/mathjax/tex-mml-chtml.js"></script>
+</head>
+<body data-md-color-accent="amber" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#optimization-3-geometry-and-dynamics">
+          Skip to content
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header md-header--shadow" data-md-component="header">
+<nav aria-label="Header" class="md-header__inner md-grid">
+<a aria-label="Artifex" class="md-header__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            Artifex
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+            
+              Optimization 3 — Geometry and Dynamics
+            
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-label="Switch to dark mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: light)" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_1" hidden="" title="Switch to dark mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+<input aria-label="Switch to light mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-primary="indigo" data-md-color-scheme="slate" id="__palette_1" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_0" hidden="" title="Switch to light mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+</form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div aria-label="Search" class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Search" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="Search" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="Search" class="md-search__options">
+<a aria-label="Share" class="md-search__icon md-icon" data-clipboard="" data-clipboard-text="" data-md-component="search-share" href="javascript:void(0)" tabindex="-1" title="Share">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"></path></svg>
+</a>
+<button aria-label="Clear" class="md-search__icon md-icon" tabindex="-1" title="Clear" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            Initializing search
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Navigation" class="md-nav md-nav--primary" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="Artifex" class="md-nav__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+    Artifex
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../..">
+<span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../getting-started/installation/">
+<span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Generative Models Book
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Generative Models Book
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    
+  
+    Start Here — The Landscape
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../first-course-01-generative-systems/">
+<span class="md-ellipsis">
+    
+  
+    First Course — New to Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Foundations
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_3_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Foundations
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../probability-01-objects/">
+<span class="md-ellipsis">
+    
+  
+    1. Probability and Generative Modeling
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../classical-01-latent-foundations/">
+<span class="md-ellipsis">
+    
+  
+    2. Classical Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../bayesian-learning-01-object/">
+<span class="md-ellipsis">
+    
+  
+    3. Bayesian Learning and Model Assessment
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../inference-01-objects-and-queries/">
+<span class="md-ellipsis">
+    
+  
+    4. Latent Variables and Inference
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../objectives-01-discrepancies/">
+<span class="md-ellipsis">
+    
+  
+    5. Objectives and Statistical Distances
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../information-coding-01-measures/">
+<span class="md-ellipsis">
+    
+  
+    6. Information, Coding, and Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../graphical-models-01-directed/">
+<span class="md-ellipsis">
+    
+  
+    7. Graphical Models and Structured Probability
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../message-passing-01-factor-graphs/">
+<span class="md-ellipsis">
+    
+  
+    8. Graphical Inference and Message Passing
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../filtering-01-bayes-recursions/">
+<span class="md-ellipsis">
+    
+  
+    9. Filtering and Smoothing for State-Space Generators
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../sampling-01-monte-carlo/">
+<span class="md-ellipsis">
+    
+  
+    10. Sampling and Continuous Time
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../smc-01-targets/">
+<span class="md-ellipsis">
+    
+  
+    11. Sequential Monte Carlo and Particle Methods
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_3_12" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_3_12" id="__nav_3_3_12_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    12. Optimization and Learning Dynamics
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_3_12_label" class="md-nav" data-md-level="3">
+<label class="md-nav__title" for="__nav_3_3_12">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    12. Optimization and Learning Dynamics
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../optimization-01-differentiation/">
+<span class="md-ellipsis">
+    
+  
+    1. Derivative Programs
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../optimization-02-stochastic-gradients/">
+<span class="md-ellipsis">
+    
+  
+    2. Stochastic Gradient Estimators
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
+    
+  
+    3. Geometry and Dynamics
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
+<span class="md-ellipsis">
+    
+  
+    3. Geometry and Dynamics
+  
+
+    
+  </span>
+</a>
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#3-optimizer-geometry-and-coupled-learning-dynamics">
+<span class="md-ellipsis">
+      
+        3. Optimizer Geometry and Coupled Learning Dynamics
+      
+    </span>
+</a>
+<nav aria-label="3. Optimizer Geometry and Coupled Learning Dynamics" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-3-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 3 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#an-optimizer-defines-a-dynamical-system">
+<span class="md-ellipsis">
+      
+        An optimizer defines a dynamical system
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#clipping-has-multiple-meanings">
+<span class="md-ellipsis">
+      
+        Clipping has multiple meanings
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#geometry-from-a-local-distributional-constraint">
+<span class="md-ellipsis">
+      
+        Geometry from a local distributional constraint
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-bernoulli-natural-gradient">
+<span class="md-ellipsis">
+      
+        Worked Bernoulli natural gradient
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#fisher-generalized-gaussnewton-hessian-and-empirical-fisher">
+<span class="md-ellipsis">
+      
+        Fisher, generalized Gauss–Newton, Hessian, and empirical Fisher
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#two-player-objectives-are-not-scalar-minimization">
+<span class="md-ellipsis">
+      
+        Two-player objectives are not scalar minimization
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-bilinear-game-why-gradients-rotate">
+<span class="md-ellipsis">
+      
+        Worked bilinear game: why gradients rotate
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#structured-and-matrix-optimizers-evidence-boundary">
+<span class="md-ellipsis">
+      
+        Structured and matrix optimizers: evidence boundary
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#practical-trajectory-diagnostics">
+<span class="md-ellipsis">
+      
+        Practical trajectory diagnostics
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-3-synthesis-and-retrieval">
+<span class="md-ellipsis">
+      
+        Chapter 3 synthesis and retrieval
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../optimization-04-latent-learning/">
+<span class="md-ellipsis">
+    
+  
+    4. Latent-Variable Learning
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../optimization-05-search/">
+<span class="md-ellipsis">
+    
+  
+    5. Black-Box and Structured Search
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../optimization-06-transport/">
+<span class="md-ellipsis">
+    
+  
+    6. Optimal Transport
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../optimization-and-learning-dynamics/">
+<span class="md-ellipsis">
+    
+  
+    Continuous View (All Chapters)
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../generative-models-notation/">
+<span class="md-ellipsis">
+    
+  
+    13. Canonical Notation
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../autoregressive-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Model Families
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gradients-01-taxonomy/">
+<span class="md-ellipsis">
+    
+  
+    Connections and Compositions
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../normalization-01-queries/">
+<span class="md-ellipsis">
+    
+  
+    Research Practice
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../models/vae-guide/">
+<span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/core/base/">
+<span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../examples/overview/">
+<span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../zoo/">
+<span class="md-ellipsis">
+    
+  
+    Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../training/overview/">
+<span class="md-ellipsis">
+    
+  
+    Training
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../data/overview/">
+<span class="md-ellipsis">
+    
+  
+    Data &amp; Modalities
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../inference/overview/">
+<span class="md-ellipsis">
+    
+  
+    Inference &amp; Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../benchmarks/">
+<span class="md-ellipsis">
+    
+  
+    Evaluation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../guides/extensions/">
+<span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../extensions/">
+<span class="md-ellipsis">
+    
+  
+    Advanced Topics
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../cli/">
+<span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../community/contributing/">
+<span class="md-ellipsis">
+    
+  
+    Community
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/configs/protein-extension/">
+<span class="md-ellipsis">
+    
+  
+    Reference Library
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#3-optimizer-geometry-and-coupled-learning-dynamics">
+<span class="md-ellipsis">
+      
+        3. Optimizer Geometry and Coupled Learning Dynamics
+      
+    </span>
+</a>
+<nav aria-label="3. Optimizer Geometry and Coupled Learning Dynamics" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-3-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 3 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#an-optimizer-defines-a-dynamical-system">
+<span class="md-ellipsis">
+      
+        An optimizer defines a dynamical system
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#clipping-has-multiple-meanings">
+<span class="md-ellipsis">
+      
+        Clipping has multiple meanings
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#geometry-from-a-local-distributional-constraint">
+<span class="md-ellipsis">
+      
+        Geometry from a local distributional constraint
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-bernoulli-natural-gradient">
+<span class="md-ellipsis">
+      
+        Worked Bernoulli natural gradient
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#fisher-generalized-gaussnewton-hessian-and-empirical-fisher">
+<span class="md-ellipsis">
+      
+        Fisher, generalized Gauss–Newton, Hessian, and empirical Fisher
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#two-player-objectives-are-not-scalar-minimization">
+<span class="md-ellipsis">
+      
+        Two-player objectives are not scalar minimization
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-bilinear-game-why-gradients-rotate">
+<span class="md-ellipsis">
+      
+        Worked bilinear game: why gradients rotate
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#structured-and-matrix-optimizers-evidence-boundary">
+<span class="md-ellipsis">
+      
+        Structured and matrix optimizers: evidence boundary
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#practical-trajectory-diagnostics">
+<span class="md-ellipsis">
+      
+        Practical trajectory diagnostics
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-3-synthesis-and-retrieval">
+<span class="md-ellipsis">
+      
+        Chapter 3 synthesis and retrieval
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<nav aria-label="Breadcrumb" class="md-path">
+<ol class="md-path__list">
+<li class="md-path__item">
+<a class="md-path__link" href="../../..">
+<span class="md-ellipsis">
+    Home
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    Generative Models Book
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../probability-01-objects/">
+<span class="md-ellipsis">
+    Foundations
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../optimization-01-differentiation/">
+<span class="md-ellipsis">
+    12. Optimization and Learning Dynamics
+  </span>
+</a>
+</li>
+</ol>
+</nav>
+<article class="md-content__inner md-typeset">
+<h1 id="optimization-3-geometry-and-dynamics">Optimization 3 — Geometry and Dynamics<a class="headerlink" href="#optimization-3-geometry-and-dynamics" title="Permanent link">¤</a></h1><aside aria-label="Learning path" class="admonition abstract artifex-learning-path"><p class="admonition-title">Learning path</p><p><strong>Required knowledge</strong></p><ul class="artifex-learning-path__links" data-learning-path-role="required"><li><a href="../optimization-02-stochastic-gradients/">Optimization 2 — Stochastic Gradient Estimators</a></li></ul><p><strong>Readiness check:</strong> can you explain the central object and reproduce one worked example from each required chapter? If not, follow its link before continuing.</p><p><strong>Newly unlocked in the default route</strong></p><ul class="artifex-learning-path__links" data-learning-path-role="unlocks"><li><a href="../optimization-04-latent-learning/">Optimization 4 — Latent-Variable Learning</a></li></ul></aside>
+<p>This chapter develops optimizer state, Fisher geometry, curvature boundaries, adversarial games, and structured optimizer evidence. Read it continuously in the <a href="../optimization-and-learning-dynamics/#3-optimizer-geometry-and-coupled-learning-dynamics">complete guide</a>.</p>
+<h2 id="3-optimizer-geometry-and-coupled-learning-dynamics">3. Optimizer Geometry and Coupled Learning Dynamics<a class="headerlink" href="#3-optimizer-geometry-and-coupled-learning-dynamics" title="Permanent link">¤</a></h2>
+<h3 id="chapter-3-prerequisites-and-learning-objectives">Chapter 3 prerequisites and learning objectives<a class="headerlink" href="#chapter-3-prerequisites-and-learning-objectives" title="Permanent link">¤</a></h3>
+<p>You should understand gradients, covariance, and eigenvalues. By the end of this chapter, you should be able to:</p>
+<ul>
+<li>distinguish update direction, preconditioner, regularizer, and parameter averaging;</li>
+<li>compute a natural-gradient step for a finite model;</li>
+<li>state when Fisher, generalized Gauss–Newton, Hessian, and empirical Fisher do or do not coincide;</li>
+<li>diagnose gradient clipping and weight decay by their actual operations;</li>
+<li>analyze a bilinear two-player game; and</li>
+<li>bound claims about structured optimizers by their model and systems evidence.</li>
+</ul>
+<h3 id="an-optimizer-defines-a-dynamical-system">An optimizer defines a dynamical system<a class="headerlink" href="#an-optimizer-defines-a-dynamical-system" title="Permanent link">¤</a></h3>
+<p>Plain stochastic gradient descent has</p>
+<div class="arithmatex">\[
+\theta_{t+1}=\theta_t-\eta_t g_t.
+\]</div>
+<p>Momentum adds a state variable; adaptive methods rescale coordinates; matrix methods transform blocks; exponential moving averages create evaluation parameters distinct from training parameters. Even with identical <span class="arithmatex">\(g_t\)</span>, these rules define different trajectories.</p>
+<p>For heavy-ball momentum,</p>
+<div class="arithmatex">\[
+m_t=\beta m_{t-1}+g_t,
+\qquad
+\theta_{t+1}=\theta_t-\eta m_t.
+\]</div>
+<p>Adam-type methods maintain first and second raw-moment estimates and apply bias correction. AdamW applies decoupled parameter shrinkage in addition to the adaptive gradient update. Adding <span class="arithmatex">\(\lambda\lVert\theta\rVert^2/2\)</span> to the objective and using ordinary weight decay coincide for SGD under a simple parameterization, but they generally do not coincide after coordinate-wise adaptive preconditioning.</p>
+<h3 id="clipping-has-multiple-meanings">Clipping has multiple meanings<a class="headerlink" href="#clipping-has-multiple-meanings" title="Permanent link">¤</a></h3>
+<p><strong>Global-norm clipping</strong> computes the norm over the complete gradient tree,</p>
+<div class="arithmatex">\[
+\lVert g\rVert_2
+=\sqrt{\sum_k\lVert g^{(k)}\rVert_F^2},
+\qquad
+\widetilde g=g\min\left(1,\frac{c}{\lVert g\rVert_2+\delta}\right).
+\]</div>
+<p>Per-tensor norm clipping, coordinate clipping, adaptive gradient clipping, and clipping after worker reduction are different operations. Clipping each shard before all-reduce is not generally equivalent to clipping the reduced global gradient. Gradient clipping also biases a stochastic gradient unless the clipping event has special symmetry. It is a stability device, not a proof that the original expected gradient is preserved.</p>
+<h3 id="geometry-from-a-local-distributional-constraint">Geometry from a local distributional constraint<a class="headerlink" href="#geometry-from-a-local-distributional-constraint" title="Permanent link">¤</a></h3>
+<p>Suppose parameters define a regular family <span class="arithmatex">\(p_\theta\)</span>. A small parameter change has local KL expansion</p>
+<div class="arithmatex">\[
+\begin{aligned}
+D_{\mathrm{KL}}(p_\theta\|p_{\theta+\Delta})
+&amp;=\tfrac12\Delta^\top F(\theta)\Delta\\
+&amp;\quad+o(\lVert\Delta\rVert^2),
+\end{aligned}
+\]</div>
+<p>where</p>
+<div class="arithmatex">\[
+\begin{aligned}
+F(\theta)
+&amp;=\mathbb E_{X\sim p_\theta}\!\left[
+  s_\theta(X)s_\theta(X)^\top
+\right],\\
+s_\theta(X)&amp;=\nabla_\theta\log p_\theta(X).
+\end{aligned}
+\]</div>
+<p>The Fisher matrix is positive semidefinite. It can be singular when parameters are redundant or the model is locally unidentifiable. Linearizing <span class="arithmatex">\(J\)</span> and constraining the local KL yields</p>
+<div class="arithmatex">\[
+\begin{aligned}
+\Delta^*
+&amp;=-\alpha F^\dagger g,\\
+\alpha
+&amp;=\sqrt{\frac{2\epsilon}{g^\top F^\dagger g}}.
+\end{aligned}
+\]</div>
+<p>on the identifiable tangent space, provided the gradient lies in the relevant range. A damped practical step replaces the pseudoinverse by a solve with <span class="arithmatex">\(F+\lambda I\)</span>, which improves conditioning but changes the exact geometry.</p>
+<p>This construction is the natural gradient introduced by <a href="https://proceedings.neurips.cc/paper/1997/file/ff49cc40a8890e6a60f40ff3026d2730-Paper.pdf">Amari</a>. Exact invariance concerns a smooth reparameterization of the same statistical manifold and an exact metric-aware step in the infinitesimal limit. Finite learning rates, damping, block approximations, coordinate exclusions, and optimizer state weaken or destroy that guarantee.</p>
+<p>The later <a href="../gradients-and-geometry-in-generative-modeling/">Gradients and Geometry in Generative
+Modeling</a> volume applies this
+foundation separately to parameter, state, game, implicit, functional, natural,
+and search gradients across model families. It is placed after the family
+volumes because those applications require choosing among several inequivalent
+objectives and probability laws inside one system.</p>
+<h3 id="worked-bernoulli-natural-gradient">Worked Bernoulli natural gradient<a class="headerlink" href="#worked-bernoulli-natural-gradient" title="Permanent link">¤</a></h3>
+<p>Let <span class="arithmatex">\(p=\sigma(\theta)\)</span> be a Bernoulli success probability and minimize cross-entropy to a target success frequency <span class="arithmatex">\(r\)</span>:</p>
+<div class="arithmatex">\[
+J(\theta)=-r\log p-(1-r)\log(1-p).
+\]</div>
+<p>The ordinary logit gradient is <span class="arithmatex">\(g_\theta=p-r\)</span>. The Fisher information in logit coordinates is <span class="arithmatex">\(F_\theta=p(1-p)\)</span>. Hence the natural direction is</p>
+<div class="arithmatex">\[
+F_\theta^{-1}g_\theta=\frac{p-r}{p(1-p)}.
+\]</div>
+<p>Because <span class="arithmatex">\(dp/d\theta=p(1-p)\)</span>, a small natural step in <span class="arithmatex">\(\theta\)</span> induces</p>
+<div class="arithmatex">\[
+\Delta p\approx p(1-p)\Delta\theta=-\eta(p-r).
+\]</div>
+<p>The geometry removes the sigmoid's local coordinate scaling. Near <span class="arithmatex">\(p=0\)</span> or <span class="arithmatex">\(1\)</span>, however, <span class="arithmatex">\(F\)</span> becomes nearly singular and an undamped finite step can explode. The local metric derivation does not justify arbitrary step sizes.</p>
+<h3 id="fisher-generalized-gaussnewton-hessian-and-empirical-fisher">Fisher, generalized Gauss–Newton, Hessian, and empirical Fisher<a class="headerlink" href="#fisher-generalized-gaussnewton-hessian-and-empirical-fisher" title="Permanent link">¤</a></h3>
+<p>These matrices must not be used as synonyms:</p>
+<ul>
+<li>the <strong>Fisher</strong> averages model score outer products with outcomes drawn from the model distribution;</li>
+<li>the <strong>empirical Fisher</strong> commonly averages score outer products at observed training outcomes;</li>
+<li>the <strong>generalized Gauss–Newton</strong> matrix pulls back output-loss curvature through the network Jacobian; and</li>
+<li>the <strong>Hessian</strong> differentiates the complete scalar objective twice and can be indefinite.</li>
+</ul>
+<p>Under suitable conditional exponential-family likelihoods and matching loss conventions, Fisher and generalized Gauss–Newton structures can coincide. They do not coincide for arbitrary objectives. The empirical Fisher is generally neither the Fisher nor a consistent Hessian surrogate away from special conditions, as demonstrated by <a href="https://arxiv.org/abs/1905.12558">Kunstner, Balles, and Hennig</a>. <a href="https://jmlr.org/papers/v21/17-678.html">Martens</a> gives the precise second-order and invariance connections and their approximation limits.</p>
+<div class="admonition failure">
+<p class="admonition-title">A singular metric is information, not just a numerical nuisance</p>
+<p>If two parameter directions define the same local distribution, Fisher has a null direction. Adding damping makes a solve possible but does not make the statistical model identifiable. Report whether singularity comes from symmetry, redundant parameterization, saturation, insufficient support, or finite-sample approximation.</p>
+</div>
+<h3 id="two-player-objectives-are-not-scalar-minimization">Two-player objectives are not scalar minimization<a class="headerlink" href="#two-player-objectives-are-not-scalar-minimization" title="Permanent link">¤</a></h3>
+<p>A GAN often defines</p>
+<div class="arithmatex">\[
+\min_\theta\max_\phi V(\theta,\phi).
+\]</div>
+<p>Its simultaneous gradient vector field is</p>
+<div class="arithmatex">\[
+G(\theta,\phi)
+=\begin{bmatrix}
+\nabla_\theta V\\
+-\nabla_\phi V
+\end{bmatrix}.
+\]</div>
+<p>Convergence depends on the Jacobian of this vector field, not merely on a scalar loss trace. Alternating updates, unequal learning rates, multiple critic steps, gradient penalties, and stale distributed parameters define different games.</p>
+<h3 id="worked-bilinear-game-why-gradients-rotate">Worked bilinear game: why gradients rotate<a class="headerlink" href="#worked-bilinear-game-why-gradients-rotate" title="Permanent link">¤</a></h3>
+<p>Take <span class="arithmatex">\(V(x,y)=xy\)</span> with <span class="arithmatex">\(min_x\max_y\)</span>. Simultaneous descent–ascent gives</p>
+<div class="arithmatex">\[
+\begin{bmatrix}x_{t+1}\\y_{t+1}\end{bmatrix}
+=
+\begin{bmatrix}1&amp;-\eta\\\eta&amp;1\end{bmatrix}
+\begin{bmatrix}x_t\\y_t\end{bmatrix}.
+\]</div>
+<p>The squared radius evolves as</p>
+<div class="arithmatex">\[
+x_{t+1}^2+y_{t+1}^2
+=(1+\eta^2)(x_t^2+y_t^2),
+\]</div>
+<p>so every positive fixed step spirals outward even though <span class="arithmatex">\((0,0)\)</span> is the saddle. Loss oscillation here is structural, not ordinary minibatch noise.</p>
+<p>An extragradient step first evaluates a look-ahead point,</p>
+<div class="arithmatex">\[
+\widetilde x=x-\eta y,
+\qquad
+\widetilde y=y+\eta x,
+\]</div>
+<p>then updates with the look-ahead field:</p>
+<div class="arithmatex">\[
+x^+=x-\eta\widetilde y=(1-\eta^2)x-\eta y,
+\qquad
+y^+=y+\eta\widetilde x=\eta x+(1-\eta^2)y.
+\]</div>
+<p>Its radius multiplier is <span class="arithmatex">\(1-\eta^2+\eta^4\)</span>, below one for <span class="arithmatex">\(0&lt;\eta&lt;1\)</span>. This finite example explains why anticipatory or consensus-like methods can damp rotational components. It does not establish global convergence for a nonlinear nonconvex–nonconcave GAN.</p>
+<p><a href="https://proceedings.mlr.press/v80/mescheder18a.html">Mescheder, Geiger, and Nowozin</a> show that unregularized GAN training need not converge when data and generator distributions lie on lower-dimensional manifolds, and that commonly used WGAN or WGAN-GP updates with finitely many discriminator steps are not automatically convergent. A successful critic-loss curve is therefore not a general convergence certificate.</p>
+<h3 id="structured-and-matrix-optimizers-evidence-boundary">Structured and matrix optimizers: evidence boundary<a class="headerlink" href="#structured-and-matrix-optimizers-evidence-boundary" title="Permanent link">¤</a></h3>
+<p>Tensor- or matrix-aware preconditioners use parameter shape instead of treating every coordinate independently. Shampoo maintains per-axis preconditioners and has stochastic-convex theory plus neural experiments (<a href="https://proceedings.mlr.press/v80/gupta18a.html">Gupta, Koren, and Singer</a>). SOAP runs an Adam-like update in a Shampoo-derived eigenbasis and reports large-batch language-model gains in its accepted study (<a href="https://openreview.net/forum?id=IDxZhXrpNf">Vyas et al.</a>). Muon-family methods orthogonalize matrix updates; <a href="https://openreview.net/forum?id=mHouLSUQP5">MuonBP</a> studies block-periodic orthogonalization for distributed throughput, and <a href="https://openreview.net/forum?id=Blz4hjxLwU">Muon Optimizes Under Spectral Norm Constraints</a> analyzes a spectral-norm-constrained interpretation. These are peer-reviewed results on their declared protocols.</p>
+<p>These results expand the optimizer design space, but they do not establish a universal successor to AdamW. Evidence must name parameter shapes, exclusions for embeddings or scalars, batch regime, width scaling, precision, communication topology, step and token budget, wall-clock, memory, and validation target. The <a href="https://arxiv.org/abs/2506.07254">SPlus</a> whitening-optimizer preprint includes diffusion training among its controlled objectives; it remains preprint evidence and should be labeled as such.</p>
+<h3 id="practical-trajectory-diagnostics">Practical trajectory diagnostics<a class="headerlink" href="#practical-trajectory-diagnostics" title="Permanent link">¤</a></h3>
+<p>Track at least:</p>
+<ul>
+<li>population proxy and held-out objective, not training loss alone;</li>
+<li>gradient and update norms before and after clipping, by parameter group;</li>
+<li>effective step ratio <span class="arithmatex">\(\lVert\Delta\theta\rVert/(\lVert\theta\rVert+\delta)\)</span>;</li>
+<li>overflow, skipped-update, and loss-scale histories;</li>
+<li>estimator variance across data, latent, and timestep axes;</li>
+<li>critic and generator vector-field or Jacobian diagnostics on controlled small models;</li>
+<li>EMA and live-parameter evaluation separately; and</li>
+<li>steps, examples or tokens, FLOPs, wall-clock, memory, and energy under matched stopping rules.</li>
+</ul>
+<h3 id="chapter-3-synthesis-and-retrieval">Chapter 3 synthesis and retrieval<a class="headerlink" href="#chapter-3-synthesis-and-retrieval" title="Permanent link">¤</a></h3>
+<p>An optimizer is a stateful dynamical system. Natural gradients use a distributional metric that can be singular; approximate curvature and the empirical Fisher must retain their own definitions. Coupled games can rotate even when each player follows its gradient. Structured optimizers are promising empirical designs whose claims remain protocol-specific.</p>
+<details class="question">
+<summary>Retrieval questions</summary>
+<ol>
+<li>Why does decoupled weight decay differ from an <span class="arithmatex">\(L_2\)</span> penalty under adaptive preconditioning?</li>
+<li>When is the Fisher singular?</li>
+<li>Why does simultaneous descent–ascent diverge in the bilinear example?</li>
+<li>What evidence is required before declaring one optimizer better for generative training?</li>
+</ol>
+<p><strong>Solutions.</strong> (1) The penalty gradient passes through the adaptive preconditioner, whereas decoupled shrinkage acts directly on parameters. (2) When parameter directions are locally distributionally redundant, unidentifiable, or saturated. (3) Its update matrix multiplies squared radius by <span class="arithmatex">\(1+\eta^2\)</span>. (4) A matched model, data, batch, precision, budget, hardware, memory, wall-clock, stopping, and evaluation protocol, plus statistical uncertainty.</p>
+</details>
+<p><strong>Bridge.</strong> Chapter 3 treated gradient-driven dynamics. Chapter 4 studies a different recurring construction: coordinate optimization of latent-variable bounds through EM, generalized EM, and variational inference.</p>
+<p><a href="./">Read Chapter 3 as a stopping-point page</a></p>
+<hr/>
+<p><strong>Previous:</strong> <a href="../optimization-02-stochastic-gradients/">2. Stochastic Gradient Estimators</a> · <strong>Continue:</strong> <a href="../optimization-04-latent-learning/">4. Latent-Variable Learning</a> · <a href="../optimization-and-learning-dynamics/">Complete guide</a></p>
+</article>
+</div>
+<script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  Back to top
+</button>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+<div class="md-social">
+<a class="md-social__link" href="https://github.com/avitai/artifex" rel="noopener" target="_blank" title="github.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</a>
+<a class="md-social__link" href="https://pypi.org/project/avitai-artifex/" rel="noopener" target="_blank" title="pypi.org">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-66.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.3v101.8c0 29 25.2 46 53.4 54.3 33.8 9.9 66.3 11.7 106.8 0 26.9-7.8 53.4-23.5 53.4-54.3v-40.7H226.2v-13.6h160.2c31.1 0 42.6-21.7 53.4-54.2 11.2-33.5 10.7-65.7 0-108.6M286.2 444.7a20.4 20.4 0 1 1 0-40.7 20.4 20.4 0 1 1 0 40.7M167.8 248.1h106.8c29.7 0 53.4-24.5 53.4-54.3V91.9c0-29-24.4-50.7-53.4-55.6-35.8-5.9-74.7-5.6-106.8.1-45.2 8-53.4 24.7-53.4 55.6v40.7h106.9v13.6h-147c-31.1 0-58.3 18.7-66.8 54.2-9.8 40.7-10.2 66.1 0 108.6 7.6 31.6 25.7 54.2 56.8 54.2H101v-48.8c0-35.3 30.5-66.4 66.8-66.4m-6.6-183.4a20.4 20.4 0 1 1 0 40.8 20.4 20.4 0 1 1 0-40.8"></path></svg>
+</a>
+<a class="md-social__link" href="https://twitter.com/mahdi_shafiei" rel="noopener" target="_blank" title="twitter.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M459.4 151.7c.3 4.5.3 9.1.3 13.6 0 138.7-105.6 298.6-298.6 298.6-59.5 0-114.7-17.2-161.1-47.1 8.4 1 16.6 1.3 25.3 1.3 49.1 0 94.2-16.6 130.3-44.8-46.1-1-84.8-31.2-98.1-72.8 6.5 1 13 1.6 19.8 1.6 9.4 0 18.8-1.3 27.6-3.6-48.1-9.7-84.1-52-84.1-103v-1.3c14 7.8 30.2 12.7 47.4 13.3-28.3-18.8-46.8-51-46.8-87.4 0-19.5 5.2-37.4 14.3-53C87.4 130.8 165 172.4 252.1 176.9c-1.6-7.8-2.6-15.9-2.6-24C249.5 95.1 296.3 48 354.4 48c30.2 0 57.5 12.7 76.7 33.1 23.7-4.5 46.5-13.3 66.6-25.3-7.8 24.4-24.4 44.8-46.1 57.8 21.1-2.3 41.6-8.1 60.4-16.2-14.3 20.8-32.2 39.3-52.6 54.3"></path></svg>
+</a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.path", "navigation.top", "navigation.prune", "toc.follow", "search.highlight", "search.share", "search.suggest", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "content.mermaid"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+<script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+<script src="../../../javascripts/reading-layout.js"></script>
+</body>
+</html>

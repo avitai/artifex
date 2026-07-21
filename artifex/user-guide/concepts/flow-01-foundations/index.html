@@ -1,0 +1,1571 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="This chapter establishes map direction, the change-of-variables theorem, Jacobian signs, support, topology, likelihood, and the distinction between classical" name="description"/>
+<meta content="Mahdi Shafiei" name="author"/>
+<link href="https://docs.avitai.bio/artifex/user-guide/concepts/flow-01-foundations/" rel="canonical"/>
+<link href="../diffusion-explained/" rel="prev"/>
+<link href="../flow-02-architectures/" rel="next"/>
+<link href="../../../assets/images/favicon.png" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.7.7" name="generator"/>
+<title>Flows 1 — Change of Variables and Invertibility - Artifex</title>
+<link href="../../../assets/stylesheets/main.ec1eaa64.min.css" rel="stylesheet"/>
+<link href="../../../assets/stylesheets/palette.ab4e12ef.min.css" rel="stylesheet"/>
+<script src="../../../assets/vendor/iframe-worker/index.js"></script>
+<link href="../../../assets/_mkdocstrings.css" rel="stylesheet"/>
+<link href="../../../_static/extra.css" rel="stylesheet"/>
+<script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+<meta content="article" property="og:type"/>
+<meta content="The Artifex Generative Models Book" property="og:site_name"/>
+<meta content="Flows 1 — Change of Variables and Invertibility" property="og:title"/>
+<meta content="This chapter establishes map direction, the change-of-variables theorem, Jacobian signs, support, topology, likelihood, and the distinction between classical" property="og:description"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/flow-01-foundations/" property="og:url"/>
+<meta content="2026-07-14" property="article:modified_time"/>
+<meta content="summary" name="twitter:card"/>
+<meta content="Flows 1 — Change of Variables and Invertibility" name="twitter:title"/>
+<meta content="This chapter establishes map direction, the change-of-variables theorem, Jacobian signs, support, topology, likelihood, and the distinction between classical" name="twitter:description"/>
+<meta content="Generative models, Machine learning, Probabilistic modeling, core, required, canonical_chapter, flows-foundations, newcomer, practitioner, researcher" name="keywords"/>
+<meta content="Flows 1 — Change of Variables and Invertibility" name="citation_title"/>
+<meta content="Mahdi Shafiei" name="citation_author"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/flow-01-foundations/" name="citation_public_url"/>
+<meta content="en" name="citation_language"/>
+<meta content="Flows 1 — Change of Variables and Invertibility" name="DC.title"/>
+<meta content="Mahdi Shafiei" name="DC.creator"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/flow-01-foundations/" name="DC.identifier"/>
+<meta content="Text.LearningResource" name="DC.type"/>
+<meta content="2026-07-14" name="DCTERMS.modified"/>
+<meta content="https://github.com/avitai/artifex/blob/main/LICENSE" name="DCTERMS.license"/>
+<meta content="core" name="DCTERMS.educationLevel"/>
+<meta content="newcomer, practitioner, researcher" name="DCTERMS.audience"/>
+<link href="https://github.com/avitai/artifex/blob/main/LICENSE" rel="license"/>
+<script id="artifex-book-metadata" type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Chapter",
+  "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/flow-01-foundations/",
+  "url": "https://docs.avitai.bio/artifex/user-guide/concepts/flow-01-foundations/",
+  "name": "Flows 1 \u2014 Change of Variables and Invertibility",
+  "description": "This chapter establishes map direction, the change-of-variables theorem, Jacobian signs, support, topology, likelihood, and the distinction between classical",
+  "identifier": "flows-foundations",
+  "inLanguage": "en",
+  "isAccessibleForFree": true,
+  "learningResourceType": "Canonical chapter",
+  "educationalLevel": "core",
+  "educationalUse": "required",
+  "audience": [
+    
+      {"@type": "EducationalAudience", "audienceType": "newcomer"},
+    
+      {"@type": "EducationalAudience", "audienceType": "practitioner"},
+    
+      {"@type": "EducationalAudience", "audienceType": "researcher"}
+    
+  ],
+  "dateModified": "2026-07-14",
+  "keywords": ["Generative models", "Machine learning", "Probabilistic modeling", "core", "required", "canonical_chapter", "flows-foundations", "newcomer", "practitioner", "researcher"],
+  "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+  "author": [
+    
+      {"@type": "Person", "name": "Mahdi Shafiei"}
+    
+  ],
+  "isPartOf": {
+    "@type": "Book",
+    "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/#book",
+    "url": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/",
+    "name": "The Artifex Generative Models Book",
+    "bookEdition": "Living Web Edition",
+    "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+    "author": [
+      
+        {"@type": "Person", "name": "Mahdi Shafiei"}
+      
+    ]
+  }
+}
+</script>
+<link href="../../../assets/vendor/katex/katex.min.css" id="artifex-katex-stylesheet" integrity="sha384-UA8juhPf75SzzAMA/4fo3yOU7sBJ0om7SCD2GHq0fZqZco6tr1UCV7nUbk9J90JM" rel="stylesheet"/>
+<script defer="" integrity="sha384-T/0lMUdJpd2S1ZHtRiofG3htU3xPCrFVeAQ1UUE2TJwlEJSV5NUwn30kP28n238E" src="../../../assets/vendor/mermaid/mermaid.min.js"></script>
+<script defer="" src="../../../assets/vendor/katex/katex-shadow.js"></script>
+<script defer="" src="../../../javascripts/mermaid-math.js"></script>
+<script defer="" src="../../../javascripts/mathjax.js"></script>
+<script defer="" integrity="sha384-OrHfGTnIbkl0do3N76qW/uWr38o91N05sbSPuYBPLH+hG8X/dNSrjZf3AGjzrCwC" src="../../../assets/vendor/mathjax/tex-mml-chtml.js"></script>
+</head>
+<body data-md-color-accent="amber" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#flows-1-change-of-variables-and-invertibility">
+          Skip to content
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header md-header--shadow" data-md-component="header">
+<nav aria-label="Header" class="md-header__inner md-grid">
+<a aria-label="Artifex" class="md-header__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            Artifex
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+            
+              Flows 1 — Change of Variables and Invertibility
+            
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-label="Switch to dark mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: light)" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_1" hidden="" title="Switch to dark mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+<input aria-label="Switch to light mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-primary="indigo" data-md-color-scheme="slate" id="__palette_1" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_0" hidden="" title="Switch to light mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+</form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div aria-label="Search" class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Search" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="Search" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="Search" class="md-search__options">
+<a aria-label="Share" class="md-search__icon md-icon" data-clipboard="" data-clipboard-text="" data-md-component="search-share" href="javascript:void(0)" tabindex="-1" title="Share">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"></path></svg>
+</a>
+<button aria-label="Clear" class="md-search__icon md-icon" tabindex="-1" title="Clear" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            Initializing search
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Navigation" class="md-nav md-nav--primary" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="Artifex" class="md-nav__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+    Artifex
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../..">
+<span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../getting-started/installation/">
+<span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Generative Models Book
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Generative Models Book
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    
+  
+    Start Here — The Landscape
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../first-course-01-generative-systems/">
+<span class="md-ellipsis">
+    
+  
+    First Course — New to Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../probability-01-objects/">
+<span class="md-ellipsis">
+    
+  
+    Foundations
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_4" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_4" id="__nav_3_4_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Model Families
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_4_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_4">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Model Families
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../autoregressive-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Autoregressive Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../vae-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Variational Autoencoders
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gan-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Generative Adversarial Networks
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../ebm-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Energy-Based Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../diffusion-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Diffusion Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_4_6" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_4_6" id="__nav_3_4_6_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Normalizing Flows and Flow Matching
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_4_6_label" class="md-nav" data-md-level="3">
+<label class="md-nav__title" for="__nav_3_4_6">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Normalizing Flows and Flow Matching
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
+    
+  
+    1. Change of Variables
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
+<span class="md-ellipsis">
+    
+  
+    1. Change of Variables
+  
+
+    
+  </span>
+</a>
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#overview">
+<span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+</a>
+<nav aria-label="Overview" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#definition-and-scope">
+<span class="md-ellipsis">
+      
+        Definition and scope
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#overview-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Overview: Prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#consequences-of-map-structure">
+<span class="md-ellipsis">
+      
+        Consequences of map structure
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#evidence-and-family-boundaries">
+<span class="md-ellipsis">
+      
+        Evidence and family boundaries
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#constructive-interpretation-transport-and-volume-change">
+<span class="md-ellipsis">
+      
+        Constructive interpretation: transport and volume change
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mathematical-foundation">
+<span class="md-ellipsis">
+      
+        Mathematical Foundation
+      
+    </span>
+</a>
+<nav aria-label="Mathematical Foundation" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#the-change-of-variables-formula">
+<span class="md-ellipsis">
+      
+        The Change of Variables Formula
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#composing-multiple-transformations">
+<span class="md-ellipsis">
+      
+        Composing Multiple Transformations
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#three-requirements-for-flow-layers">
+<span class="md-ellipsis">
+      
+        Three Requirements for Flow Layers
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#support-topology-and-almost-everywhere-qualifications">
+<span class="md-ellipsis">
+      
+        Support, topology, and almost-everywhere qualifications
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#what-changes-when-the-transformation-is-not-bijective">
+<span class="md-ellipsis">
+      
+        What changes when the transformation is not bijective?
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#base-distribution">
+<span class="md-ellipsis">
+      
+        Base Distribution
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-example-one-affine-map-both-jacobian-directions">
+<span class="md-ellipsis">
+      
+        Worked example: one affine map, both Jacobian directions
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#independent-practice-and-assessment-map-flow-foundations">
+<span class="md-ellipsis">
+      
+        Independent practice and assessment map: flow foundations
+      
+    </span>
+</a>
+<nav aria-label="Independent practice and assessment map: flow foundations" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#p1-reconstruct-a-normalized-flow-without-hiding-its-assumptions">
+<span class="md-ellipsis">
+      
+        P1 — Reconstruct a normalized flow without hiding its assumptions
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-1-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 1 synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../flow-02-architectures/">
+<span class="md-ellipsis">
+    
+  
+    2. Discrete-Time Architectures
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../flow-03-training/">
+<span class="md-ellipsis">
+    
+  
+    3. Training and Density Estimation
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../flow-04-continuous/">
+<span class="md-ellipsis">
+    
+  
+    4. Continuous Flows and Flow Matching
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../flow-05-practice/">
+<span class="md-ellipsis">
+    
+  
+    5. Practice and Evaluation
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../flow-06-synthesis/">
+<span class="md-ellipsis">
+    
+  
+    6. Synthesis and Reading
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../flow-explained/">
+<span class="md-ellipsis">
+    
+  
+    Continuous View (All Chapters)
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../probabilistic-circuits-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Probabilistic Circuits
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../tensor-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Tensor-Network and Born Probability Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../implicit-generators-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Implicit Generators Beyond GANs
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../discrete-iterative-01-masked/">
+<span class="md-ellipsis">
+    
+  
+    Discrete Iterative Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../bayesian-flow-networks-01-story/">
+<span class="md-ellipsis">
+    
+  
+    Bayesian Flow Networks
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gflownets-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Generative Flow Networks
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../bnp-01-random-measures/">
+<span class="md-ellipsis">
+    
+  
+    Bayesian Nonparametric Random-Measure Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../stochastic-process-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Stochastic-Process and Function-Space Generators
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../point-processes-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Point Processes and Random Finite Sets
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../random-graphs-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Random Graphs and Relational Generators
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../copula-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Copula Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../grammar-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Probabilistic Grammars and Program Derivations
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../causal-generative-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Causal Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../new-families-frontier-evidence/">
+<span class="md-ellipsis">
+    
+  
+    Research Evidence Ledger
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gradients-01-taxonomy/">
+<span class="md-ellipsis">
+    
+  
+    Connections and Compositions
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../normalization-01-queries/">
+<span class="md-ellipsis">
+    
+  
+    Research Practice
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../models/vae-guide/">
+<span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/core/base/">
+<span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../examples/overview/">
+<span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../zoo/">
+<span class="md-ellipsis">
+    
+  
+    Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../training/overview/">
+<span class="md-ellipsis">
+    
+  
+    Training
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../data/overview/">
+<span class="md-ellipsis">
+    
+  
+    Data &amp; Modalities
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../inference/overview/">
+<span class="md-ellipsis">
+    
+  
+    Inference &amp; Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../benchmarks/">
+<span class="md-ellipsis">
+    
+  
+    Evaluation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../guides/extensions/">
+<span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../extensions/">
+<span class="md-ellipsis">
+    
+  
+    Advanced Topics
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../cli/">
+<span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../community/contributing/">
+<span class="md-ellipsis">
+    
+  
+    Community
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/configs/protein-extension/">
+<span class="md-ellipsis">
+    
+  
+    Reference Library
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#overview">
+<span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+</a>
+<nav aria-label="Overview" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#definition-and-scope">
+<span class="md-ellipsis">
+      
+        Definition and scope
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#overview-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Overview: Prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#consequences-of-map-structure">
+<span class="md-ellipsis">
+      
+        Consequences of map structure
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#evidence-and-family-boundaries">
+<span class="md-ellipsis">
+      
+        Evidence and family boundaries
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#constructive-interpretation-transport-and-volume-change">
+<span class="md-ellipsis">
+      
+        Constructive interpretation: transport and volume change
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mathematical-foundation">
+<span class="md-ellipsis">
+      
+        Mathematical Foundation
+      
+    </span>
+</a>
+<nav aria-label="Mathematical Foundation" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#the-change-of-variables-formula">
+<span class="md-ellipsis">
+      
+        The Change of Variables Formula
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#composing-multiple-transformations">
+<span class="md-ellipsis">
+      
+        Composing Multiple Transformations
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#three-requirements-for-flow-layers">
+<span class="md-ellipsis">
+      
+        Three Requirements for Flow Layers
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#support-topology-and-almost-everywhere-qualifications">
+<span class="md-ellipsis">
+      
+        Support, topology, and almost-everywhere qualifications
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#what-changes-when-the-transformation-is-not-bijective">
+<span class="md-ellipsis">
+      
+        What changes when the transformation is not bijective?
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#base-distribution">
+<span class="md-ellipsis">
+      
+        Base Distribution
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-example-one-affine-map-both-jacobian-directions">
+<span class="md-ellipsis">
+      
+        Worked example: one affine map, both Jacobian directions
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#independent-practice-and-assessment-map-flow-foundations">
+<span class="md-ellipsis">
+      
+        Independent practice and assessment map: flow foundations
+      
+    </span>
+</a>
+<nav aria-label="Independent practice and assessment map: flow foundations" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#p1-reconstruct-a-normalized-flow-without-hiding-its-assumptions">
+<span class="md-ellipsis">
+      
+        P1 — Reconstruct a normalized flow without hiding its assumptions
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-1-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 1 synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<nav aria-label="Breadcrumb" class="md-path">
+<ol class="md-path__list">
+<li class="md-path__item">
+<a class="md-path__link" href="../../..">
+<span class="md-ellipsis">
+    Home
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    Generative Models Book
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../autoregressive-01-foundations/">
+<span class="md-ellipsis">
+    Model Families
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="./">
+<span class="md-ellipsis">
+    Normalizing Flows and Flow Matching
+  </span>
+</a>
+</li>
+</ol>
+</nav>
+<article class="md-content__inner md-typeset">
+<h1 id="flows-1-change-of-variables-and-invertibility">Flows 1 — Change of Variables and Invertibility<a class="headerlink" href="#flows-1-change-of-variables-and-invertibility" title="Permanent link">¤</a></h1><aside aria-label="Learning path" class="admonition abstract artifex-learning-path"><p class="admonition-title">Learning path</p><p><strong>Required knowledge</strong></p><ul class="artifex-learning-path__links" data-learning-path-role="required"><li><a href="../probability-and-generative-modeling/">Probability and Generative Modeling</a></li><li><a href="../objectives-and-statistical-distances/">Objectives and Statistical Distances</a></li><li><a href="../sampling-and-continuous-time/">Sampling and Continuous-Time Generative Mathematics</a></li><li><a href="../generative-models-notation/">Canonical Notation and Transformation Conventions</a></li></ul><p><strong>Readiness check:</strong> can you explain the central object and reproduce one worked example from each required chapter? If not, follow its link before continuing.</p><p><strong>Newly unlocked in the default route</strong></p><ul class="artifex-learning-path__links" data-learning-path-role="unlocks"><li><a href="../flow-02-architectures/">Flows 2 — Discrete-Time Architectures</a></li></ul></aside>
+<p>This chapter establishes map direction, the change-of-variables theorem, Jacobian signs, support, topology, likelihood, and the distinction between classical normalizing flows and flow matching. For uninterrupted reading, use the <a href="../flow-explained/#overview">complete guide</a>.</p>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">¤</a></h2>
+<h3 id="definition-and-scope">Definition and scope<a class="headerlink" href="#definition-and-scope" title="Permanent link">¤</a></h3>
+<p>Early neural normalizing-flow constructions include <a href="https://arxiv.org/abs/1410.8516">NICE</a> and the variational-inference formulation of <a href="https://arxiv.org/abs/1505.05770">Rezende &amp; Mohamed (2015)</a>. They define distributions using invertible transformations with tractable Jacobian determinants and provide an exact symbolic expression for the <strong>model density</strong>; reported data likelihood may still include dequantization bounds, preprocessing Jacobians, finite precision, or numerical integration. Flow matching (<a href="https://arxiv.org/abs/2210.02747">Lipman et al., 2023</a>; <a href="https://arxiv.org/abs/2209.03003">Liu et al., 2023</a>; <a href="https://arxiv.org/abs/2303.08797">Albergo &amp; Vanden-Eijnden, 2023</a>) trains a time-dependent vector field without requiring the same structured-Jacobian architecture. Its likelihood, when requested, is obtained through continuous-time dynamics and divergence computation rather than the cheap finite composition used by coupling flows.</p>
+<h3 id="overview-prerequisites-and-learning-objectives">Overview: Prerequisites and learning objectives<a class="headerlink" href="#overview-prerequisites-and-learning-objectives" title="Permanent link">¤</a></h3>
+<p>You should be comfortable with densities, conditional probability, multivariable derivatives, determinants, and the distinction between a random variable and one of its coordinates. By the end of this chapter, you should be able to:</p>
+<ol>
+<li>derive change of variables in both map directions without changing the Jacobian sign;</li>
+<li>explain which assumptions make a transformation a diffeomorphism almost everywhere;</li>
+<li>distinguish an exact model-density expression from a discrete-data likelihood or a floating-point computation;</li>
+<li>diagnose support and topology mismatches; and</li>
+<li>calculate a complete scalar and two-dimensional flow likelihood.</li>
+</ol>
+<h3 id="consequences-of-map-structure">Consequences of map structure<a class="headerlink" href="#consequences-of-map-structure" title="Permanent link">¤</a></h3>
+<p>Classical flows couple density evaluation and sampling through the same bijection. The consequences depend on the map architecture:</p>
+<ul>
+<li><strong>Evaluate the model density</strong> with an exact change-of-variables formula when the inverse and Jacobian determinant are tractable</li>
+<li><strong>Generate samples</strong> through fast inverse transformations</li>
+<li><strong>Encode and decode latents directly</strong> without an amortised inverse; arbitrary marginal, conditional, or posterior queries can remain intractable</li>
+<li><strong>Train by maximum likelihood</strong> without an adversarial game; optimisation stability remains architecture-, preprocessing-, and precision-dependent</li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Two flavours of flow</p>
+<p>The <em>flow-matching</em> family trades the structured-Jacobian requirement for architectural freedom: a DiT, U-Net, or another network regresses a time-dependent vector field. Likelihood evaluation then requires solving an ODE and integrating or estimating its divergence, so it is numerical rather than the cheap exact formula of a coupling flow. This document covers both the discrete-step classical-flow architectures and the continuous-time / flow-matching family.</p>
+</div>
+<h3 id="evidence-and-family-boundaries">Evidence and family boundaries<a class="headerlink" href="#evidence-and-family-boundaries" title="Permanent link">¤</a></h3>
+<p>The volume covers flow matching, rectified flow, MeanFlow, discrete flow matching, and Riemannian or equivariant variants. Rectified-flow objectives are used in systems such as SD3 and FLUX.1; MeanFlow reports one-evaluation ImageNet generation under its class-conditional protocol (<a href="https://arxiv.org/abs/2505.13447">Geng et al., NeurIPS 2025</a>); and discrete flow-matching papers evaluate language and structured-state generation. These are method- and protocol-specific results, not a family-wide ordering. Their assumptions and costs are developed in <a href="../flow-explained/#conditional-rectified-and-average-velocity-flow-objectives">Conditional and Average-Velocity Flow Objectives</a>.</p>
+<h3 id="constructive-interpretation-transport-and-volume-change">Constructive interpretation: transport and volume change<a class="headerlink" href="#constructive-interpretation-transport-and-volume-change" title="Permanent link">¤</a></h3>
+<p>For a classical flow <span class="arithmatex">\(x=f(z)\)</span>, generation and density evaluation use opposite directions of the same map:</p>
+<ol>
+<li>
+<p><strong>Choose a base law.</strong> Select <span class="arithmatex">\(p_Z\)</span> with tractable sampling and density evaluation on a declared support.</p>
+</li>
+<li>
+<p><strong>Generate through the forward map.</strong> Draw <span class="arithmatex">\(z\sim p_Z\)</span> and compute <span class="arithmatex">\(x=f(z)\)</span>. A composition of invertible layers preserves a one-to-one correspondence within its modeled support.</p>
+</li>
+<li>
+<p><strong>Evaluate through the inverse map.</strong> Compute <span class="arithmatex">\(z=f^{-1}(x)\)</span> and use the Jacobian determinant to account for local volume expansion or contraction.</p>
+</li>
+<li>
+<p><strong>Audit representation and numerics.</strong> Dequantization, preprocessing, map direction, determinant evaluation, support, topology, conditioning, and floating-point error remain part of the likelihood claim.</p>
+</li>
+</ol>
+<p>Flow matching retains the transport view but learns a velocity field rather than a finite bijective composition. Generation then solves an ODE or related dynamics, and density evaluation—when required—adds numerical divergence integration.</p>
+<hr/>
+<h2 id="mathematical-foundation">Mathematical Foundation<a class="headerlink" href="#mathematical-foundation" title="Permanent link">¤</a></h2>
+<h3 id="the-change-of-variables-formula">The Change of Variables Formula<a class="headerlink" href="#the-change-of-variables-formula" title="Permanent link">¤</a></h3>
+<p>The change of variables formula serves as the <strong>cornerstone of all normalizing flow architectures</strong>. Given a random variable <span class="arithmatex">\(\mathbf{z}\)</span> with known density <span class="arithmatex">\(p_{\mathcal{Z}}(\mathbf{z})\)</span> and an invertible transformation <span class="arithmatex">\(\mathbf{x} = f(\mathbf{z})\)</span>, the density of <span class="arithmatex">\(\mathbf{x}\)</span> becomes:</p>
+<div class="arithmatex">\[
+p_{\mathcal{X}}(\mathbf{x}) = p_{\mathcal{Z}}(f^{-1}(\mathbf{x})) \left| \det \frac{\partial f^{-1}}{\partial \mathbf{x}} \right|
+\]</div>
+<p>Or equivalently in log space:</p>
+<div class="arithmatex">\[
+\log p_{\mathcal{X}}(\mathbf{x}) = \log p_{\mathcal{Z}}(\mathbf{z}) + \log \left| \det \frac{\partial f^{-1}}{\partial \mathbf{x}} \right|
+\]</div>
+<p>where <span class="arithmatex">\(\mathbf{z} = f^{-1}(\mathbf{x})\)</span>.</p>
+<div class="admonition note">
+<p class="admonition-title">Geometric Intuition</p>
+<p>The Jacobian determinant <span class="arithmatex">\(\left| \det \frac{\partial f}{\partial \mathbf{z}} \right|\)</span> quantifies the <strong>relative change in volume</strong> of an infinitesimal neighborhood under transformation <span class="arithmatex">\(f\)</span>. When the transformation expands a region (<span class="arithmatex">\(|\det J| &gt; 1\)</span>), the probability density must decrease proportionally to conserve total probability mass. Conversely, contraction (<span class="arithmatex">\(|\det J| &lt; 1\)</span>) concentrates probability, increasing density.</p>
+</div>
+<p>For <span class="arithmatex">\(D\)</span>-dimensional vectors, the Jacobian matrix <span class="arithmatex">\(J_f(\mathbf{z})\)</span> is the <span class="arithmatex">\(D \times D\)</span> matrix of partial derivatives <span class="arithmatex">\([\frac{\partial f_i}{\partial z_j}]\)</span>. Computing a general determinant requires <span class="arithmatex">\(O(D^3)\)</span> operations, which becomes <strong>intractable for high-dimensional data</strong> like 256×256 RGB images with <span class="arithmatex">\(D = 196{,}608\)</span> dimensions.</p>
+<p>The entire field of normalizing flows revolves around designing transformations with <strong>structured Jacobians</strong>—triangular, diagonal, or block-structured matrices where determinants reduce to <span class="arithmatex">\(O(D)\)</span> computations.</p>
+<h3 id="composing-multiple-transformations">Composing Multiple Transformations<a class="headerlink" href="#composing-multiple-transformations" title="Permanent link">¤</a></h3>
+<p>A single invertible transformation typically provides limited modeling capacity. The power of flows emerges through <strong>composition</strong>: stacking <span class="arithmatex">\(K\)</span> transformations:</p>
+<div class="arithmatex">\[
+\mathbf{x} = f_K \circ f_{K-1} \circ \cdots \circ f_1(\mathbf{z})
+\]</div>
+<p>The log-likelihood decomposes additively:</p>
+<div class="arithmatex">\[
+\log p_{\mathcal{X}}(\mathbf{x}) = \log p_{\mathcal{Z}}(\mathbf{z}_0) - \sum_{k=1}^{K} \log \left| \det \frac{\partial f_k}{\partial \mathbf{z}_{k-1}} \right|
+\]</div>
+<p>where <span class="arithmatex">\(\mathbf{z}_0 = \mathbf{z}\)</span> and <span class="arithmatex">\(\mathbf{z}_k = f_k(\mathbf{z}_{k-1})\)</span> for <span class="arithmatex">\(k=1,\ldots,K\)</span>.</p>
+<figure class="book-figure" id="fig-flow-explained-composing-multiple-transformations"><pre class="mermaid"><code>%%{init: {'themeCSS': '.nodeLabel p { color: #111827 !important; } .flowchart-link { stroke: #78879a !important; stroke-width: 2px !important; } marker path { fill: #78879a !important; stroke: #78879a !important; }'}}%%
+graph TD
+    Z0["$$z_0$$&amp;nbsp;(base)"] --&gt; F1["$$f_1$$"]
+    F1 --&gt; Z1["$$z_1$$"]
+    Z1 --&gt; F2["$$f_2$$"]
+    F2 --&gt; Z2["$$z_2$$"]
+    Z2 --&gt; Dots["$$\cdots$$"]
+    Dots --&gt; FK["$$f_K$$"]
+    FK --&gt; X["$$x$$&amp;nbsp;(data)"]
+
+    F1 -.-&gt;|"$$\log|\det J_1|$$"| LogDet1["Sum of&lt;br/&gt;log-determinants"]
+    F2 -.-&gt;|"$$\log|\det J_2|$$"| LogDet1
+    FK -.-&gt;|"$$\log|\det J_K|$$"| LogDet1
+
+    style Z0 fill:#e1f5ff,color:#111827
+    style X fill:#ffe1e1,color:#111827
+    style LogDet1 fill:#fff3cd,color:#111827</code></pre><figcaption class="book-object-caption"><span class="book-object-number">Figure FLOW.1.</span> Composing Multiple Transformations</figcaption></figure>
+<div class="admonition tip">
+<p class="admonition-title">Additive Structure in Log-Space</p>
+<p>The chain rule for Jacobians states <span class="arithmatex">\(\det J_{f_2 \circ f_1}(\mathbf{u}) = \det J_{f_2}(f_1(\mathbf{u})) \cdot \det J_{f_1}(\mathbf{u})\)</span>, so log-determinants simply add: <span class="arithmatex">\(\log|\det J_{\text{total}}| = \sum_k \log|\det J_k|\)</span>. This ensures numerical stability and makes total computational cost <span class="arithmatex">\(O(KD)\)</span> when each layer has <span class="arithmatex">\(O(D)\)</span> Jacobian computation.</p>
+</div>
+<h3 id="three-requirements-for-flow-layers">Three Requirements for Flow Layers<a class="headerlink" href="#three-requirements-for-flow-layers" title="Permanent link">¤</a></h3>
+<p>For a transformation <span class="arithmatex">\(f\)</span> to be a valid flow layer, it must satisfy:</p>
+<ol>
+<li><strong>Invertibility</strong>: <span class="arithmatex">\(f\)</span> must be bijective (one-to-one and onto)</li>
+<li><strong>Efficient Jacobian</strong>: <span class="arithmatex">\(\log \left| \det \frac{\partial f}{\partial \mathbf{z}} \right|\)</span> must be tractable to compute</li>
+<li><strong>Efficient Inverse</strong>: <span class="arithmatex">\(f^{-1}\)</span> must be computable efficiently (for sampling)</li>
+</ol>
+<p>Different flow architectures make different trade-offs among these requirements.</p>
+<p>The list is intentionally computational as well as mathematical. A bijection with an intractable inverse is a valid transformation theorem but a poor sampler. A bijection with a dense <span class="arithmatex">\(D\times D\)</span> Jacobian may define a model but defeats the purpose of a scalable normalizing-flow layer. Conversely, flow matching does not require each neural-network evaluation to be invertible: invertibility, when it holds, belongs to the integrated ODE flow under regularity and uniqueness assumptions.</p>
+<h3 id="support-topology-and-almost-everywhere-qualifications">Support, topology, and almost-everywhere qualifications<a class="headerlink" href="#support-topology-and-almost-everywhere-qualifications" title="Permanent link">¤</a></h3>
+<p>Suppose the base density is positive everywhere on connected <span class="arithmatex">\(\mathbb R^D\)</span> and <span class="arithmatex">\(f\)</span> is a continuous bijection with a continuous inverse. Then the image support is connected. Such a map can assign very little mass to a bridge between two modes, but it cannot turn the support into two truly disconnected components. The same homeomorphism logic prevents an ordinary fixed-dimensional flow from exactly mapping Euclidean space onto a lower-dimensional manifold.</p>
+<p>This does <strong>not</strong> mean flows cannot model multimodal data. It means the approximation may retain low-density connections, become ill-conditioned near a topological obstruction, or require a changed construction: mixtures, surjective or injective flows, augmented dimensions, manifold-valued maps, stochastic dynamics, or discrete state-space generators. Density formulas also hold only where the needed derivatives and inverse exist; modern layers are often piecewise differentiable, so the correct statement is "almost everywhere" with respect to the reference measure.</p>
+<h3 id="what-changes-when-the-transformation-is-not-bijective">What changes when the transformation is not bijective?<a class="headerlink" href="#what-changes-when-the-transformation-is-not-bijective" title="Permanent link">¤</a></h3>
+<p>The ordinary change-of-variables formula applies to a dimension-preserving
+bijection. Three common extensions change the statistical contract rather than
+merely relaxing an implementation detail.</p>
+<p><strong>Surjective transformations.</strong> If several latent states map to the same
+observation, an observation density must aggregate all preimages. In a finite
+example, let</p>
+<div class="arithmatex">\[
+p_Z(1)=0.2,\qquad p_Z(2)=0.3,\qquad p_Z(3)=0.5,
+\]</div>
+<p>and let <span class="arithmatex">\(f(1)=f(2)=a\)</span>, <span class="arithmatex">\(f(3)=b\)</span>. Then <span class="arithmatex">\(p_X(a)=0.5\)</span> and <span class="arithmatex">\(p_X(b)=0.5\)</span>.
+Choosing one convenient inverse for <span class="arithmatex">\(a\)</span> would return either <span class="arithmatex">\(0.2\)</span> or <span class="arithmatex">\(0.3\)</span> and
+is wrong. In continuous models, summation becomes integration over a fibre or
+an auxiliary reverse distribution. <a href="https://papers.nips.cc/paper/2020/hash/9578a63fbe545bd82cc5bbe749636af1-Abstract.html">SurVAE
+Flows</a>
+organize bijective, surjective, and stochastic transformations in one modular
+framework; particular surjections can retain exact likelihood terms, whereas
+others yield a variational bound.</p>
+<p><strong>Injective transformations.</strong> If <span class="arithmatex">\(f:\mathbb R^d\to\mathbb R^D\)</span> with <span class="arithmatex">\(d&lt;D\)</span>,
+the image distribution is generally singular with respect to <span class="arithmatex">\(D\)</span>-dimensional
+Lebesgue measure. When <span class="arithmatex">\(f\)</span> is a regular injective chart, its density with
+respect to <span class="arithmatex">\(d\)</span>-dimensional volume on the image uses the metric factor</p>
+<div class="arithmatex">\[
+p_{\mathcal M}(f(z))
+=\frac{p_Z(z)}{\sqrt{\det\!\left(J_f(z)^T J_f(z)\right)}}.
+\]</div>
+<p>This is not an ordinary ambient-space likelihood. Chart coverage,
+self-intersection, observation noise, and manifold dimension must be declared.</p>
+<p><strong>Augmented transformations.</strong> A model can append an auxiliary <span class="arithmatex">\(U\)</span> and learn a
+bijection for the joint <span class="arithmatex">\((X,U)\)</span>. Exact joint density <span class="arithmatex">\(p(x,u)\)</span> does not by itself
+give exact observed density because</p>
+<div class="arithmatex">\[
+p(x)=\int p(x,u)\,du.
+\]</div>
+<p>The integral may be analytic, estimated, or variationally bounded. Augmentation
+can ease topology and optimization while adding auxiliary dimension, inference,
+and compute.</p>
+<p>These constructions fill genuine architecture and representation gaps, but
+they do not turn every non-bijective decoder into a classical normalizing flow.
+The <a href="../conditioning-steering-and-constraints/#4-hard-constraints-formal-languages-and-feasible-geometry">conditioning and constraints volume</a>
+separately explains feasible maps, projection, and conditional-law preservation.</p>
+<details class="question">
+<summary>Retrieval practice: topology-changing flow components</summary>
+<ol>
+<li>Why is one inverse branch insufficient for a surjection?</li>
+<li>With respect to which measure is an injective manifold density defined?</li>
+<li>Does exact <span class="arithmatex">\(p(x,u)\)</span> imply tractable exact <span class="arithmatex">\(p(x)\)</span>?</li>
+</ol>
+<p><strong>Solutions.</strong> (1) Probability from every preimage contributes to the
+observation. (2) The appropriate lower-dimensional volume measure on the
+image, not ordinary ambient Lebesgue measure. (3) No; the auxiliary must
+still be marginalized.</p>
+</details>
+<h3 id="base-distribution">Base Distribution<a class="headerlink" href="#base-distribution" title="Permanent link">¤</a></h3>
+<p>Efficient sampling usually starts from a simple reference law <span class="arithmatex">\(p_{\mathcal{Z}}(\mathbf{z})\)</span>:</p>
+<p><strong>Standard Gaussian</strong> (most common):</p>
+<div class="arithmatex">\[
+p_{\mathcal{Z}}(\mathbf{z}) = \mathcal{N}(\mathbf{z}; \mathbf{0}, \mathbf{I}) = \frac{1}{(2\pi)^{D/2}} \exp\left(-\frac{1}{2}\|\mathbf{z}\|^2\right)
+\]</div>
+<p><strong>Uniform</strong> (less common):</p>
+<div class="arithmatex">\[
+p_{\mathcal{Z}}(\mathbf{z}) = \mathcal{U}(\mathbf{z}; -a, a) = \frac{1}{(2a)^D} \mathbb{1}_{[-a,a]^D}(\mathbf{z})
+\]</div>
+<p>The base is part of the model, not a harmless placeholder. A bounded base passed through a continuous map has bounded image if the map extends continuously to the compact closure; a full-support Gaussian avoids that particular restriction but still inherits the topology constraints above. A learned or mixture base can improve fit while changing sampling, density evaluation, and identifiability.</p>
+<h3 id="worked-example-one-affine-map-both-jacobian-directions">Worked example: one affine map, both Jacobian directions<a class="headerlink" href="#worked-example-one-affine-map-both-jacobian-directions" title="Permanent link">¤</a></h3>
+<p>Let <span class="arithmatex">\(Z\sim\mathcal N(0,1)\)</span> and <span class="arithmatex">\(X=f(Z)=2Z+3\)</span>. For the observation <span class="arithmatex">\(x=5\)</span>, the inverse is <span class="arithmatex">\(z=(5-3)/2=1\)</span> and <span class="arithmatex">\(\lvert dz/dx\rvert=1/2\)</span>. Therefore</p>
+<div class="arithmatex">\[
+\log p_X(5)=\log p_Z(1)-\log 2
+=-\frac12-\frac12\log(2\pi)-\log 2.
+\]</div>
+<p>Using the forward Jacobian gives the identical answer only if its sign is reversed:</p>
+<div class="arithmatex">\[
+\log p_X(f(z))=\log p_Z(z)-\log\lvert df/dz\rvert.
+\]</div>
+<p>In two dimensions, <span class="arithmatex">\(f(z)=Az+b\)</span> gives <span class="arithmatex">\(\log p_X(x)=\log p_Z(A^{-1}(x-b))-\log|\det A|\)</span>. If <span class="arithmatex">\(A=\operatorname{diag}(2,1/2)\)</span>, the transformation changes shape but preserves volume because <span class="arithmatex">\(|\det A|=1\)</span>; individual scale changes do not imply a nonzero total log-determinant.</p>
+<div class="admonition failure">
+<p class="admonition-title">Counterexample: invertible does not mean universally expressive</p>
+<p>No homeomorphism from connected <span class="arithmatex">\(\mathbb R\)</span> has an image equal to <span class="arithmatex">\((-2,-1)\cup(1,2)\)</span>. A one-dimensional continuous normalizing flow can approximate a two-component target by leaving a very low-density bridge, but it cannot exactly reproduce that disconnected support while retaining the stated assumptions.</p>
+</div>
+<h3 id="independent-practice-and-assessment-map-flow-foundations">Independent practice and assessment map: flow foundations<a class="headerlink" href="#independent-practice-and-assessment-map-flow-foundations" title="Permanent link">¤</a></h3>
+<p>Declare the probability space, map direction, support, reference measure, and
+numerical representation before using the change-of-variables formula. Show
+the Jacobian direction and sign behind every density equality.</p>
+<h4 id="p1-reconstruct-a-normalized-flow-without-hiding-its-assumptions">P1 — Reconstruct a normalized flow without hiding its assumptions<a class="headerlink" href="#p1-reconstruct-a-normalized-flow-without-hiding-its-assumptions" title="Permanent link">¤</a></h4>
+<ol>
+<li><strong>P1.1 — Predict before computing.</strong> Predict whether each statement is necessarily true: an invertible neural network has a tractable model density; a zero log-determinant means the transformation is the identity; a bijection from a full-support Gaussian can exactly produce disconnected support; exact <span class="arithmatex">\(p(x,u)\)</span> makes <span class="arithmatex">\(p(x)\)</span> tractable; direct inversion computes any partial-observation posterior; and an exact continuous density is an exact uint8 probability mass. For every false statement, name the missing map, measure, marginalization, topology, or data-semantics condition.</li>
+<li><strong>P1.2 — Direction and composition ledger.</strong> Let <span class="arithmatex">\(Z\sim\mathcal N(0,1)\)</span>, <span class="arithmatex">\(f_1(z)=3z-2\)</span>, and <span class="arithmatex">\(f_2(u)=\exp(u)\)</span>. For the observation <span class="arithmatex">\(x=e^1\)</span>, recover every intermediate state and compute <span class="arithmatex">\(\log p_X(x)\)</span> once with forward Jacobians and once with the inverse-map Jacobian. Identify the support of <span class="arithmatex">\(X\)</span> and explain why reversing only the determinant sign without reversing the evaluated states is invalid.</li>
+<li><strong>P1.3 — Two-dimensional likelihood and oracle.</strong> For <span class="arithmatex">\(X=AZ+b\)</span> with <span class="arithmatex">\(Z\sim\mathcal N(0,I_2)\)</span>, <span class="arithmatex">\(A=\begin{bmatrix}2&amp;1\\0&amp;1/2\end{bmatrix}\)</span>, and <span class="arithmatex">\(b=(1,-1)^\top\)</span>, compute the density at the image of <span class="arithmatex">\(z=(1,2)^\top\)</span>. Derive the forward and inverse Jacobians, verify the determinant product, and design a finite-difference or automatic-differentiation oracle that would catch a batched sign or reduction bug.</li>
+<li><strong>P1.4 — Change the transformation contract.</strong> For (a) a finite surjection with three preimages, (b) the injective map <span class="arithmatex">\(f(t)=(t,t^2)\)</span>, and © an augmented bijection over <span class="arithmatex">\((X,U)\)</span>, state the measure with respect to which a density exists and derive the sum, metric factor, or marginal integral that replaces ordinary bijective change of variables. Give one incorrect single-inverse calculation for each and show exactly where probability is lost.</li>
+<li><strong>P1.5 — Exactness and support audit.</strong> Design two targets with the same low-order moments but different support topology. Determine which can be represented exactly by a continuous Euclidean diffeomorphism from a full-support Gaussian and which needs a mixture, augmentation, non-bijective map, manifold construction, or discrete generator. State the differentiability, inverse-differentiability, and nonzero-Jacobian conditions required almost everywhere, including how piecewise-smooth boundaries are treated. Separate mathematical model-density exactness from dequantization, preprocessing, floating-point inversion, and ODE-integration error in an evidence table.</li>
+<li><strong>P1.6 — Transfer.</strong> Rebuild the construction for either a circular angle with periodic reference measure or a finite molecular graph. Declare the support, base/reference measure, map or Markov kernel, normalization rule, training query, sampling algorithm, and one tractable normalization test. State which Euclidean determinant identities survive and which require a manifold-volume or discrete-state replacement.</li>
+</ol>
+<h5 id="outcome-to-task-alignment-flow-foundations">Outcome-to-task alignment: flow foundations<a class="headerlink" href="#outcome-to-task-alignment-flow-foundations" title="Permanent link">¤</a></h5>
+<div class="md-typeset__table book-table-container"><table id="tbl-flow-explained-outcome-to-task-alignment-flow-foundations"><caption class="book-object-caption"><span class="book-object-number">Table FLOW.17.</span> Outcome-to-task alignment for flow foundations</caption>
+<thead>
+<tr>
+<th>Learning objective</th>
+<th>Independently assessed by</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>O1 — Derive change of variables in both map directions without changing the Jacobian sign</td>
+<td>P1.1, P1.2, P1.3</td>
+</tr>
+<tr>
+<td>O2 — Explain which assumptions make a transformation a diffeomorphism almost everywhere</td>
+<td>P1.1, P1.4, P1.5</td>
+</tr>
+<tr>
+<td>O3 — Distinguish an exact model-density expression from a discrete-data likelihood or floating-point computation</td>
+<td>P1.1, P1.5, P1.6</td>
+</tr>
+<tr>
+<td>O4 — Diagnose support and topology mismatches</td>
+<td>P1.1, P1.4, P1.5, P1.6</td>
+</tr>
+<tr>
+<td>O5 — Calculate a complete scalar and two-dimensional flow likelihood</td>
+<td>P1.2, P1.3</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="chapter-1-synthesis">Chapter 1 synthesis<a class="headerlink" href="#chapter-1-synthesis" title="Permanent link">¤</a></h3>
+<p>A classical flow is a normalized density construction because a base law, a map direction, and a volume correction are specified together. Exactness attaches to that mathematical construction. Data discretisation, preprocessing, finite precision, and numerical ODE integration are additional layers whose errors must be reported rather than hidden behind the word <em>exact</em>.</p>
+<details class="question">
+<summary>Retrieval practice: flow foundations</summary>
+<ol>
+<li>If <span class="arithmatex">\(x=f(z)\)</span>, which Jacobian sign accompanies the forward map in <span class="arithmatex">\(\log p_X(f(z))\)</span>?</li>
+<li>Why can a standard Euclidean flow represent two modes but not exactly disconnected support?</li>
+<li>Does direct inversion compute an arbitrary posterior <span class="arithmatex">\(p(z_1\mid x_2)\)</span>?</li>
+<li>What changes if an image is stored as uint8 rather than observed from a continuous density?</li>
+</ol>
+<p><strong>Solutions.</strong> (1) Subtract <span class="arithmatex">\(\log|\det J_f(z)|\)</span>; equivalently add the inverse-map log-determinant. (2) A continuous bijection preserves connectedness, although it can create a low-density bridge. (3) No. It recovers the complete latent paired with a complete observation under the deterministic bijection; partial or noisy observations define a different inference problem. (4) The probability of a discrete symbol is a mass, not a pointwise continuous density, so one needs a discrete construction or a dequantisation bound with all scale Jacobians included.</p>
+</details>
+<p><strong>Bridge.</strong> The theorem tells us what every layer must contribute. Chapter 2 asks how architectures make the inverse and determinant cheap without sacrificing too much expressivity. <a href="../flow-explained/#flow-model-architectures">Continue continuously</a> or open <a href="../flow-02-architectures/">Chapter 2</a>.</p>
+<hr/>
+<hr/>
+<p><strong>Continue:</strong> <a href="../flow-02-architectures/">2. Architectures</a> · <a href="../flow-explained/#overview">Complete guide</a></p>
+</article>
+</div>
+<script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  Back to top
+</button>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+<div class="md-social">
+<a class="md-social__link" href="https://github.com/avitai/artifex" rel="noopener" target="_blank" title="github.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</a>
+<a class="md-social__link" href="https://pypi.org/project/avitai-artifex/" rel="noopener" target="_blank" title="pypi.org">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-66.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.3v101.8c0 29 25.2 46 53.4 54.3 33.8 9.9 66.3 11.7 106.8 0 26.9-7.8 53.4-23.5 53.4-54.3v-40.7H226.2v-13.6h160.2c31.1 0 42.6-21.7 53.4-54.2 11.2-33.5 10.7-65.7 0-108.6M286.2 444.7a20.4 20.4 0 1 1 0-40.7 20.4 20.4 0 1 1 0 40.7M167.8 248.1h106.8c29.7 0 53.4-24.5 53.4-54.3V91.9c0-29-24.4-50.7-53.4-55.6-35.8-5.9-74.7-5.6-106.8.1-45.2 8-53.4 24.7-53.4 55.6v40.7h106.9v13.6h-147c-31.1 0-58.3 18.7-66.8 54.2-9.8 40.7-10.2 66.1 0 108.6 7.6 31.6 25.7 54.2 56.8 54.2H101v-48.8c0-35.3 30.5-66.4 66.8-66.4m-6.6-183.4a20.4 20.4 0 1 1 0 40.8 20.4 20.4 0 1 1 0-40.8"></path></svg>
+</a>
+<a class="md-social__link" href="https://twitter.com/mahdi_shafiei" rel="noopener" target="_blank" title="twitter.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M459.4 151.7c.3 4.5.3 9.1.3 13.6 0 138.7-105.6 298.6-298.6 298.6-59.5 0-114.7-17.2-161.1-47.1 8.4 1 16.6 1.3 25.3 1.3 49.1 0 94.2-16.6 130.3-44.8-46.1-1-84.8-31.2-98.1-72.8 6.5 1 13 1.6 19.8 1.6 9.4 0 18.8-1.3 27.6-3.6-48.1-9.7-84.1-52-84.1-103v-1.3c14 7.8 30.2 12.7 47.4 13.3-28.3-18.8-46.8-51-46.8-87.4 0-19.5 5.2-37.4 14.3-53C87.4 130.8 165 172.4 252.1 176.9c-1.6-7.8-2.6-15.9-2.6-24C249.5 95.1 296.3 48 354.4 48c30.2 0 57.5 12.7 76.7 33.1 23.7-4.5 46.5-13.3 66.6-25.3-7.8 24.4-24.4 44.8-46.1 57.8 21.1-2.3 41.6-8.1 60.4-16.2-14.3 20.8-32.2 39.3-52.6 54.3"></path></svg>
+</a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.path", "navigation.top", "navigation.prune", "toc.follow", "search.highlight", "search.share", "search.suggest", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "content.mermaid"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+<script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+<script src="../../../javascripts/reading-layout.js"></script>
+</body>
+</html>

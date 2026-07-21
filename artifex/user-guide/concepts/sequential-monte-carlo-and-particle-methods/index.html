@@ -1,0 +1,3476 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="Sequential Monte Carlo (SMC) approximates a sequence of related target laws with a population of weighted samples. Mutation moves particles into new states," name="description"/>
+<meta content="Mahdi Shafiei" name="author"/>
+<link href="https://docs.avitai.bio/artifex/user-guide/concepts/sequential-monte-carlo-and-particle-methods/" rel="canonical"/>
+<link href="../smc-06-learning-practice/" rel="prev"/>
+<link href="../optimization-01-differentiation/" rel="next"/>
+<link href="../../../assets/images/favicon.png" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.7.7" name="generator"/>
+<title>Sequential Monte Carlo and Particle Methods - Artifex</title>
+<link href="../../../assets/stylesheets/main.ec1eaa64.min.css" rel="stylesheet"/>
+<link href="../../../assets/stylesheets/palette.ab4e12ef.min.css" rel="stylesheet"/>
+<script src="../../../assets/vendor/iframe-worker/index.js"></script>
+<link href="../../../assets/_mkdocstrings.css" rel="stylesheet"/>
+<link href="../../../_static/extra.css" rel="stylesheet"/>
+<script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+<meta content="article" property="og:type"/>
+<meta content="The Artifex Generative Models Book" property="og:site_name"/>
+<meta content="Sequential Monte Carlo and Particle Methods" property="og:title"/>
+<meta content="Sequential Monte Carlo (SMC) approximates a sequence of related target laws with a population of weighted samples. Mutation moves particles into new states," property="og:description"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/sequential-monte-carlo-and-particle-methods/" property="og:url"/>
+<meta content="2026-07-15" property="article:modified_time"/>
+<meta content="summary" name="twitter:card"/>
+<meta content="Sequential Monte Carlo and Particle Methods" name="twitter:title"/>
+<meta content="Sequential Monte Carlo (SMC) approximates a sequence of related target laws with a population of weighted samples. Mutation moves particles into new states," name="twitter:description"/>
+<meta content="Generative models, Machine learning, Probabilistic modeling, advanced, reference, continuous_view, sequential-monte-carlo-particle-methods, practitioner, researcher" name="keywords"/>
+<meta content="Sequential Monte Carlo and Particle Methods" name="citation_title"/>
+<meta content="Mahdi Shafiei" name="citation_author"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/sequential-monte-carlo-and-particle-methods/" name="citation_public_url"/>
+<meta content="en" name="citation_language"/>
+<meta content="Sequential Monte Carlo and Particle Methods" name="DC.title"/>
+<meta content="Mahdi Shafiei" name="DC.creator"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/sequential-monte-carlo-and-particle-methods/" name="DC.identifier"/>
+<meta content="Text.LearningResource" name="DC.type"/>
+<meta content="2026-07-15" name="DCTERMS.modified"/>
+<meta content="https://github.com/avitai/artifex/blob/main/LICENSE" name="DCTERMS.license"/>
+<meta content="advanced" name="DCTERMS.educationLevel"/>
+<meta content="practitioner, researcher" name="DCTERMS.audience"/>
+<link href="https://github.com/avitai/artifex/blob/main/LICENSE" rel="license"/>
+<script id="artifex-book-metadata" type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Chapter",
+  "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/sequential-monte-carlo-and-particle-methods/",
+  "url": "https://docs.avitai.bio/artifex/user-guide/concepts/sequential-monte-carlo-and-particle-methods/",
+  "name": "Sequential Monte Carlo and Particle Methods",
+  "description": "Sequential Monte Carlo (SMC) approximates a sequence of related target laws with a population of weighted samples. Mutation moves particles into new states,",
+  "identifier": "sequential-monte-carlo-particle-methods",
+  "inLanguage": "en",
+  "isAccessibleForFree": true,
+  "learningResourceType": "Continuous volume",
+  "educationalLevel": "advanced",
+  "educationalUse": "reference",
+  "audience": [
+    
+      {"@type": "EducationalAudience", "audienceType": "practitioner"},
+    
+      {"@type": "EducationalAudience", "audienceType": "researcher"}
+    
+  ],
+  "dateModified": "2026-07-15",
+  "keywords": ["Generative models", "Machine learning", "Probabilistic modeling", "advanced", "reference", "continuous_view", "sequential-monte-carlo-particle-methods", "practitioner", "researcher"],
+  "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+  "author": [
+    
+      {"@type": "Person", "name": "Mahdi Shafiei"}
+    
+  ],
+  "isPartOf": {
+    "@type": "Book",
+    "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/#book",
+    "url": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/",
+    "name": "The Artifex Generative Models Book",
+    "bookEdition": "Living Web Edition",
+    "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+    "author": [
+      
+        {"@type": "Person", "name": "Mahdi Shafiei"}
+      
+    ]
+  }
+}
+</script>
+<link href="../../../assets/vendor/katex/katex.min.css" id="artifex-katex-stylesheet" integrity="sha384-UA8juhPf75SzzAMA/4fo3yOU7sBJ0om7SCD2GHq0fZqZco6tr1UCV7nUbk9J90JM" rel="stylesheet"/>
+<script defer="" integrity="sha384-T/0lMUdJpd2S1ZHtRiofG3htU3xPCrFVeAQ1UUE2TJwlEJSV5NUwn30kP28n238E" src="../../../assets/vendor/mermaid/mermaid.min.js"></script>
+<script defer="" src="../../../assets/vendor/katex/katex-shadow.js"></script>
+<script defer="" src="../../../javascripts/mermaid-math.js"></script>
+<script defer="" src="../../../javascripts/mathjax.js"></script>
+<script defer="" integrity="sha384-OrHfGTnIbkl0do3N76qW/uWr38o91N05sbSPuYBPLH+hG8X/dNSrjZf3AGjzrCwC" src="../../../assets/vendor/mathjax/tex-mml-chtml.js"></script>
+<meta content="noindex,follow" name="robots"/>
+</head>
+<body data-md-color-accent="amber" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#sequential-monte-carlo-and-particle-methods">
+          Skip to content
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header md-header--shadow" data-md-component="header">
+<nav aria-label="Header" class="md-header__inner md-grid">
+<a aria-label="Artifex" class="md-header__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            Artifex
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+            
+              Sequential Monte Carlo and Particle Methods
+            
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-label="Switch to dark mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: light)" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_1" hidden="" title="Switch to dark mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+<input aria-label="Switch to light mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-primary="indigo" data-md-color-scheme="slate" id="__palette_1" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_0" hidden="" title="Switch to light mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+</form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div aria-label="Search" class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Search" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="Search" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="Search" class="md-search__options">
+<a aria-label="Share" class="md-search__icon md-icon" data-clipboard="" data-clipboard-text="" data-md-component="search-share" href="javascript:void(0)" tabindex="-1" title="Share">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"></path></svg>
+</a>
+<button aria-label="Clear" class="md-search__icon md-icon" tabindex="-1" title="Clear" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            Initializing search
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Navigation" class="md-nav md-nav--primary" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="Artifex" class="md-nav__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+    Artifex
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../..">
+<span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../getting-started/installation/">
+<span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Generative Models Book
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Generative Models Book
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    
+  
+    Start Here — The Landscape
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../first-course-01-generative-systems/">
+<span class="md-ellipsis">
+    
+  
+    First Course — New to Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Foundations
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_3_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Foundations
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../probability-01-objects/">
+<span class="md-ellipsis">
+    
+  
+    1. Probability and Generative Modeling
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../classical-01-latent-foundations/">
+<span class="md-ellipsis">
+    
+  
+    2. Classical Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../bayesian-learning-01-object/">
+<span class="md-ellipsis">
+    
+  
+    3. Bayesian Learning and Model Assessment
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../inference-01-objects-and-queries/">
+<span class="md-ellipsis">
+    
+  
+    4. Latent Variables and Inference
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../objectives-01-discrepancies/">
+<span class="md-ellipsis">
+    
+  
+    5. Objectives and Statistical Distances
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../information-coding-01-measures/">
+<span class="md-ellipsis">
+    
+  
+    6. Information, Coding, and Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../graphical-models-01-directed/">
+<span class="md-ellipsis">
+    
+  
+    7. Graphical Models and Structured Probability
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../message-passing-01-factor-graphs/">
+<span class="md-ellipsis">
+    
+  
+    8. Graphical Inference and Message Passing
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../filtering-01-bayes-recursions/">
+<span class="md-ellipsis">
+    
+  
+    9. Filtering and Smoothing for State-Space Generators
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../sampling-01-monte-carlo/">
+<span class="md-ellipsis">
+    
+  
+    10. Sampling and Continuous Time
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_3_11" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_3_11" id="__nav_3_3_11_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    11. Sequential Monte Carlo and Particle Methods
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_3_11_label" class="md-nav" data-md-level="3">
+<label class="md-nav__title" for="__nav_3_3_11">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    11. Sequential Monte Carlo and Particle Methods
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../smc-01-targets/">
+<span class="md-ellipsis">
+    
+  
+    1. Sequential Targets and Feynman–Kac Semantics
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../smc-02-filtering-resampling/">
+<span class="md-ellipsis">
+    
+  
+    2. Particle Filtering, Resampling, and Degeneracy
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../smc-03-proposals/">
+<span class="md-ellipsis">
+    
+  
+    3. Proposal Design and Auxiliary Particles
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../smc-04-smoothing-hybrids/">
+<span class="md-ellipsis">
+    
+  
+    4. Smoothing, Rao–Blackwellization, and Particle MCMC
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../smc-05-static-targets/">
+<span class="md-ellipsis">
+    
+  
+    5. Static Targets, Tempering, Rare Events, and ABC
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../smc-06-learning-practice/">
+<span class="md-ellipsis">
+    
+  
+    6. Learning, Twisting, Evaluation, and Research
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
+    
+  
+    Continuous View (All Chapters)
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
+<span class="md-ellipsis">
+    
+  
+    Continuous View (All Chapters)
+  
+
+    
+  </span>
+</a>
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#reader-orientation">
+<span class="md-ellipsis">
+      
+        Reader orientation
+      
+    </span>
+</a>
+<nav aria-label="Reader orientation" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-map">
+<span class="md-ellipsis">
+      
+        Chapter map
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#notation-and-execution-contract">
+<span class="md-ellipsis">
+      
+        Notation and execution contract
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#1-sequential-targets-and-feynmankac-semantics">
+<span class="md-ellipsis">
+      
+        1. Sequential Targets and Feynman–Kac Semantics
+      
+    </span>
+</a>
+<nav aria-label="1. Sequential Targets and Feynman–Kac Semantics" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-1-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 1 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#begin-with-the-sequence-of-laws">
+<span class="md-ellipsis">
+      
+        Begin with the sequence of laws
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#the-feynmankac-construction">
+<span class="md-ellipsis">
+      
+        The Feynman–Kac construction
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#generic-growing-space-weight">
+<span class="md-ellipsis">
+      
+        Generic growing-space weight
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#weighted-empirical-laws-and-their-limits">
+<span class="md-ellipsis">
+      
+        Weighted empirical laws and their limits
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-finite-target-sequence">
+<span class="md-ellipsis">
+      
+        Worked finite target sequence
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#five-different-returned-objects">
+<span class="md-ellipsis">
+      
+        Five different returned objects
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-1-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 1 synthesis
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-1-retrieval-practice">
+<span class="md-ellipsis">
+      
+        Chapter 1 retrieval practice
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#2-particle-filtering-resampling-and-degeneracy">
+<span class="md-ellipsis">
+      
+        2. Particle Filtering, Resampling, and Degeneracy
+      
+    </span>
+</a>
+<nav aria-label="2. Particle Filtering, Resampling, and Degeneracy" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-2-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 2 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#from-exact-bayes-recursion-to-particles">
+<span class="md-ellipsis">
+      
+        From exact Bayes recursion to particles
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#sequential-importance-sampling-and-resampling">
+<span class="md-ellipsis">
+      
+        Sequential importance sampling and resampling
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#normalizing-constant-estimate">
+<span class="md-ellipsis">
+      
+        Normalizing-constant estimate
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#resampling-is-an-offspring-distribution">
+<span class="md-ellipsis">
+      
+        Resampling is an offspring distribution
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-offspring-calculation">
+<span class="md-ellipsis">
+      
+        Worked offspring calculation
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#effective-sample-size-three-names-three-objects">
+<span class="md-ellipsis">
+      
+        Effective sample size: three names, three objects
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#three-degeneracies">
+<span class="md-ellipsis">
+      
+        Three degeneracies
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-exact-versus-particle-filter">
+<span class="md-ellipsis">
+      
+        Worked exact-versus-particle filter
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-2-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 2 synthesis
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-2-retrieval-practice">
+<span class="md-ellipsis">
+      
+        Chapter 2 retrieval practice
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#3-proposal-design-and-auxiliary-particles">
+<span class="md-ellipsis">
+      
+        3. Proposal Design and Auxiliary Particles
+      
+    </span>
+</a>
+<nav aria-label="3. Proposal Design and Auxiliary Particles" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-3-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 3 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#proposals-allocate-effort-before-correction">
+<span class="md-ellipsis">
+      
+        Proposals allocate effort before correction
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#the-locally-optimal-proposal">
+<span class="md-ellipsis">
+      
+        The locally optimal proposal
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-binary-proposal">
+<span class="md-ellipsis">
+      
+        Worked binary proposal
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#approximate-observation-aware-proposals">
+<span class="md-ellipsis">
+      
+        Approximate observation-aware proposals
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#auxiliary-particle-filtering">
+<span class="md-ellipsis">
+      
+        Auxiliary particle filtering
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#support-cannot-be-learned-away">
+<span class="md-ellipsis">
+      
+        Support cannot be learned away
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#proposal-comparison-protocol">
+<span class="md-ellipsis">
+      
+        Proposal comparison protocol
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-3-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 3 synthesis
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-3-retrieval-practice">
+<span class="md-ellipsis">
+      
+        Chapter 3 retrieval practice
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#4-smoothing-raoblackwellization-and-particle-mcmc">
+<span class="md-ellipsis">
+      
+        4. Smoothing, Rao–Blackwellization, and Particle MCMC
+      
+    </span>
+</a>
+<nav aria-label="4. Smoothing, Rao–Blackwellization, and Particle MCMC" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-4-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 4 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#filtering-particles-are-not-automatically-smoothing-particles">
+<span class="md-ellipsis">
+      
+        Filtering particles are not automatically smoothing particles
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-backward-choice">
+<span class="md-ellipsis">
+      
+        Worked backward choice
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#raoblackwellized-particle-filters">
+<span class="md-ellipsis">
+      
+        Rao–Blackwellized particle filters
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#resamplemove-rejuvenates-the-current-target">
+<span class="md-ellipsis">
+      
+        Resample–move rejuvenates the current target
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#particle-markov-chain-monte-carlo">
+<span class="md-ellipsis">
+      
+        Particle Markov chain Monte Carlo
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#parameter-particles-and-nested-particle-systems">
+<span class="md-ellipsis">
+      
+        Parameter particles and nested particle systems
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#particle-belief-propagation">
+<span class="md-ellipsis">
+      
+        Particle belief propagation
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#diagnostics-for-smoothing-and-hybrids">
+<span class="md-ellipsis">
+      
+        Diagnostics for smoothing and hybrids
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-4-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 4 synthesis
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-4-retrieval-practice">
+<span class="md-ellipsis">
+      
+        Chapter 4 retrieval practice
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#5-static-targets-tempering-rare-events-and-abc">
+<span class="md-ellipsis">
+      
+        5. Static Targets, Tempering, Rare Events, and ABC
+      
+    </span>
+</a>
+<nav aria-label="5. Static Targets, Tempering, Rare Events, and ABC" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-5-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 5 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#fixed-dimensional-smc-samplers">
+<span class="md-ellipsis">
+      
+        Fixed-dimensional SMC samplers
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#likelihood-tempering">
+<span class="md-ellipsis">
+      
+        Likelihood tempering
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-adaptive-step">
+<span class="md-ellipsis">
+      
+        Worked adaptive step
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#data-tempering-and-sequential-bayes">
+<span class="md-ellipsis">
+      
+        Data tempering and sequential Bayes
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#rare-event-smc">
+<span class="md-ellipsis">
+      
+        Rare-event SMC
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-rare-event-sequence">
+<span class="md-ellipsis">
+      
+        Worked rare-event sequence
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#smc-for-approximate-bayesian-computation">
+<span class="md-ellipsis">
+      
+        SMC for approximate Bayesian computation
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#do-not-collapse-neighboring-algorithms">
+<span class="md-ellipsis">
+      
+        Do not collapse neighboring algorithms
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-5-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 5 synthesis
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-5-retrieval-practice">
+<span class="md-ellipsis">
+      
+        Chapter 5 retrieval practice
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#6-learning-twisting-evaluation-and-research">
+<span class="md-ellipsis">
+      
+        6. Learning, Twisting, Evaluation, and Research
+      
+    </span>
+</a>
+<nav aria-label="6. Learning, Twisting, Evaluation, and Research" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-6-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 6 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#an-smc-computation-can-train-several-objects">
+<span class="md-ellipsis">
+      
+        An SMC computation can train several objects
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#why-resampling-complicates-differentiation">
+<span class="md-ellipsis">
+      
+        Why resampling complicates differentiation
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#twisting-uses-future-information-in-intermediate-targets">
+<span class="md-ellipsis">
+      
+        Twisting uses future information in intermediate targets
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-terminal-twist">
+<span class="md-ellipsis">
+      
+        Worked terminal twist
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#smc-inside-modern-generators">
+<span class="md-ellipsis">
+      
+        SMC inside modern generators
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#evidence-map-through-the-verification-date">
+<span class="md-ellipsis">
+      
+        Evidence map through the verification date
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#evaluation-and-reporting-contract">
+<span class="md-ellipsis">
+      
+        Evaluation and reporting contract
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#research-problems">
+<span class="md-ellipsis">
+      
+        Research problems
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#cumulative-worked-audit">
+<span class="md-ellipsis">
+      
+        Cumulative worked audit
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-6-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 6 synthesis
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-6-retrieval-practice">
+<span class="md-ellipsis">
+      
+        Chapter 6 retrieval practice
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#primary-reading">
+<span class="md-ellipsis">
+      
+        Primary reading
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#source-tracing-checklist">
+<span class="md-ellipsis">
+      
+        Source-tracing checklist
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../optimization-01-differentiation/">
+<span class="md-ellipsis">
+    
+  
+    12. Optimization and Learning Dynamics
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../generative-models-notation/">
+<span class="md-ellipsis">
+    
+  
+    13. Canonical Notation
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../autoregressive-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Model Families
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gradients-01-taxonomy/">
+<span class="md-ellipsis">
+    
+  
+    Connections and Compositions
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../normalization-01-queries/">
+<span class="md-ellipsis">
+    
+  
+    Research Practice
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../models/vae-guide/">
+<span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/core/base/">
+<span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../examples/overview/">
+<span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../zoo/">
+<span class="md-ellipsis">
+    
+  
+    Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../training/overview/">
+<span class="md-ellipsis">
+    
+  
+    Training
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../data/overview/">
+<span class="md-ellipsis">
+    
+  
+    Data &amp; Modalities
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../inference/overview/">
+<span class="md-ellipsis">
+    
+  
+    Inference &amp; Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../benchmarks/">
+<span class="md-ellipsis">
+    
+  
+    Evaluation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../guides/extensions/">
+<span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../extensions/">
+<span class="md-ellipsis">
+    
+  
+    Advanced Topics
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../cli/">
+<span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../community/contributing/">
+<span class="md-ellipsis">
+    
+  
+    Community
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/configs/protein-extension/">
+<span class="md-ellipsis">
+    
+  
+    Reference Library
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#reader-orientation">
+<span class="md-ellipsis">
+      
+        Reader orientation
+      
+    </span>
+</a>
+<nav aria-label="Reader orientation" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-map">
+<span class="md-ellipsis">
+      
+        Chapter map
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#notation-and-execution-contract">
+<span class="md-ellipsis">
+      
+        Notation and execution contract
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#1-sequential-targets-and-feynmankac-semantics">
+<span class="md-ellipsis">
+      
+        1. Sequential Targets and Feynman–Kac Semantics
+      
+    </span>
+</a>
+<nav aria-label="1. Sequential Targets and Feynman–Kac Semantics" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-1-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 1 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#begin-with-the-sequence-of-laws">
+<span class="md-ellipsis">
+      
+        Begin with the sequence of laws
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#the-feynmankac-construction">
+<span class="md-ellipsis">
+      
+        The Feynman–Kac construction
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#generic-growing-space-weight">
+<span class="md-ellipsis">
+      
+        Generic growing-space weight
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#weighted-empirical-laws-and-their-limits">
+<span class="md-ellipsis">
+      
+        Weighted empirical laws and their limits
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-finite-target-sequence">
+<span class="md-ellipsis">
+      
+        Worked finite target sequence
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#five-different-returned-objects">
+<span class="md-ellipsis">
+      
+        Five different returned objects
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-1-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 1 synthesis
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-1-retrieval-practice">
+<span class="md-ellipsis">
+      
+        Chapter 1 retrieval practice
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#2-particle-filtering-resampling-and-degeneracy">
+<span class="md-ellipsis">
+      
+        2. Particle Filtering, Resampling, and Degeneracy
+      
+    </span>
+</a>
+<nav aria-label="2. Particle Filtering, Resampling, and Degeneracy" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-2-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 2 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#from-exact-bayes-recursion-to-particles">
+<span class="md-ellipsis">
+      
+        From exact Bayes recursion to particles
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#sequential-importance-sampling-and-resampling">
+<span class="md-ellipsis">
+      
+        Sequential importance sampling and resampling
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#normalizing-constant-estimate">
+<span class="md-ellipsis">
+      
+        Normalizing-constant estimate
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#resampling-is-an-offspring-distribution">
+<span class="md-ellipsis">
+      
+        Resampling is an offspring distribution
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-offspring-calculation">
+<span class="md-ellipsis">
+      
+        Worked offspring calculation
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#effective-sample-size-three-names-three-objects">
+<span class="md-ellipsis">
+      
+        Effective sample size: three names, three objects
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#three-degeneracies">
+<span class="md-ellipsis">
+      
+        Three degeneracies
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-exact-versus-particle-filter">
+<span class="md-ellipsis">
+      
+        Worked exact-versus-particle filter
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-2-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 2 synthesis
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-2-retrieval-practice">
+<span class="md-ellipsis">
+      
+        Chapter 2 retrieval practice
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#3-proposal-design-and-auxiliary-particles">
+<span class="md-ellipsis">
+      
+        3. Proposal Design and Auxiliary Particles
+      
+    </span>
+</a>
+<nav aria-label="3. Proposal Design and Auxiliary Particles" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-3-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 3 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#proposals-allocate-effort-before-correction">
+<span class="md-ellipsis">
+      
+        Proposals allocate effort before correction
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#the-locally-optimal-proposal">
+<span class="md-ellipsis">
+      
+        The locally optimal proposal
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-binary-proposal">
+<span class="md-ellipsis">
+      
+        Worked binary proposal
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#approximate-observation-aware-proposals">
+<span class="md-ellipsis">
+      
+        Approximate observation-aware proposals
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#auxiliary-particle-filtering">
+<span class="md-ellipsis">
+      
+        Auxiliary particle filtering
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#support-cannot-be-learned-away">
+<span class="md-ellipsis">
+      
+        Support cannot be learned away
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#proposal-comparison-protocol">
+<span class="md-ellipsis">
+      
+        Proposal comparison protocol
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-3-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 3 synthesis
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-3-retrieval-practice">
+<span class="md-ellipsis">
+      
+        Chapter 3 retrieval practice
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#4-smoothing-raoblackwellization-and-particle-mcmc">
+<span class="md-ellipsis">
+      
+        4. Smoothing, Rao–Blackwellization, and Particle MCMC
+      
+    </span>
+</a>
+<nav aria-label="4. Smoothing, Rao–Blackwellization, and Particle MCMC" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-4-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 4 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#filtering-particles-are-not-automatically-smoothing-particles">
+<span class="md-ellipsis">
+      
+        Filtering particles are not automatically smoothing particles
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-backward-choice">
+<span class="md-ellipsis">
+      
+        Worked backward choice
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#raoblackwellized-particle-filters">
+<span class="md-ellipsis">
+      
+        Rao–Blackwellized particle filters
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#resamplemove-rejuvenates-the-current-target">
+<span class="md-ellipsis">
+      
+        Resample–move rejuvenates the current target
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#particle-markov-chain-monte-carlo">
+<span class="md-ellipsis">
+      
+        Particle Markov chain Monte Carlo
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#parameter-particles-and-nested-particle-systems">
+<span class="md-ellipsis">
+      
+        Parameter particles and nested particle systems
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#particle-belief-propagation">
+<span class="md-ellipsis">
+      
+        Particle belief propagation
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#diagnostics-for-smoothing-and-hybrids">
+<span class="md-ellipsis">
+      
+        Diagnostics for smoothing and hybrids
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-4-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 4 synthesis
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-4-retrieval-practice">
+<span class="md-ellipsis">
+      
+        Chapter 4 retrieval practice
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#5-static-targets-tempering-rare-events-and-abc">
+<span class="md-ellipsis">
+      
+        5. Static Targets, Tempering, Rare Events, and ABC
+      
+    </span>
+</a>
+<nav aria-label="5. Static Targets, Tempering, Rare Events, and ABC" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-5-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 5 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#fixed-dimensional-smc-samplers">
+<span class="md-ellipsis">
+      
+        Fixed-dimensional SMC samplers
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#likelihood-tempering">
+<span class="md-ellipsis">
+      
+        Likelihood tempering
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-adaptive-step">
+<span class="md-ellipsis">
+      
+        Worked adaptive step
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#data-tempering-and-sequential-bayes">
+<span class="md-ellipsis">
+      
+        Data tempering and sequential Bayes
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#rare-event-smc">
+<span class="md-ellipsis">
+      
+        Rare-event SMC
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-rare-event-sequence">
+<span class="md-ellipsis">
+      
+        Worked rare-event sequence
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#smc-for-approximate-bayesian-computation">
+<span class="md-ellipsis">
+      
+        SMC for approximate Bayesian computation
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#do-not-collapse-neighboring-algorithms">
+<span class="md-ellipsis">
+      
+        Do not collapse neighboring algorithms
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-5-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 5 synthesis
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-5-retrieval-practice">
+<span class="md-ellipsis">
+      
+        Chapter 5 retrieval practice
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#6-learning-twisting-evaluation-and-research">
+<span class="md-ellipsis">
+      
+        6. Learning, Twisting, Evaluation, and Research
+      
+    </span>
+</a>
+<nav aria-label="6. Learning, Twisting, Evaluation, and Research" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-6-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 6 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#an-smc-computation-can-train-several-objects">
+<span class="md-ellipsis">
+      
+        An SMC computation can train several objects
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#why-resampling-complicates-differentiation">
+<span class="md-ellipsis">
+      
+        Why resampling complicates differentiation
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#twisting-uses-future-information-in-intermediate-targets">
+<span class="md-ellipsis">
+      
+        Twisting uses future information in intermediate targets
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-terminal-twist">
+<span class="md-ellipsis">
+      
+        Worked terminal twist
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#smc-inside-modern-generators">
+<span class="md-ellipsis">
+      
+        SMC inside modern generators
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#evidence-map-through-the-verification-date">
+<span class="md-ellipsis">
+      
+        Evidence map through the verification date
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#evaluation-and-reporting-contract">
+<span class="md-ellipsis">
+      
+        Evaluation and reporting contract
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#research-problems">
+<span class="md-ellipsis">
+      
+        Research problems
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#cumulative-worked-audit">
+<span class="md-ellipsis">
+      
+        Cumulative worked audit
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-6-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 6 synthesis
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-6-retrieval-practice">
+<span class="md-ellipsis">
+      
+        Chapter 6 retrieval practice
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#primary-reading">
+<span class="md-ellipsis">
+      
+        Primary reading
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#source-tracing-checklist">
+<span class="md-ellipsis">
+      
+        Source-tracing checklist
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<nav aria-label="Breadcrumb" class="md-path">
+<ol class="md-path__list">
+<li class="md-path__item">
+<a class="md-path__link" href="../../..">
+<span class="md-ellipsis">
+    Home
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    Generative Models Book
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../probability-01-objects/">
+<span class="md-ellipsis">
+    Foundations
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../smc-01-targets/">
+<span class="md-ellipsis">
+    11. Sequential Monte Carlo and Particle Methods
+  </span>
+</a>
+</li>
+</ol>
+</nav>
+<article class="md-content__inner md-typeset">
+<h1 id="sequential-monte-carlo-and-particle-methods">Sequential Monte Carlo and Particle Methods<a class="headerlink" href="#sequential-monte-carlo-and-particle-methods" title="Permanent link">¤</a></h1><aside aria-label="Learning path" class="admonition abstract artifex-learning-path"><p class="admonition-title">Learning path</p><p><strong>Required knowledge</strong></p><ul class="artifex-learning-path__links" data-learning-path-role="required"><li><a href="../latent-variables-and-inference/">Latent Variables and Inference</a></li><li><a href="../filtering-and-smoothing-state-space/">Filtering and Smoothing for State-Space Generators</a></li><li><a href="../sampling-and-continuous-time/">Sampling and Continuous-Time Generative Mathematics</a></li></ul><p><strong>Readiness check:</strong> can you explain the central object and reproduce one worked example from each required chapter? If not, follow its link before continuing.</p><p><strong>Newly unlocked in the default route</strong></p><p>No immediate successor names this page as its final required prerequisite. Continue through the book navigation or the chapter's cross-links.</p></aside>
+<p>Sequential Monte Carlo (SMC) approximates a sequence of related target laws
+with a population of weighted samples. Mutation moves particles into new
+states, weighting corrects the proposal, and resampling reallocates finite
+computation toward particles with large current weight. This common mechanism
+supports online filtering, path smoothing, static Bayesian inference,
+normalizing-constant estimation, rare-event simulation, approximate Bayesian
+computation, and conditional generation. The target sequence and returned
+query—not the word <em>particle</em>—determine which algorithm has been specified.</p>
+<p>This volume is the canonical family-independent treatment of particle
+algorithms. <a href="../filtering-and-smoothing-state-space/">Filtering and Smoothing</a>
+owns the state-space queries, <a href="../sampling-and-continuous-time/">Sampling and Continuous-Time
+Mathematics</a> owns invariant mutation kernels
+and Monte Carlo uncertainty, and <a href="../likelihood-and-normalizer-estimation/">Estimating Likelihoods and Normalizing
+Constants</a> owns comparisons among
+evidence estimators. Family volumes retain their specialized applications and
+point here for the reusable SMC construction.</p>
+<div class="admonition info">
+<p class="admonition-title">Reading routes</p>
+<ul>
+<li><strong>Entry after prerequisites:</strong> read Chapters 1–3, reproduce the two-state filter, and draw every ancestor arrow by hand.</li>
+<li><strong>Practitioner:</strong> continue through Chapters 4–6, implement at least two resampling schemes, and use the reporting ledger before trusting a result.</li>
+<li><strong>Research:</strong> read continuously, derive the path-space weights and normalizer identity, compare particle and genealogical diagnostics under matched compute, and trace each research method to its primary source.</li>
+</ul>
+</div>
+<h2 id="reader-orientation">Reader orientation<a class="headerlink" href="#reader-orientation" title="Permanent link">¤</a></h2>
+<h3 id="chapter-map">Chapter map<a class="headerlink" href="#chapter-map" title="Permanent link">¤</a></h3>
+<p>The complete volume is one continuous argument. Six exact projections provide
+optional stopping points:</p>
+<ol>
+<li><strong><a href="../smc-01-targets/">Sequential Targets and Feynman–Kac Semantics</a></strong> — targets, paths, proposals, potentials, weighted empirical laws, and returned objects;</li>
+<li><strong><a href="../smc-02-filtering-resampling/">Particle Filtering, Resampling, and Degeneracy</a></strong> — SIS, bootstrap filtering, normalizer estimation, resampling schemes, ESS, and ancestry;</li>
+<li><strong><a href="../smc-03-proposals/">Proposal Design and Auxiliary Particles</a></strong> — observation-aware proposals, fully adapted limits, auxiliary filters, and support failures;</li>
+<li><strong><a href="../smc-04-smoothing-hybrids/">Smoothing, Rao–Blackwellization, and Particle MCMC</a></strong> — path recovery, conditional exact submodels, resample–move, PMCMC, SMC², and nested particles;</li>
+<li><strong><a href="../smc-05-static-targets/">Static Targets, Tempering, Rare Events, and ABC</a></strong> — general SMC samplers, backward kernels, adaptive paths, rare-event sequences, and simulator-based targets; and</li>
+<li><strong><a href="../smc-06-learning-practice/">Learning, Twisting, Evaluation, and Research</a></strong> — differentiable resampling, learned proposals and targets, generative-model control, validation, and bounded research directions.</li>
+</ol>
+<h3 id="notation-and-execution-contract">Notation and execution contract<a class="headerlink" href="#notation-and-execution-contract" title="Permanent link">¤</a></h3>
+<p>At stage <span class="arithmatex">\(t\)</span>, let <span class="arithmatex">\(x_{0:t}\)</span> denote a path, although the state can instead be a
+fixed-dimensional parameter. An unnormalized target is <span class="arithmatex">\(\gamma_t\)</span> with
+normalizer <span class="arithmatex">\(Z_t\)</span> and normalized law <span class="arithmatex">\(\pi_t=\gamma_t/Z_t\)</span>. The particle count is
+<span class="arithmatex">\(N\)</span>. Unnormalized and normalized weights are <span class="arithmatex">\(w_t^i\)</span> and
+<span class="arithmatex">\(W_t^i=w_t^i/\sum_jw_t^j\)</span>. Ancestor index <span class="arithmatex">\(A_t^i\)</span> identifies the parent of
+particle <span class="arithmatex">\(i\)</span> at stage <span class="arithmatex">\(t\)</span>. A proposal kernel is <span class="arithmatex">\(M_t\)</span> and an optional backward
+kernel is <span class="arithmatex">\(L_{t-1}\)</span>. All densities are relative to declared base measures.</p>
+<p>Unless a subsection says otherwise, the execution order is:</p>
+<ol>
+<li>resample ancestors using the previous normalized weights when the declared trigger fires;</li>
+<li>mutate each selected ancestor with <span class="arithmatex">\(M_t\)</span>;</li>
+<li>compute the new incremental and cumulative weights; and</li>
+<li>normalize for the current empirical approximation.</li>
+</ol>
+<p>Other valid conventions resample after weighting. Formulae must follow the
+chosen convention; code that silently combines one convention's indices with
+another convention's weights is not a harmless reordering.</p>
+<figure class="book-figure" id="fig-sequential-monte-carlo-and-particle-methods-notation-and-execution-contract"><pre class="mermaid"><code>flowchart LR
+    A["Declare target sequence"] --&gt; B["Propose or mutate"]
+    B --&gt; C["Correct with weights"]
+    C --&gt; D{"Resample now?"}
+    D --&gt;|yes| E["Select ancestors"]
+    D --&gt;|no| F["Keep weighted cloud"]
+    E --&gt; G["Estimate query and record genealogy"]
+    F --&gt; G</code></pre><figcaption class="book-object-caption"><span class="book-object-number">Figure SMC.1.</span> Notation and execution contract</figcaption></figure>
+<p>The diagram describes a computational skeleton, not a guarantee. Validity
+still depends on support, proper weighting, integrability, resampling, mutation,
+and the query extracted from the finite particle system.</p>
+<h2 id="1-sequential-targets-and-feynmankac-semantics">1. Sequential Targets and Feynman–Kac Semantics<a class="headerlink" href="#1-sequential-targets-and-feynmankac-semantics" title="Permanent link">¤</a></h2>
+<h3 id="chapter-1-prerequisites-and-learning-objectives">Chapter 1 prerequisites and learning objectives<a class="headerlink" href="#chapter-1-prerequisites-and-learning-objectives" title="Permanent link">¤</a></h3>
+<p><strong>Prerequisites.</strong> Importance sampling, conditional probability, Markov
+kernels, and normalized versus unnormalized densities.</p>
+<p><strong>Learning objectives.</strong> Specify an SMC algorithm through its target sequence,
+proposal, potential, resampling rule, and returned query; derive the generic
+importance weight; distinguish path-space and marginal targets; and explain
+why a weighted cloud is an approximation rather than a new model family.</p>
+<h3 id="begin-with-the-sequence-of-laws">Begin with the sequence of laws<a class="headerlink" href="#begin-with-the-sequence-of-laws" title="Permanent link">¤</a></h3>
+<p>Ordinary importance sampling corrects one proposal toward one target. SMC
+inserts intermediate targets so that no single correction must bridge the
+entire discrepancy. There are two common geometries.</p>
+<p>In a <strong>growing-space construction</strong>, stage <span class="arithmatex">\(t\)</span> targets a longer object:</p>
+<div class="arithmatex">\[
+\pi_t(x_{0:t})=\frac{\gamma_t(x_{0:t})}{Z_t}.
+\]</div>
+<p>A state-space posterior <span class="arithmatex">\(p(x_{0:t}\mid y_{1:t})\)</span> is the canonical example. In
+a <strong>fixed-space construction</strong>, every target lives on the same state space:</p>
+<div class="arithmatex">\[
+\pi_t(x)=\frac{\gamma_t(x)}{Z_t},
+\qquad t=0,\ldots,T.
+\]</div>
+<p>Tempering from a prior to a posterior is a canonical example. These two cases
+share weighted-population machinery but not necessarily the same weight,
+mutation, memory, or returned path.</p>
+<h3 id="the-feynmankac-construction">The Feynman–Kac construction<a class="headerlink" href="#the-feynmankac-construction" title="Permanent link">¤</a></h3>
+<p>A useful general representation starts with an initial law <span class="arithmatex">\(M_0(dx_0)\)</span>,
+forward kernels <span class="arithmatex">\(M_t(x_{t-1},dx_t)\)</span>, and nonnegative potentials
+<span class="arithmatex">\(G_t(x_{0:t})\)</span>. They recursively define an unnormalized path measure</p>
+<div class="arithmatex">\[
+\begin{aligned}
+\Gamma_0(dx_0)&amp;=M_0(dx_0)G_0(x_0),\\
+\Gamma_t(dx_{0:t})
+&amp;=\Gamma_{t-1}(dx_{0:t-1})\\
+&amp;\quad\times M_t(x_{t-1},dx_t)G_t(x_{0:t}).
+\end{aligned}
+\]</div>
+<p>Repeated substitution yields the corresponding product over stages. Its mass
+<span class="arithmatex">\(Z_t=\Gamma_t(1)\)</span> and normalized law
+<span class="arithmatex">\(\Pi_t=\Gamma_t/Z_t\)</span> determine the mathematical target. The potential may be
+an observation likelihood, an annealing increment, a constraint-survival
+factor, or a ratio induced by a backward kernel. It is not automatically a
+physical energy or a learned reward.</p>
+<p>This representation separates three layers:</p>
+<div class="md-typeset__table book-table-container"><table id="tbl-sequential-monte-carlo-and-particle-methods-the-feynmankac-construction"><caption class="book-object-caption"><span class="book-object-number">Table SMC.1.</span> The Feynman–Kac construction</caption>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Object</th>
+<th>Question</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>model or target</td>
+<td><span class="arithmatex">\(\gamma_t\)</span>, <span class="arithmatex">\(\pi_t\)</span>, or <span class="arithmatex">\(\Pi_t\)</span></td>
+<td>Which law or path measure is intended?</td>
+</tr>
+<tr>
+<td>particle algorithm</td>
+<td>proposals, potentials, resampling, mutation</td>
+<td>How is finite computation allocated?</td>
+</tr>
+<tr>
+<td>estimator</td>
+<td>weighted average, normalizer product, path draw, gradient</td>
+<td>Which query is returned, and with what error contract?</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="generic-growing-space-weight">Generic growing-space weight<a class="headerlink" href="#generic-growing-space-weight" title="Permanent link">¤</a></h3>
+<p>Suppose a proposal factorizes as</p>
+<div class="arithmatex">\[
+q_t(x_{0:t})=q_0(x_0)\prod_{s=1}^{t}
+q_s(x_s\mid x_{0:s-1}).
+\]</div>
+<p>Before resampling, ordinary importance sampling gives</p>
+<div class="arithmatex">\[
+w_t(x_{0:t})=\frac{\gamma_t(x_{0:t})}{q_t(x_{0:t})}.
+\]</div>
+<p>The recursive form is</p>
+<div class="arithmatex">\[
+\begin{aligned}
+w_t(x_{0:t})
+&amp;=w_{t-1}(x_{0:t-1})\alpha_t(x_{0:t}),\\
+\alpha_t(x_{0:t})
+&amp;=\frac{\gamma_t(x_{0:t})}{\gamma_{t-1}(x_{0:t-1})}
+\frac{1}{q_t(x_t\mid x_{0:t-1})}.
+\end{aligned}
+\]</div>
+<p>The incremental weight <span class="arithmatex">\(\alpha_t\)</span> is the exact correction associated with the
+declared targets and proposal. After resampling at <span class="arithmatex">\(t-1\)</span>, the inherited weights
+are equal and only <span class="arithmatex">\(\alpha_t\)</span> need be stored. Without resampling, cumulative
+weights retain all previous increments.</p>
+<h3 id="weighted-empirical-laws-and-their-limits">Weighted empirical laws and their limits<a class="headerlink" href="#weighted-empirical-laws-and-their-limits" title="Permanent link">¤</a></h3>
+<p>For an integrable function <span class="arithmatex">\(f\)</span>, the normalized particle estimate is</p>
+<div class="arithmatex">\[
+\widehat\pi_t^N(f)=\sum_{i=1}^{N}W_t^i f(X_t^i).
+\]</div>
+<p>Under the construction's support, moment, and regularity conditions, this
+converges to <span class="arithmatex">\(\pi_t(f)\)</span> as <span class="arithmatex">\(N\to\infty\)</span>. At finite <span class="arithmatex">\(N\)</span>, self-normalization is
+generally biased even when the unnormalized numerator and denominator have
+useful unbiasedness properties. Consistency is an asymptotic statement; it does
+not say that a particular particle cloud found every important region.</p>
+<p>For a path-space target, the same formula with <span class="arithmatex">\(f(X_{0:t}^i)\)</span> estimates a path
+functional. A good current-state marginal does not imply a good old-state or
+whole-path approximation because resampling changes genealogy.</p>
+<h3 id="worked-finite-target-sequence">Worked finite target sequence<a class="headerlink" href="#worked-finite-target-sequence" title="Permanent link">¤</a></h3>
+<p>Let the state space be <span class="arithmatex">\(\{a,b,c\}\)</span>. Take a uniform initial law and two
+unnormalized targets</p>
+<div class="arithmatex">\[
+\gamma_1=(1,2,1),
+\qquad
+\gamma_2=(1,6,3).
+\]</div>
+<p>Their normalizers are <span class="arithmatex">\(Z_1=4\)</span> and <span class="arithmatex">\(Z_2=10\)</span>. If particles at stage 1 are exactly
+distributed as <span class="arithmatex">\(\pi_1=(1/4,1/2,1/4)\)</span> and mutation is the identity, the stage-2
+incremental weights are</p>
+<div class="arithmatex">\[
+G_2=\frac{\gamma_2}{\gamma_1}=(1,3,3).
+\]</div>
+<p>Reweighting gives masses proportional to</p>
+<div class="arithmatex">\[
+\begin{aligned}
+&amp;(1/4,1/2,1/4)\odot(1,3,3)\\
+&amp;\qquad=(1/4,3/2,3/4),
+\end{aligned}
+\]</div>
+<p>which normalize to <span class="arithmatex">\((1/10,6/10,3/10)=\pi_2\)</span>. The average incremental factor
+under <span class="arithmatex">\(\pi_1\)</span> is <span class="arithmatex">\(10/4=Z_2/Z_1\)</span>. With finitely sampled particles, the identity
+holds in expectation under the proper construction, not exactly for every
+realized cloud.</p>
+<h3 id="five-different-returned-objects">Five different returned objects<a class="headerlink" href="#five-different-returned-objects" title="Permanent link">¤</a></h3>
+<p>An SMC run can return any of the following, and a report must name which one:</p>
+<ol>
+<li>a weighted approximation to the current marginal;</li>
+<li>a weighted approximation to the full path law;</li>
+<li>one or more trajectories selected from the particle genealogy;</li>
+<li>an estimator of <span class="arithmatex">\(Z_t\)</span> or <span class="arithmatex">\(Z_t/Z_0\)</span>; or</li>
+<li>a stochastic objective or gradient used to learn model, proposal, or twist parameters.</li>
+</ol>
+<p>The guarantees do not transfer automatically. In particular, an unbiased
+normalizing-constant estimator does not make its logarithm unbiased, does not
+make a normalized posterior expectation unbiased, and does not make a gradient
+formed after stopping resampling derivatives exact.</p>
+<h3 id="chapter-1-synthesis">Chapter 1 synthesis<a class="headerlink" href="#chapter-1-synthesis" title="Permanent link">¤</a></h3>
+<p>SMC is importance sampling over a designed sequence of targets. Feynman–Kac
+notation exposes the path law, mutation kernels, potentials, and normalizer.
+The finite particle system approximates a declared query; it does not redefine
+the target. Chapter 2 specializes the construction to filtering and shows why
+resampling manages current weights while damaging ancestral diversity.</p>
+<h3 id="chapter-1-retrieval-practice">Chapter 1 retrieval practice<a class="headerlink" href="#chapter-1-retrieval-practice" title="Permanent link">¤</a></h3>
+<ol>
+<li>What distinguishes growing-space from fixed-space SMC?</li>
+<li>Why is a potential not automatically an observation likelihood?</li>
+<li>Which finite-particle estimate is generally biased: the standard normalizer estimate or a normalized particle expectation?</li>
+<li>Why can the current marginal be adequate while a path functional is poor?</li>
+</ol>
+<details class="success">
+<summary>Complete solutions</summary>
+<ol>
+<li>A growing-space target adds variables or decisions with stage, whereas fixed-space SMC changes the target law on one common state space.</li>
+<li>A potential is any nonnegative factor in the declared Feynman–Kac path measure; its semantics depend on the construction.</li>
+<li>Under proper standard constructions the normalizer estimate can be unbiased, while the self-normalized expectation is generally finite-<span class="arithmatex">\(N\)</span> biased.</li>
+<li>Resampling reallocates present particles but makes ancestral lineages coalesce, so old path diversity can vanish.</li>
+</ol>
+</details>
+<p><a href="./#2-particle-filtering-resampling-and-degeneracy">Continue continuously</a>,
+or use the <a href="../smc-01-targets/">Chapter 1 stopping-point view</a>.</p>
+<h2 id="2-particle-filtering-resampling-and-degeneracy">2. Particle Filtering, Resampling, and Degeneracy<a class="headerlink" href="#2-particle-filtering-resampling-and-degeneracy" title="Permanent link">¤</a></h2>
+<h3 id="chapter-2-prerequisites-and-learning-objectives">Chapter 2 prerequisites and learning objectives<a class="headerlink" href="#chapter-2-prerequisites-and-learning-objectives" title="Permanent link">¤</a></h3>
+<p><strong>Prerequisites.</strong> Chapter 1, state-space filtering, importance weights, and
+conditional independence.</p>
+<p><strong>Learning objectives.</strong> Derive sequential importance sampling and the
+bootstrap particle filter; compute the likelihood estimator; implement and
+compare resampling schemes; distinguish current-weight, particle, and
+genealogical degeneracy; and use ESS as a trigger rather than an accuracy
+certificate.</p>
+<h3 id="from-exact-bayes-recursion-to-particles">From exact Bayes recursion to particles<a class="headerlink" href="#from-exact-bayes-recursion-to-particles" title="Permanent link">¤</a></h3>
+<p>For the state-space law</p>
+<div class="arithmatex">\[
+\begin{aligned}
+p(x_{0:T},y_{1:T})
+&amp;=p(x_0)\prod_{t=1}^{T}f_t(x_t\mid x_{t-1})\\
+&amp;\qquad\times g_t(y_t\mid x_t),
+\end{aligned}
+\]</div>
+<p>the filtering target is <span class="arithmatex">\(p(x_t\mid y_{1:t})\)</span> and the growing path target is
+<span class="arithmatex">\(p(x_{0:t}\mid y_{1:t})\)</span>. A proposal
+<span class="arithmatex">\(q_t(x_t\mid x_{t-1},y_{1:t})\)</span> produces the incremental weight</p>
+<div class="arithmatex">\[
+\alpha_t^i=
+\frac{g_t(y_t\mid X_t^i)f_t(X_t^i\mid X_{t-1}^{A_t^i})}
+{q_t(X_t^i\mid X_{t-1}^{A_t^i},y_{1:t})}.
+\]</div>
+<p>The <strong>bootstrap filter</strong> chooses the transition prior as proposal,
+<span class="arithmatex">\(q_t=f_t\)</span>, leaving <span class="arithmatex">\(\alpha_t^i=g_t(y_t\mid X_t^i)\)</span>. This simplicity can be
+expensive: particles are propagated without seeing the current observation and
+may all land where its likelihood is negligible.</p>
+<h3 id="sequential-importance-sampling-and-resampling">Sequential importance sampling and resampling<a class="headerlink" href="#sequential-importance-sampling-and-resampling" title="Permanent link">¤</a></h3>
+<p>Without resampling, cumulative weights multiply every incremental likelihood
+ratio. Their dispersion typically grows with time. Sequential importance
+resampling instead selects parents according to <span class="arithmatex">\(W_{t-1}\)</span> and resets inherited
+weights before mutation. Resampling removes particles with small current
+weights and duplicates particles with large current weights. It does not create
+states outside the current support and does not recover a mode that no particle
+reached.</p>
+<figure class="book-figure" id="fig-sequential-monte-carlo-and-particle-methods-sequential-importance-sampling-and-resampling"><pre class="mermaid"><code>flowchart TB
+    subgraph T0["Stage 0"]
+        a0(("1"))
+        b0(("2"))
+        c0(("3"))
+        d0(("4"))
+    end
+    subgraph T1["After selection and mutation"]
+        a1(("1"))
+        b1(("2"))
+        c1(("3"))
+        d1(("4"))
+    end
+    subgraph T2["Later descendants"]
+        a2(("1"))
+        b2(("2"))
+        c2(("3"))
+        d2(("4"))
+    end
+    a0 --&gt; a1
+    b0 --&gt; a1
+    b0 --&gt; b1
+    d0 --&gt; c1
+    d0 --&gt; d1
+    a1 --&gt; a2
+    a1 --&gt; b2
+    c1 --&gt; c2
+    c1 --&gt; d2</code></pre><figcaption class="book-object-caption"><span class="book-object-number">Figure SMC.2.</span> Sequential importance sampling and resampling</figcaption></figure>
+<p>The last population has four particles but only two stage-1 parents and two
+stage-0 lineages. Current sample count and ancestral diversity are therefore
+different quantities.</p>
+<h3 id="normalizing-constant-estimate">Normalizing-constant estimate<a class="headerlink" href="#normalizing-constant-estimate" title="Permanent link">¤</a></h3>
+<p>Under resampling at every stage and the convention used here, define</p>
+<div class="arithmatex">\[
+\begin{aligned}
+\widehat Z_t
+&amp;=\widehat Z_{t-1}
+\left(\frac1N\sum_{i=1}^{N}\alpha_t^i\right),\\
+\widehat Z_0&amp;=Z_0.
+\end{aligned}
+\]</div>
+<p>For a bootstrap filter with normalized initial law, this is the product of
+average observation weights and estimates <span class="arithmatex">\(p(y_{1:t})\)</span>. Under standard proper
+weighting and unbiased resampling conditions, <span class="arithmatex">\(\widehat Z_t\)</span> is unbiased for
+<span class="arithmatex">\(Z_t\)</span> even though <span class="arithmatex">\(\log\widehat Z_t\)</span> is downward biased by Jensen's inequality
+unless the estimator has zero variance. Adaptive resampling can preserve the
+normalizer result when the stopping rule and weight bookkeeping satisfy the
+corresponding SMC construction; it should not be assumed for arbitrary code.</p>
+<h3 id="resampling-is-an-offspring-distribution">Resampling is an offspring distribution<a class="headerlink" href="#resampling-is-an-offspring-distribution" title="Permanent link">¤</a></h3>
+<p>Given normalized weights <span class="arithmatex">\(W^{1:N}\)</span>, let <span class="arithmatex">\(N_i\)</span> be the number of children of
+particle <span class="arithmatex">\(i\)</span>. A valid unbiased resampling rule satisfies</p>
+<div class="arithmatex">\[
+\begin{aligned}
+\sum_iN_i&amp;=N,\\
+\mathbb E[N_i\mid W^{1:N}]&amp;=NW^i.
+\end{aligned}
+\]</div>
+<p>Common schemes include:</p>
+<div class="md-typeset__table book-table-container"><table id="tbl-sequential-monte-carlo-and-particle-methods-resampling-is-an-offspring-distribution"><caption class="book-object-caption"><span class="book-object-number">Table SMC.2.</span> Resampling is an offspring distribution</caption>
+<thead>
+<tr>
+<th>Scheme</th>
+<th>Randomness</th>
+<th>Useful property</th>
+<th>Qualification</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>multinomial</td>
+<td><span class="arithmatex">\(N\)</span> independent categorical draws</td>
+<td>simple and permutation-insensitive</td>
+<td>largest conditional offspring variance among the basic comparisons</td>
+</tr>
+<tr>
+<td>residual</td>
+<td>deterministically assigns <span class="arithmatex">\(\lfloor NW^i\rfloor\)</span>, samples the remainder</td>
+<td>reduces avoidable offspring randomness</td>
+<td>still duplicates lineages and requires a rule for the residual part</td>
+</tr>
+<tr>
+<td>stratified</td>
+<td>one uniform draw per equal CDF stratum</td>
+<td>lower conditional variance than multinomial for standard estimates</td>
+<td>particle ordering can affect particular realized couplings</td>
+</tr>
+<tr>
+<td>systematic</td>
+<td>one random offset for an evenly spaced grid</td>
+<td>fast, one uniform draw, often effective</td>
+<td>dependent offspring; no universal variance dominance over multinomial without additional conditions</td>
+</tr>
+</tbody>
+</table></div>
+<p>The final qualification matters. A simple counterexample rules out the common
+claim that systematic resampling always has smaller variance for every ordered
+particle system. Report the particle order or permutation policy when it is
+algorithmically meaningful.</p>
+<h3 id="worked-offspring-calculation">Worked offspring calculation<a class="headerlink" href="#worked-offspring-calculation" title="Permanent link">¤</a></h3>
+<p>Take <span class="arithmatex">\(N=4\)</span> and weights <span class="arithmatex">\(W=(0.55,0.25,0.15,0.05)\)</span>. Multinomial resampling has</p>
+<div class="arithmatex">\[
+\mathbb E[N_i]=4W_i=(2.2,1.0,0.6,0.2),
+\]</div>
+<p>and</p>
+<div class="arithmatex">\[
+\operatorname{Var}(N_i\mid W)=4W_i(1-W_i).
+\]</div>
+<p>For the first particle this is <span class="arithmatex">\(0.99\)</span>. Residual resampling first assigns
+<span class="arithmatex">\((2,1,0,0)\)</span>, leaving one draw from residual probabilities
+<span class="arithmatex">\((0.2,0,0.6,0.2)\)</span>. Its first-particle offspring variance is therefore
+<span class="arithmatex">\(0.2(0.8)=0.16\)</span>, but this smaller one-step variance says nothing by itself
+about long-horizon genealogy or the quality of mutation after selection.</p>
+<h3 id="effective-sample-size-three-names-three-objects">Effective sample size: three names, three objects<a class="headerlink" href="#effective-sample-size-three-names-three-objects" title="Permanent link">¤</a></h3>
+<p>The importance-weight diagnostic</p>
+<div class="arithmatex">\[
+\operatorname{ESS}_{\mathrm{IS}}
+=\frac{1}{\sum_{i=1}^{N}(W_i)^2}
+\]</div>
+<p>ranges from <span class="arithmatex">\(1\)</span> to <span class="arithmatex">\(N\)</span>. It summarizes current weight concentration. It is not:</p>
+<ul>
+<li>the observable-specific MCMC ESS derived from autocorrelation;</li>
+<li>conditional ESS used to choose a tempering increment; or</li>
+<li>a certificate of support coverage, path diversity, or estimator accuracy.</li>
+</ul>
+<p>For the worked weights, <span class="arithmatex">\(\operatorname{ESS}_{\mathrm{IS}}\approx2.56\)</span>.
+Resampling makes all immediate weights <span class="arithmatex">\(1/4\)</span>, so the displayed formula jumps to
+<span class="arithmatex">\(4\)</span> while the number of distinct parents can fall. This is why ESS must be read
+beside unique-ancestor counts and query-specific error.</p>
+<h3 id="three-degeneracies">Three degeneracies<a class="headerlink" href="#three-degeneracies" title="Permanent link">¤</a></h3>
+<ol>
+<li><strong>Weight degeneracy:</strong> a small number of particles carry most current weight.</li>
+<li><strong>Particle impoverishment:</strong> resampling produces duplicates that mutation does not sufficiently separate.</li>
+<li><strong>Genealogical or path degeneracy:</strong> many current particles descend from few early ancestors.</li>
+</ol>
+<p>Resampling directly manages the first and can worsen the latter two. A claim
+that particle filters “do not suffer weight degeneracy” confuses a corrective
+operation with elimination of the failure.</p>
+<h3 id="worked-exact-versus-particle-filter">Worked exact-versus-particle filter<a class="headerlink" href="#worked-exact-versus-particle-filter" title="Permanent link">¤</a></h3>
+<p>Let <span class="arithmatex">\(X_t\in\{0,1\}\)</span>, with transition matrix</p>
+<div class="arithmatex">\[
+F=\begin{pmatrix}0.8&amp;0.2\\0.3&amp;0.7\end{pmatrix},
+\]</div>
+<p>and binary observation accuracy <span class="arithmatex">\(0.9\)</span>:
+<span class="arithmatex">\(p(Y_t=X_t\mid X_t)=0.9\)</span>. If
+<span class="arithmatex">\(p(X_0=1)=0.5\)</span> and <span class="arithmatex">\(Y_1=1\)</span>, exact prediction gives
+<span class="arithmatex">\(p(X_1=1)=0.45\)</span>. The two correction masses are</p>
+<div class="arithmatex">\[
+\begin{aligned}
+r_1&amp;=0.9(0.45)=0.405,\\
+r_0&amp;=0.1(0.55)=0.055.
+\end{aligned}
+\]</div>
+<p>Let <span class="arithmatex">\(p_1=p(X_1=1\mid Y_1=1)\)</span>. Therefore</p>
+<div class="arithmatex">\[
+p_1=\frac{r_1}{r_1+r_0}\approx0.8804.
+\]</div>
+<p>A four-particle bootstrap realization that propagates to
+<span class="arithmatex">\((0,1,1,1)\)</span> receives weights <span class="arithmatex">\((0.1,0.9,0.9,0.9)\)</span> and estimates <span class="arithmatex">\(0.9643\)</span> before
+resampling. The algorithm is valid, but the small realized cloud is inaccurate.
+Repeating the run exposes Monte Carlo variation that one cloud cannot.</p>
+<h3 id="chapter-2-synthesis">Chapter 2 synthesis<a class="headerlink" href="#chapter-2-synthesis" title="Permanent link">¤</a></h3>
+<p>Particle filtering is a particular growing-space SMC construction. Resampling
+controls present weight allocation but creates dependence and ancestry loss.
+The normalizer, normalized expectation, and genealogical outputs have different
+finite-<span class="arithmatex">\(N\)</span> properties. Chapter 3 reduces weight variance by letting proposals
+use the current observation without abandoning importance correction.</p>
+<h3 id="chapter-2-retrieval-practice">Chapter 2 retrieval practice<a class="headerlink" href="#chapter-2-retrieval-practice" title="Permanent link">¤</a></h3>
+<ol>
+<li>Why can ESS equal <span class="arithmatex">\(N\)</span> immediately after resampling while path diversity is poor?</li>
+<li>What makes the bootstrap proposal easy and sometimes inefficient?</li>
+<li>Which resampling variance ordering is unsafe to state universally?</li>
+<li>Why must <span class="arithmatex">\(\widehat Z\)</span> and <span class="arithmatex">\(\log\widehat Z\)</span> be discussed separately?</li>
+</ol>
+<details class="success">
+<summary>Complete solutions</summary>
+<ol>
+<li>Resampling resets current weights to equality but can duplicate a small set of ancestors; the two diagnostics measure different objects.</li>
+<li>It samples from the transition already supplied by the model, so the ratio cancels, but it ignores the current observation before proposing.</li>
+<li>Systematic resampling does not universally dominate multinomial resampling for every ordered system and estimator.</li>
+<li>An unbiased positive <span class="arithmatex">\(\widehat Z\)</span> generally has a downward-biased logarithm by concavity.</li>
+</ol>
+</details>
+<p><a href="./#3-proposal-design-and-auxiliary-particles">Continue continuously</a>,
+or use the <a href="../smc-02-filtering-resampling/">Chapter 2 stopping-point view</a>.</p>
+<h2 id="3-proposal-design-and-auxiliary-particles">3. Proposal Design and Auxiliary Particles<a class="headerlink" href="#3-proposal-design-and-auxiliary-particles" title="Permanent link">¤</a></h2>
+<h3 id="chapter-3-prerequisites-and-learning-objectives">Chapter 3 prerequisites and learning objectives<a class="headerlink" href="#chapter-3-prerequisites-and-learning-objectives" title="Permanent link">¤</a></h3>
+<p><strong>Prerequisites.</strong> Chapters 1–2, conditional probability, and support-aware
+importance sampling.</p>
+<p><strong>Learning objectives.</strong> Derive the locally optimal state-space proposal;
+separate proposal adaptation from target correctness; explain auxiliary
+look-ahead weights; compare analytic, approximate, and learned proposals; and
+diagnose support failure before interpreting ESS.</p>
+<h3 id="proposals-allocate-effort-before-correction">Proposals allocate effort before correction<a class="headerlink" href="#proposals-allocate-effort-before-correction" title="Permanent link">¤</a></h3>
+<p>The bootstrap filter proposes from
+<span class="arithmatex">\(f_t(x_t\mid x_{t-1})\)</span>. When <span class="arithmatex">\(y_t\)</span> is informative, a better proposal uses it:</p>
+<div class="arithmatex">\[
+q_t(x_t\mid x_{t-1},y_t).
+\]</div>
+<p>The importance ratio preserves the same filtering target as long as proposal
+support covers every target-relevant state. Proposal design changes variance
+and compute; it does not change the intended posterior unless the correction is
+removed or approximated.</p>
+<h3 id="the-locally-optimal-proposal">The locally optimal proposal<a class="headerlink" href="#the-locally-optimal-proposal" title="Permanent link">¤</a></h3>
+<p>Conditional on one selected ancestor <span class="arithmatex">\(x_{t-1}\)</span> and current observation <span class="arithmatex">\(y_t\)</span>,
+the proposal minimizing the conditional variance of the next incremental
+weight is</p>
+<div class="arithmatex">\[
+r_t(x_t)=g_t(y_t\mid x_t)f_t(x_t\mid x_{t-1}).
+\]</div>
+<p>Suppressing the fixed ancestor and observation in the proposal's left-hand
+side gives</p>
+<div class="arithmatex">\[
+q_t^\star(x_t)=\frac{r_t(x_t)}{p(y_t\mid x_{t-1})}.
+\]</div>
+<p>Thus <span class="arithmatex">\(q_t^\star=p(x_t\mid x_{t-1},y_t)\)</span>.</p>
+<p>Substitution leaves the weight</p>
+<div class="arithmatex">\[
+\alpha_t^\star(x_{t-1})=p(y_t\mid x_{t-1}),
+\]</div>
+<p>which is constant across proposed children of the same ancestor but generally
+varies across ancestors. “Optimal” is therefore local to this conditional
+variance criterion; it is not a global theorem about path diversity, smoothing,
+runtime, or parameter learning. It may also require the intractable integral
+that the filter was meant to avoid.</p>
+<h3 id="worked-binary-proposal">Worked binary proposal<a class="headerlink" href="#worked-binary-proposal" title="Permanent link">¤</a></h3>
+<p>Use the binary model from Chapter 2. For an ancestor <span class="arithmatex">\(X_0=0\)</span> and observation
+<span class="arithmatex">\(Y_1=1\)</span>,</p>
+<div class="arithmatex">\[
+\begin{aligned}
+r_0&amp;=0.8(0.1)+0.2(0.9)\\
+&amp;=0.08+0.18=0.26,
+\end{aligned}
+\]</div>
+<div class="arithmatex">\[
+\begin{aligned}
+p_1&amp;=p(X_1=1\mid X_0=0,Y_1=1)\\
+&amp;=\frac{0.18}{0.26}\approx0.6923.
+\end{aligned}
+\]</div>
+<p>For ancestor <span class="arithmatex">\(X_0=1\)</span>, the predictive observation probability is
+<span class="arithmatex">\(0.3(0.1)+0.7(0.9)=0.66\)</span>, and the proposed probability of <span class="arithmatex">\(X_1=1\)</span> is
+<span class="arithmatex">\(0.7(0.9)/0.66\approx0.9545\)</span>. The child weight is <span class="arithmatex">\(0.26\)</span> or <span class="arithmatex">\(0.66\)</span> according
+to its parent, independent of the sampled child. The current observation has
+already guided the proposal.</p>
+<h3 id="approximate-observation-aware-proposals">Approximate observation-aware proposals<a class="headerlink" href="#approximate-observation-aware-proposals" title="Permanent link">¤</a></h3>
+<p>When <span class="arithmatex">\(q_t^\star\)</span> is unavailable, common approximations include:</p>
+<ul>
+<li>local linearization or Laplace proposals around an observation-informed mode;</li>
+<li>extended, sigma-point, or quadrature Gaussian updates;</li>
+<li>conditional mixtures or normalizing-flow proposals;</li>
+<li>amortized neural proposals trained across sequences; and</li>
+<li>inner Monte Carlo or nested SMC approximations.</li>
+</ul>
+<p>Each method must expose the density or proper-weighting correction required by
+the outer particle algorithm. A proposal can make particles visually plausible
+while supplying an incorrect likelihood estimate if its density, Jacobian,
+normalizer, or random inner estimate is mishandled.</p>
+<h3 id="auxiliary-particle-filtering">Auxiliary particle filtering<a class="headerlink" href="#auxiliary-particle-filtering" title="Permanent link">¤</a></h3>
+<p>Standard resampling ranks ancestors by their previous weights before seeing how
+well they predict <span class="arithmatex">\(y_t\)</span>. An auxiliary particle filter introduces a positive
+look-ahead score <span class="arithmatex">\(m_t^i\)</span>, often an approximation to
+<span class="arithmatex">\(p(y_t\mid X_{t-1}^i)\)</span>. It first selects ancestors with probabilities
+proportional to <span class="arithmatex">\(W_{t-1}^i m_t^i\)</span>, proposes a child, and corrects by</p>
+<div class="arithmatex">\[
+\alpha_t^i
+=\frac{g_t(y_t\mid X_t^i)f_t(X_t^i\mid X_{t-1}^{A_t^i})}
+{m_t^{A_t^i}q_t(X_t^i\mid X_{t-1}^{A_t^i},y_t)}.
+\]</div>
+<p>The auxiliary score changes allocation, not the target, because it also appears
+in the denominator. Omitting this correction silently changes the particle
+law. If <span class="arithmatex">\(m_t\)</span> is a poor predictor, the extra look-ahead can increase cost or
+variance.</p>
+<h3 id="support-cannot-be-learned-away">Support cannot be learned away<a class="headerlink" href="#support-cannot-be-learned-away" title="Permanent link">¤</a></h3>
+<p>For every relevant ancestor, a safe proposal condition is</p>
+<div class="arithmatex">\[
+\begin{aligned}
+&amp;g_t(y_t\mid x_t)f_t(x_t\mid x_{t-1})&gt;0\\
+&amp;\qquad\Longrightarrow
+q_t(x_t\mid x_{t-1},y_t)&gt;0.
+\end{aligned}
+\]</div>
+<p>A neural proposal trained on typical sequences can assign zero or numerically
+negligible mass to a rare but posterior-relevant transition. Importance weights
+cannot correct an event that is never proposed. Clipping the log weight may
+avoid overflow but changes the estimator unless the altered target is stated.</p>
+<h3 id="proposal-comparison-protocol">Proposal comparison protocol<a class="headerlink" href="#proposal-comparison-protocol" title="Permanent link">¤</a></h3>
+<p>Compare proposals with matched target, particle count, resampling policy,
+random-number budget, and wall-clock hardware. Report:</p>
+<ul>
+<li>current weighted ESS before resampling;</li>
+<li>variance and log-bias of the likelihood estimate across independent runs;</li>
+<li>unique ancestors by lag and smoothing error;</li>
+<li>proposal density and evaluation cost;</li>
+<li>support failures, nonfinite weights, and clipping; and</li>
+<li>query-specific error against an exact or high-accuracy reference.</li>
+</ul>
+<p>No single ESS curve determines the winner. A costly guided proposal can reduce
+particles needed per step yet lose at equal wall-clock time; a proposal with
+excellent current weights can still produce poor old-state trajectories.</p>
+<h3 id="chapter-3-synthesis">Chapter 3 synthesis<a class="headerlink" href="#chapter-3-synthesis" title="Permanent link">¤</a></h3>
+<p>The proposal is the particle algorithm's allocation policy. The exact ratio
+retains the target while allowing analytic, approximate, or learned guidance.
+The fully adapted proposal removes child-level weight variation only under a
+local criterion, and auxiliary filtering adds ancestor look-ahead with an
+explicit correction. Chapter 4 turns from current filtering to path recovery,
+conditional exact computation, and combinations with MCMC.</p>
+<h3 id="chapter-3-retrieval-practice">Chapter 3 retrieval practice<a class="headerlink" href="#chapter-3-retrieval-practice" title="Permanent link">¤</a></h3>
+<ol>
+<li>In what sense is the fully adapted proposal optimal?</li>
+<li>Why does its incremental weight still vary?</li>
+<li>What correction makes an auxiliary look-ahead target-preserving?</li>
+<li>Why can clipping weights invalidate a normalizer estimate?</li>
+</ol>
+<details class="success">
+<summary>Complete solutions</summary>
+<ol>
+<li>It minimizes the conditional variance of the next incremental weight given one ancestor and the current observation.</li>
+<li>The predictive likelihood generally differs across ancestors.</li>
+<li>Divide the ordinary target-to-proposal ratio by the auxiliary score used in ancestor selection.</li>
+<li>Clipping replaces the declared importance ratio with another function, thereby changing the expectation unless a separate correction or changed target is stated.</li>
+</ol>
+</details>
+<p><a href="./#4-smoothing-raoblackwellization-and-particle-mcmc">Continue continuously</a>,
+or use the <a href="../smc-03-proposals/">Chapter 3 stopping-point view</a>.</p>
+<h2 id="4-smoothing-raoblackwellization-and-particle-mcmc">4. Smoothing, Rao–Blackwellization, and Particle MCMC<a class="headerlink" href="#4-smoothing-raoblackwellization-and-particle-mcmc" title="Permanent link">¤</a></h2>
+<h3 id="chapter-4-prerequisites-and-learning-objectives">Chapter 4 prerequisites and learning objectives<a class="headerlink" href="#chapter-4-prerequisites-and-learning-objectives" title="Permanent link">¤</a></h3>
+<p><strong>Prerequisites.</strong> Chapters 1–3, backward smoothing, conditional expectation,
+and Metropolis–Hastings invariance.</p>
+<p><strong>Learning objectives.</strong> Explain why storing ancestral paths is a weak default
+smoother; derive backward trajectory sampling; apply Rao–Blackwellization to a
+valid conditional submodel; distinguish resample–move from particle MCMC; and
+state what PMMH, particle Gibbs, SMC², and nested SMC target.</p>
+<h3 id="filtering-particles-are-not-automatically-smoothing-particles">Filtering particles are not automatically smoothing particles<a class="headerlink" href="#filtering-particles-are-not-automatically-smoothing-particles" title="Permanent link">¤</a></h3>
+<p>Tracing a final particle through stored ancestors produces a draw from the
+finite particle genealogy. Repeated resampling makes early ancestry coalesce,
+so this <strong>path-space smoother</strong> can have little old-state diversity even when
+the final filter is accurate.</p>
+<p>A forward-filtering backward-sampling particle smoother instead samples
+<span class="arithmatex">\(X_T\)</span> from final weights and then chooses earlier particles with probabilities</p>
+<div class="arithmatex">\[
+\begin{aligned}
+&amp;\Pr(B_t=i\mid B_{t+1}=j,\mathcal P)\\
+&amp;\qquad\propto
+W_t^i f_{t+1}(X_{t+1}^j\mid X_t^i),
+\end{aligned}
+\]</div>
+<p>where <span class="arithmatex">\(\mathcal P\)</span> denotes the stored particle system. Backward simulation
+reconnects compatible states across the cloud instead of accepting only the
+recorded parent. It improves path diversity but remains conditional on the
+finite forward particle approximation.</p>
+<h3 id="worked-backward-choice">Worked backward choice<a class="headerlink" href="#worked-backward-choice" title="Permanent link">¤</a></h3>
+<p>Suppose two stage-<span class="arithmatex">\(t\)</span> particles have weights <span class="arithmatex">\((0.6,0.4)\)</span>, and their transition
+densities into the selected next state are <span class="arithmatex">\((0.2,0.9)\)</span>. The backward
+probabilities are proportional to <span class="arithmatex">\((0.12,0.36)\)</span> and therefore equal
+<span class="arithmatex">\((0.25,0.75)\)</span>. The second particle is preferred despite its smaller filtering
+weight because it better explains the selected future state. Following only
+the recorded ancestor would ignore this alternative compatible connection.</p>
+<h3 id="raoblackwellized-particle-filters">Rao–Blackwellized particle filters<a class="headerlink" href="#raoblackwellized-particle-filters" title="Permanent link">¤</a></h3>
+<p>Partition the latent state as <span class="arithmatex">\((R_t,S_t)\)</span> such that, conditional on the sampled
+trajectory <span class="arithmatex">\(R_{0:t}\)</span>, the law of <span class="arithmatex">\(S_{0:t}\)</span> admits exact tractable filtering—for
+example, a linear-Gaussian submodel. Particles represent <span class="arithmatex">\(R_{0:t}\)</span>, while each
+particle carries analytic sufficient statistics for <span class="arithmatex">\(S_t\)</span>. For any query <span class="arithmatex">\(h\)</span>,</p>
+<div class="arithmatex">\[
+\begin{aligned}
+&amp;\mathbb E[h(R,S)\mid y]\\
+&amp;\qquad=\mathbb E\!\left[
+\mathbb E[h(R,S)\mid R,y]\mid y
+\right].
+\end{aligned}
+\]</div>
+<p>Replacing sampled conditional variation by the inner expectation cannot
+increase variance for the same outer samples. This is a conditional
+Rao–Blackwell statement, not a claim that the sampled variables or finite
+particle approximation become exact. Switching linear dynamical systems and
+mapping/localization decompositions are common applications.</p>
+<h3 id="resamplemove-rejuvenates-the-current-target">Resample–move rejuvenates the current target<a class="headerlink" href="#resamplemove-rejuvenates-the-current-target" title="Permanent link">¤</a></h3>
+<p>After resampling, apply a Markov kernel <span class="arithmatex">\(K_t\)</span> invariant to the current target
+<span class="arithmatex">\(\pi_t\)</span>. The mutation can separate duplicates and explore directions not
+provided by the forward proposal. Its validity follows from invariance; its
+finite usefulness depends on mixing and cost. A single weak move does not
+reverse lost genealogy, and a kernel invariant to the wrong marginal cannot
+repair a path-space query.</p>
+<h3 id="particle-markov-chain-monte-carlo">Particle Markov chain Monte Carlo<a class="headerlink" href="#particle-markov-chain-monte-carlo" title="Permanent link">¤</a></h3>
+<p>Particle MCMC uses an SMC system inside an outer MCMC construction. The key
+result is an extended-space target whose marginal is the desired posterior.
+The particle approximation is part of the proposal or auxiliary state rather
+than a replacement posterior.</p>
+<div class="md-typeset__table book-table-container"><table id="tbl-sequential-monte-carlo-and-particle-methods-particle-markov-chain-monte-carlo"><caption class="book-object-caption"><span class="book-object-number">Table SMC.3.</span> Particle Markov chain Monte Carlo</caption>
+<thead>
+<tr>
+<th>Method</th>
+<th>SMC role</th>
+<th>Outer target and correction</th>
+<th>Main finite-compute risk</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>particle marginal MH (PMMH)</td>
+<td>supplies a nonnegative unbiased likelihood estimate and a path proposal</td>
+<td>pseudo-marginal MH targets the exact parameter posterior under its assumptions</td>
+<td>noisy log-likelihood estimates make the chain sticky</td>
+</tr>
+<tr>
+<td>particle Gibbs</td>
+<td>conditional SMC updates a trajectory while retaining a reference path</td>
+<td>Gibbs on an extended target has the exact trajectory posterior as a marginal</td>
+<td>path degeneracy can make successive trajectories nearly identical</td>
+</tr>
+<tr>
+<td>particle Gibbs with ancestor sampling</td>
+<td>reconnects the retained path through alternative ancestors</td>
+<td>preserves the conditional-SMC target under its construction</td>
+<td>gains depend on model, proposal, and particle count</td>
+</tr>
+</tbody>
+</table></div>
+<p>PMMH does not require an unbiased <strong>log</strong> likelihood. It requires the
+nonnegative likelihood estimator itself to be unbiased under the pseudo-marginal
+construction. Replacing it with <span class="arithmatex">\(\exp\)</span> of an unbiased log estimate does not in
+general satisfy that condition.</p>
+<h3 id="parameter-particles-and-nested-particle-systems">Parameter particles and nested particle systems<a class="headerlink" href="#parameter-particles-and-nested-particle-systems" title="Permanent link">¤</a></h3>
+<p><strong>SMC²</strong> maintains parameter particles and runs a state particle filter within
+each one so sequential data update parameter uncertainty. Particle rejuvenation
+uses PMCMC moves. The two particle counts control different approximations and
+costs.</p>
+<p><strong>Nested SMC</strong> places a properly weighted inner SMC algorithm inside an outer
+SMC step when the proposal or incremental weight is itself intractable. Correct
+composition requires the inner output to satisfy the proper-weighting identity;
+calling the inner result “approximately normalized” is insufficient.</p>
+<h3 id="particle-belief-propagation">Particle belief propagation<a class="headerlink" href="#particle-belief-propagation" title="Permanent link">¤</a></h3>
+<p>Particle messages can approximate continuous or hybrid messages in factor
+graphs. This is an implementation composition between message passing and
+weighted samples. On a loopy graph it inherits both particle error and the
+fixed-point or convergence limitations of loopy message passing. It is not the
+same algorithm as time-indexed particle filtering merely because both use
+weighted samples.</p>
+<h3 id="diagnostics-for-smoothing-and-hybrids">Diagnostics for smoothing and hybrids<a class="headerlink" href="#diagnostics-for-smoothing-and-hybrids" title="Permanent link">¤</a></h3>
+<p>Record current-state error separately from path error. Useful quantities
+include unique ancestors at each lag, most-recent-common-ancestor time,
+backward-sampling diversity, fixed-lag bias, likelihood-estimator variance,
+outer-chain ESS and <span class="arithmatex">\(\widehat R\)</span> for PMCMC, and compute split between inner and
+outer particle systems. Validate on a finite-state or linear-Gaussian model
+where exact smoothing is available before using only application metrics.</p>
+<h3 id="chapter-4-synthesis">Chapter 4 synthesis<a class="headerlink" href="#chapter-4-synthesis" title="Permanent link">¤</a></h3>
+<p>Smoothing asks for a path posterior, not merely a final weighted cloud.
+Backward simulation, conditional analytic integration, invariant rejuvenation,
+and particle-MCMC embeddings solve different problems. Their guarantees depend
+on different extended targets. Chapter 5 uses the same population machinery on
+fixed-dimensional targets, likelihood levels, and simulator discrepancies.</p>
+<h3 id="chapter-4-retrieval-practice">Chapter 4 retrieval practice<a class="headerlink" href="#chapter-4-retrieval-practice" title="Permanent link">¤</a></h3>
+<ol>
+<li>Why is ancestral tracing often a poor smoother?</li>
+<li>What exactly is Rao–Blackwellized in a particle filter?</li>
+<li>What unbiased object does PMMH require?</li>
+<li>How does resample–move differ from particle Gibbs?</li>
+</ol>
+<details class="success">
+<summary>Complete solutions</summary>
+<ol>
+<li>Repeated resampling makes early recorded lineages coalesce, so few old-state paths survive.</li>
+<li>A tractable conditional submodel is integrated analytically given each sampled outer state or path.</li>
+<li>A nonnegative unbiased estimator of the likelihood, under the stated pseudo-marginal construction.</li>
+<li>Resample–move applies an invariant kernel within one SMC stage; particle Gibbs is an outer MCMC update built from conditional SMC on an extended target.</li>
+</ol>
+</details>
+<p><a href="./#5-static-targets-tempering-rare-events-and-abc">Continue continuously</a>,
+or use the <a href="../smc-04-smoothing-hybrids/">Chapter 4 stopping-point view</a>.</p>
+<h2 id="5-static-targets-tempering-rare-events-and-abc">5. Static Targets, Tempering, Rare Events, and ABC<a class="headerlink" href="#5-static-targets-tempering-rare-events-and-abc" title="Permanent link">¤</a></h2>
+<h3 id="chapter-5-prerequisites-and-learning-objectives">Chapter 5 prerequisites and learning objectives<a class="headerlink" href="#chapter-5-prerequisites-and-learning-objectives" title="Permanent link">¤</a></h3>
+<p><strong>Prerequisites.</strong> Chapters 1–4, invariant MCMC kernels, annealing paths,
+normalizing constants, and simulator-based inference.</p>
+<p><strong>Learning objectives.</strong> Derive the forward/backward-kernel SMC sampler weight;
+design likelihood- and data-tempering sequences; distinguish particle ESS from
+conditional ESS; formulate rare-event and ABC target sequences; and compare
+SMC with AIS, parallel tempering, nested sampling, and optimization by output.</p>
+<h3 id="fixed-dimensional-smc-samplers">Fixed-dimensional SMC samplers<a class="headerlink" href="#fixed-dimensional-smc-samplers" title="Permanent link">¤</a></h3>
+<p>Let <span class="arithmatex">\(\pi_t(x)=\gamma_t(x)/Z_t\)</span> be targets on one space. Augment a forward move
+<span class="arithmatex">\(M_t(x_{t-1},x_t)\)</span> with a backward kernel
+<span class="arithmatex">\(L_{t-1}(x_t,x_{t-1})\)</span>. The incremental weight is</p>
+<div class="arithmatex">\[
+\begin{aligned}
+\alpha_t(x_{t-1},x_t)
+&amp;=\frac{\gamma_t(x_t)}{\gamma_{t-1}(x_{t-1})}\\
+&amp;\quad\times
+\frac{L_{t-1}(x_t,x_{t-1})}{M_t(x_{t-1},x_t)}.
+\end{aligned}
+\]</div>
+<p>This is ordinary importance sampling on an artificial path whose final
+marginal is <span class="arithmatex">\(\pi_t\)</span>. The backward kernel is a variance-design object; it need
+not describe a physical reverse process.</p>
+<p>If <span class="arithmatex">\(M_t\)</span> is invariant to <span class="arithmatex">\(\pi_t\)</span> and the standard reversal choice is available,
+the weight can simplify to a ratio evaluated at the pre-move state. The exact
+form depends on the declared move–weight order. Implement the general identity
+first and prove any simplification rather than memorizing a formula detached
+from its convention.</p>
+<h3 id="likelihood-tempering">Likelihood tempering<a class="headerlink" href="#likelihood-tempering" title="Permanent link">¤</a></h3>
+<p>For prior <span class="arithmatex">\(p(x)\)</span> and likelihood <span class="arithmatex">\(\ell(x)\)</span>, a common path is</p>
+<div class="arithmatex">\[
+\begin{aligned}
+\gamma_t(x)&amp;=p(x)\ell(x)^{\beta_t},\\
+0&amp;=\beta_0&lt;\cdots&lt;\beta_T=1.
+\end{aligned}
+\]</div>
+<p>Before mutation, the incremental weight for an exponent change is</p>
+<div class="arithmatex">\[
+u_i(\beta)=\ell(X_{t-1}^i)^{\beta-\beta_{t-1}}.
+\]</div>
+<p>Large exponent jumps can collapse weights; tiny jumps increase stage count and
+mutation cost. An adaptive schedule can choose the largest next <span class="arithmatex">\(\beta\)</span> whose
+<strong>conditional effective sample size</strong> exceeds a threshold. One common
+normalized form is</p>
+<div class="arithmatex">\[
+\operatorname{CESS}(\beta)
+=N\frac{\left(\sum_i W_{t-1}^i u_i(\beta)\right)^2}
+{\sum_i W_{t-1}^i u_i(\beta)^2}.
+\]</div>
+<p>This predicts the effect of the proposed incremental reweighting conditional on
+the current cloud. It is not MCMC ESS and does not prove that mutation mixed.</p>
+<h3 id="worked-adaptive-step">Worked adaptive step<a class="headerlink" href="#worked-adaptive-step" title="Permanent link">¤</a></h3>
+<p>With equal current weights and likelihood values <span class="arithmatex">\((1,4,16,64)\)</span>, a proposed
+<span class="arithmatex">\(\Delta\beta=1/2\)</span> gives incremental weights <span class="arithmatex">\((1,2,4,8)\)</span>. Then</p>
+<div class="arithmatex">\[
+\begin{aligned}
+\operatorname{CESS}
+&amp;=\frac{(1+2+4+8)^2}{1^2+2^2+4^2+8^2}\\
+&amp;=\frac{225}{85}\approx2.65.
+\end{aligned}
+\]</div>
+<p>For <span class="arithmatex">\(N=4\)</span>, a threshold of <span class="arithmatex">\(0.8N=3.2\)</span> rejects this jump and chooses a smaller
+one. After selection, invariant mutation must still explore the new target;
+the CESS calculation cannot diagnose a multimodal kernel trapped within each
+particle's local basin.</p>
+<h3 id="data-tempering-and-sequential-bayes">Data tempering and sequential Bayes<a class="headerlink" href="#data-tempering-and-sequential-bayes" title="Permanent link">¤</a></h3>
+<p>Instead of changing a power, assimilate observations or factors in batches:</p>
+<div class="arithmatex">\[
+\gamma_t(x)=p(x)\prod_{s=1}^{t}p(y_s\mid x).
+\]</div>
+<p>This is static-parameter sequential Bayes. The data order can affect finite
+variance and compute even though the final exact posterior is order-invariant.
+For exchangeable data, an order chosen after inspecting particle performance
+becomes part of the adaptive algorithm and must be reported.</p>
+<h3 id="rare-event-smc">Rare-event SMC<a class="headerlink" href="#rare-event-smc" title="Permanent link">¤</a></h3>
+<p>To estimate <span class="arithmatex">\(P(X\in A)\)</span> when <span class="arithmatex">\(A\)</span> is rare, construct nested events</p>
+<div class="arithmatex">\[
+A_0\supset A_1\supset\cdots\supset A_T=A
+\]</div>
+<p>or smooth potentials approaching <span class="arithmatex">\(\mathbf1_A\)</span>. Selection retains particles
+that reach the next level, and mutation explores within or near that level. The
+probability decomposes as</p>
+<div class="arithmatex">\[
+P(A)=P(A_1)\prod_{t=2}^{T}P(A_t\mid A_{t-1}).
+\]</div>
+<p>If a level is so hard that no particle reaches it, the estimate is zero and
+later resampling cannot recover. Adaptive quantile levels reduce this risk but
+make the estimator's exact finite-sample properties depend on the full adaptive
+construction.</p>
+<h3 id="worked-rare-event-sequence">Worked rare-event sequence<a class="headerlink" href="#worked-rare-event-sequence" title="Permanent link">¤</a></h3>
+<p>Suppose <span class="arithmatex">\(P(A_1)=0.1\)</span>, <span class="arithmatex">\(P(A_2\mid A_1)=0.2\)</span>, and
+<span class="arithmatex">\(P(A_3\mid A_2)=0.25\)</span>. Then <span class="arithmatex">\(P(A_3)=0.005\)</span>. Estimating three moderate
+conditional probabilities can be far more stable than waiting for five events
+per thousand direct samples, but dependence from selection and mutation must be
+included in uncertainty. Multiplying three point estimates without replicated
+runs or particle variance analysis is not a confidence interval.</p>
+<h3 id="smc-for-approximate-bayesian-computation">SMC for approximate Bayesian computation<a class="headerlink" href="#smc-for-approximate-bayesian-computation" title="Permanent link">¤</a></h3>
+<p>When a simulator <span class="arithmatex">\(Y\sim p(\cdot\mid\theta)\)</span> is available but its likelihood is
+not, an ABC target can use a kernel or event based on summary discrepancy:</p>
+<div class="arithmatex">\[
+\begin{aligned}
+\pi_{\epsilon}(\theta,y)
+&amp;\propto p(\theta)p(y\mid\theta)\\
+&amp;\quad\times K_{\epsilon}\!\left(
+\rho(s(y),s(y_{\mathrm{obs}}))
+\right).
+\end{aligned}
+\]</div>
+<p>SMC decreases <span class="arithmatex">\(\epsilon\)</span> through a sequence of approximate targets. Particle
+weights correct parameter proposals; simulated datasets are auxiliary
+variables. The final result remains conditional on the summary <span class="arithmatex">\(s\)</span>, discrepancy
+<span class="arithmatex">\(\rho\)</span>, kernel, tolerance, simulator, and prior. More particles do not remove
+summary insufficiency or simulator misspecification.</p>
+<h3 id="do-not-collapse-neighboring-algorithms">Do not collapse neighboring algorithms<a class="headerlink" href="#do-not-collapse-neighboring-algorithms" title="Permanent link">¤</a></h3>
+<div class="md-typeset__table book-table-container"><table id="tbl-sequential-monte-carlo-and-particle-methods-do-not-collapse-neighboring-algorithms"><caption class="book-object-caption"><span class="book-object-number">Table SMC.4.</span> Do not collapse neighboring algorithms</caption>
+<thead>
+<tr>
+<th>Method</th>
+<th>Population mechanism</th>
+<th>Returned object</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AIS</td>
+<td>one or more weighted annealed trajectories, normally without population resampling</td>
+<td>normalizer ratio and weighted endpoint</td>
+</tr>
+<tr>
+<td>static SMC</td>
+<td>interacting weighted population with optional resampling and mutation</td>
+<td>target approximation plus normalizer ratio</td>
+</tr>
+<tr>
+<td>parallel tempering</td>
+<td>MCMC on a product of simultaneous tempered replicas</td>
+<td>correlated draws, usually from the cold replica</td>
+</tr>
+<tr>
+<td>nested sampling</td>
+<td>likelihood-constrained prior-mass progression and quadrature</td>
+<td>evidence and posterior-weighted points under its construction</td>
+</tr>
+<tr>
+<td>simulated annealing</td>
+<td>changing-temperature search</td>
+<td>approximate optimizer, not generally a posterior sample</td>
+</tr>
+</tbody>
+</table></div>
+<p>Shared schedules create an implementation analogy or hybrid composition, not
+algebraic equivalence among their finite algorithms.</p>
+<h3 id="chapter-5-synthesis">Chapter 5 synthesis<a class="headerlink" href="#chapter-5-synthesis" title="Permanent link">¤</a></h3>
+<p>Static-target SMC turns a difficult fixed law into a sequence of corrected
+population moves. Backward kernels define the artificial path correction;
+tempering and data assimilation define useful target sequences; rare-event and
+ABC applications define different potentials and approximation boundaries.
+Chapter 6 asks how these components can be learned or differentiated without
+hiding resampling, target, and finite-particle error.</p>
+<h3 id="chapter-5-retrieval-practice">Chapter 5 retrieval practice<a class="headerlink" href="#chapter-5-retrieval-practice" title="Permanent link">¤</a></h3>
+<ol>
+<li>Why does a static SMC sampler need a backward kernel in its general weight?</li>
+<li>What does CESS diagnose that post-resampling particle ESS does not?</li>
+<li>Which ABC errors remain when particle count tends to infinity?</li>
+<li>Why is static SMC not parallel tempering?</li>
+</ol>
+<details class="success">
+<summary>Complete solutions</summary>
+<ol>
+<li>The backward kernel defines an artificial extended target on paths so the forward proposal can be importance-corrected while retaining the desired final marginal.</li>
+<li>CESS forecasts concentration from the next incremental reweighting conditional on the present cloud; equal post-resampling weights hide that effect.</li>
+<li>Approximation from the summary, discrepancy, tolerance or kernel, prior, and simulator remains.</li>
+<li>Static SMC moves and selects an evolving population while estimating normalizer ratios; parallel tempering is one invariant Markov chain on a product of simultaneous tempered laws.</li>
+</ol>
+</details>
+<p><a href="./#6-learning-twisting-evaluation-and-research">Continue continuously</a>,
+or use the <a href="../smc-05-static-targets/">Chapter 5 stopping-point view</a>.</p>
+<h2 id="6-learning-twisting-evaluation-and-research">6. Learning, Twisting, Evaluation, and Research<a class="headerlink" href="#6-learning-twisting-evaluation-and-research" title="Permanent link">¤</a></h2>
+<h3 id="chapter-6-prerequisites-and-learning-objectives">Chapter 6 prerequisites and learning objectives<a class="headerlink" href="#chapter-6-prerequisites-and-learning-objectives" title="Permanent link">¤</a></h3>
+<p><strong>Prerequisites.</strong> Chapters 1–5, gradient estimators, variational objectives,
+optimal transport, conditional generation, and reproducible evaluation.</p>
+<p><strong>Learning objectives.</strong> Distinguish objectives for model, proposal, and target
+learning; explain the resampling-gradient problem; place relaxed, marginalized,
+and transport resampling correctly; derive a twist as a change of path measure;
+and design a query-specific particle-method evaluation through the current
+research literature.</p>
+<h3 id="an-smc-computation-can-train-several-objects">An SMC computation can train several objects<a class="headerlink" href="#an-smc-computation-can-train-several-objects" title="Permanent link">¤</a></h3>
+<p>Let <span class="arithmatex">\(\widehat Z_N(\theta,\phi,\psi)\)</span> be an SMC normalizer estimator with model
+parameters <span class="arithmatex">\(\theta\)</span>, proposal parameters <span class="arithmatex">\(\phi\)</span>, and optional target-twisting
+parameters <span class="arithmatex">\(\psi\)</span>. The objective</p>
+<div class="arithmatex">\[
+\mathcal L_N=\mathbb E[\log\widehat Z_N]
+\le \log Z
+\]</div>
+<p>is an evidence lower bound when <span class="arithmatex">\(\widehat Z_N\)</span> is nonnegative and unbiased for
+<span class="arithmatex">\(Z\)</span> under the stated construction. This idea underlies filtering and auxiliary
+SMC objectives such as FIVO, AESMC, and variational SMC. A tighter value of the
+bound does not guarantee a lower-variance gradient, a better smoothing
+posterior, or better generated samples under a different query.</p>
+<p>Model, proposal, and twist updates follow different objectives:</p>
+<ul>
+<li><strong>model learning</strong> changes the generative joint law and its evidence;</li>
+<li><strong>proposal learning</strong> changes how finite particles cover a fixed target;</li>
+<li><strong>twist learning</strong> changes intermediate targets while preserving a declared endpoint after correction; and</li>
+<li><strong>recognition learning</strong> may target inclusive, exclusive, wake, sleep, or smoothing-oriented divergences.</li>
+</ul>
+<p>Sharing one particle system does not make these gradients identical.</p>
+<h3 id="why-resampling-complicates-differentiation">Why resampling complicates differentiation<a class="headerlink" href="#why-resampling-complicates-differentiation" title="Permanent link">¤</a></h3>
+<p>Categorical ancestor sampling is discontinuous in its weights. Several
+strategies have distinct contracts:</p>
+<div class="md-typeset__table book-table-container"><table id="tbl-sequential-monte-carlo-and-particle-methods-why-resampling-complicates-differentiation"><caption class="book-object-caption"><span class="book-object-number">Table SMC.5.</span> Why resampling complicates differentiation</caption>
+<thead>
+<tr>
+<th>Strategy</th>
+<th>Mechanism</th>
+<th>Boundary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>stop-gradient through ancestors</td>
+<td>differentiate weights and mutations on the realized genealogy</td>
+<td>biased for the full discrete-resampling derivative in general</td>
+</tr>
+<tr>
+<td>score-function estimator</td>
+<td>differentiate the probability of ancestor choices</td>
+<td>unbiased under regularity but often high variance</td>
+</tr>
+<tr>
+<td>continuous relaxation or soft resampling</td>
+<td>replace or mix categorical selection with a differentiable operation</td>
+<td>changes the finite particle algorithm and can bias the target approximation</td>
+</tr>
+<tr>
+<td>marginalize discrete ancestry</td>
+<td>analytically sum selected ancestor variables when tractable</td>
+<td>cost can grow and trajectory information may change</td>
+</tr>
+<tr>
+<td>entropy-regularized optimal-transport resampling</td>
+<td>deterministically transport weighted particles toward equal mass</td>
+<td>differentiable with convergence results under its construction; regularization and transport cost remain</td>
+</tr>
+</tbody>
+</table></div>
+<p>“End-to-end differentiable” names a derivative program, not a theorem that the
+gradient equals the exact log-likelihood gradient.</p>
+<h3 id="twisting-uses-future-information-in-intermediate-targets">Twisting uses future information in intermediate targets<a class="headerlink" href="#twisting-uses-future-information-in-intermediate-targets" title="Permanent link">¤</a></h3>
+<p>Filtering targets use observations only through the current time. A positive
+twist <span class="arithmatex">\(h_t(x_{0:t})\)</span> defines</p>
+<div class="arithmatex">\[
+\widetilde\gamma_t(x_{0:t})
+=\gamma_t(x_{0:t})h_t(x_{0:t}).
+\]</div>
+<p>With compatible terminal condition and incremental corrections, the twist can
+steer particles toward states likely under future observations or a terminal
+constraint while retaining the desired endpoint. An ideal twist is related to
+a backward predictive value such as the probability of future evidence. It is
+usually intractable and therefore approximated or learned.</p>
+<p>The relation to a Doob transform is a <strong>distributional or dynamical
+correspondence under assumptions</strong>: both use a positive backward value to alter
+path dynamics toward an endpoint event. A learned twist without exact
+correction defines an approximation, not automatic conditional exactness.</p>
+<h3 id="worked-terminal-twist">Worked terminal twist<a class="headerlink" href="#worked-terminal-twist" title="Permanent link">¤</a></h3>
+<p>Consider a two-step Markov chain with terminal event <span class="arithmatex">\(E\)</span>. Define</p>
+<div class="arithmatex">\[
+h_t(x_t)=P(E\mid X_t=x_t).
+\]</div>
+<p>For a transition <span class="arithmatex">\(f(x_{t+1}\mid x_t)\)</span>, the ideal conditioned transition is</p>
+<div class="arithmatex">\[
+\begin{aligned}
+f^E(x_{t+1}\mid x_t)
+&amp;=f(x_{t+1}\mid x_t)\\
+&amp;\quad\times\frac{h_{t+1}(x_{t+1})}{h_t(x_t)}.
+\end{aligned}
+\]</div>
+<p>Summing over <span class="arithmatex">\(x_{t+1}\)</span> gives one because
+<span class="arithmatex">\(h_t(x_t)=\sum_{x_{t+1}}f(x_{t+1}\mid x_t)h_{t+1}(x_{t+1})\)</span>.
+If a network <span class="arithmatex">\(\widehat h_t\)</span> violates this backward identity, the resulting
+transition is not automatically normalized or exact; importance correction,
+normalization, or an explicit approximation statement is required.</p>
+<h3 id="smc-inside-modern-generators">SMC inside modern generators<a class="headerlink" href="#smc-inside-modern-generators" title="Permanent link">¤</a></h3>
+<p>Particle methods increasingly act at inference time around a pretrained
+generator:</p>
+<ul>
+<li>autoregressive particles reweight partial sequences by constraints or rewards;</li>
+<li>diffusion particles use likelihoods, terminal rewards, or learned twists along denoising paths;</li>
+<li>discrete diffusion particles allocate multiple refinement trajectories;</li>
+<li>energy and Bayesian systems use tempering populations for difficult targets; and</li>
+<li>scientific generators use particles for posterior or rare-event conditioning.</li>
+</ul>
+<p>These are <strong>hybrid system compositions</strong>. The base generator supplies a proposal
+path; SMC supplies selection and correction toward a declared target. Finite
+performance depends on particle count, proposal/path discretization, potential
+quality, resampling, target support, and compute. It is unsafe to say that SMC
+makes an arbitrary approximate guide exact at a fixed particle count.</p>
+<h3 id="evidence-map-through-the-verification-date">Evidence map through the verification date<a class="headerlink" href="#evidence-map-through-the-verification-date" title="Permanent link">¤</a></h3>
+<div class="md-typeset__table book-table-container"><table id="tbl-sequential-monte-carlo-and-particle-methods-evidence-map-through-the-verification-date"><caption class="book-object-caption"><span class="book-object-number">Table SMC.6.</span> Evidence map through the verification date</caption>
+<thead>
+<tr>
+<th>Evidence</th>
+<th>Contribution</th>
+<th>Curriculum interpretation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Established:</strong> bootstrap filtering and SMC samplers</td>
+<td>proper weighting, resampling, target sequences, normalizer estimation</td>
+<td>mathematical foundation, with assumptions stated</td>
+</tr>
+<tr>
+<td><strong>Established:</strong> PMCMC and particle Gibbs with ancestor sampling</td>
+<td>exact-marginal extended-target constructions</td>
+<td>asymptotic MCMC validity remains separate from finite mixing</td>
+</tr>
+<tr>
+<td><strong>Peer-reviewed:</strong> VSMC, FIVO/AESMC, differentiable particle filters, and entropy-regularized transport resampling</td>
+<td>learned proposals, particle objectives, and alternative derivative programs</td>
+<td>each objective and gradient estimator retains its own bias, variance, and task scope</td>
+</tr>
+<tr>
+<td><strong>Peer-reviewed:</strong> SIXO and NAS-X</td>
+<td>learned smoothing-oriented twists and objectives</td>
+<td>evidence for named sequential latent-model experiments, not a universal dominance claim</td>
+</tr>
+<tr>
+<td><strong>Peer-reviewed:</strong> Twisted Diffusion Sampler and 2025 inference-time alignment</td>
+<td>SMC around diffusion proposals for conditional or reward-tilted targets</td>
+<td>endpoint, guide, discretization, and compute qualifiers remain essential</td>
+</tr>
+<tr>
+<td><strong>Preprint, 2026:</strong> multilevel/training-free diffusion SMC, path-measure SMC alignment, and masked-diffusion particle search</td>
+<td>active proposals for inference-time control and cost reduction</td>
+<td>useful research hypotheses; publication status and independent reproduction remain open</td>
+</tr>
+</tbody>
+</table></div>
+<p>The most recent preprints are included to define research questions, not to
+establish a settled ranking. A release review must recheck their versions and
+venue status.</p>
+<h3 id="evaluation-and-reporting-contract">Evaluation and reporting contract<a class="headerlink" href="#evaluation-and-reporting-contract" title="Permanent link">¤</a></h3>
+<p>Every particle-method result should report:</p>
+<ol>
+<li><strong>Target:</strong> normalized or unnormalized law, path space, conditioning event, and support.</li>
+<li><strong>Sequence:</strong> intermediate targets, data order, temperatures, tolerances, or twists.</li>
+<li><strong>Proposal and mutation:</strong> densities, invariant kernels, inner approximations, and step counts.</li>
+<li><strong>Selection:</strong> resampling scheme, timing, trigger, particle ordering, and randomization.</li>
+<li><strong>Compute:</strong> particles, stages, likelihood or model evaluations, active parameters, wall clock, memory, and hardware.</li>
+<li><strong>Returned query:</strong> current marginal, path, normalizer, gradient, event probability, or generated candidate.</li>
+<li><strong>Diagnostics:</strong> weight ESS before selection, CESS where used, unique ancestors by lag, nonfinite weights, likelihood variance, repeated-run variability, and query error.</li>
+<li><strong>Evidence:</strong> exact finite oracle, independent reproduction, ablations, uncertainty, and failure cases.</li>
+</ol>
+<p>Compare at matched target and cost. Increasing <span class="arithmatex">\(N\)</span> while reducing mutation,
+changing a guidance scale, or using a different model-evaluation budget is not a
+controlled particle-method comparison.</p>
+<h3 id="research-problems">Research problems<a class="headerlink" href="#research-problems" title="Permanent link">¤</a></h3>
+<ol>
+<li><strong>High-dimensional stability.</strong> Identify model structure, localization, factorization, or transport that prevents exponential weight collapse without changing the intended target.</li>
+<li><strong>Genealogical control.</strong> Design selection and smoothing mechanisms that preserve old-path diversity under bounded memory and parallel depth.</li>
+<li><strong>Gradient validity.</strong> Quantify bias and variance jointly for resampling derivatives, proposal learning, and model learning rather than reporting only bound tightness.</li>
+<li><strong>Twist verification.</strong> Measure how twist error propagates into finite-particle conditional generation and when correction restores endpoint validity.</li>
+<li><strong>Adaptive compute.</strong> Allocate particles, stages, mutation steps, and model evaluations from uncertainty signals whose calibration is itself tested.</li>
+<li><strong>Generator composition.</strong> Establish cost-matched comparisons among SMC, best-of-<span class="arithmatex">\(N\)</span>, beam search, MCMC correction, and direct conditional training for the same target.</li>
+<li><strong>Parallelism.</strong> Separate parallel work within a stage from sequential depth across stages, and include accelerator communication in the compute model.</li>
+</ol>
+<h3 id="cumulative-worked-audit">Cumulative worked audit<a class="headerlink" href="#cumulative-worked-audit" title="Permanent link">¤</a></h3>
+<p>For a binary state-space model, a defensible study would:</p>
+<ol>
+<li>enumerate exact filtering, smoothing, and likelihood values;</li>
+<li>compare bootstrap and fully adapted proposals at particle counts <span class="arithmatex">\(4,16,64\)</span>;</li>
+<li>compare multinomial, stratified, and systematic resampling under declared particle order;</li>
+<li>record pre-resampling ESS, unique ancestors, filtering error, smoothing error, and log-likelihood variance over independent runs;</li>
+<li>add backward simulation and a valid invariant resample–move kernel;</li>
+<li>learn a proposal only after the analytic baselines are understood; and</li>
+<li>repeat under a rare observation for which proposal support and numerical weights are stressed.</li>
+</ol>
+<p>This ladder moves from exact algebra to finite computation, learned components,
+and distribution shift without changing all variables at once.</p>
+<h3 id="chapter-6-synthesis">Chapter 6 synthesis<a class="headerlink" href="#chapter-6-synthesis" title="Permanent link">¤</a></h3>
+<p>Learned proposals, differentiable resampling, smoothing twists, and generator
+control extend the same target–proposal–weight–selection contract. Their
+derivative and endpoint guarantees must be stated separately. The complete SMC
+workflow begins with the returned query, validates on exact finite models,
+reports current weights and genealogy together, and treats recent generator
+applications as bounded system compositions rather than a new model family.</p>
+<h3 id="chapter-6-retrieval-practice">Chapter 6 retrieval practice<a class="headerlink" href="#chapter-6-retrieval-practice" title="Permanent link">¤</a></h3>
+<ol>
+<li>Why can an SMC evidence bound tighten while its gradient becomes harder to estimate?</li>
+<li>What does stopping the gradient through resampling omit?</li>
+<li>When is a learned twist target-preserving?</li>
+<li>Why must best-of-<span class="arithmatex">\(N\)</span> and SMC be compared at the same model-evaluation budget?</li>
+</ol>
+<details class="success">
+<summary>Complete solutions</summary>
+<ol>
+<li>Bound value and derivative variance are different objects; more particles and discrete selections can improve the estimator while creating difficult credit assignment.</li>
+<li>It omits how parameters change the probability of the discrete ancestor choices.</li>
+<li>When the complete twisted path construction, terminal condition, and importance or transition correction preserve the declared endpoint; an approximate twist alone is insufficient.</li>
+<li>Both spend compute on multiple candidates, but SMC also evaluates intermediate potentials and resamples; unmatched calls confound algorithm with budget.</li>
+</ol>
+</details>
+<h3 id="primary-reading">Primary reading<a class="headerlink" href="#primary-reading" title="Permanent link">¤</a></h3>
+<ul>
+<li><a href="https://doi.org/10.1049/ip-f-2.1993.0015">Gordon, Salmond, and Smith, <em>Novel approach to nonlinear/non-Gaussian Bayesian state estimation</em></a>.</li>
+<li><a href="https://doi.org/10.1111/j.1467-9868.2006.00553.x">Del Moral, Doucet, and Jasra, <em>Sequential Monte Carlo Samplers</em></a>.</li>
+<li><a href="https://arxiv.org/abs/cs/0507025">Douc, Cappé, and Moulines, <em>Comparison of Resampling Schemes for Particle Filtering</em></a>.</li>
+<li><a href="https://doi.org/10.1111/j.1467-9868.2009.00736.x">Andrieu, Doucet, and Holenstein, <em>Particle Markov Chain Monte Carlo Methods</em></a>.</li>
+<li><a href="https://www.jmlr.org/papers/v15/lindsten14a.html">Lindsten, Jordan, and Schön, <em>Particle Gibbs with Ancestor Sampling</em></a>.</li>
+<li><a href="https://doi.org/10.1111/j.1467-9868.2012.01046.x">Chopin, Jacob, and Papaspiliopoulos, <em>SMC²</em></a>.</li>
+<li><a href="https://proceedings.mlr.press/v84/naesseth18a.html">Naesseth et al., <em>Variational Sequential Monte Carlo</em></a>.</li>
+<li><a href="https://proceedings.neurips.cc/paper/2017/hash/979d472a84804b9f647bc185a877a8b5-Abstract.html">Maddison et al., <em>Filtering Variational Objectives</em></a>.</li>
+<li><a href="https://proceedings.mlr.press/v139/corenflos21a.html">Corenflos et al., <em>Differentiable Particle Filtering via Entropy-Regularized Optimal Transport</em></a>.</li>
+<li><a href="https://proceedings.neurips.cc/paper_files/paper/2022/hash/fddc79681b2df2734c01444f9bc2a17e-Abstract-Conference.html">Lawson et al., <em>SIXO: Smoothing Inference with Twisted Objectives</em></a>.</li>
+<li><a href="https://proceedings.neurips.cc/paper_files/paper/2023/hash/63e8bc7bbf1cfea36d1d1b6538aecce5-Abstract-Conference.html">Wu et al., <em>Practical and Asymptotically Exact Conditional Sampling in Diffusion Models</em></a>.</li>
+<li><a href="https://proceedings.neurips.cc/paper_files/paper/2025/hash/d6484394c4cb5e1f4ecad8d90b912025-Abstract-Conference.html">Kim et al., <em>Scalable Inference-Time Alignment of Diffusion Models</em></a>.</li>
+</ul>
+<h3 id="source-tracing-checklist">Source-tracing checklist<a class="headerlink" href="#source-tracing-checklist" title="Permanent link">¤</a></h3>
+<p>Before relying on a method, locate its exact target, weight, resampling order,
+normalizer theorem, proposal support assumptions, particle count, mutation
+budget, objective, gradient estimator, dataset or simulator, and independent
+reproduction status in the primary paper and implementation.</p>
+<p><a href="../generative-models-unified/#how-to-read-this-volume">Return to the Landscape</a>,
+or use the <a href="../smc-06-learning-practice/">Chapter 6 stopping-point view</a>.</p>
+</article>
+</div>
+<script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  Back to top
+</button>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+<div class="md-social">
+<a class="md-social__link" href="https://github.com/avitai/artifex" rel="noopener" target="_blank" title="github.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</a>
+<a class="md-social__link" href="https://pypi.org/project/avitai-artifex/" rel="noopener" target="_blank" title="pypi.org">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-66.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.3v101.8c0 29 25.2 46 53.4 54.3 33.8 9.9 66.3 11.7 106.8 0 26.9-7.8 53.4-23.5 53.4-54.3v-40.7H226.2v-13.6h160.2c31.1 0 42.6-21.7 53.4-54.2 11.2-33.5 10.7-65.7 0-108.6M286.2 444.7a20.4 20.4 0 1 1 0-40.7 20.4 20.4 0 1 1 0 40.7M167.8 248.1h106.8c29.7 0 53.4-24.5 53.4-54.3V91.9c0-29-24.4-50.7-53.4-55.6-35.8-5.9-74.7-5.6-106.8.1-45.2 8-53.4 24.7-53.4 55.6v40.7h106.9v13.6h-147c-31.1 0-58.3 18.7-66.8 54.2-9.8 40.7-10.2 66.1 0 108.6 7.6 31.6 25.7 54.2 56.8 54.2H101v-48.8c0-35.3 30.5-66.4 66.8-66.4m-6.6-183.4a20.4 20.4 0 1 1 0 40.8 20.4 20.4 0 1 1 0-40.8"></path></svg>
+</a>
+<a class="md-social__link" href="https://twitter.com/mahdi_shafiei" rel="noopener" target="_blank" title="twitter.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M459.4 151.7c.3 4.5.3 9.1.3 13.6 0 138.7-105.6 298.6-298.6 298.6-59.5 0-114.7-17.2-161.1-47.1 8.4 1 16.6 1.3 25.3 1.3 49.1 0 94.2-16.6 130.3-44.8-46.1-1-84.8-31.2-98.1-72.8 6.5 1 13 1.6 19.8 1.6 9.4 0 18.8-1.3 27.6-3.6-48.1-9.7-84.1-52-84.1-103v-1.3c14 7.8 30.2 12.7 47.4 13.3-28.3-18.8-46.8-51-46.8-87.4 0-19.5 5.2-37.4 14.3-53C87.4 130.8 165 172.4 252.1 176.9c-1.6-7.8-2.6-15.9-2.6-24C249.5 95.1 296.3 48 354.4 48c30.2 0 57.5 12.7 76.7 33.1 23.7-4.5 46.5-13.3 66.6-25.3-7.8 24.4-24.4 44.8-46.1 57.8 21.1-2.3 41.6-8.1 60.4-16.2-14.3 20.8-32.2 39.3-52.6 54.3"></path></svg>
+</a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.path", "navigation.top", "navigation.prune", "toc.follow", "search.highlight", "search.share", "search.suggest", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "content.mermaid"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+<script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+<script src="../../../javascripts/reading-layout.js"></script>
+</body>
+</html>

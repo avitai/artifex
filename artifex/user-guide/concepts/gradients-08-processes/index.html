@@ -1,0 +1,1552 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="This chapter differentiates through ODEs, SDEs, MCMC, SMC, trajectory rewards, score teachers, and nonsmooth constraints while keeping the finite derivative" name="description"/>
+<meta content="Mahdi Shafiei" name="author"/>
+<link href="https://docs.avitai.bio/artifex/user-guide/concepts/gradients-08-processes/" rel="canonical"/>
+<link href="../gradients-07-implicit-games/" rel="prev"/>
+<link href="../gradients-09-functional/" rel="next"/>
+<link href="../../../assets/images/favicon.png" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.7.7" name="generator"/>
+<title>Gradients and Geometry 8 — Generative Processes and Teachers - Artifex</title>
+<link href="../../../assets/stylesheets/main.ec1eaa64.min.css" rel="stylesheet"/>
+<link href="../../../assets/stylesheets/palette.ab4e12ef.min.css" rel="stylesheet"/>
+<script src="../../../assets/vendor/iframe-worker/index.js"></script>
+<link href="../../../assets/_mkdocstrings.css" rel="stylesheet"/>
+<link href="../../../_static/extra.css" rel="stylesheet"/>
+<script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+<meta content="article" property="og:type"/>
+<meta content="The Artifex Generative Models Book" property="og:site_name"/>
+<meta content="Gradients and Geometry 8 — Generative Processes and Teachers" property="og:title"/>
+<meta content="This chapter differentiates through ODEs, SDEs, MCMC, SMC, trajectory rewards, score teachers, and nonsmooth constraints while keeping the finite derivative" property="og:description"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/gradients-08-processes/" property="og:url"/>
+<meta content="2026-07-20" property="article:modified_time"/>
+<meta content="summary" name="twitter:card"/>
+<meta content="Gradients and Geometry 8 — Generative Processes and Teachers" name="twitter:title"/>
+<meta content="This chapter differentiates through ODEs, SDEs, MCMC, SMC, trajectory rewards, score teachers, and nonsmooth constraints while keeping the finite derivative" name="twitter:description"/>
+<meta content="Generative models, Machine learning, Probabilistic modeling, advanced, specialization, canonical_chapter, gradient-processes, practitioner, researcher" name="keywords"/>
+<meta content="Gradients and Geometry 8 — Generative Processes and Teachers" name="citation_title"/>
+<meta content="Mahdi Shafiei" name="citation_author"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/gradients-08-processes/" name="citation_public_url"/>
+<meta content="en" name="citation_language"/>
+<meta content="Gradients and Geometry 8 — Generative Processes and Teachers" name="DC.title"/>
+<meta content="Mahdi Shafiei" name="DC.creator"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/gradients-08-processes/" name="DC.identifier"/>
+<meta content="Text.LearningResource" name="DC.type"/>
+<meta content="2026-07-20" name="DCTERMS.modified"/>
+<meta content="https://github.com/avitai/artifex/blob/main/LICENSE" name="DCTERMS.license"/>
+<meta content="advanced" name="DCTERMS.educationLevel"/>
+<meta content="practitioner, researcher" name="DCTERMS.audience"/>
+<link href="https://github.com/avitai/artifex/blob/main/LICENSE" rel="license"/>
+<script id="artifex-book-metadata" type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Chapter",
+  "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/gradients-08-processes/",
+  "url": "https://docs.avitai.bio/artifex/user-guide/concepts/gradients-08-processes/",
+  "name": "Gradients and Geometry 8 \u2014 Generative Processes and Teachers",
+  "description": "This chapter differentiates through ODEs, SDEs, MCMC, SMC, trajectory rewards, score teachers, and nonsmooth constraints while keeping the finite derivative",
+  "identifier": "gradient-processes",
+  "inLanguage": "en",
+  "isAccessibleForFree": true,
+  "learningResourceType": "Canonical chapter",
+  "educationalLevel": "advanced",
+  "educationalUse": "specialization",
+  "audience": [
+    
+      {"@type": "EducationalAudience", "audienceType": "practitioner"},
+    
+      {"@type": "EducationalAudience", "audienceType": "researcher"}
+    
+  ],
+  "dateModified": "2026-07-20",
+  "keywords": ["Generative models", "Machine learning", "Probabilistic modeling", "advanced", "specialization", "canonical_chapter", "gradient-processes", "practitioner", "researcher"],
+  "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+  "author": [
+    
+      {"@type": "Person", "name": "Mahdi Shafiei"}
+    
+  ],
+  "isPartOf": {
+    "@type": "Book",
+    "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/#book",
+    "url": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/",
+    "name": "The Artifex Generative Models Book",
+    "bookEdition": "Living Web Edition",
+    "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+    "author": [
+      
+        {"@type": "Person", "name": "Mahdi Shafiei"}
+      
+    ]
+  }
+}
+</script>
+<link href="../../../assets/vendor/katex/katex.min.css" id="artifex-katex-stylesheet" integrity="sha384-UA8juhPf75SzzAMA/4fo3yOU7sBJ0om7SCD2GHq0fZqZco6tr1UCV7nUbk9J90JM" rel="stylesheet"/>
+<script defer="" integrity="sha384-T/0lMUdJpd2S1ZHtRiofG3htU3xPCrFVeAQ1UUE2TJwlEJSV5NUwn30kP28n238E" src="../../../assets/vendor/mermaid/mermaid.min.js"></script>
+<script defer="" src="../../../assets/vendor/katex/katex-shadow.js"></script>
+<script defer="" src="../../../javascripts/mermaid-math.js"></script>
+<script defer="" src="../../../javascripts/mathjax.js"></script>
+<script defer="" integrity="sha384-OrHfGTnIbkl0do3N76qW/uWr38o91N05sbSPuYBPLH+hG8X/dNSrjZf3AGjzrCwC" src="../../../assets/vendor/mathjax/tex-mml-chtml.js"></script>
+</head>
+<body data-md-color-accent="amber" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#gradients-and-geometry-8-generative-processes-and-teachers">
+          Skip to content
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header md-header--shadow" data-md-component="header">
+<nav aria-label="Header" class="md-header__inner md-grid">
+<a aria-label="Artifex" class="md-header__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            Artifex
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+            
+              Gradients and Geometry 8 — Generative Processes and Teachers
+            
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-label="Switch to dark mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: light)" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_1" hidden="" title="Switch to dark mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+<input aria-label="Switch to light mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-primary="indigo" data-md-color-scheme="slate" id="__palette_1" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_0" hidden="" title="Switch to light mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+</form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div aria-label="Search" class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Search" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="Search" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="Search" class="md-search__options">
+<a aria-label="Share" class="md-search__icon md-icon" data-clipboard="" data-clipboard-text="" data-md-component="search-share" href="javascript:void(0)" tabindex="-1" title="Share">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"></path></svg>
+</a>
+<button aria-label="Clear" class="md-search__icon md-icon" tabindex="-1" title="Clear" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            Initializing search
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Navigation" class="md-nav md-nav--primary" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="Artifex" class="md-nav__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+    Artifex
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../..">
+<span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../getting-started/installation/">
+<span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Generative Models Book
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Generative Models Book
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    
+  
+    Start Here — The Landscape
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../first-course-01-generative-systems/">
+<span class="md-ellipsis">
+    
+  
+    First Course — New to Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../probability-01-objects/">
+<span class="md-ellipsis">
+    
+  
+    Foundations
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../autoregressive-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Model Families
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_5" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_5" id="__nav_3_5_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Connections and Compositions
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_5_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_5">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Connections and Compositions
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_5_1" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_5_1" id="__nav_3_5_1_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Gradients and Geometry in Generative Modeling
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_5_1_label" class="md-nav" data-md-level="3">
+<label class="md-nav__title" for="__nav_3_5_1">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Gradients and Geometry in Generative Modeling
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../gradients-01-taxonomy/">
+<span class="md-ellipsis">
+    
+  
+    1. Gradient Taxonomy
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../gradients-02-natural-geometry/">
+<span class="md-ellipsis">
+    
+  
+    2. Natural Gradients
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../gradients-03-variational/">
+<span class="md-ellipsis">
+    
+  
+    3. Exponential Families and VI
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../gradients-04-estimators/">
+<span class="md-ellipsis">
+    
+  
+    4. Gradient Estimators
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../gradients-05-computation/">
+<span class="md-ellipsis">
+    
+  
+    5. Model-Scale Computation
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../gradients-06-model-applications/">
+<span class="md-ellipsis">
+    
+  
+    6. Likelihood, Latent, and Energy Models
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../gradients-07-implicit-games/">
+<span class="md-ellipsis">
+    
+  
+    7. Implicit Models and Games
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
+    
+  
+    8. Generative Processes and Teachers
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
+<span class="md-ellipsis">
+    
+  
+    8. Generative Processes and Teachers
+  
+
+    
+  </span>
+</a>
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#8-differentiating-through-generative-processes-and-teachers">
+<span class="md-ellipsis">
+      
+        8. Differentiating Through Generative Processes and Teachers
+      
+    </span>
+</a>
+<nav aria-label="8. Differentiating Through Generative Processes and Teachers" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-8-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 8 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#solver-output-is-a-parameterized-computation">
+<span class="md-ellipsis">
+      
+        Solver output is a parameterized computation
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#sde-pathwise-sensitivities-require-a-noise-contract">
+<span class="md-ellipsis">
+      
+        SDE pathwise sensitivities require a noise contract
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mcmc-smc-and-resampling-create-target-choices">
+<span class="md-ellipsis">
+      
+        MCMC, SMC, and resampling create target choices
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#reward-gradients-for-autoregressive-and-iterative-generators">
+<span class="md-ellipsis">
+      
+        Reward gradients for autoregressive and iterative generators
+      
+    </span>
+</a>
+<nav aria-label="Reward gradients for autoregressive and iterative generators" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-two-token-reward">
+<span class="md-ellipsis">
+      
+        Worked two-token reward
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#score-distillation-transfers-a-state-field-through-a-generator">
+<span class="md-ellipsis">
+      
+        Score distillation transfers a state field through a generator
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#nonsmooth-and-constrained-updates">
+<span class="md-ellipsis">
+      
+        Nonsmooth and constrained updates
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#independent-practice-and-assessment-map-differentiating-generative-processes">
+<span class="md-ellipsis">
+      
+        Independent practice and assessment map: differentiating generative processes
+      
+    </span>
+</a>
+<nav aria-label="Independent practice and assessment map: differentiating generative processes" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#feedback-contract-differentiating-generative-processes">
+<span class="md-ellipsis">
+      
+        Feedback contract: differentiating generative processes
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#outcome-to-task-alignment-differentiating-generative-processes">
+<span class="md-ellipsis">
+      
+        Outcome-to-task alignment: differentiating generative processes
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-8-synthesis-and-retrieval-practice">
+<span class="md-ellipsis">
+      
+        Chapter 8 synthesis and retrieval practice
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../gradients-09-functional/">
+<span class="md-ellipsis">
+    
+  
+    9. Functional and Distributional Gradients
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../gradients-10-practice/">
+<span class="md-ellipsis">
+    
+  
+    10. Selection and Research Practice
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../gradients-and-geometry-in-generative-modeling/">
+<span class="md-ellipsis">
+    
+  
+    Continuous View (All Chapters)
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../density-latent-energy-01-objects/">
+<span class="md-ellipsis">
+    
+  
+    Density, Latent, Energy, and Score
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../probability-paths-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Probability Paths and Stochastic Transport
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../general-markov-01-operators/">
+<span class="md-ellipsis">
+    
+  
+    General Markov Generators
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../few-step-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Transitions and Few-Step Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../geometric-01-symmetry/">
+<span class="md-ellipsis">
+    
+  
+    Geometric and Equivariant Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../representations-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Representations and Multimodal Systems
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../steering-01-targets/">
+<span class="md-ellipsis">
+    
+  
+    Conditioning, Steering, Constraints, and Selection
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../world-models-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    World Models and Causal Simulators
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../landscape-01-copulas/">
+<span class="md-ellipsis">
+    
+  
+    Extended Generative Landscape
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../normalization-01-queries/">
+<span class="md-ellipsis">
+    
+  
+    Research Practice
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../models/vae-guide/">
+<span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/core/base/">
+<span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../examples/overview/">
+<span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../zoo/">
+<span class="md-ellipsis">
+    
+  
+    Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../training/overview/">
+<span class="md-ellipsis">
+    
+  
+    Training
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../data/overview/">
+<span class="md-ellipsis">
+    
+  
+    Data &amp; Modalities
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../inference/overview/">
+<span class="md-ellipsis">
+    
+  
+    Inference &amp; Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../benchmarks/">
+<span class="md-ellipsis">
+    
+  
+    Evaluation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../guides/extensions/">
+<span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../extensions/">
+<span class="md-ellipsis">
+    
+  
+    Advanced Topics
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../cli/">
+<span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../community/contributing/">
+<span class="md-ellipsis">
+    
+  
+    Community
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/configs/protein-extension/">
+<span class="md-ellipsis">
+    
+  
+    Reference Library
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#8-differentiating-through-generative-processes-and-teachers">
+<span class="md-ellipsis">
+      
+        8. Differentiating Through Generative Processes and Teachers
+      
+    </span>
+</a>
+<nav aria-label="8. Differentiating Through Generative Processes and Teachers" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-8-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 8 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#solver-output-is-a-parameterized-computation">
+<span class="md-ellipsis">
+      
+        Solver output is a parameterized computation
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#sde-pathwise-sensitivities-require-a-noise-contract">
+<span class="md-ellipsis">
+      
+        SDE pathwise sensitivities require a noise contract
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mcmc-smc-and-resampling-create-target-choices">
+<span class="md-ellipsis">
+      
+        MCMC, SMC, and resampling create target choices
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#reward-gradients-for-autoregressive-and-iterative-generators">
+<span class="md-ellipsis">
+      
+        Reward gradients for autoregressive and iterative generators
+      
+    </span>
+</a>
+<nav aria-label="Reward gradients for autoregressive and iterative generators" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-two-token-reward">
+<span class="md-ellipsis">
+      
+        Worked two-token reward
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#score-distillation-transfers-a-state-field-through-a-generator">
+<span class="md-ellipsis">
+      
+        Score distillation transfers a state field through a generator
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#nonsmooth-and-constrained-updates">
+<span class="md-ellipsis">
+      
+        Nonsmooth and constrained updates
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#independent-practice-and-assessment-map-differentiating-generative-processes">
+<span class="md-ellipsis">
+      
+        Independent practice and assessment map: differentiating generative processes
+      
+    </span>
+</a>
+<nav aria-label="Independent practice and assessment map: differentiating generative processes" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#feedback-contract-differentiating-generative-processes">
+<span class="md-ellipsis">
+      
+        Feedback contract: differentiating generative processes
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#outcome-to-task-alignment-differentiating-generative-processes">
+<span class="md-ellipsis">
+      
+        Outcome-to-task alignment: differentiating generative processes
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-8-synthesis-and-retrieval-practice">
+<span class="md-ellipsis">
+      
+        Chapter 8 synthesis and retrieval practice
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<nav aria-label="Breadcrumb" class="md-path">
+<ol class="md-path__list">
+<li class="md-path__item">
+<a class="md-path__link" href="../../..">
+<span class="md-ellipsis">
+    Home
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    Generative Models Book
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../gradients-01-taxonomy/">
+<span class="md-ellipsis">
+    Connections and Compositions
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../gradients-01-taxonomy/">
+<span class="md-ellipsis">
+    Gradients and Geometry in Generative Modeling
+  </span>
+</a>
+</li>
+</ol>
+</nav>
+<article class="md-content__inner md-typeset">
+<h1 id="gradients-and-geometry-8-generative-processes-and-teachers">Gradients and Geometry 8 — Generative Processes and Teachers<a class="headerlink" href="#gradients-and-geometry-8-generative-processes-and-teachers" title="Permanent link">¤</a></h1><aside aria-label="Learning path" class="admonition abstract artifex-learning-path"><p class="admonition-title">Learning path</p><p><strong>Required knowledge</strong></p><ul class="artifex-learning-path__links" data-learning-path-role="required"><li><a href="../gradients-04-estimators/">Gradients and Geometry 4 — Gradient Estimators</a></li><li><a href="../gradients-07-implicit-games/">Gradients and Geometry 7 — Implicit Models and Games</a></li><li><a href="../sampling-and-continuous-time/">Sampling and Continuous-Time Generative Mathematics</a></li></ul><p><strong>Readiness check:</strong> can you explain the central object and reproduce one worked example from each required chapter? If not, follow its link before continuing.</p><p><strong>Newly unlocked in the default route</strong></p><p>No immediate successor names this page as its final required prerequisite. Continue through the book navigation or the chapter's cross-links.</p></aside>
+<p>This chapter differentiates through ODEs, SDEs, MCMC, SMC, trajectory rewards, score teachers, and nonsmooth constraints while keeping the finite derivative target explicit. Read it in the <a href="../gradients-and-geometry-in-generative-modeling/#8-differentiating-through-generative-processes-and-teachers">complete guide</a> for uninterrupted flow.</p>
+<h2 id="8-differentiating-through-generative-processes-and-teachers">8. Differentiating Through Generative Processes and Teachers<a class="headerlink" href="#8-differentiating-through-generative-processes-and-teachers" title="Permanent link">¤</a></h2>
+<h3 id="chapter-8-prerequisites-and-learning-objectives">Chapter 8 prerequisites and learning objectives<a class="headerlink" href="#chapter-8-prerequisites-and-learning-objectives" title="Permanent link">¤</a></h3>
+<p><strong>Prerequisites.</strong> Reverse-mode differentiation, ODE and SDE solvers, Markov
+generators, importance sampling, and conditional generation.</p>
+<p>By the end, you should be able to:</p>
+<ol>
+<li><strong>O1 — Differentiate numerical dynamics:</strong> separate continuous sensitivity
+   equations from derivatives of a finite adaptive solver.</li>
+<li><strong>O2 — Specify stochastic paths:</strong> declare Brownian increments, mesh,
+   coupling, random-number reuse, and pathwise versus likelihood-ratio meaning.</li>
+<li><strong>O3 — Audit learned samplers:</strong> identify the finite-transition law,
+   truncation, stationary-limit claim, and resampling derivative.</li>
+<li><strong>O4 — Derive trajectory reward gradients:</strong> match credit assignment,
+   baselines, temperature, truncation, and off-policy corrections to the sampled
+   law.</li>
+<li><strong>O5 — Interpret teacher fields:</strong> distinguish a pulled-back state vector,
+   a pseudo-loss implementation, and an integrable population divergence.</li>
+<li><strong>O6 — Select constrained derivatives:</strong> choose among subgradient,
+   proximal, mirror, projected, Riemannian, implicit, and surrogate updates.</li>
+</ol>
+<h3 id="solver-output-is-a-parameterized-computation">Solver output is a parameterized computation<a class="headerlink" href="#solver-output-is-a-parameterized-computation" title="Permanent link">¤</a></h3>
+<p>Let an ODE state satisfy</p>
+<div class="arithmatex">\[
+\begin{aligned}
+\dot x(t)&amp;=f_\theta(t,x(t)),\\
+L(\theta)&amp;=\ell(x(T)).
+\end{aligned}
+\]</div>
+<p>The continuous adjoint <span class="arithmatex">\(a(t)=\nabla_{x(t)}L\)</span> satisfies</p>
+<div class="arithmatex">\[
+\begin{aligned}
+-\dot a(t)
+&amp;=\left(\frac{\partial f_\theta}{\partial x}
+\right)^{\!\top}a(t),\\
+a(T)&amp;=\nabla_x\ell(x(T)),
+\end{aligned}
+\]</div>
+<p>and, omitting explicit parameter dependence of the endpoints,</p>
+<div class="arithmatex">\[
+\nabla_\theta L
+=\int_0^T
+a(t)^\top
+\frac{\partial f_\theta}{\partial\theta}(t,x(t))\,dt.
+\]</div>
+<p>There are two finite derivative programs:</p>
+<ul>
+<li><strong>discretize then differentiate:</strong> backpropagate through the actual numerical
+  solver operations; and</li>
+<li><strong>differentiate then discretize:</strong> derive continuous sensitivity equations
+  and solve them numerically.</li>
+</ul>
+<p>They approach the same ideal only under convergence and consistency conditions.
+With finite tolerances, adaptive step decisions, interpolation, event handling,
+or an inaccurate reconstructed trajectory, their gradients can disagree. CNFs
+must additionally differentiate the numerical log-density computation, including
+any stochastic trace estimator. “Adjoint” names a sensitivity construction, not
+a promise of exact constant-memory gradients for every solver.</p>
+<figure class="book-figure" id="fig-gradients-and-geometry-in-generative-modeling-solver-output-is-a-parameterized-computation"><pre class="mermaid"><code>flowchart TB
+    accTitle: Derivative targets through continuous and stochastic generative processes
+    accDescr: A continuous model and a finite executable solver define related but distinct derivative targets. The finite branch records tolerances, events, interpolation, random increments, resampling, and truncation. The continuous branch records sensitivity equations and regularity. Agreement is tested under mesh and tolerance refinement rather than inferred from the word adjoint.
+    M[Declared continuous ODE SDE or Markov model] --&gt; C[Continuous sensitivity or adjoint]
+    M --&gt; P[Finite executable program]
+    P --&gt; N[Steps tolerances events and interpolation]
+    P --&gt; R[Noise coupling resampling and truncation]
+    C --&gt; A[Continuous derivative target]
+    N --&gt; B[Derivative of finite solver output]
+    R --&gt; B
+    A --&gt; V[Refinement and exact-small-case comparison]
+    B --&gt; V</code></pre><figcaption class="book-object-caption"><span class="book-object-number">Figure GRAD.9.</span> Derivative targets through continuous and stochastic generative processes</figcaption></figure>
+<h3 id="sde-pathwise-sensitivities-require-a-noise-contract">SDE pathwise sensitivities require a noise contract<a class="headerlink" href="#sde-pathwise-sensitivities-require-a-noise-contract" title="Permanent link">¤</a></h3>
+<p>For</p>
+<div class="arithmatex">\[
+dX_t=b_\theta(t,X_t)\,dt
++\sigma_\theta(t,X_t)\,dW_t,
+\]</div>
+<p>a pathwise derivative holds a realization of the driving noise fixed while
+changing <span class="arithmatex">\(\theta\)</span>. A stochastic adjoint can propagate this sensitivity backward
+under regularity conditions
+(<a href="https://proceedings.mlr.press/v118/li20a.html">Li et al.</a>). In a finite
+implementation, Brownian increments, adaptive interval queries, random seeds,
+and any Lévy-area approximation are part of the differentiated program. Reusing
+an ordinary pseudorandom seed does not by itself guarantee the same Brownian
+path when the adaptive mesh changes.</p>
+<p>Latent SDE likelihood or ELBO training may combine a pathwise SDE derivative, a
+Girsanov or KL term, Monte Carlo path sampling, and an adjoint solver. Bias from
+time discretization and variance from path sampling are different error axes.</p>
+<h3 id="mcmc-smc-and-resampling-create-target-choices">MCMC, SMC, and resampling create target choices<a class="headerlink" href="#mcmc-smc-and-resampling-create-target-choices" title="Permanent link">¤</a></h3>
+<p>Suppose an approximate posterior sample is produced by <span class="arithmatex">\(K\)</span> transitions,</p>
+<div class="arithmatex">\[
+z_K=T_{\phi,K}(z_0,\xi_{1:K}).
+\]</div>
+<p>Backpropagating through all transitions differentiates the finite-<span class="arithmatex">\(K\)</span> pushforward
+law. Stopping at <span class="arithmatex">\(z_K\)</span>, truncating after recent transitions, or replacing the
+chain by an equilibrium identity produces a different estimator. Even as
+<span class="arithmatex">\(K\to\infty\)</span>, interchange of differentiation and the stationary limit requires
+ergodicity and sensitivity conditions.</p>
+<p>Particle filters add a discrete resampling operation. Common choices include:</p>
+<ul>
+<li>score-function terms for ancestor indices;</li>
+<li>stopping gradients through resampling;</li>
+<li>continuous or straight-through relaxations;</li>
+<li>entropy-regularized transport resampling; and</li>
+<li>likelihood-score identities that avoid differentiating the ancestor draw.</li>
+</ul>
+<p>These choices trade estimator variance, bias, and even the finite inference
+algorithm. Entropy-regularized transport yields a differentiable particle
+filter with its own convergence statement
+(<a href="https://proceedings.mlr.press/v139/corenflos21a.html">Corenflos et al.</a>); it
+does not make categorical multinomial resampling differentiable retroactively.</p>
+<h3 id="reward-gradients-for-autoregressive-and-iterative-generators">Reward gradients for autoregressive and iterative generators<a class="headerlink" href="#reward-gradients-for-autoregressive-and-iterative-generators" title="Permanent link">¤</a></h3>
+<p>For a trajectory law</p>
+<div class="arithmatex">\[
+p_\theta(x_{0:T}\mid c)
+=p(x_T)\prod_{t=1}^T
+p_\theta(x_{t-1}\mid x_t,c)
+\]</div>
+<p>and a possibly non-differentiable terminal reward <span class="arithmatex">\(R(x_0,c)\)</span>,</p>
+<div class="arithmatex">\[
+\nabla_\theta\mathbb E[R]
+=\mathbb E
+\left[
+\sum_{t=1}^T
+\bigl(R-b_t(x_t,c)\bigr)
+\nabla_\theta
+\log p_\theta(x_{t-1}\mid x_t,c)
+\right]
+\]</div>
+<p>for valid state-dependent baselines <span class="arithmatex">\(b_t\)</span> that do not depend on the sampled next
+state <span class="arithmatex">\(x_{t-1}\)</span>. An autoregressive token model has the same trajectory
+identity in the forward order. A discrete diffusion has reverse transitions;
+a continuous diffusion may admit pathwise as well as likelihood-ratio
+estimators. The estimator must match the sampling law actually used, including
+temperature, truncation, conditioning, and any off-policy correction.</p>
+<h4 id="worked-two-token-reward">Worked two-token reward<a class="headerlink" href="#worked-two-token-reward" title="Permanent link">¤</a></h4>
+<p>Let <span class="arithmatex">\(X_1,X_2\)</span> be independent Bernoulli variables with <span class="arithmatex">\(q=\sigma(\phi)\)</span> and let
+<span class="arithmatex">\(R=X_1X_2\)</span>. Then</p>
+<div class="arithmatex">\[
+J(\phi)=q^2,
+\qquad
+\frac{dJ}{d\phi}=2q^2(1-q).
+\]</div>
+<p>At <span class="arithmatex">\(q=1/2\)</span>, the exact derivative is <span class="arithmatex">\(1/4\)</span>. The trajectory estimator without a
+baseline is</p>
+<div class="arithmatex">\[
+\widehat g
+=R\bigl[(X_1-q)+(X_2-q)\bigr].
+\]</div>
+<p>Only <span class="arithmatex">\((X_1,X_2)=(1,1)\)</span> contributes; it occurs with probability <span class="arithmatex">\(1/4\)</span> and then
+<span class="arithmatex">\(\widehat g=1\)</span>. Its expectation is therefore <span class="arithmatex">\(1/4\)</span>, but its variance is large.
+Per-prefix critics can reduce variance by assigning expected downstream reward
+to each token decision. They do not turn an on-policy sample into an off-policy
+one or repair reward misspecification.</p>
+<p>Policy-gradient fine-tuning has been instantiated for diffusion and discrete
+iterative generators, including text-to-image diffusion
+(<a href="https://proceedings.neurips.cc/paper_files/paper/2023/hash/fc65fab891d83433bd3c8d966edde311-Abstract-Conference.html">DPOK</a>),
+graph diffusion
+(<a href="https://proceedings.neurips.cc/paper_files/paper/2024/hash/124256ed80af5d4bf4c4de17b66c4298-Abstract-Conference.html">GDPO</a>),
+and discrete diffusion
+(<a href="https://openreview.net/forum?id=rXFzVRZsbt">Zekri and Boulle</a>). These are
+family-specific constructions. A direct preference loss evaluated on fixed
+pairs uses an ordinary supervised parameter gradient unless its derivation and
+sampling loop explicitly introduce a policy-gradient estimator.</p>
+<h3 id="score-distillation-transfers-a-state-field-through-a-generator">Score distillation transfers a state field through a generator<a class="headerlink" href="#score-distillation-transfers-a-state-field-through-a-generator" title="Permanent link">¤</a></h3>
+<p>Let a differentiable generator or renderer produce <span class="arithmatex">\(x=g_\theta(z)\)</span>, and let a
+teacher diffusion model provide a noisy conditional state score. A broad class
+of distillation updates has the schematic form</p>
+<div class="arithmatex">\[
+\begin{aligned}
+u_\theta
+=\mathbb E_{z,t,\varepsilon}\bigl[
+&amp;J_\theta g_\theta(z)^\top w(t)\\
+&amp;\cdot\bigl(s_{q,t}(x_t)-s_{p,t}(x_t\mid c)\bigr)
+\bigr],
+\end{aligned}
+\]</div>
+<p>where the method determines the corruption convention, weight, teacher score,
+and whether and how the current generator score <span class="arithmatex">\(s_{q,t}\)</span> is estimated. Omitting
+or approximating the source score, scaling guidance, and stopping derivatives
+through the teacher all change the update.</p>
+<p>In automatic-differentiation code, any supplied vector field <span class="arithmatex">\(v(x)\)</span> can be
+installed through a pseudo-loss</p>
+<div class="arithmatex">\[
+L_{\mathrm{pseudo}}(x)
+=\operatorname{stopgrad}(v(x))^\top x,
+\]</div>
+<p>which yields <span class="arithmatex">\(\nabla_\theta L_{\mathrm{pseudo}}=J_\theta x^\top v(x)\)</span>. The
+reported scalar value of this pseudo-loss is not evidence that <span class="arithmatex">\(v\)</span> is the
+gradient of a globally defined divergence. Integrability, omitted score terms,
+and the distribution over noise levels must be established separately.</p>
+<p><a href="https://dreamfusion3d.github.io/">Score Distillation Sampling</a> introduced this
+kind of teacher-score transfer for differentiable 3D rendering. Distribution-
+matching and score-implicit methods instead construct or estimate more of the
+student-distribution contribution
+(<a href="https://proceedings.neurips.cc/paper_files/paper/2024/hash/54dcf25318f9de5a7a01f0a4125c541e-Abstract-Conference.html">DMD2</a>;
+<a href="https://proceedings.neurips.cc/paper_files/paper/2024/hash/d107ca794d83c8242e357e6a43a068f4-Abstract-Conference.html">SIM</a>).
+They should be compared by target divergence, score estimator, teacher data,
+conditioning, guidance, and finite student architecture—not grouped as one
+generic “diffusion gradient.”</p>
+<h3 id="nonsmooth-and-constrained-updates">Nonsmooth and constrained updates<a class="headerlink" href="#nonsmooth-and-constrained-updates" title="Permanent link">¤</a></h3>
+<p>Some generative objectives contain an indicator constraint, an <span class="arithmatex">\(L_1\)</span> penalty,
+a maximum, a clipping operation, top-<span class="arithmatex">\(k\)</span> selection, or a discrete projection.
+A subgradient is a set-valued first-order object for an appropriate nonsmooth
+function. A proximal step solves a local regularized subproblem. Mirror descent
+uses a Bregman geometry. A projected or Riemannian step keeps an iterate on a
+constraint set or manifold. These are not interchangeable synonyms for a
+backpropagated Euclidean gradient.</p>
+<p>Typical applications include simplex-constrained mixture weights, sparse
+latent or energy parameters, spectral or Lipschitz constraints in critics,
+manifold-valued molecular states, and hard feasibility in inverse generation.
+Straight-through differentiation across a hard projection is a surrogate;
+implicit differentiation of a unique optimization layer requires its own
+regularity conditions.</p>
+<h3 id="independent-practice-and-assessment-map-differentiating-generative-processes">Independent practice and assessment map: differentiating generative processes<a class="headerlink" href="#independent-practice-and-assessment-map-differentiating-generative-processes" title="Permanent link">¤</a></h3>
+<p>For every task, distinguish the continuous mathematical system from the finite
+program whose output automatic differentiation actually sees.</p>
+<ol>
+<li><strong>P1.1 — Compare two ODE derivatives.</strong> <em>Type: compare · Difficulty: core · Typical time: 12 min.</em> Explain what is differentiated by continuous adjoint sensitivity and by reverse AD through an adaptive solver. Design a tolerance-refinement experiment that can reveal disagreement.</li>
+<li><strong>P1.2 — Specify a Brownian coupling.</strong> <em>Type: design · Difficulty: stretch · Typical time: 13 min.</em> For a parameterized SDE solved on adaptive meshes, specify how two nearby parameter evaluations share one Brownian path for a directional finite-difference check. Explain why merely resetting a pseudorandom seed can fail.</li>
+<li><strong>P1.3 — Audit finite MCMC and resampling.</strong> <em>Type: diagnose · Difficulty: core · Typical time: 12 min.</em> A variational objective uses <span class="arithmatex">\(K=10\)</span> MCMC steps and particle resampling, stops gradients through ancestor indices, and calls its update an equilibrium posterior gradient. Identify the finite target, omitted derivative, and evidence required for an equilibrium claim.</li>
+<li><strong>P1.4 — Predict before computing: re-derive the two-token reward gradient.</strong> <em>Type: derive · Difficulty: foundation · Typical time: 9 min.</em> With independent Bernoulli tokens, <span class="arithmatex">\(q=1/2\)</span>, and reward <span class="arithmatex">\(R=X_1X_2\)</span>, predict how many trajectories contribute, then enumerate all trajectories to compute the exact derivative, estimator mean, and estimator variance.</li>
+<li><strong>P1.5 — Test teacher-field integrability.</strong> <em>Type: derive · Difficulty: stretch · Typical time: 12 min.</em> For state field <span class="arithmatex">\(v(x_1,x_2)=(-x_2,x_1)\)</span>, test whether it can be the Euclidean gradient of a smooth scalar potential on <span class="arithmatex">\(\mathbb R^2\)</span>. State what a stop-gradient pseudo-loss still computes after composing <span class="arithmatex">\(x=g_\theta(z)\)</span>.</li>
+<li><strong>P1.6 — Transfer: select a constrained update.</strong> <em>Type: transfer · Difficulty: stretch · Typical time: 17 min.</em> Match each case to a subgradient, proximal, mirror, projected/Riemannian, implicit, or explicitly surrogate method: sparse energy coefficients, simplex mixture weights, unit-norm molecular directions, a unique convex optimization layer, and hard top-<span class="arithmatex">\(k\)</span> token selection. State the finite update and validation boundary for each.</li>
+</ol>
+<h4 id="feedback-contract-differentiating-generative-processes">Feedback contract: differentiating generative processes<a class="headerlink" href="#feedback-contract-differentiating-generative-processes" title="Permanent link">¤</a></h4>
+<div class="md-typeset__table book-table-container"><table id="tbl-gradients-and-geometry-in-generative-modeling-feedback-contract-differentiating-generative-processes-1"><caption class="book-object-caption"><span class="book-object-number">Table GRAD.26.</span> Feedback contract: differentiating generative processes — table 1</caption>
+<thead>
+<tr>
+<th>Task</th>
+<th>Evidence of success</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>P1.1</td>
+<td>Continuous and discrete derivative targets are distinct and compared under refinement.</td>
+</tr>
+<tr>
+<td>P1.2</td>
+<td>Brownian-path identity is defined independently of adaptive mesh queries.</td>
+</tr>
+<tr>
+<td>P1.3</td>
+<td>Truncation, stationary-limit assumptions, and stopped resampling terms are all visible.</td>
+</tr>
+<tr>
+<td>P1.4</td>
+<td>Exact expectation and variance come from all four trajectories.</td>
+</tr>
+<tr>
+<td>P1.5</td>
+<td>Cross-partial failure blocks a global potential while the Jacobian pullback remains computable.</td>
+</tr>
+<tr>
+<td>P1.6</td>
+<td>Each nonsmooth or constrained object receives a mathematically matched update rather than generic backpropagation.</td>
+</tr>
+</tbody>
+</table></div>
+<details class="tip">
+<summary>Graduated hints for P1</summary>
+<div class="md-typeset__table book-table-container"><table id="tbl-gradients-and-geometry-in-generative-modeling-feedback-contract-differentiating-generative-processes-2"><caption class="book-object-caption"><span class="book-object-number">Table GRAD.27.</span> Feedback contract: differentiating generative processes — table 2</caption>
+<thead>
+<tr>
+<th>Task</th>
+<th>Hint 1 — Direction</th>
+<th>Hint 2 — Setup</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>P1.1</td>
+<td>One target includes the solver's step-selection computation; the other starts from continuous equations.</td>
+<td>Refine forward and backward tolerances and compare loss directional derivatives with finite differences.</td>
+</tr>
+<tr>
+<td>P1.2</td>
+<td>Represent Brownian motion independently, then answer interval-increment queries consistently.</td>
+<td>A seeded sequential RNG can consume a different number and order of draws when the mesh changes.</td>
+</tr>
+<tr>
+<td>P1.3</td>
+<td>Backpropagation sees a finite transition-and-resampling program.</td>
+<td>Stationary interchange needs mixing and sensitivity control; stopped ancestors omit a score or path contribution.</td>
+</tr>
+<tr>
+<td>P1.4</td>
+<td>Only trajectory <span class="arithmatex">\((1,1)\)</span> has nonzero reward.</td>
+<td>The estimator takes values one with probability <span class="arithmatex">\(1/4\)</span> and zero otherwise.</td>
+</tr>
+<tr>
+<td>P1.5</td>
+<td>Gradients of smooth potentials have symmetric Jacobians on simply connected domains.</td>
+<td>Compare <span class="arithmatex">\(\partial v_1/\partial x_2\)</span> with <span class="arithmatex">\(\partial v_2/\partial x_1\)</span>.</td>
+</tr>
+<tr>
+<td>P1.6</td>
+<td>Match the operation to the geometry of the constraint or penalty.</td>
+<td>Top-<span class="arithmatex">\(k\)</span> has no ordinary derivative at selection changes; any straight-through rule must be labeled surrogate.</td>
+</tr>
+</tbody>
+</table></div>
+</details>
+<h4 id="outcome-to-task-alignment-differentiating-generative-processes">Outcome-to-task alignment: differentiating generative processes<a class="headerlink" href="#outcome-to-task-alignment-differentiating-generative-processes" title="Permanent link">¤</a></h4>
+<div class="md-typeset__table book-table-container"><table id="tbl-gradients-and-geometry-in-generative-modeling-outcome-to-task-alignment-differentiating-generative-processes"><caption class="book-object-caption"><span class="book-object-number">Table GRAD.28.</span> Outcome-to-task alignment: differentiating generative processes</caption>
+<thead>
+<tr>
+<th>Learning objective</th>
+<th>Independently assessed by</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>O1 — Differentiate numerical dynamics</td>
+<td>P1.1</td>
+</tr>
+<tr>
+<td>O2 — Specify stochastic paths</td>
+<td>P1.2</td>
+</tr>
+<tr>
+<td>O3 — Audit learned samplers</td>
+<td>P1.3</td>
+</tr>
+<tr>
+<td>O4 — Derive trajectory reward gradients</td>
+<td>P1.4</td>
+</tr>
+<tr>
+<td>O5 — Interpret teacher fields</td>
+<td>P1.5</td>
+</tr>
+<tr>
+<td>O6 — Select constrained derivatives</td>
+<td>P1.6</td>
+</tr>
+</tbody>
+</table></div>
+<details class="success">
+<summary>Complete solutions to P1</summary>
+<ol>
+<li><strong>P1.1.</strong> Continuous adjoints differentiate the ideal ODE solution map through sensitivity equations and then discretize those equations. Reverse AD differentiates the executed finite solver, including accepted steps, interpolation, events, and numerical log-density operations. Run both over decreasing tolerances, compare against central directional differences of the executed loss, and report forward-state error, gradient discrepancy, steps, and memory. <strong>Check.</strong> Agreement at one tolerance does not establish asymptotic consistency.</li>
+<li><strong>P1.2.</strong> Define one Brownian path through a bridge, counter-based interval generator, or stored refinement tree so any interval increment is consistent with its parent and disjoint increments. Both <span class="arithmatex">\(\theta+hv\)</span> and <span class="arithmatex">\(\theta-hv\)</span> query that same path even if their solvers choose different meshes. Resetting a sequential seed can assign different random draws to different intervals after one adaptive branch changes the call order. <strong>Check.</strong> Common seed and common stochastic path are not synonymous.</li>
+<li><strong>P1.3.</strong> Reverse AD targets the finite ten-transition pushforward combined with the implemented resampling surrogate. Stopping ancestor derivatives omits dependence of selected ancestry on parameters. An equilibrium claim additionally needs convergence of the chain, interchange of parameter differentiation and stationary limit, increasing-<span class="arithmatex">\(K\)</span> sensitivity, resampling-bias checks against exact small filters, and diagnostics for mixing and effective particles. <strong>Rubric.</strong> Better posterior samples do not alone identify the omitted derivative.</li>
+<li><strong>P1.4.</strong> <span class="arithmatex">\(J(q)=q^2\)</span>, so <span class="arithmatex">\(dJ/d\phi=2q^2(1-q)=1/4\)</span>. The score estimator is zero on <span class="arithmatex">\((0,0),(0,1),(1,0)\)</span> and one on <span class="arithmatex">\((1,1)\)</span>, each trajectory having probability <span class="arithmatex">\(1/4\)</span>. Hence its mean is <span class="arithmatex">\(1/4\)</span>, second moment <span class="arithmatex">\(1/4\)</span>, and variance <span class="arithmatex">\(1/4-(1/4)^2=3/16\)</span>. <strong>Check.</strong> Exactness coexists with high relative variance.</li>
+<li><strong>P1.5.</strong> <span class="arithmatex">\(\partial v_1/\partial x_2=-1\)</span> while <span class="arithmatex">\(\partial v_2/\partial x_1=1\)</span>, so the Jacobian is not symmetric and no smooth global Euclidean potential has gradient <span class="arithmatex">\(v\)</span> on <span class="arithmatex">\(\mathbb R^2\)</span>. Nevertheless <span class="arithmatex">\(L_{\mathrm{pseudo}}=\operatorname{stopgrad}(v(x))^\top x\)</span> makes AD return <span class="arithmatex">\(J_\theta g_\theta(z)^\top v(g_\theta(z))\)</span>. <strong>Check.</strong> The pseudo-loss installs a vector--Jacobian product; its displayed scalar is not the missing potential.</li>
+<li><strong>P1.6.</strong> Sparse coefficients admit a proximal soft-thresholding step for an <span class="arithmatex">\(L_1\)</span> penalty; simplex weights admit mirror descent or a simplex projection with its declared finite convention; unit-norm directions use tangent projection plus a retraction/Riemannian integrator; a unique regular convex layer admits implicit differentiation of its KKT or stationarity system; hard top-<span class="arithmatex">\(k\)</span> is nondifferentiable at selection changes and needs a score method, relaxation, search method, or explicitly biased straight-through surrogate. Validate feasibility, stationarity/prox residuals, boundary events, derivative checks where smooth, surrogate bias, and downstream hard-objective metrics. <strong>Rubric.</strong> “Use backprop” is incomplete for every case.</li>
+</ol>
+</details>
+<h3 id="chapter-8-synthesis-and-retrieval-practice">Chapter 8 synthesis and retrieval practice<a class="headerlink" href="#chapter-8-synthesis-and-retrieval-practice" title="Permanent link">¤</a></h3>
+<p>Differentiating a generative process requires a contract for the finite solver,
+random path, resampling rule, and truncation. Trajectory score estimators permit
+non-differentiable rewards but inherit credit-assignment and on-policy sampling
+variance. Score distillation pulls a teacher state field back through a student
+Jacobian, but a pseudo-loss does not guarantee a global divergence. Nonsmooth,
+proximal, mirror, projected, and Riemannian updates add still different finite
+mathematical objects.</p>
+<details class="question">
+<summary>Retrieval questions</summary>
+<ol>
+<li>Why can a continuous adjoint disagree with backpropagation through an
+   adaptive ODE solver?</li>
+<li>What law does a <span class="arithmatex">\(K\)</span>-step unrolled MCMC gradient differentiate?</li>
+<li>Why is the two-token policy-gradient estimator unbiased but noisy?</li>
+<li>What does a stop-gradient pseudo-loss prove about its supplied vector
+   field?</li>
+</ol>
+<p><strong>Solutions.</strong> (1) One differentiates continuous dynamics and then
+discretizes; the other differentiates the actual finite solver, whose step
+decisions and interpolation affect the map. (2) The finite-<span class="arithmatex">\(K\)</span> pushforward
+law, not automatically the equilibrium law. (3) Its score expectation is
+exact, but only the rare rewarding trajectory contributes in the example.
+(4) Only that automatic differentiation will return the installed vector--
+Jacobian product; it does not prove integrability or identify a population
+divergence.</p>
+</details>
+<p><strong>Bridge.</strong> Chapter 9 leaves a particular solver trace and studies gradients of
+functions, maps, particles, and probability measures themselves.</p>
+<hr/>
+<p><strong>Previous:</strong> <a href="../gradients-07-implicit-games/">7. Implicit Models and Games</a> · <strong>Continue:</strong> <a href="../gradients-09-functional/">9. Functional and Distributional Gradients</a> · <a href="../gradients-and-geometry-in-generative-modeling/">Complete guide</a></p>
+</article>
+</div>
+<script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  Back to top
+</button>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+<div class="md-social">
+<a class="md-social__link" href="https://github.com/avitai/artifex" rel="noopener" target="_blank" title="github.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</a>
+<a class="md-social__link" href="https://pypi.org/project/avitai-artifex/" rel="noopener" target="_blank" title="pypi.org">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-66.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.3v101.8c0 29 25.2 46 53.4 54.3 33.8 9.9 66.3 11.7 106.8 0 26.9-7.8 53.4-23.5 53.4-54.3v-40.7H226.2v-13.6h160.2c31.1 0 42.6-21.7 53.4-54.2 11.2-33.5 10.7-65.7 0-108.6M286.2 444.7a20.4 20.4 0 1 1 0-40.7 20.4 20.4 0 1 1 0 40.7M167.8 248.1h106.8c29.7 0 53.4-24.5 53.4-54.3V91.9c0-29-24.4-50.7-53.4-55.6-35.8-5.9-74.7-5.6-106.8.1-45.2 8-53.4 24.7-53.4 55.6v40.7h106.9v13.6h-147c-31.1 0-58.3 18.7-66.8 54.2-9.8 40.7-10.2 66.1 0 108.6 7.6 31.6 25.7 54.2 56.8 54.2H101v-48.8c0-35.3 30.5-66.4 66.8-66.4m-6.6-183.4a20.4 20.4 0 1 1 0 40.8 20.4 20.4 0 1 1 0-40.8"></path></svg>
+</a>
+<a class="md-social__link" href="https://twitter.com/mahdi_shafiei" rel="noopener" target="_blank" title="twitter.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M459.4 151.7c.3 4.5.3 9.1.3 13.6 0 138.7-105.6 298.6-298.6 298.6-59.5 0-114.7-17.2-161.1-47.1 8.4 1 16.6 1.3 25.3 1.3 49.1 0 94.2-16.6 130.3-44.8-46.1-1-84.8-31.2-98.1-72.8 6.5 1 13 1.6 19.8 1.6 9.4 0 18.8-1.3 27.6-3.6-48.1-9.7-84.1-52-84.1-103v-1.3c14 7.8 30.2 12.7 47.4 13.3-28.3-18.8-46.8-51-46.8-87.4 0-19.5 5.2-37.4 14.3-53C87.4 130.8 165 172.4 252.1 176.9c-1.6-7.8-2.6-15.9-2.6-24C249.5 95.1 296.3 48 354.4 48c30.2 0 57.5 12.7 76.7 33.1 23.7-4.5 46.5-13.3 66.6-25.3-7.8 24.4-24.4 44.8-46.1 57.8 21.1-2.3 41.6-8.1 60.4-16.2-14.3 20.8-32.2 39.3-52.6 54.3"></path></svg>
+</a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.path", "navigation.top", "navigation.prune", "toc.follow", "search.highlight", "search.share", "search.suggest", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "content.mermaid"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+<script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+<script src="../../../javascripts/reading-layout.js"></script>
+</body>
+</html>

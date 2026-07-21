@@ -1,0 +1,1523 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="This chapter develops first variations, Wasserstein gradient flows, state scores and guidance, pathwise transport velocities, SVGD, and sample-manifold" name="description"/>
+<meta content="Mahdi Shafiei" name="author"/>
+<link href="https://docs.avitai.bio/artifex/user-guide/concepts/gradients-09-functional/" rel="canonical"/>
+<link href="../gradients-08-processes/" rel="prev"/>
+<link href="../gradients-10-practice/" rel="next"/>
+<link href="../../../assets/images/favicon.png" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.7.7" name="generator"/>
+<title>Gradients and Geometry 9 — Functional and Distributional Gradients - Artifex</title>
+<link href="../../../assets/stylesheets/main.ec1eaa64.min.css" rel="stylesheet"/>
+<link href="../../../assets/stylesheets/palette.ab4e12ef.min.css" rel="stylesheet"/>
+<script src="../../../assets/vendor/iframe-worker/index.js"></script>
+<link href="../../../assets/_mkdocstrings.css" rel="stylesheet"/>
+<link href="../../../_static/extra.css" rel="stylesheet"/>
+<script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+<meta content="article" property="og:type"/>
+<meta content="The Artifex Generative Models Book" property="og:site_name"/>
+<meta content="Gradients and Geometry 9 — Functional and Distributional Gradients" property="og:title"/>
+<meta content="This chapter develops first variations, Wasserstein gradient flows, state scores and guidance, pathwise transport velocities, SVGD, and sample-manifold" property="og:description"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/gradients-09-functional/" property="og:url"/>
+<meta content="2026-07-20" property="article:modified_time"/>
+<meta content="summary" name="twitter:card"/>
+<meta content="Gradients and Geometry 9 — Functional and Distributional Gradients" name="twitter:title"/>
+<meta content="This chapter develops first variations, Wasserstein gradient flows, state scores and guidance, pathwise transport velocities, SVGD, and sample-manifold" name="twitter:description"/>
+<meta content="Generative models, Machine learning, Probabilistic modeling, advanced, specialization, canonical_chapter, gradient-functional, practitioner, researcher" name="keywords"/>
+<meta content="Gradients and Geometry 9 — Functional and Distributional Gradients" name="citation_title"/>
+<meta content="Mahdi Shafiei" name="citation_author"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/gradients-09-functional/" name="citation_public_url"/>
+<meta content="en" name="citation_language"/>
+<meta content="Gradients and Geometry 9 — Functional and Distributional Gradients" name="DC.title"/>
+<meta content="Mahdi Shafiei" name="DC.creator"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/gradients-09-functional/" name="DC.identifier"/>
+<meta content="Text.LearningResource" name="DC.type"/>
+<meta content="2026-07-20" name="DCTERMS.modified"/>
+<meta content="https://github.com/avitai/artifex/blob/main/LICENSE" name="DCTERMS.license"/>
+<meta content="advanced" name="DCTERMS.educationLevel"/>
+<meta content="practitioner, researcher" name="DCTERMS.audience"/>
+<link href="https://github.com/avitai/artifex/blob/main/LICENSE" rel="license"/>
+<script id="artifex-book-metadata" type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Chapter",
+  "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/gradients-09-functional/",
+  "url": "https://docs.avitai.bio/artifex/user-guide/concepts/gradients-09-functional/",
+  "name": "Gradients and Geometry 9 \u2014 Functional and Distributional Gradients",
+  "description": "This chapter develops first variations, Wasserstein gradient flows, state scores and guidance, pathwise transport velocities, SVGD, and sample-manifold",
+  "identifier": "gradient-functional",
+  "inLanguage": "en",
+  "isAccessibleForFree": true,
+  "learningResourceType": "Canonical chapter",
+  "educationalLevel": "advanced",
+  "educationalUse": "specialization",
+  "audience": [
+    
+      {"@type": "EducationalAudience", "audienceType": "practitioner"},
+    
+      {"@type": "EducationalAudience", "audienceType": "researcher"}
+    
+  ],
+  "dateModified": "2026-07-20",
+  "keywords": ["Generative models", "Machine learning", "Probabilistic modeling", "advanced", "specialization", "canonical_chapter", "gradient-functional", "practitioner", "researcher"],
+  "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+  "author": [
+    
+      {"@type": "Person", "name": "Mahdi Shafiei"}
+    
+  ],
+  "isPartOf": {
+    "@type": "Book",
+    "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/#book",
+    "url": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/",
+    "name": "The Artifex Generative Models Book",
+    "bookEdition": "Living Web Edition",
+    "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+    "author": [
+      
+        {"@type": "Person", "name": "Mahdi Shafiei"}
+      
+    ]
+  }
+}
+</script>
+<link href="../../../assets/vendor/katex/katex.min.css" id="artifex-katex-stylesheet" integrity="sha384-UA8juhPf75SzzAMA/4fo3yOU7sBJ0om7SCD2GHq0fZqZco6tr1UCV7nUbk9J90JM" rel="stylesheet"/>
+<script defer="" integrity="sha384-T/0lMUdJpd2S1ZHtRiofG3htU3xPCrFVeAQ1UUE2TJwlEJSV5NUwn30kP28n238E" src="../../../assets/vendor/mermaid/mermaid.min.js"></script>
+<script defer="" src="../../../assets/vendor/katex/katex-shadow.js"></script>
+<script defer="" src="../../../javascripts/mermaid-math.js"></script>
+<script defer="" src="../../../javascripts/mathjax.js"></script>
+<script defer="" integrity="sha384-OrHfGTnIbkl0do3N76qW/uWr38o91N05sbSPuYBPLH+hG8X/dNSrjZf3AGjzrCwC" src="../../../assets/vendor/mathjax/tex-mml-chtml.js"></script>
+</head>
+<body data-md-color-accent="amber" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#gradients-and-geometry-9-functional-and-distributional-gradients">
+          Skip to content
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header md-header--shadow" data-md-component="header">
+<nav aria-label="Header" class="md-header__inner md-grid">
+<a aria-label="Artifex" class="md-header__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            Artifex
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+            
+              Gradients and Geometry 9 — Functional and Distributional Gradients
+            
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-label="Switch to dark mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: light)" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_1" hidden="" title="Switch to dark mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+<input aria-label="Switch to light mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-primary="indigo" data-md-color-scheme="slate" id="__palette_1" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_0" hidden="" title="Switch to light mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+</form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div aria-label="Search" class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Search" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="Search" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="Search" class="md-search__options">
+<a aria-label="Share" class="md-search__icon md-icon" data-clipboard="" data-clipboard-text="" data-md-component="search-share" href="javascript:void(0)" tabindex="-1" title="Share">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"></path></svg>
+</a>
+<button aria-label="Clear" class="md-search__icon md-icon" tabindex="-1" title="Clear" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            Initializing search
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Navigation" class="md-nav md-nav--primary" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="Artifex" class="md-nav__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+    Artifex
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../..">
+<span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../getting-started/installation/">
+<span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Generative Models Book
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Generative Models Book
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    
+  
+    Start Here — The Landscape
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../first-course-01-generative-systems/">
+<span class="md-ellipsis">
+    
+  
+    First Course — New to Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../probability-01-objects/">
+<span class="md-ellipsis">
+    
+  
+    Foundations
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../autoregressive-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Model Families
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_5" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_5" id="__nav_3_5_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Connections and Compositions
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_5_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_5">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Connections and Compositions
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_5_1" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_5_1" id="__nav_3_5_1_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Gradients and Geometry in Generative Modeling
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_5_1_label" class="md-nav" data-md-level="3">
+<label class="md-nav__title" for="__nav_3_5_1">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Gradients and Geometry in Generative Modeling
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../gradients-01-taxonomy/">
+<span class="md-ellipsis">
+    
+  
+    1. Gradient Taxonomy
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../gradients-02-natural-geometry/">
+<span class="md-ellipsis">
+    
+  
+    2. Natural Gradients
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../gradients-03-variational/">
+<span class="md-ellipsis">
+    
+  
+    3. Exponential Families and VI
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../gradients-04-estimators/">
+<span class="md-ellipsis">
+    
+  
+    4. Gradient Estimators
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../gradients-05-computation/">
+<span class="md-ellipsis">
+    
+  
+    5. Model-Scale Computation
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../gradients-06-model-applications/">
+<span class="md-ellipsis">
+    
+  
+    6. Likelihood, Latent, and Energy Models
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../gradients-07-implicit-games/">
+<span class="md-ellipsis">
+    
+  
+    7. Implicit Models and Games
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../gradients-08-processes/">
+<span class="md-ellipsis">
+    
+  
+    8. Generative Processes and Teachers
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
+    
+  
+    9. Functional and Distributional Gradients
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
+<span class="md-ellipsis">
+    
+  
+    9. Functional and Distributional Gradients
+  
+
+    
+  </span>
+</a>
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#9-state-scores-functional-gradients-and-distributional-flows">
+<span class="md-ellipsis">
+      
+        9. State Scores, Functional Gradients, and Distributional Flows
+      
+    </span>
+</a>
+<nav aria-label="9. State Scores, Functional Gradients, and Distributional Flows" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-9-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 9 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#a-functional-derivative-needs-a-geometry">
+<span class="md-ellipsis">
+      
+        A functional derivative needs a geometry
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#wasserstein-gradient-flow">
+<span class="md-ellipsis">
+      
+        Wasserstein gradient flow
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-free-energy-flow-becomes-langevin-dynamics">
+<span class="md-ellipsis">
+      
+        Worked free-energy flow becomes Langevin dynamics
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#state-scores-energy-forces-and-guidance">
+<span class="md-ellipsis">
+      
+        State scores, energy forces, and guidance
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#pathwise-gradients-are-transport-velocities">
+<span class="md-ellipsis">
+      
+        Pathwise gradients are transport velocities
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#stein-variational-gradients-move-an-interacting-particle-system">
+<span class="md-ellipsis">
+      
+        Stein variational gradients move an interacting particle system
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#sample-manifold-gradients">
+<span class="md-ellipsis">
+      
+        Sample-manifold gradients
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#independent-practice-and-assessment-map-functional-and-state-space-flows">
+<span class="md-ellipsis">
+      
+        Independent practice and assessment map: functional and state-space flows
+      
+    </span>
+</a>
+<nav aria-label="Independent practice and assessment map: functional and state-space flows" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#feedback-contract-functional-and-state-space-flows">
+<span class="md-ellipsis">
+      
+        Feedback contract: functional and state-space flows
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#outcome-to-task-alignment-functional-and-state-space-flows">
+<span class="md-ellipsis">
+      
+        Outcome-to-task alignment: functional and state-space flows
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-9-synthesis-and-retrieval-practice">
+<span class="md-ellipsis">
+      
+        Chapter 9 synthesis and retrieval practice
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../gradients-10-practice/">
+<span class="md-ellipsis">
+    
+  
+    10. Selection and Research Practice
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../gradients-and-geometry-in-generative-modeling/">
+<span class="md-ellipsis">
+    
+  
+    Continuous View (All Chapters)
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../density-latent-energy-01-objects/">
+<span class="md-ellipsis">
+    
+  
+    Density, Latent, Energy, and Score
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../probability-paths-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Probability Paths and Stochastic Transport
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../general-markov-01-operators/">
+<span class="md-ellipsis">
+    
+  
+    General Markov Generators
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../few-step-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Transitions and Few-Step Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../geometric-01-symmetry/">
+<span class="md-ellipsis">
+    
+  
+    Geometric and Equivariant Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../representations-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Representations and Multimodal Systems
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../steering-01-targets/">
+<span class="md-ellipsis">
+    
+  
+    Conditioning, Steering, Constraints, and Selection
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../world-models-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    World Models and Causal Simulators
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../landscape-01-copulas/">
+<span class="md-ellipsis">
+    
+  
+    Extended Generative Landscape
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../normalization-01-queries/">
+<span class="md-ellipsis">
+    
+  
+    Research Practice
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../models/vae-guide/">
+<span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/core/base/">
+<span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../examples/overview/">
+<span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../zoo/">
+<span class="md-ellipsis">
+    
+  
+    Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../training/overview/">
+<span class="md-ellipsis">
+    
+  
+    Training
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../data/overview/">
+<span class="md-ellipsis">
+    
+  
+    Data &amp; Modalities
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../inference/overview/">
+<span class="md-ellipsis">
+    
+  
+    Inference &amp; Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../benchmarks/">
+<span class="md-ellipsis">
+    
+  
+    Evaluation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../guides/extensions/">
+<span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../extensions/">
+<span class="md-ellipsis">
+    
+  
+    Advanced Topics
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../cli/">
+<span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../community/contributing/">
+<span class="md-ellipsis">
+    
+  
+    Community
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/configs/protein-extension/">
+<span class="md-ellipsis">
+    
+  
+    Reference Library
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#9-state-scores-functional-gradients-and-distributional-flows">
+<span class="md-ellipsis">
+      
+        9. State Scores, Functional Gradients, and Distributional Flows
+      
+    </span>
+</a>
+<nav aria-label="9. State Scores, Functional Gradients, and Distributional Flows" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-9-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 9 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#a-functional-derivative-needs-a-geometry">
+<span class="md-ellipsis">
+      
+        A functional derivative needs a geometry
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#wasserstein-gradient-flow">
+<span class="md-ellipsis">
+      
+        Wasserstein gradient flow
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-free-energy-flow-becomes-langevin-dynamics">
+<span class="md-ellipsis">
+      
+        Worked free-energy flow becomes Langevin dynamics
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#state-scores-energy-forces-and-guidance">
+<span class="md-ellipsis">
+      
+        State scores, energy forces, and guidance
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#pathwise-gradients-are-transport-velocities">
+<span class="md-ellipsis">
+      
+        Pathwise gradients are transport velocities
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#stein-variational-gradients-move-an-interacting-particle-system">
+<span class="md-ellipsis">
+      
+        Stein variational gradients move an interacting particle system
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#sample-manifold-gradients">
+<span class="md-ellipsis">
+      
+        Sample-manifold gradients
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#independent-practice-and-assessment-map-functional-and-state-space-flows">
+<span class="md-ellipsis">
+      
+        Independent practice and assessment map: functional and state-space flows
+      
+    </span>
+</a>
+<nav aria-label="Independent practice and assessment map: functional and state-space flows" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#feedback-contract-functional-and-state-space-flows">
+<span class="md-ellipsis">
+      
+        Feedback contract: functional and state-space flows
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#outcome-to-task-alignment-functional-and-state-space-flows">
+<span class="md-ellipsis">
+      
+        Outcome-to-task alignment: functional and state-space flows
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-9-synthesis-and-retrieval-practice">
+<span class="md-ellipsis">
+      
+        Chapter 9 synthesis and retrieval practice
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<nav aria-label="Breadcrumb" class="md-path">
+<ol class="md-path__list">
+<li class="md-path__item">
+<a class="md-path__link" href="../../..">
+<span class="md-ellipsis">
+    Home
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    Generative Models Book
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../gradients-01-taxonomy/">
+<span class="md-ellipsis">
+    Connections and Compositions
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../gradients-01-taxonomy/">
+<span class="md-ellipsis">
+    Gradients and Geometry in Generative Modeling
+  </span>
+</a>
+</li>
+</ol>
+</nav>
+<article class="md-content__inner md-typeset">
+<h1 id="gradients-and-geometry-9-functional-and-distributional-gradients">Gradients and Geometry 9 — Functional and Distributional Gradients<a class="headerlink" href="#gradients-and-geometry-9-functional-and-distributional-gradients" title="Permanent link">¤</a></h1><aside aria-label="Learning path" class="admonition abstract artifex-learning-path"><p class="admonition-title">Learning path</p><p><strong>Required knowledge</strong></p><ul class="artifex-learning-path__links" data-learning-path-role="required"><li><a href="../gradients-01-taxonomy/">Gradients and Geometry 1 — Gradient Taxonomy</a></li><li><a href="../sampling-and-continuous-time/">Sampling and Continuous-Time Generative Mathematics</a></li><li><a href="../objectives-and-statistical-distances/">Objectives and Statistical Distances</a></li></ul><p><strong>Readiness check:</strong> can you explain the central object and reproduce one worked example from each required chapter? If not, follow its link before continuing.</p><p><strong>Newly unlocked in the default route</strong></p><ul class="artifex-learning-path__links" data-learning-path-role="unlocks"><li><a href="../gradients-10-practice/">Gradients and Geometry 10 — Selection and Research Practice</a></li></ul></aside>
+<p>This chapter develops first variations, Wasserstein gradient flows, state scores and guidance, pathwise transport velocities, SVGD, and sample-manifold gradients. Read it in the <a href="../gradients-and-geometry-in-generative-modeling/#9-state-scores-functional-gradients-and-distributional-flows">complete guide</a> for uninterrupted flow.</p>
+<h2 id="9-state-scores-functional-gradients-and-distributional-flows">9. State Scores, Functional Gradients, and Distributional Flows<a class="headerlink" href="#9-state-scores-functional-gradients-and-distributional-flows" title="Permanent link">¤</a></h2>
+<h3 id="chapter-9-prerequisites-and-learning-objectives">Chapter 9 prerequisites and learning objectives<a class="headerlink" href="#chapter-9-prerequisites-and-learning-objectives" title="Permanent link">¤</a></h3>
+<p><strong>Prerequisites.</strong> Scores, continuity equations, Langevin dynamics, and optimal
+transport.</p>
+<p>By the end, you should be able to:</p>
+<ol>
+<li><strong>O1 — Convert differentials to gradients:</strong> explain why a first variation
+   needs a declared metric or inner product.</li>
+<li><strong>O2 — Derive Wasserstein flow:</strong> move from a functional to its continuity
+   equation and distinguish the exact PDE from a finite JKO surrogate.</li>
+<li><strong>O3 — Connect free energy and sampling:</strong> derive Langevin's Fokker--Planck
+   equation while retaining discretization and score-estimation error.</li>
+<li><strong>O4 — Separate state and parameter derivatives:</strong> type score matching,
+   guidance, and training updates in their correct vector spaces.</li>
+<li><strong>O5 — Interpret transport estimators and particles:</strong> distinguish pathwise
+   velocity fields, SVGD, and distributional gradient flows.</li>
+<li><strong>O6 — Transfer to structured states:</strong> specify tangent projection,
+   manifold measure, retraction/integrator, and the separate law geometry.</li>
+</ol>
+<h3 id="a-functional-derivative-needs-a-geometry">A functional derivative needs a geometry<a class="headerlink" href="#a-functional-derivative-needs-a-geometry" title="Permanent link">¤</a></h3>
+<p>Let <span class="arithmatex">\(\mathcal F[\rho]\)</span> be a functional of a density <span class="arithmatex">\(\rho\)</span>. Its first variation
+<span class="arithmatex">\(\delta\mathcal F/\delta\rho\)</span> is defined through</p>
+<div class="arithmatex">\[
+\left.\frac{d}{d\epsilon}
+\mathcal F[\rho+\epsilon\chi]
+\right|_{\epsilon=0}
+=\int
+\frac{\delta\mathcal F}{\delta\rho}(x)\chi(x)\,dx
+\]</div>
+<p>for admissible mass-preserving perturbations <span class="arithmatex">\(\chi\)</span>. The first variation is
+analogous to a differential, not yet a unique gradient vector. Converting it to
+a gradient requires an inner product or metric on density perturbations.
+<span class="arithmatex">\(L^2\)</span>, Fisher--Rao, Wasserstein, and kernelized transport geometries therefore
+produce different flows from the same functional.</p>
+<figure class="book-figure" id="fig-gradients-and-geometry-in-generative-modeling-a-functional-derivative-needs-a-geometry"><pre class="mermaid"><code>flowchart TB
+    accTitle: One first variation becomes different gradient flows under different geometries
+    accDescr: A functional first variation is a covector. Choosing an L2, Fisher Rao, Wasserstein, or kernelized transport metric converts it into a different vector field and therefore a different finite algorithm. State manifold geometry is an additional layer when individual samples are constrained.
+    F[Functional first variation] --&gt; G{Choose geometry on admissible perturbations}
+    G --&gt; L[L2 density gradient]
+    G --&gt; R[Fisher Rao reaction flow]
+    G --&gt; W[Wasserstein continuity-equation flow]
+    G --&gt; K[Kernelized Stein field]
+    L --&gt; N[Discretize the selected flow]
+    R --&gt; N
+    W --&gt; N
+    K --&gt; N
+    N --&gt; S{Structured sample space?}
+    S --&gt;|yes| T[Tangent projection and manifold integrator]
+    S --&gt;|no| V[Validate law movement]
+    T --&gt; V</code></pre><figcaption class="book-object-caption"><span class="book-object-number">Figure GRAD.10.</span> One first variation becomes different gradient flows under different geometries</figcaption></figure>
+<h3 id="wasserstein-gradient-flow">Wasserstein gradient flow<a class="headerlink" href="#wasserstein-gradient-flow" title="Permanent link">¤</a></h3>
+<p>Under the formal <span class="arithmatex">\(W_2\)</span> geometry, the gradient flow of <span class="arithmatex">\(\mathcal F\)</span> satisfies</p>
+<div class="arithmatex">\[
+\partial_t\rho_t
+=\nabla\!\cdot\!\left(
+\rho_t\nabla
+\frac{\delta\mathcal F}{\delta\rho}(\rho_t)
+\right).
+\]</div>
+<p>The minimizing-movement or JKO discretization replaces this PDE by successive
+proximal problems,</p>
+<div class="arithmatex">\[
+\rho_{k+1}
+\in\arg\min_\rho
+\left\{
+\mathcal F[\rho]
++\frac{1}{2\tau}W_2^2(\rho,\rho_k)
+\right\}.
+\]</div>
+<p>Each numerical implementation must approximate a density, coupling, transport
+map, or dual potential. Solving a neural JKO surrogate for finite inner steps is
+not the same finite algorithm as integrating the exact gradient-flow PDE.
+Variational and semi-dual neural constructions give useful scalable examples
+(<a href="https://proceedings.mlr.press/v162/fan22d.html">Fan et al.</a>;
+<a href="https://proceedings.mlr.press/v235/choi24a.html">Choi et al.</a>).</p>
+<h3 id="worked-free-energy-flow-becomes-langevin-dynamics">Worked free-energy flow becomes Langevin dynamics<a class="headerlink" href="#worked-free-energy-flow-becomes-langevin-dynamics" title="Permanent link">¤</a></h3>
+<p>Let the target density be <span class="arithmatex">\(\pi(x)\propto e^{-V(x)}\)</span> and define</p>
+<div class="arithmatex">\[
+\begin{aligned}
+\mathcal F[\rho]
+&amp;=D_{\mathrm{KL}}(\rho\|\pi)\\
+&amp;=\int \rho(x)\log\rho(x)\,dx\\
+&amp;\quad+\int V(x)\rho(x)\,dx
++\text{constant}.
+\end{aligned}
+\]</div>
+<p>Its first variation is</p>
+<div class="arithmatex">\[
+\frac{\delta\mathcal F}{\delta\rho}
+=\log\rho+1+V.
+\]</div>
+<p>Substitution into the <span class="arithmatex">\(W_2\)</span> flow gives</p>
+<div class="arithmatex">\[
+\partial_t\rho
+=\Delta\rho+\nabla\!\cdot(\rho\nabla V).
+\]</div>
+<p>This is the Fokker--Planck equation for</p>
+<div class="arithmatex">\[
+\begin{aligned}
+dX_t
+&amp;=-\nabla V(X_t)\,dt+\sqrt2\,dW_t\\
+&amp;=\nabla\log\pi(X_t)\,dt+\sqrt2\,dW_t.
+\end{aligned}
+\]</div>
+<p>Thus Langevin sampling has a Wasserstein gradient-flow interpretation under the
+stated smoothness and boundary conditions. Euler--Maruyama with finite step size,
+an approximate score, and minibatch noise has additional discretization and
+estimation error; the interpretation does not erase them.</p>
+<h3 id="state-scores-energy-forces-and-guidance">State scores, energy forces, and guidance<a class="headerlink" href="#state-scores-energy-forces-and-guidance" title="Permanent link">¤</a></h3>
+<p>The state score</p>
+<div class="arithmatex">\[
+s_t(x)=\nabla_x\log p_t(x)
+\]</div>
+<p>is a vector field on sample space. Score matching trains parameters so a neural
+field approximates it; the optimizer still uses a parameter gradient of the
+score-matching loss. Hyvärinen's
+<a href="https://jmlr.org/papers/v6/hyvarinen05a.html">score-matching identity</a> removes
+the unknown data score under smooth-support and boundary assumptions. Denoising
+score matching changes the target to a corrupted marginal at each noise level.</p>
+<p>Conditional guidance uses the identity</p>
+<div class="arithmatex">\[
+\nabla_x\log p_t(x\mid y)
+=\nabla_x\log p_t(x)
++\nabla_x\log p_t(y\mid x),
+\]</div>
+<p>when the conditional quantities and derivatives are well defined. Classifier
+guidance estimates the second state gradient with a noise-conditional classifier
+(<a href="https://proceedings.neurips.cc/paper/2021/hash/49ad23d1ec9fa4bd8d77d02681df5cfa-Abstract.html">Dhariwal and Nichol</a>).
+Scaling or replacing that term changes the sampled vector field; it need not
+remain the exact score of the original conditional law. Guidance gradients are
+sampling-time state derivatives, not training gradients of the base generator.</p>
+<h3 id="pathwise-gradients-are-transport-velocities">Pathwise gradients are transport velocities<a class="headerlink" href="#pathwise-gradients-are-transport-velocities" title="Permanent link">¤</a></h3>
+<p>For a differentiable scalar-parameter density family <span class="arithmatex">\(q_\theta\)</span>, or for one
+declared directional derivative of a vector parameter, a velocity field
+<span class="arithmatex">\(v_\theta(z)\)</span> that satisfies</p>
+<div class="arithmatex">\[
+\partial_\theta q_\theta(z)
++\nabla_z\!\cdot\!
+\left(q_\theta(z)v_\theta(z)\right)=0
+\]</div>
+<p>transports probability mass as <span class="arithmatex">\(\theta\)</span> changes. Under boundary and integrability
+conditions,</p>
+<div class="arithmatex">\[
+\partial_\theta
+\mathbb E_{q_\theta}[f_\theta(Z)]
+=\mathbb E_{q_\theta}
+\left[
+\nabla_z f_\theta(Z)^\top v_\theta(Z)
++\partial_\theta f_\theta(Z)
+\right].
+\]</div>
+<p>Multiple velocity fields can satisfy the continuity equation and yield unbiased
+pathwise estimators with different variance. Explicit reparameterization supplies
+one field; implicit differentiation can supply fields for Gamma, Beta, Dirichlet,
+and von Mises families
+(<a href="https://proceedings.neurips.cc/paper_files/paper/2018/hash/92c8c96e4c37100777c7190b76d28233-Abstract.html">Figurnov, Mohamed, and Mnih</a>).
+The transport-equation view also supports alternative low-variance fields
+(<a href="https://proceedings.mlr.press/v80/jankowiak18a.html">Jankowiak and Obermeyer</a>).</p>
+<p>This is an <strong>estimator-level transport correspondence</strong>. It does not make a VAE
+encoder update a Wasserstein gradient flow of the generated data distribution.</p>
+<h3 id="stein-variational-gradients-move-an-interacting-particle-system">Stein variational gradients move an interacting particle system<a class="headerlink" href="#stein-variational-gradients-move-an-interacting-particle-system" title="Permanent link">¤</a></h3>
+<p>SVGD considers infinitesimal maps <span class="arithmatex">\(T(x)=x+\epsilon\phi(x)\)</span> and chooses a vector
+field from a reproducing-kernel Hilbert space to decrease
+<span class="arithmatex">\(D_{\mathrm{KL}}(T_\sharp q\|p)\)</span>. Under its assumptions, the optimal direction
+has the form</p>
+<div class="arithmatex">\[
+\begin{aligned}
+\phi^*(\cdot)
+=\mathbb E_{X\sim q}\bigl[
+&amp;k(X,\cdot)\nabla_X\log p(X)\\
+&amp;+\nabla_X k(X,\cdot)
+\bigr].
+\end{aligned}
+\]</div>
+<p>The first term follows the target score; the second repels particles through the
+kernel. The finite algorithm replaces <span class="arithmatex">\(q\)</span> by an empirical particle measure and
+the expectation by a particle average
+(<a href="https://proceedings.neurips.cc/paper/2016/hash/b3ba8f1bee1238a2f37603d90b58898d-Abstract.html">Liu and Wang</a>).
+Its particles are interacting and generally are not independent exact samples
+from <span class="arithmatex">\(p\)</span> after a finite number of updates. Kernel choice and particle count
+define the approximation.</p>
+<h3 id="sample-manifold-gradients">Sample-manifold gradients<a class="headerlink" href="#sample-manifold-gradients" title="Permanent link">¤</a></h3>
+<p>If states lie on a Riemannian manifold <span class="arithmatex">\((\mathcal X,g)\)</span>, the state gradient is
+defined by</p>
+<div class="arithmatex">\[
+g_x(\operatorname{grad}_g f(x),v)=df_x[v]
+\]</div>
+<p>for all tangent <span class="arithmatex">\(v\)</span>. In an embedded manifold, projecting an ambient Euclidean
+gradient can be correct only with the appropriate induced metric and tangent
+projection. Retractions, exponential maps, chart transitions, volume measures,
+and numerical integrators then affect the finite sampler.</p>
+<p>This is geometry of generated <strong>states</strong>. Fisher--Rao geometry is geometry of
+probability <strong>laws</strong>. Riemannian score models can use both, but the two metric
+tensors act on different spaces.</p>
+<h3 id="independent-practice-and-assessment-map-functional-and-state-space-flows">Independent practice and assessment map: functional and state-space flows<a class="headerlink" href="#independent-practice-and-assessment-map-functional-and-state-space-flows" title="Permanent link">¤</a></h3>
+<p>Begin with a differential, name the metric that turns it into a vector, and
+only then discretize. Tasks that use particles or manifolds retain both their
+population object and finite approximation.</p>
+<ol>
+<li><strong>P1.1 — Predict before computing: geometry-dependent motion.</strong> <em>Type: predict · Difficulty: foundation · Typical time: 9 min.</em> For one functional <span class="arithmatex">\(\mathcal F[\rho]\)</span>, explain why its <span class="arithmatex">\(L^2\)</span>, Fisher--Rao, and Wasserstein gradients need not produce the same density evolution even though the first variation is unchanged.</li>
+<li><strong>P1.2 — Separate JKO from a PDE step.</strong> <em>Type: compare · Difficulty: core · Typical time: 11 min.</em> Write the Wasserstein gradient-flow PDE and one JKO step. List three approximation choices that make a finite neural JKO solver different from direct PDE integration.</li>
+<li><strong>P1.3 — Derive free-energy Langevin flow.</strong> <em>Type: derive · Difficulty: core · Typical time: 13 min.</em> Starting from <span class="arithmatex">\(\mathcal F[\rho]=D_{\mathrm{KL}}(\rho\|\pi)\)</span> with <span class="arithmatex">\(\pi\propto e^{-V}\)</span>, derive the first variation, continuity equation, and SDE. State two finite-algorithm error sources.</li>
+<li><strong>P1.4 — Verify a pathwise transport velocity.</strong> <em>Type: derive · Difficulty: core · Typical time: 11 min.</em> For <span class="arithmatex">\(q_\theta=\mathcal N(\theta,1)\)</span>, show that <span class="arithmatex">\(v_\theta(z)=1\)</span> satisfies the one-dimensional continuity equation. For <span class="arithmatex">\(f(z)=z^2\)</span>, verify the transport estimator equals <span class="arithmatex">\(d\mathbb E[f]/d\theta\)</span>.</li>
+<li><strong>P1.5 — Compute a two-particle SVGD field.</strong> <em>Type: derive · Difficulty: stretch · Typical time: 14 min.</em> Let target <span class="arithmatex">\(p=\mathcal N(0,1)\)</span>, particles <span class="arithmatex">\(x_1=-1,x_2=1\)</span>, and <span class="arithmatex">\(k(x,y)=\exp[-(x-y)^2/2]\)</span>. Compute the SVGD direction at each particle and separate attraction from repulsion.</li>
+<li><strong>P1.6 — Transfer to the sphere.</strong> <em>Type: design · Difficulty: stretch · Typical time: 16 min.</em> For samples constrained to the unit sphere, turn an ambient vector <span class="arithmatex">\(a(x)\)</span> into a tangent update, give a first-order retraction, and separately name a law-level geometry if the goal is to move a distribution over the sphere.</li>
+</ol>
+<h4 id="feedback-contract-functional-and-state-space-flows">Feedback contract: functional and state-space flows<a class="headerlink" href="#feedback-contract-functional-and-state-space-flows" title="Permanent link">¤</a></h4>
+<div class="md-typeset__table book-table-container"><table id="tbl-gradients-and-geometry-in-generative-modeling-feedback-contract-functional-and-state-space-flows-1"><caption class="book-object-caption"><span class="book-object-number">Table GRAD.29.</span> Feedback contract: functional and state-space flows — table 1</caption>
+<thead>
+<tr>
+<th>Task</th>
+<th>Evidence of success</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>P1.1</td>
+<td>The first variation is treated as a covector whose Riesz map depends on geometry.</td>
+</tr>
+<tr>
+<td>P1.2</td>
+<td>Population minimizing movement and its finite representation/optimization are distinct.</td>
+</tr>
+<tr>
+<td>P1.3</td>
+<td>PDE, SDE, assumptions, and discretization errors form one checked chain.</td>
+</tr>
+<tr>
+<td>P1.4</td>
+<td>The continuity equation and expectation derivative agree for a concrete family.</td>
+</tr>
+<tr>
+<td>P1.5</td>
+<td>Kernel score attraction and kernel-gradient repulsion are both evaluated.</td>
+</tr>
+<tr>
+<td>P1.6</td>
+<td>Tangent state geometry and probability-law geometry remain separate.</td>
+</tr>
+</tbody>
+</table></div>
+<details class="tip">
+<summary>Graduated hints for P1</summary>
+<div class="md-typeset__table book-table-container"><table id="tbl-gradients-and-geometry-in-generative-modeling-feedback-contract-functional-and-state-space-flows-2"><caption class="book-object-caption"><span class="book-object-number">Table GRAD.30.</span> Feedback contract: functional and state-space flows — table 2</caption>
+<thead>
+<tr>
+<th>Task</th>
+<th>Hint 1 — Direction</th>
+<th>Hint 2 — Setup</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>P1.1</td>
+<td>A differential becomes a vector only after an inner product identifies covectors and vectors.</td>
+<td>Compare local reaction of density values with mass transport through a continuity equation.</td>
+</tr>
+<tr>
+<td>P1.2</td>
+<td>JKO is a proximal optimization over measures.</td>
+<td>A neural density/map class, an approximate OT objective, and finite inner optimization are three choices.</td>
+</tr>
+<tr>
+<td>P1.3</td>
+<td><span class="arithmatex">\(\delta\int\rho\log\rho=\log\rho+1\)</span>.</td>
+<td>Use <span class="arithmatex">\(\partial_t\rho=\nabla\cdot(\rho\nabla\delta\mathcal F/\delta\rho)\)</span>.</td>
+</tr>
+<tr>
+<td>P1.4</td>
+<td>Differentiate the Gaussian density in <span class="arithmatex">\(\theta\)</span> and in <span class="arithmatex">\(z\)</span>.</td>
+<td><span class="arithmatex">\(\partial_\theta q=-\partial_z q\)</span> for a location family.</td>
+</tr>
+<tr>
+<td>P1.5</td>
+<td>The target score is <span class="arithmatex">\(-x\)</span> and cross-kernel value is <span class="arithmatex">\(e^{-2}\)</span>.</td>
+<td>At <span class="arithmatex">\(x_i\)</span>, average <span class="arithmatex">\(k(x_j,x_i)(-x_j)+\partial_{x_j}k(x_j,x_i)\)</span>.</td>
+</tr>
+<tr>
+<td>P1.6</td>
+<td>Remove the radial component first.</td>
+<td>Use <span class="arithmatex">\((I-xx^\top)a\)</span> and normalize <span class="arithmatex">\(x+\epsilon v\)</span>; then choose, for example, Wasserstein geometry built from geodesic distance for laws.</td>
+</tr>
+</tbody>
+</table></div>
+</details>
+<h4 id="outcome-to-task-alignment-functional-and-state-space-flows">Outcome-to-task alignment: functional and state-space flows<a class="headerlink" href="#outcome-to-task-alignment-functional-and-state-space-flows" title="Permanent link">¤</a></h4>
+<div class="md-typeset__table book-table-container"><table id="tbl-gradients-and-geometry-in-generative-modeling-outcome-to-task-alignment-functional-and-state-space-flows"><caption class="book-object-caption"><span class="book-object-number">Table GRAD.31.</span> Outcome-to-task alignment: functional and state-space flows</caption>
+<thead>
+<tr>
+<th>Learning objective</th>
+<th>Independently assessed by</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>O1 — Convert differentials to gradients</td>
+<td>P1.1</td>
+</tr>
+<tr>
+<td>O2 — Derive Wasserstein flow</td>
+<td>P1.2, P1.3</td>
+</tr>
+<tr>
+<td>O3 — Connect free energy and sampling</td>
+<td>P1.3</td>
+</tr>
+<tr>
+<td>O4 — Separate state and parameter derivatives</td>
+<td>P1.4, P1.6</td>
+</tr>
+<tr>
+<td>O5 — Interpret transport estimators and particles</td>
+<td>P1.4, P1.5</td>
+</tr>
+<tr>
+<td>O6 — Transfer to structured states</td>
+<td>P1.6</td>
+</tr>
+</tbody>
+</table></div>
+<details class="success">
+<summary>Complete solutions to P1</summary>
+<ol>
+<li><strong>P1.1.</strong> <span class="arithmatex">\(\delta\mathcal F/\delta\rho\)</span> specifies how the scalar changes against an admissible perturbation; it is not yet a velocity. The <span class="arithmatex">\(L^2\)</span> Riesz map produces pointwise density change, Fisher--Rao geometry produces mass-preserving reaction-like motion under its constraint, and Wasserstein geometry produces a velocity and continuity equation transporting mass. <strong>Check.</strong> Equal stationary points need not imply equal trajectories or finite algorithms.</li>
+<li><strong>P1.2.</strong> The PDE is <span class="arithmatex">\(\partial_t\rho=\nabla\cdot(\rho\nabla\delta\mathcal F/\delta\rho)\)</span>; JKO sets <span class="arithmatex">\(\rho_{k+1}\in\arg\min_\rho\{\mathcal F[\rho]+W_2^2(\rho,\rho_k)/(2\tau)\}\)</span>. A finite neural solver chooses a restricted density or map class, an approximate primal/dual/regularized OT computation, Monte Carlo samples, and a finite inner optimizer. Direct PDE integration instead chooses spatial/state representation and a time integrator. <strong>Rubric.</strong> At least three named choices and their errors are separated.</li>
+<li><strong>P1.3.</strong> <span class="arithmatex">\(\mathcal F=\int\rho\log\rho+\int V\rho+\text{const}\)</span>, so <span class="arithmatex">\(\delta\mathcal F/\delta\rho=\log\rho+1+V\)</span>. The Wasserstein flow is <span class="arithmatex">\(\partial_t\rho=\Delta\rho+\nabla\cdot(\rho\nabla V)\)</span>, the Fokker--Planck equation for <span class="arithmatex">\(dX_t=-\nabla V(X_t)dt+\sqrt2dW_t\)</span>. Finite step size, approximate scores/forces, boundary handling, and Monte Carlo error remain. <strong>Check.</strong> The SDE correspondence does not make Euler--Maruyama exact.</li>
+<li><strong>P1.4.</strong> For <span class="arithmatex">\(q(z)\propto\exp[-(z-\theta)^2/2]\)</span>, <span class="arithmatex">\(\partial_\theta q=(z-\theta)q\)</span> and <span class="arithmatex">\(\partial_z(qv)=\partial_zq=-(z-\theta)q\)</span>, so their sum is zero. <span class="arithmatex">\(\mathbb E[Z^2]=\theta^2+1\)</span> has derivative <span class="arithmatex">\(2\theta\)</span>; the transport identity gives <span class="arithmatex">\(\mathbb E[2Z\cdot1]=2\theta\)</span>. <strong>Check.</strong> This is a parameter-sensitivity estimator, not a claim about Wasserstein training of another law.</li>
+<li><strong>P1.5.</strong> Let <span class="arithmatex">\(c=e^{-2}\)</span>. At <span class="arithmatex">\(x_1=-1\)</span>, the self term is attraction <span class="arithmatex">\(1\)</span> and zero repulsion; the cross attraction is <span class="arithmatex">\(-c\)</span> and cross repulsion <span class="arithmatex">\(-2c\)</span>, so <span class="arithmatex">\(\phi(x_1)=(1-3c)/2\approx0.297\)</span>. Symmetry gives <span class="arithmatex">\(\phi(x_2)=-(1-3c)/2\approx-0.297\)</span>. The score terms pull toward zero while kernel-gradient terms push the particles apart. <strong>Check.</strong> Removing repulsion would give two independent smoothed score steps, not SVGD.</li>
+<li><strong>P1.6.</strong> The tangent field is <span class="arithmatex">\(v=(I-xx^\top)a=a-(x^\top a)x\)</span>, satisfying <span class="arithmatex">\(x^\top v=0\)</span>. A first-order retraction is <span class="arithmatex">\(R_x(\epsilon v)=(x+\epsilon v)/\lVert x+\epsilon v\rVert\)</span>. To move a law on the sphere, separately choose a geometry such as Wasserstein distance built from geodesic cost, Fisher--Rao on a dominated spherical density family, or a kernelized Stein construction with tangent kernels. <strong>Rubric.</strong> Projecting individual vectors does not choose a distribution metric.</li>
+</ol>
+</details>
+<h3 id="chapter-9-synthesis-and-retrieval-practice">Chapter 9 synthesis and retrieval practice<a class="headerlink" href="#chapter-9-synthesis-and-retrieval-practice" title="Permanent link">¤</a></h3>
+<p>Functional derivatives become gradients only after a geometry is chosen.
+Wasserstein flows move densities, state scores move samples, pathwise velocities
+estimate parameter sensitivities, Stein fields move interacting particles, and
+manifold gradients remain tangent to structured state spaces. Their equations
+connect, but their finite algorithms and target objects remain distinct.</p>
+<details class="question">
+<summary>Retrieval questions</summary>
+<ol>
+<li>Why is a first variation not yet a unique gradient?</li>
+<li>What functional has Langevin's Fokker--Planck equation as its <span class="arithmatex">\(W_2\)</span>
+   gradient flow?</li>
+<li>What are the two terms in the SVGD field?</li>
+<li>Why does a pathwise transport velocity not make VAE training a
+   Wasserstein gradient flow of data laws?</li>
+</ol>
+<p><strong>Solutions.</strong> (1) A metric or inner product is needed to identify a
+differential with a vector. (2) <span class="arithmatex">\(D_{\mathrm{KL}}(\rho\|\pi)\)</span>. (3) A
+target-score attraction term and a kernel-gradient repulsion term. (4) The
+velocity estimates sensitivity of an expectation under the variational law;
+the population objective, moving law, and geometry differ from data-law
+Wasserstein descent.</p>
+</details>
+<p><strong>Bridge.</strong> Chapter 10 turns the full taxonomy into a selection and reporting
+procedure and covers the remaining case of black-box search gradients.</p>
+<hr/>
+<p><strong>Previous:</strong> <a href="../gradients-08-processes/">8. Generative Processes and Teachers</a> · <strong>Continue:</strong> <a href="../gradients-10-practice/">10. Selection and Research Practice</a> · <a href="../gradients-and-geometry-in-generative-modeling/">Complete guide</a></p>
+</article>
+</div>
+<script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  Back to top
+</button>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+<div class="md-social">
+<a class="md-social__link" href="https://github.com/avitai/artifex" rel="noopener" target="_blank" title="github.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</a>
+<a class="md-social__link" href="https://pypi.org/project/avitai-artifex/" rel="noopener" target="_blank" title="pypi.org">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-66.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.3v101.8c0 29 25.2 46 53.4 54.3 33.8 9.9 66.3 11.7 106.8 0 26.9-7.8 53.4-23.5 53.4-54.3v-40.7H226.2v-13.6h160.2c31.1 0 42.6-21.7 53.4-54.2 11.2-33.5 10.7-65.7 0-108.6M286.2 444.7a20.4 20.4 0 1 1 0-40.7 20.4 20.4 0 1 1 0 40.7M167.8 248.1h106.8c29.7 0 53.4-24.5 53.4-54.3V91.9c0-29-24.4-50.7-53.4-55.6-35.8-5.9-74.7-5.6-106.8.1-45.2 8-53.4 24.7-53.4 55.6v40.7h106.9v13.6h-147c-31.1 0-58.3 18.7-66.8 54.2-9.8 40.7-10.2 66.1 0 108.6 7.6 31.6 25.7 54.2 56.8 54.2H101v-48.8c0-35.3 30.5-66.4 66.8-66.4m-6.6-183.4a20.4 20.4 0 1 1 0 40.8 20.4 20.4 0 1 1 0-40.8"></path></svg>
+</a>
+<a class="md-social__link" href="https://twitter.com/mahdi_shafiei" rel="noopener" target="_blank" title="twitter.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M459.4 151.7c.3 4.5.3 9.1.3 13.6 0 138.7-105.6 298.6-298.6 298.6-59.5 0-114.7-17.2-161.1-47.1 8.4 1 16.6 1.3 25.3 1.3 49.1 0 94.2-16.6 130.3-44.8-46.1-1-84.8-31.2-98.1-72.8 6.5 1 13 1.6 19.8 1.6 9.4 0 18.8-1.3 27.6-3.6-48.1-9.7-84.1-52-84.1-103v-1.3c14 7.8 30.2 12.7 47.4 13.3-28.3-18.8-46.8-51-46.8-87.4 0-19.5 5.2-37.4 14.3-53C87.4 130.8 165 172.4 252.1 176.9c-1.6-7.8-2.6-15.9-2.6-24C249.5 95.1 296.3 48 354.4 48c30.2 0 57.5 12.7 76.7 33.1 23.7-4.5 46.5-13.3 66.6-25.3-7.8 24.4-24.4 44.8-46.1 57.8 21.1-2.3 41.6-8.1 60.4-16.2-14.3 20.8-32.2 39.3-52.6 54.3"></path></svg>
+</a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.path", "navigation.top", "navigation.prune", "toc.follow", "search.highlight", "search.share", "search.suggest", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "content.mermaid"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+<script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+<script src="../../../javascripts/reading-layout.js"></script>
+</body>
+</html>

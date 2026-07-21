@@ -1,0 +1,1760 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="This chapter develops stationarity, detailed balance, Metropolis–Hastings, Gibbs and blocked updates, and auxiliary-variable constructions as explicit kernel" name="description"/>
+<meta content="Mahdi Shafiei" name="author"/>
+<link href="https://docs.avitai.bio/artifex/user-guide/concepts/sampling-02-markov-kernels/" rel="canonical"/>
+<link href="../sampling-01-monte-carlo/" rel="prev"/>
+<link href="../sampling-03-gradient-hamiltonian/" rel="next"/>
+<link href="../../../assets/images/favicon.png" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.7.7" name="generator"/>
+<title>Sampling 2 — Markov Kernels, Metropolis, and Gibbs - Artifex</title>
+<link href="../../../assets/stylesheets/main.ec1eaa64.min.css" rel="stylesheet"/>
+<link href="../../../assets/stylesheets/palette.ab4e12ef.min.css" rel="stylesheet"/>
+<script src="../../../assets/vendor/iframe-worker/index.js"></script>
+<link href="../../../assets/_mkdocstrings.css" rel="stylesheet"/>
+<link href="../../../_static/extra.css" rel="stylesheet"/>
+<script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+<meta content="article" property="og:type"/>
+<meta content="The Artifex Generative Models Book" property="og:site_name"/>
+<meta content="Sampling 2 — Markov Kernels, Metropolis, and Gibbs" property="og:title"/>
+<meta content="This chapter develops stationarity, detailed balance, Metropolis–Hastings, Gibbs and blocked updates, and auxiliary-variable constructions as explicit kernel" property="og:description"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/sampling-02-markov-kernels/" property="og:url"/>
+<meta content="2026-07-15" property="article:modified_time"/>
+<meta content="summary" name="twitter:card"/>
+<meta content="Sampling 2 — Markov Kernels, Metropolis, and Gibbs" name="twitter:title"/>
+<meta content="This chapter develops stationarity, detailed balance, Metropolis–Hastings, Gibbs and blocked updates, and auxiliary-variable constructions as explicit kernel" name="twitter:description"/>
+<meta content="Generative models, Machine learning, Probabilistic modeling, foundation, required, canonical_chapter, sampling-markov-kernels, newcomer, practitioner, researcher" name="keywords"/>
+<meta content="Sampling 2 — Markov Kernels, Metropolis, and Gibbs" name="citation_title"/>
+<meta content="Mahdi Shafiei" name="citation_author"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/sampling-02-markov-kernels/" name="citation_public_url"/>
+<meta content="en" name="citation_language"/>
+<meta content="Sampling 2 — Markov Kernels, Metropolis, and Gibbs" name="DC.title"/>
+<meta content="Mahdi Shafiei" name="DC.creator"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/sampling-02-markov-kernels/" name="DC.identifier"/>
+<meta content="Text.LearningResource" name="DC.type"/>
+<meta content="2026-07-15" name="DCTERMS.modified"/>
+<meta content="https://github.com/avitai/artifex/blob/main/LICENSE" name="DCTERMS.license"/>
+<meta content="foundation" name="DCTERMS.educationLevel"/>
+<meta content="newcomer, practitioner, researcher" name="DCTERMS.audience"/>
+<link href="https://github.com/avitai/artifex/blob/main/LICENSE" rel="license"/>
+<script id="artifex-book-metadata" type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Chapter",
+  "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/sampling-02-markov-kernels/",
+  "url": "https://docs.avitai.bio/artifex/user-guide/concepts/sampling-02-markov-kernels/",
+  "name": "Sampling 2 \u2014 Markov Kernels, Metropolis, and Gibbs",
+  "description": "This chapter develops stationarity, detailed balance, Metropolis\u2013Hastings, Gibbs and blocked updates, and auxiliary-variable constructions as explicit kernel",
+  "identifier": "sampling-markov-kernels",
+  "inLanguage": "en",
+  "isAccessibleForFree": true,
+  "learningResourceType": "Canonical chapter",
+  "educationalLevel": "foundation",
+  "educationalUse": "required",
+  "audience": [
+    
+      {"@type": "EducationalAudience", "audienceType": "newcomer"},
+    
+      {"@type": "EducationalAudience", "audienceType": "practitioner"},
+    
+      {"@type": "EducationalAudience", "audienceType": "researcher"}
+    
+  ],
+  "dateModified": "2026-07-15",
+  "keywords": ["Generative models", "Machine learning", "Probabilistic modeling", "foundation", "required", "canonical_chapter", "sampling-markov-kernels", "newcomer", "practitioner", "researcher"],
+  "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+  "author": [
+    
+      {"@type": "Person", "name": "Mahdi Shafiei"}
+    
+  ],
+  "isPartOf": {
+    "@type": "Book",
+    "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/#book",
+    "url": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/",
+    "name": "The Artifex Generative Models Book",
+    "bookEdition": "Living Web Edition",
+    "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+    "author": [
+      
+        {"@type": "Person", "name": "Mahdi Shafiei"}
+      
+    ]
+  }
+}
+</script>
+<link href="../../../assets/vendor/katex/katex.min.css" id="artifex-katex-stylesheet" integrity="sha384-UA8juhPf75SzzAMA/4fo3yOU7sBJ0om7SCD2GHq0fZqZco6tr1UCV7nUbk9J90JM" rel="stylesheet"/>
+<script defer="" integrity="sha384-T/0lMUdJpd2S1ZHtRiofG3htU3xPCrFVeAQ1UUE2TJwlEJSV5NUwn30kP28n238E" src="../../../assets/vendor/mermaid/mermaid.min.js"></script>
+<script defer="" src="../../../assets/vendor/katex/katex-shadow.js"></script>
+<script defer="" src="../../../javascripts/mermaid-math.js"></script>
+<script defer="" src="../../../javascripts/mathjax.js"></script>
+<script defer="" integrity="sha384-OrHfGTnIbkl0do3N76qW/uWr38o91N05sbSPuYBPLH+hG8X/dNSrjZf3AGjzrCwC" src="../../../assets/vendor/mathjax/tex-mml-chtml.js"></script>
+</head>
+<body data-md-color-accent="amber" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#sampling-2-markov-kernels-metropolis-and-gibbs">
+          Skip to content
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header md-header--shadow" data-md-component="header">
+<nav aria-label="Header" class="md-header__inner md-grid">
+<a aria-label="Artifex" class="md-header__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            Artifex
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+            
+              Sampling 2 — Markov Kernels, Metropolis, and Gibbs
+            
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-label="Switch to dark mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: light)" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_1" hidden="" title="Switch to dark mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+<input aria-label="Switch to light mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-primary="indigo" data-md-color-scheme="slate" id="__palette_1" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_0" hidden="" title="Switch to light mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+</form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div aria-label="Search" class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Search" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="Search" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="Search" class="md-search__options">
+<a aria-label="Share" class="md-search__icon md-icon" data-clipboard="" data-clipboard-text="" data-md-component="search-share" href="javascript:void(0)" tabindex="-1" title="Share">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"></path></svg>
+</a>
+<button aria-label="Clear" class="md-search__icon md-icon" tabindex="-1" title="Clear" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            Initializing search
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Navigation" class="md-nav md-nav--primary" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="Artifex" class="md-nav__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+    Artifex
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../..">
+<span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../getting-started/installation/">
+<span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Generative Models Book
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Generative Models Book
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    
+  
+    Start Here — The Landscape
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../first-course-01-generative-systems/">
+<span class="md-ellipsis">
+    
+  
+    First Course — New to Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Foundations
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_3_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Foundations
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../probability-01-objects/">
+<span class="md-ellipsis">
+    
+  
+    1. Probability and Generative Modeling
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../classical-01-latent-foundations/">
+<span class="md-ellipsis">
+    
+  
+    2. Classical Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../bayesian-learning-01-object/">
+<span class="md-ellipsis">
+    
+  
+    3. Bayesian Learning and Model Assessment
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../inference-01-objects-and-queries/">
+<span class="md-ellipsis">
+    
+  
+    4. Latent Variables and Inference
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../objectives-01-discrepancies/">
+<span class="md-ellipsis">
+    
+  
+    5. Objectives and Statistical Distances
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../information-coding-01-measures/">
+<span class="md-ellipsis">
+    
+  
+    6. Information, Coding, and Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../graphical-models-01-directed/">
+<span class="md-ellipsis">
+    
+  
+    7. Graphical Models and Structured Probability
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../message-passing-01-factor-graphs/">
+<span class="md-ellipsis">
+    
+  
+    8. Graphical Inference and Message Passing
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../filtering-01-bayes-recursions/">
+<span class="md-ellipsis">
+    
+  
+    9. Filtering and Smoothing for State-Space Generators
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_3_10" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_3_10" id="__nav_3_3_10_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    10. Sampling and Continuous Time
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_3_10_label" class="md-nav" data-md-level="3">
+<label class="md-nav__title" for="__nav_3_3_10">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    10. Sampling and Continuous Time
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../sampling-01-monte-carlo/">
+<span class="md-ellipsis">
+    
+  
+    1. Monte Carlo Queries and Variance
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
+    
+  
+    2. Markov Kernels, Metropolis, and Gibbs
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
+<span class="md-ellipsis">
+    
+  
+    2. Markov Kernels, Metropolis, and Gibbs
+  
+
+    
+  </span>
+</a>
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#2-markov-chains-and-stationarity">
+<span class="md-ellipsis">
+      
+        2. Markov Chains and Stationarity
+      
+    </span>
+</a>
+<nav aria-label="2. Markov Chains and Stationarity" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#markov-kernel-learning-objectives">
+<span class="md-ellipsis">
+      
+        Markov-kernel learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#time-homogeneity-is-not-stationarity">
+<span class="md-ellipsis">
+      
+        Time Homogeneity Is Not Stationarity
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-two-state-boundary-unique-but-not-convergent">
+<span class="md-ellipsis">
+      
+        Worked Two-State Boundary: Unique but Not Convergent
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#invariance-ergodicity-and-mixing">
+<span class="md-ellipsis">
+      
+        Invariance, Ergodicity, and Mixing
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mixing-time-is-a-theorem-warmup-is-a-workflow">
+<span class="md-ellipsis">
+      
+        Mixing time is a theorem; warmup is a workflow
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#bottlenecks-explain-why-local-movement-can-be-globally-slow">
+<span class="md-ellipsis">
+      
+        Bottlenecks explain why local movement can be globally slow
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#correlated-draws-change-estimator-uncertainty">
+<span class="md-ellipsis">
+      
+        Correlated draws change estimator uncertainty
+      
+    </span>
+</a>
+<nav aria-label="Correlated draws change estimator uncertainty" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-two-state-example-the-same-number-of-states-can-carry-different-information">
+<span class="md-ellipsis">
+      
+        Worked two-state example: the same number of states can carry different information
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#3-metropolishastings">
+<span class="md-ellipsis">
+      
+        3. Metropolis–Hastings
+      
+    </span>
+</a>
+<nav aria-label="3. Metropolis–Hastings" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#proposal-families-answer-different-geometric-problems">
+<span class="md-ellipsis">
+      
+        Proposal families answer different geometric problems
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#adaptation-must-preserve-an-asymptotic-contract">
+<span class="md-ellipsis">
+      
+        Adaptation must preserve an asymptotic contract
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#exact-correction-can-use-a-random-likelihood-estimate">
+<span class="md-ellipsis">
+      
+        Exact correction can use a random likelihood estimate
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#4-gibbs-blocks-and-auxiliary-variables">
+<span class="md-ellipsis">
+      
+        4. Gibbs, Blocks, and Auxiliary Variables
+      
+    </span>
+</a>
+<nav aria-label="4. Gibbs, Blocks, and Auxiliary Variables" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#scan-order-and-parallelism-are-parts-of-the-kernel">
+<span class="md-ellipsis">
+      
+        Scan order and parallelism are parts of the kernel
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-example-a-bivariate-gaussian-exposes-scalar-gibbs-slowdown">
+<span class="md-ellipsis">
+      
+        Worked example: a bivariate Gaussian exposes scalar Gibbs slowdown
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#collapsing-and-raoblackwellization-remove-different-randomness">
+<span class="md-ellipsis">
+      
+        Collapsing and Rao–Blackwellization remove different randomness
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#augmentation-can-make-a-hard-marginal-easy">
+<span class="md-ellipsis">
+      
+        Augmentation can make a hard marginal easy
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#markov-kernel-retrieval-practice">
+<span class="md-ellipsis">
+      
+        Markov-kernel retrieval practice
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#markov-kernel-synthesis">
+<span class="md-ellipsis">
+      
+        Markov-kernel synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../sampling-03-gradient-hamiltonian/">
+<span class="md-ellipsis">
+    
+  
+    3. Gradient, Hamiltonian, and Structure-Changing MCMC
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../sampling-04-tempering-transport/">
+<span class="md-ellipsis">
+    
+  
+    4. Tempering, Deterministic Transport, and SDEs
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../sampling-05-practice/">
+<span class="md-ellipsis">
+    
+  
+    5. Worked Samplers, Diagnostics, and Retrieval
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../sampling-and-continuous-time/">
+<span class="md-ellipsis">
+    
+  
+    Continuous View (All Chapters)
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../smc-01-targets/">
+<span class="md-ellipsis">
+    
+  
+    11. Sequential Monte Carlo and Particle Methods
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../optimization-01-differentiation/">
+<span class="md-ellipsis">
+    
+  
+    12. Optimization and Learning Dynamics
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../generative-models-notation/">
+<span class="md-ellipsis">
+    
+  
+    13. Canonical Notation
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../autoregressive-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Model Families
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gradients-01-taxonomy/">
+<span class="md-ellipsis">
+    
+  
+    Connections and Compositions
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../normalization-01-queries/">
+<span class="md-ellipsis">
+    
+  
+    Research Practice
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../models/vae-guide/">
+<span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/core/base/">
+<span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../examples/overview/">
+<span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../zoo/">
+<span class="md-ellipsis">
+    
+  
+    Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../training/overview/">
+<span class="md-ellipsis">
+    
+  
+    Training
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../data/overview/">
+<span class="md-ellipsis">
+    
+  
+    Data &amp; Modalities
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../inference/overview/">
+<span class="md-ellipsis">
+    
+  
+    Inference &amp; Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../benchmarks/">
+<span class="md-ellipsis">
+    
+  
+    Evaluation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../guides/extensions/">
+<span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../extensions/">
+<span class="md-ellipsis">
+    
+  
+    Advanced Topics
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../cli/">
+<span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../community/contributing/">
+<span class="md-ellipsis">
+    
+  
+    Community
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/configs/protein-extension/">
+<span class="md-ellipsis">
+    
+  
+    Reference Library
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#2-markov-chains-and-stationarity">
+<span class="md-ellipsis">
+      
+        2. Markov Chains and Stationarity
+      
+    </span>
+</a>
+<nav aria-label="2. Markov Chains and Stationarity" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#markov-kernel-learning-objectives">
+<span class="md-ellipsis">
+      
+        Markov-kernel learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#time-homogeneity-is-not-stationarity">
+<span class="md-ellipsis">
+      
+        Time Homogeneity Is Not Stationarity
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-two-state-boundary-unique-but-not-convergent">
+<span class="md-ellipsis">
+      
+        Worked Two-State Boundary: Unique but Not Convergent
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#invariance-ergodicity-and-mixing">
+<span class="md-ellipsis">
+      
+        Invariance, Ergodicity, and Mixing
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mixing-time-is-a-theorem-warmup-is-a-workflow">
+<span class="md-ellipsis">
+      
+        Mixing time is a theorem; warmup is a workflow
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#bottlenecks-explain-why-local-movement-can-be-globally-slow">
+<span class="md-ellipsis">
+      
+        Bottlenecks explain why local movement can be globally slow
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#correlated-draws-change-estimator-uncertainty">
+<span class="md-ellipsis">
+      
+        Correlated draws change estimator uncertainty
+      
+    </span>
+</a>
+<nav aria-label="Correlated draws change estimator uncertainty" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-two-state-example-the-same-number-of-states-can-carry-different-information">
+<span class="md-ellipsis">
+      
+        Worked two-state example: the same number of states can carry different information
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#3-metropolishastings">
+<span class="md-ellipsis">
+      
+        3. Metropolis–Hastings
+      
+    </span>
+</a>
+<nav aria-label="3. Metropolis–Hastings" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#proposal-families-answer-different-geometric-problems">
+<span class="md-ellipsis">
+      
+        Proposal families answer different geometric problems
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#adaptation-must-preserve-an-asymptotic-contract">
+<span class="md-ellipsis">
+      
+        Adaptation must preserve an asymptotic contract
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#exact-correction-can-use-a-random-likelihood-estimate">
+<span class="md-ellipsis">
+      
+        Exact correction can use a random likelihood estimate
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#4-gibbs-blocks-and-auxiliary-variables">
+<span class="md-ellipsis">
+      
+        4. Gibbs, Blocks, and Auxiliary Variables
+      
+    </span>
+</a>
+<nav aria-label="4. Gibbs, Blocks, and Auxiliary Variables" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#scan-order-and-parallelism-are-parts-of-the-kernel">
+<span class="md-ellipsis">
+      
+        Scan order and parallelism are parts of the kernel
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-example-a-bivariate-gaussian-exposes-scalar-gibbs-slowdown">
+<span class="md-ellipsis">
+      
+        Worked example: a bivariate Gaussian exposes scalar Gibbs slowdown
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#collapsing-and-raoblackwellization-remove-different-randomness">
+<span class="md-ellipsis">
+      
+        Collapsing and Rao–Blackwellization remove different randomness
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#augmentation-can-make-a-hard-marginal-easy">
+<span class="md-ellipsis">
+      
+        Augmentation can make a hard marginal easy
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#markov-kernel-retrieval-practice">
+<span class="md-ellipsis">
+      
+        Markov-kernel retrieval practice
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#markov-kernel-synthesis">
+<span class="md-ellipsis">
+      
+        Markov-kernel synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<nav aria-label="Breadcrumb" class="md-path">
+<ol class="md-path__list">
+<li class="md-path__item">
+<a class="md-path__link" href="../../..">
+<span class="md-ellipsis">
+    Home
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    Generative Models Book
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../probability-01-objects/">
+<span class="md-ellipsis">
+    Foundations
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../sampling-01-monte-carlo/">
+<span class="md-ellipsis">
+    10. Sampling and Continuous Time
+  </span>
+</a>
+</li>
+</ol>
+</nav>
+<article class="md-content__inner md-typeset">
+<h1 id="sampling-2-markov-kernels-metropolis-and-gibbs">Sampling 2 — Markov Kernels, Metropolis, and Gibbs<a class="headerlink" href="#sampling-2-markov-kernels-metropolis-and-gibbs" title="Permanent link">¤</a></h1><aside aria-label="Learning path" class="admonition abstract artifex-learning-path"><p class="admonition-title">Learning path</p><p><strong>Required knowledge</strong></p><ul class="artifex-learning-path__links" data-learning-path-role="required"><li><a href="../sampling-01-monte-carlo/">Sampling 1 — Monte Carlo Queries and Variance</a></li></ul><p><strong>Readiness check:</strong> can you explain the central object and reproduce one worked example from each required chapter? If not, follow its link before continuing.</p><p><strong>Newly unlocked in the default route</strong></p><ul class="artifex-learning-path__links" data-learning-path-role="unlocks"><li><a href="../sampling-03-gradient-hamiltonian/">Sampling 3 — Gradient, Hamiltonian, and Structure-Changing MCMC</a></li></ul></aside>
+<p>This chapter develops stationarity, detailed balance, Metropolis–Hastings,
+Gibbs and blocked updates, and auxiliary-variable constructions as explicit
+kernel contracts. For uninterrupted reading, use the <a href="../sampling-and-continuous-time/#2-markov-chains-and-stationarity">continuous
+view</a>.</p>
+<h2 id="2-markov-chains-and-stationarity">2. Markov Chains and Stationarity<a class="headerlink" href="#2-markov-chains-and-stationarity" title="Permanent link">¤</a></h2>
+<h3 id="markov-kernel-learning-objectives">Markov-kernel learning objectives<a class="headerlink" href="#markov-kernel-learning-objectives" title="Permanent link">¤</a></h3>
+<p>This projection assumes finite probability and Monte Carlo estimation. By the
+end, you should be able to distinguish stationarity, invariance, irreducibility,
+aperiodicity, ergodicity, and mixing; compute the two-state examples; derive a
+Metropolis–Hastings kernel; compare scan/block/auxiliary Gibbs constructions;
+and diagnose adaptation, pseudo-marginal, bottleneck, autocorrelation, and
+augmentation effects on the estimator rather than only on acceptance rate.</p>
+<p>A Markov chain is best imagined as a moving probability distribution, not one
+decorative sample path. Applying the kernel repeatedly should move the law
+toward <span class="arithmatex">\(\pi\)</span> while preserving <span class="arithmatex">\(\pi\)</span> if it is already reached.</p>
+<figure class="book-figure" id="fig-sampling-and-continuous-time-2-markov-chains-and-stationarity"><pre class="mermaid"><code>flowchart LR
+    mu0["Initial law&amp;nbsp;$$\mu_0$$"] --&gt;|"$$K$$"| mu1["$$\mu_1=\mu_0K$$"]
+    mu1 --&gt;|"$$K$$"| mu2["$$\mu_2=\mu_1K$$"]
+    mu2 --&gt;|"repeat"| pi["Target&amp;nbsp;$$\pi$$"]
+    pi --&gt;|"invariance&amp;nbsp;$$\pi K=\pi$$"| pi</code></pre><figcaption class="book-object-caption"><span class="book-object-number">Figure SAMP.2.</span> 2. Markov Chains and Stationarity</figcaption></figure>
+<p>Invariance describes the self-loop at the target. Mixing describes how quickly
+the other arrows approach it. Ergodicity connects the long path average to the
+target expectation.</p>
+<p>A transition kernel <span class="arithmatex">\(K(x,dx')\)</span> leaves <span class="arithmatex">\(\pi\)</span> invariant if</p>
+<div class="arithmatex">\[
+\int\pi(dx)K(x,A)=\pi(A).
+\]</div>
+<p>Detailed balance,</p>
+<div class="arithmatex">\[
+\pi(x)K(x,x')=\pi(x')K(x',x),
+\]</div>
+<p>is sufficient but not necessary for invariance. Summing either side over the
+source state proves <span class="arithmatex">\(\pi K=\pi\)</span>; irreducibility, aperiodicity, or a mixing-rate
+bound is not needed for that algebraic implication. Those conditions answer
+different questions. A stationary target says nothing about whether it is
+unique, whether a chosen initialization converges to it, or how quickly a
+finite run explores it.</p>
+<h3 id="time-homogeneity-is-not-stationarity">Time Homogeneity Is Not Stationarity<a class="headerlink" href="#time-homogeneity-is-not-stationarity" title="Permanent link">¤</a></h3>
+<p>A chain is <strong>time-homogeneous</strong> when it reuses the same transition kernel at
+every step. It is <strong>stationary</strong> when its joint law is invariant to a shift in
+time. For a homogeneous Markov chain, initializing <span class="arithmatex">\(X_0\sim\pi\)</span> with
+<span class="arithmatex">\(\pi K=\pi\)</span> makes every marginal equal to <span class="arithmatex">\(\pi\)</span> and gives a stationary Markov
+process. Reusing one kernel from a point-mass initialization does not.</p>
+<p>For a finite transition matrix, keep four statements separate:</p>
+<ol>
+<li><strong>Existence:</strong> at least one invariant probability vector exists.</li>
+<li><strong>Uniqueness:</strong> irreducibility is sufficient; more generally, uniqueness
+   holds when there is one closed recurrent class, even if transient states
+   precede it.</li>
+<li><strong>Convergence of the time-<span class="arithmatex">\(t\)</span> law:</strong> a finite irreducible, aperiodic chain
+   converges to its unique invariant law from every initial distribution.</li>
+<li><strong>Mixing rate:</strong> the convergence theorem does not say that the required
+   <span class="arithmatex">\(t\)</span> is computationally useful; bottlenecks can make it enormous.</li>
+</ol>
+<p>On a countably infinite or general state space, finite-state existence no
+longer transfers automatically. For an irreducible countable chain, positive
+recurrence is the relevant condition for an invariant probability law;
+aperiodicity is additionally used for ordinary distributional convergence.
+Terminology such as “ergodic” varies across fields, so a theorem should list
+the properties it actually needs.</p>
+<h3 id="worked-two-state-boundary-unique-but-not-convergent">Worked Two-State Boundary: Unique but Not Convergent<a class="headerlink" href="#worked-two-state-boundary-unique-but-not-convergent" title="Permanent link">¤</a></h3>
+<p>Consider the deterministic flip chain</p>
+<div class="arithmatex">\[
+K=
+\begin{bmatrix}
+0&amp;1\\
+1&amp;0
+\end{bmatrix}.
+\]</div>
+<p>It is irreducible and has the unique invariant law
+<span class="arithmatex">\(\pi=(1/2,1/2)\)</span>, which also satisfies detailed balance. It is periodic with
+period two. Starting from state zero,</p>
+<div class="arithmatex">\[
+\delta_0K^{2t}=\delta_0,
+\qquad
+\delta_0K^{2t+1}=\delta_1,
+\]</div>
+<p>so the time-<span class="arithmatex">\(t\)</span> distribution never converges to <span class="arithmatex">\(\pi\)</span>. Nevertheless, the
+empirical fraction of visits to either state converges to one half. Thus an
+invariant law, convergence of marginals, and convergence of path averages are
+different claims.</p>
+<p>Adding a nonzero self-loop removes the period. For</p>
+<div class="arithmatex">\[
+K_\varepsilon=
+\begin{bmatrix}
+\varepsilon&amp;1-\varepsilon\\
+1-\varepsilon&amp;\varepsilon
+\end{bmatrix},
+\qquad 0&lt;\varepsilon&lt;1,
+\]</div>
+<p>the nontrivial eigenvalue is <span class="arithmatex">\(2\varepsilon-1\)</span>, whose magnitude is below one;
+the law now converges geometrically to <span class="arithmatex">\((1/2,1/2)\)</span>. By contrast, the identity
+kernel is reducible and makes <em>every</em> initial distribution invariant. It has
+many stationary laws and performs no exploration at all.</p>
+<h3 id="invariance-ergodicity-and-mixing">Invariance, Ergodicity, and Mixing<a class="headerlink" href="#invariance-ergodicity-and-mixing" title="Permanent link">¤</a></h3>
+<ul>
+<li><strong>Invariance:</strong> starting at <span class="arithmatex">\(\pi\)</span> leaves the next state distributed as <span class="arithmatex">\(\pi\)</span>.</li>
+<li><strong>Ergodicity:</strong> long-run averages converge to target expectations under suitable conditions.</li>
+<li><strong>Mixing:</strong> the finite-time law approaches <span class="arithmatex">\(\pi\)</span> at a useful rate.</li>
+<li><strong>Monte Carlo efficiency:</strong> correlated draws provide enough information about the observables of interest.</li>
+</ul>
+<p>A chain can be invariant but reducible, ergodic but extremely slow, or
+apparently stable while trapped in one metastable mode. These properties must
+therefore be checked at the level of the kernel and the scientific query.</p>
+<h3 id="mixing-time-is-a-theorem-warmup-is-a-workflow">Mixing time is a theorem; warmup is a workflow<a class="headerlink" href="#mixing-time-is-a-theorem-warmup-is-a-workflow" title="Permanent link">¤</a></h3>
+<p>For probability laws <span class="arithmatex">\(\mu\)</span> and <span class="arithmatex">\(\nu\)</span>, use the total-variation convention</p>
+<div class="arithmatex">\[
+\lVert\mu-\nu\rVert_{\mathrm{TV}}
+=\sup_A|\mu(A)-\nu(A)|
+=\frac12\int|d\mu-d\nu|.
+\]</div>
+<p>For a finite chain, the worst-case <span class="arithmatex">\(\varepsilon\)</span>-mixing time is</p>
+<div class="arithmatex">\[
+t_{\mathrm{mix}}(\varepsilon)
+=\min\left\{t:\sup_x
+\lVert K^t(x,\cdot)-\pi\rVert_{\mathrm{TV}}\le\varepsilon\right\}.
+\]</div>
+<p>This is a property of a specified kernel, target, tolerance, and state space.
+It is not a number that a trace plot reveals, and it is rarely known for a
+neural or hierarchical target.</p>
+<p>Practical <strong>warmup</strong> is different. During warmup, an implementation may move
+away from deliberately overdispersed initial states and adapt a proposal scale,
+mass matrix, or trajectory rule. Adaptation usually changes the transition
+kernel, so warmup iterations are normally excluded from estimators intended for
+the subsequent fixed-kernel chain. Exclusion is an accounting decision, not a
+proof that the retained states began in stationarity. The older word <em>burn-in</em>
+often collapses these distinct ideas:</p>
+<div class="md-typeset__table book-table-container"><table id="tbl-sampling-and-continuous-time-mixing-time-is-a-theorem-warmup-is-a-workflow"><caption class="book-object-caption"><span class="book-object-number">Table SAMP.3.</span> Mixing time is a theorem; warmup is a workflow</caption>
+<thead>
+<tr>
+<th>Question</th>
+<th>Correct object</th>
+<th>What discarding early states does not prove</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Has initialization bias become negligible?</td>
+<td>distance of the current law from <span class="arithmatex">\(\pi\)</span> for relevant queries</td>
+<td>that every mode was found</td>
+</tr>
+<tr>
+<td>Has adaptation finished?</td>
+<td>a frozen or theoretically valid adaptive-kernel protocol</td>
+<td>stationarity of the current state</td>
+</tr>
+<tr>
+<td>Is the retained estimator precise?</td>
+<td>long-run variance, MCSE, and observable-specific ESS</td>
+<td>independence of retained draws</td>
+</tr>
+<tr>
+<td>Is the worst-case chain mixed?</td>
+<td>a quantitative kernel bound such as <span class="arithmatex">\(t_{\mathrm{mix}}\)</span></td>
+<td>anything from a chosen warmup length alone</td>
+</tr>
+</tbody>
+</table></div>
+<p>Run multiple chains from meaningfully dispersed initial conditions, retain the
+adaptation record, and diagnose the retained draws. A single chain that looks
+stable can simply be stable inside one mode.</p>
+<h3 id="bottlenecks-explain-why-local-movement-can-be-globally-slow">Bottlenecks explain why local movement can be globally slow<a class="headerlink" href="#bottlenecks-explain-why-local-movement-can-be-globally-slow" title="Permanent link">¤</a></h3>
+<p>For a finite reversible chain, define stationary flow</p>
+<div class="arithmatex">\[
+Q(A,A^c)=\sum_{x\in A}\sum_{y\notin A}\pi(x)K(x,y)
+\]</div>
+<p>and conductance</p>
+<div class="arithmatex">\[
+\Phi=\min_{0&lt;\pi(A)\le 1/2}\frac{Q(A,A^c)}{\pi(A)}.
+\]</div>
+<p>A small <span class="arithmatex">\(\Phi\)</span> means that some set carries appreciable target mass but little
+one-step probability flow across its boundary. Spectral and conductance bounds
+make this obstruction quantitative for the chains to which those theorems
+apply. The general lesson survives beyond the finite reversible setting:
+excellent local acceptance cannot compensate for a proposal that almost never
+crosses the scientifically important barrier. Tempering, blocking, auxiliary
+variables, transport, and nonlocal proposals are alternative attempts to alter
+that geometry.</p>
+<h3 id="correlated-draws-change-estimator-uncertainty">Correlated draws change estimator uncertainty<a class="headerlink" href="#correlated-draws-change-estimator-uncertainty" title="Permanent link">¤</a></h3>
+<p>For a stationary chain and scalar observable <span class="arithmatex">\(Y_t=f(X_t)\)</span>, define the lag-<span class="arithmatex">\(k\)</span>
+autocovariance</p>
+<div class="arithmatex">\[
+\gamma_k=\operatorname{Cov}(Y_t,Y_{t+k}).
+\]</div>
+<p>Under conditions that make the autocovariances summable, the long-run variance
+is</p>
+<div class="arithmatex">\[
+\begin{aligned}
+\sigma_{\mathrm{LR}}^2
+&amp;=\gamma_0+2\sum_{k=1}^{\infty}\gamma_k,\\
+\operatorname{Var}(\widehat\mu_N)
+&amp;\approx\frac{\sigma_{\mathrm{LR}}^2}{N}.
+\end{aligned}
+\]</div>
+<p>When <span class="arithmatex">\(\gamma_0&gt;0\)</span>, the integrated autocorrelation time and an
+observable-specific effective sample size are commonly written</p>
+<div class="arithmatex">\[
+\begin{aligned}
+\tau_{\mathrm{int}}
+&amp;=\frac{\sigma_{\mathrm{LR}}^2}{\gamma_0}
+=1+2\sum_{k=1}^{\infty}\rho_k,\\
+N_{\mathrm{eff}}
+&amp;=\frac{N}{\tau_{\mathrm{int}}}.
+\end{aligned}
+\]</div>
+<p>This is not the importance-weight ESS from Section 1. It compares the variance
+of a correlated path average with an iid average for <strong>one declared
+observable</strong>. Different observables can have radically different
+<span class="arithmatex">\(N_{\mathrm{eff}}\)</span> on the same chain; negative autocorrelation can even make
+<span class="arithmatex">\(N_{\mathrm{eff}}&gt;N\)</span> under this variance-equivalence definition. Estimating the
+infinite sum from a finite, nonstationary, or metastable run requires a window,
+batch-means, spectral, or related long-run-variance method. A numerical ESS
+cannot prove that an undiscovered mode was explored.</p>
+<h4 id="worked-two-state-example-the-same-number-of-states-can-carry-different-information">Worked two-state example: the same number of states can carry different information<a class="headerlink" href="#worked-two-state-example-the-same-number-of-states-can-carry-different-information" title="Permanent link">¤</a></h4>
+<p>Return to <span class="arithmatex">\(K_\varepsilon\)</span> and encode its two states by
+<span class="arithmatex">\(Y_t\in\{-1,+1\}\)</span>. At stationarity, this centered observable has
+<span class="arithmatex">\(\gamma_0=1\)</span> and lag correlation</p>
+<div class="arithmatex">\[
+\rho_k=(2\varepsilon-1)^k.
+\]</div>
+<p>When <span class="arithmatex">\(\varepsilon=3/4\)</span>, the eigenvalue is <span class="arithmatex">\(1/2\)</span> and the geometric series gives</p>
+<div class="arithmatex">\[
+\tau_{\mathrm{int}}
+=1+2\sum_{k=1}^{\infty}\left(\frac12\right)^k=3.
+\]</div>
+<p>Thus a path of 900 states carries the same asymptotic variance for the mean of
+<span class="arithmatex">\(Y_t\)</span> as about 300 iid draws. The chain tends to repeat its current state, so
+adjacent observations are redundant. With <span class="arithmatex">\(\varepsilon=1/4\)</span>, the eigenvalue is
+<span class="arithmatex">\(-1/2\)</span>, <span class="arithmatex">\(\tau_{\mathrm{int}}=1/3\)</span>, and the same variance-equivalence convention
+gives <span class="arithmatex">\(N_{\mathrm{eff}}=2700\)</span>. Alternation cancels noise in this particular
+mean. Neither number says how well an unrelated nonlinear observable mixes,
+and neither detects a separate mode that the two-state example does not contain.</p>
+<p>The operator view of discrete and continuous processes continues in <a href="../general-markov-generators/#1-semigroups-generators-and-forward-equations">General
+Markov Generators</a>.
+State-space sequences, where observations and latent states arrive through
+time, continue in <a href="../filtering-and-smoothing-state-space/#6-particles-learning-validation-and-method-choice">Filtering, Smoothing, and State-Space
+Inference</a>.</p>
+<h2 id="3-metropolishastings">3. Metropolis–Hastings<a class="headerlink" href="#3-metropolishastings" title="Permanent link">¤</a></h2>
+<p>Suppose only an unnormalized target <span class="arithmatex">\(\widetilde\pi(x)\)</span> is evaluable. From the
+current state <span class="arithmatex">\(x\)</span>, propose <span class="arithmatex">\(x'\sim q(x'\mid x)\)</span> and accept with</p>
+<div class="arithmatex">\[
+\alpha(x,x')=\min\left(
+1,
+\frac{\tilde\pi(x')q(x\mid x')}{\tilde\pi(x)q(x'\mid x)}
+\right).
+\]</div>
+<p>If the proposal is rejected, retain <span class="arithmatex">\(x\)</span>. The target normalizer cancels, which is
+why MH is useful for posterior and energy-based targets. The proposal density
+does <strong>not</strong> cancel unless it is symmetric.</p>
+<p>The acceptance probability follows from detailed balance. For <span class="arithmatex">\(x\ne x'\)</span>, accepted proposal flow is</p>
+<div class="arithmatex">\[
+\pi(x)q(x'\mid x)\min\left(1,
+\frac{\pi(x')q(x\mid x')}{\pi(x)q(x'\mid x)}\right),
+\]</div>
+<p>which equals the corresponding reverse flow because both reduce to the minimum of the two directional proposal masses. Rejections supply the remaining self-transition probability.</p>
+<p>Acceptance is only one part of validity. The ratio must be defined wherever a
+move can occur, and the resulting chain must be able to reach every
+target-relevant region. It is unnecessarily strong to demand
+<span class="arithmatex">\(q(x'\mid x)&gt;0\)</span> for every pair of target states: a local random walk can reach a
+distant state through several steps. The correct question is whether the
+<strong>multi-step transition graph</strong> is irreducible with respect to the target's
+support, together with the recurrence and regularity conditions required by
+the claimed convergence theorem.</p>
+<p>Acceptance rate is meaningful here, but a high rate can indicate tiny moves
+and poor mixing; a low rate can indicate overly aggressive proposals.
+Autocorrelation, ESS, multiple-chain agreement, and task observables are also
+needed. The familiar random-walk target near <span class="arithmatex">\(0.234\)</span> is an asymptotic result for
+particular high-dimensional product-like limits, not a universal tuning law.</p>
+<h3 id="proposal-families-answer-different-geometric-problems">Proposal families answer different geometric problems<a class="headerlink" href="#proposal-families-answer-different-geometric-problems" title="Permanent link">¤</a></h3>
+<div class="md-typeset__table book-table-container"><table id="tbl-sampling-and-continuous-time-proposal-families-answer-different-geometric-problems"><caption class="book-object-caption"><span class="book-object-number">Table SAMP.4.</span> Proposal families answer different geometric problems</caption>
+<thead>
+<tr>
+<th>Proposal</th>
+<th>Construction</th>
+<th>Useful when</th>
+<th>Characteristic failure</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>random walk</td>
+<td><span class="arithmatex">\(x'=x+\epsilon\)</span></td>
+<td>local geometry is smooth and similarly scaled</td>
+<td>dimension, anisotropy, and separated modes force small moves</td>
+</tr>
+<tr>
+<td>independence</td>
+<td><span class="arithmatex">\(x'\sim q\)</span> without using <span class="arithmatex">\(x\)</span></td>
+<td><span class="arithmatex">\(q\)</span> covers the target, including its tails</td>
+<td>sticky states when <span class="arithmatex">\(\widetilde\pi/q\)</span> is large</td>
+</tr>
+<tr>
+<td>local gradient</td>
+<td>Langevin or related informed proposal</td>
+<td>a differentiable log target gives useful local direction</td>
+<td>finite-step bias without correction; curvature and multimodality remain</td>
+</tr>
+<tr>
+<td>transport proposal</td>
+<td>propose in coordinates learned to simplify the target</td>
+<td>a fitted map captures dependence or modes</td>
+<td>training error can leave poor overlap; a correction is still required for exactness</td>
+</tr>
+<tr>
+<td>discrete informed move</td>
+<td>bias a local categorical or combinatorial proposal using target differences</td>
+<td>neighboring states have evaluable energy changes</td>
+<td>local neighborhoods can retain exponential bottlenecks</td>
+</tr>
+<tr>
+<td>transdimensional move</td>
+<td>jointly propose a model index and dimension-matching variables</td>
+<td>the number of components or structural objects is unknown</td>
+<td>low acceptance from poorly matched cross-model proposals</td>
+</tr>
+</tbody>
+</table></div>
+<p>A mixture of proposals can be irreducible even when no component is. Likewise,
+composing invariant kernels—such as a local update followed by a global
+independence proposal—preserves invariance. Random mixtures and ordered
+compositions need their own kernel argument; it is not necessary for each
+component to solve the whole exploration problem.</p>
+<h3 id="adaptation-must-preserve-an-asymptotic-contract">Adaptation must preserve an asymptotic contract<a class="headerlink" href="#adaptation-must-preserve-an-asymptotic-contract" title="Permanent link">¤</a></h3>
+<p>Learning a covariance or proposal scale from the chain history can greatly
+improve performance, but the state process is then generally not a homogeneous
+Markov chain by itself. A vague instruction to “adapt less over time” is not a
+theorem. Classical adaptive-MCMC results use explicit conditions such as
+<strong>diminishing adaptation</strong>, where consecutive kernels become close, together
+with a stability condition such as <strong>containment</strong>. An alternative practical
+contract is to adapt during warmup, freeze the kernel, and diagnose only the
+fixed-kernel sampling phase.</p>
+<p>Never update a proposal using future retained states or report fixed-kernel
+diagnostics as if they automatically applied to an indefinitely adapting
+algorithm. State which parameters adapt, over what iterations, and under which
+validity result.</p>
+<h3 id="exact-correction-can-use-a-random-likelihood-estimate">Exact correction can use a random likelihood estimate<a class="headerlink" href="#exact-correction-can-use-a-random-likelihood-estimate" title="Permanent link">¤</a></h3>
+<p>Sometimes <span class="arithmatex">\(\widetilde\pi(x)\)</span> contains an intractable likelihood but admits a
+nonnegative unbiased estimate <span class="arithmatex">\(\widehat L(x,U)\)</span> with auxiliary randomness <span class="arithmatex">\(U\)</span>.
+Pseudo-marginal MH runs an ordinary MH algorithm on the augmented state
+<span class="arithmatex">\((x,U)\)</span>, targeting a joint density proportional to</p>
+<div class="arithmatex">\[
+p(x)\,m(u\mid x)\widehat L(x,u).
+\]</div>
+<p>Its <span class="arithmatex">\(x\)</span>-marginal is the desired target because integrating over <span class="arithmatex">\(u\)</span> returns the
+exact likelihood. Replacing the likelihood by a fresh noisy estimate inside an
+otherwise ordinary ratio is not automatically equivalent: the auxiliary
+randomness must be part of the state and proposal. Nonnegativity and
+unbiasedness establish the marginal identity; estimator variance controls
+practical stickiness.</p>
+<p>Delayed-acceptance schemes use a cheap approximation to reject bad proposals
+before an expensive exact second stage. The two acceptance stages must be
+derived jointly so that their product preserves the target. “A surrogate was
+only used for screening” is not sufficient without that correction.</p>
+<div class="admonition failure">
+<p class="admonition-title">A learned proposal is not a learned target</p>
+<p>A flow, diffusion, autoregressive model, or variational approximation can
+propose states. Before correction, its outputs follow the proposal law.
+Importance weights or a valid MH transition can correct target mismatch
+under their support assumptions; training the proposer well does not make
+the correction optional.</p>
+</div>
+<h2 id="4-gibbs-blocks-and-auxiliary-variables">4. Gibbs, Blocks, and Auxiliary Variables<a class="headerlink" href="#4-gibbs-blocks-and-auxiliary-variables" title="Permanent link">¤</a></h2>
+<p>Metropolis–Hastings proposes and corrects a move. Gibbs sampling uses a
+conditional distribution that is already compatible with the joint target.
+For <span class="arithmatex">\(x=(x_1,\ldots,x_d)\)</span>, a single-coordinate Gibbs update draws</p>
+<div class="arithmatex">\[
+x_j'\sim\pi(x_j\mid x_{-j})
+\]</div>
+<p>and keeps <span class="arithmatex">\(x_{-j}\)</span> fixed. Viewed as MH on coordinate <span class="arithmatex">\(j\)</span>, the target and
+proposal terms cancel, so the acceptance probability is one. That algebra
+proves invariance of the coordinate update; it says nothing about how far the
+draw moves or how quickly a sequence of coordinate updates explores the joint
+law.</p>
+<h3 id="scan-order-and-parallelism-are-parts-of-the-kernel">Scan order and parallelism are parts of the kernel<a class="headerlink" href="#scan-order-and-parallelism-are-parts-of-the-kernel" title="Permanent link">¤</a></h3>
+<ul>
+<li><strong>Systematic scan</strong> applies coordinate kernels in a declared order. Their
+  composition is invariant, although it need not be reversible.</li>
+<li><strong>Random scan</strong> chooses a coordinate or block at random and applies its
+  invariant update.</li>
+<li><strong>Blocked Gibbs</strong> draws a group jointly from its full conditional. A good
+  block can cross strong within-group dependence that defeats scalar updates.</li>
+<li><strong>Metropolis-within-Gibbs</strong> replaces an unavailable conditional draw by an MH
+  kernel that leaves that conditional invariant.</li>
+<li><strong>Parallel Gibbs</strong> is valid only for conditionally independent coordinates or
+  for another explicitly derived parallel kernel. Simultaneously drawing
+  dependent coordinates from stale conditionals generally changes the target.</li>
+</ul>
+<p>Blocking trades statistical movement against computation. One exact joint
+conditional can be expensive; many cheap scalar updates can be highly
+autocorrelated. The relevant comparison is ESS or MCSE per wall-clock and per
+target/gradient evaluation for declared observables, not acceptance per update.</p>
+<h3 id="worked-example-a-bivariate-gaussian-exposes-scalar-gibbs-slowdown">Worked example: a bivariate Gaussian exposes scalar Gibbs slowdown<a class="headerlink" href="#worked-example-a-bivariate-gaussian-exposes-scalar-gibbs-slowdown" title="Permanent link">¤</a></h3>
+<p>Let</p>
+<div class="arithmatex">\[
+\begin{bmatrix}X\\Y\end{bmatrix}
+\sim\mathcal N\!\left(
+\begin{bmatrix}0\\0\end{bmatrix},
+\begin{bmatrix}1&amp;\rho\\\rho&amp;1\end{bmatrix}
+\right),\qquad |\rho|&lt;1.
+\]</div>
+<p>The full conditionals are</p>
+<div class="arithmatex">\[
+X\mid Y=y\sim\mathcal N(\rho y,1-\rho^2),
+\qquad
+Y\mid X=x\sim\mathcal N(\rho x,1-\rho^2).
+\]</div>
+<p>One systematic sweep first draws <span class="arithmatex">\(X_{t+1}\)</span> from <span class="arithmatex">\(Y_t\)</span> and then <span class="arithmatex">\(Y_{t+1}\)</span> from
+<span class="arithmatex">\(X_{t+1}\)</span>. Substitution gives</p>
+<div class="arithmatex">\[
+Y_{t+1}=\rho^2Y_t+\rho\sqrt{1-\rho^2}\,\epsilon_{1,t}
++\sqrt{1-\rho^2}\,\epsilon_{2,t},
+\]</div>
+<p>with independent standard-normal noises. Thus the sweep-to-sweep lag-one
+correlation of <span class="arithmatex">\(Y\)</span> is <span class="arithmatex">\(\rho^2\)</span>. It approaches one when <span class="arithmatex">\(|\rho|\)</span> approaches one,
+even though every conditional draw is accepted. Drawing <span class="arithmatex">\((X,Y)\)</span> jointly is an
+exact blocked update and produces an independent target draw in this toy case.
+Real models rarely offer that ideal block, but the example shows what blocking
+is trying to approximate.</p>
+<h3 id="collapsing-and-raoblackwellization-remove-different-randomness">Collapsing and Rao–Blackwellization remove different randomness<a class="headerlink" href="#collapsing-and-raoblackwellization-remove-different-randomness" title="Permanent link">¤</a></h3>
+<p>If a variable can be integrated out analytically, a <strong>collapsed sampler</strong> runs
+on the marginal target and reconstructs the removed variable conditionally when
+needed. This can reduce posterior dependence and dimension, as in collapsed LDA
+or mixture-model assignment updates. It can also make each update more global
+and expensive, destroy conditional independences, or complicate parallelism.
+Collapsing is therefore not universally faster.</p>
+<p>Rao–Blackwellization instead improves an estimator by replacing sampled
+randomness with a conditional expectation. A chain may remain unchanged while
+the reported query has lower variance. Keep transition design and estimator
+design separate.</p>
+<h3 id="augmentation-can-make-a-hard-marginal-easy">Augmentation can make a hard marginal easy<a class="headerlink" href="#augmentation-can-make-a-hard-marginal-easy" title="Permanent link">¤</a></h3>
+<p>Introduce an auxiliary variable <span class="arithmatex">\(U\)</span> and a joint law <span class="arithmatex">\(\overline\pi(x,u)\)</span> whose
+<span class="arithmatex">\(x\)</span>-marginal is <span class="arithmatex">\(\pi(x)\)</span>. Alternating conditionals in the augmented space can
+be easier than updating <span class="arithmatex">\(x\)</span> directly. Data augmentation, latent indicators,
+Polya–Gamma variables, momentum in HMC, and cluster labels in spin models all
+follow this pattern. The added variable does not change the desired marginal,
+but it can improve or worsen the augmented chain's geometry.</p>
+<p>For <strong>slice sampling</strong>, write an unnormalized nonnegative target as the marginal
+of</p>
+<div class="arithmatex">\[
+\overline\pi(x,u)\propto
+\mathbf 1\{0&lt;u&lt;\widetilde\pi(x)\}.
+\]</div>
+<p>Given <span class="arithmatex">\(x\)</span>, sample <span class="arithmatex">\(u\)</span> uniformly below <span class="arithmatex">\(\widetilde\pi(x)\)</span>; given <span class="arithmatex">\(u\)</span>, sample <span class="arithmatex">\(x\)</span>
+from the horizontal slice <span class="arithmatex">\(S_u=\{x:\widetilde\pi(x)&gt;u\}\)</span>. One-dimensional
+stepping-out and shrinkage are implementation strategies for finding and
+sampling a slice, not the definition of multivariate slice sampling. In several
+dimensions one may update directions, coordinates, ellipses, or other blocks;
+there is no rule requiring one auxiliary height per coordinate.</p>
+<p>Cluster algorithms such as Swendsen–Wang augment certain lattice models with
+random bonds, then update whole connected components. They can reduce critical
+slowing in important regimes, but “cluster update” does not imply rapid mixing
+for every graph, temperature, or model.</p>
+<p>Applied instances continue in <a href="../classical-generative-models/">RBMs and LDA</a>,
+<a href="../bayesian-nonparametric-models-explained/#5-posterior-computation-without-infinity-theater">Bayesian nonparametric partitions</a>,
+and <a href="../filtering-and-smoothing-state-space/#6-particles-learning-validation-and-method-choice">blocked state trajectories</a>.</p>
+<h2 id="markov-kernel-retrieval-practice">Markov-kernel retrieval practice<a class="headerlink" href="#markov-kernel-retrieval-practice" title="Permanent link">¤</a></h2>
+<details class="question">
+<summary>Retrieval practice: stationarity, MH, and Gibbs</summary>
+<ol>
+<li>Can a chain have a unique stationary distribution and still fail to converge from every start?</li>
+<li>Which ratio makes a Metropolis–Hastings proposal invariant to the target?</li>
+<li>Why is high acceptance not sufficient evidence of fast mixing?</li>
+<li>How do collapsing and Rao–Blackwellization remove different randomness?</li>
+</ol>
+<p><strong>Solutions.</strong> (1) Yes; periodicity can prevent convergence, as in a deterministic two-state alternation. (2) The target-times-reverse-proposal divided by current-target-times-forward-proposal, clipped at one. (3) Tiny local moves can be accepted almost always while crossing global bottlenecks extremely slowly. (4) Collapsing integrates variables out of the transition state; Rao–Blackwellization conditions/averages an estimator over sampled auxiliary randomness.</p>
+</details>
+<h2 id="markov-kernel-synthesis">Markov-kernel synthesis<a class="headerlink" href="#markov-kernel-synthesis" title="Permanent link">¤</a></h2>
+<p>An invariant kernel preserves a target, while convergence also requires access,
+recurrence, and aperiodicity conditions appropriate to the state space.
+Metropolis correction, blocking, collapsing, and augmentation create different
+kernels. Their value is measured through mixing and query-specific Monte Carlo
+error, not acceptance rate alone.</p>
+<hr/>
+<p><strong>Continue:</strong> <a href="../sampling-03-gradient-hamiltonian/">3. Gradient, Hamiltonian, and Structure-Changing MCMC</a> · <a href="../sampling-and-continuous-time/">Continuous view</a></p>
+</article>
+</div>
+<script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  Back to top
+</button>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+<div class="md-social">
+<a class="md-social__link" href="https://github.com/avitai/artifex" rel="noopener" target="_blank" title="github.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</a>
+<a class="md-social__link" href="https://pypi.org/project/avitai-artifex/" rel="noopener" target="_blank" title="pypi.org">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-66.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.3v101.8c0 29 25.2 46 53.4 54.3 33.8 9.9 66.3 11.7 106.8 0 26.9-7.8 53.4-23.5 53.4-54.3v-40.7H226.2v-13.6h160.2c31.1 0 42.6-21.7 53.4-54.2 11.2-33.5 10.7-65.7 0-108.6M286.2 444.7a20.4 20.4 0 1 1 0-40.7 20.4 20.4 0 1 1 0 40.7M167.8 248.1h106.8c29.7 0 53.4-24.5 53.4-54.3V91.9c0-29-24.4-50.7-53.4-55.6-35.8-5.9-74.7-5.6-106.8.1-45.2 8-53.4 24.7-53.4 55.6v40.7h106.9v13.6h-147c-31.1 0-58.3 18.7-66.8 54.2-9.8 40.7-10.2 66.1 0 108.6 7.6 31.6 25.7 54.2 56.8 54.2H101v-48.8c0-35.3 30.5-66.4 66.8-66.4m-6.6-183.4a20.4 20.4 0 1 1 0 40.8 20.4 20.4 0 1 1 0-40.8"></path></svg>
+</a>
+<a class="md-social__link" href="https://twitter.com/mahdi_shafiei" rel="noopener" target="_blank" title="twitter.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M459.4 151.7c.3 4.5.3 9.1.3 13.6 0 138.7-105.6 298.6-298.6 298.6-59.5 0-114.7-17.2-161.1-47.1 8.4 1 16.6 1.3 25.3 1.3 49.1 0 94.2-16.6 130.3-44.8-46.1-1-84.8-31.2-98.1-72.8 6.5 1 13 1.6 19.8 1.6 9.4 0 18.8-1.3 27.6-3.6-48.1-9.7-84.1-52-84.1-103v-1.3c14 7.8 30.2 12.7 47.4 13.3-28.3-18.8-46.8-51-46.8-87.4 0-19.5 5.2-37.4 14.3-53C87.4 130.8 165 172.4 252.1 176.9c-1.6-7.8-2.6-15.9-2.6-24C249.5 95.1 296.3 48 354.4 48c30.2 0 57.5 12.7 76.7 33.1 23.7-4.5 46.5-13.3 66.6-25.3-7.8 24.4-24.4 44.8-46.1 57.8 21.1-2.3 41.6-8.1 60.4-16.2-14.3 20.8-32.2 39.3-52.6 54.3"></path></svg>
+</a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.path", "navigation.top", "navigation.prune", "toc.follow", "search.highlight", "search.share", "search.suggest", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "content.mermaid"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+<script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+<script src="../../../javascripts/reading-layout.js"></script>
+</body>
+</html>

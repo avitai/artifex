@@ -1,0 +1,1524 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="This chapter defines deterministic flow maps, stochastic transition kernels, composition laws, large-step error, and the four incompatible meanings of “one" name="description"/>
+<meta content="Mahdi Shafiei" name="author"/>
+<link href="https://docs.avitai.bio/artifex/user-guide/concepts/few-step-01-foundations/" rel="canonical"/>
+<link href="../general-markov-generators/" rel="prev"/>
+<link href="../few-step-02-consistency/" rel="next"/>
+<link href="../../../assets/images/favicon.png" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.7.7" name="generator"/>
+<title>Few-Step Generation 1 — Finite Transitions - Artifex</title>
+<link href="../../../assets/stylesheets/main.ec1eaa64.min.css" rel="stylesheet"/>
+<link href="../../../assets/stylesheets/palette.ab4e12ef.min.css" rel="stylesheet"/>
+<script src="../../../assets/vendor/iframe-worker/index.js"></script>
+<link href="../../../assets/_mkdocstrings.css" rel="stylesheet"/>
+<link href="../../../_static/extra.css" rel="stylesheet"/>
+<script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+<meta content="article" property="og:type"/>
+<meta content="The Artifex Generative Models Book" property="og:site_name"/>
+<meta content="Few-Step Generation 1 — Finite Transitions" property="og:title"/>
+<meta content="This chapter defines deterministic flow maps, stochastic transition kernels, composition laws, large-step error, and the four incompatible meanings of “one" property="og:description"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/few-step-01-foundations/" property="og:url"/>
+<meta content="2026-07-21" property="article:modified_time"/>
+<meta content="summary" name="twitter:card"/>
+<meta content="Few-Step Generation 1 — Finite Transitions" name="twitter:title"/>
+<meta content="This chapter defines deterministic flow maps, stochastic transition kernels, composition laws, large-step error, and the four incompatible meanings of “one" name="twitter:description"/>
+<meta content="Generative models, Machine learning, Probabilistic modeling, research, specialization, canonical_chapter, few-step-foundations, practitioner, researcher" name="keywords"/>
+<meta content="Few-Step Generation 1 — Finite Transitions" name="citation_title"/>
+<meta content="Mahdi Shafiei" name="citation_author"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/few-step-01-foundations/" name="citation_public_url"/>
+<meta content="en" name="citation_language"/>
+<meta content="Few-Step Generation 1 — Finite Transitions" name="DC.title"/>
+<meta content="Mahdi Shafiei" name="DC.creator"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/few-step-01-foundations/" name="DC.identifier"/>
+<meta content="Text.LearningResource" name="DC.type"/>
+<meta content="2026-07-21" name="DCTERMS.modified"/>
+<meta content="https://github.com/avitai/artifex/blob/main/LICENSE" name="DCTERMS.license"/>
+<meta content="research" name="DCTERMS.educationLevel"/>
+<meta content="practitioner, researcher" name="DCTERMS.audience"/>
+<link href="https://github.com/avitai/artifex/blob/main/LICENSE" rel="license"/>
+<script id="artifex-book-metadata" type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Chapter",
+  "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/few-step-01-foundations/",
+  "url": "https://docs.avitai.bio/artifex/user-guide/concepts/few-step-01-foundations/",
+  "name": "Few-Step Generation 1 \u2014 Finite Transitions",
+  "description": "This chapter defines deterministic flow maps, stochastic transition kernels, composition laws, large-step error, and the four incompatible meanings of \u201cone",
+  "identifier": "few-step-foundations",
+  "inLanguage": "en",
+  "isAccessibleForFree": true,
+  "learningResourceType": "Canonical chapter",
+  "educationalLevel": "research",
+  "educationalUse": "specialization",
+  "audience": [
+    
+      {"@type": "EducationalAudience", "audienceType": "practitioner"},
+    
+      {"@type": "EducationalAudience", "audienceType": "researcher"}
+    
+  ],
+  "dateModified": "2026-07-21",
+  "keywords": ["Generative models", "Machine learning", "Probabilistic modeling", "research", "specialization", "canonical_chapter", "few-step-foundations", "practitioner", "researcher"],
+  "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+  "author": [
+    
+      {"@type": "Person", "name": "Mahdi Shafiei"}
+    
+  ],
+  "isPartOf": {
+    "@type": "Book",
+    "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/#book",
+    "url": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/",
+    "name": "The Artifex Generative Models Book",
+    "bookEdition": "Living Web Edition",
+    "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+    "author": [
+      
+        {"@type": "Person", "name": "Mahdi Shafiei"}
+      
+    ]
+  }
+}
+</script>
+<link href="../../../assets/vendor/katex/katex.min.css" id="artifex-katex-stylesheet" integrity="sha384-UA8juhPf75SzzAMA/4fo3yOU7sBJ0om7SCD2GHq0fZqZco6tr1UCV7nUbk9J90JM" rel="stylesheet"/>
+<script defer="" integrity="sha384-T/0lMUdJpd2S1ZHtRiofG3htU3xPCrFVeAQ1UUE2TJwlEJSV5NUwn30kP28n238E" src="../../../assets/vendor/mermaid/mermaid.min.js"></script>
+<script defer="" src="../../../assets/vendor/katex/katex-shadow.js"></script>
+<script defer="" src="../../../javascripts/mermaid-math.js"></script>
+<script defer="" src="../../../javascripts/mathjax.js"></script>
+<script defer="" integrity="sha384-OrHfGTnIbkl0do3N76qW/uWr38o91N05sbSPuYBPLH+hG8X/dNSrjZf3AGjzrCwC" src="../../../assets/vendor/mathjax/tex-mml-chtml.js"></script>
+</head>
+<body data-md-color-accent="amber" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#few-step-generation-1-finite-transitions">
+          Skip to content
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header md-header--shadow" data-md-component="header">
+<nav aria-label="Header" class="md-header__inner md-grid">
+<a aria-label="Artifex" class="md-header__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            Artifex
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+            
+              Few-Step Generation 1 — Finite Transitions
+            
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-label="Switch to dark mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: light)" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_1" hidden="" title="Switch to dark mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+<input aria-label="Switch to light mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-primary="indigo" data-md-color-scheme="slate" id="__palette_1" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_0" hidden="" title="Switch to light mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+</form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div aria-label="Search" class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Search" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="Search" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="Search" class="md-search__options">
+<a aria-label="Share" class="md-search__icon md-icon" data-clipboard="" data-clipboard-text="" data-md-component="search-share" href="javascript:void(0)" tabindex="-1" title="Share">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"></path></svg>
+</a>
+<button aria-label="Clear" class="md-search__icon md-icon" tabindex="-1" title="Clear" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            Initializing search
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Navigation" class="md-nav md-nav--primary" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="Artifex" class="md-nav__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+    Artifex
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../..">
+<span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../getting-started/installation/">
+<span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Generative Models Book
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Generative Models Book
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    
+  
+    Start Here — The Landscape
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../first-course-01-generative-systems/">
+<span class="md-ellipsis">
+    
+  
+    First Course — New to Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../probability-01-objects/">
+<span class="md-ellipsis">
+    
+  
+    Foundations
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../autoregressive-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Model Families
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_5" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_5" id="__nav_3_5_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Connections and Compositions
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_5_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_5">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Connections and Compositions
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gradients-01-taxonomy/">
+<span class="md-ellipsis">
+    
+  
+    Gradients and Geometry in Generative Modeling
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../density-latent-energy-01-objects/">
+<span class="md-ellipsis">
+    
+  
+    Density, Latent, Energy, and Score
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../probability-paths-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Probability Paths and Stochastic Transport
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../general-markov-01-operators/">
+<span class="md-ellipsis">
+    
+  
+    General Markov Generators
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_5_5" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_5_5" id="__nav_3_5_5_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Transitions and Few-Step Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_5_5_label" class="md-nav" data-md-level="3">
+<label class="md-nav__title" for="__nav_3_5_5">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Transitions and Few-Step Generation
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
+    
+  
+    1. Finite Transitions
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
+<span class="md-ellipsis">
+    
+  
+    1. Finite Transitions
+  
+
+    
+  </span>
+</a>
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#1-from-infinitesimal-dynamics-to-finite-transitions">
+<span class="md-ellipsis">
+      
+        1. From Infinitesimal Dynamics to Finite Transitions
+      
+    </span>
+</a>
+<nav aria-label="1. From Infinitesimal Dynamics to Finite Transitions" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-1-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 1 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#five-distinct-finite-objects">
+<span class="md-ellipsis">
+      
+        Five distinct finite objects
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#why-euler-one-step-collapses">
+<span class="md-ellipsis">
+      
+        Why Euler one-step collapses
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-stability-counterexample-valid-flow-invalid-coarse-step">
+<span class="md-ellipsis">
+      
+        Worked stability counterexample: valid flow, invalid coarse step
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-branching-counterexample-the-conditional-mean-is-not-a-sample">
+<span class="md-ellipsis">
+      
+        Worked branching counterexample: the conditional mean is not a sample
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#four-meanings-of-one-step">
+<span class="md-ellipsis">
+      
+        Four meanings of “one step”
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#four-acceleration-axes-and-one-systems-overlay">
+<span class="md-ellipsis">
+      
+        Four acceleration axes and one systems overlay
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#error-ledger-for-a-finite-generator">
+<span class="md-ellipsis">
+      
+        Error ledger for a finite generator
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-linear-system">
+<span class="md-ellipsis">
+      
+        Worked linear system
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#misconception-checks-finite-transitions">
+<span class="md-ellipsis">
+      
+        Misconception checks: finite transitions
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#independent-practice-and-assessment-map-finite-transitions">
+<span class="md-ellipsis">
+      
+        Independent practice and assessment map: finite transitions
+      
+    </span>
+</a>
+<nav aria-label="Independent practice and assessment map: finite transitions" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#feedback-contract-finite-transitions">
+<span class="md-ellipsis">
+      
+        Feedback contract: finite transitions
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#outcome-to-task-alignment-finite-transitions">
+<span class="md-ellipsis">
+      
+        Outcome-to-task alignment: finite transitions
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-1-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 1 synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../few-step-02-consistency/">
+<span class="md-ellipsis">
+    
+  
+    2. Consistency and Flow Maps
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../few-step-03-meanflow/">
+<span class="md-ellipsis">
+    
+  
+    3. MeanFlow and Shortcuts
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../few-step-04-transition/">
+<span class="md-ellipsis">
+    
+  
+    4. Transition Matching and Continuous AR
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../few-step-05-distillation/">
+<span class="md-ellipsis">
+    
+  
+    5. Distillation Families
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../few-step-06-practice/">
+<span class="md-ellipsis">
+    
+  
+    6. Evaluation and Research
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../transitions-and-few-step-generation/">
+<span class="md-ellipsis">
+    
+  
+    Continuous View (All Chapters)
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../geometric-01-symmetry/">
+<span class="md-ellipsis">
+    
+  
+    Geometric and Equivariant Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../representations-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Representations and Multimodal Systems
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../steering-01-targets/">
+<span class="md-ellipsis">
+    
+  
+    Conditioning, Steering, Constraints, and Selection
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../world-models-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    World Models and Causal Simulators
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../landscape-01-copulas/">
+<span class="md-ellipsis">
+    
+  
+    Extended Generative Landscape
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../normalization-01-queries/">
+<span class="md-ellipsis">
+    
+  
+    Research Practice
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../models/vae-guide/">
+<span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/core/base/">
+<span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../examples/overview/">
+<span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../zoo/">
+<span class="md-ellipsis">
+    
+  
+    Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../training/overview/">
+<span class="md-ellipsis">
+    
+  
+    Training
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../data/overview/">
+<span class="md-ellipsis">
+    
+  
+    Data &amp; Modalities
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../inference/overview/">
+<span class="md-ellipsis">
+    
+  
+    Inference &amp; Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../benchmarks/">
+<span class="md-ellipsis">
+    
+  
+    Evaluation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../guides/extensions/">
+<span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../extensions/">
+<span class="md-ellipsis">
+    
+  
+    Advanced Topics
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../cli/">
+<span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../community/contributing/">
+<span class="md-ellipsis">
+    
+  
+    Community
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/configs/protein-extension/">
+<span class="md-ellipsis">
+    
+  
+    Reference Library
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#1-from-infinitesimal-dynamics-to-finite-transitions">
+<span class="md-ellipsis">
+      
+        1. From Infinitesimal Dynamics to Finite Transitions
+      
+    </span>
+</a>
+<nav aria-label="1. From Infinitesimal Dynamics to Finite Transitions" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-1-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 1 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#five-distinct-finite-objects">
+<span class="md-ellipsis">
+      
+        Five distinct finite objects
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#why-euler-one-step-collapses">
+<span class="md-ellipsis">
+      
+        Why Euler one-step collapses
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-stability-counterexample-valid-flow-invalid-coarse-step">
+<span class="md-ellipsis">
+      
+        Worked stability counterexample: valid flow, invalid coarse step
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-branching-counterexample-the-conditional-mean-is-not-a-sample">
+<span class="md-ellipsis">
+      
+        Worked branching counterexample: the conditional mean is not a sample
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#four-meanings-of-one-step">
+<span class="md-ellipsis">
+      
+        Four meanings of “one step”
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#four-acceleration-axes-and-one-systems-overlay">
+<span class="md-ellipsis">
+      
+        Four acceleration axes and one systems overlay
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#error-ledger-for-a-finite-generator">
+<span class="md-ellipsis">
+      
+        Error ledger for a finite generator
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-linear-system">
+<span class="md-ellipsis">
+      
+        Worked linear system
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#misconception-checks-finite-transitions">
+<span class="md-ellipsis">
+      
+        Misconception checks: finite transitions
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#independent-practice-and-assessment-map-finite-transitions">
+<span class="md-ellipsis">
+      
+        Independent practice and assessment map: finite transitions
+      
+    </span>
+</a>
+<nav aria-label="Independent practice and assessment map: finite transitions" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#feedback-contract-finite-transitions">
+<span class="md-ellipsis">
+      
+        Feedback contract: finite transitions
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#outcome-to-task-alignment-finite-transitions">
+<span class="md-ellipsis">
+      
+        Outcome-to-task alignment: finite transitions
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-1-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 1 synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<nav aria-label="Breadcrumb" class="md-path">
+<ol class="md-path__list">
+<li class="md-path__item">
+<a class="md-path__link" href="../../..">
+<span class="md-ellipsis">
+    Home
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    Generative Models Book
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../gradients-01-taxonomy/">
+<span class="md-ellipsis">
+    Connections and Compositions
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="./">
+<span class="md-ellipsis">
+    Transitions and Few-Step Generation
+  </span>
+</a>
+</li>
+</ol>
+</nav>
+<article class="md-content__inner md-typeset">
+<h1 id="few-step-generation-1-finite-transitions">Few-Step Generation 1 — Finite Transitions<a class="headerlink" href="#few-step-generation-1-finite-transitions" title="Permanent link">¤</a></h1><aside aria-label="Learning path" class="admonition abstract artifex-learning-path"><p class="admonition-title">Learning path</p><p><strong>Required knowledge</strong></p><ul class="artifex-learning-path__links" data-learning-path-role="required"><li><a href="../general-markov-generators/">General Markov Generators for Generative Modeling</a></li></ul><p><strong>Readiness check:</strong> can you explain the central object and reproduce one worked example from each required chapter? If not, follow its link before continuing.</p><p><strong>Newly unlocked in the default route</strong></p><ul class="artifex-learning-path__links" data-learning-path-role="unlocks"><li><a href="../few-step-02-consistency/">Few-Step Generation 2 — Consistency and Flow Maps</a></li></ul></aside>
+<p>This chapter defines deterministic flow maps, stochastic transition kernels, composition laws, large-step error, and the four incompatible meanings of “one step.” Read it continuously in the <a href="../transitions-and-few-step-generation/#1-from-infinitesimal-dynamics-to-finite-transitions">complete guide</a>.</p>
+<h2 id="1-from-infinitesimal-dynamics-to-finite-transitions">1. From Infinitesimal Dynamics to Finite Transitions<a class="headerlink" href="#1-from-infinitesimal-dynamics-to-finite-transitions" title="Permanent link">¤</a></h2>
+<h3 id="chapter-1-prerequisites-and-learning-objectives">Chapter 1 prerequisites and learning objectives<a class="headerlink" href="#chapter-1-prerequisites-and-learning-objectives" title="Permanent link">¤</a></h3>
+<p>This chapter assumes elementary ODEs, Markov kernels, and iterative generative
+sampling. By the end, you should be able to:</p>
+<ol>
+<li><strong>O1 — Type the learned object:</strong> distinguish an infinitesimal field, exact
+   propagator, deterministic flow map, stochastic kernel, and finite program.</li>
+<li><strong>O2 — Apply composition laws:</strong> compose deterministic maps and Markov
+   kernels with one explicit time convention.</li>
+<li><strong>O3 — Falsify a coarse solver claim:</strong> compare exact and Euler updates for
+   stability, sign, and global error.</li>
+<li><strong>O4 — Diagnose hidden branching:</strong> construct a conditional transition that
+   a deterministic conditional mean cannot represent.</li>
+<li><strong>O5 — Audit the compute unit:</strong> separate outer steps, network stages,
+   guidance branches, internal-head calls, and end-to-end latency.</li>
+<li><strong>O6 — Allocate error:</strong> distinguish reference-dynamics, finite-object,
+   estimation, composition, numerical, and systems error in a new method.</li>
+</ol>
+<figure class="book-figure" id="fig-transitions-and-few-step-generation-chapter-1-prerequisites-and-learning-objectives"><pre class="mermaid"><code>%%{init: {'themeCSS': '.nodeLabel p { color: #111827 !important; } .flowchart-link { stroke: #78879a !important; stroke-width: 2px !important; } marker path { fill: #78879a !important; stroke: #78879a !important; }'}}%%
+flowchart TB
+    accTitle: The word step can refer to different mathematical and computational objects
+    accDescr: Local dynamics induce an exact finite propagator. A learned map or kernel approximates that propagator. A finite inference program composes learned calls and numerical operations. The deployed system adds guidance codecs and hardware costs, so none of these layers can be inferred from the word step alone.
+    G[Infinitesimal dynamics] --&gt;|integrate or exponentiate| P[Exact finite propagator]
+    P --&gt;|approximate through learning| M[Learned map or kernel]
+    M --&gt;|compose and sample| A[Finite inference program]
+    A --&gt;|add guidance codec and runtime| S[Deployed system]</code></pre><figcaption class="book-object-caption"><span class="book-object-number">Figure FEW.2.</span> The word step can refer to different mathematical and computational objects</figcaption></figure>
+<p>Let an ODE have flow map</p>
+<div class="arithmatex">\[
+\Phi_{t\to s}(x_t)=x_s,
+\qquad
+\frac{dx_t}{dt}=v_t(x_t).
+\]</div>
+<p>For <span class="arithmatex">\(r\le s\le t\)</span>, exact maps satisfy</p>
+<div class="arithmatex">\[
+\Phi_{t\to r}
+=\Phi_{s\to r}\circ\Phi_{t\to s},
+\qquad
+\Phi_{t\to t}=I.
+\]</div>
+<p>Under uniqueness they are invertible with <span class="arithmatex">\(\Phi_{s\to t}=\Phi_{t\to s}^{-1}\)</span>. A network that approximates a finite map need not satisfy identity, composition, or invertibility without explicit construction or training.</p>
+<p>For a Markov process, a transition kernel replaces the deterministic map:</p>
+<div class="arithmatex">\[
+K_{t\to r}(x_t,dx_r).
+\]</div>
+<p>Chapman–Kolmogorov gives</p>
+<div class="arithmatex">\[
+K_{t\to r}=K_{s\to r}K_{t\to s}.
+\]</div>
+<p>Deterministic maps are Dirac kernels. Stochastic kernels can represent multiple possible destinations from one current state, which matters when a coarse transition hides unresolved latent choices.</p>
+<p>For time-inhomogeneous dynamics, write the propagator as <span class="arithmatex">\(\Phi_{s,t}\)</span> with
+<strong>source time first</strong>:</p>
+<div class="arithmatex">\[
+x_t=\Phi_{s,t}(x_s),\qquad
+\Phi_{s,t}=\Phi_{u,t}\circ\Phi_{s,u},\qquad s\leq u\leq t.
+\]</div>
+<p>The corresponding kernel convention is</p>
+<div class="arithmatex">\[
+(K_{s,u}K_{u,t})(x,A)
+=\int K_{u,t}(y,A)K_{s,u}(x,dy)
+=K_{s,t}(x,A).
+\]</div>
+<p>This book sometimes generates from a high noise time back toward data time. In
+that direction the indices decrease, but the rule is unchanged: the rightmost
+map acts first. Writing source and destination on every finite object prevents a
+large class of sign and composition errors.</p>
+<h3 id="five-distinct-finite-objects">Five distinct finite objects<a class="headerlink" href="#five-distinct-finite-objects" title="Permanent link">¤</a></h3>
+<div class="md-typeset__table book-table-container"><table id="tbl-transitions-and-few-step-generation-five-distinct-finite-objects"><caption class="book-object-caption"><span class="book-object-number">Table FEW.3.</span> Five distinct finite objects</caption>
+<thead>
+<tr>
+<th>Object</th>
+<th>Typical notation</th>
+<th style="text-align: right;">Deterministic?</th>
+<th>What it answers</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>exact ODE flow</td>
+<td><span class="arithmatex">\(\Phi_{s,t}(x)\)</span></td>
+<td style="text-align: right;">yes under uniqueness</td>
+<td>where this state moves under the declared field</td>
+</tr>
+<tr>
+<td>Markov transition</td>
+<td><span class="arithmatex">\(K_{s,t}(x,dy)\)</span></td>
+<td style="text-align: right;">not necessarily</td>
+<td>the conditional law at a later time</td>
+</tr>
+<tr>
+<td>endpoint predictor</td>
+<td><span class="arithmatex">\(f(x_t,t)\)</span></td>
+<td style="text-align: right;">usually</td>
+<td>a clean endpoint estimate from this state</td>
+</tr>
+<tr>
+<td>learned two-time map</td>
+<td><span class="arithmatex">\(F_\theta(x_s,s,t)\)</span></td>
+<td style="text-align: right;">usually</td>
+<td>an approximate jump between requested times</td>
+</tr>
+<tr>
+<td>inference program</td>
+<td><span class="arithmatex">\(\widehat K^{(m)}_{0,1}\)</span></td>
+<td style="text-align: right;">possibly</td>
+<td>the law produced after all <span class="arithmatex">\(m\)</span> deployed operations</td>
+</tr>
+</tbody>
+</table></div>
+<p>Equality of endpoints for one initial distribution does not identify the
+transition kernel. Equality of transition kernels on all states and time pairs
+is stronger; equality of a finite implementation additionally fixes random
+number generation, schedules, precision, and auxiliary operations.</p>
+<h3 id="why-euler-one-step-collapses">Why Euler one-step collapses<a class="headerlink" href="#why-euler-one-step-collapses" title="Permanent link">¤</a></h3>
+<p>Euler applied over a large interval uses</p>
+<div class="arithmatex">\[
+x_0\approx x_1-v_1(x_1).
+\]</div>
+<p>The local velocity is not generally the integrated displacement. If several conditional paths cross at <span class="arithmatex">\(x_1\)</span>, a regression velocity is their average. A single large Euler jump can move toward a conditional mean rather than follow any valid trajectory.</p>
+<p>There are two independent failures here. <strong>Numerical failure</strong> occurs when a
+local field is evaluated over an interval outside the solver's accuracy or
+stability region. <strong>Representation failure</strong> occurs when the desired coarse
+conditional law is not a Dirac mass but the model outputs only one vector.</p>
+<h3 id="worked-stability-counterexample-valid-flow-invalid-coarse-step">Worked stability counterexample: valid flow, invalid coarse step<a class="headerlink" href="#worked-stability-counterexample-valid-flow-invalid-coarse-step" title="Permanent link">¤</a></h3>
+<p>For the stable scalar ODE <span class="arithmatex">\(\dot x=-4x\)</span> over one unit of time,</p>
+<div class="arithmatex">\[
+\Phi_{0,1}(x)=e^{-4}x\approx0.0183x,
+\qquad
+x_1^{\mathrm{Euler}}=(1-4)x=-3x.
+\]</div>
+<p>The exact solution preserves sign and contracts magnitude. One Euler step
+reverses sign and triples magnitude. The learned vector field can be exact while
+the one-step solver is catastrophically wrong. Four Euler steps with <span class="arithmatex">\(h=1/4\)</span>
+collapse immediately to zero; eight steps give <span class="arithmatex">\((1/2)^8x=0.00390625x\)</span>. More
+steps do not create monotone accuracy unless the method and step size lie in a
+useful regime.</p>
+<h3 id="worked-branching-counterexample-the-conditional-mean-is-not-a-sample">Worked branching counterexample: the conditional mean is not a sample<a class="headerlink" href="#worked-branching-counterexample-the-conditional-mean-is-not-a-sample" title="Permanent link">¤</a></h3>
+<p>Let a hidden variable <span class="arithmatex">\(Z\in\{-1,+1\}\)</span> be equally likely. Suppose a coarse state
+forgets <span class="arithmatex">\(Z\)</span> and is always <span class="arithmatex">\(X_s=0\)</span>, while the endpoint is <span class="arithmatex">\(X_t=Z\)</span>. Then</p>
+<div class="arithmatex">\[
+K_{s,t}(0,\cdot)=\tfrac12\delta_{-1}+\tfrac12\delta_{+1},
+\qquad
+\mathbb E[X_t\mid X_s=0]=0.
+\]</div>
+<p>A squared-error deterministic predictor returns zero, a point outside the
+support of the correct conditional endpoint law. Initial-noise diversity does
+not repair this conditional query because the current state has already erased
+the branch. A stochastic head, retained latent state, or finer transition is
+needed.</p>
+<h3 id="four-meanings-of-one-step">Four meanings of “one step”<a class="headerlink" href="#four-meanings-of-one-step" title="Permanent link">¤</a></h3>
+<ol>
+<li><strong>One solver step:</strong> possibly several network stages, as in Runge–Kutta.</li>
+<li><strong>One NFE:</strong> one evaluation of the principal neural network.</li>
+<li><strong>One outer transition:</strong> may contain an internal stochastic head or repeated substeps.</li>
+<li><strong>One direct map:</strong> one network maps base noise to an output.</li>
+</ol>
+<p>Guidance may require conditional and unconditional evaluations; self-conditioning, rejection, or decoding adds cost. Every speed claim must state NFE, wall time, batch, precision, hardware, and auxiliary models.</p>
+<p>An NFE is itself ambiguous unless the counted network is named. A Heun step can
+use two evaluations of one backbone; classifier-free guidance can use two
+logical branches fused into one launch; a transition head can perform several
+cheap internal evaluations after one expensive backbone call. Report both
+logical work and realized execution.</p>
+<h3 id="four-acceleration-axes-and-one-systems-overlay">Four acceleration axes and one systems overlay<a class="headerlink" href="#four-acceleration-axes-and-one-systems-overlay" title="Permanent link">¤</a></h3>
+<p>A smaller step count can result from four different interventions:</p>
+<ol>
+<li><strong>Numerical solver or schedule:</strong> retain a learned local field but change where and how it is evaluated.</li>
+<li><strong>Learned finite transition:</strong> replace repeated local evaluations with a trained endpoint map, average velocity, student, or stochastic kernel.</li>
+<li><strong>State representation:</strong> generate in a compressed or structured state and pay for a codec, renderer, or cascade.</li>
+<li><strong>Training target or path:</strong> change the field, parameterization, weighting, interpolation, or endpoint objective that is learned.</li>
+</ol>
+<p>Architecture, kernels, caching, quantisation, batching, and hardware are a <strong>systems overlay</strong> that changes the cost of each evaluation. These axes can be combined, but they answer different questions. A solver comparison can hold the checkpoint fixed; a distilled map, latent generator, or newly trained path usually cannot.</p>
+<p>For outer transition <span class="arithmatex">\(i\)</span>, let <span class="arithmatex">\(m_i\)</span> be its backbone stages, <span class="arithmatex">\(b_{ij}\)</span> its logical guidance branches, and <span class="arithmatex">\(\ell_{ij}\)</span> its launched calls after branch fusion. Then</p>
+<div class="arithmatex">\[
+E_{\mathrm{branch}}=\sum_{i,j}b_{ij},
+\qquad
+L_{\mathrm{backbone}}=\sum_{i,j}\ell_{ij}.
+\]</div>
+<p>Neither count includes an internal transition head, codec, cascade, reward model, rejection loop, or reranker unless those are reported separately. A fair record therefore includes outer transitions, branch-equivalent evaluations, actual launches, head and auxiliary calls, tensor shapes, peak memory, end-to-end latency, and—when the model changed—training or distillation cost.</p>
+<p>The <a href="../diffusion-explained/#worked-counterexample-eight-reported-steps-can-be-faster-than-four">diffusion sampling chapter</a> gives an explicit counterexample: a hypothetical eight-step system fuses two guidance branches into eight launches and finishes in 116 ms, while a four-step, two-stage system executes the branches serially in sixteen launches and finishes in 180 ms. Both perform sixteen branch-equivalent evaluations. The example does not rank their quality; it proves that the reported outer-step count alone does not order latency.</p>
+<h3 id="error-ledger-for-a-finite-generator">Error ledger for a finite generator<a class="headerlink" href="#error-ledger-for-a-finite-generator" title="Permanent link">¤</a></h3>
+<p>For a metric or discrepancy <span class="arithmatex">\(d\)</span>, a useful decomposition is conceptual rather
+than universally additive:</p>
+<div class="arithmatex">\[
+E_{\mathrm{total}}
+\leadsto
+E_{\mathrm{reference}}
++E_{\mathrm{representation}}
++E_{\mathrm{estimation}}
++E_{\mathrm{composition}}
++E_{\mathrm{numerical}}
++E_{\mathrm{systems}}.
+\]</div>
+<ul>
+<li><span class="arithmatex">\(E_{\mathrm{reference}}\)</span> asks whether the chosen path or teacher ends at the
+  intended distribution.</li>
+<li><span class="arithmatex">\(E_{\mathrm{representation}}\)</span> asks whether the model class can express the
+  required finite map or kernel.</li>
+<li><span class="arithmatex">\(E_{\mathrm{estimation}}\)</span> covers finite data, stochastic optimization, and
+  imperfect auxiliary targets.</li>
+<li><span class="arithmatex">\(E_{\mathrm{composition}}\)</span> measures how learned local errors propagate across
+  repeated transitions.</li>
+<li><span class="arithmatex">\(E_{\mathrm{numerical}}\)</span> covers a solver or internal sampler.</li>
+<li><span class="arithmatex">\(E_{\mathrm{systems}}\)</span> covers finite precision, codecs, guidance plumbing,
+  rejection, and implementation drift.</li>
+</ul>
+<p>Do not add unlike quantities numerically without a theorem. The ledger is a
+causal debugging partition: change one layer at a time and use exact small
+systems to isolate it.</p>
+<h3 id="worked-linear-system">Worked linear system<a class="headerlink" href="#worked-linear-system" title="Permanent link">¤</a></h3>
+<p>For <span class="arithmatex">\(dx/dt=ax\)</span>, the exact map over interval <span class="arithmatex">\(h\)</span> is <span class="arithmatex">\(e^{ah}x\)</span>. Euler gives <span class="arithmatex">\((1+ah)x\)</span>. The local error is <span class="arithmatex">\(O(h^2)\)</span> and compounds over steps. Learning <span class="arithmatex">\(e^{ah}\)</span> directly can be exact for this system, but the learned map must cover every <span class="arithmatex">\(h\)</span> and state encountered.</p>
+<details class="question">
+<summary>Retrieval practice: generators and finite transitions</summary>
+<ol>
+<li>How are a generator <span class="arithmatex">\(L_t\)</span> and a finite transition <span class="arithmatex">\(P_{s,t}\)</span> related?</li>
+<li>Why does a large Euler step generally fail to equal the exact one-step map?</li>
+<li>Name four distinct claims that may be hidden by the phrase “one step.”</li>
+<li>Which error term remains even if the learned finite map is exact but implemented approximately?</li>
+</ol>
+<p><strong>Solutions.</strong> (1) The transition is the time-ordered evolution induced by integrating or exponentiating the generator, not the generator itself. (2) Euler retains only a local first-order approximation and accumulates curvature and stability error over a large interval. (3) One numerical solver step, one learned transition, one network evaluation, or one visible system call. (4) Implementation or numerical realization error, including precision, decoding, and system overhead.</p>
+</details>
+<h3 id="misconception-checks-finite-transitions">Misconception checks: finite transitions<a class="headerlink" href="#misconception-checks-finite-transitions" title="Permanent link">¤</a></h3>
+<ul>
+<li><strong>“An exact field plus one evaluation gives an exact endpoint.”</strong> Only special
+  fields and integrators have that property.</li>
+<li><strong>“A deterministic global map cannot generate a multimodal marginal.”</strong> It
+  can, because its initial noise varies; the limitation concerns a multimodal
+  conditional law after information has been discarded.</li>
+<li><strong>“A Markov kernel is a matrix.”</strong> A matrix is the finite-state case; kernels
+  also act on continuous, structured, and mixed state spaces.</li>
+<li><strong>“Fewer outer transitions means less compute.”</strong> Internal heads, guidance,
+  model size, codecs, and hardware can reverse the ordering.</li>
+</ul>
+<h3 id="independent-practice-and-assessment-map-finite-transitions">Independent practice and assessment map: finite transitions<a class="headerlink" href="#independent-practice-and-assessment-map-finite-transitions" title="Permanent link">¤</a></h3>
+<p>Attempt the prediction before calculating. Label every answer as a dynamics,
+finite-object, program, or deployed-system claim.</p>
+<ol>
+<li><strong>P1.1 — Predict before computing: coarse Euler stability.</strong> <em>Type: predict · Difficulty: foundation · Typical time: 8 min.</em> For <span class="arithmatex">\(\dot x=-4x\)</span>, predict the sign of one Euler update with <span class="arithmatex">\(h=1\)</span> and of the exact update, then compute their multipliers.</li>
+<li><strong>P1.2 — Compose an affine flow.</strong> <em>Type: derive · Difficulty: core · Typical time: 12 min.</em> For <span class="arithmatex">\(\dot x=ax+b\)</span>, derive <span class="arithmatex">\(\Phi_{s,t}\)</span> for <span class="arithmatex">\(a\ne0\)</span> and verify <span class="arithmatex">\(\Phi_{s,t}=\Phi_{u,t}\circ\Phi_{s,u}\)</span>.</li>
+<li><strong>P1.3 — Diagnose a collapsed branch.</strong> <em>Type: diagnose · Difficulty: core · Typical time: 10 min.</em> For the hidden-sign example, compute the squared-error-optimal deterministic endpoint and its total-variation distance from the true conditional law.</li>
+<li><strong>P1.4 — Reconcile four compute counts.</strong> <em>Type: evaluate · Difficulty: core · Typical time: 12 min.</em> A sampler uses four outer transitions, two Runge--Kutta stages per transition, two guidance branches fused per stage, and one decoder. Report outer transitions, branch-equivalent backbone evaluations, launched backbone calls, and auxiliary calls.</li>
+<li><strong>P1.5 — Allocate a failed experiment.</strong> <em>Type: explain · Difficulty: stretch · Typical time: 15 min.</em> A student matches analytic training targets but degrades only after repeated fp16 composition. Assign the strongest supported error categories and propose two isolation tests.</li>
+<li><strong>P1.6 — Transfer to discrete generation.</strong> <em>Type: transfer · Difficulty: stretch · Typical time: 18 min.</em> For a masked-token model, define the finite conditional kernel, the meaning of an outer step and an NFE, and one example in which parallel unmasking discards dependence that sequential refinement could retain.</li>
+</ol>
+<h4 id="feedback-contract-finite-transitions">Feedback contract: finite transitions<a class="headerlink" href="#feedback-contract-finite-transitions" title="Permanent link">¤</a></h4>
+<div class="md-typeset__table book-table-container"><table id="tbl-transitions-and-few-step-generation-feedback-contract-finite-transitions-1"><caption class="book-object-caption"><span class="book-object-number">Table FEW.4.</span> Feedback contract: finite transitions — table 1</caption>
+<thead>
+<tr>
+<th>Task</th>
+<th>Evidence of success</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>P1.1</td>
+<td>Exact and Euler multipliers are <span class="arithmatex">\(e^{-4}&gt;0\)</span> and <span class="arithmatex">\(-3&lt;0\)</span>; the conclusion is about a finite solver, not field validity.</td>
+</tr>
+<tr>
+<td>P1.2</td>
+<td>The affine map, identity limit, and composition algebra are all correct under one time convention.</td>
+</tr>
+<tr>
+<td>P1.3</td>
+<td>The regression output is zero and its Dirac law is singular with respect to the two-atom conditional target, giving TV one.</td>
+</tr>
+<tr>
+<td>P1.4</td>
+<td>Counts distinguish four outer transitions, sixteen branch-equivalent evaluations, eight fused launches, and one decoder call.</td>
+</tr>
+<tr>
+<td>P1.5</td>
+<td>Representation/training error is not blamed without evidence; precision and composition are isolated by fp32 and one-step controls.</td>
+</tr>
+<tr>
+<td>P1.6</td>
+<td>State, conditioning information, randomness, schedule, and cost unit are explicit, and the dependence-loss example is concrete.</td>
+</tr>
+</tbody>
+</table></div>
+<details class="tip">
+<summary>Graduated hints for P1</summary>
+<div class="md-typeset__table book-table-container"><table id="tbl-transitions-and-few-step-generation-feedback-contract-finite-transitions-2"><caption class="book-object-caption"><span class="book-object-number">Table FEW.5.</span> Feedback contract: finite transitions — table 2</caption>
+<thead>
+<tr>
+<th>Task</th>
+<th>Hint 1 — Direction</th>
+<th>Hint 2 — Setup</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>P1.1</td>
+<td>Euler uses <span class="arithmatex">\(1+h\lambda\)</span>.</td>
+<td>Compare <span class="arithmatex">\(1-4\)</span> with <span class="arithmatex">\(e^{-4}\)</span>.</td>
+</tr>
+<tr>
+<td>P1.2</td>
+<td>Shift by the equilibrium <span class="arithmatex">\(-b/a\)</span>.</td>
+<td><span class="arithmatex">\(\Phi_{s,t}(x)=e^{a(t-s)}x+\frac ba(e^{a(t-s)}-1)\)</span>.</td>
+</tr>
+<tr>
+<td>P1.3</td>
+<td>A point mass at zero gives no mass to either correct atom.</td>
+<td>Use <span class="arithmatex">\(\operatorname{TV}(P,Q)=\sup_A\lvert P(A)-Q(A)\rvert\)</span> with <span class="arithmatex">\(A=\{-1,+1\}\)</span>.</td>
+</tr>
+<tr>
+<td>P1.4</td>
+<td>Logical guidance branches and launches differ because of fusion.</td>
+<td>Multiply outer steps by stages first; then count branches and launches separately.</td>
+</tr>
+<tr>
+<td>P1.5</td>
+<td>Re-run the same learned map without changing its weights or targets.</td>
+<td>Compare one versus repeated composition and fp16 versus fp32/fp64.</td>
+</tr>
+<tr>
+<td>P1.6</td>
+<td>A simultaneous update can condition all sites on the same stale mask pattern.</td>
+<td>Contrast it with updating one site and conditioning later sites on the revealed value.</td>
+</tr>
+</tbody>
+</table></div>
+</details>
+<h4 id="outcome-to-task-alignment-finite-transitions">Outcome-to-task alignment: finite transitions<a class="headerlink" href="#outcome-to-task-alignment-finite-transitions" title="Permanent link">¤</a></h4>
+<div class="md-typeset__table book-table-container"><table id="tbl-transitions-and-few-step-generation-outcome-to-task-alignment-finite-transitions"><caption class="book-object-caption"><span class="book-object-number">Table FEW.6.</span> Outcome-to-task alignment: finite transitions</caption>
+<thead>
+<tr>
+<th>Learning objective</th>
+<th>Independently assessed by</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>O1 — Type the learned object</td>
+<td>P1.2, P1.3, P1.6</td>
+</tr>
+<tr>
+<td>O2 — Apply composition laws</td>
+<td>P1.2</td>
+</tr>
+<tr>
+<td>O3 — Falsify a coarse solver claim</td>
+<td>P1.1</td>
+</tr>
+<tr>
+<td>O4 — Diagnose hidden branching</td>
+<td>P1.3, P1.6</td>
+</tr>
+<tr>
+<td>O5 — Audit the compute unit</td>
+<td>P1.4, P1.6</td>
+</tr>
+<tr>
+<td>O6 — Allocate error</td>
+<td>P1.5</td>
+</tr>
+</tbody>
+</table></div>
+<details class="success">
+<summary>Complete solutions to P1</summary>
+<ol>
+<li><strong>P1.1.</strong> Euler multiplies by <span class="arithmatex">\(1-4=-3\)</span>, so it reverses sign. The exact flow multiplies by <span class="arithmatex">\(e^{-4}\approx0.0183156\)</span>, so it preserves sign and contracts. <strong>Check.</strong> The failure is caused by the finite step; the vector field itself is exact and stable.</li>
+<li><strong>P1.2.</strong> Solving the shifted system gives <span class="arithmatex">\(\Phi_{s,t}(x)=e^{a(t-s)}x+\frac ba(e^{a(t-s)}-1)\)</span>. Substituting <span class="arithmatex">\(\Phi_{s,u}\)</span> into <span class="arithmatex">\(\Phi_{u,t}\)</span> makes the exponential factors multiply and the two constant terms combine to <span class="arithmatex">\(\frac ba(e^{a(t-s)}-1)\)</span>. At <span class="arithmatex">\(s=t\)</span> the map is identity. <strong>Check.</strong> With <span class="arithmatex">\(b=0\)</span> it reduces to the linear example.</li>
+<li><strong>P1.3.</strong> Squared loss returns the conditional mean zero. The model law is <span class="arithmatex">\(\delta_0\)</span> and the target is <span class="arithmatex">\((\delta_{-1}+\delta_{+1})/2\)</span>. Taking <span class="arithmatex">\(A=\{-1,+1\}\)</span> yields <span class="arithmatex">\(|1-0|=1\)</span>, the maximum possible TV distance. <strong>Check.</strong> Zero regression loss relative to the conditional mean is not distribution matching.</li>
+<li><strong>P1.4.</strong> There are four outer transitions. Two stages and two logical branches give <span class="arithmatex">\(4\cdot2\cdot2=16\)</span> branch-equivalent evaluations. Fusion launches one batch per stage, so there are <span class="arithmatex">\(4\cdot2=8\)</span> backbone launches, plus one auxiliary decoder call. <strong>Check.</strong> A timing comparison still needs tensor shapes, precision, batch, and hardware.</li>
+<li><strong>P1.5.</strong> Analytic-target agreement weakens an estimation explanation. Failure only under repeated fp16 use implicates composition and finite-precision systems error. Compare one versus many compositions at the same precision, then repeat fp16/fp32/fp64 with identical states. An exact high-precision reference separates numerical drift from map approximation. <strong>Rubric.</strong> Claiming that training data are inadequate without a changed-data control is unsupported.</li>
+<li><strong>P1.6.</strong> Let <span class="arithmatex">\(K_k(x,dy)\)</span> be the conditional distribution of the next partially unmasked sequence given the current sequence and condition. One outer step applies one scheduled parallel refinement; one NFE evaluates the named denoiser once. If two masked tokens must agree, simultaneous independent predictions from the all-mask state can disagree, while revealing the first and conditioning the second on it can preserve equality. <strong>Check.</strong> A coupled stochastic parallel kernel could also preserve dependence; “parallel” alone is not the theorem.</li>
+</ol>
+</details>
+<h3 id="chapter-1-synthesis">Chapter 1 synthesis<a class="headerlink" href="#chapter-1-synthesis" title="Permanent link">¤</a></h3>
+<p>Finite maps and kernels obey composition laws that infinitesimal fields satisfy only after integration. Few-step learning moves numerical integration error into approximation, self-consistency, or distillation error. Chapter 2 develops consistency and two-time map objectives.</p>
+<hr/>
+<p><strong>Continue:</strong> <a href="../few-step-02-consistency/">2. Consistency and Flow Maps</a> · <a href="../transitions-and-few-step-generation/">Complete guide</a></p>
+</article>
+</div>
+<script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  Back to top
+</button>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+<div class="md-social">
+<a class="md-social__link" href="https://github.com/avitai/artifex" rel="noopener" target="_blank" title="github.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</a>
+<a class="md-social__link" href="https://pypi.org/project/avitai-artifex/" rel="noopener" target="_blank" title="pypi.org">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-66.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.3v101.8c0 29 25.2 46 53.4 54.3 33.8 9.9 66.3 11.7 106.8 0 26.9-7.8 53.4-23.5 53.4-54.3v-40.7H226.2v-13.6h160.2c31.1 0 42.6-21.7 53.4-54.2 11.2-33.5 10.7-65.7 0-108.6M286.2 444.7a20.4 20.4 0 1 1 0-40.7 20.4 20.4 0 1 1 0 40.7M167.8 248.1h106.8c29.7 0 53.4-24.5 53.4-54.3V91.9c0-29-24.4-50.7-53.4-55.6-35.8-5.9-74.7-5.6-106.8.1-45.2 8-53.4 24.7-53.4 55.6v40.7h106.9v13.6h-147c-31.1 0-58.3 18.7-66.8 54.2-9.8 40.7-10.2 66.1 0 108.6 7.6 31.6 25.7 54.2 56.8 54.2H101v-48.8c0-35.3 30.5-66.4 66.8-66.4m-6.6-183.4a20.4 20.4 0 1 1 0 40.8 20.4 20.4 0 1 1 0-40.8"></path></svg>
+</a>
+<a class="md-social__link" href="https://twitter.com/mahdi_shafiei" rel="noopener" target="_blank" title="twitter.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M459.4 151.7c.3 4.5.3 9.1.3 13.6 0 138.7-105.6 298.6-298.6 298.6-59.5 0-114.7-17.2-161.1-47.1 8.4 1 16.6 1.3 25.3 1.3 49.1 0 94.2-16.6 130.3-44.8-46.1-1-84.8-31.2-98.1-72.8 6.5 1 13 1.6 19.8 1.6 9.4 0 18.8-1.3 27.6-3.6-48.1-9.7-84.1-52-84.1-103v-1.3c14 7.8 30.2 12.7 47.4 13.3-28.3-18.8-46.8-51-46.8-87.4 0-19.5 5.2-37.4 14.3-53C87.4 130.8 165 172.4 252.1 176.9c-1.6-7.8-2.6-15.9-2.6-24C249.5 95.1 296.3 48 354.4 48c30.2 0 57.5 12.7 76.7 33.1 23.7-4.5 46.5-13.3 66.6-25.3-7.8 24.4-24.4 44.8-46.1 57.8 21.1-2.3 41.6-8.1 60.4-16.2-14.3 20.8-32.2 39.3-52.6 54.3"></path></svg>
+</a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.path", "navigation.top", "navigation.prune", "toc.follow", "search.highlight", "search.share", "search.suggest", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "content.mermaid"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+<script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+<script src="../../../javascripts/reading-layout.js"></script>
+</body>
+</html>

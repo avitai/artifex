@@ -1,0 +1,3474 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="A state-space generator defines a law over a latent trajectory and its observations. Filtering, smoothing, forecasting, path sampling, and parameter learning" name="description"/>
+<meta content="Mahdi Shafiei" name="author"/>
+<link href="https://docs.avitai.bio/artifex/user-guide/concepts/filtering-and-smoothing-state-space/" rel="canonical"/>
+<link href="../filtering-06-practice-research/" rel="prev"/>
+<link href="../sampling-01-monte-carlo/" rel="next"/>
+<link href="../../../assets/images/favicon.png" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.7.7" name="generator"/>
+<title>Filtering and Smoothing for State-Space Generators - Artifex</title>
+<link href="../../../assets/stylesheets/main.ec1eaa64.min.css" rel="stylesheet"/>
+<link href="../../../assets/stylesheets/palette.ab4e12ef.min.css" rel="stylesheet"/>
+<script src="../../../assets/vendor/iframe-worker/index.js"></script>
+<link href="../../../assets/_mkdocstrings.css" rel="stylesheet"/>
+<link href="../../../_static/extra.css" rel="stylesheet"/>
+<script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+<meta content="article" property="og:type"/>
+<meta content="The Artifex Generative Models Book" property="og:site_name"/>
+<meta content="Filtering and Smoothing for State-Space Generators" property="og:title"/>
+<meta content="A state-space generator defines a law over a latent trajectory and its observations. Filtering, smoothing, forecasting, path sampling, and parameter learning" property="og:description"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/filtering-and-smoothing-state-space/" property="og:url"/>
+<meta content="2026-07-15" property="article:modified_time"/>
+<meta content="summary" name="twitter:card"/>
+<meta content="Filtering and Smoothing for State-Space Generators" name="twitter:title"/>
+<meta content="A state-space generator defines a law over a latent trajectory and its observations. Filtering, smoothing, forecasting, path sampling, and parameter learning" name="twitter:description"/>
+<meta content="Generative models, Machine learning, Probabilistic modeling, advanced, reference, continuous_view, filtering-smoothing-state-space, practitioner, researcher" name="keywords"/>
+<meta content="Filtering and Smoothing for State-Space Generators" name="citation_title"/>
+<meta content="Mahdi Shafiei" name="citation_author"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/filtering-and-smoothing-state-space/" name="citation_public_url"/>
+<meta content="en" name="citation_language"/>
+<meta content="Filtering and Smoothing for State-Space Generators" name="DC.title"/>
+<meta content="Mahdi Shafiei" name="DC.creator"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/filtering-and-smoothing-state-space/" name="DC.identifier"/>
+<meta content="Text.LearningResource" name="DC.type"/>
+<meta content="2026-07-15" name="DCTERMS.modified"/>
+<meta content="https://github.com/avitai/artifex/blob/main/LICENSE" name="DCTERMS.license"/>
+<meta content="advanced" name="DCTERMS.educationLevel"/>
+<meta content="practitioner, researcher" name="DCTERMS.audience"/>
+<link href="https://github.com/avitai/artifex/blob/main/LICENSE" rel="license"/>
+<script id="artifex-book-metadata" type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Chapter",
+  "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/filtering-and-smoothing-state-space/",
+  "url": "https://docs.avitai.bio/artifex/user-guide/concepts/filtering-and-smoothing-state-space/",
+  "name": "Filtering and Smoothing for State-Space Generators",
+  "description": "A state-space generator defines a law over a latent trajectory and its observations. Filtering, smoothing, forecasting, path sampling, and parameter learning",
+  "identifier": "filtering-smoothing-state-space",
+  "inLanguage": "en",
+  "isAccessibleForFree": true,
+  "learningResourceType": "Continuous volume",
+  "educationalLevel": "advanced",
+  "educationalUse": "reference",
+  "audience": [
+    
+      {"@type": "EducationalAudience", "audienceType": "practitioner"},
+    
+      {"@type": "EducationalAudience", "audienceType": "researcher"}
+    
+  ],
+  "dateModified": "2026-07-15",
+  "keywords": ["Generative models", "Machine learning", "Probabilistic modeling", "advanced", "reference", "continuous_view", "filtering-smoothing-state-space", "practitioner", "researcher"],
+  "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+  "author": [
+    
+      {"@type": "Person", "name": "Mahdi Shafiei"}
+    
+  ],
+  "isPartOf": {
+    "@type": "Book",
+    "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/#book",
+    "url": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/",
+    "name": "The Artifex Generative Models Book",
+    "bookEdition": "Living Web Edition",
+    "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+    "author": [
+      
+        {"@type": "Person", "name": "Mahdi Shafiei"}
+      
+    ]
+  }
+}
+</script>
+<link href="../../../assets/vendor/katex/katex.min.css" id="artifex-katex-stylesheet" integrity="sha384-UA8juhPf75SzzAMA/4fo3yOU7sBJ0om7SCD2GHq0fZqZco6tr1UCV7nUbk9J90JM" rel="stylesheet"/>
+<script defer="" integrity="sha384-T/0lMUdJpd2S1ZHtRiofG3htU3xPCrFVeAQ1UUE2TJwlEJSV5NUwn30kP28n238E" src="../../../assets/vendor/mermaid/mermaid.min.js"></script>
+<script defer="" src="../../../assets/vendor/katex/katex-shadow.js"></script>
+<script defer="" src="../../../javascripts/mermaid-math.js"></script>
+<script defer="" src="../../../javascripts/mathjax.js"></script>
+<script defer="" integrity="sha384-OrHfGTnIbkl0do3N76qW/uWr38o91N05sbSPuYBPLH+hG8X/dNSrjZf3AGjzrCwC" src="../../../assets/vendor/mathjax/tex-mml-chtml.js"></script>
+<meta content="noindex,follow" name="robots"/>
+</head>
+<body data-md-color-accent="amber" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#filtering-and-smoothing-for-state-space-generators">
+          Skip to content
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header md-header--shadow" data-md-component="header">
+<nav aria-label="Header" class="md-header__inner md-grid">
+<a aria-label="Artifex" class="md-header__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            Artifex
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+            
+              Filtering and Smoothing for State-Space Generators
+            
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-label="Switch to dark mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: light)" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_1" hidden="" title="Switch to dark mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+<input aria-label="Switch to light mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-primary="indigo" data-md-color-scheme="slate" id="__palette_1" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_0" hidden="" title="Switch to light mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+</form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div aria-label="Search" class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Search" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="Search" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="Search" class="md-search__options">
+<a aria-label="Share" class="md-search__icon md-icon" data-clipboard="" data-clipboard-text="" data-md-component="search-share" href="javascript:void(0)" tabindex="-1" title="Share">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"></path></svg>
+</a>
+<button aria-label="Clear" class="md-search__icon md-icon" tabindex="-1" title="Clear" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            Initializing search
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Navigation" class="md-nav md-nav--primary" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="Artifex" class="md-nav__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+    Artifex
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../..">
+<span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../getting-started/installation/">
+<span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Generative Models Book
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Generative Models Book
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    
+  
+    Start Here — The Landscape
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../first-course-01-generative-systems/">
+<span class="md-ellipsis">
+    
+  
+    First Course — New to Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Foundations
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_3_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Foundations
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../probability-01-objects/">
+<span class="md-ellipsis">
+    
+  
+    1. Probability and Generative Modeling
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../classical-01-latent-foundations/">
+<span class="md-ellipsis">
+    
+  
+    2. Classical Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../bayesian-learning-01-object/">
+<span class="md-ellipsis">
+    
+  
+    3. Bayesian Learning and Model Assessment
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../inference-01-objects-and-queries/">
+<span class="md-ellipsis">
+    
+  
+    4. Latent Variables and Inference
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../objectives-01-discrepancies/">
+<span class="md-ellipsis">
+    
+  
+    5. Objectives and Statistical Distances
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../information-coding-01-measures/">
+<span class="md-ellipsis">
+    
+  
+    6. Information, Coding, and Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../graphical-models-01-directed/">
+<span class="md-ellipsis">
+    
+  
+    7. Graphical Models and Structured Probability
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../message-passing-01-factor-graphs/">
+<span class="md-ellipsis">
+    
+  
+    8. Graphical Inference and Message Passing
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_3_9" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_3_9" id="__nav_3_3_9_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    9. Filtering and Smoothing for State-Space Generators
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_3_9_label" class="md-nav" data-md-level="3">
+<label class="md-nav__title" for="__nav_3_3_9">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    9. Filtering and Smoothing for State-Space Generators
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../filtering-01-bayes-recursions/">
+<span class="md-ellipsis">
+    
+  
+    1. Bayesian Recursions and Information Sets
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../filtering-02-kalman/">
+<span class="md-ellipsis">
+    
+  
+    2. Linear-Gaussian Filtering
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../filtering-03-smoothing/">
+<span class="md-ellipsis">
+    
+  
+    3. Smoothing, Sampling, and Information Forms
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../filtering-04-nonlinear-gaussian/">
+<span class="md-ellipsis">
+    
+  
+    4. Nonlinear Gaussian Approximations
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../filtering-05-projection-ensemble/">
+<span class="md-ellipsis">
+    
+  
+    5. Projection, Mixture, Ensemble, and Robust Filters
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../filtering-06-practice-research/">
+<span class="md-ellipsis">
+    
+  
+    6. Particles, Learning, Validation, and Method Choice
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
+    
+  
+    Continuous View (All Chapters)
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
+<span class="md-ellipsis">
+    
+  
+    Continuous View (All Chapters)
+  
+
+    
+  </span>
+</a>
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#reader-orientation">
+<span class="md-ellipsis">
+      
+        Reader orientation
+      
+    </span>
+</a>
+<nav aria-label="Reader orientation" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-map">
+<span class="md-ellipsis">
+      
+        Chapter map
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#prerequisite-refresh">
+<span class="md-ellipsis">
+      
+        Prerequisite refresh
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#1-bayesian-recursions-and-information-sets">
+<span class="md-ellipsis">
+      
+        1. Bayesian Recursions and Information Sets
+      
+    </span>
+</a>
+<nav aria-label="1. Bayesian Recursions and Information Sets" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-1-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 1 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#one-law-several-questions">
+<span class="md-ellipsis">
+      
+        One law, several questions
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#deriving-the-exact-bayesian-filter">
+<span class="md-ellipsis">
+      
+        Deriving the exact Bayesian filter
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#deriving-the-backward-smoothing-recursion">
+<span class="md-ellipsis">
+      
+        Deriving the backward smoothing recursion
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-finite-example-future-evidence-changes-an-earlier-belief">
+<span class="md-ellipsis">
+      
+        Worked finite example: future evidence changes an earlier belief
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-1-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 1 synthesis
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-1-retrieval-practice">
+<span class="md-ellipsis">
+      
+        Chapter 1 retrieval practice
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#2-linear-gaussian-filtering">
+<span class="md-ellipsis">
+      
+        2. Linear-Gaussian Filtering
+      
+    </span>
+</a>
+<nav aria-label="2. Linear-Gaussian Filtering" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-2-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 2 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#the-closure-assumptions">
+<span class="md-ellipsis">
+      
+        The closure assumptions
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#prediction">
+<span class="md-ellipsis">
+      
+        Prediction
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#correction-from-one-joint-gaussian">
+<span class="md-ellipsis">
+      
+        Correction from one joint Gaussian
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-scalar-filter-with-two-observations">
+<span class="md-ellipsis">
+      
+        Worked scalar filter with two observations
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#missing-partial-and-correlated-observations">
+<span class="md-ellipsis">
+      
+        Missing, partial, and correlated observations
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#numerical-representations">
+<span class="md-ellipsis">
+      
+        Numerical representations
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-2-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 2 synthesis
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-2-retrieval-practice">
+<span class="md-ellipsis">
+      
+        Chapter 2 retrieval practice
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#3-smoothing-sampling-and-information-forms">
+<span class="md-ellipsis">
+      
+        3. Smoothing, Sampling, and Information Forms
+      
+    </span>
+</a>
+<nav aria-label="3. Smoothing, Sampling, and Information Forms" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-3-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 3 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#rauchtungstriebel-smoothing">
+<span class="md-ellipsis">
+      
+        Rauch–Tung–Striebel smoothing
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-continuation-smoothing-the-first-state">
+<span class="md-ellipsis">
+      
+        Worked continuation: smoothing the first state
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#forward-filtering-backward-sampling">
+<span class="md-ellipsis">
+      
+        Forward filtering, backward sampling
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#information-coordinates-and-factor-addition">
+<span class="md-ellipsis">
+      
+        Information coordinates and factor addition
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#sufficient-statistics-for-learning">
+<span class="md-ellipsis">
+      
+        Sufficient statistics for learning
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#sequential-work-and-parallel-depth">
+<span class="md-ellipsis">
+      
+        Sequential work and parallel depth
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-3-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 3 synthesis
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-3-retrieval-practice">
+<span class="md-ellipsis">
+      
+        Chapter 3 retrieval practice
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#4-nonlinear-gaussian-approximations">
+<span class="md-ellipsis">
+      
+        4. Nonlinear Gaussian Approximations
+      
+    </span>
+</a>
+<nav aria-label="4. Nonlinear Gaussian Approximations" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-4-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 4 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#the-nonlinear-model-and-the-representation-decision">
+<span class="md-ellipsis">
+      
+        The nonlinear model and the representation decision
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#extended-kalman-filtering-pointwise-linearization">
+<span class="md-ellipsis">
+      
+        Extended Kalman filtering: pointwise linearization
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#joint-moment-gaussian-filtering">
+<span class="md-ellipsis">
+      
+        Joint-moment Gaussian filtering
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#estimating-transformed-gaussian-moments">
+<span class="md-ellipsis">
+      
+        Estimating transformed Gaussian moments
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-failure-case-correct-moments-can-still-hide-the-answer">
+<span class="md-ellipsis">
+      
+        Worked failure case: correct moments can still hide the answer
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#coordinates-constraints-and-geometry">
+<span class="md-ellipsis">
+      
+        Coordinates, constraints, and geometry
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-4-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 4 synthesis
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-4-retrieval-practice">
+<span class="md-ellipsis">
+      
+        Chapter 4 retrieval practice
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#5-projection-mixture-ensemble-and-robust-filters">
+<span class="md-ellipsis">
+      
+        5. Projection, Mixture, Ensemble, and Robust Filters
+      
+    </span>
+</a>
+<nav aria-label="5. Projection, Mixture, Ensemble, and Robust Filters" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-5-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 5 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#assumed-density-filtering">
+<span class="md-ellipsis">
+      
+        Assumed-density filtering
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-mixture-projection-and-its-failure">
+<span class="md-ellipsis">
+      
+        Worked mixture projection and its failure
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#switching-systems-and-gaussian-sum-filters">
+<span class="md-ellipsis">
+      
+        Switching systems and Gaussian-sum filters
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#ensemble-kalman-filtering">
+<span class="md-ellipsis">
+      
+        Ensemble Kalman filtering
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#robust-observations-change-the-update-contract">
+<span class="md-ellipsis">
+      
+        Robust observations change the update contract
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#flow-based-filters-three-different-roles">
+<span class="md-ellipsis">
+      
+        Flow-based filters: three different roles
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-5-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 5 synthesis
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-5-retrieval-practice">
+<span class="md-ellipsis">
+      
+        Chapter 5 retrieval practice
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#6-particles-learning-validation-and-method-choice">
+<span class="md-ellipsis">
+      
+        6. Particles, Learning, Validation, and Method Choice
+      
+    </span>
+</a>
+<nav aria-label="6. Particles, Learning, Validation, and Method Choice" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-6-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 6 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#beyond-a-single-gaussian">
+<span class="md-ellipsis">
+      
+        Beyond a single Gaussian
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#differentiating-through-a-filter">
+<span class="md-ellipsis">
+      
+        Differentiating through a filter
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#learned-analytic-structure-and-expressive-beliefs">
+<span class="md-ellipsis">
+      
+        Learned analytic structure and expressive beliefs
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#a-current-smoothing-direction">
+<span class="md-ellipsis">
+      
+        A current smoothing direction
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#validation-starts-with-the-query">
+<span class="md-ellipsis">
+      
+        Validation starts with the query
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-method-selection-audit">
+<span class="md-ellipsis">
+      
+        Worked method-selection audit
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#decision-table">
+<span class="md-ellipsis">
+      
+        Decision table
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-6-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 6 synthesis
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-6-retrieval-practice">
+<span class="md-ellipsis">
+      
+        Chapter 6 retrieval practice
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#primary-reading">
+<span class="md-ellipsis">
+      
+        Primary reading
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../sampling-01-monte-carlo/">
+<span class="md-ellipsis">
+    
+  
+    10. Sampling and Continuous Time
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../smc-01-targets/">
+<span class="md-ellipsis">
+    
+  
+    11. Sequential Monte Carlo and Particle Methods
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../optimization-01-differentiation/">
+<span class="md-ellipsis">
+    
+  
+    12. Optimization and Learning Dynamics
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../generative-models-notation/">
+<span class="md-ellipsis">
+    
+  
+    13. Canonical Notation
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../autoregressive-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Model Families
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gradients-01-taxonomy/">
+<span class="md-ellipsis">
+    
+  
+    Connections and Compositions
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../normalization-01-queries/">
+<span class="md-ellipsis">
+    
+  
+    Research Practice
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../models/vae-guide/">
+<span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/core/base/">
+<span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../examples/overview/">
+<span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../zoo/">
+<span class="md-ellipsis">
+    
+  
+    Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../training/overview/">
+<span class="md-ellipsis">
+    
+  
+    Training
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../data/overview/">
+<span class="md-ellipsis">
+    
+  
+    Data &amp; Modalities
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../inference/overview/">
+<span class="md-ellipsis">
+    
+  
+    Inference &amp; Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../benchmarks/">
+<span class="md-ellipsis">
+    
+  
+    Evaluation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../guides/extensions/">
+<span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../extensions/">
+<span class="md-ellipsis">
+    
+  
+    Advanced Topics
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../cli/">
+<span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../community/contributing/">
+<span class="md-ellipsis">
+    
+  
+    Community
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/configs/protein-extension/">
+<span class="md-ellipsis">
+    
+  
+    Reference Library
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#reader-orientation">
+<span class="md-ellipsis">
+      
+        Reader orientation
+      
+    </span>
+</a>
+<nav aria-label="Reader orientation" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-map">
+<span class="md-ellipsis">
+      
+        Chapter map
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#prerequisite-refresh">
+<span class="md-ellipsis">
+      
+        Prerequisite refresh
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#1-bayesian-recursions-and-information-sets">
+<span class="md-ellipsis">
+      
+        1. Bayesian Recursions and Information Sets
+      
+    </span>
+</a>
+<nav aria-label="1. Bayesian Recursions and Information Sets" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-1-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 1 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#one-law-several-questions">
+<span class="md-ellipsis">
+      
+        One law, several questions
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#deriving-the-exact-bayesian-filter">
+<span class="md-ellipsis">
+      
+        Deriving the exact Bayesian filter
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#deriving-the-backward-smoothing-recursion">
+<span class="md-ellipsis">
+      
+        Deriving the backward smoothing recursion
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-finite-example-future-evidence-changes-an-earlier-belief">
+<span class="md-ellipsis">
+      
+        Worked finite example: future evidence changes an earlier belief
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-1-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 1 synthesis
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-1-retrieval-practice">
+<span class="md-ellipsis">
+      
+        Chapter 1 retrieval practice
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#2-linear-gaussian-filtering">
+<span class="md-ellipsis">
+      
+        2. Linear-Gaussian Filtering
+      
+    </span>
+</a>
+<nav aria-label="2. Linear-Gaussian Filtering" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-2-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 2 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#the-closure-assumptions">
+<span class="md-ellipsis">
+      
+        The closure assumptions
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#prediction">
+<span class="md-ellipsis">
+      
+        Prediction
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#correction-from-one-joint-gaussian">
+<span class="md-ellipsis">
+      
+        Correction from one joint Gaussian
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-scalar-filter-with-two-observations">
+<span class="md-ellipsis">
+      
+        Worked scalar filter with two observations
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#missing-partial-and-correlated-observations">
+<span class="md-ellipsis">
+      
+        Missing, partial, and correlated observations
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#numerical-representations">
+<span class="md-ellipsis">
+      
+        Numerical representations
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-2-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 2 synthesis
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-2-retrieval-practice">
+<span class="md-ellipsis">
+      
+        Chapter 2 retrieval practice
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#3-smoothing-sampling-and-information-forms">
+<span class="md-ellipsis">
+      
+        3. Smoothing, Sampling, and Information Forms
+      
+    </span>
+</a>
+<nav aria-label="3. Smoothing, Sampling, and Information Forms" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-3-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 3 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#rauchtungstriebel-smoothing">
+<span class="md-ellipsis">
+      
+        Rauch–Tung–Striebel smoothing
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-continuation-smoothing-the-first-state">
+<span class="md-ellipsis">
+      
+        Worked continuation: smoothing the first state
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#forward-filtering-backward-sampling">
+<span class="md-ellipsis">
+      
+        Forward filtering, backward sampling
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#information-coordinates-and-factor-addition">
+<span class="md-ellipsis">
+      
+        Information coordinates and factor addition
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#sufficient-statistics-for-learning">
+<span class="md-ellipsis">
+      
+        Sufficient statistics for learning
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#sequential-work-and-parallel-depth">
+<span class="md-ellipsis">
+      
+        Sequential work and parallel depth
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-3-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 3 synthesis
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-3-retrieval-practice">
+<span class="md-ellipsis">
+      
+        Chapter 3 retrieval practice
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#4-nonlinear-gaussian-approximations">
+<span class="md-ellipsis">
+      
+        4. Nonlinear Gaussian Approximations
+      
+    </span>
+</a>
+<nav aria-label="4. Nonlinear Gaussian Approximations" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-4-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 4 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#the-nonlinear-model-and-the-representation-decision">
+<span class="md-ellipsis">
+      
+        The nonlinear model and the representation decision
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#extended-kalman-filtering-pointwise-linearization">
+<span class="md-ellipsis">
+      
+        Extended Kalman filtering: pointwise linearization
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#joint-moment-gaussian-filtering">
+<span class="md-ellipsis">
+      
+        Joint-moment Gaussian filtering
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#estimating-transformed-gaussian-moments">
+<span class="md-ellipsis">
+      
+        Estimating transformed Gaussian moments
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-failure-case-correct-moments-can-still-hide-the-answer">
+<span class="md-ellipsis">
+      
+        Worked failure case: correct moments can still hide the answer
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#coordinates-constraints-and-geometry">
+<span class="md-ellipsis">
+      
+        Coordinates, constraints, and geometry
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-4-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 4 synthesis
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-4-retrieval-practice">
+<span class="md-ellipsis">
+      
+        Chapter 4 retrieval practice
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#5-projection-mixture-ensemble-and-robust-filters">
+<span class="md-ellipsis">
+      
+        5. Projection, Mixture, Ensemble, and Robust Filters
+      
+    </span>
+</a>
+<nav aria-label="5. Projection, Mixture, Ensemble, and Robust Filters" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-5-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 5 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#assumed-density-filtering">
+<span class="md-ellipsis">
+      
+        Assumed-density filtering
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-mixture-projection-and-its-failure">
+<span class="md-ellipsis">
+      
+        Worked mixture projection and its failure
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#switching-systems-and-gaussian-sum-filters">
+<span class="md-ellipsis">
+      
+        Switching systems and Gaussian-sum filters
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#ensemble-kalman-filtering">
+<span class="md-ellipsis">
+      
+        Ensemble Kalman filtering
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#robust-observations-change-the-update-contract">
+<span class="md-ellipsis">
+      
+        Robust observations change the update contract
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#flow-based-filters-three-different-roles">
+<span class="md-ellipsis">
+      
+        Flow-based filters: three different roles
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-5-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 5 synthesis
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-5-retrieval-practice">
+<span class="md-ellipsis">
+      
+        Chapter 5 retrieval practice
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#6-particles-learning-validation-and-method-choice">
+<span class="md-ellipsis">
+      
+        6. Particles, Learning, Validation, and Method Choice
+      
+    </span>
+</a>
+<nav aria-label="6. Particles, Learning, Validation, and Method Choice" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-6-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 6 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#beyond-a-single-gaussian">
+<span class="md-ellipsis">
+      
+        Beyond a single Gaussian
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#differentiating-through-a-filter">
+<span class="md-ellipsis">
+      
+        Differentiating through a filter
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#learned-analytic-structure-and-expressive-beliefs">
+<span class="md-ellipsis">
+      
+        Learned analytic structure and expressive beliefs
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#a-current-smoothing-direction">
+<span class="md-ellipsis">
+      
+        A current smoothing direction
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#validation-starts-with-the-query">
+<span class="md-ellipsis">
+      
+        Validation starts with the query
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-method-selection-audit">
+<span class="md-ellipsis">
+      
+        Worked method-selection audit
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#decision-table">
+<span class="md-ellipsis">
+      
+        Decision table
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-6-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 6 synthesis
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-6-retrieval-practice">
+<span class="md-ellipsis">
+      
+        Chapter 6 retrieval practice
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#primary-reading">
+<span class="md-ellipsis">
+      
+        Primary reading
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<nav aria-label="Breadcrumb" class="md-path">
+<ol class="md-path__list">
+<li class="md-path__item">
+<a class="md-path__link" href="../../..">
+<span class="md-ellipsis">
+    Home
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    Generative Models Book
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../probability-01-objects/">
+<span class="md-ellipsis">
+    Foundations
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../filtering-01-bayes-recursions/">
+<span class="md-ellipsis">
+    9. Filtering and Smoothing for State-Space Generators
+  </span>
+</a>
+</li>
+</ol>
+</nav>
+<article class="md-content__inner md-typeset">
+<h1 id="filtering-and-smoothing-for-state-space-generators">Filtering and Smoothing for State-Space Generators<a class="headerlink" href="#filtering-and-smoothing-for-state-space-generators" title="Permanent link">¤</a></h1><aside aria-label="Learning path" class="admonition abstract artifex-learning-path"><p class="admonition-title">Learning path</p><p><strong>Required knowledge</strong></p><ul class="artifex-learning-path__links" data-learning-path-role="required"><li><a href="../probability-and-generative-modeling/">Probability and Generative Modeling</a></li><li><a href="../classical-generative-models/">Classical Generative Models and Graphical Structure</a></li><li><a href="../latent-variables-and-inference/">Latent Variables and Inference</a></li><li><a href="../objectives-and-statistical-distances/">Objectives and Statistical Distances</a></li><li><a href="../graphical-inference-and-message-passing/">Graphical Inference and Message Passing</a></li></ul><p><strong>Readiness check:</strong> can you explain the central object and reproduce one worked example from each required chapter? If not, follow its link before continuing.</p><p><strong>Newly unlocked in the default route</strong></p><p>No immediate successor names this page as its final required prerequisite. Continue through the book navigation or the chapter's cross-links.</p></aside>
+<p>A state-space generator defines a law over a latent trajectory and its
+observations. Filtering, smoothing, forecasting, path sampling, and parameter
+learning are computations performed with that law; they are not interchangeable
+names for the model. This volume develops the exact recursions, the
+linear-Gaussian case, the principal approximation families, and the numerical
+and scientific checks needed to know what a finite implementation has actually
+computed.</p>
+<p>The model family remains defined in <a href="../classical-generative-models/#state-space-queries-generation-filtering-smoothing-and-forecasting">Classical Generative
+Models</a>.
+This volume owns the <strong>inference methods</strong>. Continuous-time path laws and
+particle implementations continue in <a href="../stochastic-process-generators-explained/#4-latent-dynamics-neural-sdes-and-path-measures">Stochastic-Process
+Generators</a>,
+while action-conditioned beliefs and planning appear in <a href="../world-models-and-causal-simulators/#state-memory-and-belief-are-different-objects">World Models and
+Causal Simulators</a>.</p>
+<div class="admonition info">
+<p class="admonition-title">Reading routes</p>
+<ul>
+<li><strong>Entry after prerequisites:</strong> read Chapters 1–3 and reproduce the two scalar calculations.</li>
+<li><strong>Practitioner:</strong> add Chapters 4–6, implement the limiting-case tests, and use the method-selection ledger.</li>
+<li><strong>Research:</strong> read continuously, derive every projection step, compare at least two posterior representations on a controlled simulator, and trace research claims to their primary sources.</li>
+</ul>
+</div>
+<h2 id="reader-orientation">Reader orientation<a class="headerlink" href="#reader-orientation" title="Permanent link">¤</a></h2>
+<h3 id="chapter-map">Chapter map<a class="headerlink" href="#chapter-map" title="Permanent link">¤</a></h3>
+<p>The complete volume is one continuous argument. Six projections provide
+optional stopping points without maintaining a second copy of the instructional
+content:</p>
+<ol>
+<li><strong><a href="../filtering-01-bayes-recursions/">Bayesian Recursions and Information Sets</a></strong> — model law, filtering, smoothing, forecasting, evidence, and a finite exact example;</li>
+<li><strong><a href="../filtering-02-kalman/">Linear-Gaussian Filtering</a></strong> — Kalman prediction and correction, exactness, likelihood, missing observations, and stable covariance computation;</li>
+<li><strong><a href="../filtering-03-smoothing/">Smoothing, Sampling, and Information Forms</a></strong> — RTS smoothing, backward simulation, information coordinates, sufficient statistics, and temporal parallelization;</li>
+<li><strong><a href="../filtering-04-nonlinear-gaussian/">Nonlinear Gaussian Approximations</a></strong> — extended, iterated, sigma-point, cubature, quadrature, and moment-based filters and smoothers;</li>
+<li><strong><a href="../filtering-05-projection-ensemble/">Projection, Mixture, Ensemble, and Robust Filters</a></strong> — ADF, Gaussian sums, switching models, EnKF, robust updates, and flow-based constructions; and</li>
+<li><strong><a href="../filtering-06-practice-research/">Particles, Learning, Validation, and Method Choice</a></strong> — non-Gaussian alternatives, differentiable filters, diagnostics, controlled comparison, and current research.</li>
+</ol>
+<h2 id="prerequisite-refresh">Prerequisite refresh<a class="headerlink" href="#prerequisite-refresh" title="Permanent link">¤</a></h2>
+<p>For a transition density <span class="arithmatex">\(f_t(z_t\mid z_{t-1},u_t)\)</span> and observation density
+<span class="arithmatex">\(g_t(y_t\mid z_t,u_t)\)</span>, the controlled joint law is</p>
+<div class="arithmatex">\[
+p(z_{0:T},y_{1:T}\mid u_{1:T})
+=p(z_0)
+\prod_{t=1}^{T}
+f_t(z_t\mid z_{t-1},u_t)
+g_t(y_t\mid z_t,u_t).
+\]</div>
+<p>The input sequence is suppressed below when it is fixed. A density is always
+relative to a declared base measure; sums replace integrals for discrete
+states. Review <a href="../graphical-inference-and-message-passing/">Graphical Inference and Message
+Passing</a> for factor elimination and
+<a href="../latent-variables-and-inference/">Latent Variables and Inference</a> for the
+five-field contract: target, query, returned representation, guarantee, and
+finite-compute validation.</p>
+<figure class="book-figure" id="fig-filtering-and-smoothing-state-space-prerequisite-refresh"><pre class="mermaid"><code>flowchart TB
+    z0(("$$z_0$$")) --&gt; z1(("$$z_1$$")) --&gt; z2(("$$z_2$$")) --&gt; z3(("$$z_3$$"))
+    z1 --&gt; y1(("$$y_1$$"))
+    z2 --&gt; y2(("$$y_2$$"))
+    z3 --&gt; y3(("$$y_3$$"))
+    class y1,y2,y3 observed</code></pre><figcaption class="book-object-caption"><span class="book-object-number">Figure FILTER.1.</span> Prerequisite refresh</figcaption></figure>
+<p>The arrows define conditional factors. They do not prescribe a Kalman filter,
+particle filter, neural encoder, or any other reverse computation.</p>
+<h2 id="1-bayesian-recursions-and-information-sets">1. Bayesian Recursions and Information Sets<a class="headerlink" href="#1-bayesian-recursions-and-information-sets" title="Permanent link">¤</a></h2>
+<h3 id="chapter-1-prerequisites-and-learning-objectives">Chapter 1 prerequisites and learning objectives<a class="headerlink" href="#chapter-1-prerequisites-and-learning-objectives" title="Permanent link">¤</a></h3>
+<p><strong>Prerequisites.</strong> Conditional probability, Bayes' rule, Markov structure, and
+normalized message passing.</p>
+<p><strong>Learning objectives.</strong> Derive the exact predict–correct recursion; distinguish
+filtering, smoothing, forecasting, and path sampling by their information sets;
+recover the sequence likelihood from predictive normalizers; and compute a
+finite filter and smoother without invoking an algorithm name as an accuracy
+guarantee.</p>
+<h3 id="one-law-several-questions">One law, several questions<a class="headerlink" href="#one-law-several-questions" title="Permanent link">¤</a></h3>
+<p>At time <span class="arithmatex">\(t\)</span>, the following distributions answer different questions:</p>
+<div class="md-typeset__table book-table-container"><table id="tbl-filtering-and-smoothing-state-space-one-law-several-questions"><caption class="book-object-caption"><span class="book-object-number">Table FILTER.1.</span> One law, several questions</caption>
+<thead>
+<tr>
+<th>Query</th>
+<th>Target</th>
+<th>Information available</th>
+<th>Typical output</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>prediction</td>
+<td><span class="arithmatex">\(p(z_t\mid y_{1:t-1})\)</span></td>
+<td>observations before <span class="arithmatex">\(t\)</span></td>
+<td>a prior belief for the next correction</td>
+</tr>
+<tr>
+<td>filtering</td>
+<td><span class="arithmatex">\(p(z_t\mid y_{1:t})\)</span></td>
+<td>observations through <span class="arithmatex">\(t\)</span></td>
+<td>current-state posterior</td>
+</tr>
+<tr>
+<td>fixed-lag smoothing</td>
+<td><span class="arithmatex">\(p(z_{t-L}\mid y_{1:t})\)</span></td>
+<td>a bounded amount of future evidence</td>
+<td>delayed state posterior</td>
+</tr>
+<tr>
+<td>fixed-interval smoothing</td>
+<td><span class="arithmatex">\(p(z_t\mid y_{1:T})\)</span></td>
+<td>the complete recorded interval</td>
+<td>retrospective state posterior</td>
+</tr>
+<tr>
+<td>forecasting</td>
+<td><span class="arithmatex">\(p(y_{t+h}\mid y_{1:t})\)</span></td>
+<td>past observations and declared future inputs</td>
+<td>future-observation law</td>
+</tr>
+<tr>
+<td>path sampling</td>
+<td><span class="arithmatex">\(p(z_{0:T}\mid y_{1:T})\)</span></td>
+<td>complete observations</td>
+<td>correlated posterior trajectory</td>
+</tr>
+</tbody>
+</table></div>
+<p>An encoder that reads <span class="arithmatex">\(y_{1:T}\)</span> is a smoother even if its output variable is
+called a filtered state. Conversely, a filter used online cannot use later
+observations without leakage. Fixed-lag smoothing is a third information
+contract rather than an informal compromise between the two.</p>
+<h3 id="deriving-the-exact-bayesian-filter">Deriving the exact Bayesian filter<a class="headerlink" href="#deriving-the-exact-bayesian-filter" title="Permanent link">¤</a></h3>
+<p>Suppose the previous filtering law is
+<span class="arithmatex">\(b_{t-1}(z_{t-1})=p(z_{t-1}\mid y_{1:t-1})\)</span>. Markov structure gives the
+one-step predictive law</p>
+<div class="arithmatex">\[
+b_{t\mid t-1}(z_t)
+=\int f_t(z_t\mid z_{t-1})b_{t-1}(z_{t-1})\,dz_{t-1}.
+\]</div>
+<p>The new observation contributes a likelihood factor. Its predictive density is</p>
+<div class="arithmatex">\[
+\ell_t
+=p(y_t\mid y_{1:t-1})
+=\int g_t(y_t\mid z_t)b_{t\mid t-1}(z_t)\,dz_t,
+\]</div>
+<p>and Bayes' rule gives the normalized correction</p>
+<div class="arithmatex">\[
+b_t(z_t)
+=p(z_t\mid y_{1:t})
+=\frac{g_t(y_t\mid z_t)b_{t\mid t-1}(z_t)}{\ell_t}.
+\]</div>
+<p>These are exact probability identities. They are not yet a finite algorithm:
+the integrals may be unavailable, the returned density may require an
+unbounded representation, and finite arithmetic may lose normalization or
+positive semidefiniteness.</p>
+<p>The normalizer is also the incremental evidence. Therefore</p>
+<div class="arithmatex">\[
+\log p(y_{1:T})=\sum_{t=1}^{T}\log \ell_t.
+\]</div>
+<p>Replacing <span class="arithmatex">\(\ell_t\)</span> by an unnormalized score breaks both the posterior update
+and the likelihood calculation. When an approximation supplies
+<span class="arithmatex">\(\widehat\ell_t\)</span>, the sum is an approximate log likelihood unless a separate
+unbiased-estimation argument applies.</p>
+<h3 id="deriving-the-backward-smoothing-recursion">Deriving the backward smoothing recursion<a class="headerlink" href="#deriving-the-backward-smoothing-recursion" title="Permanent link">¤</a></h3>
+<p>The Markov graph implies</p>
+<div class="arithmatex">\[
+p(z_t\mid z_{t+1},y_{1:T})
+=p(z_t\mid z_{t+1},y_{1:t}).
+\]</div>
+<p>Bayes' rule expresses this backward kernel in terms of filtered quantities:</p>
+<div class="arithmatex">\[
+p(z_t\mid z_{t+1},y_{1:t})
+=\frac{f_{t+1}(z_{t+1}\mid z_t)b_t(z_t)}
+{b_{t+1\mid t}(z_{t+1})},
+\]</div>
+<p>on the support where the denominator is positive. Marginalizing the next
+smoothed state yields</p>
+<div class="arithmatex">\[
+p(z_t\mid y_{1:T})
+=b_t(z_t)
+\int
+\frac{f_{t+1}(z_{t+1}\mid z_t)
+p(z_{t+1}\mid y_{1:T})}
+{b_{t+1\mid t}(z_{t+1})}
+\,dz_{t+1}.
+\]</div>
+<p>This identity explains why smoothing needs stored or recomputed forward
+information. It also exposes a support requirement that an arbitrary learned
+backward network need not satisfy.</p>
+<h3 id="worked-finite-example-future-evidence-changes-an-earlier-belief">Worked finite example: future evidence changes an earlier belief<a class="headerlink" href="#worked-finite-example-future-evidence-changes-an-earlier-belief" title="Permanent link">¤</a></h3>
+<p>Let <span class="arithmatex">\(z_t\in\{0,1\}\)</span>. Initially
+<span class="arithmatex">\(p(z_1=0)=3/5\)</span> and <span class="arithmatex">\(p(z_1=1)=2/5\)</span>. The state stays unchanged with probability
+<span class="arithmatex">\(4/5\)</span>. Observations are binary, with</p>
+<div class="arithmatex">\[
+p(y_t=1\mid z_t=0)=\frac{1}{10},
+\qquad
+p(y_t=1\mid z_t=1)=\frac{7}{10}.
+\]</div>
+<p>After observing <span class="arithmatex">\(y_1=1\)</span>, the two unnormalized masses are <span class="arithmatex">\(3/50\)</span> and <span class="arithmatex">\(14/50\)</span>.
+Thus</p>
+<div class="arithmatex">\[
+p(z_1\mid y_1=1)
+=\left(\frac3{17},\frac{14}{17}\right).
+\]</div>
+<p>Prediction through the transition gives</p>
+<div class="arithmatex">\[
+p(z_2\mid y_1=1)=\left(\frac{26}{85},\frac{59}{85}\right).
+\]</div>
+<p>Now observe <span class="arithmatex">\(y_2=0\)</span>. The likelihoods are <span class="arithmatex">\(9/10\)</span> and <span class="arithmatex">\(3/10\)</span>, so the filtering
+law at time two is</p>
+<div class="arithmatex">\[
+p(z_2\mid y_1=1,y_2=0)
+=\left(\frac{78}{137},\frac{59}{137}\right).
+\]</div>
+<p>For smoothing time one, the backward likelihood of <span class="arithmatex">\(y_2=0\)</span> is
+<span class="arithmatex">\(39/50\)</span> when <span class="arithmatex">\(z_1=0\)</span> and <span class="arithmatex">\(21/50\)</span> when <span class="arithmatex">\(z_1=1\)</span>. Multiplying these values by the
+time-one filter and renormalizing gives</p>
+<div class="arithmatex">\[
+p(z_1\mid y_1=1,y_2=0)
+=\left(\frac{39}{137},\frac{98}{137}\right).
+\]</div>
+<p>The filtered probability of state one at time one was <span class="arithmatex">\(14/17\approx0.824\)</span>;
+after seeing a future zero, its smoothed probability is
+<span class="arithmatex">\(98/137\approx0.715\)</span>. Neither result supersedes the other: they condition on
+different information.</p>
+<div class="admonition failure">
+<p class="admonition-title">A point state is not a belief</p>
+<p>Replacing the time-one distribution by its most likely state discards the
+alternative trajectory before the second observation arrives. Later
+evidence cannot recover a hypothesis that an approximate representation
+assigned exactly zero mass.</p>
+</div>
+<h3 id="chapter-1-synthesis">Chapter 1 synthesis<a class="headerlink" href="#chapter-1-synthesis" title="Permanent link">¤</a></h3>
+<p>Filtering is sequential Bayes conditioning, smoothing is posterior inference
+with later evidence, forecasting propagates without later evidence, and path
+sampling preserves posterior dependence across time. The predictive normalizer
+connects online correction to sequence likelihood. Exact identities become
+algorithms only after a representation and numerical procedure are specified.</p>
+<h3 id="chapter-1-retrieval-practice">Chapter 1 retrieval practice<a class="headerlink" href="#chapter-1-retrieval-practice" title="Permanent link">¤</a></h3>
+<ol>
+<li>Why is <span class="arithmatex">\(\ell_t\)</span> more than a disposable normalizer?</li>
+<li>Which conditional-independence statement permits the backward kernel to
+   ignore <span class="arithmatex">\(y_{t+1:T}\)</span> once <span class="arithmatex">\(z_{t+1}\)</span> is known?</li>
+<li>Does a smaller smoothed variance imply that the online filter was wrong?</li>
+<li>What support failure can make the displayed smoothing ratio undefined?</li>
+</ol>
+<details class="success">
+<summary>Complete solutions</summary>
+<ol>
+<li>It equals <span class="arithmatex">\(p(y_t\mid y_{1:t-1})\)</span> and its log contributes exactly to the sequence log likelihood.</li>
+<li><span class="arithmatex">\(z_t\perp y_{t+1:T}\mid(z_{t+1},y_{1:t})\)</span> under the declared first-order state-space graph.</li>
+<li>No. The smoother is allowed to use later observations that were unavailable online.</li>
+<li>A next-state value can have positive smoothed mass while the forward predictive law assigns it zero; valid exact models avoid this inconsistency, while approximate supports must be checked.</li>
+</ol>
+</details>
+<p>The next chapter identifies the principal finite-dimensional closure in which
+all these integrals reduce to linear algebra.</p>
+<p><a href="./#2-linear-gaussian-filtering">Continue continuously</a>,
+or use the <a href="../filtering-01-bayes-recursions/">Chapter 1 stopping-point view</a>.</p>
+<h2 id="2-linear-gaussian-filtering">2. Linear-Gaussian Filtering<a class="headerlink" href="#2-linear-gaussian-filtering" title="Permanent link">¤</a></h2>
+<h3 id="chapter-2-prerequisites-and-learning-objectives">Chapter 2 prerequisites and learning objectives<a class="headerlink" href="#chapter-2-prerequisites-and-learning-objectives" title="Permanent link">¤</a></h3>
+<p><strong>Prerequisites.</strong> Multivariate Gaussians, covariance matrices, affine maps,
+and Chapter 1.</p>
+<p><strong>Learning objectives.</strong> Derive Kalman prediction and correction from Gaussian
+conditioning; state the exactness boundary; compute predictive likelihoods and
+a complete scalar example; and distinguish algebraically equivalent covariance,
+Joseph, square-root, and information implementations from numerically identical
+finite programs.</p>
+<h3 id="the-closure-assumptions">The closure assumptions<a class="headerlink" href="#the-closure-assumptions" title="Permanent link">¤</a></h3>
+<p>Consider the time-varying controlled model</p>
+<div class="arithmatex">\[
+\begin{aligned}
+z_t&amp;=A_tz_{t-1}+B_tu_t+a_t+q_t,
+&amp;q_t&amp;\sim\mathcal N(0,Q_t),\\
+y_t&amp;=C_tz_t+d_t+r_t,
+&amp;r_t&amp;\sim\mathcal N(0,R_t),
+\end{aligned}
+\]</div>
+<p>with a Gaussian initial state and mutually independent Gaussian noise terms.
+Linear prediction maps a Gaussian to a Gaussian. Multiplication by a linear
+Gaussian likelihood produces another Gaussian. This closure—not the words
+<em>state-space model</em>—makes the filter exact.</p>
+<p>With non-Gaussian initial or noise laws, the same matrix recursion can still be
+the best linear mean-square estimator under suitable moment assumptions, but it
+does not generally return the complete Bayesian posterior. With nonlinear maps,
+even Gaussian noise does not preserve Gaussian closure.</p>
+<h3 id="prediction">Prediction<a class="headerlink" href="#prediction" title="Permanent link">¤</a></h3>
+<p>Write the filtered belief at time <span class="arithmatex">\(t-1\)</span> as
+<span class="arithmatex">\(\mathcal N(m_{t-1\mid t-1},P_{t-1\mid t-1})\)</span>. Affine Gaussian propagation gives</p>
+<div class="arithmatex">\[
+\begin{aligned}
+m_{t\mid t-1}
+&amp;=A_tm_{t-1\mid t-1}+B_tu_t+a_t,\\
+P_{t\mid t-1}
+&amp;=A_tP_{t-1\mid t-1}A_t^\top+Q_t.
+\end{aligned}
+\]</div>
+<p>The predicted observation and innovation covariance are</p>
+<div class="arithmatex">\[
+\widehat y_{t\mid t-1}=C_tm_{t\mid t-1}+d_t,
+\qquad
+S_t=C_tP_{t\mid t-1}C_t^\top+R_t.
+\]</div>
+<p>The residual <span class="arithmatex">\(e_t=y_t-\widehat y_{t\mid t-1}\)</span> is called the innovation only
+relative to this prediction. Its temporal whiteness and covariance <span class="arithmatex">\(S_t\)</span> are
+model-dependent diagnostic claims, not properties of every residual sequence.</p>
+<h3 id="correction-from-one-joint-gaussian">Correction from one joint Gaussian<a class="headerlink" href="#correction-from-one-joint-gaussian" title="Permanent link">¤</a></h3>
+<p>Before observing <span class="arithmatex">\(y_t\)</span>, the joint predictive law is</p>
+<div class="arithmatex">\[
+\begin{bmatrix}z_t\\y_t\end{bmatrix}
+\Bigm|y_{1:t-1}
+\sim
+\mathcal N\!\left(
+\begin{bmatrix}m_{t\mid t-1}\\\widehat y_{t\mid t-1}\end{bmatrix},
+\begin{bmatrix}
+P_{t\mid t-1}&amp;P_{t\mid t-1}C_t^\top\\
+C_tP_{t\mid t-1}&amp;S_t
+\end{bmatrix}
+\right).
+\]</div>
+<p>Conditioning this Gaussian gives the Kalman gain and posterior mean:</p>
+<div class="arithmatex">\[
+K_t=P_{t\mid t-1}C_t^\top S_t^{-1},
+\qquad
+m_{t\mid t}=m_{t\mid t-1}+K_te_t.
+\]</div>
+<p>The compact covariance update is
+<span class="arithmatex">\(P_{t\mid t}=P_{t\mid t-1}-K_tS_tK_t^\top\)</span>. In exact arithmetic it equals
+<span class="arithmatex">\((I-K_tC_t)P_{t\mid t-1}\)</span>. A form that retains both noise contributions is</p>
+<div class="arithmatex">\[
+P_{t\mid t}
+=(I-K_tC_t)P_{t\mid t-1}(I-K_tC_t)^\top
++K_tR_tK_t^\top.
+\]</div>
+<p>This Joseph form is algebraically equivalent when <span class="arithmatex">\(K_t\)</span> is the exact gain, but
+is more resistant to loss of symmetry and positive semidefiniteness in finite
+arithmetic. Production code solves systems with <span class="arithmatex">\(S_t\)</span> rather than forming
+<span class="arithmatex">\(S_t^{-1}\)</span>.</p>
+<p>The incremental log likelihood is</p>
+<div class="arithmatex">\[
+\log \ell_t
+=-\frac12\left[
+n_y\log(2\pi)+\log\det S_t+e_t^\top S_t^{-1}e_t
+\right].
+\]</div>
+<p>A singular <span class="arithmatex">\(S_t\)</span> requires a separately justified degenerate-Gaussian treatment;
+blindly adding jitter changes the observation model.</p>
+<h3 id="worked-scalar-filter-with-two-observations">Worked scalar filter with two observations<a class="headerlink" href="#worked-scalar-filter-with-two-observations" title="Permanent link">¤</a></h3>
+<p>Let</p>
+<div class="arithmatex">\[
+z_0\sim\mathcal N(0,1),\qquad
+z_t=z_{t-1}+q_t,\quad q_t\sim\mathcal N(0,1),\qquad
+y_t=z_t+r_t,\quad r_t\sim\mathcal N(0,1).
+\]</div>
+<p>For <span class="arithmatex">\(y_1=1\)</span>, prediction gives <span class="arithmatex">\(m_{1\mid0}=0\)</span> and <span class="arithmatex">\(P_{1\mid0}=2\)</span>.
+Therefore <span class="arithmatex">\(S_1=3\)</span>, <span class="arithmatex">\(K_1=2/3\)</span>, and</p>
+<div class="arithmatex">\[
+m_{1\mid1}=\frac23,
+\qquad
+P_{1\mid1}=\frac23.
+\]</div>
+<p>At time two, the predictive moments are
+<span class="arithmatex">\(m_{2\mid1}=2/3\)</span> and <span class="arithmatex">\(P_{2\mid1}=5/3\)</span>. For <span class="arithmatex">\(y_2=2\)</span>,</p>
+<div class="arithmatex">\[
+S_2=\frac83,
+\qquad
+K_2=\frac58,
+\qquad
+e_2=\frac43.
+\]</div>
+<p>Hence</p>
+<div class="arithmatex">\[
+m_{2\mid2}
+=\frac23+\frac58\frac43
+=\frac32,
+\qquad
+P_{2\mid2}=\frac58.
+\]</div>
+<p>The two predictive log-density contributions are approximately <span class="arithmatex">\(-1.63491\)</span> and
+<span class="arithmatex">\(-1.74269\)</span>, so the log likelihood of <span class="arithmatex">\((1,2)\)</span> under this fixed model is
+<span class="arithmatex">\(-3.37760\)</span>. This is a density value for the observation sequence, not a state
+estimation error.</p>
+<h3 id="missing-partial-and-correlated-observations">Missing, partial, and correlated observations<a class="headerlink" href="#missing-partial-and-correlated-observations" title="Permanent link">¤</a></h3>
+<p>If <span class="arithmatex">\(y_t\)</span> is entirely missing and the absence is ignorable under the declared
+model, perform prediction and skip correction; the evidence contribution is
+zero on the log scale. For a partially observed vector, select the observed
+rows of <span class="arithmatex">\(C_t\)</span>, <span class="arithmatex">\(d_t\)</span>, and <span class="arithmatex">\(R_t\)</span>. Dropping rows of a correlated <span class="arithmatex">\(R_t\)</span> is valid
+only by taking the corresponding marginal covariance, not by pretending the
+remaining noise is independent.</p>
+<p>If missingness depends on the unseen value or latent state, skipping the update
+omits an informative missingness likelihood. The model must include that
+mechanism or report a sensitivity analysis.</p>
+<h3 id="numerical-representations">Numerical representations<a class="headerlink" href="#numerical-representations" title="Permanent link">¤</a></h3>
+<div class="md-typeset__table book-table-container"><table id="tbl-filtering-and-smoothing-state-space-numerical-representations"><caption class="book-object-caption"><span class="book-object-number">Table FILTER.2.</span> Numerical representations</caption>
+<thead>
+<tr>
+<th>Representation</th>
+<th>Stored uncertainty</th>
+<th>Useful structure</th>
+<th>Important boundary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>covariance</td>
+<td><span class="arithmatex">\(P\)</span></td>
+<td>intuitive marginal variances and direct prediction</td>
+<td>subtraction in correction can lose symmetry or positive semidefiniteness</td>
+</tr>
+<tr>
+<td>Joseph covariance</td>
+<td><span class="arithmatex">\(P\)</span></td>
+<td>exposes both propagated state uncertainty and measurement noise</td>
+<td>improves finite behavior but does not cure misspecification</td>
+</tr>
+<tr>
+<td>square-root</td>
+<td><span class="arithmatex">\(P=LL^\top\)</span> or an information factor</td>
+<td>QR/orthogonal transformations preserve factor structure</td>
+<td>implementation conventions differ; reconstructing <span class="arithmatex">\(P\)</span> at every step discards much of the benefit</td>
+</tr>
+<tr>
+<td>information</td>
+<td><span class="arithmatex">\(\Lambda=P^{-1}\)</span> and <span class="arithmatex">\(\eta=\Lambda m\)</span></td>
+<td>additive independent measurement factors and sparse precision structure</td>
+<td>prediction may destroy sparsity and must not use an explicit inverse blindly</td>
+</tr>
+</tbody>
+</table></div>
+<p>Square-root and factorized filters descend from numerical work on sequential
+estimation; modern QR-only formulations make the stability objective explicit.
+They compute the same Gaussian law in exact arithmetic, but roundoff, rank
+handling, conditioning, and differentiation can make finite programs differ.</p>
+<div class="admonition failure">
+<p class="admonition-title">Small covariance is not proof of accuracy</p>
+<p>A filter can become confidently wrong when <span class="arithmatex">\(Q_t\)</span> or <span class="arithmatex">\(R_t\)</span> is
+underestimated, the observation map is biased, a latent direction is
+unobservable, or numerical code silently destroys covariance structure.
+Posterior covariance is conditional uncertainty under the fitted model,
+not an empirical error bar certified by its own magnitude.</p>
+</div>
+<h3 id="chapter-2-synthesis">Chapter 2 synthesis<a class="headerlink" href="#chapter-2-synthesis" title="Permanent link">¤</a></h3>
+<p>The Kalman filter is exact Bayesian filtering for the declared
+linear-Gaussian model. Its update is Gaussian conditioning, and its predictive
+normalizer supplies the likelihood. Stable implementations preserve matrix
+structure and solve systems; they do not infer correctness from a successful
+matrix inversion.</p>
+<h3 id="chapter-2-retrieval-practice">Chapter 2 retrieval practice<a class="headerlink" href="#chapter-2-retrieval-practice" title="Permanent link">¤</a></h3>
+<ol>
+<li>Under what assumptions is the complete Kalman posterior exact?</li>
+<li>Why is the Joseph update not a new statistical model?</li>
+<li>What should happen when an observation is ignorable and missing?</li>
+<li>Why can a covariance-only implementation and a square-root implementation
+   disagree in floating-point arithmetic?</li>
+</ol>
+<details class="success">
+<summary>Complete solutions</summary>
+<ol>
+<li>Gaussian initial state, affine transitions and emissions, and the declared independent Gaussian noise structure, with well-defined conditioning.</li>
+<li>It is an algebraically equivalent covariance computation under the same gain and model; it changes numerical realization, not the target law.</li>
+<li>Propagate the state distribution and omit the correction; partial observations use the corresponding marginal observation model.</li>
+<li>They perform different finite sequences of factorization, multiplication, and subtraction, so conditioning and roundoff affect them differently even when exact algebra agrees.</li>
+</ol>
+</details>
+<p>Filtering has used data only through the present. The next chapter adds future
+evidence without discarding temporal dependence.</p>
+<p><a href="./#3-smoothing-sampling-and-information-forms">Continue continuously</a>,
+or use the <a href="../filtering-02-kalman/">Chapter 2 stopping-point view</a>.</p>
+<h2 id="3-smoothing-sampling-and-information-forms">3. Smoothing, Sampling, and Information Forms<a class="headerlink" href="#3-smoothing-sampling-and-information-forms" title="Permanent link">¤</a></h2>
+<h3 id="chapter-3-prerequisites-and-learning-objectives">Chapter 3 prerequisites and learning objectives<a class="headerlink" href="#chapter-3-prerequisites-and-learning-objectives" title="Permanent link">¤</a></h3>
+<p><strong>Prerequisites.</strong> Chapter 2, Gaussian conditioning, block covariances, and
+backward messages.</p>
+<p><strong>Learning objectives.</strong> Derive the Rauch–Tung–Striebel recursion; distinguish
+smoothed marginals from correlated path samples; compute a complete scalar
+smoothing update; use information coordinates without confusing precision
+with certainty; and explain when temporal scans change parallel depth without
+changing the probabilistic target.</p>
+<h3 id="rauchtungstriebel-smoothing">Rauch–Tung–Striebel smoothing<a class="headerlink" href="#rauchtungstriebel-smoothing" title="Permanent link">¤</a></h3>
+<p>After a forward Kalman pass, define the smoothing gain</p>
+<div class="arithmatex">\[
+J_t
+=P_{t\mid t}A_{t+1}^\top
+P_{t+1\mid t}^{-1}.
+\]</div>
+<p>Again, implementations solve against <span class="arithmatex">\(P_{t+1\mid t}\)</span>. Starting from the last
+filtered state, <span class="arithmatex">\(m_{T\mid T}\)</span> and <span class="arithmatex">\(P_{T\mid T}\)</span>, the RTS recursion is</p>
+<div class="arithmatex">\[
+\begin{aligned}
+m_{t\mid T}
+&amp;=m_{t\mid t}
++J_t(m_{t+1\mid T}-m_{t+1\mid t}),\\
+P_{t\mid T}
+&amp;=P_{t\mid t}
++J_t(P_{t+1\mid T}-P_{t+1\mid t})J_t^\top.
+\end{aligned}
+\]</div>
+<p>The correction is driven by how the smoothed next state differs from its
+one-step prediction. The covariance difference is negative semidefinite under
+the exact regular model, but careless subtraction can still damage a finite
+implementation. Square-root smoothers avoid forming the most fragile
+differences directly.</p>
+<h3 id="worked-continuation-smoothing-the-first-state">Worked continuation: smoothing the first state<a class="headerlink" href="#worked-continuation-smoothing-the-first-state" title="Permanent link">¤</a></h3>
+<p>Continue the scalar model from Chapter 2. The smoothing gain is</p>
+<div class="arithmatex">\[
+J_1
+=\frac{P_{1\mid1}}{P_{2\mid1}}
+=\frac{2/3}{5/3}
+=\frac25.
+\]</div>
+<p>The smoothed time-one mean is</p>
+<div class="arithmatex">\[
+m_{1\mid2}
+=\frac23+\frac25\left(\frac32-\frac23\right)
+=1,
+\]</div>
+<p>and the smoothed variance is</p>
+<div class="arithmatex">\[
+P_{1\mid2}
+=\frac23
++\left(\frac25\right)^2
+\left(\frac58-\frac53\right)
+=\frac12.
+\]</div>
+<p>The future observation moves the earlier mean from <span class="arithmatex">\(2/3\)</span> to <span class="arithmatex">\(1\)</span> and reduces
+its variance from <span class="arithmatex">\(2/3\)</span> to <span class="arithmatex">\(1/2\)</span>. The lag-one smoothed covariance is
+<span class="arithmatex">\(P_{1,2\mid2}=J_1P_{2\mid2}=1/4\)</span>. That cross-time covariance matters for path
+uncertainty and parameter learning; the two marginal Gaussians alone do not
+determine it.</p>
+<h3 id="forward-filtering-backward-sampling">Forward filtering, backward sampling<a class="headerlink" href="#forward-filtering-backward-sampling" title="Permanent link">¤</a></h3>
+<p>RTS produces smoothed Gaussian moments. To draw a coherent trajectory, first
+sample</p>
+<div class="arithmatex">\[
+z_T\sim\mathcal N(m_{T\mid T},P_{T\mid T}),
+\]</div>
+<p>then move backward using</p>
+<div class="arithmatex">\[
+z_t\mid z_{t+1},y_{1:T}
+\sim
+\mathcal N\!\left(
+m_{t\mid t}+J_t(z_{t+1}-m_{t+1\mid t}),
+P_{t\mid t}-J_tP_{t+1\mid t}J_t^\top
+\right).
+\]</div>
+<p>In the scalar example, conditioning on a sampled <span class="arithmatex">\(z_2\)</span> gives variance <span class="arithmatex">\(2/5\)</span>.
+If <span class="arithmatex">\(z_2=3/2\)</span>, the backward conditional mean is <span class="arithmatex">\(1\)</span>. Drawing each smoothed
+marginal independently would destroy the <span class="arithmatex">\(1/4\)</span> cross-time covariance and would
+not sample from <span class="arithmatex">\(p(z_{1:2}\mid y_{1:2})\)</span>.</p>
+<p>This forward-filtering backward-sampling construction also supports blocked
+state updates inside MCMC for parameter-uncertain or switching models. Its
+correctness is conditional on the parameters and model used in that block.</p>
+<h3 id="information-coordinates-and-factor-addition">Information coordinates and factor addition<a class="headerlink" href="#information-coordinates-and-factor-addition" title="Permanent link">¤</a></h3>
+<p>A nonsingular Gaussian can be written in moment coordinates <span class="arithmatex">\((m,P)\)</span> or
+information coordinates</p>
+<div class="arithmatex">\[
+\Lambda=P^{-1},
+\qquad
+\eta=\Lambda m.
+\]</div>
+<p>For the linear observation <span class="arithmatex">\(y=Cz+d+r\)</span> with <span class="arithmatex">\(r\sim\mathcal N(0,R)\)</span>, the
+measurement update is additive:</p>
+<div class="arithmatex">\[
+\Lambda_{t\mid t}
+=\Lambda_{t\mid t-1}+C_t^\top R_t^{-1}C_t,
+\qquad
+\eta_{t\mid t}
+=\eta_{t\mid t-1}+C_t^\top R_t^{-1}(y_t-d_t).
+\]</div>
+<p>This is the Gaussian factor-product rule. It is valuable when observation
+factors are sparse or arrive from several conditionally independent sensors.
+Prediction is not generally additive in the same coordinates and can fill in a
+sparse precision matrix. Choosing information form therefore follows the
+linear-algebra structure, not a belief that precision parameters are inherently
+more Bayesian.</p>
+<p>In two-filter smoothing, a forward message and a backward information message
+are multiplied at each time. Boundary conditions and double counting require
+care: the local observation factor must belong to exactly one side or be
+corrected explicitly.</p>
+<h3 id="sufficient-statistics-for-learning">Sufficient statistics for learning<a class="headerlink" href="#sufficient-statistics-for-learning" title="Permanent link">¤</a></h3>
+<p>Linear-Gaussian EM does not need only <span class="arithmatex">\(m_{t\mid T}\)</span> and <span class="arithmatex">\(P_{t\mid T}\)</span>. Its
+expected complete-data log likelihood uses</p>
+<div class="arithmatex">\[
+\begin{aligned}
+\mathbb E[z_t\mid y]&amp;=m_{t\mid T},\\
+\mathbb E[z_tz_t^\top\mid y]
+&amp;=P_{t\mid T}+m_{t\mid T}m_{t\mid T}^\top,\\
+\mathbb E[z_tz_{t-1}^\top\mid y]
+&amp;=P_{t,t-1\mid T}+m_{t\mid T}m_{t-1\mid T}^\top.
+\end{aligned}
+\]</div>
+<p>Omitting lagged cross-moments changes the transition-parameter update. Direct
+likelihood differentiation instead differentiates through the filtering
+recursion; it targets the same fixed-model likelihood only when both routes use
+consistent parameterization and numerical semantics.</p>
+<h3 id="sequential-work-and-parallel-depth">Sequential work and parallel depth<a class="headerlink" href="#sequential-work-and-parallel-depth" title="Permanent link">¤</a></h3>
+<p>The ordinary forward and backward passes perform <span class="arithmatex">\(O(T)\)</span> sequential steps.
+Associative formulations compose local filtering or smoothing elements with a
+binary operator, permitting prefix scans with <span class="arithmatex">\(O(\log T)\)</span> parallel depth and
+<span class="arithmatex">\(O(T)\)</span> total work under an idealized parallel machine. The
+<a href="https://doi.org/10.1109/TAC.2020.2976316">temporal-parallel smoothing construction</a>
+applies this idea to general Bayesian recursions and specializes it to the
+linear-Gaussian case.</p>
+<p>This is an <strong>implementation equivalence under an associative construction</strong>.
+It does not make a nonlinear approximation exact, reduce total arithmetic to
+<span class="arithmatex">\(O(\log T)\)</span>, or guarantee wall-clock speedup when matrices, memory transfers,
+and device occupancy dominate. Parallel reduction order can also change
+floating-point results.</p>
+<div class="admonition failure">
+<p class="admonition-title">Independent smoothed draws are not a smoothed path</p>
+<p>Correct one-time marginals do not determine cross-time dependence. A path
+metric, transition residual, or downstream simulator can fail even when
+every independently sampled time slice has the right marginal histogram.</p>
+</div>
+<h3 id="chapter-3-synthesis">Chapter 3 synthesis<a class="headerlink" href="#chapter-3-synthesis" title="Permanent link">¤</a></h3>
+<p>RTS smoothing is exact Gaussian backward conditioning, and backward simulation
+turns its conditional kernels into correlated trajectories. Information form
+adds Gaussian observation factors naturally; sufficient-statistic learning
+also needs lagged moments. Parallel scans change execution structure while
+preserving the declared algebra only under their associativity and numerical
+contracts.</p>
+<h3 id="chapter-3-retrieval-practice">Chapter 3 retrieval practice<a class="headerlink" href="#chapter-3-retrieval-practice" title="Permanent link">¤</a></h3>
+<ol>
+<li>Why are smoothed marginal means and variances insufficient for EM transition
+   updates?</li>
+<li>What distribution is sampled first in backward simulation?</li>
+<li>Which part of the Gaussian update is especially simple in information form?</li>
+<li>Does logarithmic parallel depth imply logarithmic total work?</li>
+</ol>
+<details class="success">
+<summary>Complete solutions</summary>
+<ol>
+<li>Transition terms contain <span class="arithmatex">\(z_tz_{t-1}^\top\)</span>, so lagged posterior cross-moments are required.</li>
+<li>The terminal filtering distribution, which equals the terminal smoothing distribution.</li>
+<li>Multiplication by independent linear-Gaussian observation factors; their precision and information-vector contributions add.</li>
+<li>No. An ideal scan retains linear total work while reducing dependency depth; hardware and numerical details determine realized speed.</li>
+</ol>
+</details>
+<p>Exact Gaussian closure is a benchmark, not a default property of nonlinear
+generators. The next chapter makes each approximation point explicit.</p>
+<p><a href="./#4-nonlinear-gaussian-approximations">Continue continuously</a>,
+or use the <a href="../filtering-03-smoothing/">Chapter 3 stopping-point view</a>.</p>
+<h2 id="4-nonlinear-gaussian-approximations">4. Nonlinear Gaussian Approximations<a class="headerlink" href="#4-nonlinear-gaussian-approximations" title="Permanent link">¤</a></h2>
+<h3 id="chapter-4-prerequisites-and-learning-objectives">Chapter 4 prerequisites and learning objectives<a class="headerlink" href="#chapter-4-prerequisites-and-learning-objectives" title="Permanent link">¤</a></h3>
+<p><strong>Prerequisites.</strong> Chapters 2–3, Taylor expansion, Gaussian moments, numerical
+quadrature, and KL divergence.</p>
+<p><strong>Learning objectives.</strong> Locate the approximation made by EKF, iterated EKF,
+sigma-point, cubature, quadrature, and general Gaussian filters; derive the
+joint-moment update; identify cases where accurate moments still yield a poor
+posterior representation; and select diagnostics that test approximation
+rather than merely successful execution.</p>
+<h3 id="the-nonlinear-model-and-the-representation-decision">The nonlinear model and the representation decision<a class="headerlink" href="#the-nonlinear-model-and-the-representation-decision" title="Permanent link">¤</a></h3>
+<p>Let</p>
+<div class="arithmatex">\[
+z_t=f_t(z_{t-1},u_t)+q_t,
+\qquad
+y_t=h_t(z_t)+r_t,
+\]</div>
+<p>with Gaussian additive noise for the moment. Nonlinearity makes the predictive
+and posterior laws non-Gaussian in general. A Gaussian filter chooses to retain
+only a mean and covariance after each stage. Three questions must then be
+separated:</p>
+<ol>
+<li>Which nonlinear moments are being approximated?</li>
+<li>How are those moments estimated?</li>
+<li>Why is one Gaussian an adequate representation of the resulting belief?</li>
+</ol>
+<p>A better answer to question 2 does not settle question 3.</p>
+<h3 id="extended-kalman-filtering-pointwise-linearization">Extended Kalman filtering: pointwise linearization<a class="headerlink" href="#extended-kalman-filtering-pointwise-linearization" title="Permanent link">¤</a></h3>
+<p>The EKF linearizes the transition around the previous filtered mean and the
+observation around the current predicted mean:</p>
+<div class="arithmatex">\[
+F_t=\left.\frac{\partial f_t}{\partial z}\right|_{m_{t-1\mid t-1}},
+\qquad
+H_t=\left.\frac{\partial h_t}{\partial z}\right|_{m_{t\mid t-1}}.
+\]</div>
+<p>It propagates</p>
+<div class="arithmatex">\[
+\begin{aligned}
+m_{t\mid t-1}&amp;=f_t(m_{t-1\mid t-1},u_t),\\
+P_{t\mid t-1}&amp;=F_tP_{t-1\mid t-1}F_t^\top+Q_t,
+\end{aligned}
+\]</div>
+<p>then applies a Kalman-style correction with predicted observation
+<span class="arithmatex">\(h_t(m_{t\mid t-1})\)</span>, Jacobian <span class="arithmatex">\(H_t\)</span>, and
+<span class="arithmatex">\(S_t=H_tP_{t\mid t-1}H_t^\top+R_t\)</span>.</p>
+<p>This is local Taylor approximation, not exact Bayesian conditioning. The
+reported covariance does not automatically include neglected curvature.
+Linearization can be poor when the belief is broad, the map has strong
+curvature, the state lies near a coordinate singularity, or multiple regions
+of state space explain the same observation.</p>
+<p>An iterated EKF relinearizes the <strong>same</strong> measurement around successive state
+estimates. With prior <span class="arithmatex">\((m^-,P^-)\)</span>, one common Gauss–Newton form is</p>
+<div class="arithmatex">\[
+m^{(i+1)}
+=m^-+K^{(i)}
+\left[y-h(m^{(i)})+H^{(i)}(m^{(i)}-m^-)\right].
+\]</div>
+<p>The iteration searches for a local posterior approximation. It must not shrink
+the covariance as though each relinearization were an independent repeat of
+the observation. Convergence is local and can depend on initialization,
+damping, and coordinates.</p>
+<p>The extended smoother uses linearized transition models in a backward pass.
+Iterated smoothers relinearize around a whole trajectory and are closely
+related to structured Gauss–Newton or Laplace approximations; they do not
+inherit global optimality from the linear RTS formula.</p>
+<h3 id="joint-moment-gaussian-filtering">Joint-moment Gaussian filtering<a class="headerlink" href="#joint-moment-gaussian-filtering" title="Permanent link">¤</a></h3>
+<p>A broader construction approximates the predictive joint law of state and
+observation by a Gaussian. Let</p>
+<div class="arithmatex">\[
+\mu_y=\mathbb E[h(Z)],
+\qquad
+S_y=\operatorname{Cov}(h(Z))+R,
+\qquad
+C_{zy}=\operatorname{Cov}(Z,h(Z)),
+\]</div>
+<p>where <span class="arithmatex">\(Z\sim\mathcal N(m^-,P^-)\)</span>. Gaussian conditioning then gives</p>
+<div class="arithmatex">\[
+m=m^-+C_{zy}S_y^{-1}(y-\mu_y),
+\qquad
+P=P^--C_{zy}S_y^{-1}C_{zy}^\top.
+\]</div>
+<p>The update is exact for the fitted joint Gaussian. Its relationship to the
+original nonlinear posterior is a <strong>shared-moment approximation</strong>, not an
+algebraic equivalence of distributions.</p>
+<p>Statistical linear regression expresses the same moment fit as</p>
+<div class="arithmatex">\[
+h(Z)\approx a+BZ+\varepsilon,
+\qquad
+B=C_{yz}(P^-)^{-1},
+\qquad
+a=\mu_y-Bm^-,
+\]</div>
+<p>with a residual covariance chosen to reproduce <span class="arithmatex">\(S_y\)</span>. Unlike an EKF tangent,
+this linear model is fitted over the current distribution. Changing the belief
+changes the regression.</p>
+<h3 id="estimating-transformed-gaussian-moments">Estimating transformed Gaussian moments<a class="headerlink" href="#estimating-transformed-gaussian-moments" title="Permanent link">¤</a></h3>
+<div class="md-typeset__table book-table-container"><table id="tbl-filtering-and-smoothing-state-space-estimating-transformed-gaussian-moments"><caption class="book-object-caption"><span class="book-object-number">Table FILTER.3.</span> Estimating transformed Gaussian moments</caption>
+<thead>
+<tr>
+<th>Method</th>
+<th>Moment construction</th>
+<th>Strength</th>
+<th>Boundary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Taylor / EKF</td>
+<td>function value and Jacobian at one point</td>
+<td>few model calls; derivatives expose local sensitivity</td>
+<td>ignores higher-order variation over the belief</td>
+</tr>
+<tr>
+<td>unscented transform</td>
+<td>deterministic weighted sigma points matching selected input moments</td>
+<td>derivative-free and compact</td>
+<td>weights and scaling conventions matter; no universal parameter setting or accuracy ordering</td>
+</tr>
+<tr>
+<td>cubature Kalman filter</td>
+<td>spherical–radial cubature points</td>
+<td>systematic third-degree rule with point count linear in state dimension</td>
+<td>degree exactness for polynomial integration is not posterior exactness</td>
+</tr>
+<tr>
+<td>Gauss–Hermite quadrature</td>
+<td>tensor or sparse-grid Gaussian quadrature</td>
+<td>high polynomial accuracy at manageable low dimension</td>
+<td>tensor cost grows exponentially with dimension</td>
+</tr>
+<tr>
+<td>Monte Carlo moment filter</td>
+<td>random Gaussian draws</td>
+<td>flexible and asymptotically consistent for integrable moments</td>
+<td>finite sampling error, covariance rank limits, and stochastic gradients remain</td>
+</tr>
+</tbody>
+</table></div>
+<p>The <a href="https://doi.org/10.1109/JPROC.2003.823141">unscented-filter construction</a>
+and <a href="https://doi.org/10.1109/TAC.2009.2019800">cubature Kalman filter</a> are
+specific deterministic integration rules. “Derivative free” does not mean
+assumption free, and polynomial exactness of a quadrature rule does not imply
+that a one-Gaussian posterior represents separated modes.</p>
+<p>Sigma-point smoothers reuse approximate forward joint moments to define a
+backward Gaussian conditional. The smoother can therefore amplify a forward
+moment error; it does not repair a lost mode by using future data.</p>
+<h3 id="worked-failure-case-correct-moments-can-still-hide-the-answer">Worked failure case: correct moments can still hide the answer<a class="headerlink" href="#worked-failure-case-correct-moments-can-still-hide-the-answer" title="Permanent link">¤</a></h3>
+<p>Let the predictive state be <span class="arithmatex">\(Z\sim\mathcal N(0,1)\)</span> and observe</p>
+<div class="arithmatex">\[
+Y=Z^2+\varepsilon,
+\qquad
+\varepsilon\sim\mathcal N(0,r).
+\]</div>
+<p>The EKF linearizes at zero, where <span class="arithmatex">\(h(0)=0\)</span> and <span class="arithmatex">\(h'(0)=0\)</span>. It predicts no
+state–observation coupling and performs no update.</p>
+<p>Exact Gaussian moments give a more accurate predictive summary:</p>
+<div class="arithmatex">\[
+\mathbb E[Y]=1,
+\qquad
+\operatorname{Var}(Y)=2+r,
+\qquad
+\operatorname{Cov}(Z,Y)=\mathbb E[Z^3]=0.
+\]</div>
+<p>Yet the joint-moment Gaussian gain is still zero. For an observation near
+<span class="arithmatex">\(y=4\)</span> and small <span class="arithmatex">\(r\)</span>, the true posterior is approximately split between states
+near <span class="arithmatex">\(-2\)</span> and <span class="arithmatex">\(2\)</span>:</p>
+<div class="arithmatex">\[
+p(z\mid y)
+\propto
+\exp\!\left(-\frac{z^2}{2}
+-\frac{(y-z^2)^2}{2r}\right).
+\]</div>
+<p>Its mean is zero by symmetry, so a mean-only diagnostic can report success
+while a one-Gaussian belief entirely misses the two explanations. This example
+separates three failures: EKF misestimates transformed moments, a moment filter
+can estimate them correctly, and Gaussian conditioning still cannot represent
+the posterior geometry.</p>
+<h3 id="coordinates-constraints-and-geometry">Coordinates, constraints, and geometry<a class="headerlink" href="#coordinates-constraints-and-geometry" title="Permanent link">¤</a></h3>
+<p>Angles, rotations, positive scales, simplices, and manifolds should not be
+treated as unconstrained Euclidean vectors merely because a covariance matrix
+can be written. Local-coordinate or invariant filters must declare the group
+action, retraction, error coordinates, and chart transitions. Renormalizing a
+quaternion after a Euclidean update is a projection step whose uncertainty
+semantics require analysis.</p>
+<p>Hard bounds can truncate or split a posterior. Clipping the Gaussian mean does
+not condition the distribution on the feasible set. Use a constrained model,
+truncated update, mixture, particles, or another declared approximation when
+boundary mass matters.</p>
+<h3 id="chapter-4-synthesis">Chapter 4 synthesis<a class="headerlink" href="#chapter-4-synthesis" title="Permanent link">¤</a></h3>
+<p>EKF approximates nonlinear maps locally. Sigma-point, cubature, quadrature,
+and Monte Carlo methods approximate moments over a distribution. General
+Gaussian filtering then conditions a fitted joint Gaussian. These are distinct
+approximation layers, and none guarantees that a single Gaussian represents a
+multimodal, skewed, bounded, or manifold-valued posterior.</p>
+<h3 id="chapter-4-retrieval-practice">Chapter 4 retrieval practice<a class="headerlink" href="#chapter-4-retrieval-practice" title="Permanent link">¤</a></h3>
+<ol>
+<li>What does an iterated EKF repeat, and what must it not pretend to repeat?</li>
+<li>How does statistical linearization differ from a Taylor tangent?</li>
+<li>Why does exact evaluation of <span class="arithmatex">\(\mathbb E[Z^2]\)</span> not solve the worked
+   <span class="arithmatex">\(Y=Z^2+\varepsilon\)</span> posterior?</li>
+<li>Does a cubature rule's polynomial degree establish posterior exactness?</li>
+</ol>
+<details class="success">
+<summary>Complete solutions</summary>
+<ol>
+<li>It repeats local linearization and optimization for one likelihood factor; it must not count that factor as new independent evidence on every iteration.</li>
+<li>It fits an affine relation under the current state distribution using global moments, while a Taylor tangent matches local derivatives at one point.</li>
+<li>The observation identifies magnitude but not sign, creating separated symmetric explanations that one Gaussian cannot express even though selected moments are correct.</li>
+<li>No. It describes integration accuracy for a function class; nonlinear Bayes conditioning and the chosen posterior family add separate errors.</li>
+</ol>
+</details>
+<p>The next chapter enlarges the belief representation and makes projection,
+mixture reduction, and ensemble approximations explicit.</p>
+<p><a href="./#5-projection-mixture-ensemble-and-robust-filters">Continue continuously</a>,
+or use the <a href="../filtering-04-nonlinear-gaussian/">Chapter 4 stopping-point view</a>.</p>
+<h2 id="5-projection-mixture-ensemble-and-robust-filters">5. Projection, Mixture, Ensemble, and Robust Filters<a class="headerlink" href="#5-projection-mixture-ensemble-and-robust-filters" title="Permanent link">¤</a></h2>
+<h3 id="chapter-5-prerequisites-and-learning-objectives">Chapter 5 prerequisites and learning objectives<a class="headerlink" href="#chapter-5-prerequisites-and-learning-objectives" title="Permanent link">¤</a></h3>
+<p><strong>Prerequisites.</strong> Chapter 4, mixture distributions, forward and reverse KL,
+importance weighting, and normalizing flows.</p>
+<p><strong>Learning objectives.</strong> Derive assumed-density filtering as
+predict–update–project; prove the KL direction for Gaussian moment matching;
+explain mixture growth in switching systems; distinguish ensembles from
+weighted particles; and audit robust and flow-based filters by the law each
+construction changes or approximates.</p>
+<h3 id="assumed-density-filtering">Assumed-density filtering<a class="headerlink" href="#assumed-density-filtering" title="Permanent link">¤</a></h3>
+<p>Let <span class="arithmatex">\(\mathcal Q\)</span> be a tractable family. Suppose
+<span class="arithmatex">\(q_{t-1}\in\mathcal Q\)</span> approximates the previous filter. ADF performs:</p>
+<ol>
+<li><strong>predict</strong> through the transition using <span class="arithmatex">\(q_{t-1}\)</span>;</li>
+<li><strong>update</strong> that approximate prediction by the exact new likelihood when the
+   local calculation is available; and</li>
+<li><strong>project</strong> the resulting distribution back into <span class="arithmatex">\(\mathcal Q\)</span>.</li>
+</ol>
+<p>Writing the locally updated distribution as <span class="arithmatex">\(\widetilde p_t\)</span>, the usual moment
+projection is</p>
+<div class="arithmatex">\[
+q_t
+=\arg\min_{q\in\mathcal Q}
+D_{\mathrm{KL}}(\widetilde p_t\|q).
+\]</div>
+<p>For a regular exponential family, the optimum matches the sufficient-statistic
+moments when they exist and the optimum is attainable. With a Gaussian family,
+this means matching mean and covariance.</p>
+<p>The KL direction matters. For <span class="arithmatex">\(q=\mathcal N(m,S)\)</span>,</p>
+<div class="arithmatex">\[
+D_{\mathrm{KL}}(p\|q)
+=\text{constant}
++\frac12\log\det S
++\frac12\mathbb E_p[(X-m)^\top S^{-1}(X-m)].
+\]</div>
+<p>Differentiating shows that the optimum is
+<span class="arithmatex">\(m=\mathbb E_p[X]\)</span> and <span class="arithmatex">\(S=\operatorname{Cov}_p(X)\)</span>. This is not the generic
+solution of <span class="arithmatex">\(\min_qD_{\mathrm{KL}}(q\|p)\)</span>.</p>
+<h3 id="worked-mixture-projection-and-its-failure">Worked mixture projection and its failure<a class="headerlink" href="#worked-mixture-projection-and-its-failure" title="Permanent link">¤</a></h3>
+<p>Consider</p>
+<div class="arithmatex">\[
+p(x)=\frac12\mathcal N(x;-3,1)+\frac12\mathcal N(x;3,1).
+\]</div>
+<p>Its mean is zero and its variance is</p>
+<div class="arithmatex">\[
+\operatorname{Var}(X)
+=1+\frac12(-3)^2+\frac12(3)^2
+=10.
+\]</div>
+<p>The forward-KL Gaussian projection is therefore <span class="arithmatex">\(\mathcal N(0,10)\)</span>. It covers
+both components but assigns density to the low-probability gap around zero.
+For well-separated components, a reverse-KL Gaussian optimization can instead
+settle near one component, depending on initialization and parameterization.
+Neither projection preserves the original bimodality.</p>
+<div class="admonition warning">
+<p class="admonition-title">Projection errors accumulate and can depend on order</p>
+<p>ADF projects after every factor. Once a tail, mode, or dependence is
+discarded, a later observation is conditioned on the projected belief.
+Reordering nonconjugate factors can therefore change the approximation even
+though exact Bayes multiplication is order invariant. Expectation
+propagation revisits approximate factors, but convergence and accuracy are
+separate questions.</p>
+</div>
+<p>The corrected <a href="https://tminka.github.io/papers/ep/">expectation-propagation record</a>
+connects ADF, moment projection, and iterative local factor updates. It should
+not be summarized as a general guarantee that EP converges or dominates
+variational inference.</p>
+<h3 id="switching-systems-and-gaussian-sum-filters">Switching systems and Gaussian-sum filters<a class="headerlink" href="#switching-systems-and-gaussian-sum-filters" title="Permanent link">¤</a></h3>
+<p>In a switching linear dynamical system, a discrete mode selects local linear
+dynamics. Conditional on a complete mode path, Kalman inference is exact. After
+marginalizing paths, the state belief is a Gaussian mixture whose component
+count can multiply at every step.</p>
+<p>A Gaussian-sum filter retains several components and periodically merges,
+prunes, or caps them. For mixture weights <span class="arithmatex">\(\pi_k\)</span>, means <span class="arithmatex">\(m_k\)</span>, and covariances
+<span class="arithmatex">\(P_k\)</span>, moment-preserving collapse gives</p>
+<div class="arithmatex">\[
+\begin{aligned}
+m&amp;=\sum_k\pi_km_k,\\
+P&amp;=\sum_k\pi_k\left[P_k+(m_k-m)(m_k-m)^\top\right].
+\end{aligned}
+\]</div>
+<p>The between-component term is essential. Omitting it makes uncertainty shrink
+when modes disagree most.</p>
+<p>Generalized pseudo-Bayes and interacting-multiple-model filters differ in when
+they mix mode-conditioned beliefs and how many Kalman updates they retain.
+They are structured approximations, not exact inference merely because every
+local submodel is linear Gaussian. Pruning requires a lost-mass or query-error
+audit; keeping the top component is not probability-preserving renormalization
+over the original path space.</p>
+<h3 id="ensemble-kalman-filtering">Ensemble Kalman filtering<a class="headerlink" href="#ensemble-kalman-filtering" title="Permanent link">¤</a></h3>
+<p>An ensemble Kalman filter propagates <span class="arithmatex">\(N\)</span> state replicas through the transition,
+then estimates forecast and state–observation covariances from the ensemble.
+In a stochastic observation-update form,</p>
+<div class="arithmatex">\[
+z_t^{a,i}
+=z_t^{f,i}
++\widehat C_{zy}
+(\widehat C_{yy}+R)^{-1}
+\left(y_t+\varepsilon_t^i-h(z_t^{f,i})\right),
+\]</div>
+<p>where <span class="arithmatex">\(\varepsilon_t^i\sim\mathcal N(0,R)\)</span> and sample covariances define the
+gain. Deterministic square-root ensemble updates transform anomalies without
+perturbed observations; the two finite ensembles are not identical.</p>
+<p>The original <a href="https://doi.org/10.1029/94JC00572">ensemble data-assimilation construction</a>
+uses Monte Carlo forecast error statistics. For linear-Gaussian systems,
+ensemble estimates converge to the Kalman quantities under suitable
+large-ensemble conditions. Existing convergence results must be read with
+their model assumptions. In a nonlinear system, an infinite ensemble does not
+automatically turn the covariance-style analysis update into the exact
+nonlinear Bayesian posterior.</p>
+<p>An EnKF ensemble is not a particle filter in disguise:</p>
+<div class="md-typeset__table book-table-container"><table id="tbl-filtering-and-smoothing-state-space-ensemble-kalman-filtering"><caption class="book-object-caption"><span class="book-object-number">Table FILTER.4.</span> Ensemble Kalman filtering</caption>
+<thead>
+<tr>
+<th>Property</th>
+<th>EnKF</th>
+<th>Particle filter</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>correction</td>
+<td>affine covariance-based movement</td>
+<td>likelihood or proposal importance weights, often followed by resampling</td>
+</tr>
+<tr>
+<td>finite representation</td>
+<td>usually equally weighted ensemble</td>
+<td>weighted empirical measure before resampling</td>
+</tr>
+<tr>
+<td>multimodality</td>
+<td>can be distorted or collapsed by affine update</td>
+<td>representable if particles reach and retain the modes</td>
+</tr>
+<tr>
+<td>common high-dimensional device</td>
+<td>localization and inflation</td>
+<td>factorization, localization, tempering, transport, or problem-specific proposals</td>
+</tr>
+<tr>
+<td>exact nonlinear Bayes limit</td>
+<td>not generic</td>
+<td>consistency can hold as particle count grows under support and regularity conditions</td>
+</tr>
+</tbody>
+</table></div>
+<p>Covariance localization and inflation can control finite-ensemble sampling
+error, but they alter the update. Their radius, taper, inflation schedule, and
+tuning data belong in a reproducible protocol.</p>
+<h3 id="robust-observations-change-the-update-contract">Robust observations change the update contract<a class="headerlink" href="#robust-observations-change-the-update-contract" title="Permanent link">¤</a></h3>
+<p>Heavy-tailed likelihoods, mixture contamination models, latent outlier scales,
+and generalized Bayes losses address different robustness goals. A Student
+<span class="arithmatex">\(t\)</span> observation law remains an ordinary probabilistic model but usually breaks
+Gaussian posterior closure. A generalized Bayesian update changes how loss is
+converted into posterior weight and need not correspond to the original data
+likelihood.</p>
+<p>The <a href="https://proceedings.mlr.press/v235/duran-martin24a.html">generalized-Bayes robust filter</a>
+is a peer-reviewed construction with declared robustness assumptions and
+extended/ensemble implementations. It is evidence for that method—not a
+license to clip every innovation or to call a heuristic covariance inflation
+Bayesian robustness.</p>
+<p>Outlier robustness can reduce sensitivity to bad measurements while reducing
+efficiency under the nominal Gaussian model. Evaluate both contaminated and
+clean regimes, temporal bursts, leverage directions, and uncertainty coverage.</p>
+<h3 id="flow-based-filters-three-different-roles">Flow-based filters: three different roles<a class="headerlink" href="#flow-based-filters-three-different-roles" title="Permanent link">¤</a></h3>
+<p>Normalizing flows can enter state-space inference in at least three ways:</p>
+<ol>
+<li>transform observations or states into coordinates with a tractable local
+   conditional;</li>
+<li>parameterize a flexible filtering or smoothing approximation; or</li>
+<li>construct a proposal or transport inside a weighted particle method.</li>
+</ol>
+<p>Only the first can retain an analytic Kalman calculation, and only when the
+invertible map, Jacobian, latent linear-Gaussian law, and conditioning direction
+support the claimed query. A flexible approximate posterior does not become
+exact because its density is normalized. A learned proposal inside SMC remains
+corrected by its importance ratio.</p>
+<p><a href="https://proceedings.neurips.cc/paper/2020/hash/1f47cef5e38c952f94c5d61726027439-Abstract.html">Normalizing Kalman Filters</a>
+provide one peer-reviewed model composition for multivariate time series. The
+result belongs simultaneously to a state-space model, a flow transformation,
+and an inference construction; its tractability claims do not transfer to an
+arbitrary flow attached to an arbitrary nonlinear filter.</p>
+<h3 id="chapter-5-synthesis">Chapter 5 synthesis<a class="headerlink" href="#chapter-5-synthesis" title="Permanent link">¤</a></h3>
+<p>ADF projects after local Bayes updates, and forward-KL Gaussian projection
+matches moments. Gaussian sums postpone collapse, EnKF estimates covariance
+updates with ensembles, robust filters change likelihood or update semantics,
+and flows can transform models, approximate beliefs, or improve proposals.
+Every method must name which probability law and representation supplies its
+guarantee.</p>
+<h3 id="chapter-5-retrieval-practice">Chapter 5 retrieval practice<a class="headerlink" href="#chapter-5-retrieval-practice" title="Permanent link">¤</a></h3>
+<ol>
+<li>Which KL direction yields Gaussian moment matching?</li>
+<li>Why must mixture covariance include a between-component term?</li>
+<li>What prevents an infinite nonlinear EnKF ensemble from automatically being
+   an exact Bayes filter?</li>
+<li>When does a flow proposal remove the need for particle weights?</li>
+</ol>
+<details class="success">
+<summary>Complete solutions</summary>
+<ol>
+<li>Minimize <span class="arithmatex">\(D_{\mathrm{KL}}(p\|q)\)</span> over Gaussian <span class="arithmatex">\(q\)</span>, assuming the required moments exist.</li>
+<li>Component means differ from the mixture mean; their dispersion contributes genuine uncertainty beyond within-component covariances.</li>
+<li>The limiting analysis is still a covariance-based affine update; exact nonlinear Bayes conditioning generally needs more than first and second cross-moments.</li>
+<li>Only when the complete construction itself supplies exact samples from the target or an independently proved exact normalized transformation; a generic learned proposal remains importance-corrected.</li>
+</ol>
+</details>
+<p>The final chapter compares these approximations with particles, variational
+paths, learned filters, and diagnostic evidence.</p>
+<p><a href="./#6-particles-learning-validation-and-method-choice">Continue continuously</a>,
+or use the <a href="../filtering-05-projection-ensemble/">Chapter 5 stopping-point view</a>.</p>
+<h2 id="6-particles-learning-validation-and-method-choice">6. Particles, Learning, Validation, and Method Choice<a class="headerlink" href="#6-particles-learning-validation-and-method-choice" title="Permanent link">¤</a></h2>
+<h3 id="chapter-6-prerequisites-and-learning-objectives">Chapter 6 prerequisites and learning objectives<a class="headerlink" href="#chapter-6-prerequisites-and-learning-objectives" title="Permanent link">¤</a></h3>
+<p><strong>Prerequisites.</strong> Chapters 1–5, importance sampling, SMC, variational
+inference, MCMC, automatic differentiation, and proper scoring rules.</p>
+<p><strong>Learning objectives.</strong> Compare state-space inference by target and returned
+representation; separate differentiable learning from finite-filter
+correctness; validate means, uncertainty, paths, evidence, and compute; place
+recent learned and control-based filters at the right abstraction layer; and
+choose a method with an auditable approximation ledger.</p>
+<h3 id="beyond-a-single-gaussian">Beyond a single Gaussian<a class="headerlink" href="#beyond-a-single-gaussian" title="Permanent link">¤</a></h3>
+<p>The Bayesian recursion can be approximated with several representations:</p>
+<div class="md-typeset__table book-table-container"><table id="tbl-filtering-and-smoothing-state-space-beyond-a-single-gaussian"><caption class="book-object-caption"><span class="book-object-number">Table FILTER.5.</span> Beyond a single Gaussian</caption>
+<thead>
+<tr>
+<th>Representation</th>
+<th>Update mechanism</th>
+<th>Principal strength</th>
+<th>Principal failure</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>grid or basis</td>
+<td>numerical integration and normalized tables</td>
+<td>transparent multimodality in very low dimension</td>
+<td>state-space resolution grows exponentially with dimension</td>
+</tr>
+<tr>
+<td>weighted particles</td>
+<td>proposal, importance correction, and optional resampling</td>
+<td>flexible nonlinear and non-Gaussian beliefs</td>
+<td>weight and ancestral degeneracy; severe dimension dependence</td>
+</tr>
+<tr>
+<td>structured variational path</td>
+<td>optimize a declared family over <span class="arithmatex">\(z_{0:T}\)</span></td>
+<td>scalable amortization and global smoothing objectives</td>
+<td>family, amortization, and optimization gaps</td>
+</tr>
+<tr>
+<td>trajectory MCMC</td>
+<td>invariant transitions over states and possibly parameters</td>
+<td>asymptotically exact expectations under kernel conditions</td>
+<td>mixing and long-path geometry can be poor</td>
+</tr>
+<tr>
+<td>expectation propagation</td>
+<td>revise local approximate factors by moment projection</td>
+<td>can reuse local structure and two-sided information</td>
+<td>convergence and positive-definiteness are not generic</td>
+</tr>
+<tr>
+<td>learned deterministic belief</td>
+<td>recurrent or set-valued state update</td>
+<td>low-latency amortized computation</td>
+<td>may not define a normalized posterior or calibrated uncertainty</td>
+</tr>
+</tbody>
+</table></div>
+<p>The <a href="../sampling-and-continuous-time/#4-gibbs-blocks-and-auxiliary-variables">canonical MCMC chapter</a>
+owns invariance, blocked versus scalar updates, warmup, and MCSE. In this
+chapter, trajectory MCMC specializes those rules to a coupled latent path,
+where one-site updates can deteriorate as sequence length grows.</p>
+<p>Particle filtering, resampling, proposal design, particle smoothing, and
+particle MCMC are derived in the <a href="../sequential-monte-carlo-and-particle-methods/">Sequential Monte Carlo and Particle Methods
+foundation</a>. The <a href="../stochastic-process-generators-explained/#particle-filtering-without-hiding-the-proposal">stochastic-process
+chapter</a>
+specializes the construction to irregular-time and continuous-transition laws,
+while <a href="../latent-variables-and-inference/#6-sequential-monte-carlo">Latent Variables and
+Inference</a> compares
+particle objectives with other posterior approximations. The key boundary here
+is that resampling improves current weight allocation while coalescing
+ancestral paths. A filter can estimate the current state well and still give
+poor early-time smoothing trajectories.</p>
+<p>Rao–Blackwellized filters integrate a tractable conditional submodel exactly
+and sample the remainder. This reduces Monte Carlo variance when the
+decomposition is valid; it does not make the sampled variables exact or erase
+particle-support requirements.</p>
+<h3 id="differentiating-through-a-filter">Differentiating through a filter<a class="headerlink" href="#differentiating-through-a-filter" title="Permanent link">¤</a></h3>
+<p>A differentiable filter is a parameterized computation. Gradients can update
+transition, observation, proposal, representation, or initialization
+parameters using supervised state loss, predictive likelihood, an ELBO, an SMC
+bound, or another declared objective. These objectives need not have the same
+population optimum.</p>
+<p>For a deterministic Kalman recursion, reverse-mode differentiation targets the
+finite sequence of solves and updates actually executed. Near-singular
+covariances, adaptive jitter, clipping, stopped gradients, or custom
+factorizations become part of that derivative program.</p>
+<p>For particles, resampling introduces discrete ancestor choices.
+Straight-through, soft-resampling, score-function, transport, marginalization,
+and stopped-resampling estimators have different bias and variance. End-to-end
+differentiability therefore does not prove that the gradient is unbiased for
+the exact state-space likelihood.</p>
+<p><a href="https://doi.org/10.15607/RSS.2018.XIV.001">Differentiable Particle Filters</a>
+demonstrate one algorithm-prior construction with learned motion and
+measurement components. A 2025 peer-reviewed
+<a href="https://doi.org/10.1016/j.sigpro.2025.109998">learned mixture proposal and transition method</a>
+provides another. Their experimental results belong to the named objectives,
+data, representations, particle counts, and baselines—not to differentiable
+filtering as a universal ranking.</p>
+<h3 id="learned-analytic-structure-and-expressive-beliefs">Learned analytic structure and expressive beliefs<a class="headerlink" href="#learned-analytic-structure-and-expressive-beliefs" title="Permanent link">¤</a></h3>
+<p>Learned filters occupy several distinct design points:</p>
+<ul>
+<li>a neural transition or observation map inside EKF, UKF, or a moment filter;</li>
+<li>an encoder that emits parameters of one Gaussian or mixture belief;</li>
+<li>an invertible map that preserves a declared tractable calculation;</li>
+<li>a learned proposal inside an importance-corrected particle filter; or</li>
+<li>a recurrent belief representation trained only for a downstream query.</li>
+</ul>
+<p>The 2025 ICML <a href="https://proceedings.mlr.press/v267/tarumi25a.html">Deep Bayesian
+Filter</a> introduces an
+additional latent variable, constrains latent transition structure, and learns
+an inverse observation operator so that its stated recursive computation is
+analytic within that construction. This is a <strong>hybrid system composition</strong>:
+learned structure is designed around a tractable posterior interface. It does
+not establish that every learned latent coordinate has a Gaussian true
+posterior or identifiable physical meaning.</p>
+<p>As of the verification date, <a href="https://openreview.net/forum?id=krF62hkrfR">Neural Bayesian
+Filtering</a> is a revised submission,
+not peer-reviewed evidence, for embedding and tracking multimodal beliefs. It
+is useful as a <strong>preprint research direction</strong> only; its status and experiments
+must not be narrated as a settled field result.</p>
+<h3 id="a-current-smoothing-direction">A current smoothing direction<a class="headerlink" href="#a-current-smoothing-direction" title="Permanent link">¤</a></h3>
+<p>A 2026 peer-reviewed <a href="https://proceedings.mlr.press/v331/vantilborgh26a.html">probabilistic optimal-control representation of
+smoothing</a> represents a
+posterior trajectory law through the closed-loop behavior of a synthetic
+controlled system and reports equally weighted forward trajectories under its
+constructed policy. This is a <strong>distributional correspondence under the
+paper's construction</strong>, not an algebraic identity between every smoother and
+every control problem. The policy approximation, particle representation,
+dynamic-programming computation, and model-learning experiment retain their
+own errors and compute ledger.</p>
+<p>A June 2026 <a href="https://arxiv.org/abs/2606.31137">Bayesian-filtering approach to learned Lagrangian
+dynamics</a> is a <strong>preprint</strong> example of joint
+physical-model and state learning with Gaussian-approximation filters. It is
+included to mark a research interface—structured mechanics plus approximate
+filtering—not as evidence of broad superiority or mature reproduction.</p>
+<h3 id="validation-starts-with-the-query">Validation starts with the query<a class="headerlink" href="#validation-starts-with-the-query" title="Permanent link">¤</a></h3>
+<p>No single residual plot validates a filter. Use a ladder:</p>
+<ol>
+<li><strong>Algebraic oracle.</strong> Compare with enumeration or dense Gaussian
+   conditioning on a tiny model.</li>
+<li><strong>Limiting cases.</strong> Recover the linear model from nonlinear code; skip an
+   absent observation; test nearly noiseless and uninformative observations;
+   verify that permuting equivalent independent sensor factors changes no
+   exact result.</li>
+<li><strong>Simulation calibration.</strong> Draw states and observations from the declared
+   model, then measure coverage, rank behavior, and path statistics.</li>
+<li><strong>Predictive checks.</strong> Evaluate held-out log predictive density or another
+   proper score, calibration by horizon, and residual dependence.</li>
+<li><strong>Application queries.</strong> Test the downstream forecast, event probability,
+   control cost, or scientific functional, not only state RMSE.</li>
+<li><strong>Model criticism.</strong> Check whether simulated observations resemble relevant
+   real-data structure. Inference calibration under a simulator does not
+   validate the simulator.</li>
+</ol>
+<p>For a <span class="arithmatex">\(d_y\)</span>-dimensional linear-Gaussian innovation, the normalized innovation
+squared is</p>
+<div class="arithmatex">\[
+\operatorname{NIS}_t=e_t^\top S_t^{-1}e_t.
+\]</div>
+<p>Under the correctly specified regular model it has a <span class="arithmatex">\(\chi^2_{d_y}\)</span> marginal
+law, with additional dependence considerations for a time series. If true
+states are available in simulation, the normalized estimation error squared is</p>
+<div class="arithmatex">\[
+\operatorname{NEES}_t
+=(z_t-m_{t\mid t})^\top
+P_{t\mid t}^{-1}(z_t-m_{t\mid t}),
+\]</div>
+<p>with an analogous <span class="arithmatex">\(\chi^2_{d_z}\)</span> reference under its assumptions. Repeated
+time points from one trajectory are not independent replicates. Tune-on-test
+inflation can make these diagnostics look calibrated without producing a
+generalizing model.</p>
+<p>Also record:</p>
+<ul>
+<li>innovation mean, autocorrelation, tail behavior, and condition-specific
+  structure;</li>
+<li>marginal and simultaneous coverage across horizons;</li>
+<li>effective sample size, unique ancestors, mode occupancy, and path diversity
+  for particles;</li>
+<li>covariance symmetry, factorization failures, minimum eigenvalues, and jitter;</li>
+<li>convergence residuals and initialization sensitivity for iterated methods;</li>
+<li>predictive likelihood with the exact approximation status of each
+  normalizer; and</li>
+<li>wall-clock time, peak memory, model evaluations, linear solves,
+  factorizations, particles or sigma points, sequential depth, and hardware.</li>
+</ul>
+<h3 id="worked-method-selection-audit">Worked method-selection audit<a class="headerlink" href="#worked-method-selection-audit" title="Permanent link">¤</a></h3>
+<p>Suppose a two-dimensional tracking simulator has a bearing-only observation.
+A single measurement admits two separated range hypotheses, but repeated motion
+usually resolves the ambiguity. A defensible study would:</p>
+<ol>
+<li>enumerate or grid a reduced two-step instance as a reference;</li>
+<li>compare EKF, sigma-point, Gaussian mixture, and particle filters with matched
+   transition and observation models;</li>
+<li>report current-state RMSE <strong>and</strong> posterior mass on both range hypotheses;</li>
+<li>evaluate path samples after the ambiguity resolves;</li>
+<li>repeat under clean data, outliers, altered motion, and particle or mixture
+   budgets; and</li>
+<li>distinguish model calls and wall time from nominal update count.</li>
+</ol>
+<p>An EKF can have good mean RMSE after resolution while being overconfident
+during ambiguity. A particle filter can preserve both modes yet suffer ancestor
+collapse. A mixture filter can work well until pruning deletes the eventual
+correct branch. These are different failure mechanisms, so one aggregate RMSE
+cannot select the method.</p>
+<h3 id="decision-table">Decision table<a class="headerlink" href="#decision-table" title="Permanent link">¤</a></h3>
+<div class="md-typeset__table book-table-container"><table id="tbl-filtering-and-smoothing-state-space-decision-table"><caption class="book-object-caption"><span class="book-object-number">Table FILTER.6.</span> Decision table</caption>
+<thead>
+<tr>
+<th>Problem evidence</th>
+<th>Reasonable starting point</th>
+<th>Required challenge test</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>verified linear-Gaussian model, moderate dense state</td>
+<td>square-root Kalman filter and RTS smoother</td>
+<td>dense batch Gaussian oracle and condition-number sweep</td>
+</tr>
+<tr>
+<td>sparse precision or many independent sensors</td>
+<td>information or factor-graph form</td>
+<td>fill-in, double counting, and rank handling</td>
+</tr>
+<tr>
+<td>mild local nonlinearity with good initialization</td>
+<td>EKF or iterated EKF/EKS</td>
+<td>broad-prior and alternate-initialization tests</td>
+</tr>
+<tr>
+<td>smooth nonlinear moments, one mode plausible</td>
+<td>sigma-point, cubature, or quadrature Gaussian filter</td>
+<td>multimodal and coordinate counterexamples</td>
+</tr>
+<tr>
+<td>high-dimensional simulator with useful covariance locality</td>
+<td>EnKF</td>
+<td>localization/inflation sensitivity and nonlinear posterior reference</td>
+</tr>
+<tr>
+<td>a few persistent regimes or hypotheses</td>
+<td>Gaussian-sum or switching approximation</td>
+<td>component growth, pruning loss, and mode recovery</td>
+</tr>
+<tr>
+<td>strongly non-Gaussian low-dimensional state</td>
+<td>grid, particles, mixtures, or flow belief</td>
+<td>support, mode occupancy, and path degeneracy</td>
+</tr>
+<tr>
+<td>tractable conditional substructure</td>
+<td>Rao–Blackwellized particle or hybrid message method</td>
+<td>verify the exact conditional and sampled remainder separately</td>
+</tr>
+<tr>
+<td>repeated related sequences with latency constraints</td>
+<td>amortized or learned filter plus reference inference</td>
+<td>shift, calibration, and objective-mismatch tests</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="chapter-6-synthesis">Chapter 6 synthesis<a class="headerlink" href="#chapter-6-synthesis" title="Permanent link">¤</a></h3>
+<p>Filtering and smoothing are posterior queries over a state-space generator.
+Exact Gaussian closure, projection, deterministic quadrature, ensembles,
+mixtures, variational paths, particles, learned beliefs, and control-based
+representations place approximation in different locations. A research-quality
+comparison identifies that location, validates the query at finite compute,
+and separates inference error from model misspecification.</p>
+<h3 id="chapter-6-retrieval-practice">Chapter 6 retrieval practice<a class="headerlink" href="#chapter-6-retrieval-practice" title="Permanent link">¤</a></h3>
+<ol>
+<li>Why does differentiating through a particle filter not by itself produce an
+   unbiased likelihood gradient?</li>
+<li>What does NIS test under its ideal reference model, and what does it not
+   establish?</li>
+<li>Why can a low current-state RMSE coexist with a poor smoother?</li>
+<li>Which evidence label applies to the June 2026 learned-Lagrangian filtering
+   work?</li>
+<li>What must be matched before comparing EnKF, mixture, and particle filters?</li>
+</ol>
+<details class="success">
+<summary>Complete solutions</summary>
+<ol>
+<li>Resampling and other discrete or stopped operations require a declared estimator; straight-through, relaxed, score-function, and stopped gradients target different finite programs and can be biased for the exact likelihood.</li>
+<li>It tests innovation scale relative to <span class="arithmatex">\(S_t\)</span> under the declared regular model; it does not prove temporal independence, model adequacy, path calibration, or real-data correctness.</li>
+<li>Resampling or projection can preserve the latest marginal while destroying ancestral diversity and cross-time dependence.</li>
+<li>Preprint. It is a timely research direction, not peer-reviewed or independently reproduced evidence.</li>
+<li>The generative transition and observation laws, data, information set, representation, compute budget, initialization, tuning access, metrics, and approximation/evidence protocol.</li>
+</ol>
+</details>
+<h2 id="primary-reading">Primary reading<a class="headerlink" href="#primary-reading" title="Permanent link">¤</a></h2>
+<ul>
+<li><a href="https://doi.org/10.1115/1.3662552">Kalman (1960), <em>A New Approach to Linear Filtering and Prediction
+  Problems</em></a> — exact recursive linear-Gaussian filtering foundations.</li>
+<li><a href="https://doi.org/10.2514/3.3166">Rauch, Tung, and Striebel (1965), <em>Maximum Likelihood Estimates of Linear
+  Dynamic Systems</em></a> — the backward Gaussian smoother.</li>
+<li><a href="https://doi.org/10.1093/biomet/81.3.541">Carter and Kohn (1994), <em>On Gibbs Sampling for State Space
+  Models</em></a> — blocked state-path simulation in Bayesian state-space inference.</li>
+<li><a href="https://doi.org/10.1109/JPROC.2003.823141">Julier and Uhlmann (2004), <em>Unscented Filtering and Nonlinear
+  Estimation</em></a> — deterministic sigma-point filtering.</li>
+<li><a href="https://doi.org/10.1109/TAC.2009.2019800">Arasaratnam and Haykin (2009), <em>Cubature Kalman
+  Filters</em></a> — spherical–radial cubature and square-root construction.</li>
+<li><a href="https://doi.org/10.1029/94JC00572">Evensen (1994), <em>Sequential Data Assimilation with a Nonlinear
+  Quasi-Geostrophic Model</em></a> — ensemble forecast-error statistics.</li>
+<li><a href="https://doi.org/10.1109/TAC.2020.2976316">Särkkä and García-Fernández (2021), <em>Temporal Parallelization of Bayesian
+  Smoothers</em></a> — associative scan formulations.</li>
+<li><a href="https://tminka.github.io/papers/ep/">Minka (2001/2004), <em>Expectation Propagation for Approximate Bayesian
+  Inference</em></a> — corrected primary record for ADF and EP.</li>
+<li><a href="https://proceedings.mlr.press/v267/tarumi25a.html">Tarumi, Fukuda, and Maeda (2025), <em>Deep Bayesian Filter for Bayes-Faithful
+  Data Assimilation</em></a> — learned structure around an analytic recursive interface.</li>
+<li><a href="https://proceedings.mlr.press/v331/vantilborgh26a.html">Vantilborgh et al. (2026), <em>Efficient State and Parameter Estimation of
+  Nonlinear State-Space Models through Probabilistic Optimal
+  Control</em></a> — a peer-reviewed smoothing representation through synthetic control.</li>
+</ul>
+<p>The continuous path and particle route continues in <a href="../stochastic-process-generators-explained/#4-latent-dynamics-neural-sdes-and-path-measures">Stochastic-Process
+Generators</a>.
+The controlled-decision route continues in <a href="../world-models-and-causal-simulators/#the-five-component-loop-for-planning">World Models and Causal
+Simulators</a>.</p>
+<p><a href="../generative-models-unified/#how-to-read-this-volume">Return to the Generative Modeling
+Landscape</a>, or use the
+<a href="../filtering-06-practice-research/">Chapter 6 stopping-point view</a>.</p>
+</article>
+</div>
+<script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  Back to top
+</button>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+<div class="md-social">
+<a class="md-social__link" href="https://github.com/avitai/artifex" rel="noopener" target="_blank" title="github.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</a>
+<a class="md-social__link" href="https://pypi.org/project/avitai-artifex/" rel="noopener" target="_blank" title="pypi.org">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-66.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.3v101.8c0 29 25.2 46 53.4 54.3 33.8 9.9 66.3 11.7 106.8 0 26.9-7.8 53.4-23.5 53.4-54.3v-40.7H226.2v-13.6h160.2c31.1 0 42.6-21.7 53.4-54.2 11.2-33.5 10.7-65.7 0-108.6M286.2 444.7a20.4 20.4 0 1 1 0-40.7 20.4 20.4 0 1 1 0 40.7M167.8 248.1h106.8c29.7 0 53.4-24.5 53.4-54.3V91.9c0-29-24.4-50.7-53.4-55.6-35.8-5.9-74.7-5.6-106.8.1-45.2 8-53.4 24.7-53.4 55.6v40.7h106.9v13.6h-147c-31.1 0-58.3 18.7-66.8 54.2-9.8 40.7-10.2 66.1 0 108.6 7.6 31.6 25.7 54.2 56.8 54.2H101v-48.8c0-35.3 30.5-66.4 66.8-66.4m-6.6-183.4a20.4 20.4 0 1 1 0 40.8 20.4 20.4 0 1 1 0-40.8"></path></svg>
+</a>
+<a class="md-social__link" href="https://twitter.com/mahdi_shafiei" rel="noopener" target="_blank" title="twitter.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M459.4 151.7c.3 4.5.3 9.1.3 13.6 0 138.7-105.6 298.6-298.6 298.6-59.5 0-114.7-17.2-161.1-47.1 8.4 1 16.6 1.3 25.3 1.3 49.1 0 94.2-16.6 130.3-44.8-46.1-1-84.8-31.2-98.1-72.8 6.5 1 13 1.6 19.8 1.6 9.4 0 18.8-1.3 27.6-3.6-48.1-9.7-84.1-52-84.1-103v-1.3c14 7.8 30.2 12.7 47.4 13.3-28.3-18.8-46.8-51-46.8-87.4 0-19.5 5.2-37.4 14.3-53C87.4 130.8 165 172.4 252.1 176.9c-1.6-7.8-2.6-15.9-2.6-24C249.5 95.1 296.3 48 354.4 48c30.2 0 57.5 12.7 76.7 33.1 23.7-4.5 46.5-13.3 66.6-25.3-7.8 24.4-24.4 44.8-46.1 57.8 21.1-2.3 41.6-8.1 60.4-16.2-14.3 20.8-32.2 39.3-52.6 54.3"></path></svg>
+</a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.path", "navigation.top", "navigation.prune", "toc.follow", "search.highlight", "search.share", "search.suggest", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "content.mermaid"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+<script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+<script src="../../../javascripts/reading-layout.js"></script>
+</body>
+</html>

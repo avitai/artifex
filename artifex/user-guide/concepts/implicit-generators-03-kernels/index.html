@@ -1,0 +1,1404 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="This chapter examines bandwidth, high-dimensional features, random features, statistical power, degenerate-null calibration, conditional MMD, rare modes, and a" name="description"/>
+<meta content="Mahdi Shafiei" name="author"/>
+<link href="https://docs.avitai.bio/artifex/user-guide/concepts/implicit-generators-03-kernels/" rel="canonical"/>
+<link href="../implicit-generators-02-mmd/" rel="prev"/>
+<link href="../implicit-generators-04-imle/" rel="next"/>
+<link href="../../../assets/images/favicon.png" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.7.7" name="generator"/>
+<title>Implicit Generators 3 — Kernels and Estimators - Artifex</title>
+<link href="../../../assets/stylesheets/main.ec1eaa64.min.css" rel="stylesheet"/>
+<link href="../../../assets/stylesheets/palette.ab4e12ef.min.css" rel="stylesheet"/>
+<script src="../../../assets/vendor/iframe-worker/index.js"></script>
+<link href="../../../assets/_mkdocstrings.css" rel="stylesheet"/>
+<link href="../../../_static/extra.css" rel="stylesheet"/>
+<script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+<meta content="article" property="og:type"/>
+<meta content="The Artifex Generative Models Book" property="og:site_name"/>
+<meta content="Implicit Generators 3 — Kernels and Estimators" property="og:title"/>
+<meta content="This chapter examines bandwidth, high-dimensional features, random features, statistical power, degenerate-null calibration, conditional MMD, rare modes, and a" property="og:description"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/implicit-generators-03-kernels/" property="og:url"/>
+<meta content="2026-07-18" property="article:modified_time"/>
+<meta content="summary" name="twitter:card"/>
+<meta content="Implicit Generators 3 — Kernels and Estimators" name="twitter:title"/>
+<meta content="This chapter examines bandwidth, high-dimensional features, random features, statistical power, degenerate-null calibration, conditional MMD, rare modes, and a" name="twitter:description"/>
+<meta content="Generative models, Machine learning, Probabilistic modeling, advanced, specialization, canonical_chapter, implicit-generators-kernels, practitioner, researcher" name="keywords"/>
+<meta content="Implicit Generators 3 — Kernels and Estimators" name="citation_title"/>
+<meta content="Mahdi Shafiei" name="citation_author"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/implicit-generators-03-kernels/" name="citation_public_url"/>
+<meta content="en" name="citation_language"/>
+<meta content="Implicit Generators 3 — Kernels and Estimators" name="DC.title"/>
+<meta content="Mahdi Shafiei" name="DC.creator"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/implicit-generators-03-kernels/" name="DC.identifier"/>
+<meta content="Text.LearningResource" name="DC.type"/>
+<meta content="2026-07-18" name="DCTERMS.modified"/>
+<meta content="https://github.com/avitai/artifex/blob/main/LICENSE" name="DCTERMS.license"/>
+<meta content="advanced" name="DCTERMS.educationLevel"/>
+<meta content="practitioner, researcher" name="DCTERMS.audience"/>
+<link href="https://github.com/avitai/artifex/blob/main/LICENSE" rel="license"/>
+<script id="artifex-book-metadata" type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Chapter",
+  "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/implicit-generators-03-kernels/",
+  "url": "https://docs.avitai.bio/artifex/user-guide/concepts/implicit-generators-03-kernels/",
+  "name": "Implicit Generators 3 \u2014 Kernels and Estimators",
+  "description": "This chapter examines bandwidth, high-dimensional features, random features, statistical power, degenerate-null calibration, conditional MMD, rare modes, and a",
+  "identifier": "implicit-generators-kernels",
+  "inLanguage": "en",
+  "isAccessibleForFree": true,
+  "learningResourceType": "Canonical chapter",
+  "educationalLevel": "advanced",
+  "educationalUse": "specialization",
+  "audience": [
+    
+      {"@type": "EducationalAudience", "audienceType": "practitioner"},
+    
+      {"@type": "EducationalAudience", "audienceType": "researcher"}
+    
+  ],
+  "dateModified": "2026-07-18",
+  "keywords": ["Generative models", "Machine learning", "Probabilistic modeling", "advanced", "specialization", "canonical_chapter", "implicit-generators-kernels", "practitioner", "researcher"],
+  "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+  "author": [
+    
+      {"@type": "Person", "name": "Mahdi Shafiei"}
+    
+  ],
+  "isPartOf": {
+    "@type": "Book",
+    "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/#book",
+    "url": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/",
+    "name": "The Artifex Generative Models Book",
+    "bookEdition": "Living Web Edition",
+    "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+    "author": [
+      
+        {"@type": "Person", "name": "Mahdi Shafiei"}
+      
+    ]
+  }
+}
+</script>
+<script defer="" src="../../../javascripts/mathjax.js"></script>
+<script defer="" integrity="sha384-OrHfGTnIbkl0do3N76qW/uWr38o91N05sbSPuYBPLH+hG8X/dNSrjZf3AGjzrCwC" src="../../../assets/vendor/mathjax/tex-mml-chtml.js"></script>
+</head>
+<body data-md-color-accent="amber" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#implicit-generators-3-kernels-and-estimators">
+          Skip to content
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header md-header--shadow" data-md-component="header">
+<nav aria-label="Header" class="md-header__inner md-grid">
+<a aria-label="Artifex" class="md-header__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            Artifex
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+            
+              Implicit Generators 3 — Kernels and Estimators
+            
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-label="Switch to dark mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: light)" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_1" hidden="" title="Switch to dark mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+<input aria-label="Switch to light mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-primary="indigo" data-md-color-scheme="slate" id="__palette_1" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_0" hidden="" title="Switch to light mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+</form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div aria-label="Search" class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Search" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="Search" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="Search" class="md-search__options">
+<a aria-label="Share" class="md-search__icon md-icon" data-clipboard="" data-clipboard-text="" data-md-component="search-share" href="javascript:void(0)" tabindex="-1" title="Share">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"></path></svg>
+</a>
+<button aria-label="Clear" class="md-search__icon md-icon" tabindex="-1" title="Clear" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            Initializing search
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Navigation" class="md-nav md-nav--primary" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="Artifex" class="md-nav__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+    Artifex
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../..">
+<span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../getting-started/installation/">
+<span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Generative Models Book
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Generative Models Book
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    
+  
+    Start Here — The Landscape
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../first-course-01-generative-systems/">
+<span class="md-ellipsis">
+    
+  
+    First Course — New to Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../probability-01-objects/">
+<span class="md-ellipsis">
+    
+  
+    Foundations
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_4" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_4" id="__nav_3_4_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Model Families
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_4_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_4">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Model Families
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../autoregressive-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Autoregressive Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../vae-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Variational Autoencoders
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gan-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Generative Adversarial Networks
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../ebm-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Energy-Based Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../diffusion-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Diffusion Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../flow-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Normalizing Flows and Flow Matching
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../probabilistic-circuits-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Probabilistic Circuits
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../tensor-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Tensor-Network and Born Probability Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_4_9" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_4_9" id="__nav_3_4_9_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Implicit Generators Beyond GANs
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_4_9_label" class="md-nav" data-md-level="3">
+<label class="md-nav__title" for="__nav_3_4_9">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Implicit Generators Beyond GANs
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../implicit-generators-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    1. Foundations
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../implicit-generators-02-mmd/">
+<span class="md-ellipsis">
+    
+  
+    2. MMD and GMMNs
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
+    
+  
+    3. Kernels and Estimators
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
+<span class="md-ellipsis">
+    
+  
+    3. Kernels and Estimators
+  
+
+    
+  </span>
+</a>
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#3-kernel-choice-estimator-bias-and-statistical-power">
+<span class="md-ellipsis">
+      
+        3. Kernel Choice, Estimator Bias, and Statistical Power
+      
+    </span>
+</a>
+<nav aria-label="3. Kernel Choice, Estimator Bias, and Statistical Power" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-3-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 3 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#bandwidth-is-an-inductive-bias">
+<span class="md-ellipsis">
+      
+        Bandwidth Is an Inductive Bias
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#high-dimension-and-features">
+<span class="md-ellipsis">
+      
+        High Dimension and Features
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#random-features-and-block-estimators">
+<span class="md-ellipsis">
+      
+        Random Features and Block Estimators
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#statistical-testing-versus-generator-training">
+<span class="md-ellipsis">
+      
+        Statistical Testing Versus Generator Training
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#why-the-ordinary-null-is-not-a-standard-error-bar">
+<span class="md-ellipsis">
+      
+        Why the ordinary null is not a standard error bar
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#conditional-mmd">
+<span class="md-ellipsis">
+      
+        Conditional MMD
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#practical-kernel-audit">
+<span class="md-ellipsis">
+      
+        Practical Kernel Audit
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-example-the-median-heuristic-misses-a-rare-mode">
+<span class="md-ellipsis">
+      
+        Worked example: the median heuristic misses a rare mode
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-3-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 3 Synthesis
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#independent-practice-and-assessment-map-kernels-power-and-calibration">
+<span class="md-ellipsis">
+      
+        Independent practice and assessment map: kernels, power, and calibration
+      
+    </span>
+</a>
+<nav aria-label="Independent practice and assessment map: kernels, power, and calibration" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#p1-build-and-falsify-a-kernel-comparison-protocol">
+<span class="md-ellipsis">
+      
+        P1 — Build and falsify a kernel comparison protocol
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../implicit-generators-04-imle/">
+<span class="md-ellipsis">
+    
+  
+    4. IMLE
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../implicit-generators-05-sliced/">
+<span class="md-ellipsis">
+    
+  
+    5. Sliced and Feature Objectives
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../implicit-generators-06-practice/">
+<span class="md-ellipsis">
+    
+  
+    6. Practice and Research
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../implicit-generators-explained/">
+<span class="md-ellipsis">
+    
+  
+    Continuous View (All Chapters)
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../discrete-iterative-01-masked/">
+<span class="md-ellipsis">
+    
+  
+    Discrete Iterative Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../bayesian-flow-networks-01-story/">
+<span class="md-ellipsis">
+    
+  
+    Bayesian Flow Networks
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gflownets-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Generative Flow Networks
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../bnp-01-random-measures/">
+<span class="md-ellipsis">
+    
+  
+    Bayesian Nonparametric Random-Measure Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../stochastic-process-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Stochastic-Process and Function-Space Generators
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../point-processes-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Point Processes and Random Finite Sets
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../random-graphs-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Random Graphs and Relational Generators
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../copula-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Copula Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../grammar-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Probabilistic Grammars and Program Derivations
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../causal-generative-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Causal Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../new-families-frontier-evidence/">
+<span class="md-ellipsis">
+    
+  
+    Research Evidence Ledger
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gradients-01-taxonomy/">
+<span class="md-ellipsis">
+    
+  
+    Connections and Compositions
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../normalization-01-queries/">
+<span class="md-ellipsis">
+    
+  
+    Research Practice
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../models/vae-guide/">
+<span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/core/base/">
+<span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../examples/overview/">
+<span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../zoo/">
+<span class="md-ellipsis">
+    
+  
+    Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../training/overview/">
+<span class="md-ellipsis">
+    
+  
+    Training
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../data/overview/">
+<span class="md-ellipsis">
+    
+  
+    Data &amp; Modalities
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../inference/overview/">
+<span class="md-ellipsis">
+    
+  
+    Inference &amp; Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../benchmarks/">
+<span class="md-ellipsis">
+    
+  
+    Evaluation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../guides/extensions/">
+<span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../extensions/">
+<span class="md-ellipsis">
+    
+  
+    Advanced Topics
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../cli/">
+<span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../community/contributing/">
+<span class="md-ellipsis">
+    
+  
+    Community
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/configs/protein-extension/">
+<span class="md-ellipsis">
+    
+  
+    Reference Library
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#3-kernel-choice-estimator-bias-and-statistical-power">
+<span class="md-ellipsis">
+      
+        3. Kernel Choice, Estimator Bias, and Statistical Power
+      
+    </span>
+</a>
+<nav aria-label="3. Kernel Choice, Estimator Bias, and Statistical Power" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-3-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 3 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#bandwidth-is-an-inductive-bias">
+<span class="md-ellipsis">
+      
+        Bandwidth Is an Inductive Bias
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#high-dimension-and-features">
+<span class="md-ellipsis">
+      
+        High Dimension and Features
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#random-features-and-block-estimators">
+<span class="md-ellipsis">
+      
+        Random Features and Block Estimators
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#statistical-testing-versus-generator-training">
+<span class="md-ellipsis">
+      
+        Statistical Testing Versus Generator Training
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#why-the-ordinary-null-is-not-a-standard-error-bar">
+<span class="md-ellipsis">
+      
+        Why the ordinary null is not a standard error bar
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#conditional-mmd">
+<span class="md-ellipsis">
+      
+        Conditional MMD
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#practical-kernel-audit">
+<span class="md-ellipsis">
+      
+        Practical Kernel Audit
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-example-the-median-heuristic-misses-a-rare-mode">
+<span class="md-ellipsis">
+      
+        Worked example: the median heuristic misses a rare mode
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-3-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 3 Synthesis
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#independent-practice-and-assessment-map-kernels-power-and-calibration">
+<span class="md-ellipsis">
+      
+        Independent practice and assessment map: kernels, power, and calibration
+      
+    </span>
+</a>
+<nav aria-label="Independent practice and assessment map: kernels, power, and calibration" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#p1-build-and-falsify-a-kernel-comparison-protocol">
+<span class="md-ellipsis">
+      
+        P1 — Build and falsify a kernel comparison protocol
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<nav aria-label="Breadcrumb" class="md-path">
+<ol class="md-path__list">
+<li class="md-path__item">
+<a class="md-path__link" href="../../..">
+<span class="md-ellipsis">
+    Home
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    Generative Models Book
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../autoregressive-01-foundations/">
+<span class="md-ellipsis">
+    Model Families
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../implicit-generators-01-foundations/">
+<span class="md-ellipsis">
+    Implicit Generators Beyond GANs
+  </span>
+</a>
+</li>
+</ol>
+</nav>
+<article class="md-content__inner md-typeset">
+<h1 id="implicit-generators-3-kernels-and-estimators">Implicit Generators 3 — Kernels and Estimators<a class="headerlink" href="#implicit-generators-3-kernels-and-estimators" title="Permanent link">¤</a></h1><aside aria-label="Learning path" class="admonition abstract artifex-learning-path"><p class="admonition-title">Learning path</p><p><strong>Required knowledge</strong></p><ul class="artifex-learning-path__links" data-learning-path-role="required"><li><a href="../implicit-generators-02-mmd/">Implicit Generators 2 — MMD and GMMNs</a></li></ul><p><strong>Readiness check:</strong> can you explain the central object and reproduce one worked example from each required chapter? If not, follow its link before continuing.</p><p><strong>Newly unlocked in the default route</strong></p><ul class="artifex-learning-path__links" data-learning-path-role="unlocks"><li><a href="../implicit-generators-04-imle/">Implicit Generators 4 — IMLE</a></li></ul></aside>
+<p>This chapter examines bandwidth, high-dimensional features, random features, statistical power, degenerate-null calibration, conditional MMD, rare modes, and a practical confirmatory kernel audit. For uninterrupted reading, use the <a href="../implicit-generators-explained/#3-kernel-choice-estimator-bias-and-statistical-power">complete guide</a>.</p>
+<h2 id="3-kernel-choice-estimator-bias-and-statistical-power">3. Kernel Choice, Estimator Bias, and Statistical Power<a class="headerlink" href="#3-kernel-choice-estimator-bias-and-statistical-power" title="Permanent link">¤</a></h2>
+<h3 id="chapter-3-prerequisites-and-learning-objectives">Chapter 3 prerequisites and learning objectives<a class="headerlink" href="#chapter-3-prerequisites-and-learning-objectives" title="Permanent link">¤</a></h3>
+<p>This chapter assumes Chapter 2's RKHS and estimator derivations. By the end, you should be able to:</p>
+<ol>
+<li>interpret bandwidth and feature maps as modeling assumptions;</li>
+<li>compare isotropic, anisotropic, multi-kernel, learned, and structured kernels;</li>
+<li>account for random-feature, block, and distributed approximation error;</li>
+<li>separate generator training from a valid post-selection two-sample test;</li>
+<li>design conditional and rare-mode kernel audits; and</li>
+<li>calibrate a kernel test under the degenerate null without reusing selection data.</li>
+</ol>
+<h3 id="bandwidth-is-an-inductive-bias">Bandwidth Is an Inductive Bias<a class="headerlink" href="#bandwidth-is-an-inductive-bias" title="Permanent link">¤</a></h3>
+<p>For an RBF kernel, a tiny bandwidth makes almost all distinct high-dimensional samples orthogonal; a huge bandwidth makes them nearly identical. Median-distance heuristics adapt to scale but can fail for multimodal, anisotropic, or mixed-type data.</p>
+<p>A multi-kernel objective</p>
+<div class="arithmatex">\[
+k(x,y)=\sum_{r=1}^{R}\alpha_r k_r(x,y),\qquad\alpha_r\ge0,
+\]</div>
+<p>exposes several scales. Learning <span class="arithmatex">\(\alpha_r\)</span> jointly with the generator risks choosing kernels that weaken rather than strengthen discrimination unless the optimization is designed as a test-power or adversarial-kernel problem.</p>
+<p>An anisotropic RBF uses <span class="arithmatex">\((x-y)^\top\Lambda^{-1}(x-y)\)</span> and therefore encodes relative coordinate scales and correlations. Product kernels can combine continuous, categorical, graph, or sequence components. The resulting kernel is useful only if it is positive definite where required and its invariances match the data—not merely because each component seems reasonable.</p>
+<h3 id="high-dimension-and-features">High Dimension and Features<a class="headerlink" href="#high-dimension-and-features" title="Permanent link">¤</a></h3>
+<p>Euclidean distance concentrates in high dimension. Kernels on pretrained perceptual features can improve sample gradients, but they import the encoder's dataset, invariances, and blind spots. For scientific data, use domain invariants, conserved quantities, and structural kernels rather than assuming an image encoder defines fidelity.</p>
+<p>“MMD fails in high dimension” is too broad. Power depends on the alternative,
+kernel, bandwidth, dimension/sample regime, and studentization. Mean shifts,
+variance changes, sparse alternatives, and structured functional alternatives
+can behave differently. <a href="https://www.jmlr.org/papers/v24/22-1136.html">Two Sample Testing in High Dimension via Maximum Mean Discrepancy</a>
+develops joint dimension/sample asymptotics for a studentized statistic; those
+results do not imply that the median heuristic or a fixed image embedding is
+powerful for every neural-generator failure.</p>
+<p>The practical response is an <strong>alternative suite</strong>, not a slogan: inject a
+missing mode, wrong covariance, heavy tail, local corruption, memorized sample,
+and domain-specific constraint violation, then estimate which kernels and
+sample sizes detect each one at controlled type-I error.</p>
+<h3 id="random-features-and-block-estimators">Random Features and Block Estimators<a class="headerlink" href="#random-features-and-block-estimators" title="Permanent link">¤</a></h3>
+<p>Random Fourier features approximate shift-invariant kernels:</p>
+<div class="arithmatex">\[
+k(x,y)\approx\phi(x)^T\phi(y).
+\]</div>
+<p>Then MMD becomes the squared difference of empirical feature means, reducing pairwise cost. Approximation dimension introduces another error source. Block U-statistics trade memory and variance, and distributed reductions must preserve unbiased pairing assumptions.</p>
+<p>With <span class="arithmatex">\(R\)</span> random features, the approximate objective is</p>
+<div class="arithmatex">\[
+\left\|\frac1m\sum_i\phi_R(x_i)-\frac1n\sum_j\phi_R(y_j)\right\|_2^2.
+\]</div>
+<p>Its cost is roughly linear in samples times <span class="arithmatex">\(R\)</span>, but it matches the approximate feature map, not the exact kernel. Fixing random features across updates gives a stationary approximate objective; resampling them adds Monte Carlo noise and changes the witness seen at each step.</p>
+<h3 id="statistical-testing-versus-generator-training">Statistical Testing Versus Generator Training<a class="headerlink" href="#statistical-testing-versus-generator-training" title="Permanent link">¤</a></h3>
+<p>Two-sample testing asks whether finite evidence rejects <span class="arithmatex">\(p=q\)</span> at a controlled significance level. Generator training uses a discrepancy as a differentiable objective. A kernel with high hypothesis-test power near one alternative may give poor global optimization geometry. Conversely, a useful training loss is not automatically a calibrated test statistic after parameters were selected on the same data.</p>
+<p>A valid final test needs held-out data or a selection-aware protocol. Choosing bandwidth, feature encoder, checkpoint, and seed to minimize a test-set MMD and then applying the null distribution to the same samples invalidates the nominal type-I error.</p>
+<h3 id="why-the-ordinary-null-is-not-a-standard-error-bar">Why the ordinary null is not a standard error bar<a class="headerlink" href="#why-the-ordinary-null-is-not-a-standard-error-bar" title="Permanent link">¤</a></h3>
+<p>Under <span class="arithmatex">\(H_0:p=q\)</span>, the quadratic unbiased MMD is a <strong>degenerate U-statistic</strong>:
+its first-order projection vanishes. Its limiting null is generally a weighted
+sum of centered chi-square variables rather than an ordinary Gaussian with the
+same variance formula used under a fixed alternative. Permutation or wild
+bootstrap calibration is therefore common; linear/block/studentized variants
+have different limits and power.</p>
+<p>A defensible confirmatory pipeline is:</p>
+<ol>
+<li>choose representations, kernels, bandwidth candidates, and alternatives on training data;</li>
+<li>select among them on an independent selection split or use a test that adjusts for aggregation;</li>
+<li>freeze the complete test before opening the final samples;</li>
+<li>compute a permutation/bootstrap/asymptotic threshold valid for that statistic; and</li>
+<li>report level, power on controlled alternatives, sample size, and Monte Carlo error.</li>
+</ol>
+<p><a href="https://www.jmlr.org/papers/v24/21-1289.html">MMD Aggregated Two-Sample Test</a>
+shows one way to aggregate bandwidths while controlling level under its
+conditions. <a href="https://proceedings.mlr.press/v313/chatterjee26a.html">A Martingale Kernel Two-Sample Test</a>
+provides a 2026 permutation-free alternative with a limiting standard Gaussian
+null. These are <strong>testing procedures</strong>; replacing a minibatch generator loss by
+one of them is a separate optimization design.</p>
+<h3 id="conditional-mmd">Conditional MMD<a class="headerlink" href="#conditional-mmd" title="Permanent link">¤</a></h3>
+<p>Matching pooled <span class="arithmatex">\((x,c)\)</span> samples can hide rare-condition failure. Conditional mean embeddings and stratified objectives compare <span class="arithmatex">\(p(x\mid c)\)</span>, but continuous/high-dimensional conditions require kernels or learned representations over <span class="arithmatex">\(c\)</span>. Report performance across condition slices and do not infer conditional calibration from marginal MMD.</p>
+<p>If the condition marginal is the same by construction, equality of the joint
+laws <span class="arithmatex">\(p(x,c)=q(x,c)\)</span> implies equality of the conditional laws for
+<span class="arithmatex">\(p(c)\)</span>-almost every condition. A characteristic product kernel
+<span class="arithmatex">\(k_X(x,x')k_C(c,c')\)</span> can therefore test the <strong>joint</strong> law. But it weights
+conditions according to their marginal frequency, so a rare conditional error
+can have little finite-sample influence. A pooled kernel on <span class="arithmatex">\(x\)</span> alone discards
+<span class="arithmatex">\(c\)</span> entirely. A conditional-mean-embedding estimator instead introduces an
+operator inverse or regularization choice; it is not obtained merely by
+concatenating <span class="arithmatex">\(c\)</span> to <span class="arithmatex">\(x\)</span> and writing “conditional MMD.”</p>
+<p>For discrete conditions, report both natural-frequency and macro-averaged
+stratified MMD. For continuous conditions, declare the condition kernel,
+localization bandwidth, overlap, boundary behavior, and the region over which
+the conditional claim is made.</p>
+<h3 id="practical-kernel-audit">Practical Kernel Audit<a class="headerlink" href="#practical-kernel-audit" title="Permanent link">¤</a></h3>
+<ol>
+<li>Normalize each input dimension or justify the metric.</li>
+<li>Plot within-data, within-model, and cross distances.</li>
+<li>Sweep bandwidths and feature encoders.</li>
+<li>Compare biased, unbiased, and block estimators.</li>
+<li>Track gradient magnitude versus sample quality.</li>
+<li>Test synthetic alternatives: missing mode, wrong variance, memorization, and corrupted structure.</li>
+</ol>
+<h3 id="worked-example-the-median-heuristic-misses-a-rare-mode">Worked example: the median heuristic misses a rare mode<a class="headerlink" href="#worked-example-the-median-heuristic-misses-a-rare-mode" title="Permanent link">¤</a></h3>
+<p>Let <span class="arithmatex">\(99\%\)</span> of data lie near zero and <span class="arithmatex">\(1\%\)</span> near 100. A model reproduces only the common component. In small minibatches, most batches contain no rare sample, so any empirical MMD is blind to the missing mode. Even when the full-dataset median distance sets a sensible local bandwidth near zero, rare-mode evidence enters only through the few cross terms containing rare points.</p>
+<p>Three fixes address different problems: stratified batches increase rare-mode estimator exposure; a multi-scale kernel changes distance sensitivity; condition- or group-wise metrics expose the failure directly. None changes the generator family or guarantees it allocates the correct <span class="arithmatex">\(1\%\)</span> mass.</p>
+<div class="admonition failure">
+<p class="admonition-title">Counterexample: the training kernel certifies itself</p>
+<p>Evaluating only with the same learned feature kernel used for training can reward shared blind spots. An independent representation, task metric, or targeted synthetic alternative is required to detect errors outside the training witness class.</p>
+</div>
+<h3 id="chapter-3-synthesis">Chapter 3 Synthesis<a class="headerlink" href="#chapter-3-synthesis" title="Permanent link">¤</a></h3>
+<p>MMD's formula is short; choosing and estimating the witness space is the real modeling decision. Rare modes can be absent from batches even when the population kernel is characteristic. Chapter 4 turns to IMLE, whose training signal begins from every observed data point rather than every generated sample.</p>
+<h3 id="independent-practice-and-assessment-map-kernels-power-and-calibration">Independent practice and assessment map: kernels, power, and calibration<a class="headerlink" href="#independent-practice-and-assessment-map-kernels-power-and-calibration" title="Permanent link">¤</a></h3>
+<p>Treat kernel design as a scientific measurement design. Predeclare which
+alternatives matter, how approximation changes the witness, and which untouched
+data calibrate the final inference.</p>
+<h4 id="p1-build-and-falsify-a-kernel-comparison-protocol">P1 — Build and falsify a kernel comparison protocol<a class="headerlink" href="#p1-build-and-falsify-a-kernel-comparison-protocol" title="Permanent link">¤</a></h4>
+<ol>
+<li><strong>P1.1 — Predict before computing.</strong> Predict whether each statement is necessarily true: the median heuristic maximizes power; a sum of characteristic kernels is harmless under arbitrary learned negative weights; random features preserve exact characteristicness at finite <span class="arithmatex">\(R\)</span>; a permutation p-value remains valid after selecting the smallest one; matching joint <span class="arithmatex">\((X,C)\)</span> automatically gives uniform power over rare conditions; and test statistics with identical population MMD have identical null laws. Explain each failure.</li>
+<li><strong>P1.2 — Bandwidth/power laboratory.</strong> For two specified Gaussian or mixture alternatives, calculate or simulate within-, between-, and cross-kernel similarities across at least five RBF bandwidths. Compare population/large-sample discrepancy, finite estimator variance, pointwise gradient magnitude, and rejection power. Show why the best training bandwidth and best local-test bandwidth need not coincide.</li>
+<li><strong>P1.3 — Approximation ledger.</strong> Implement exact quadratic, paired linear, block, and fixed-random-feature estimates on nested sample sizes. Hold the kernel and data fixed, separate estimator variance from random-feature error, compare memory/communication, and test whether resampling random features every update changes gradient variance or mean.</li>
+<li><strong>P1.4 — Confirmatory test.</strong> Design train/selection/test splits for kernel, encoder, bandwidth, generator checkpoint, and seed selection. Specify a permutation, wild-bootstrap, aggregated, or justified asymptotic calibration; derive what is exchangeable under <span class="arithmatex">\(H_0\)</span>; and write an invalid reuse protocol beside the valid one so the type-I error failure is explicit.</li>
+<li><strong>P1.5 — Conditional and rare-mode audit.</strong> For conditions with frequencies <span class="arithmatex">\((0.90,0.09,0.01)\)</span>, construct a generator that fails only in the rare stratum. Compare pooled-<span class="arithmatex">\(X\)</span>, joint product-kernel, natural-frequency stratified, and macro-stratified statistics. Calculate the probability that a minibatch of size <span class="arithmatex">\(m\)</span> contains no rare example and select a batch/sampling scheme with disclosed reweighting.</li>
+<li><strong>P1.6 — Transfer.</strong> Design kernels and controlled alternatives for a graph, set, sequence, function, or physical field. Include invariance tests, high-dimensional scaling, structured corruption, approximate/distributed computation, witness visualization, post-selection calibration, uncertainty, and a second representation that can expose the first kernel's blind spots.</li>
+</ol>
+<h5 id="outcome-to-task-alignment-kernels-power-and-calibration">Outcome-to-task alignment: kernels, power, and calibration<a class="headerlink" href="#outcome-to-task-alignment-kernels-power-and-calibration" title="Permanent link">¤</a></h5>
+<div class="md-typeset__table book-table-container"><table id="tbl-implicit-generators-explained-outcome-to-task-alignment-kernels-power-and-calibration"><caption class="book-object-caption"><span class="book-object-number">Table IMPL.6.</span> Outcome-to-task alignment: kernels, power, and calibration</caption>
+<thead>
+<tr>
+<th>Learning objective</th>
+<th>Independently assessed by</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>O1 — Interpret bandwidth and features as assumptions</td>
+<td>P1.1, P1.2, P1.6</td>
+</tr>
+<tr>
+<td>O2 — Compare fixed, multi-, learned, and structured kernels</td>
+<td>P1.1, P1.2, P1.6</td>
+</tr>
+<tr>
+<td>O3 — Account for approximation and distributed error</td>
+<td>P1.1, P1.3, P1.6</td>
+</tr>
+<tr>
+<td>O4 — Separate training from post-selection testing</td>
+<td>P1.1, P1.4</td>
+</tr>
+<tr>
+<td>O5 — Design conditional and rare-mode audits</td>
+<td>P1.1, P1.5, P1.6</td>
+</tr>
+<tr>
+<td>O6 — Calibrate the degenerate-null test</td>
+<td>P1.1, P1.4</td>
+</tr>
+</tbody>
+</table></div>
+<details class="question">
+<summary>Retrieval practice: kernels and estimators</summary>
+<ol>
+<li>Does a low minibatch MMD prove mode coverage?</li>
+<li>What changes when random features replace the exact kernel?</li>
+<li>Why can a huge RBF bandwidth hide distributional differences?</li>
+<li>Why is tuning a kernel on the test set incompatible with a naive calibrated test?</li>
+<li>What must a conditional MMD evaluation report?</li>
+</ol>
+<p><strong>Solutions.</strong> (1) No. The minibatch, representation, kernel, and estimator may miss a rare or structured mode. (2) Training matches a finite approximate feature mean and incurs approximation plus sampling error. (3) Most similarities approach one and their differences/gradients flatten. (4) Selection changes the null distribution and reuses evidence. (5) Condition kernel/representation, condition distribution, stratification or weighting, rare-condition performance, sample counts, and uncertainty.</p>
+</details>
+<p><strong>Bridge.</strong> MMD starts from a witness comparing all samples. IMLE reverses the matching direction so each datum requests a generated neighbor. <a href="../implicit-generators-explained/#4-implicit-maximum-likelihood-estimation">Continue continuously</a> or open <a href="../implicit-generators-04-imle/">Chapter 4</a>.</p>
+<hr/>
+<p><strong>Navigate:</strong> <a href="../implicit-generators-02-mmd/">← MMD</a> · <a href="../implicit-generators-04-imle/">4. IMLE →</a> · <a href="../implicit-generators-explained/">Complete guide</a></p>
+</article>
+</div>
+<script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  Back to top
+</button>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+<div class="md-social">
+<a class="md-social__link" href="https://github.com/avitai/artifex" rel="noopener" target="_blank" title="github.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</a>
+<a class="md-social__link" href="https://pypi.org/project/avitai-artifex/" rel="noopener" target="_blank" title="pypi.org">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-66.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.3v101.8c0 29 25.2 46 53.4 54.3 33.8 9.9 66.3 11.7 106.8 0 26.9-7.8 53.4-23.5 53.4-54.3v-40.7H226.2v-13.6h160.2c31.1 0 42.6-21.7 53.4-54.2 11.2-33.5 10.7-65.7 0-108.6M286.2 444.7a20.4 20.4 0 1 1 0-40.7 20.4 20.4 0 1 1 0 40.7M167.8 248.1h106.8c29.7 0 53.4-24.5 53.4-54.3V91.9c0-29-24.4-50.7-53.4-55.6-35.8-5.9-74.7-5.6-106.8.1-45.2 8-53.4 24.7-53.4 55.6v40.7h106.9v13.6h-147c-31.1 0-58.3 18.7-66.8 54.2-9.8 40.7-10.2 66.1 0 108.6 7.6 31.6 25.7 54.2 56.8 54.2H101v-48.8c0-35.3 30.5-66.4 66.8-66.4m-6.6-183.4a20.4 20.4 0 1 1 0 40.8 20.4 20.4 0 1 1 0-40.8"></path></svg>
+</a>
+<a class="md-social__link" href="https://twitter.com/mahdi_shafiei" rel="noopener" target="_blank" title="twitter.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M459.4 151.7c.3 4.5.3 9.1.3 13.6 0 138.7-105.6 298.6-298.6 298.6-59.5 0-114.7-17.2-161.1-47.1 8.4 1 16.6 1.3 25.3 1.3 49.1 0 94.2-16.6 130.3-44.8-46.1-1-84.8-31.2-98.1-72.8 6.5 1 13 1.6 19.8 1.6 9.4 0 18.8-1.3 27.6-3.6-48.1-9.7-84.1-52-84.1-103v-1.3c14 7.8 30.2 12.7 47.4 13.3-28.3-18.8-46.8-51-46.8-87.4 0-19.5 5.2-37.4 14.3-53C87.4 130.8 165 172.4 252.1 176.9c-1.6-7.8-2.6-15.9-2.6-24C249.5 95.1 296.3 48 354.4 48c30.2 0 57.5 12.7 76.7 33.1 23.7-4.5 46.5-13.3 66.6-25.3-7.8 24.4-24.4 44.8-46.1 57.8 21.1-2.3 41.6-8.1 60.4-16.2-14.3 20.8-32.2 39.3-52.6 54.3"></path></svg>
+</a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.path", "navigation.top", "navigation.prune", "toc.follow", "search.highlight", "search.share", "search.suggest", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "content.mermaid"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+<script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+<script src="../../../javascripts/reading-layout.js"></script>
+</body>
+</html>

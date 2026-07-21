@@ -1,0 +1,2151 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="This chapter begins with affine, monotone-scalar, and residual design primitives, then studies NICE, RealNVP, Glow, MAF, IAF, splines, residual flows, and" name="description"/>
+<meta content="Mahdi Shafiei" name="author"/>
+<link href="https://docs.avitai.bio/artifex/user-guide/concepts/flow-02-architectures/" rel="canonical"/>
+<link href="../flow-01-foundations/" rel="prev"/>
+<link href="../flow-03-training/" rel="next"/>
+<link href="../../../assets/images/favicon.png" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.7.7" name="generator"/>
+<title>Flows 2 — Discrete-Time Architectures - Artifex</title>
+<link href="../../../assets/stylesheets/main.ec1eaa64.min.css" rel="stylesheet"/>
+<link href="../../../assets/stylesheets/palette.ab4e12ef.min.css" rel="stylesheet"/>
+<script src="../../../assets/vendor/iframe-worker/index.js"></script>
+<link href="../../../assets/_mkdocstrings.css" rel="stylesheet"/>
+<link href="../../../_static/extra.css" rel="stylesheet"/>
+<script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+<meta content="article" property="og:type"/>
+<meta content="The Artifex Generative Models Book" property="og:site_name"/>
+<meta content="Flows 2 — Discrete-Time Architectures" property="og:title"/>
+<meta content="This chapter begins with affine, monotone-scalar, and residual design primitives, then studies NICE, RealNVP, Glow, MAF, IAF, splines, residual flows, and" property="og:description"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/flow-02-architectures/" property="og:url"/>
+<meta content="2026-07-14" property="article:modified_time"/>
+<meta content="summary" name="twitter:card"/>
+<meta content="Flows 2 — Discrete-Time Architectures" name="twitter:title"/>
+<meta content="This chapter begins with affine, monotone-scalar, and residual design primitives, then studies NICE, RealNVP, Glow, MAF, IAF, splines, residual flows, and" name="twitter:description"/>
+<meta content="Generative models, Machine learning, Probabilistic modeling, core, required, canonical_chapter, flows-architectures, newcomer, practitioner, researcher" name="keywords"/>
+<meta content="Flows 2 — Discrete-Time Architectures" name="citation_title"/>
+<meta content="Mahdi Shafiei" name="citation_author"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/flow-02-architectures/" name="citation_public_url"/>
+<meta content="en" name="citation_language"/>
+<meta content="Flows 2 — Discrete-Time Architectures" name="DC.title"/>
+<meta content="Mahdi Shafiei" name="DC.creator"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/flow-02-architectures/" name="DC.identifier"/>
+<meta content="Text.LearningResource" name="DC.type"/>
+<meta content="2026-07-14" name="DCTERMS.modified"/>
+<meta content="https://github.com/avitai/artifex/blob/main/LICENSE" name="DCTERMS.license"/>
+<meta content="core" name="DCTERMS.educationLevel"/>
+<meta content="newcomer, practitioner, researcher" name="DCTERMS.audience"/>
+<link href="https://github.com/avitai/artifex/blob/main/LICENSE" rel="license"/>
+<script id="artifex-book-metadata" type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Chapter",
+  "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/flow-02-architectures/",
+  "url": "https://docs.avitai.bio/artifex/user-guide/concepts/flow-02-architectures/",
+  "name": "Flows 2 \u2014 Discrete-Time Architectures",
+  "description": "This chapter begins with affine, monotone-scalar, and residual design primitives, then studies NICE, RealNVP, Glow, MAF, IAF, splines, residual flows, and",
+  "identifier": "flows-architectures",
+  "inLanguage": "en",
+  "isAccessibleForFree": true,
+  "learningResourceType": "Canonical chapter",
+  "educationalLevel": "core",
+  "educationalUse": "required",
+  "audience": [
+    
+      {"@type": "EducationalAudience", "audienceType": "newcomer"},
+    
+      {"@type": "EducationalAudience", "audienceType": "practitioner"},
+    
+      {"@type": "EducationalAudience", "audienceType": "researcher"}
+    
+  ],
+  "dateModified": "2026-07-14",
+  "keywords": ["Generative models", "Machine learning", "Probabilistic modeling", "core", "required", "canonical_chapter", "flows-architectures", "newcomer", "practitioner", "researcher"],
+  "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+  "author": [
+    
+      {"@type": "Person", "name": "Mahdi Shafiei"}
+    
+  ],
+  "isPartOf": {
+    "@type": "Book",
+    "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/#book",
+    "url": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/",
+    "name": "The Artifex Generative Models Book",
+    "bookEdition": "Living Web Edition",
+    "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+    "author": [
+      
+        {"@type": "Person", "name": "Mahdi Shafiei"}
+      
+    ]
+  }
+}
+</script>
+<link href="../../../assets/vendor/katex/katex.min.css" id="artifex-katex-stylesheet" integrity="sha384-UA8juhPf75SzzAMA/4fo3yOU7sBJ0om7SCD2GHq0fZqZco6tr1UCV7nUbk9J90JM" rel="stylesheet"/>
+<script defer="" integrity="sha384-T/0lMUdJpd2S1ZHtRiofG3htU3xPCrFVeAQ1UUE2TJwlEJSV5NUwn30kP28n238E" src="../../../assets/vendor/mermaid/mermaid.min.js"></script>
+<script defer="" src="../../../assets/vendor/katex/katex-shadow.js"></script>
+<script defer="" src="../../../javascripts/mermaid-math.js"></script>
+<script defer="" src="../../../javascripts/mathjax.js"></script>
+<script defer="" integrity="sha384-OrHfGTnIbkl0do3N76qW/uWr38o91N05sbSPuYBPLH+hG8X/dNSrjZf3AGjzrCwC" src="../../../assets/vendor/mathjax/tex-mml-chtml.js"></script>
+</head>
+<body data-md-color-accent="amber" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#flows-2-discrete-time-architectures">
+          Skip to content
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header md-header--shadow" data-md-component="header">
+<nav aria-label="Header" class="md-header__inner md-grid">
+<a aria-label="Artifex" class="md-header__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            Artifex
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+            
+              Flows 2 — Discrete-Time Architectures
+            
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-label="Switch to dark mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: light)" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_1" hidden="" title="Switch to dark mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+<input aria-label="Switch to light mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-primary="indigo" data-md-color-scheme="slate" id="__palette_1" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_0" hidden="" title="Switch to light mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+</form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div aria-label="Search" class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Search" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="Search" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="Search" class="md-search__options">
+<a aria-label="Share" class="md-search__icon md-icon" data-clipboard="" data-clipboard-text="" data-md-component="search-share" href="javascript:void(0)" tabindex="-1" title="Share">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"></path></svg>
+</a>
+<button aria-label="Clear" class="md-search__icon md-icon" tabindex="-1" title="Clear" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            Initializing search
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Navigation" class="md-nav md-nav--primary" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="Artifex" class="md-nav__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+    Artifex
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../..">
+<span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../getting-started/installation/">
+<span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Generative Models Book
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Generative Models Book
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    
+  
+    Start Here — The Landscape
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../first-course-01-generative-systems/">
+<span class="md-ellipsis">
+    
+  
+    First Course — New to Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../probability-01-objects/">
+<span class="md-ellipsis">
+    
+  
+    Foundations
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_4" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_4" id="__nav_3_4_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Model Families
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_4_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_4">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Model Families
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../autoregressive-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Autoregressive Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../vae-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Variational Autoencoders
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gan-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Generative Adversarial Networks
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../ebm-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Energy-Based Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../diffusion-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Diffusion Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_4_6" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_4_6" id="__nav_3_4_6_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Normalizing Flows and Flow Matching
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_4_6_label" class="md-nav" data-md-level="3">
+<label class="md-nav__title" for="__nav_3_4_6">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Normalizing Flows and Flow Matching
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../flow-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    1. Change of Variables
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
+    
+  
+    2. Discrete-Time Architectures
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
+<span class="md-ellipsis">
+    
+  
+    2. Discrete-Time Architectures
+  
+
+    
+  </span>
+</a>
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#flow-model-architectures">
+<span class="md-ellipsis">
+      
+        Flow Model Architectures
+      
+    </span>
+</a>
+<nav aria-label="Flow Model Architectures" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#flow-model-architectures-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Flow Model Architectures: Prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#design-primitives-maps-before-architectures">
+<span class="md-ellipsis">
+      
+        Design primitives: maps before architectures
+      
+    </span>
+</a>
+<nav aria-label="Design primitives: maps before architectures" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#structured-affine-maps">
+<span class="md-ellipsis">
+      
+        Structured affine maps
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#monotone-scalar-maps">
+<span class="md-ellipsis">
+      
+        Monotone scalar maps
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#1-nice-pioneering-coupling-layers">
+<span class="md-ellipsis">
+      
+        1. NICE: Pioneering Coupling Layers
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#2-realnvp-adding-scale-for-expressiveness">
+<span class="md-ellipsis">
+      
+        2. RealNVP: Adding Scale for Expressiveness
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#3-glow-learnable-permutations">
+<span class="md-ellipsis">
+      
+        3. Glow: Learnable Permutations
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#4-maf-masked-autoregressive-flow">
+<span class="md-ellipsis">
+      
+        4. MAF: Masked Autoregressive Flow
+      
+    </span>
+</a>
+<nav aria-label="4. MAF: Masked Autoregressive Flow" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#why-made-makes-density-evaluation-parallel">
+<span class="md-ellipsis">
+      
+        Why MADE makes density evaluation parallel
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#5-iaf-inverse-autoregressive-flow">
+<span class="md-ellipsis">
+      
+        5. IAF: Inverse Autoregressive Flow
+      
+    </span>
+</a>
+<nav aria-label="5. IAF: Inverse Autoregressive Flow" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#maf-and-iaf-are-not-labels-for-one-universal-forward-direction">
+<span class="md-ellipsis">
+      
+        MAF and IAF are not labels for one universal forward direction
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#6-neural-spline-flows">
+<span class="md-ellipsis">
+      
+        6. Neural Spline Flows
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#7-residual-transformations-determinant-and-inverse-design">
+<span class="md-ellipsis">
+      
+        7. Residual transformations: determinant and inverse design
+      
+    </span>
+</a>
+<nav aria-label="7. Residual transformations: determinant and inverse design" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#low-rank-route-the-determinant-lemma-reduces-dimension-not-assumptions">
+<span class="md-ellipsis">
+      
+        Low-rank route: the determinant lemma reduces dimension, not assumptions
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#contractive-route-a-global-inverse-with-estimated-volume">
+<span class="md-ellipsis">
+      
+        Contractive route: a global inverse with estimated volume
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#8-transformer-autoregressive-flows-tarflow-and-successors">
+<span class="md-ellipsis">
+      
+        8. Transformer autoregressive flows: TarFlow and successors
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-example-the-realnvp-determinant-does-not-differentiate-the-conditioner">
+<span class="md-ellipsis">
+      
+        Worked example: the RealNVP determinant does not differentiate the conditioner
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#independent-practice-and-assessment-map-flow-architectures">
+<span class="md-ellipsis">
+      
+        Independent practice and assessment map: flow architectures
+      
+    </span>
+</a>
+<nav aria-label="Independent practice and assessment map: flow architectures" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#p1-design-and-falsify-a-tractable-flow-architecture">
+<span class="md-ellipsis">
+      
+        P1 — Design and falsify a tractable flow architecture
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-2-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 2 synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../flow-03-training/">
+<span class="md-ellipsis">
+    
+  
+    3. Training and Density Estimation
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../flow-04-continuous/">
+<span class="md-ellipsis">
+    
+  
+    4. Continuous Flows and Flow Matching
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../flow-05-practice/">
+<span class="md-ellipsis">
+    
+  
+    5. Practice and Evaluation
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../flow-06-synthesis/">
+<span class="md-ellipsis">
+    
+  
+    6. Synthesis and Reading
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../flow-explained/">
+<span class="md-ellipsis">
+    
+  
+    Continuous View (All Chapters)
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../probabilistic-circuits-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Probabilistic Circuits
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../tensor-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Tensor-Network and Born Probability Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../implicit-generators-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Implicit Generators Beyond GANs
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../discrete-iterative-01-masked/">
+<span class="md-ellipsis">
+    
+  
+    Discrete Iterative Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../bayesian-flow-networks-01-story/">
+<span class="md-ellipsis">
+    
+  
+    Bayesian Flow Networks
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gflownets-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Generative Flow Networks
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../bnp-01-random-measures/">
+<span class="md-ellipsis">
+    
+  
+    Bayesian Nonparametric Random-Measure Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../stochastic-process-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Stochastic-Process and Function-Space Generators
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../point-processes-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Point Processes and Random Finite Sets
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../random-graphs-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Random Graphs and Relational Generators
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../copula-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Copula Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../grammar-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Probabilistic Grammars and Program Derivations
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../causal-generative-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Causal Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../new-families-frontier-evidence/">
+<span class="md-ellipsis">
+    
+  
+    Research Evidence Ledger
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gradients-01-taxonomy/">
+<span class="md-ellipsis">
+    
+  
+    Connections and Compositions
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../normalization-01-queries/">
+<span class="md-ellipsis">
+    
+  
+    Research Practice
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../models/vae-guide/">
+<span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/core/base/">
+<span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../examples/overview/">
+<span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../zoo/">
+<span class="md-ellipsis">
+    
+  
+    Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../training/overview/">
+<span class="md-ellipsis">
+    
+  
+    Training
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../data/overview/">
+<span class="md-ellipsis">
+    
+  
+    Data &amp; Modalities
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../inference/overview/">
+<span class="md-ellipsis">
+    
+  
+    Inference &amp; Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../benchmarks/">
+<span class="md-ellipsis">
+    
+  
+    Evaluation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../guides/extensions/">
+<span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../extensions/">
+<span class="md-ellipsis">
+    
+  
+    Advanced Topics
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../cli/">
+<span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../community/contributing/">
+<span class="md-ellipsis">
+    
+  
+    Community
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/configs/protein-extension/">
+<span class="md-ellipsis">
+    
+  
+    Reference Library
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#flow-model-architectures">
+<span class="md-ellipsis">
+      
+        Flow Model Architectures
+      
+    </span>
+</a>
+<nav aria-label="Flow Model Architectures" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#flow-model-architectures-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Flow Model Architectures: Prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#design-primitives-maps-before-architectures">
+<span class="md-ellipsis">
+      
+        Design primitives: maps before architectures
+      
+    </span>
+</a>
+<nav aria-label="Design primitives: maps before architectures" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#structured-affine-maps">
+<span class="md-ellipsis">
+      
+        Structured affine maps
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#monotone-scalar-maps">
+<span class="md-ellipsis">
+      
+        Monotone scalar maps
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#1-nice-pioneering-coupling-layers">
+<span class="md-ellipsis">
+      
+        1. NICE: Pioneering Coupling Layers
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#2-realnvp-adding-scale-for-expressiveness">
+<span class="md-ellipsis">
+      
+        2. RealNVP: Adding Scale for Expressiveness
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#3-glow-learnable-permutations">
+<span class="md-ellipsis">
+      
+        3. Glow: Learnable Permutations
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#4-maf-masked-autoregressive-flow">
+<span class="md-ellipsis">
+      
+        4. MAF: Masked Autoregressive Flow
+      
+    </span>
+</a>
+<nav aria-label="4. MAF: Masked Autoregressive Flow" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#why-made-makes-density-evaluation-parallel">
+<span class="md-ellipsis">
+      
+        Why MADE makes density evaluation parallel
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#5-iaf-inverse-autoregressive-flow">
+<span class="md-ellipsis">
+      
+        5. IAF: Inverse Autoregressive Flow
+      
+    </span>
+</a>
+<nav aria-label="5. IAF: Inverse Autoregressive Flow" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#maf-and-iaf-are-not-labels-for-one-universal-forward-direction">
+<span class="md-ellipsis">
+      
+        MAF and IAF are not labels for one universal forward direction
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#6-neural-spline-flows">
+<span class="md-ellipsis">
+      
+        6. Neural Spline Flows
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#7-residual-transformations-determinant-and-inverse-design">
+<span class="md-ellipsis">
+      
+        7. Residual transformations: determinant and inverse design
+      
+    </span>
+</a>
+<nav aria-label="7. Residual transformations: determinant and inverse design" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#low-rank-route-the-determinant-lemma-reduces-dimension-not-assumptions">
+<span class="md-ellipsis">
+      
+        Low-rank route: the determinant lemma reduces dimension, not assumptions
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#contractive-route-a-global-inverse-with-estimated-volume">
+<span class="md-ellipsis">
+      
+        Contractive route: a global inverse with estimated volume
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#8-transformer-autoregressive-flows-tarflow-and-successors">
+<span class="md-ellipsis">
+      
+        8. Transformer autoregressive flows: TarFlow and successors
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-example-the-realnvp-determinant-does-not-differentiate-the-conditioner">
+<span class="md-ellipsis">
+      
+        Worked example: the RealNVP determinant does not differentiate the conditioner
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#independent-practice-and-assessment-map-flow-architectures">
+<span class="md-ellipsis">
+      
+        Independent practice and assessment map: flow architectures
+      
+    </span>
+</a>
+<nav aria-label="Independent practice and assessment map: flow architectures" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#p1-design-and-falsify-a-tractable-flow-architecture">
+<span class="md-ellipsis">
+      
+        P1 — Design and falsify a tractable flow architecture
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-2-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 2 synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<nav aria-label="Breadcrumb" class="md-path">
+<ol class="md-path__list">
+<li class="md-path__item">
+<a class="md-path__link" href="../../..">
+<span class="md-ellipsis">
+    Home
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    Generative Models Book
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../autoregressive-01-foundations/">
+<span class="md-ellipsis">
+    Model Families
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../flow-01-foundations/">
+<span class="md-ellipsis">
+    Normalizing Flows and Flow Matching
+  </span>
+</a>
+</li>
+</ol>
+</nav>
+<article class="md-content__inner md-typeset">
+<h1 id="flows-2-discrete-time-architectures">Flows 2 — Discrete-Time Architectures<a class="headerlink" href="#flows-2-discrete-time-architectures" title="Permanent link">¤</a></h1><aside aria-label="Learning path" class="admonition abstract artifex-learning-path"><p class="admonition-title">Learning path</p><p><strong>Required knowledge</strong></p><ul class="artifex-learning-path__links" data-learning-path-role="required"><li><a href="../flow-01-foundations/">Flows 1 — Change of Variables and Invertibility</a></li></ul><p><strong>Readiness check:</strong> can you explain the central object and reproduce one worked example from each required chapter? If not, follow its link before continuing.</p><p><strong>Newly unlocked in the default route</strong></p><ul class="artifex-learning-path__links" data-learning-path-role="unlocks"><li><a href="../flow-03-training/">Flows 3 — Training and Density Estimation</a></li></ul></aside>
+<p>This chapter begins with affine, monotone-scalar, and residual design primitives, then studies NICE, RealNVP, Glow, MAF, IAF, splines, residual flows, and Transformer flows through map, inverse, and log-determinant costs. Its autoregressive section names data-to-base and base-to-data directions explicitly and links to the complete binary MADE mask audit; its residual section separates low-rank determinant structure from contractive invertibility. For uninterrupted reading, use the <a href="../flow-explained/#flow-model-architectures">complete guide</a>.</p>
+<h2 id="flow-model-architectures">Flow Model Architectures<a class="headerlink" href="#flow-model-architectures" title="Permanent link">¤</a></h2>
+<h3 id="flow-model-architectures-prerequisites-and-learning-objectives">Flow Model Architectures: Prerequisites and learning objectives<a class="headerlink" href="#flow-model-architectures-prerequisites-and-learning-objectives" title="Permanent link">¤</a></h3>
+<p>This chapter assumes Chapter 1's map convention. By the end, you should be able to:</p>
+<ol>
+<li>separate the cost of evaluating a map, inverting it, and computing its log-determinant;</li>
+<li>explain how structured affine maps and monotone scalar maps become flow primitives;</li>
+<li>derive the block-triangular Jacobian of additive and affine coupling layers;</li>
+<li>distinguish MAF and IAF by dependency direction and by the sequential direction of computation;</li>
+<li>distinguish a low-rank residual determinant from a contractive residual inverse guarantee;</li>
+<li>compare coupling, autoregressive, spline, residual, and Transformer flows by scoring and sampling cost; and</li>
+<li>identify which architectures are implemented by Artifex and which are research context only.</li>
+</ol>
+<p>Artifex provides implementations of several classical flow architectures, each with different trade-offs between expressiveness, computational efficiency, and ease of use. Research-only architectures are labeled explicitly; conceptual coverage does not imply a runtime export.</p>
+<h3 id="design-primitives-maps-before-architectures">Design primitives: maps before architectures<a class="headerlink" href="#design-primitives-maps-before-architectures" title="Permanent link">¤</a></h3>
+<p>A flow layer must answer three computational questions:</p>
+<ol>
+<li>Can we evaluate <span class="arithmatex">\(x=f(u)\)</span>?</li>
+<li>Can we recover <span class="arithmatex">\(u=f^{-1}(x)\)</span> in the direction the application needs?</li>
+<li>Can we compute <span class="arithmatex">\(\log|\det J_f(u)|\)</span> or its inverse-map counterpart with a declared error model?</li>
+</ol>
+<p>These questions are independent. A map can have a cheap determinant but an expensive inverse, or an analytic inverse but a dense determinant. Named architectures are best understood as different ways of allocating those costs.</p>
+<h4 id="structured-affine-maps">Structured affine maps<a class="headerlink" href="#structured-affine-maps" title="Permanent link">¤</a></h4>
+<p>The simplest multivariate bijection is</p>
+<div class="arithmatex">\[
+x=Au+b,
+\]</div>
+<p>where <span class="arithmatex">\(A\in\mathbb R^{D\times D}\)</span> is nonsingular. Its inverse is <span class="arithmatex">\(u=A^{-1}(x-b)\)</span> and its log-volume change is <span class="arithmatex">\(\log|\det A|\)</span>. This already separates statistical expressivity from computational structure: an unrestricted dense <span class="arithmatex">\(A\)</span> can mix every coordinate, but repeatedly factorizing it costs <span class="arithmatex">\(O(D^3)\)</span> in general.</p>
+<div class="md-typeset__table book-table-container"><table id="tbl-flow-explained-structured-affine-maps"><caption class="book-object-caption"><span class="book-object-number">Table FLOW.2.</span> Structured affine maps</caption>
+<thead>
+<tr>
+<th>Structure of <span class="arithmatex">\(A\)</span></th>
+<th style="text-align: right;">Forward map</th>
+<th style="text-align: right;">Inverse map</th>
+<th style="text-align: right;"><span class="arithmatex">\(\log\lvert\det A\rvert\)</span></th>
+<th>What is restricted?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>dense</td>
+<td style="text-align: right;"><span class="arithmatex">\(O(D^2)\)</span></td>
+<td style="text-align: right;"><span class="arithmatex">\(O(D^3)\)</span> factorization, then <span class="arithmatex">\(O(D^2)\)</span> per solve</td>
+<td style="text-align: right;"><span class="arithmatex">\(O(D^3)\)</span> factorization</td>
+<td>no linear mixing restriction beyond nonsingularity</td>
+</tr>
+<tr>
+<td>triangular</td>
+<td style="text-align: right;"><span class="arithmatex">\(O(D^2)\)</span></td>
+<td style="text-align: right;"><span class="arithmatex">\(O(D^2)\)</span> triangular solve</td>
+<td style="text-align: right;"><span class="arithmatex">\(O(D)\)</span> from the diagonal</td>
+<td>dependency order is triangular</td>
+</tr>
+<tr>
+<td>diagonal</td>
+<td style="text-align: right;"><span class="arithmatex">\(O(D)\)</span></td>
+<td style="text-align: right;"><span class="arithmatex">\(O(D)\)</span></td>
+<td style="text-align: right;"><span class="arithmatex">\(O(D)\)</span></td>
+<td>no coordinate mixing</td>
+</tr>
+<tr>
+<td>permutation</td>
+<td style="text-align: right;"><span class="arithmatex">\(O(D)\)</span></td>
+<td style="text-align: right;"><span class="arithmatex">\(O(D)\)</span></td>
+<td style="text-align: right;"><span class="arithmatex">\(0\)</span> in log absolute value</td>
+<td>reorders coordinates without reshaping density</td>
+</tr>
+</tbody>
+</table></div>
+<p>The dense row assumes no reusable factorization. If <span class="arithmatex">\(A\)</span> is fixed across many evaluations, a cached factorization changes the amortized solve cost; during training, an unconstrained <span class="arithmatex">\(A\)</span> changes and its factorization or parameterization remains part of the computation. A cheap log-determinant therefore does not imply a cheap transformation, and conversely.</p>
+<p><strong>Finite worked example.</strong> Let</p>
+<div class="arithmatex">\[
+A=\begin{bmatrix}2&amp;0\\1&amp;3\end{bmatrix},\qquad
+b=\begin{bmatrix}1\\-1\end{bmatrix},\qquad
+u=\begin{bmatrix}1\\2\end{bmatrix}.
+\]</div>
+<p>Then <span class="arithmatex">\(x=Au+b=(3,6)^\top\)</span> and <span class="arithmatex">\(\det A=6\)</span>. Solving the triangular system <span class="arithmatex">\(A u=x-b\)</span> recovers <span class="arithmatex">\((1,2)^\top\)</span>. If <span class="arithmatex">\(u\)</span> has density <span class="arithmatex">\(p_U\)</span>, the output density at this paired point is</p>
+<div class="arithmatex">\[
+\log p_X(3,6)=\log p_U(1,2)-\log 6.
+\]</div>
+<p>The minus sign is not a convention to memorize separately: <span class="arithmatex">\(A\)</span> expands a unit area by a factor of six, so density per unit output area falls by that factor.</p>
+<h4 id="monotone-scalar-maps">Monotone scalar maps<a class="headerlink" href="#monotone-scalar-maps" title="Permanent link">¤</a></h4>
+<p>An elementwise transform</p>
+<div class="arithmatex">\[
+x_i=h_i(u_i;\theta_i)
+\]</div>
+<p>has a diagonal Jacobian and</p>
+<div class="arithmatex">\[
+\log|\det J_f(u)|=\sum_{i=1}^{D}\log|h_i'(u_i;\theta_i)|.
+\]</div>
+<p>A continuous scalar map is invertible on its declared domain if it is strictly monotone and maps that domain onto the declared codomain. Positivity of the derivative is a convenient sufficient construction, but it does not by itself state the range or the numerical cost of inversion.</p>
+<div class="md-typeset__table book-table-container"><table id="tbl-flow-explained-monotone-scalar-maps"><caption class="book-object-caption"><span class="book-object-number">Table FLOW.3.</span> Monotone scalar maps</caption>
+<thead>
+<tr>
+<th>Scalar construction</th>
+<th>How monotonicity is obtained</th>
+<th>Forward/inverse behavior</th>
+<th>Main limitation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>affine <span class="arithmatex">\(h(u)=e^a u+b\)</span></td>
+<td>positive scale</td>
+<td>both analytic</td>
+<td>one layer only shifts and rescales</td>
+</tr>
+<tr>
+<td>positive-weight monotone network</td>
+<td>monotone activations and constrained paths</td>
+<td>forward analytic; inverse commonly uses root finding</td>
+<td>weight constraints can limit the convenient parameterization</td>
+</tr>
+<tr>
+<td>integrated positive derivative</td>
+<td><span class="arithmatex">\(h(u)=b+\int_0^u [\operatorname{softplus}(g(s))+\epsilon],ds\)</span></td>
+<td>forward uses quadrature; inverse nests root finding around integration</td>
+<td>numerical quadrature and root tolerances enter the density computation</td>
+</tr>
+<tr>
+<td>sum-of-squares polynomial</td>
+<td>integrate a nonnegative polynomial derivative, with strictness handled explicitly</td>
+<td>polynomial forward and derivative; inverse generally uses root finding</td>
+<td>polynomial degree and tails constrain practical behavior</td>
+</tr>
+<tr>
+<td>monotone rational-quadratic spline</td>
+<td>positive bin widths, heights, and knot derivatives</td>
+<td>analytic within the selected bin, including a quadratic inverse</td>
+<td>requires tail and boundary conventions plus bin lookup</td>
+</tr>
+</tbody>
+</table></div>
+<p>Monotone neural transformations, sum-of-squares flows, and rational-quadratic splines supply increasingly flexible scalar maps (<a href="https://proceedings.mlr.press/v80/huang18d.html">Huang et al., 2018</a>; <a href="https://proceedings.mlr.press/v97/jaini19a.html">Jaini et al., 2019</a>; <a href="https://proceedings.neurips.cc/paper_files/paper/2019/hash/2a084e55c87b1ebcdaad1f62fdbbac8e-Abstract.html">Wehenkel &amp; Louppe, 2019</a>; <a href="https://proceedings.neurips.cc/paper_files/paper/2019/hash/7ac71d433f282034e088473244df8c02-Abstract.html">Durkan et al., 2019</a>). Applied independently, however, scalar maps cannot create dependence between initially independent coordinates. Coupling and autoregressive layers add conditioners that make each scalar map depend on other coordinates while preserving a structured Jacobian.</p>
+<figure class="book-figure" id="fig-flow-explained-monotone-scalar-maps"><pre class="mermaid"><code>%%{init: {'themeCSS': '.nodeLabel p { color: #111827 !important; } .flowchart-link { stroke: #78879a !important; stroke-width: 2px !important; } marker path { fill: #78879a !important; stroke: #78879a !important; }'}}%%
+graph TB
+    Primitive["Invertible primitive&lt;br/&gt;affine, scalar, or residual"] --&gt; Structure["Dependency structure&lt;br/&gt;coupling, triangular, or low-rank"]
+    Structure --&gt; Layer["Flow layer&lt;br/&gt;map + inverse + log-volume rule"]
+    Layer --&gt; Stack["Composed flow&lt;br/&gt;mixing across layers"]
+    Stack --&gt; Role["Probabilistic role&lt;br/&gt;model, posterior, proposal, or transport"]
+
+    style Primitive fill:#e1f5ff,color:#111827
+    style Structure fill:#fff3cd,color:#111827
+    style Layer fill:#d4edda,color:#111827
+    style Stack fill:#e8ddf5,color:#111827
+    style Role fill:#ffe1e1,color:#111827</code></pre><figcaption class="book-object-caption"><span class="book-object-number">Figure FLOW.2.</span> Monotone scalar maps</figcaption></figure>
+<p>This ladder prevents a common category error. A spline is a scalar transformation; a masked autoregressive layer is a dependency structure; a stack plus base distribution is a normalized model; and the same stack can instead parameterize a variational posterior. None of these labels alone determines the full system.</p>
+<h3 id="1-nice-pioneering-coupling-layers">1. NICE: Pioneering Coupling Layers<a class="headerlink" href="#1-nice-pioneering-coupling-layers" title="Permanent link">¤</a></h3>
+<p><strong>NICE</strong> (<a href="https://arxiv.org/abs/1410.8516">Dinh, Krueger &amp; Bengio, 2014</a>) — Non-linear Independent Components Estimation — introduced <strong>additive coupling layers</strong> that made normalizing flows practical for high-dimensional data.</p>
+<p><strong>Coupling Layer Mechanism:</strong></p>
+<p>Given input <span class="arithmatex">\(\mathbf{x} \in \mathbb{R}^D\)</span>, partition into <span class="arithmatex">\((\mathbf{x}_1, \mathbf{x}_2)\)</span>:</p>
+<div class="arithmatex">\[
+\begin{align}
+\mathbf{y}_1 &amp;= \mathbf{x}_1 \\
+\mathbf{y}_2 &amp;= \mathbf{x}_2 + m(\mathbf{x}_1)
+\end{align}
+\]</div>
+<p>where <span class="arithmatex">\(m\)</span> can be <strong>any arbitrary function</strong> (typically a neural network).</p>
+<p><strong>Key Properties:</strong></p>
+<ul>
+<li><strong>Volume-preserving</strong>: <span class="arithmatex">\(\log|\det(\mathbf{J})| = 0\)</span> (determinant is exactly 1)</li>
+<li><strong>Efficient inverse</strong>: <span class="arithmatex">\(\mathbf{x}_1 = \mathbf{y}_1\)</span>, <span class="arithmatex">\(\mathbf{x}_2 = \mathbf{y}_2 - m(\mathbf{y}_1)\)</span></li>
+<li><strong>No Jacobian computation</strong>: The triangular structure makes the determinant trivial</li>
+<li><strong>Flexible coupling function</strong>: evaluating the triangular determinant does not require the internal Jacobian of <span class="arithmatex">\(m\)</span>, but the runtime and memory of the layer still depend on the size and architecture of <span class="arithmatex">\(m\)</span></li>
+</ul>
+<figure class="book-figure" id="fig-flow-explained-1-nice-pioneering-coupling-layers"><pre class="mermaid"><code>%%{init: {'themeCSS': '.nodeLabel p { color: #111827 !important; } .flowchart-link { stroke: #78879a !important; stroke-width: 2px !important; } marker path { fill: #78879a !important; stroke: #78879a !important; }'}}%%
+graph TB
+    X["Input&amp;nbsp;$$x$$"] --&gt; Split["Partition&amp;nbsp;$$(x_1,x_2)$$"]
+    Split --&gt; X1["$$x_1$$&amp;nbsp;(unchanged)"]
+    Split --&gt; X2["$$x_2$$"]
+
+    X1 --&gt; NN["Neural network&amp;nbsp;$$m(x_1)$$"]
+    NN --&gt; Add["$$y_2=x_2+m(x_1)$$"]
+    X2 --&gt; Add
+
+    X1 --&gt; Concat["Concatenate"]
+    Add --&gt; Concat
+    Concat --&gt; Y["Output&amp;nbsp;$$y$$"]
+
+    style X fill:#e1f5ff,color:#111827
+    style Y fill:#ffe1e1,color:#111827
+    style NN fill:#fff3cd,color:#111827</code></pre><figcaption class="book-object-caption"><span class="book-object-number">Figure FLOW.3.</span> 1. NICE: Pioneering Coupling Layers</figcaption></figure>
+<p><strong>When to Use NICE:</strong></p>
+<ul>
+<li>Fast forward and inverse computations required</li>
+<li>Volume-preserving transformations are acceptable</li>
+<li>Starting point for understanding coupling layers</li>
+<li>Lower-dimensional problems (hundreds of dimensions)</li>
+</ul>
+<h3 id="2-realnvp-adding-scale-for-expressiveness">2. RealNVP: Adding Scale for Expressiveness<a class="headerlink" href="#2-realnvp-adding-scale-for-expressiveness" title="Permanent link">¤</a></h3>
+<p><strong>RealNVP</strong> (<a href="https://arxiv.org/abs/1605.08803">Dinh, Sohl-Dickstein &amp; Bengio, 2017 — ICLR</a>) — Real-valued Non-Volume Preserving — extends NICE with <strong>affine coupling layers</strong>:</p>
+<div class="arithmatex">\[
+\begin{align}
+\mathbf{y}_1 &amp;= \mathbf{x}_1 \\
+\mathbf{y}_2 &amp;= \mathbf{x}_2 \odot \exp(s(\mathbf{x}_1)) + t(\mathbf{x}_1)
+\end{align}
+\]</div>
+<p>where <span class="arithmatex">\(s(\cdot)\)</span> and <span class="arithmatex">\(t(\cdot)\)</span> are neural networks outputting scale and translation, and <span class="arithmatex">\(\odot\)</span> denotes element-wise multiplication.</p>
+<p><strong>Key Properties:</strong></p>
+<ul>
+<li><strong>Tractable Jacobian</strong>: <span class="arithmatex">\(\log|\det(\mathbf{J})| = \sum_i s_i(\mathbf{x}_1)\)</span></li>
+<li><strong>Efficient inverse</strong>: the triangular inverse remains analytic.</li>
+</ul>
+<div class="arithmatex">\[
+\begin{align}
+\mathbf{x}_1 &amp;= \mathbf{y}_1 \\
+\mathbf{x}_2 &amp;= (\mathbf{y}_2 - t(\mathbf{y}_1)) \odot \exp(-s(\mathbf{y}_1))
+\end{align}
+\]</div>
+<ul>
+<li><strong>Alternating masks</strong>: Alternate which dimensions are transformed across layers</li>
+<li><strong>No determinant of the internal scale/translation Jacobians is needed</strong>: gradients still flow through <span class="arithmatex">\(s\)</span> and <span class="arithmatex">\(t\)</span> into all of their parameters, but the block-triangular coupling Jacobian makes the log-determinant depend only on the emitted scale values. More capable conditioners can therefore be used without computing their full Jacobian determinant, although their ordinary evaluation cost still matters.</li>
+</ul>
+<figure class="book-figure" id="fig-flow-explained-2-realnvp-adding-scale-for-expressiveness"><pre class="mermaid"><code>%%{init: {'themeCSS': '.nodeLabel p { color: #111827 !important; } .flowchart-link { stroke: #78879a !important; stroke-width: 2px !important; } marker path { fill: #78879a !important; stroke: #78879a !important; }'}}%%
+graph TB
+    X["Input&amp;nbsp;$$x$$"] --&gt; Split["Split&amp;nbsp;$$(x_1,x_2)$$"]
+    Split --&gt; X1["$$x_1$$&amp;nbsp;(unchanged)"]
+    Split --&gt; X2["$$x_2$$"]
+
+    X1 --&gt; NN["Neural networks&amp;nbsp;$$s(x_1),\ t(x_1)$$"]
+    NN --&gt; Scale["$$\exp\{s(x_1)\}$$"]
+    NN --&gt; Trans["$$t(x_1)$$"]
+
+    X2 --&gt; Mult["$$\odot$$"]
+    Scale --&gt; Mult
+    Mult --&gt; Add["Add translation&amp;nbsp;$$t(x_1)$$"]
+    Trans --&gt; Add
+    Add --&gt; Y2["$$y_2$$"]
+
+    X1 --&gt; Concat["Concatenate"]
+    Y2 --&gt; Concat
+    Concat --&gt; Y["Output&amp;nbsp;$$y$$"]
+
+    style X fill:#e1f5ff,color:#111827
+    style Y fill:#ffe1e1,color:#111827
+    style NN fill:#fff3cd,color:#111827</code></pre><figcaption class="book-object-caption"><span class="book-object-number">Figure FLOW.4.</span> 2. RealNVP: Adding Scale for Expressiveness</figcaption></figure>
+<p><strong>Multi-Scale Architecture:</strong></p>
+<p>RealNVP introduced hierarchical structure that revolutionized flow-based modeling:</p>
+<ol>
+<li><strong>Squeeze operation</strong>: Reshape <span class="arithmatex">\(s \times s \times c\)</span> tensors into <span class="arithmatex">\(\frac{s}{2} \times \frac{s}{2} \times 4c\)</span></li>
+<li><strong>Factor out</strong>: After several coupling layers, factor out half the channels to the prior</li>
+<li><strong>Continue processing</strong>: Transform remaining channels at higher resolution</li>
+</ol>
+<p>This reduces repeated computation on factored-out variables and supports higher-dimensional image experiments, while the exact memory and runtime depend on the number of scales, channels, conditioners, and implementation.</p>
+<p><strong>When to Use RealNVP:</strong></p>
+<ul>
+<li>Need both fast sampling and density estimation</li>
+<li>Working with continuous data, especially images</li>
+<li>Image generation tasks at moderate to high resolution</li>
+<li>Moderate-dimensional data (hundreds to thousands of dimensions)</li>
+</ul>
+<h3 id="3-glow-learnable-permutations">3. Glow: Learnable Permutations<a class="headerlink" href="#3-glow-learnable-permutations" title="Permanent link">¤</a></h3>
+<p><strong>Glow</strong> (<a href="https://arxiv.org/abs/1807.03039">Kingma &amp; Dhariwal, 2018 — NeurIPS</a>) extends RealNVP with three key block-level innovations. Artifex retains these Glow blocks as a single-scale image flow baseline rather than the paper's squeeze/split multi-scale hierarchy.</p>
+<p><strong>Glow Block Architecture:</strong></p>
+<p>Each flow step combines three layers:</p>
+<figure class="book-figure" id="fig-flow-explained-3-glow-learnable-permutations"><pre class="mermaid"><code>%%{init: {'themeCSS': '.nodeLabel p { color: #111827 !important; } .flowchart-link { stroke: #78879a !important; stroke-width: 2px !important; } marker path { fill: #78879a !important; stroke: #78879a !important; }'}}%%
+graph TB
+    X["Input"] --&gt; AN["ActNorm&lt;br/&gt;(Activation Normalization)"]
+    AN --&gt; Conv["Invertible 1×1 Conv&lt;br/&gt;(Channel Mixing)"]
+    Conv --&gt; Coup["Affine Coupling Layer&lt;br/&gt;(Transformation)"]
+    Coup --&gt; Y["Output"]
+
+    style X fill:#e1f5ff,color:#111827
+    style Y fill:#ffe1e1,color:#111827
+    style AN fill:#d4edda,color:#111827
+    style Conv fill:#d1ecf1,color:#111827
+    style Coup fill:#fff3cd,color:#111827</code></pre><figcaption class="book-object-caption"><span class="book-object-number">Figure FLOW.5.</span> 3. Glow: Learnable Permutations</figcaption></figure>
+<p><strong>1. ActNorm (Activation Normalization):</strong></p>
+<p>Per-channel affine transformation with trainable parameters:</p>
+<div class="arithmatex">\[
+y_{i,j,c} = s_c \cdot x_{i,j,c} + b_c
+\]</div>
+<ul>
+<li>Data-dependent initialization: normalize first minibatch to zero mean, unit variance</li>
+<li>Enables training with <strong>batch size 1</strong> (critical for high-resolution images)</li>
+<li><span class="arithmatex">\(\log|\det J| = H \cdot W \cdot \sum_c \log|s_c|\)</span> for <span class="arithmatex">\(H \times W\)</span> spatial dimensions</li>
+</ul>
+<p><strong>2. Invertible 1×1 Convolution:</strong></p>
+<p>Learned linear mixing of channels using invertible matrix <span class="arithmatex">\(\mathbf{W}\)</span>:</p>
+<div class="arithmatex">\[
+\mathbf{y} = \mathbf{W} \mathbf{x}
+\]</div>
+<ul>
+<li>Replaces fixed permutations with learned channel mixing</li>
+<li>LU decomposition: <span class="arithmatex">\(\mathbf{W} = \mathbf{P} \cdot \mathbf{L} \cdot (\mathbf{U} + \text{diag}(\mathbf{s}))\)</span></li>
+<li>Determinant: <span class="arithmatex">\(\log|\det \mathbf{W}| = \sum_i \log|s_i|\)</span> (reduced to <span class="arithmatex">\(O(c)\)</span>)</li>
+<li>The learned mixing was an empirical component of the paper's complete Glow system; an isolated likelihood gain is protocol- and ablation-dependent</li>
+</ul>
+<p><strong>3. Affine Coupling Layer:</strong></p>
+<p>Similar to RealNVP but with the above improvements.</p>
+<p><strong>When to Use Glow in Artifex:</strong></p>
+<ul>
+<li>Need a fixed-size image flow with learnable channel mixing</li>
+<li>Want an analytic model-density expression with image-shaped forward and inverse transforms</li>
+<li>Need ActNorm plus invertible 1×1 convolutions as a stronger image baseline</li>
+<li>Want a deeper single-scale alternative to RealNVP on image tensors</li>
+</ul>
+<div class="admonition tip">
+<p class="admonition-title">Artifex Runtime Note</p>
+<p>The retained implementation is configured through <code>image_shape</code> and
+<code>blocks_per_scale</code>. If you need the original paper's multi-scale
+squeeze/split hierarchy, you will need a different runtime.</p>
+</div>
+<h3 id="4-maf-masked-autoregressive-flow">4. MAF: Masked Autoregressive Flow<a class="headerlink" href="#4-maf-masked-autoregressive-flow" title="Permanent link">¤</a></h3>
+<p><strong>MAF</strong> (<a href="https://proceedings.neurips.cc/paper_files/paper/2017/hash/6c1da886822c67822bcf3679d04369fa-Abstract.html">Papamakarios, Pavlakou &amp; Murray, 2017 — NeurIPS</a>) turns a continuous autoregressive density into an invertible triangular transformation. Let <span class="arithmatex">\(x\)</span> denote data and <span class="arithmatex">\(z\)</span> a standard-normal base vector. One layer declares</p>
+<div class="arithmatex">\[
+p(x_i\mid x_{&lt;i})
+=\mathcal N\!\left(x_i;\mu_i(x_{&lt;i}),\exp(2\alpha_i(x_{&lt;i}))\right),
+\]</div>
+<p>which has the data-to-base map</p>
+<div class="arithmatex">\[
+z_i=(x_i-\mu_i(x_{&lt;i}))\exp[-\alpha_i(x_{&lt;i})].
+\]</div>
+<p>The map is triangular: <span class="arithmatex">\(z_i\)</span> depends only on <span class="arithmatex">\(x_{\le i}\)</span>. Its Jacobian is generally not diagonal, because <span class="arithmatex">\(\mu_i\)</span> and <span class="arithmatex">\(\alpha_i\)</span> can depend on earlier <span class="arithmatex">\(x_j\)</span>; only its diagonal is needed for the determinant:</p>
+<div class="arithmatex">\[
+\frac{\partial z_i}{\partial x_i}=\exp[-\alpha_i(x_{&lt;i})],
+\qquad
+\log\left|\det\frac{\partial z}{\partial x}\right|
+=-\sum_{i=1}^{D}\alpha_i(x_{&lt;i}).
+\]</div>
+<p>The conditional family must make the scalar inverse explicit. A single Gaussian conditional is unimodal, while stacking autoregressive layers with permutations can create substantially richer joints. Mixture conditionals are another route to flexibility, but a generic mixture CDF need not provide the analytic bijection required by a classical flow.</p>
+<h4 id="why-made-makes-density-evaluation-parallel">Why MADE makes density evaluation parallel<a class="headerlink" href="#why-made-makes-density-evaluation-parallel" title="Permanent link">¤</a></h4>
+<p>The functions <span class="arithmatex">\(\mu_i\)</span> and <span class="arithmatex">\(\alpha_i\)</span> are commonly produced by a <strong>MADE</strong> network (<a href="https://proceedings.mlr.press/v37/germain15.html">Germain et al., ICML 2015</a>). For a complete observed <span class="arithmatex">\(x\)</span>, a mask guarantees that output pair <span class="arithmatex">\((\mu_i,\alpha_i)\)</span> can see <span class="arithmatex">\(x_{&lt;i}\)</span> but not <span class="arithmatex">\(x_{\ge i}\)</span>. All output pairs can therefore be computed by one feed-forward network evaluation. The <a href="../autoregressive-explained/#made-construction-a-mask-is-a-dependency-proof">binary MADE construction and four-variable mask audit</a> derives the mask inequalities and multiplies the masks to verify every permitted path.</p>
+<p>For the order <span class="arithmatex">\((1,2,3)\)</span>, the resulting conditional dependency graph is:</p>
+<figure class="book-figure" id="fig-flow-explained-why-made-makes-density-evaluation-parallel"><pre class="mermaid"><code>%%{init: {'themeCSS': '.nodeLabel p { color: #111827 !important; } .flowchart-link { stroke: #78879a !important; stroke-width: 2px !important; } marker path { fill: #78879a !important; stroke: #78879a !important; }'}}%%
+graph TB
+    B["bias only"] --&gt; P1["$$\mu_1,\alpha_1$$"]
+    X1["$$x_1$$"] --&gt; P2["$$\mu_2,\alpha_2$$"]
+    X1 --&gt; P3["$$\mu_3,\alpha_3$$"]
+    X2["$$x_2$$"] --&gt; P3
+
+    style B fill:#eceff1,color:#111827
+    style X1 fill:#e1f5ff,color:#111827
+    style X2 fill:#e1f5ff,color:#111827
+    style P1 fill:#ffe1e1,color:#111827
+    style P2 fill:#fff3cd,color:#111827
+    style P3 fill:#c8e6c9,color:#111827</code></pre><figcaption class="book-object-caption"><span class="book-object-number">Figure FLOW.6.</span> Why MADE makes density evaluation parallel</figcaption></figure>
+<p>The graph describes conditioner dependencies, not the full computational graph of a particular hidden network. In particular, <span class="arithmatex">\(x_i\)</span> enters the scalar transformation for <span class="arithmatex">\(z_i\)</span> directly but is forbidden from the network that emits its own <span class="arithmatex">\((\mu_i,\alpha_i)\)</span>.</p>
+<p>Given arbitrary observed <span class="arithmatex">\(x\)</span>, the sequence of operations is:</p>
+<ol>
+<li>evaluate the masked conditioner once to obtain every <span class="arithmatex">\((\mu_i,\alpha_i)\)</span>;</li>
+<li>compute every <span class="arithmatex">\(z_i\)</span> elementwise in parallel;</li>
+<li>add the base log-density and the triangular log-determinant.</li>
+</ol>
+<p>Sampling reverses the map:</p>
+<div class="arithmatex">\[
+x_i=\mu_i(x_{&lt;i})+z_i\exp[\alpha_i(x_{&lt;i})].
+\]</div>
+<p>Now <span class="arithmatex">\(x_{&lt;i}\)</span> must exist before the parameters for coordinate <span class="arithmatex">\(i\)</span> are valid. A basic sampler therefore exposes one coordinate at a time and may require <span class="arithmatex">\(D\)</span> masked-network evaluations per layer. Specialized caching can reduce repeated arithmetic, but it cannot remove the declared dependency chain without changing the model or using an approximate parallel inversion.</p>
+<div class="md-typeset__table book-table-container"><table id="tbl-flow-explained-why-made-makes-density-evaluation-parallel"><caption class="book-object-caption"><span class="book-object-number">Table FLOW.4.</span> Why MADE makes density evaluation parallel</caption>
+<thead>
+<tr>
+<th>MAF task</th>
+<th>Known at the start</th>
+<th>Direction</th>
+<th>Network-evaluation structure</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Score arbitrary data</td>
+<td>all <span class="arithmatex">\(x\)</span></td>
+<td><span class="arithmatex">\(x\to z\)</span></td>
+<td>one masked evaluation per layer; coordinate arithmetic is parallel</td>
+</tr>
+<tr>
+<td>Generate a sample</td>
+<td>all <span class="arithmatex">\(z\)</span>, no <span class="arithmatex">\(x\)</span> prefix</td>
+<td><span class="arithmatex">\(z\to x\)</span></td>
+<td>sequential in the basic construction</td>
+</tr>
+<tr>
+<td>Score a generated sample</td>
+<td>sampled <span class="arithmatex">\(x\)</span> and recorded transforms</td>
+<td>already available from generation</td>
+<td>log-density can be accumulated while sampling</td>
+</tr>
+</tbody>
+</table></div>
+<p>“One masked evaluation” is a count of network evaluations, not <span class="arithmatex">\(O(1)\)</span> arithmetic in dimension, memory, or wall-clock time.</p>
+<p><strong>When to use MAF:</strong></p>
+<ul>
+<li><strong>Density estimation is the primary goal</strong></li>
+<li>Sampling speed is less critical</li>
+<li>Tabular or low-to-moderate dimensional data</li>
+<li>Need highly expressive transformations</li>
+<li>All dimensions should interact</li>
+</ul>
+<h3 id="5-iaf-inverse-autoregressive-flow">5. IAF: Inverse Autoregressive Flow<a class="headerlink" href="#5-iaf-inverse-autoregressive-flow" title="Permanent link">¤</a></h3>
+<p><strong>IAF</strong> (<a href="https://proceedings.neurips.cc/paper_files/paper/2016/hash/ddeebdeefdb7e7e7a697e1c3e3d8ef54-Abstract.html">Kingma et al., 2016 — NeurIPS</a>) uses the same kind of masked conditioner but attaches its dependencies to the base vector. With <span class="arithmatex">\(z\sim p_0\)</span> already available, define</p>
+<div class="arithmatex">\[
+x_i=\mu_i(z_{&lt;i})+z_i\exp[\alpha_i(z_{&lt;i})].
+\]</div>
+<p>All conditioner inputs <span class="arithmatex">\(z\)</span> are known before the layer runs. A MADE-style network can emit all parameter pairs in one evaluation, after which every <span class="arithmatex">\(x_i\)</span> is computed elementwise. The same pass supplies the diagonal Jacobian terms needed to evaluate the density of this generated sample. This is why IAF is useful in amortized variational inference: the algorithm needs samples from the approximate posterior and their densities.</p>
+<p>The inverse problem is different. Given an arbitrary external <span class="arithmatex">\(x\)</span>, recovering <span class="arithmatex">\(z_1\)</span> makes <span class="arithmatex">\(z_1\)</span> available to compute the parameters for <span class="arithmatex">\(z_2\)</span>, and so on. Arbitrary-data density evaluation is therefore sequential in the basic IAF construction.</p>
+<div class="md-typeset__table book-table-container"><table id="tbl-flow-explained-5-iaf-inverse-autoregressive-flow"><caption class="book-object-caption"><span class="book-object-number">Table FLOW.5.</span> 5. IAF: Inverse Autoregressive Flow</caption>
+<thead>
+<tr>
+<th>IAF task</th>
+<th>Known at the start</th>
+<th>Direction</th>
+<th>Network-evaluation structure</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Generate a sample and its density</td>
+<td>all <span class="arithmatex">\(z\)</span></td>
+<td><span class="arithmatex">\(z\to x\)</span></td>
+<td>one masked evaluation per layer; coordinate arithmetic is parallel</td>
+</tr>
+<tr>
+<td>Score arbitrary external data</td>
+<td>all <span class="arithmatex">\(x\)</span>, no <span class="arithmatex">\(z\)</span> prefix</td>
+<td><span class="arithmatex">\(x\to z\)</span></td>
+<td>sequential in the basic construction</td>
+</tr>
+</tbody>
+</table></div>
+<h4 id="maf-and-iaf-are-not-labels-for-one-universal-forward-direction">MAF and IAF are not labels for one universal forward direction<a class="headerlink" href="#maf-and-iaf-are-not-labels-for-one-universal-forward-direction" title="Permanent link">¤</a></h4>
+<div class="md-typeset__table book-table-container"><table id="tbl-flow-explained-maf-and-iaf-are-not-labels-for-one-universal-forward-direction"><caption class="book-object-caption"><span class="book-object-number">Table FLOW.6.</span> MAF and IAF are not labels for one universal forward direction</caption>
+<thead>
+<tr>
+<th>Question</th>
+<th>MAF</th>
+<th>IAF</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Conditioner reads</td>
+<td>earlier data <span class="arithmatex">\(x_{&lt;i}\)</span></td>
+<td>earlier base variables <span class="arithmatex">\(z_{&lt;i}\)</span></td>
+</tr>
+<tr>
+<td>Parallel direction</td>
+<td>arbitrary-data scoring, <span class="arithmatex">\(x\to z\)</span></td>
+<td>sampling and sample scoring, <span class="arithmatex">\(z\to x\)</span></td>
+</tr>
+<tr>
+<td>Sequential direction</td>
+<td>sampling, <span class="arithmatex">\(z\to x\)</span></td>
+<td>arbitrary-data scoring, <span class="arithmatex">\(x\to z\)</span></td>
+</tr>
+<tr>
+<td>Typical role</td>
+<td>normalized density model</td>
+<td>flexible variational posterior transformation</td>
+</tr>
+<tr>
+<td>Shared fact</td>
+<td>triangular bijection with tractable diagonal</td>
+<td>triangular bijection with tractable diagonal</td>
+</tr>
+</tbody>
+</table></div>
+<p>Calling one map “forward” is unsafe unless the author first declares whether forward means base-to-data, model execution, or density evaluation. This book always names the coordinates and direction explicitly.</p>
+<p><strong>When to use IAF:</strong></p>
+<ul>
+<li><strong>Fast sampling is the primary goal</strong></li>
+<li>Density is needed mainly for samples produced by the same transformation</li>
+<li>Variational inference (amortized inference in VAEs)</li>
+<li>Settings where the base-to-sample direction must be parallel within each layer, after measuring complete latency</li>
+</ul>
+<div class="admonition failure">
+<p class="admonition-title">A MADE density estimator is not automatically a flow</p>
+<p>Binary MADE defines normalized Bernoulli conditionals but is not a bijection between equal-dimensional continuous spaces. A continuous MADE with arbitrary mixture conditionals can define a tractable autoregressive density without supplying an analytic inverse. MAF and IAF require scalar transformations whose inverse and Jacobian diagonal are available in the needed direction. The dependency mask is reusable; the probabilistic object is not interchangeable.</p>
+</div>
+<h3 id="6-neural-spline-flows">6. Neural Spline Flows<a class="headerlink" href="#6-neural-spline-flows" title="Permanent link">¤</a></h3>
+<p><strong>Neural Spline Flows</strong> (<a href="https://arxiv.org/abs/1906.04032">Durkan, Bekasov, Murray &amp; Papamakarios, 2019 — NeurIPS</a>) use <strong>monotonic rational-quadratic splines</strong> to create highly expressive yet tractable transformations.</p>
+<p><strong>Rational-Quadratic Spline Transform:</strong></p>
+<p>Each spline maps interval <span class="arithmatex">\([-B, B]\)</span> to itself using <span class="arithmatex">\(K\)</span> rational-quadratic segments, parameterized by:</p>
+<ul>
+<li><span class="arithmatex">\(K+1\)</span> knot positions <span class="arithmatex">\(\{(x^{(k)}, y^{(k)})\}\)</span></li>
+<li><span class="arithmatex">\(K+1\)</span> derivative values <span class="arithmatex">\(\{\delta^{(k)}\}\)</span></li>
+</ul>
+<p>Within segment <span class="arithmatex">\(k\)</span>, the transformation applies a ratio of quadratic polynomials.</p>
+<p><strong>Key Properties:</strong></p>
+<ul>
+<li><strong>Strict monotonicity</strong>: positive bin widths, heights, and derivatives make each scalar spline invertible on its declared interval, with the boundary/tail rule completing the global map</li>
+<li><strong>Smooth derivatives</strong>: No discontinuities (unlike piecewise-linear)</li>
+<li><strong>Closed-form operations</strong>: Forward evaluation, analytic inverse (quadratic equation), closed-form derivative</li>
+<li><strong>Piecewise-monotone expressivity</strong>: increasing the number of bins can approximate richer scalar monotone transforms, but the required count depends on tail bounds, conditioner capacity, data, and optimisation; 8 or 16 bins are experimental settings, not universal sufficiency results</li>
+</ul>
+<figure class="book-figure" id="fig-flow-explained-6-neural-spline-flows"><pre class="mermaid"><code>%%{init: {'themeCSS': '.nodeLabel p { color: #111827 !important; } .flowchart-link { stroke: #78879a !important; stroke-width: 2px !important; } marker path { fill: #78879a !important; stroke: #78879a !important; }'}}%%
+graph LR
+    Input["$$x$$"] --&gt; Spline["Monotonic&lt;br/&gt;rational-quadratic&lt;br/&gt;spline"]
+    Spline --&gt; Output["$$y$$"]
+    Params["Knot positions&lt;br/&gt;Derivatives"] -.-&gt; Spline
+
+    style Input fill:#e1f5ff,color:#111827
+    style Output fill:#ffe1e1,color:#111827
+    style Params fill:#fff3cd,color:#111827</code></pre><figcaption class="book-object-caption"><span class="book-object-number">Figure FLOW.7.</span> 6. Neural Spline Flows</figcaption></figure>
+<p><strong>Compared to alternatives:</strong></p>
+<ul>
+<li><strong>vs Affine</strong>: a spline emits widths, heights, and derivatives for several bins rather than only a shift and scale; the exact parameter count depends on bin count and boundary convention</li>
+<li><strong>vs Neural Autoregressive Flows</strong>: No iterative root-finding needed</li>
+<li><strong>vs Flow++</strong>: No bisection algorithms required</li>
+<li><strong>vs Piecewise-linear</strong>: Smooth derivatives improve optimization</li>
+</ul>
+<p><strong>Results:</strong></p>
+<ul>
+<li><strong>Established historical result:</strong> the Neural Spline Flows paper reports competitive log likelihood on tabular and image-density benchmarks under its architectures and preprocessing. Numbers such as CIFAR-10 BPD are meaningful only with the dequantisation, split, parameter count, and evaluation convention attached.</li>
+</ul>
+<p><strong>When to Use Neural Spline Flows:</strong></p>
+<ul>
+<li><strong>Maximum expressiveness</strong> with tractability</li>
+<li>Density estimation on complex distributions</li>
+<li>Want fewer parameters than Glow</li>
+<li>Need smooth, differentiable transformations</li>
+</ul>
+<h3 id="7-residual-transformations-determinant-and-inverse-design">7. Residual transformations: determinant and inverse design<a class="headerlink" href="#7-residual-transformations-determinant-and-inverse-design" title="Permanent link">¤</a></h3>
+<p>A residual transformation has the form</p>
+<div class="arithmatex">\[
+f(u)=u+F(u).
+\]</div>
+<p>The identity skip connection does <strong>not</strong> make an arbitrary residual block invertible. There are at least two distinct ways to make residual transformations useful in flows, and they solve different problems:</p>
+<ol>
+<li>give <span class="arithmatex">\(J_F\)</span> a low-rank factorization so its determinant is cheap, then establish invertibility for the particular parameterization; or</li>
+<li>make <span class="arithmatex">\(F\)</span> contractive so invertibility follows globally, then estimate the generally dense log-determinant.</li>
+</ol>
+<h4 id="low-rank-route-the-determinant-lemma-reduces-dimension-not-assumptions">Low-rank route: the determinant lemma reduces dimension, not assumptions<a class="headerlink" href="#low-rank-route-the-determinant-lemma-reduces-dimension-not-assumptions" title="Permanent link">¤</a></h4>
+<p>Let</p>
+<div class="arithmatex">\[
+F(u)=Vh(Wu+b),
+\]</div>
+<p>where <span class="arithmatex">\(W\in\mathbb R^{M\times D}\)</span>, <span class="arithmatex">\(V\in\mathbb R^{D\times M}\)</span>, <span class="arithmatex">\(M\ll D\)</span>, and <span class="arithmatex">\(h\)</span> acts elementwise. With <span class="arithmatex">\(D_h=\operatorname{diag}(h'(Wu+b))\)</span>,</p>
+<div class="arithmatex">\[
+J_f(u)=I_D+V D_h W.
+\]</div>
+<p>The matrix determinant lemma gives</p>
+<div class="math-reference-target" markdown="">
+<div class="arithmatex">\[
+\det(I_D+V D_h W)=\det(I_M+D_h W V).
+\tag{FLOW.1}\label{eq:flow-low-rank-residual-determinant}
+\]</div>
+</div>
+<p>Equation <span class="arithmatex">\(\eqref{eq:flow-low-rank-residual-determinant}\)</span> replaces a <span class="arithmatex">\(D\times D\)</span> determinant
+with an <span class="arithmatex">\(M\times M\)</span> determinant. This can greatly reduce determinant cost when <span class="arithmatex">\(M\ll D\)</span>. It
+does <strong>not</strong> prove that the determinant is nonzero everywhere, supply an analytic inverse, or
+guarantee that numerical inversion is stable.</p>
+<p>The one-unit case <span class="arithmatex">\(M=1\)</span> is the <strong>planar flow</strong> introduced for variational inference by <a href="https://proceedings.mlr.press/v37/rezende15.html">Rezende &amp; Mohamed (2015)</a>:</p>
+<div class="arithmatex">\[
+f(u)=u+v\tanh(w^\top u+b),
+\]</div>
+<p>with</p>
+<div class="arithmatex">\[
+\det J_f(u)=1+\bigl(1-\tanh^2(w^\top u+b)\bigr)w^\top v.
+\]</div>
+<p>For this activation, <span class="arithmatex">\(w^\top v&gt;-1\)</span> is a convenient sufficient condition for strict monotonicity along the affected direction and hence invertibility. The condition is not implied by low rank; it must be enforced, for example by reparameterizing the component of <span class="arithmatex">\(v\)</span> parallel to <span class="arithmatex">\(w\)</span>. Sylvester flows replace the single-unit bottleneck by a structured multi-unit residual block while retaining a reduced determinant (<a href="https://auai.org/uai2018/proceedings/papers/156.pdf">van den Berg et al., UAI 2018</a>).</p>
+<p><strong>Worked two-dimensional planar map.</strong> Choose</p>
+<div class="arithmatex">\[
+w=\begin{bmatrix}1\\0\end{bmatrix},\qquad
+v=\begin{bmatrix}1/2\\1\end{bmatrix},\qquad b=0.
+\]</div>
+<p>Then</p>
+<div class="arithmatex">\[
+f(u_1,u_2)=
+\left(u_1+\tfrac12\tanh u_1,\;u_2+\tanh u_1\right),
+\]</div>
+<p>and</p>
+<div class="arithmatex">\[
+\det J_f(u)=1+\tfrac12\operatorname{sech}^2(u_1)&gt;0.
+\]</div>
+<p>At <span class="arithmatex">\(u=(0,1)\)</span>, the map returns <span class="arithmatex">\(x=(0,1)\)</span> but locally expands area by <span class="arithmatex">\(3/2\)</span>, so the paired output log-density subtracts <span class="arithmatex">\(\log(3/2)\)</span>. To invert a general <span class="arithmatex">\(x\)</span>, first solve the strictly increasing scalar equation <span class="arithmatex">\(x_1=u_1+\tfrac12\tanh u_1\)</span>, then set <span class="arithmatex">\(u_2=x_2-\tanh u_1\)</span>. The determinant is analytic even though the inverse usually is not.</p>
+<div class="admonition failure">
+<p class="admonition-title">Counterexample: rank one is not an inverse certificate</p>
+<p>In one dimension, <span class="arithmatex">\(f(u)=u-2\tanh u\)</span> is an identity plus a rank-one residual, yet <span class="arithmatex">\(f'(0)=-1\)</span> and <span class="arithmatex">\(f'\)</span> changes sign. The map is not globally one-to-one. The determinant lemma evaluates a local volume factor efficiently; it does not turn an arbitrary bottleneck residual network into a bijection.</p>
+</div>
+<div class="md-typeset__table book-table-container"><table id="tbl-flow-explained-low-rank-route-the-determinant-lemma-reduces-dimension-not-assumptions"><caption class="book-object-caption"><span class="book-object-number">Table FLOW.7.</span> Low-rank route: the determinant lemma reduces dimension, not assumptions</caption>
+<thead>
+<tr>
+<th>Residual route</th>
+<th>What makes the determinant tractable?</th>
+<th>What makes the map invertible?</th>
+<th>Typical inverse</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>planar/Sylvester-style low rank</td>
+<td>determinant lemma reduces <span class="arithmatex">\(D\)</span> dimensions to bottleneck dimension <span class="arithmatex">\(M\)</span></td>
+<td>case-specific parameter constraints</td>
+<td>analytic only in special cases; otherwise structured numerical solve</td>
+</tr>
+<tr>
+<td>contractive residual flow</td>
+<td>convergent log-determinant power series, often with trace estimation</td>
+<td>a global Lipschitz constant below one</td>
+<td>Banach fixed-point iteration</td>
+</tr>
+</tbody>
+</table></div>
+<p>The comparison is architectural, not chronological: neither route is a universally superior replacement for the other. Low rank limits the determinant computation but can bottleneck interactions; contraction permits a dense residual Jacobian but constrains Lipschitz behavior and introduces iterative numerical work.</p>
+<h4 id="contractive-route-a-global-inverse-with-estimated-volume">Contractive route: a global inverse with estimated volume<a class="headerlink" href="#contractive-route-a-global-inverse-with-estimated-volume" title="Permanent link">¤</a></h4>
+<p>Invertible residual networks and residual flows (<a href="https://proceedings.mlr.press/v97/behrmann19a.html">Behrmann et al., ICML 2019</a>; <a href="https://proceedings.neurips.cc/paper/2019/hash/5d0d5594d24f0f955548f0fc0ff83d10-Abstract.html">Chen et al., NeurIPS 2019</a>) instead constrain <span class="arithmatex">\(g:\mathbb R^D\to\mathbb R^D\)</span> in</p>
+<div class="arithmatex">\[
+f(u)=u+g(u)
+\]</div>
+<p>to have a global Lipschitz constant <span class="arithmatex">\(L&lt;1\)</span>. Given <span class="arithmatex">\(x\)</span>, define <span class="arithmatex">\(T_x(u)=x-g(u)\)</span>. This map is also an <span class="arithmatex">\(L\)</span>-contraction, so Banach's fixed-point theorem gives a unique solution of</p>
+<div class="arithmatex">\[
+u_{k+1}=x-g(u_k),\qquad u_*=x-g(u_*),\qquad f(u_*)=x.
+\]</div>
+<p>For any initialization, the error decreases geometrically; one useful a posteriori bound is</p>
+<div class="arithmatex">\[
+\lVert u_k-u_*\rVert
+\leq \frac{L^k}{1-L}\lVert u_1-u_0\rVert.
+\]</div>
+<p>In a multilayer residual network, controlling each weight operator and using activations with known Lipschitz constants can bound the product for the complete residual branch. Spectral normalization estimates and rescales operator norms, but a finite power-iteration estimate is not an exact certificate unless its approximation error is controlled. Moreover, blindly forcing every matrix to norm <span class="arithmatex">\(c\)</span> is different from projecting only matrices whose norm exceeds a bound.</p>
+<p>The residual Jacobian is generally dense. Under the contraction condition, the matrix log series converges:</p>
+<div class="arithmatex">\[
+\log\det(I+J_g)
+=\sum_{k=1}^{\infty}\frac{(-1)^{k+1}}{k}\operatorname{tr}(J_g^k).
+\]</div>
+<p>For a probe <span class="arithmatex">\(v\)</span> with <span class="arithmatex">\(\mathbb E[vv^\top]=I\)</span>,</p>
+<div class="arithmatex">\[
+\mathbb E[v^\top J_g^k v]=\operatorname{tr}(J_g^k),
+\]</div>
+<p>so automatic differentiation can estimate each trace without materializing the full Jacobian. Truncating the infinite series gives a biased log-determinant approximation. Randomized Russian-roulette truncation can remove that truncation bias when the survival probabilities and summability conditions justify exchanging the random sum and expectation; finite expected work and finite variance are additional properties to check, not automatic consequences of the name.</p>
+<div class="admonition note">
+<p class="admonition-title">Sufficient is not necessary</p>
+<p>Contractivity is a convenient global certificate, not a characterization of every invertible residual map. For example, <span class="arithmatex">\(f(u)=2u\)</span> is invertible even though its residual branch <span class="arithmatex">\(g(u)=u\)</span> has Lipschitz constant one. Conversely, a small determinant-estimation error does not certify that an unconstrained residual map is globally one-to-one.</p>
+</div>
+<p>Use this route when dense coordinate interaction is worth iterative inversion and stochastic or truncated density computation. Report the norm constraint, power-iteration accuracy, inverse stopping rule, trace-probe distribution and count, series truncation rule, and resulting numerical error.</p>
+<h3 id="8-transformer-autoregressive-flows-tarflow-and-successors">8. Transformer autoregressive flows: TarFlow and successors<a class="headerlink" href="#8-transformer-autoregressive-flows-tarflow-and-successors" title="Permanent link">¤</a></h3>
+<p><strong>TarFlow</strong> (<a href="https://proceedings.mlr.press/v267/zhai25d.html">Zhai et al., ICML 2025</a>) applies masked autoregressive flow transformations to image patches with Transformer conditioners and alternates the autoregressive direction across blocks. It is a classical likelihood-based normalizing flow, not a flow-matching ODE. The distinction matters operationally:</p>
+<ul>
+<li>training and density evaluation can obtain all conditional parameters for a block in a masked parallel evaluation;</li>
+<li>inverse sampling must reveal autoregressive patches or groups sequentially;</li>
+<li>Gaussian noise augmentation and post-training denoising in the reported image system change how raw likelihood and perceptual sample quality should be interpreted; and</li>
+<li>"one inverse call" in an API does not mean one parallel neural evaluation.</li>
+</ul>
+<p><strong>STARFlow</strong> (<a href="https://arxiv.org/abs/2506.06276">Gu et al., 2025 preprint</a>) scales the TarFlow idea in an autoencoder latent space with a deep–shallow design and guidance. It retains a normalizing-flow objective in its continuous modeled space, while the external codec introduces representation loss and a separate data-space semantics. <strong>FARMER</strong> (<a href="https://openaccess.thecvf.com/content/CVPR2026/html/Zheng_FARMER_Flow_AutoRegressive_Transformer_over_Pixels_CVPR_2026_paper.html">Zheng et al., CVPR 2026</a>) is a 2026 autoregressive-flow-over-pixels system; its accepted result is evidence for that complete architecture and protocol, not proof that all Transformer flows dominate other families.</p>
+<div class="admonition info">
+<p class="admonition-title">Evidence labels</p>
+<p><strong>Peer-reviewed research:</strong> TarFlow (ICML 2025) and FARMER (CVPR 2026). <strong>Preprint:</strong> STARFlow. The page metadata records the verification date. These models are curriculum coverage, not claims about Artifex runtime support.</p>
+</div>
+<h3 id="worked-example-the-realnvp-determinant-does-not-differentiate-the-conditioner">Worked example: the RealNVP determinant does not differentiate the conditioner<a class="headerlink" href="#worked-example-the-realnvp-determinant-does-not-differentiate-the-conditioner" title="Permanent link">¤</a></h3>
+<p>Take <span class="arithmatex">\(x=(x_1,x_2)\)</span> and</p>
+<div class="arithmatex">\[
+y_1=x_1,\qquad y_2=x_2 e^{s(x_1)}+t(x_1).
+\]</div>
+<p>Its Jacobian is</p>
+<div class="arithmatex">\[
+J=\begin{bmatrix}
+1 &amp; 0\\
+x_2e^{s(x_1)}s'(x_1)+t'(x_1) &amp; e^{s(x_1)}
+\end{bmatrix},
+\]</div>
+<p>so <span class="arithmatex">\(\log|\det J|=s(x_1)\)</span>. The derivatives <span class="arithmatex">\(s'\)</span> and <span class="arithmatex">\(t'\)</span> are present in the lower-left block but disappear from the triangular determinant. During optimization, however, <span class="arithmatex">\(s(x_1)\)</span> and <span class="arithmatex">\(t(x_1)\)</span> still depend on their neural-network parameters, so ordinary backpropagation absolutely does update both conditioners. "No conditioner Jacobian determinant" does not mean "no conditioner gradient."</p>
+<p>If <span class="arithmatex">\(s(x_1)=\log 2\)</span> and <span class="arithmatex">\(t(x_1)=x_1\)</span> at <span class="arithmatex">\(x=(1,3)\)</span>, then <span class="arithmatex">\(y=(1,7)\)</span> and the forward log-determinant is <span class="arithmatex">\(\log 2\)</span>. The inverse returns <span class="arithmatex">\(x_2=(7-1)/2=3\)</span> and contributes <span class="arithmatex">\(-\log2\)</span>.</p>
+<h3 id="independent-practice-and-assessment-map-flow-architectures">Independent practice and assessment map: flow architectures<a class="headerlink" href="#independent-practice-and-assessment-map-flow-architectures" title="Permanent link">¤</a></h3>
+<p>Treat the scalar transform, dependency structure, inverse algorithm,
+log-determinant algorithm, conditioner, and complete probabilistic role as
+separate objects. Count serial network evaluations as well as arithmetic.</p>
+<h4 id="p1-design-and-falsify-a-tractable-flow-architecture">P1 — Design and falsify a tractable flow architecture<a class="headerlink" href="#p1-design-and-falsify-a-tractable-flow-architecture" title="Permanent link">¤</a></h4>
+<ol>
+<li><strong>P1.1 — Predict before computing.</strong> Predict whether each claim follows from the architecture name alone: a triangular Jacobian makes both map directions parallel; an arbitrary residual block is invertible; an analytic derivative implies an analytic inverse; a masked autoregressive density is automatically a flow; a one-call TarFlow API is one parallel neural evaluation; ActNorm uses every minibatch's statistics; and a cheap determinant makes the complete layer cheap. For each false implication, identify the missing dependency, inverse certificate, boundary rule, or systems measurement.</li>
+<li><strong>P1.2 — Primitive cost audit.</strong> For a dense, triangular, diagonal, and permutation <span class="arithmatex">\(4\times4\)</span> affine map, calculate forward, solve, and log-determinant work with and without a cached factorization. Then specify a monotone rational-quadratic spline's domain, tail rule, positive parameters, bin lookup, derivative, and inverse. Explain which costs come from the primitive and which come from its conditioner.</li>
+<li><strong>P1.3 — Coupling derivation and gradient check.</strong> For a two-by-two affine coupling layer with declared <span class="arithmatex">\(s(x_1)\)</span> and <span class="arithmatex">\(t(x_1)\)</span>, derive the full Jacobian, inverse, and log-determinant. Evaluate a finite point, then differentiate the likelihood with respect to parameters inside both <span class="arithmatex">\(s\)</span> and <span class="arithmatex">\(t\)</span>. Explain why their input derivatives disappear from the determinant while their parameter gradients do not disappear from training.</li>
+<li><strong>P1.4 — MAF/IAF execution trace.</strong> Construct a three-variable masked Gaussian layer. For arbitrary-data scoring and base-to-data sampling, list the known prefixes, conditioner calls, scalar operations, and available log-density terms for MAF and IAF. Repeat for a generated sample whose transform trace was retained. State which results depend on caching and why neither direction is constant-cost in dimension.</li>
+<li><strong>P1.5 — Residual-flow certificate.</strong> For <span class="arithmatex">\(f(u)=u+v\tanh(w^\top u+b)\)</span>, use the determinant lemma to reduce the Jacobian determinant and construct one parameter setting that loses injectivity. Separately, for <span class="arithmatex">\(f(u)=u+g(u)\)</span> with <span class="arithmatex">\(\operatorname{Lip}(g)=L&lt;1\)</span>, derive a fixed-point inverse error bound and a truncated trace-series estimate. Record which errors are deterministic, stochastic, biased, or certification errors.</li>
+<li><strong>P1.6 — Architecture and runtime matrix.</strong> Compare NICE, RealNVP, Glow blocks, MAF, IAF, splines, low-rank residual flows, contractive residual flows, and TarFlow by map direction, serial depth, determinant method, inverse method, support assumptions, numerical error, and conditioner cost. Mark each as an Artifex runtime implementation or research context using executable API evidence rather than the prose label alone.</li>
+<li><strong>P1.7 — Transfer.</strong> Design either an equivariant molecular-coordinate flow or a bounded scientific-parameter posterior flow. Declare the scalar primitive, dependency structure, mixing, support transform, inverse requirement, determinant oracle, symmetry or boundary condition, and deployed query. Give a matched ablation that distinguishes transformation expressivity from conditioner capacity and numerical tolerances.</li>
+</ol>
+<h5 id="outcome-to-task-alignment-flow-architectures">Outcome-to-task alignment: flow architectures<a class="headerlink" href="#outcome-to-task-alignment-flow-architectures" title="Permanent link">¤</a></h5>
+<div class="md-typeset__table book-table-container"><table id="tbl-flow-explained-outcome-to-task-alignment-flow-architectures"><caption class="book-object-caption"><span class="book-object-number">Table FLOW.18.</span> Outcome-to-task alignment for flow architectures</caption>
+<thead>
+<tr>
+<th>Learning objective</th>
+<th>Independently assessed by</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>O1 — Separate map, inverse, and log-determinant costs</td>
+<td>P1.1, P1.2, P1.4, P1.6</td>
+</tr>
+<tr>
+<td>O2 — Explain structured affine and monotone scalar primitives</td>
+<td>P1.2, P1.7</td>
+</tr>
+<tr>
+<td>O3 — Derive additive and affine coupling Jacobians</td>
+<td>P1.3</td>
+</tr>
+<tr>
+<td>O4 — Distinguish MAF and IAF dependency and sequential directions</td>
+<td>P1.1, P1.4, P1.6</td>
+</tr>
+<tr>
+<td>O5 — Distinguish low-rank residual determinants from contractive inverse guarantees</td>
+<td>P1.1, P1.5, P1.6</td>
+</tr>
+<tr>
+<td>O6 — Compare coupling, autoregressive, spline, residual, and Transformer flows by scoring and sampling cost</td>
+<td>P1.2, P1.4, P1.5, P1.6</td>
+</tr>
+<tr>
+<td>O7 — Identify Artifex implementations versus research context</td>
+<td>P1.6, P1.7</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="chapter-2-synthesis">Chapter 2 synthesis<a class="headerlink" href="#chapter-2-synthesis" title="Permanent link">¤</a></h3>
+<p>Architecture design allocates three different costs: map evaluation, inversion, and log-volume computation. Structured affine and scalar maps make the primitive costs visible. Coupling flows buy parallel forward and inverse maps with partial updates; MAF and IAF exchange which direction is sequential; splines improve scalar expressivity; low-rank residual flows reduce determinant dimension but need a separate inverse argument; contractive residual flows obtain that argument while accepting iterative inversion and log-determinant estimation. Transformer flows scale autoregressive conditioners but do not erase their dependency order.</p>
+<details class="question">
+<summary>Retrieval practice: discrete flow architectures</summary>
+<ol>
+<li>Why may <span class="arithmatex">\(s\)</span> and <span class="arithmatex">\(t\)</span> be arbitrary neural networks in an affine coupling layer?</li>
+<li>Which direction is sequential for MAF density evaluation and sampling?</li>
+<li>Why is TarFlow not a one-NFE flow-matching model?</li>
+<li>What does ActNorm's data-dependent initialization change after the first batch?</li>
+<li>Why does a low-rank residual Jacobian not guarantee an invertible residual map?</li>
+<li>How can a scalar map be analytically differentiable yet require numerical inversion?</li>
+</ol>
+<p><strong>Solutions.</strong> (1) The unchanged partition makes the complete layer triangular and analytically invertible; only emitted values enter the diagonal determinant. (2) MAF evaluates density in one masked-network pass per layer and samples sequentially; IAF reverses that computational trade-off under the stated parameterization. (3) It is an autoregressive normalizing flow whose inverse exposes patches/groups sequentially; NFE terminology for an ODE vector field would conceal that cost. (4) It initializes learnable affine parameters; subsequent batches do not recompute batch statistics as BatchNorm would. (5) The determinant lemma only reduces the size of a local determinant; that determinant may still vanish or change sign, and a global inverse needs additional constraints. (6) Its forward formula and derivative may be explicit while the equation <span class="arithmatex">\(h(u)=x\)</span> has no closed-form solution, so inversion uses a root finder.</p>
+</details>
+<p><strong>Bridge.</strong> A tractable layer is not yet a complete statistical procedure. Chapter 3 separates model, posterior, proposal, and transport roles before adding dequantisation, support transforms, optimization, and numerical tests. <a href="../flow-explained/#training-normalizing-flows">Continue continuously</a> or open <a href="../flow-03-training/">Chapter 3</a>.</p>
+<p>For the underlying map-versus-coupling distinction, the forward Jacobian identity, Wasserstein moment conditions, entropic bias, and dynamic minimum-action formulation, use <a href="../optimization-and-learning-dynamics/#6-optimal-transport-as-an-objective-and-a-construction">Optimal Transport as an Objective and a Construction</a>.</p>
+<p>For parameter, state, and functional gradients, <a href="../gradients-and-geometry-in-generative-modeling/#normalizing-flows-exact-density-does-not-imply-a-cheap-fisher">Gradients and Geometry in
+Generative Modeling</a>
+separates reparameterizing flow weights from transforming sample coordinates and
+explains why tractable likelihood and sampling do not make the dense Fisher
+cheap.</p>
+<hr/>
+<hr/>
+<p><strong>Navigate:</strong> <a href="../flow-01-foundations/">← Foundations</a> · <a href="../flow-03-training/">3. Training and Density Estimation →</a> · <a href="../flow-explained/#flow-model-architectures">Complete guide</a></p>
+</article>
+</div>
+<script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  Back to top
+</button>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+<div class="md-social">
+<a class="md-social__link" href="https://github.com/avitai/artifex" rel="noopener" target="_blank" title="github.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</a>
+<a class="md-social__link" href="https://pypi.org/project/avitai-artifex/" rel="noopener" target="_blank" title="pypi.org">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-66.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.3v101.8c0 29 25.2 46 53.4 54.3 33.8 9.9 66.3 11.7 106.8 0 26.9-7.8 53.4-23.5 53.4-54.3v-40.7H226.2v-13.6h160.2c31.1 0 42.6-21.7 53.4-54.2 11.2-33.5 10.7-65.7 0-108.6M286.2 444.7a20.4 20.4 0 1 1 0-40.7 20.4 20.4 0 1 1 0 40.7M167.8 248.1h106.8c29.7 0 53.4-24.5 53.4-54.3V91.9c0-29-24.4-50.7-53.4-55.6-35.8-5.9-74.7-5.6-106.8.1-45.2 8-53.4 24.7-53.4 55.6v40.7h106.9v13.6h-147c-31.1 0-58.3 18.7-66.8 54.2-9.8 40.7-10.2 66.1 0 108.6 7.6 31.6 25.7 54.2 56.8 54.2H101v-48.8c0-35.3 30.5-66.4 66.8-66.4m-6.6-183.4a20.4 20.4 0 1 1 0 40.8 20.4 20.4 0 1 1 0-40.8"></path></svg>
+</a>
+<a class="md-social__link" href="https://twitter.com/mahdi_shafiei" rel="noopener" target="_blank" title="twitter.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M459.4 151.7c.3 4.5.3 9.1.3 13.6 0 138.7-105.6 298.6-298.6 298.6-59.5 0-114.7-17.2-161.1-47.1 8.4 1 16.6 1.3 25.3 1.3 49.1 0 94.2-16.6 130.3-44.8-46.1-1-84.8-31.2-98.1-72.8 6.5 1 13 1.6 19.8 1.6 9.4 0 18.8-1.3 27.6-3.6-48.1-9.7-84.1-52-84.1-103v-1.3c14 7.8 30.2 12.7 47.4 13.3-28.3-18.8-46.8-51-46.8-87.4 0-19.5 5.2-37.4 14.3-53C87.4 130.8 165 172.4 252.1 176.9c-1.6-7.8-2.6-15.9-2.6-24C249.5 95.1 296.3 48 354.4 48c30.2 0 57.5 12.7 76.7 33.1 23.7-4.5 46.5-13.3 66.6-25.3-7.8 24.4-24.4 44.8-46.1 57.8 21.1-2.3 41.6-8.1 60.4-16.2-14.3 20.8-32.2 39.3-52.6 54.3"></path></svg>
+</a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.path", "navigation.top", "navigation.prune", "toc.follow", "search.highlight", "search.share", "search.suggest", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "content.mermaid"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+<script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+<script src="../../../javascripts/reading-layout.js"></script>
+</body>
+</html>

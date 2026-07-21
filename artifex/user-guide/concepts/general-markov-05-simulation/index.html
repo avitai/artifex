@@ -1,0 +1,1490 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="This chapter covers diffusion and CTMC reversal, exact and approximate event simulation, ODE/SDE solvers, splitting, stability, and error decomposition. Read it" name="description"/>
+<meta content="Mahdi Shafiei" name="author"/>
+<link href="https://docs.avitai.bio/artifex/user-guide/concepts/general-markov-05-simulation/" rel="canonical"/>
+<link href="../general-markov-04-superposition/" rel="prev"/>
+<link href="../general-markov-06-practice/" rel="next"/>
+<link href="../../../assets/images/favicon.png" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.7.7" name="generator"/>
+<title>General Markov Generators 5 — Reversal and Simulation - Artifex</title>
+<link href="../../../assets/stylesheets/main.ec1eaa64.min.css" rel="stylesheet"/>
+<link href="../../../assets/stylesheets/palette.ab4e12ef.min.css" rel="stylesheet"/>
+<script src="../../../assets/vendor/iframe-worker/index.js"></script>
+<link href="../../../assets/_mkdocstrings.css" rel="stylesheet"/>
+<link href="../../../_static/extra.css" rel="stylesheet"/>
+<script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+<meta content="article" property="og:type"/>
+<meta content="The Artifex Generative Models Book" property="og:site_name"/>
+<meta content="General Markov Generators 5 — Reversal and Simulation" property="og:title"/>
+<meta content="This chapter covers diffusion and CTMC reversal, exact and approximate event simulation, ODE/SDE solvers, splitting, stability, and error decomposition. Read it" property="og:description"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/general-markov-05-simulation/" property="og:url"/>
+<meta content="2026-07-20" property="article:modified_time"/>
+<meta content="summary" name="twitter:card"/>
+<meta content="General Markov Generators 5 — Reversal and Simulation" name="twitter:title"/>
+<meta content="This chapter covers diffusion and CTMC reversal, exact and approximate event simulation, ODE/SDE solvers, splitting, stability, and error decomposition. Read it" name="twitter:description"/>
+<meta content="Generative models, Machine learning, Probabilistic modeling, research, specialization, canonical_chapter, general-markov-simulation, practitioner, researcher" name="keywords"/>
+<meta content="General Markov Generators 5 — Reversal and Simulation" name="citation_title"/>
+<meta content="Mahdi Shafiei" name="citation_author"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/general-markov-05-simulation/" name="citation_public_url"/>
+<meta content="en" name="citation_language"/>
+<meta content="General Markov Generators 5 — Reversal and Simulation" name="DC.title"/>
+<meta content="Mahdi Shafiei" name="DC.creator"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/general-markov-05-simulation/" name="DC.identifier"/>
+<meta content="Text.LearningResource" name="DC.type"/>
+<meta content="2026-07-20" name="DCTERMS.modified"/>
+<meta content="https://github.com/avitai/artifex/blob/main/LICENSE" name="DCTERMS.license"/>
+<meta content="research" name="DCTERMS.educationLevel"/>
+<meta content="practitioner, researcher" name="DCTERMS.audience"/>
+<link href="https://github.com/avitai/artifex/blob/main/LICENSE" rel="license"/>
+<script id="artifex-book-metadata" type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Chapter",
+  "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/general-markov-05-simulation/",
+  "url": "https://docs.avitai.bio/artifex/user-guide/concepts/general-markov-05-simulation/",
+  "name": "General Markov Generators 5 \u2014 Reversal and Simulation",
+  "description": "This chapter covers diffusion and CTMC reversal, exact and approximate event simulation, ODE/SDE solvers, splitting, stability, and error decomposition. Read it",
+  "identifier": "general-markov-simulation",
+  "inLanguage": "en",
+  "isAccessibleForFree": true,
+  "learningResourceType": "Canonical chapter",
+  "educationalLevel": "research",
+  "educationalUse": "specialization",
+  "audience": [
+    
+      {"@type": "EducationalAudience", "audienceType": "practitioner"},
+    
+      {"@type": "EducationalAudience", "audienceType": "researcher"}
+    
+  ],
+  "dateModified": "2026-07-20",
+  "keywords": ["Generative models", "Machine learning", "Probabilistic modeling", "research", "specialization", "canonical_chapter", "general-markov-simulation", "practitioner", "researcher"],
+  "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+  "author": [
+    
+      {"@type": "Person", "name": "Mahdi Shafiei"}
+    
+  ],
+  "isPartOf": {
+    "@type": "Book",
+    "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/#book",
+    "url": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/",
+    "name": "The Artifex Generative Models Book",
+    "bookEdition": "Living Web Edition",
+    "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+    "author": [
+      
+        {"@type": "Person", "name": "Mahdi Shafiei"}
+      
+    ]
+  }
+}
+</script>
+<link href="../../../assets/vendor/katex/katex.min.css" id="artifex-katex-stylesheet" integrity="sha384-UA8juhPf75SzzAMA/4fo3yOU7sBJ0om7SCD2GHq0fZqZco6tr1UCV7nUbk9J90JM" rel="stylesheet"/>
+<script defer="" integrity="sha384-T/0lMUdJpd2S1ZHtRiofG3htU3xPCrFVeAQ1UUE2TJwlEJSV5NUwn30kP28n238E" src="../../../assets/vendor/mermaid/mermaid.min.js"></script>
+<script defer="" src="../../../assets/vendor/katex/katex-shadow.js"></script>
+<script defer="" src="../../../javascripts/mermaid-math.js"></script>
+<script defer="" src="../../../javascripts/mathjax.js"></script>
+<script defer="" integrity="sha384-OrHfGTnIbkl0do3N76qW/uWr38o91N05sbSPuYBPLH+hG8X/dNSrjZf3AGjzrCwC" src="../../../assets/vendor/mathjax/tex-mml-chtml.js"></script>
+</head>
+<body data-md-color-accent="amber" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#general-markov-generators-5-reversal-and-simulation">
+          Skip to content
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header md-header--shadow" data-md-component="header">
+<nav aria-label="Header" class="md-header__inner md-grid">
+<a aria-label="Artifex" class="md-header__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            Artifex
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+            
+              General Markov Generators 5 — Reversal and Simulation
+            
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-label="Switch to dark mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: light)" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_1" hidden="" title="Switch to dark mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+<input aria-label="Switch to light mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-primary="indigo" data-md-color-scheme="slate" id="__palette_1" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_0" hidden="" title="Switch to light mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+</form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div aria-label="Search" class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Search" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="Search" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="Search" class="md-search__options">
+<a aria-label="Share" class="md-search__icon md-icon" data-clipboard="" data-clipboard-text="" data-md-component="search-share" href="javascript:void(0)" tabindex="-1" title="Share">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"></path></svg>
+</a>
+<button aria-label="Clear" class="md-search__icon md-icon" tabindex="-1" title="Clear" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            Initializing search
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Navigation" class="md-nav md-nav--primary" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="Artifex" class="md-nav__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+    Artifex
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../..">
+<span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../getting-started/installation/">
+<span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Generative Models Book
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Generative Models Book
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    
+  
+    Start Here — The Landscape
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../first-course-01-generative-systems/">
+<span class="md-ellipsis">
+    
+  
+    First Course — New to Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../probability-01-objects/">
+<span class="md-ellipsis">
+    
+  
+    Foundations
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../autoregressive-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Model Families
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_5" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_5" id="__nav_3_5_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Connections and Compositions
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_5_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_5">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Connections and Compositions
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gradients-01-taxonomy/">
+<span class="md-ellipsis">
+    
+  
+    Gradients and Geometry in Generative Modeling
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../density-latent-energy-01-objects/">
+<span class="md-ellipsis">
+    
+  
+    Density, Latent, Energy, and Score
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../probability-paths-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Probability Paths and Stochastic Transport
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_5_4" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_5_4" id="__nav_3_5_4_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    General Markov Generators
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_5_4_label" class="md-nav" data-md-level="3">
+<label class="md-nav__title" for="__nav_3_5_4">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    General Markov Generators
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../general-markov-01-operators/">
+<span class="md-ellipsis">
+    
+  
+    1. Operators and Forward Equations
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../general-markov-02-families/">
+<span class="md-ellipsis">
+    
+  
+    2. Flows, Diffusions, and Jumps
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../general-markov-03-matching/">
+<span class="md-ellipsis">
+    
+  
+    3. Conditional Generator Matching
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../general-markov-04-superposition/">
+<span class="md-ellipsis">
+    
+  
+    4. Superposition and Multimodality
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
+    
+  
+    5. Reversal and Simulation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
+<span class="md-ellipsis">
+    
+  
+    5. Reversal and Simulation
+  
+
+    
+  </span>
+</a>
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#5-time-reversal-simulation-and-error-budgets">
+<span class="md-ellipsis">
+      
+        5. Time Reversal, Simulation, and Error Budgets
+      
+    </span>
+</a>
+<nav aria-label="5. Time Reversal, Simulation, and Error Budgets" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-5-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 5 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#reverse-dynamics">
+<span class="md-ellipsis">
+      
+        Reverse dynamics
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-reverse-of-an-absorbing-two-state-corruption">
+<span class="md-ellipsis">
+      
+        Worked reverse of an absorbing two-state corruption
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#exact-and-approximate-simulators">
+<span class="md-ellipsis">
+      
+        Exact and approximate simulators
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#error-decomposition">
+<span class="md-ellipsis">
+      
+        Error decomposition
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-finite-error-ledger">
+<span class="md-ellipsis">
+      
+        Worked finite error ledger
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#stability-and-explosion">
+<span class="md-ellipsis">
+      
+        Stability and explosion
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#misconception-checks-reversal-and-finite-algorithms">
+<span class="md-ellipsis">
+      
+        Misconception checks: reversal and finite algorithms
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#independent-practice-and-assessment-map-reversal-and-simulation">
+<span class="md-ellipsis">
+      
+        Independent practice and assessment map: reversal and simulation
+      
+    </span>
+</a>
+<nav aria-label="Independent practice and assessment map: reversal and simulation" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#feedback-contract-reversal-and-simulation">
+<span class="md-ellipsis">
+      
+        Feedback contract: reversal and simulation
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#outcome-to-task-alignment-reversal-and-simulation">
+<span class="md-ellipsis">
+      
+        Outcome-to-task alignment: reversal and simulation
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-5-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 5 synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../general-markov-06-practice/">
+<span class="md-ellipsis">
+    
+  
+    6. Evidence and Practice
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../general-markov-generators/">
+<span class="md-ellipsis">
+    
+  
+    Continuous View (All Chapters)
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../few-step-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Transitions and Few-Step Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../geometric-01-symmetry/">
+<span class="md-ellipsis">
+    
+  
+    Geometric and Equivariant Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../representations-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Representations and Multimodal Systems
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../steering-01-targets/">
+<span class="md-ellipsis">
+    
+  
+    Conditioning, Steering, Constraints, and Selection
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../world-models-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    World Models and Causal Simulators
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../landscape-01-copulas/">
+<span class="md-ellipsis">
+    
+  
+    Extended Generative Landscape
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../normalization-01-queries/">
+<span class="md-ellipsis">
+    
+  
+    Research Practice
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../models/vae-guide/">
+<span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/core/base/">
+<span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../examples/overview/">
+<span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../zoo/">
+<span class="md-ellipsis">
+    
+  
+    Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../training/overview/">
+<span class="md-ellipsis">
+    
+  
+    Training
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../data/overview/">
+<span class="md-ellipsis">
+    
+  
+    Data &amp; Modalities
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../inference/overview/">
+<span class="md-ellipsis">
+    
+  
+    Inference &amp; Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../benchmarks/">
+<span class="md-ellipsis">
+    
+  
+    Evaluation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../guides/extensions/">
+<span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../extensions/">
+<span class="md-ellipsis">
+    
+  
+    Advanced Topics
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../cli/">
+<span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../community/contributing/">
+<span class="md-ellipsis">
+    
+  
+    Community
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/configs/protein-extension/">
+<span class="md-ellipsis">
+    
+  
+    Reference Library
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#5-time-reversal-simulation-and-error-budgets">
+<span class="md-ellipsis">
+      
+        5. Time Reversal, Simulation, and Error Budgets
+      
+    </span>
+</a>
+<nav aria-label="5. Time Reversal, Simulation, and Error Budgets" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-5-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 5 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#reverse-dynamics">
+<span class="md-ellipsis">
+      
+        Reverse dynamics
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-reverse-of-an-absorbing-two-state-corruption">
+<span class="md-ellipsis">
+      
+        Worked reverse of an absorbing two-state corruption
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#exact-and-approximate-simulators">
+<span class="md-ellipsis">
+      
+        Exact and approximate simulators
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#error-decomposition">
+<span class="md-ellipsis">
+      
+        Error decomposition
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-finite-error-ledger">
+<span class="md-ellipsis">
+      
+        Worked finite error ledger
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#stability-and-explosion">
+<span class="md-ellipsis">
+      
+        Stability and explosion
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#misconception-checks-reversal-and-finite-algorithms">
+<span class="md-ellipsis">
+      
+        Misconception checks: reversal and finite algorithms
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#independent-practice-and-assessment-map-reversal-and-simulation">
+<span class="md-ellipsis">
+      
+        Independent practice and assessment map: reversal and simulation
+      
+    </span>
+</a>
+<nav aria-label="Independent practice and assessment map: reversal and simulation" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#feedback-contract-reversal-and-simulation">
+<span class="md-ellipsis">
+      
+        Feedback contract: reversal and simulation
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#outcome-to-task-alignment-reversal-and-simulation">
+<span class="md-ellipsis">
+      
+        Outcome-to-task alignment: reversal and simulation
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-5-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 5 synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<nav aria-label="Breadcrumb" class="md-path">
+<ol class="md-path__list">
+<li class="md-path__item">
+<a class="md-path__link" href="../../..">
+<span class="md-ellipsis">
+    Home
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    Generative Models Book
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../gradients-01-taxonomy/">
+<span class="md-ellipsis">
+    Connections and Compositions
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../general-markov-01-operators/">
+<span class="md-ellipsis">
+    General Markov Generators
+  </span>
+</a>
+</li>
+</ol>
+</nav>
+<article class="md-content__inner md-typeset">
+<h1 id="general-markov-generators-5-reversal-and-simulation">General Markov Generators 5 — Reversal and Simulation<a class="headerlink" href="#general-markov-generators-5-reversal-and-simulation" title="Permanent link">¤</a></h1><aside aria-label="Learning path" class="admonition abstract artifex-learning-path"><p class="admonition-title">Learning path</p><p><strong>Required knowledge</strong></p><ul class="artifex-learning-path__links" data-learning-path-role="required"><li><a href="../general-markov-04-superposition/">General Markov Generators 4 — Superposition and Multimodality</a></li></ul><p><strong>Readiness check:</strong> can you explain the central object and reproduce one worked example from each required chapter? If not, follow its link before continuing.</p><p><strong>Newly unlocked in the default route</strong></p><ul class="artifex-learning-path__links" data-learning-path-role="unlocks"><li><a href="../general-markov-06-practice/">General Markov Generators 6 — Evidence and Research Practice</a></li></ul></aside>
+<p>This chapter covers diffusion and CTMC reversal, exact and approximate event simulation, ODE/SDE solvers, splitting, stability, and error decomposition. Read it continuously in the <a href="../general-markov-generators/#5-time-reversal-simulation-and-error-budgets">complete guide</a>.</p>
+<h2 id="5-time-reversal-simulation-and-error-budgets">5. Time Reversal, Simulation, and Error Budgets<a class="headerlink" href="#5-time-reversal-simulation-and-error-budgets" title="Permanent link">¤</a></h2>
+<h3 id="chapter-5-prerequisites-and-learning-objectives">Chapter 5 prerequisites and learning objectives<a class="headerlink" href="#chapter-5-prerequisites-and-learning-objectives" title="Permanent link">¤</a></h3>
+<p>This chapter assumes forward equations, scores or density ratios, and numerical
+simulation. By the end, you should be able to:</p>
+<ol>
+<li><strong>O1 — Reverse with an explicit clock:</strong> derive diffusion and CTMC reverse
+   coefficients while keeping density support, transposes, and time convention
+   visible.</li>
+<li><strong>O2 — Select a family-specific simulator:</strong> distinguish exact event time,
+   uniformization, tau-leaping, ODE, SDE, PDMP, and splitting procedures.</li>
+<li><strong>O3 — Verify exact finite oracles:</strong> compare small-state simulation with a
+   matrix exponential, moment law, or analytically integrated hazard.</li>
+<li><strong>O4 — Diagnose approximation failure:</strong> identify negativity, missed
+   events, boundary bias, stiffness, support singularity, and explosion.</li>
+<li><strong>O5 — Build a metric-consistent error budget:</strong> separate reference,
+   learning, truncation, numerical, and Monte Carlo terms without double
+   counting.</li>
+<li><strong>O6 — Transfer to deployment:</strong> specify an adaptive simulator and
+   convergence report for a new learned generator.</li>
+</ol>
+<figure class="book-figure" id="fig-general-markov-generators-chapter-5-prerequisites-and-learning-objectives"><pre class="mermaid"><code>%%{init: {'themeCSS': '.nodeLabel p { color: #111827 !important; } .flowchart-link { stroke: #78879a !important; stroke-width: 2px !important; } marker path { fill: #78879a !important; stroke: #78879a !important; }'}}%%
+flowchart TB
+    accTitle: Reversal chooses coefficients and simulation chooses a finite law
+    accDescr: A forward corruption and its time marginals determine reverse coefficients under support assumptions, then each process family requires a distinct simulator whose truncation event and constraint errors must be validated against exact or refined references.
+    F[Forward generator and marginals] --&gt; R[Reverse generator]
+    R --&gt; C{Process family}
+    C --&gt; O[ODE solver]
+    C --&gt; D[SDE solver]
+    C --&gt; J[Exact events or uniformization]
+    C --&gt; T[Tau leap]
+    C --&gt; P[PDMP hazard plus ODE]
+    O --&gt; V[Refinement and invariant checks]
+    D --&gt; V
+    J --&gt; V
+    T --&gt; V
+    P --&gt; V</code></pre><figcaption class="book-object-caption"><span class="book-object-number">Figure MARKOV.6.</span> Reversal chooses coefficients and simulation chooses a finite law</figcaption></figure>
+<h3 id="reverse-dynamics">Reverse dynamics<a class="headerlink" href="#reverse-dynamics" title="Permanent link">¤</a></h3>
+<p>Generation often learns a forward corruption and simulates its time reversal.
+For diffusions, reverse drift uses the marginal score together with any
+state-dependent covariance-divergence correction.</p>
+<p>For a forward Itô diffusion with covariance <span class="arithmatex">\(a_t(x)\)</span>, define reverse clock
+<span class="arithmatex">\(s=T-t\)</span>. Under the regularity and density assumptions of reverse-diffusion
+results such as Anderson's
+<a href="https://doi.org/10.1016/0304-4149(82)90051-5">reverse-time model</a>, one common
+component convention is</p>
+<div class="arithmatex">\[
+\bar b_{s,i}(x)
+=-b_{T-s,i}(x)
++\frac{1}{p_{T-s}(x)}
+\sum_j\partial_j\!\left[a_{T-s,ij}(x)p_{T-s}(x)\right].
+\]</div>
+<p>For spatially constant <span class="arithmatex">\(a\)</span>, the correction becomes <span class="arithmatex">\(a\nabla\log p\)</span>. In the
+machine-learning convention that keeps the original time variable and
+integrates with negative <span class="arithmatex">\(dt\)</span>, the same dynamics is often written with forward
+drift <span class="arithmatex">\(b-a\nabla\log p\)</span>. Copying one formula while using the other clock flips
+signs. State-dependent covariance also contributes the divergence of <span class="arithmatex">\(a\)</span>, not
+only a score term.</p>
+<p>For a finite-state CTMC with forward rates <span class="arithmatex">\(q_t(x,y)\)</span> and positive marginals,</p>
+<div class="arithmatex">\[
+q_t^{\mathrm{rev}}(x,y)
+=q_t(y,x)\frac{p_t(y)}{p_t(x)},
+\qquad x\ne y,
+\]</div>
+<p>with time arguments interpreted under the reverse clock. Zero-probability states and support changes require care. The ratio plays a discrete role analogous to a score.</p>
+<p>The identity can be remembered as instantaneous flux reversal:</p>
+<div class="arithmatex">\[
+p_t(x)q_t^{\mathrm{rev}}(x,y)=p_t(y)q_t(y,x).
+\]</div>
+<p>This is not an assertion that the forward chain is stationary or satisfies
+detailed balance. The marginal <span class="arithmatex">\(p_t\)</span> changes with time, and the reverse rate is
+itself time-dependent.</p>
+<p>This is the convention used by the <a href="https://openreview.net/forum?id=DmT862YAieY">continuous-time discrete denoising framework</a>: <span class="arithmatex">\(q_t(x,y)\)</span> denotes the forward rate from current state <span class="arithmatex">\(x\)</span> to destination <span class="arithmatex">\(y\)</span>. Transposing matrix conventions without transposing the formula is a common implementation error.</p>
+<p>For deterministic invertible flows, reversal negates time direction along the flow. Jump processes can lose information through many-to-one events, so reverse simulation may require learned birth or reconstruction moves.</p>
+<h3 id="worked-reverse-of-an-absorbing-two-state-corruption">Worked reverse of an absorbing two-state corruption<a class="headerlink" href="#worked-reverse-of-an-absorbing-two-state-corruption" title="Permanent link">¤</a></h3>
+<p>Start in state <span class="arithmatex">\(0\)</span> and jump <span class="arithmatex">\(0\to1\)</span> at rate <span class="arithmatex">\(\lambda\)</span>, with state <span class="arithmatex">\(1\)</span>
+absorbing. Then</p>
+<div class="arithmatex">\[
+p_t(0)=e^{-\lambda t},\qquad p_t(1)=1-e^{-\lambda t}.
+\]</div>
+<p>The only nonzero reverse move at original time <span class="arithmatex">\(t&gt;0\)</span> is</p>
+<div class="arithmatex">\[
+q_t^{\mathrm{rev}}(1,0)
+=\lambda\frac{e^{-\lambda t}}{1-e^{-\lambda t}}.
+\]</div>
+<p>At <span class="arithmatex">\(\lambda=2\)</span> and <span class="arithmatex">\(t=(\log2)/2\)</span>, both states have probability <span class="arithmatex">\(1/2\)</span> and the
+reverse rate is <span class="arithmatex">\(2\)</span>. As <span class="arithmatex">\(t\downarrow0\)</span>, state <span class="arithmatex">\(1\)</span> becomes rare and the
+conditional reverse rate diverges. Truncating away from the endpoint or changing
+the corruption schedule changes the remaining endpoint error and must be
+reported.</p>
+<h3 id="exact-and-approximate-simulators">Exact and approximate simulators<a class="headerlink" href="#exact-and-approximate-simulators" title="Permanent link">¤</a></h3>
+<div class="md-typeset__table book-table-container"><table id="tbl-general-markov-generators-exact-and-approximate-simulators"><caption class="book-object-caption"><span class="book-object-number">Table MARKOV.1.</span> Exact and approximate simulators</caption>
+<thead>
+<tr>
+<th>Generator</th>
+<th>Typical simulator</th>
+<th>Main finite error</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ODE drift</td>
+<td>Euler, Heun, Runge–Kutta, adaptive solver</td>
+<td>truncation and tolerance</td>
+</tr>
+<tr>
+<td>diffusion</td>
+<td>Euler–Maruyama, Milstein, predictor–corrector</td>
+<td>weak/strong discretization</td>
+</tr>
+<tr>
+<td>finite CTMC</td>
+<td>Gillespie / next-event simulation</td>
+<td>exact when event times and time-varying hazards are handled exactly</td>
+</tr>
+<tr>
+<td>high-rate CTMC</td>
+<td>tau-leaping</td>
+<td>multiple-event approximation and negativity</td>
+</tr>
+<tr>
+<td>PDMP</td>
+<td>event-time thinning plus ODE integration</td>
+<td>hazard bounds and ODE error</td>
+</tr>
+<tr>
+<td>superposition</td>
+<td>joint clock or operator splitting</td>
+<td>splitting/noncommutation</td>
+</tr>
+</tbody>
+</table></div>
+<p>“One step” is not comparable across rows. A Gillespie event, neural rate evaluation, Runge–Kutta stage, and tau-leap can represent different physical time and compute.</p>
+<p>For a time-homogeneous finite CTMC in state <span class="arithmatex">\(x\)</span>, exact next-event simulation
+draws <span class="arithmatex">\(\tau\sim\operatorname{Exp}(\lambda(x))\)</span> and then selects <span class="arithmatex">\(y\)</span> with
+probability <span class="arithmatex">\(q(x,y)/\lambda(x)\)</span>. This is the
+<a href="https://doi.org/10.1021/j100540a008">Gillespie construction</a> for reaction
+networks. If rates depend explicitly on time or change continuously along a
+PDMP flow, replace the constant exponential clock by an integrated hazard or a
+valid thinning bound.</p>
+<p><strong>Uniformization</strong> supplies another exact finite-state oracle. Choose
+<span class="arithmatex">\(\Lambda\geq\max_x[-Q_{xx}]\)</span> and define the stochastic matrix
+<span class="arithmatex">\(R=I+Q/\Lambda\)</span>. Over time <span class="arithmatex">\(t\)</span>, draw <span class="arithmatex">\(N\sim\operatorname{Poisson}(\Lambda t)\)</span>
+and apply <span class="arithmatex">\(N\)</span> transitions from <span class="arithmatex">\(R\)</span>, including self-transitions. Then</p>
+<div class="arithmatex">\[
+e^{tQ}=e^{-\Lambda t}\sum_{n=0}^{\infty}
+\frac{(\Lambda t)^n}{n!}R^n.
+\]</div>
+<p>Uniformization is exact for the declared homogeneous <span class="arithmatex">\(Q\)</span>; truncating the
+Poisson sum or approximating time-varying rates introduces error. For the
+two-state <span class="arithmatex">\(Q\)</span> with <span class="arithmatex">\(a=2,b=1\)</span>, <span class="arithmatex">\(\Lambda=2\)</span> gives
+<span class="arithmatex">\(R=\bigl(\begin{smallmatrix}0&amp;1\\1/2&amp;1/2\end{smallmatrix}\bigr)\)</span>.</p>
+<p>Tau-leaping instead freezes rates over an interval and samples multiple event
+counts, following Gillespie's
+<a href="https://doi.org/10.1063/1.1378322">approximate acceleration</a>. In a death
+process starting from one object with frozen mean count one, subtracting
+<span class="arithmatex">\(K\sim\operatorname{Poisson}(1)\)</span> produces a negative population whenever
+<span class="arithmatex">\(K\geq2\)</span>, with probability <span class="arithmatex">\(1-2/e\approx0.264\)</span>. Binomial, adaptive, or hybrid
+schemes can address this failure, but each changes the finite algorithm and
+must be named.</p>
+<p>For SDEs, <strong>strong error</strong> couples numerical and exact trajectories using the
+same noise, whereas <strong>weak error</strong> compares expectations of test functions.
+Generative sample quality is usually a weak/distributional question, but strong
+path accuracy matters for conditional trajectories and coupled estimators.
+Adaptive ODE/SDE solvers also make compute random or sample dependent; report
+accepted/rejected steps and neural-function evaluations rather than only a
+nominal step count.</p>
+<h3 id="error-decomposition">Error decomposition<a class="headerlink" href="#error-decomposition" title="Permanent link">¤</a></h3>
+<p>Endpoint error can arise from:</p>
+<ol>
+<li>path/reference mismatch;</li>
+<li>finite data and conditional-target variance;</li>
+<li>function approximation and optimization;</li>
+<li>invalid coefficient constraints;</li>
+<li>time truncation near singular endpoints;</li>
+<li>simulator discretization or event approximation;</li>
+<li>Monte Carlo variance and insufficient mixing;</li>
+<li>guidance or conditioning applied after training.</li>
+</ol>
+<p>Reporting only sample quality collapses these causes. Low-dimensional systems with known transition laws can isolate them.</p>
+<p>When all terms use the same integral probability metric over a declared bounded
+test class <span class="arithmatex">\(\mathcal F\)</span>, a triangle inequality can organize the budget:</p>
+<div class="arithmatex">\[
+d_{\mathcal F}(\widehat p_h,p_{\mathrm{data}})
+\leq
+d_{\mathcal F}(\widehat p_h,p_{\widehat L})
++d_{\mathcal F}(p_{\widehat L},p_L)
++d_{\mathcal F}(p_L,p_{\mathrm{ref}})
++d_{\mathcal F}(p_{\mathrm{ref}},p_{\mathrm{data}}).
+\]</div>
+<p>The terms can represent Monte Carlo/numerical, learned-generator, reference-
+path/truncation, and model-target discrepancies. Adding FID, total variation,
+and a moment error into one number has no such justification.</p>
+<h3 id="worked-finite-error-ledger">Worked finite error ledger<a class="headerlink" href="#worked-finite-error-ledger" title="Permanent link">¤</a></h3>
+<p>For one bounded observable, suppose independent controlled studies bound the
+absolute expectation discrepancies by <span class="arithmatex">\(0.02\)</span> for reference-path mismatch,
+<span class="arithmatex">\(0.04\)</span> for learned coefficients relative to the exact reference generator,
+<span class="arithmatex">\(0.01\)</span> for endpoint truncation, and <span class="arithmatex">\(0.03\)</span> for the simulator plus Monte Carlo
+estimate. The triangle bound is <span class="arithmatex">\(0.10\)</span>. It is an upper bound, not a causal
+decomposition: errors can cancel, shared evaluation samples correlate
+estimates, and a term measured under a different observable class cannot be
+inserted without a comparison theorem.</p>
+<h3 id="stability-and-explosion">Stability and explosion<a class="headerlink" href="#stability-and-explosion" title="Permanent link">¤</a></h3>
+<p>Large drifts, diffusion coefficients, or jump rates can cause numerical instability or explosion. Clipping changes the generator. Adaptive solvers can hide stiffness through large NFE. Rate caps alter waiting-time laws. Stabilization should therefore be reported as part of the model, not a neutral implementation detail.</p>
+<p>A robust simulator audit varies at least three axes independently:</p>
+<ol>
+<li>refine time mesh, event tolerance, thinning bound, or Poisson truncation;</li>
+<li>remove or vary coefficient clipping, rate caps, and boundary projection;</li>
+<li>increase the state-space truncation or maximum-event budget.</li>
+</ol>
+<p>Convergence under only the first axis can hide bias from the other two. Record
+invalid proposals, projected states, rejected steps, maximum rates, event-count
+tails, and termination causes per sample.</p>
+<h3 id="misconception-checks-reversal-and-finite-algorithms">Misconception checks: reversal and finite algorithms<a class="headerlink" href="#misconception-checks-reversal-and-finite-algorithms" title="Permanent link">¤</a></h3>
+<ul>
+<li><strong>“Reverse rates are just transposed forward rates.”</strong> Marginal density
+  ratios are required except in special stationary reversible cases.</li>
+<li><strong>“Gillespie is exact for any neural rate.”</strong> Exactness assumes the declared
+  rates and clock are evaluated correctly; time-varying hazards require
+  integration or valid thinning.</li>
+<li><strong>“Tau-leaping is a faster Gillespie implementation.”</strong> It approximates
+  multiple events and can violate state constraints.</li>
+<li><strong>“An adaptive solver removes discretization error.”</strong> It controls an
+  estimator under tolerances and error heuristics; it does not make the finite
+  law identical to the continuous process.</li>
+</ul>
+<details class="question">
+<summary>Retrieval practice: reversal and simulation</summary>
+<ol>
+<li>Which distribution-dependent quantity enters reverse diffusion drift?</li>
+<li>What replaces a score correction when reversing a finite-state jump process?</li>
+<li>Why can an unbiased learned generator still yield biased samples?</li>
+<li>What observation signals possible explosion in a jump simulator?</li>
+</ol>
+<p><strong>Solutions.</strong> (1) The time-marginal score, with the precise coefficient determined by the diffusion covariance and convention. (2) Time-marginal density ratios reweight forward jump rates. (3) Finite time steps, event truncation, approximate solvers, boundary projections, or unstable accumulation can alter the transition law. (4) Infinitely many events in finite time theoretically, or rapidly increasing event counts/rates and truncation sensitivity computationally.</p>
+</details>
+<h3 id="independent-practice-and-assessment-map-reversal-and-simulation">Independent practice and assessment map: reversal and simulation<a class="headerlink" href="#independent-practice-and-assessment-map-reversal-and-simulation" title="Permanent link">¤</a></h3>
+<ol>
+<li><strong>P1.1 — Predict before computing: absorbing-chain reversal.</strong> <em>Type: predict · Difficulty: foundation · Typical time: 9 min.</em> For the worked <span class="arithmatex">\(0\to1\)</span> corruption with <span class="arithmatex">\(\lambda=2\)</span> at <span class="arithmatex">\(t=(\log2)/2\)</span>, predict whether the reverse rate is below or above two, compute it, and explain its endpoint divergence.</li>
+<li><strong>P1.2 — Reconcile diffusion clocks.</strong> <em>Type: derive · Difficulty: stretch · Typical time: 15 min.</em> Starting from the displayed reverse-clock drift, expand the state-dependent term into covariance divergence plus <span class="arithmatex">\(a\nabla\log p\)</span>. Convert it to the original-time/negative-<span class="arithmatex">\(dt\)</span> convention.</li>
+<li><strong>P1.3 — Verify uniformization.</strong> <em>Type: derive · Difficulty: core · Typical time: 12 min.</em> For <span class="arithmatex">\(Q=\bigl(\begin{smallmatrix}-2&amp;2\\1&amp;-1\end{smallmatrix}\bigr)\)</span> and <span class="arithmatex">\(\Lambda=2\)</span>, verify that <span class="arithmatex">\(R=I+Q/\Lambda\)</span> is stochastic and show from the Poisson series why the derivative at <span class="arithmatex">\(t=0\)</span> is <span class="arithmatex">\(Q\)</span>.</li>
+<li><strong>P1.4 — Quantify tau-leap constraint failure.</strong> <em>Type: diagnose · Difficulty: core · Typical time: 10 min.</em> A one-particle death process freezes a mean event count of one for a leap. Compute the probability that a Poisson leap proposes a negative count and name two remedies with different bias/cost implications.</li>
+<li><strong>P1.5 — Audit an error ledger.</strong> <em>Type: evaluate · Difficulty: stretch · Typical time: 12 min.</em> Sum the worked four bounds, then decide whether a reported FID change of two may replace the <span class="arithmatex">\(0.03\)</span> bounded-observable term. Explain the metric requirement.</li>
+<li><strong>P1.6 — Transfer to a learned PDMP.</strong> <em>Type: transfer · Difficulty: stretch · Typical time: 20 min.</em> Specify reverse ingredients if available, integrated-hazard or thinning simulation, ODE tolerances, reset validation, explosion diagnostics, compute accounting, and a refinement study for a state-dependent neural PDMP.</li>
+</ol>
+<h4 id="feedback-contract-reversal-and-simulation">Feedback contract: reversal and simulation<a class="headerlink" href="#feedback-contract-reversal-and-simulation" title="Permanent link">¤</a></h4>
+<div class="md-typeset__table book-table-container"><table id="tbl-general-markov-generators-feedback-contract-reversal-and-simulation-1"><caption class="book-object-caption"><span class="book-object-number">Table MARKOV.18.</span> Feedback contract: reversal and simulation — table 1</caption>
+<thead>
+<tr>
+<th>Task</th>
+<th>Evidence of success</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>P1.1</td>
+<td>The rate equals two at equal marginals and divergence is tied to vanishing support rather than a numerical accident.</td>
+</tr>
+<tr>
+<td>P1.2</td>
+<td>Both covariance-divergence and score terms appear and the clock/sign conversion is consistent.</td>
+</tr>
+<tr>
+<td>P1.3</td>
+<td><span class="arithmatex">\(R\)</span> is row-stochastic and differentiating the Poisson mixture recovers <span class="arithmatex">\(Q\)</span>.</td>
+</tr>
+<tr>
+<td>P1.4</td>
+<td>Probability <span class="arithmatex">\(1-2/e\)</span> is computed and each remedy is named as a changed algorithm.</td>
+</tr>
+<tr>
+<td>P1.5</td>
+<td>The bound is <span class="arithmatex">\(0.10\)</span> and incompatible metrics are not added without a theorem.</td>
+</tr>
+<tr>
+<td>P1.6</td>
+<td>Clock, flow, events, reset, constraints, compute, and convergence are all auditable.</td>
+</tr>
+</tbody>
+</table></div>
+<details class="tip">
+<summary>Graduated hints for P1</summary>
+<div class="md-typeset__table book-table-container"><table id="tbl-general-markov-generators-feedback-contract-reversal-and-simulation-2"><caption class="book-object-caption"><span class="book-object-number">Table MARKOV.19.</span> Feedback contract: reversal and simulation — table 2</caption>
+<thead>
+<tr>
+<th>Task</th>
+<th>Hint 1 — Direction</th>
+<th>Hint 2 — Setup</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>P1.1</td>
+<td>At this time both marginal probabilities are <span class="arithmatex">\(1/2\)</span>.</td>
+<td>Substitute their ratio into the reverse-rate formula.</td>
+</tr>
+<tr>
+<td>P1.2</td>
+<td>Apply the product rule to <span class="arithmatex">\(\partial_j(a_{ij}p)/p\)</span>.</td>
+<td>Reversing the integration direction changes the drift sign.</td>
+</tr>
+<tr>
+<td>P1.3</td>
+<td>Self-transitions absorb the gap to <span class="arithmatex">\(\Lambda\)</span>.</td>
+<td>Keep only <span class="arithmatex">\(N=0,1\)</span> terms through first order in <span class="arithmatex">\(t\)</span>.</td>
+</tr>
+<tr>
+<td>P1.4</td>
+<td>Negative population occurs for <span class="arithmatex">\(K\geq2\)</span>.</td>
+<td><span class="arithmatex">\(P(K\leq1)=2/e\)</span> for <span class="arithmatex">\(K\sim\operatorname{Poisson}(1)\)</span>.</td>
+</tr>
+<tr>
+<td>P1.5</td>
+<td>Triangle inequalities require one metric or compatible bounds.</td>
+<td>FID is neither the same observable error nor numerically commensurate.</td>
+</tr>
+<tr>
+<td>P1.6</td>
+<td>A state-dependent rate changes along the deterministic flow.</td>
+<td>Report thinning-bound violations and accepted/rejected event proposals.</td>
+</tr>
+</tbody>
+</table></div>
+</details>
+<h4 id="outcome-to-task-alignment-reversal-and-simulation">Outcome-to-task alignment: reversal and simulation<a class="headerlink" href="#outcome-to-task-alignment-reversal-and-simulation" title="Permanent link">¤</a></h4>
+<div class="md-typeset__table book-table-container"><table id="tbl-general-markov-generators-outcome-to-task-alignment-reversal-and-simulation"><caption class="book-object-caption"><span class="book-object-number">Table MARKOV.20.</span> Outcome-to-task alignment: reversal and simulation</caption>
+<thead>
+<tr>
+<th>Learning objective</th>
+<th>Independently assessed by</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>O1 — Reverse with an explicit clock</td>
+<td>P1.1, P1.2</td>
+</tr>
+<tr>
+<td>O2 — Select a family-specific simulator</td>
+<td>P1.3, P1.4, P1.6</td>
+</tr>
+<tr>
+<td>O3 — Verify exact finite oracles</td>
+<td>P1.1, P1.3</td>
+</tr>
+<tr>
+<td>O4 — Diagnose approximation failure</td>
+<td>P1.4, P1.6</td>
+</tr>
+<tr>
+<td>O5 — Build a metric-consistent error budget</td>
+<td>P1.5</td>
+</tr>
+<tr>
+<td>O6 — Transfer to deployment</td>
+<td>P1.6</td>
+</tr>
+</tbody>
+</table></div>
+<details class="success">
+<summary>Complete solutions to P1</summary>
+<ol>
+<li><strong>P1.1.</strong> <span class="arithmatex">\(e^{-2t}=1/2\)</span>, so <span class="arithmatex">\(q_t^{\mathrm{rev}}(1,0)=2(1/2)/(1/2)=2\)</span>. It is neither above nor below. As <span class="arithmatex">\(t\downarrow0\)</span>, <span class="arithmatex">\(p_t(1)\downarrow0\)</span> while reverse flux must return its rare mass, making the conditional rate diverge. <strong>Check.</strong> The reverse probability flux remains <span class="arithmatex">\(p_t(1)q^{\mathrm{rev}}=2e^{-2t}\)</span>.</li>
+<li><strong>P1.2.</strong> The correction is <span class="arithmatex">\(p^{-1}\sum_j\partial_j(a_{ij}p)=\sum_j\partial_ja_{ij}+\sum_ja_{ij}\partial_j\log p\)</span>. Thus reverse-clock drift is <span class="arithmatex">\(-b+\nabla\cdot a+a\nabla\log p\)</span>. With original <span class="arithmatex">\(t\)</span> integrated backward, the written coefficient becomes <span class="arithmatex">\(b-\nabla\cdot a-a\nabla\log p\)</span> multiplying negative <span class="arithmatex">\(dt\)</span>. <strong>Check.</strong> For spatially constant <span class="arithmatex">\(a\)</span>, the divergence term vanishes.</li>
+<li><strong>P1.3.</strong> <span class="arithmatex">\(R=\bigl(\begin{smallmatrix}0&amp;1\\1/2&amp;1/2\end{smallmatrix}\bigr)\)</span> has nonnegative entries and unit row sums. The Poisson mixture is <span class="arithmatex">\((1-\Lambda t)I+\Lambda tR+O(t^2)=I+t\Lambda(R-I)+O(t^2)=I+tQ+O(t^2)\)</span>. <strong>Check.</strong> Its derivative at zero is exactly the generator.</li>
+<li><strong>P1.4.</strong> <span class="arithmatex">\(P(K\geq2)=1-P(K=0)-P(K=1)=1-2/e\approx0.2642\)</span>. Shorten/adapt the leap, use a binomial constraint-aware leap, or switch critical low-count reactions to exact events. <strong>Check.</strong> Clipping negative counts is another algorithm and generally biases the law.</li>
+<li><strong>P1.5.</strong> The stated bound is <span class="arithmatex">\(0.02+0.04+0.01+0.03=0.10\)</span>. A FID difference cannot replace or be added to a bounded-test expectation error without a theorem relating the metrics. <strong>Check.</strong> A ledger is meaningful only when every term bounds the same final discrepancy.</li>
+<li><strong>P1.6.</strong> Declare the reverse or generation-time drift, rate, reset kernel, and support; integrate the ODE and cumulative hazard or use a proven thinning upper bound; record tolerances, bound violations, proposals, accepted events, NFE, and wall time; verify reset states and Lyapunov/non-explosion conditions; and refine ODE tolerance, hazard bound, event cap, and state truncation independently. <strong>Rubric.</strong> Refining the ODE alone is not a full PDMP convergence study.</li>
+</ol>
+</details>
+<h3 id="chapter-5-synthesis">Chapter 5 synthesis<a class="headerlink" href="#chapter-5-synthesis" title="Permanent link">¤</a></h3>
+<p>Each generator class has its own reversal formula and simulator. Continuous-time unification ends before finite numerical equivalence begins. Chapter 6 provides the comparison matrix, evidence audit, and research exercises.</p>
+<hr/>
+<p><strong>Previous:</strong> <a href="../general-markov-04-superposition/">4. Superposition</a> · <strong>Continue:</strong> <a href="../general-markov-06-practice/">6. Evidence and Practice</a> · <a href="../general-markov-generators/">Complete guide</a></p>
+</article>
+</div>
+<script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  Back to top
+</button>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+<div class="md-social">
+<a class="md-social__link" href="https://github.com/avitai/artifex" rel="noopener" target="_blank" title="github.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</a>
+<a class="md-social__link" href="https://pypi.org/project/avitai-artifex/" rel="noopener" target="_blank" title="pypi.org">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-66.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.3v101.8c0 29 25.2 46 53.4 54.3 33.8 9.9 66.3 11.7 106.8 0 26.9-7.8 53.4-23.5 53.4-54.3v-40.7H226.2v-13.6h160.2c31.1 0 42.6-21.7 53.4-54.2 11.2-33.5 10.7-65.7 0-108.6M286.2 444.7a20.4 20.4 0 1 1 0-40.7 20.4 20.4 0 1 1 0 40.7M167.8 248.1h106.8c29.7 0 53.4-24.5 53.4-54.3V91.9c0-29-24.4-50.7-53.4-55.6-35.8-5.9-74.7-5.6-106.8.1-45.2 8-53.4 24.7-53.4 55.6v40.7h106.9v13.6h-147c-31.1 0-58.3 18.7-66.8 54.2-9.8 40.7-10.2 66.1 0 108.6 7.6 31.6 25.7 54.2 56.8 54.2H101v-48.8c0-35.3 30.5-66.4 66.8-66.4m-6.6-183.4a20.4 20.4 0 1 1 0 40.8 20.4 20.4 0 1 1 0-40.8"></path></svg>
+</a>
+<a class="md-social__link" href="https://twitter.com/mahdi_shafiei" rel="noopener" target="_blank" title="twitter.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M459.4 151.7c.3 4.5.3 9.1.3 13.6 0 138.7-105.6 298.6-298.6 298.6-59.5 0-114.7-17.2-161.1-47.1 8.4 1 16.6 1.3 25.3 1.3 49.1 0 94.2-16.6 130.3-44.8-46.1-1-84.8-31.2-98.1-72.8 6.5 1 13 1.6 19.8 1.6 9.4 0 18.8-1.3 27.6-3.6-48.1-9.7-84.1-52-84.1-103v-1.3c14 7.8 30.2 12.7 47.4 13.3-28.3-18.8-46.8-51-46.8-87.4 0-19.5 5.2-37.4 14.3-53C87.4 130.8 165 172.4 252.1 176.9c-1.6-7.8-2.6-15.9-2.6-24C249.5 95.1 296.3 48 354.4 48c30.2 0 57.5 12.7 76.7 33.1 23.7-4.5 46.5-13.3 66.6-25.3-7.8 24.4-24.4 44.8-46.1 57.8 21.1-2.3 41.6-8.1 60.4-16.2-14.3 20.8-32.2 39.3-52.6 54.3"></path></svg>
+</a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.path", "navigation.top", "navigation.prune", "toc.follow", "search.highlight", "search.share", "search.suggest", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "content.mermaid"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+<script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+<script src="../../../javascripts/reading-layout.js"></script>
+</body>
+</html>

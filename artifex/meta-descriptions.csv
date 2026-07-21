@@ -1,0 +1,813 @@
+Page,Meta description
+https://docs.avitai.bio/artifex/,"ARTIFEX - Architectures + Generative + JAX. A production-ready modular generative modeling library built on JAX/Flax, providing implementations of state-of-the-art generative models (VAEs, GANs, Diffusion Models, Flow Models, etc.) with multi-modal support"
+https://docs.avitai.bio/artifex/api/configuration/,"ARTIFEX - Architectures + Generative + JAX. A production-ready modular generative modeling library built on JAX/Flax, providing implementations of state-of-the-art generative models (VAEs, GANs, Diffusion Models, Flow Models, etc.) with multi-modal support"
+https://docs.avitai.bio/artifex/api/extensions/,"ARTIFEX - Architectures + Generative + JAX. A production-ready modular generative modeling library built on JAX/Flax, providing implementations of state-of-the-art generative models (VAEs, GANs, Diffusion Models, Flow Models, etc.) with multi-modal support"
+https://docs.avitai.bio/artifex/api/factory/,"ARTIFEX - Architectures + Generative + JAX. A production-ready modular generative modeling library built on JAX/Flax, providing implementations of state-of-the-art generative models (VAEs, GANs, Diffusion Models, Flow Models, etc.) with multi-modal support"
+https://docs.avitai.bio/artifex/api/sampling/,This page documents the live top-level artifex.generative_models.core.sampling package exports.
+https://docs.avitai.bio/artifex/api/configs/protein-extension/,"ARTIFEX - Architectures + Generative + JAX. A production-ready modular generative modeling library built on JAX/Flax, providing implementations of state-of-the-art generative models (VAEs, GANs, Diffusion Models, Flow Models, etc.) with multi-modal support"
+https://docs.avitai.bio/artifex/api/core/base/,"The live base layer is intentionally small. Use it for shared NNX-friendly building blocks, not for a fake universal training API."
+https://docs.avitai.bio/artifex/api/core/configuration/,The Artifex configuration backend is built on frozen dataclasses. Public code should prefer artifex.configs for imports and retained config loading.
+https://docs.avitai.bio/artifex/api/core/device-manager/,"DeviceManager is Artifex's runtime-facing device helper. It inspects the active JAX runtime, reports the visible devices, selects a default device, and can"
+https://docs.avitai.bio/artifex/api/core/losses/,Artifex exposes a curated public surface of functional loss primitives for generative models. Generic shared building blocks use CalibraX where that surface
+https://docs.avitai.bio/artifex/api/data/loaders/,API reference for Artifex's data loading system. All datasets use datarax MemorySource as the data container. Pure data generation functions produce
+https://docs.avitai.bio/artifex/api/data/protein-dataset/,"ARTIFEX - Architectures + Generative + JAX. A production-ready modular generative modeling library built on JAX/Flax, providing implementations of state-of-the-art generative models (VAEs, GANs, Diffusion Models, Flow Models, etc.) with multi-modal support"
+https://docs.avitai.bio/artifex/api/datasets/crossdocked/,"ARTIFEX - Architectures + Generative + JAX. A production-ready modular generative modeling library built on JAX/Flax, providing implementations of state-of-the-art generative models (VAEs, GANs, Diffusion Models, Flow Models, etc.) with multi-modal support"
+https://docs.avitai.bio/artifex/api/extensions/protein/,"ARTIFEX - Architectures + Generative + JAX. A production-ready modular generative modeling library built on JAX/Flax, providing implementations of state-of-the-art generative models (VAEs, GANs, Diffusion Models, Flow Models, etc.) with multi-modal support"
+https://docs.avitai.bio/artifex/api/models/autoregressive/,Complete API documentation for autoregressive models in Artifex.
+https://docs.avitai.bio/artifex/api/models/diffusion/,This page documents the live top-level diffusion package surface.
+https://docs.avitai.bio/artifex/api/models/ebm/,This page documents the live energy-model surface.
+https://docs.avitai.bio/artifex/api/models/flow/,Complete API documentation for normalizing flow models in Artifex.
+https://docs.avitai.bio/artifex/api/models/gan/,Complete API reference for all GAN model classes in Artifex.
+https://docs.avitai.bio/artifex/api/models/protein-point-cloud/,"ARTIFEX - Architectures + Generative + JAX. A production-ready modular generative modeling library built on JAX/Flax, providing implementations of state-of-the-art generative models (VAEs, GANs, Diffusion Models, Flow Models, etc.) with multi-modal support"
+https://docs.avitai.bio/artifex/api/models/vae/,This page documents the live top-level VAE package surface.
+https://docs.avitai.bio/artifex/api/training/trainer/,API reference for the low-level generic Trainer.
+https://docs.avitai.bio/artifex/architecture/extensions/,"ARTIFEX - Architectures + Generative + JAX. A production-ready modular generative modeling library built on JAX/Flax, providing implementations of state-of-the-art generative models (VAEs, GANs, Diffusion Models, Flow Models, etc.) with multi-modal support"
+https://docs.avitai.bio/artifex/benchmarks/,"Artifex retains benchmark and evaluation modules, but the public benchmark surface is intentionally narrow. There is no supported public benchmark CLI runner,"
+https://docs.avitai.bio/artifex/benchmarks/audio/,Module: benchmarks.metrics.audio
+https://docs.avitai.bio/artifex/benchmarks/audio_benchmarks/,Module: benchmarks.datasets.audio_benchmarks
+https://docs.avitai.bio/artifex/benchmarks/audio_protocols/,Module: benchmarks.protocols.audio_protocols
+https://docs.avitai.bio/artifex/benchmarks/audio_suite/,Module: benchmarks.suites.audio_suite
+https://docs.avitai.bio/artifex/benchmarks/base/,Module: benchmarks.model_adapters.base
+https://docs.avitai.bio/artifex/benchmarks/benchmark_runner/,Module: benchmarks.cli.benchmark_runner
+https://docs.avitai.bio/artifex/benchmarks/caching/,Module: benchmarks.utils.caching
+https://docs.avitai.bio/artifex/benchmarks/celeba/,Module: benchmarks.datasets.celeba
+https://docs.avitai.bio/artifex/benchmarks/comparison/,Module: benchmarks.visualization.comparison
+https://docs.avitai.bio/artifex/benchmarks/core/,Module: benchmarks.protocols.core
+https://docs.avitai.bio/artifex/benchmarks/crossdocked/,Module: benchmarks.datasets.crossdocked
+https://docs.avitai.bio/artifex/benchmarks/dashboard/,Module: benchmarks.visualization.dashboard
+https://docs.avitai.bio/artifex/benchmarks/dataset_loaders/,Module: benchmarks.datasets.dataset_loaders
+https://docs.avitai.bio/artifex/benchmarks/disentanglement/,Module: benchmarks.metrics.disentanglement
+https://docs.avitai.bio/artifex/benchmarks/diversity/,Module: benchmarks.metrics.diversity
+https://docs.avitai.bio/artifex/benchmarks/ffhq/,Module: benchmarks.datasets.ffhq
+https://docs.avitai.bio/artifex/benchmarks/geometric/,Module: benchmarks.metrics.geometric
+https://docs.avitai.bio/artifex/benchmarks/geometric_suite/,Module: benchmarks.suites.geometric_suite
+https://docs.avitai.bio/artifex/benchmarks/image/,Module: benchmarks.metrics.image
+https://docs.avitai.bio/artifex/benchmarks/image_benchmarks/,Module: benchmarks.datasets.image_benchmarks
+https://docs.avitai.bio/artifex/benchmarks/image_grid/,Module: benchmarks.visualization.image_grid
+https://docs.avitai.bio/artifex/benchmarks/image_protocols/,Module: benchmarks.protocols.image_protocols
+https://docs.avitai.bio/artifex/benchmarks/image_suite/,Module: benchmarks.suites.image_suite
+https://docs.avitai.bio/artifex/benchmarks/image_unified/,Module: benchmarks.metrics.image_unified
+https://docs.avitai.bio/artifex/benchmarks/inception_metrics/,Module: benchmarks.metrics.inception_metrics
+https://docs.avitai.bio/artifex/benchmarks/latency/,Module: benchmarks.performance.latency
+https://docs.avitai.bio/artifex/benchmarks/likelihood/,Module: benchmarks.metrics.likelihood
+https://docs.avitai.bio/artifex/benchmarks/memory/,Module: benchmarks.performance.memory
+https://docs.avitai.bio/artifex/benchmarks/model_adapters/,Module: benchmarks.model_adapters
+https://docs.avitai.bio/artifex/benchmarks/molecular_flows/,Module: benchmarks.metrics.molecular_flows
+https://docs.avitai.bio/artifex/benchmarks/multi_beta_vae_suite/,Module: benchmarks.suites.multi_beta_vae_suite
+https://docs.avitai.bio/artifex/benchmarks/multimodal_benchmarks/,Module: benchmarks.datasets.multimodal_benchmarks
+https://docs.avitai.bio/artifex/benchmarks/multimodal_protocols/,Module: benchmarks.protocols.multimodal_protocols
+https://docs.avitai.bio/artifex/benchmarks/multimodal_suite/,Module: benchmarks.suites.multimodal_suite
+https://docs.avitai.bio/artifex/benchmarks/optimization/,Module: benchmarks.performance.optimization
+https://docs.avitai.bio/artifex/benchmarks/optimization_benchmark/,Module: benchmarks.cli.optimization_benchmark
+https://docs.avitai.bio/artifex/benchmarks/optimization_plots/,Module: benchmarks.visualization.optimization_plots
+https://docs.avitai.bio/artifex/benchmarks/perplexity/,Module: benchmarks.metrics.perplexity
+https://docs.avitai.bio/artifex/benchmarks/plots/,Module: benchmarks.visualization.plots
+https://docs.avitai.bio/artifex/benchmarks/precision_recall/,Module: benchmarks.metrics.precision_recall
+https://docs.avitai.bio/artifex/benchmarks/protein_adapters/,Module: benchmarks.model_adapters.protein_adapters
+https://docs.avitai.bio/artifex/benchmarks/protein_benchmarks/,Module: benchmarks.suites.protein_benchmarks
+https://docs.avitai.bio/artifex/benchmarks/protein_dataset/,Module: benchmarks.datasets.protein_dataset
+https://docs.avitai.bio/artifex/benchmarks/protein_ligand/,Module: benchmarks.metrics.protein_ligand
+https://docs.avitai.bio/artifex/benchmarks/protein_ligand_suite/,Module: benchmarks.suites.protein_ligand_suite
+https://docs.avitai.bio/artifex/benchmarks/protein_model_adapters/,Module: benchmarks.protein_model_adapters
+https://docs.avitai.bio/artifex/benchmarks/qm9/,Module: benchmarks.datasets.qm9
+https://docs.avitai.bio/artifex/benchmarks/registry/,Module: benchmarks.suites.registry
+https://docs.avitai.bio/artifex/benchmarks/reporting/,Module: benchmarks.utils.reporting
+https://docs.avitai.bio/artifex/benchmarks/sample_quality/,Module: benchmarks.metrics.sample_quality
+https://docs.avitai.bio/artifex/benchmarks/scaling/,Module: benchmarks.performance.scaling
+https://docs.avitai.bio/artifex/benchmarks/se3_molecular_flows_suite/,Module: benchmarks.suites.se3_molecular_flows_suite
+https://docs.avitai.bio/artifex/benchmarks/standard/,Module: benchmarks.suites.standard
+https://docs.avitai.bio/artifex/benchmarks/statistical/,Module: benchmarks.utils.statistical
+https://docs.avitai.bio/artifex/benchmarks/style_metrics/,Module: benchmarks.metrics.style_metrics
+https://docs.avitai.bio/artifex/benchmarks/stylegan3_suite/,Module: benchmarks.suites.stylegan3_suite
+https://docs.avitai.bio/artifex/benchmarks/synthetic_datasets/,Module: benchmarks.datasets.synthetic_datasets
+https://docs.avitai.bio/artifex/benchmarks/text/,Module: benchmarks.metrics.text
+https://docs.avitai.bio/artifex/benchmarks/text_benchmarks/,Module: benchmarks.datasets.text_benchmarks
+https://docs.avitai.bio/artifex/benchmarks/text_protocols/,Module: benchmarks.protocols.text_protocols
+https://docs.avitai.bio/artifex/benchmarks/text_suite/,Module: benchmarks.suites.text_suite
+https://docs.avitai.bio/artifex/benchmarks/throughput/,Module: benchmarks.performance.throughput
+https://docs.avitai.bio/artifex/cli/,The retained runtime owners are artifex.cli.__main__ and artifex.cli.config.
+https://docs.avitai.bio/artifex/cli/__main__/,Status: Supported runtime CLI surface
+https://docs.avitai.bio/artifex/cli/benchmark/,The top-level benchmark command is not currently shipped in the runtime CLI.
+https://docs.avitai.bio/artifex/cli/config/,Status: Supported runtime CLI surface
+https://docs.avitai.bio/artifex/cli/convert/,The top-level convert command is not currently shipped in the runtime CLI.
+https://docs.avitai.bio/artifex/cli/evaluate/,The top-level evaluate command is not currently shipped in the runtime CLI.
+https://docs.avitai.bio/artifex/cli/generate/,The top-level generate command is not currently shipped in the runtime CLI.
+https://docs.avitai.bio/artifex/cli/serve/,The top-level serve command is not currently shipped in the runtime CLI.
+https://docs.avitai.bio/artifex/cli/train/,The top-level train command is not currently shipped in the runtime CLI.
+https://docs.avitai.bio/artifex/community/contributing/,"Thank you for your interest in contributing to Artifex! This guide will help you get started with contributing code, documentation, and other improvements."
+https://docs.avitai.bio/artifex/community/faq/,Common questions about Artifex and their answers.
+https://docs.avitai.bio/artifex/configs/,artifex.configs is the public convenience surface over the typed configuration runtime in artifex.generative_models.core.configuration.
+https://docs.avitai.bio/artifex/configs/base/,The base configuration layer is exposed through artifex.configs.
+https://docs.avitai.bio/artifex/configs/config_loader/,artifex.configs exposes a small set of typed loader helpers for the retained runtime config assets under src/artifex/configs/.
+https://docs.avitai.bio/artifex/configs/data/,DataConfig is the typed dataclass for dataset selection and data-loading behavior.
+https://docs.avitai.bio/artifex/configs/distributed/,"DistributedConfig describes multi-process topology, device-mesh shape, and distributed runtime policy."
+https://docs.avitai.bio/artifex/configs/error_handling/,"The retained config loader keeps file, parse, and typed-schema failures inside one repo-owned error hierarchy."
+https://docs.avitai.bio/artifex/configs/extensions/,"Artifex configures extension composition through typed frozen dataclasses. The canonical protein surface is ProteinExtensionsConfig, which bundles the optional"
+https://docs.avitai.bio/artifex/configs/hyperparam/,HyperparamSearchConfig defines search strategy and the typed parameter distribution objects used in the search space.
+https://docs.avitai.bio/artifex/configs/inference/,Inference uses a small hierarchy of frozen dataclasses.
+https://docs.avitai.bio/artifex/configs/templates/,Configuration templates are exposed through the public artifex.configs surface and implemented in generative_models.core.configuration.management.templates.
+https://docs.avitai.bio/artifex/configs/training/,Training uses one top-level dataclass plus nested optimizer and scheduler configs.
+https://docs.avitai.bio/artifex/core/,The retained artifex.generative_models.core package is a narrower shared-runtime layer.
+https://docs.avitai.bio/artifex/core/adversarial/,Module: generative_models.core.losses.adversarial
+https://docs.avitai.bio/artifex/core/ancestral/,Module: generative_models.core.sampling.ancestral
+https://docs.avitai.bio/artifex/core/architecture/,"Artifex follows a modular, protocol-based architecture designed for research experimentation and production deployment."
+https://docs.avitai.bio/artifex/core/base/,Module: generative_models.core.sampling.base
+https://docs.avitai.bio/artifex/core/benchmarks/,The benchmark foundation moved out of artifex.generative_models.core and now lives in artifex.benchmarks.core.
+https://docs.avitai.bio/artifex/core/blackjax_samplers/,Module: artifex.generative_models.core.sampling.blackjax_samplers
+https://docs.avitai.bio/artifex/core/causal/,Module: generative_models.core.layers.causal
+https://docs.avitai.bio/artifex/core/checkpointing/,Module: generative_models.core.checkpointing
+https://docs.avitai.bio/artifex/core/config_commands/,Module: artifex.generative_models.core.cli.config_commands
+https://docs.avitai.bio/artifex/core/configuration/,Artifex uses one typed configuration foundation across the generative stack:
+https://docs.avitai.bio/artifex/core/continuous/,Module: generative_models.core.distributions.continuous
+https://docs.avitai.bio/artifex/core/device_manager/,Module: generative_models.core.device_manager
+https://docs.avitai.bio/artifex/core/device_testing/,artifex.generative_models.core.device_testing provides a small runtime diagnostic surface for the active JAX backend.
+https://docs.avitai.bio/artifex/core/diffusion/,Module: artifex.generative_models.core.sampling.diffusion
+https://docs.avitai.bio/artifex/core/discrete/,Module: generative_models.core.distributions.discrete
+https://docs.avitai.bio/artifex/core/distance/,Module: generative_models.core.evaluation.metrics.distance
+https://docs.avitai.bio/artifex/core/distribution_base/,Module: generative_models.core.distributions.base
+https://docs.avitai.bio/artifex/core/divergence/,Module: generative_models.core.losses.divergence
+https://docs.avitai.bio/artifex/core/evaluation/,Module: generative_models.core.protocols.evaluation
+https://docs.avitai.bio/artifex/core/fid/,FrechetInceptionDistance lives in artifex.generative_models.core.evaluation.metrics.image.fid.
+https://docs.avitai.bio/artifex/core/flash_attention/,Module: generative_models.core.layers.flash_attention
+https://docs.avitai.bio/artifex/core/gan/,Supported owner: artifex.generative_models.core.configuration.gan_config
+https://docs.avitai.bio/artifex/core/geometric/,Module: generative_models.core.losses.geometric
+https://docs.avitai.bio/artifex/core/inception_score/,InceptionScore lives in artifex.generative_models.core.evaluation.metrics.image.inception_score.
+https://docs.avitai.bio/artifex/core/information/,Module: generative_models.core.evaluation.metrics.information
+https://docs.avitai.bio/artifex/core/jax_config/,Module: generative_models.core.jax_config
+https://docs.avitai.bio/artifex/core/logging/,Module: generative_models.core.logging
+https://docs.avitai.bio/artifex/core/mcmc/,Module: generative_models.core.sampling.mcmc
+https://docs.avitai.bio/artifex/core/metric_ops/,Module: generative_models.core.evaluation.metrics.metric_ops
+https://docs.avitai.bio/artifex/core/metrics/,Artifex ships a narrow evaluation surface with explicit dependencies. It is not a full built-in evaluation catalog with pretrained backends.
+https://docs.avitai.bio/artifex/core/migrate_configs/,Status: Coming soon
+https://docs.avitai.bio/artifex/core/mixture/,Module: generative_models.core.distributions.mixture
+https://docs.avitai.bio/artifex/core/ode/,Module: generative_models.core.sampling.ode
+https://docs.avitai.bio/artifex/core/perceptual/,Module: generative_models.core.losses.perceptual
+https://docs.avitai.bio/artifex/core/performance/,Module: artifex.generative_models.core.performance
+https://docs.avitai.bio/artifex/core/perplexity/,Perplexity lives in artifex.generative_models.core.evaluation.metrics.text.perplexity.
+https://docs.avitai.bio/artifex/core/pipeline/,EvaluationPipeline is the retained orchestration layer for explicit evaluation dependencies. It lives in
+https://docs.avitai.bio/artifex/core/positional/,Module: generative_models.core.layers.positional
+https://docs.avitai.bio/artifex/core/precision_recall/,Module: generative_models.core.evaluation.metrics.general.precision_recall
+https://docs.avitai.bio/artifex/core/quality/,Module: generative_models.core.evaluation.metrics.quality
+https://docs.avitai.bio/artifex/core/reconstruction/,Module: generative_models.core.losses.reconstruction
+https://docs.avitai.bio/artifex/core/registry/,Registry ownership for evaluation metrics lives in Calibrax.
+https://docs.avitai.bio/artifex/core/regularization/,Module: generative_models.core.losses.regularization
+https://docs.avitai.bio/artifex/core/residual/,Module: generative_models.core.layers.residual
+https://docs.avitai.bio/artifex/core/resnet/,Module: generative_models.core.layers.resnet
+https://docs.avitai.bio/artifex/core/runner/,BenchmarkRunner and PerformanceTracker live in artifex.benchmarks.core.runner.
+https://docs.avitai.bio/artifex/core/sde/,Module: generative_models.core.sampling.sde
+https://docs.avitai.bio/artifex/core/statistical/,Module: generative_models.core.evaluation.metrics.statistical
+https://docs.avitai.bio/artifex/core/templates/,Module: generative_models.core.configuration.management.templates
+https://docs.avitai.bio/artifex/core/transformations/,Module: generative_models.core.distributions.transformations
+https://docs.avitai.bio/artifex/core/transformers/,Module: generative_models.core.layers.transformers
+https://docs.avitai.bio/artifex/core/unified/,Artifex uses one configuration backend across the repo:
+https://docs.avitai.bio/artifex/core/validation/,Supported owner: artifex.generative_models.core.configuration.validation
+https://docs.avitai.bio/artifex/core/versioning/,Module: generative_models.core.configuration.management.versioning
+https://docs.avitai.bio/artifex/data/,The top-level artifex.data package is intentionally narrow.
+https://docs.avitai.bio/artifex/data/audio/,Module: data.preprocessing.audio
+https://docs.avitai.bio/artifex/data/base/,Module: data.preprocessing.base
+https://docs.avitai.bio/artifex/data/bookcorpus/,Module: data.datasets.text.bookcorpus
+https://docs.avitai.bio/artifex/data/bpe/,Module: data.tokenizers.bpe
+https://docs.avitai.bio/artifex/data/character/,Module: data.tokenizers.character
+https://docs.avitai.bio/artifex/data/cifar/,Module: data.datasets.image.cifar
+https://docs.avitai.bio/artifex/data/coco/,Module: data.datasets.multimodal.coco
+https://docs.avitai.bio/artifex/data/collators/,Module: data.collators
+https://docs.avitai.bio/artifex/data/custom_audio/,Module: data.datasets.audio.custom_audio
+https://docs.avitai.bio/artifex/data/custom_image/,Module: data.datasets.image.custom_image
+https://docs.avitai.bio/artifex/data/custom_multimodal/,Module: data.datasets.multimodal.custom_multimodal
+https://docs.avitai.bio/artifex/data/custom_text/,Module: data.datasets.text.custom_text
+https://docs.avitai.bio/artifex/data/custom_video/,Module: data.datasets.video.custom_video
+https://docs.avitai.bio/artifex/data/dataset/,Canonical owner: artifex.data.protein.dataset
+https://docs.avitai.bio/artifex/data/ffhq/,Module: data.datasets.image.ffhq
+https://docs.avitai.bio/artifex/data/image/,Module: data.preprocessing.image
+https://docs.avitai.bio/artifex/data/imagenet/,Module: data.datasets.image.imagenet
+https://docs.avitai.bio/artifex/data/librispeech/,Module: data.datasets.audio.librispeech
+https://docs.avitai.bio/artifex/data/pipeline/,Module: data.pipeline
+https://docs.avitai.bio/artifex/data/protein_dataset/,This page is retained for historical links.
+https://docs.avitai.bio/artifex/data/registry/,Module: data.registry
+https://docs.avitai.bio/artifex/data/remote/,Module: data.streaming.remote
+https://docs.avitai.bio/artifex/data/samplers/,Module: data.samplers
+https://docs.avitai.bio/artifex/data/sentencepiece/,Module: data.tokenizers.sentencepiece
+https://docs.avitai.bio/artifex/data/structured/,Module: data.loaders.structured
+https://docs.avitai.bio/artifex/data/text/,Module: data.preprocessing.text
+https://docs.avitai.bio/artifex/data/tfrecord/,Module: data.streaming.tfrecord
+https://docs.avitai.bio/artifex/data/ucf101/,Module: data.datasets.video.ucf101
+https://docs.avitai.bio/artifex/data/vctk/,Module: data.datasets.audio.vctk
+https://docs.avitai.bio/artifex/data/video/,Module: data.preprocessing.video
+https://docs.avitai.bio/artifex/data/webdataset/,Module: data.streaming.webdataset
+https://docs.avitai.bio/artifex/data/wikipedia/,Module: data.datasets.text.wikipedia
+https://docs.avitai.bio/artifex/data/word/,Module: data.tokenizers.word
+https://docs.avitai.bio/artifex/development/blackjax-testing/,BlackJAX is a first-class dependency in Artifex. Its tests are part of the normal pytest surface and should run under the same contract as the rest of the
+https://docs.avitai.bio/artifex/development/example-documentation-design/,"This guide defines how to design, write, maintain, and review Artifex examples. It is specific to Artifex's current runtime and contributor contract:"
+https://docs.avitai.bio/artifex/development/philosophy/,Artifex is designed with a clear set of guiding principles that inform every architectural and implementation decision.
+https://docs.avitai.bio/artifex/development/roadmap/,This document outlines the development status and planned improvements for Artifex.
+https://docs.avitai.bio/artifex/development/testing/,"Artifex uses the standard uv run pytest surface. Treat the root TESTING.md file as the canonical command and policy reference, and keep contributor-facing docs"
+https://docs.avitai.bio/artifex/examples/,"ARTIFEX - Architectures + Generative + JAX. A production-ready modular generative modeling library built on JAX/Flax, providing implementations of state-of-the-art generative models (VAEs, GANs, Diffusion Models, Flow Models, etc.) with multi-modal support"
+https://docs.avitai.bio/artifex/examples/overview/,Artifex publishes docs/examples/ pages only when a real source pair exists under examples/generative_models/: one runnable .py file and one paired .ipynb
+https://docs.avitai.bio/artifex/examples/advanced/advanced-gan/,Status: Exploratory workflow Device: GPU-optional
+https://docs.avitai.bio/artifex/examples/advanced/advanced-training/,Level: Intermediate Runtime: ~2 minutes Format: Dual (.py script | .ipynb notebook)
+https://docs.avitai.bio/artifex/examples/advanced/advanced-vae/,Level: Advanced | Runtime: Varies by variant (30-60 min per model) | Format: Python + Jupyter
+https://docs.avitai.bio/artifex/examples/audio/simple-audio-generation/,Status: Standalone pedagogy Level: Beginner | Runtime: ~10 seconds (CPU) | Format: Python + Jupyter | Device: CPU-compatible
+https://docs.avitai.bio/artifex/examples/basic/diffusion-mnist-demo/,A lightweight demonstration of Artifex's DDPM (Denoising Diffusion Probabilistic Model) API using MNIST. This example shows how to use the DDPMModel
+https://docs.avitai.bio/artifex/examples/basic/diffusion-mnist/,"Level: Beginner | Runtime: ~30 minutes (GPU), ~2-3 hours (CPU) | Format: Python + Jupyter"
+https://docs.avitai.bio/artifex/examples/basic/flow-mnist/,"Level: Beginner | Runtime: ~50 minutes (GPU), ~4-5 hours (CPU) | Format: Python + Jupyter"
+https://docs.avitai.bio/artifex/examples/basic/simple-gan/,Level: Beginner | Runtime: ~2-3 minutes (GPU/CPU) | Format: Python + Jupyter
+https://docs.avitai.bio/artifex/examples/basic/vae-mnist/,Level: Beginner | Runtime: ~2-3 minutes (CPU/GPU) | Format: Python + Jupyter
+https://docs.avitai.bio/artifex/examples/diffusion/dit-demo/,Level: Advanced | Runtime: ~5 minutes (CPU) / ~1-2 minutes (GPU) | Format: Python + Jupyter
+https://docs.avitai.bio/artifex/examples/diffusion/simple-diffusion/,Status: Standalone pedagogy Level: Beginner | Runtime: ~30 seconds (CPU) / ~10 seconds (GPU) | Format: Python + Jupyter | Device: CPU-compatible
+https://docs.avitai.bio/artifex/examples/energy/simple-ebm/,Level: Intermediate | Runtime: ~2 minutes (CPU) / ~30 seconds (GPU) | Format: Python + Jupyter
+https://docs.avitai.bio/artifex/examples/framework/framework-features-demo/,Level: Intermediate | Runtime: ~1-2 minutes (CPU) | Format: Python + Jupyter
+https://docs.avitai.bio/artifex/examples/geometric/geometric-benchmark-demo/,Status: Demo-only benchmark walkthrough Device: CPU-compatible
+https://docs.avitai.bio/artifex/examples/geometric/geometric-losses-demo/,"ARTIFEX - Architectures + Generative + JAX. A production-ready modular generative modeling library built on JAX/Flax, providing implementations of state-of-the-art generative models (VAEs, GANs, Diffusion Models, Flow Models, etc.) with multi-modal support"
+https://docs.avitai.bio/artifex/examples/geometric/geometric-models-demo/,"A quick reference guide demonstrating how to configure and instantiate three types of geometric models in Artifex: point clouds, meshes, and voxels."
+https://docs.avitai.bio/artifex/examples/geometric/simple-point-cloud-example/,Learn how to generate and visualize 3D point clouds using Artifex's PointCloudModel with transformer-based architecture.
+https://docs.avitai.bio/artifex/examples/losses/loss-examples/,Level: Intermediate | Runtime: ~30 seconds (CPU) | Format: Python + Jupyter
+https://docs.avitai.bio/artifex/examples/multimodal/simple-image-text/,Status: Standalone pedagogy Device: CPU-compatible
+https://docs.avitai.bio/artifex/examples/protein/protein-diffusion-example/,Status: Exploratory workflow Device: CPU-compatible
+https://docs.avitai.bio/artifex/examples/protein/protein-diffusion-tech-validation/,Status: Validation utility Device: CPU-compatible
+https://docs.avitai.bio/artifex/examples/protein/protein-extensions-example/,This example demonstrates the canonical typed bundle workflow for protein-aware extensions in Artifex.
+https://docs.avitai.bio/artifex/examples/protein/protein-extensions-with-config/,This example demonstrates the configuration-driven protein extension workflow in Artifex.
+https://docs.avitai.bio/artifex/examples/protein/protein-ligand-benchmark-demo/,Status: Demo-only benchmark walkthrough Device: CPU-compatible
+https://docs.avitai.bio/artifex/examples/protein/protein-model-extension/,"ARTIFEX - Architectures + Generative + JAX. A production-ready modular generative modeling library built on JAX/Flax, providing implementations of state-of-the-art generative models (VAEs, GANs, Diffusion Models, Flow Models, etc.) with multi-modal support"
+https://docs.avitai.bio/artifex/examples/protein/protein-model-with-modality/,Level: Intermediate | Runtime: ~10 seconds (CPU/GPU) | Format: Python + Jupyter
+https://docs.avitai.bio/artifex/examples/protein/protein-point-cloud-example/,Level: Intermediate | Runtime: ~15 seconds (CPU) / ~5 seconds (GPU) | Format: Python + Jupyter
+https://docs.avitai.bio/artifex/examples/sampling/blackjax-example/,"ARTIFEX - Architectures + Generative + JAX. A production-ready modular generative modeling library built on JAX/Flax, providing implementations of state-of-the-art generative models (VAEs, GANs, Diffusion Models, Flow Models, etc.) with multi-modal support"
+https://docs.avitai.bio/artifex/examples/sampling/blackjax-integration-examples/,"ARTIFEX - Architectures + Generative + JAX. A production-ready modular generative modeling library built on JAX/Flax, providing implementations of state-of-the-art generative models (VAEs, GANs, Diffusion Models, Flow Models, etc.) with multi-modal support"
+https://docs.avitai.bio/artifex/examples/sampling/blackjax-sampling-examples/,"ARTIFEX - Architectures + Generative + JAX. A production-ready modular generative modeling library built on JAX/Flax, providing implementations of state-of-the-art generative models (VAEs, GANs, Diffusion Models, Flow Models, etc.) with multi-modal support"
+https://docs.avitai.bio/artifex/examples/text/simple-text-generation/,Status: Standalone pedagogy Device: CPU-compatible
+https://docs.avitai.bio/artifex/examples/vae/multi-beta-vae-benchmark-demo/,Status: Demo-only benchmark walkthrough Device: CPU-compatible
+https://docs.avitai.bio/artifex/extensions/,Extensions are how Artifex adds domain-specific behavior to otherwise domain-agnostic models. The protein extension surface remains the design reference for
+https://docs.avitai.bio/artifex/extensions/augmentation/,Status: Supported runtime extension owner
+https://docs.avitai.bio/artifex/extensions/backbone/,Status: Supported runtime extension owner
+https://docs.avitai.bio/artifex/extensions/constraints/,Status: Supported runtime extension owner
+https://docs.avitai.bio/artifex/extensions/embeddings/,Status: Supported runtime extension owner
+https://docs.avitai.bio/artifex/extensions/extensions/,Status: Supported runtime extension owner
+https://docs.avitai.bio/artifex/extensions/features/,Status: Supported runtime extension owner
+https://docs.avitai.bio/artifex/extensions/mixin/,Status: Supported runtime extension owner
+https://docs.avitai.bio/artifex/extensions/registry/,Status: Supported runtime extension owner
+https://docs.avitai.bio/artifex/extensions/spectral/,Status: Supported runtime extension owner
+https://docs.avitai.bio/artifex/extensions/temporal/,Status: Supported runtime extension owner
+https://docs.avitai.bio/artifex/extensions/tokenization/,Status: Supported runtime extension owner
+https://docs.avitai.bio/artifex/extensions/utils/,Module: generative_models.extensions.protein.utils
+https://docs.avitai.bio/artifex/factory/,"The factory module provides a centralized, type-safe interface for creating generative models in Artifex. It uses dataclass-based configurations to determine"
+https://docs.avitai.bio/artifex/factory/autoregressive/,Module: generative_models.factory.builders.autoregressive
+https://docs.avitai.bio/artifex/factory/core/,Module: generative_models.factory.core
+https://docs.avitai.bio/artifex/factory/diffusion/,Module: generative_models.factory.builders.diffusion
+https://docs.avitai.bio/artifex/factory/ebm/,Module: generative_models.factory.builders.ebm
+https://docs.avitai.bio/artifex/factory/flow/,Module: generative_models.factory.builders.flow
+https://docs.avitai.bio/artifex/factory/gan/,Module: generative_models.factory.builders.gan
+https://docs.avitai.bio/artifex/factory/geometric/,Module: generative_models.factory.builders.geometric
+https://docs.avitai.bio/artifex/factory/vae/,Module: generative_models.factory.builders.vae
+https://docs.avitai.bio/artifex/fine_tuning/,Status: Current runtime fine-tuning surface
+https://docs.avitai.bio/artifex/generative_models/,"The main module containing all generative model implementations, core infrastructure, modalities, extensions, and training systems in Artifex."
+https://docs.avitai.bio/artifex/getting-started/core-concepts/,This guide introduces the fundamental concepts behind Artifex and modern generative modeling. It is intended for readers who already know basic deep learning
+https://docs.avitai.bio/artifex/getting-started/hardware-setup-guide/,This guide describes the supported JAX backend model for Artifex.
+https://docs.avitai.bio/artifex/getting-started/installation/,"Artifex supports CPU-first installation by default, with explicit extras for accelerator backends."
+https://docs.avitai.bio/artifex/getting-started/quickstart/,This page mirrors the checked-in executable quickstart in docs/getting-started/quickstart.py and the paired notebook docs/getting-started/quickstart.ipynb. It
+https://docs.avitai.bio/artifex/guides/configuration/,"ARTIFEX - Architectures + Generative + JAX. A production-ready modular generative modeling library built on JAX/Flax, providing implementations of state-of-the-art generative models (VAEs, GANs, Diffusion Models, Flow Models, etc.) with multi-modal support"
+https://docs.avitai.bio/artifex/guides/custom-extensions/,"ARTIFEX - Architectures + Generative + JAX. A production-ready modular generative modeling library built on JAX/Flax, providing implementations of state-of-the-art generative models (VAEs, GANs, Diffusion Models, Flow Models, etc.) with multi-modal support"
+https://docs.avitai.bio/artifex/guides/extensions/,"ARTIFEX - Architectures + Generative + JAX. A production-ready modular generative modeling library built on JAX/Flax, providing implementations of state-of-the-art generative models (VAEs, GANs, Diffusion Models, Flow Models, etc.) with multi-modal support"
+https://docs.avitai.bio/artifex/guides/factory/,"ARTIFEX - Architectures + Generative + JAX. A production-ready modular generative modeling library built on JAX/Flax, providing implementations of state-of-the-art generative models (VAEs, GANs, Diffusion Models, Flow Models, etc.) with multi-modal support"
+https://docs.avitai.bio/artifex/guides/geometric-models/,"ARTIFEX - Architectures + Generative + JAX. A production-ready modular generative modeling library built on JAX/Flax, providing implementations of state-of-the-art generative models (VAEs, GANs, Diffusion Models, Flow Models, etc.) with multi-modal support"
+https://docs.avitai.bio/artifex/guides/modalities/,"ARTIFEX - Architectures + Generative + JAX. A production-ready modular generative modeling library built on JAX/Flax, providing implementations of state-of-the-art generative models (VAEs, GANs, Diffusion Models, Flow Models, etc.) with multi-modal support"
+https://docs.avitai.bio/artifex/guides/point-clouds/,"ARTIFEX - Architectures + Generative + JAX. A production-ready modular generative modeling library built on JAX/Flax, providing implementations of state-of-the-art generative models (VAEs, GANs, Diffusion Models, Flow Models, etc.) with multi-modal support"
+https://docs.avitai.bio/artifex/guides/protein-extensions/,Protein extensions are the current reference implementation of the Artifex extension architecture. They let protein-aware behavior live outside the base model
+https://docs.avitai.bio/artifex/guides/protein-modeling/,"ARTIFEX - Architectures + Generative + JAX. A production-ready modular generative modeling library built on JAX/Flax, providing implementations of state-of-the-art generative models (VAEs, GANs, Diffusion Models, Flow Models, etc.) with multi-modal support"
+https://docs.avitai.bio/artifex/guides/benchmarks/protein-ligand/,"ARTIFEX - Architectures + Generative + JAX. A production-ready modular generative modeling library built on JAX/Flax, providing implementations of state-of-the-art generative models (VAEs, GANs, Diffusion Models, Flow Models, etc.) with multi-modal support"
+https://docs.avitai.bio/artifex/guides/modalities/molecular/,"ARTIFEX - Architectures + Generative + JAX. A production-ready modular generative modeling library built on JAX/Flax, providing implementations of state-of-the-art generative models (VAEs, GANs, Diffusion Models, Flow Models, etc.) with multi-modal support"
+https://docs.avitai.bio/artifex/inference/,Status: Supported runtime inference surface
+https://docs.avitai.bio/artifex/inference/adapter/,Status: Coming soon
+https://docs.avitai.bio/artifex/inference/ancestral/,Status: Coming soon
+https://docs.avitai.bio/artifex/inference/autoregressive_generator/,Status: Coming soon
+https://docs.avitai.bio/artifex/inference/base/,Status: Coming soon
+https://docs.avitai.bio/artifex/inference/beam_search/,Status: Coming soon
+https://docs.avitai.bio/artifex/inference/caching/,Status: Coming soon
+https://docs.avitai.bio/artifex/inference/classifier_free/,Status: Coming soon
+https://docs.avitai.bio/artifex/inference/compilation/,Status: Coming soon
+https://docs.avitai.bio/artifex/inference/diffusion_generator/,Status: Coming soon
+https://docs.avitai.bio/artifex/inference/distillation/,Status: Coming soon
+https://docs.avitai.bio/artifex/inference/dynamic/,Status: Coming soon
+https://docs.avitai.bio/artifex/inference/energy_generator/,Status: Coming soon
+https://docs.avitai.bio/artifex/inference/flow_generator/,Status: Coming soon
+https://docs.avitai.bio/artifex/inference/gan_generator/,Status: Coming soon
+https://docs.avitai.bio/artifex/inference/grpc/,Status: Coming soon
+https://docs.avitai.bio/artifex/inference/latency/,Status: Coming soon
+https://docs.avitai.bio/artifex/inference/lora/,Status: Coming soon
+https://docs.avitai.bio/artifex/inference/memory/,Status: Coming soon
+https://docs.avitai.bio/artifex/inference/middleware/,Status: Coming soon
+https://docs.avitai.bio/artifex/inference/nucleus/,Status: Coming soon
+https://docs.avitai.bio/artifex/inference/onnx/,Status: Coming soon
+https://docs.avitai.bio/artifex/inference/padding/,Status: Coming soon
+https://docs.avitai.bio/artifex/inference/pipeline/,Status: Coming soon
+https://docs.avitai.bio/artifex/inference/prefix_tuning/,Status: Coming soon
+https://docs.avitai.bio/artifex/inference/production/,Status: Supported runtime inference surface Module: artifex.generative_models.inference.optimization.production Source:
+https://docs.avitai.bio/artifex/inference/prompt_tuning/,Status: Coming soon
+https://docs.avitai.bio/artifex/inference/pruning/,Status: Coming soon
+https://docs.avitai.bio/artifex/inference/quantization/,Status: Coming soon
+https://docs.avitai.bio/artifex/inference/rest/,Status: Coming soon
+https://docs.avitai.bio/artifex/inference/stateless/,Status: Coming soon
+https://docs.avitai.bio/artifex/inference/streaming/,Status: Coming soon
+https://docs.avitai.bio/artifex/inference/temperature/,Status: Coming soon
+https://docs.avitai.bio/artifex/inference/tensorrt/,Status: Coming soon
+https://docs.avitai.bio/artifex/inference/tfjs/,Status: Coming soon
+https://docs.avitai.bio/artifex/inference/throughput/,Status: Coming soon
+https://docs.avitai.bio/artifex/inference/top_k/,Status: Coming soon
+https://docs.avitai.bio/artifex/inference/vae_generator/,Status: Coming soon
+https://docs.avitai.bio/artifex/modalities/,The live Artifex modality registry currently exposes three runtime-backed modalities:
+https://docs.avitai.bio/artifex/modalities/adapters/,Status: Supported family-scoped modality owner
+https://docs.avitai.bio/artifex/modalities/base/,Status: Supported family-scoped modality owner
+https://docs.avitai.bio/artifex/modalities/config/,Status: Supported family-scoped modality owner
+https://docs.avitai.bio/artifex/modalities/datasets/,Status: Supported family-scoped modality owner
+https://docs.avitai.bio/artifex/modalities/evaluation/,Status: Supported family-scoped modality owner
+https://docs.avitai.bio/artifex/modalities/losses/,Status: Supported family-scoped modality owner
+https://docs.avitai.bio/artifex/modalities/modality/,Status: Supported family-scoped modality owner
+https://docs.avitai.bio/artifex/modalities/registry/,Status: Supported modality registry owner
+https://docs.avitai.bio/artifex/modalities/representations/,Status: Supported family-scoped modality owner
+https://docs.avitai.bio/artifex/modalities/utils/,Status: Supported family-scoped modality owner
+https://docs.avitai.bio/artifex/models/,This catalog tracks the live runtime surface shipped under artifex.generative_models.models. It does not treat deleted stubs or roadmap-only standalone pages as
+https://docs.avitai.bio/artifex/models/base/,Module: generative_models.models.vae.base
+https://docs.avitai.bio/artifex/models/beta_vae/,Module: generative_models.models.vae.beta_vae
+https://docs.avitai.bio/artifex/models/conditional/,Module: generative_models.models.vae.conditional
+https://docs.avitai.bio/artifex/models/conditioning/,Status: Coming soon
+https://docs.avitai.bio/artifex/models/cyclegan/,Module: artifex.generative_models.models.gan.cyclegan
+https://docs.avitai.bio/artifex/models/dcgan/,Module: generative_models.models.gan.dcgan
+https://docs.avitai.bio/artifex/models/ddim/,Module: generative_models.models.diffusion.ddim
+https://docs.avitai.bio/artifex/models/ddpm/,Module: generative_models.models.diffusion.ddpm
+https://docs.avitai.bio/artifex/models/decoders/,Module: generative_models.models.vae.decoders
+https://docs.avitai.bio/artifex/models/diffusion/,Module: generative_models.models.audio.diffusion
+https://docs.avitai.bio/artifex/models/dit/,Supported owner: artifex.generative_models.models.diffusion.dit
+https://docs.avitai.bio/artifex/models/ebm/,Module: generative_models.models.energy.ebm
+https://docs.avitai.bio/artifex/models/encoders/,Module: generative_models.models.vae.encoders
+https://docs.avitai.bio/artifex/models/glow/,Module: generative_models.models.flow.glow
+https://docs.avitai.bio/artifex/models/graph/,Module: generative_models.models.geometric.graph
+https://docs.avitai.bio/artifex/models/guidance/,Supported owner: artifex.generative_models.models.diffusion.guidance
+https://docs.avitai.bio/artifex/models/iaf/,Module: generative_models.models.flow.iaf
+https://docs.avitai.bio/artifex/models/latent/,Module: generative_models.models.diffusion.latent
+https://docs.avitai.bio/artifex/models/lsgan/,Module: generative_models.models.gan.lsgan
+https://docs.avitai.bio/artifex/models/made/,Module: generative_models.models.flow.made
+https://docs.avitai.bio/artifex/models/maf/,Module: generative_models.models.flow.maf
+https://docs.avitai.bio/artifex/models/mcmc/,Module: generative_models.models.energy.mcmc
+https://docs.avitai.bio/artifex/models/mesh/,Module: generative_models.models.geometric.mesh
+https://docs.avitai.bio/artifex/models/neural_spline/,Module: generative_models.models.flow.neural_spline
+https://docs.avitai.bio/artifex/models/patchgan/,Module: generative_models.models.gan.patchgan
+https://docs.avitai.bio/artifex/models/pixel_cnn/,Module: generative_models.models.autoregressive.pixel_cnn
+https://docs.avitai.bio/artifex/models/point_cloud/,Module: generative_models.models.geometric.point_cloud
+https://docs.avitai.bio/artifex/models/protein_graph/,Module: generative_models.models.geometric.protein_graph
+https://docs.avitai.bio/artifex/models/protein_point_cloud/,Module: generative_models.models.geometric.protein_point_cloud
+https://docs.avitai.bio/artifex/models/real_nvp/,Module: generative_models.models.flow.real_nvp
+https://docs.avitai.bio/artifex/models/score/,Module: generative_models.models.diffusion.score
+https://docs.avitai.bio/artifex/models/se3_molecular/,Module: generative_models.models.flow.se3_molecular
+https://docs.avitai.bio/artifex/models/stable_diffusion/,Supported owner: artifex.generative_models.models.diffusion.stable_diffusion
+https://docs.avitai.bio/artifex/models/stylegan/,Status: Coming soon
+https://docs.avitai.bio/artifex/models/stylegan3/,Module: generative_models.models.gan.stylegan3
+https://docs.avitai.bio/artifex/models/transformer/,Module: generative_models.models.autoregressive.transformer
+https://docs.avitai.bio/artifex/models/unet/,Status: Coming soon
+https://docs.avitai.bio/artifex/models/voxel/,Module: generative_models.models.geometric.voxel
+https://docs.avitai.bio/artifex/models/vq_vae/,Module: generative_models.models.vae.vq_vae
+https://docs.avitai.bio/artifex/models/wavenet/,Module: generative_models.models.autoregressive.wavenet
+https://docs.avitai.bio/artifex/models/wgan/,Supported owner: artifex.generative_models.models.gan.wgan
+https://docs.avitai.bio/artifex/notebooks/,"This published page lives under docs/notebooks/, but the actual notebooks live in the repo-root notebooks/ directory. The docs/notebooks/ directory contains"
+https://docs.avitai.bio/artifex/papers/artifex_arxiv_preprint/,"Authors: Mahdi Shafiei Affiliation: Avitai Bio Email: mahdi@avitai.bio Date: January 26, 2026 Status: Research preprint describing an actively changing codebase"
+https://docs.avitai.bio/artifex/roadmap/planned-examples/,Status: Coming soon
+https://docs.avitai.bio/artifex/roadmap/planned-modules/,"This page is a checked status surface over the current package tree. It is not a freehand completeness matrix, and it intentionally avoids summary totals that"
+https://docs.avitai.bio/artifex/scaling/,"Mesh utilities, sharding strategies, and configuration helpers for multi-device Artifex experiments."
+https://docs.avitai.bio/artifex/scaling/mesh_utils/,Module: generative_models.scaling.mesh_utils
+https://docs.avitai.bio/artifex/scaling/sharding/,Module: generative_models.scaling.sharding
+https://docs.avitai.bio/artifex/theory/molecular-constraints/,"ARTIFEX - Architectures + Generative + JAX. A production-ready modular generative modeling library built on JAX/Flax, providing implementations of state-of-the-art generative models (VAEs, GANs, Diffusion Models, Flow Models, etc.) with multi-modal support"
+https://docs.avitai.bio/artifex/training/,Status: Supported runtime training reference
+https://docs.avitai.bio/artifex/training/adafactor/,Status: Coming soon
+https://docs.avitai.bio/artifex/training/adamw/,Status: Coming soon
+https://docs.avitai.bio/artifex/training/autoregressive_trainer/,Status: Supported runtime training surface
+https://docs.avitai.bio/artifex/training/base/,Status: Supported runtime training surface
+https://docs.avitai.bio/artifex/training/checkpoint/,Status: Supported runtime training surface
+https://docs.avitai.bio/artifex/training/cosine/,Status: Coming soon
+https://docs.avitai.bio/artifex/training/data_parallel/,Status: Supported runtime training surface
+https://docs.avitai.bio/artifex/training/device_placement/,Status: Supported runtime training surface
+https://docs.avitai.bio/artifex/training/diffusion_trainer/,Status: Supported runtime training surface
+https://docs.avitai.bio/artifex/training/distributed_metrics/,Status: Supported runtime training surface
+https://docs.avitai.bio/artifex/training/dpo/,Status: Supported runtime training surface
+https://docs.avitai.bio/artifex/training/early_stopping/,Status: Supported runtime training surface
+https://docs.avitai.bio/artifex/training/energy_trainer/,Status: Supported runtime training surface
+https://docs.avitai.bio/artifex/training/exponential/,Status: Coming soon
+https://docs.avitai.bio/artifex/training/factory/,Status: Supported runtime training surface
+https://docs.avitai.bio/artifex/training/flow_trainer/,Status: Supported runtime training surface
+https://docs.avitai.bio/artifex/training/gan_trainer/,Status: Supported runtime training surface
+https://docs.avitai.bio/artifex/training/gradient_accumulation/,Status: Supported runtime training surface
+https://docs.avitai.bio/artifex/training/grpo/,Status: Supported runtime training surface
+https://docs.avitai.bio/artifex/training/linear/,Status: Coming soon
+https://docs.avitai.bio/artifex/training/lion/,Status: Coming soon
+https://docs.avitai.bio/artifex/training/logging/,Status: Supported runtime training surface
+https://docs.avitai.bio/artifex/training/mesh/,Status: Supported runtime training surface
+https://docs.avitai.bio/artifex/training/mixed_precision/,Status: Coming soon
+https://docs.avitai.bio/artifex/training/model_parallel/,Status: Coming soon
+https://docs.avitai.bio/artifex/training/optax_wrappers/,Status: Coming soon
+https://docs.avitai.bio/artifex/training/ppo/,Status: Supported runtime training surface
+https://docs.avitai.bio/artifex/training/profiling/,Status: Supported runtime training surface
+https://docs.avitai.bio/artifex/training/reinforce/,Status: Supported runtime training surface
+https://docs.avitai.bio/artifex/training/scheduler/,Status: Coming soon
+https://docs.avitai.bio/artifex/training/tracking/,Status: Coming soon
+https://docs.avitai.bio/artifex/training/utils/,Status: Supported runtime training surface
+https://docs.avitai.bio/artifex/training/vae_trainer/,Status: Supported runtime training surface
+https://docs.avitai.bio/artifex/training/visualization/,Status: Coming soon
+https://docs.avitai.bio/artifex/tutorials/protein-modeling/,"ARTIFEX - Architectures + Generative + JAX. A production-ready modular generative modeling library built on JAX/Flax, providing implementations of state-of-the-art generative models (VAEs, GANs, Diffusion Models, Flow Models, etc.) with multi-modal support"
+https://docs.avitai.bio/artifex/user-guide/advanced/architectures/,"Build custom model architectures using Flax NNX in Artifex. This guide covers advanced architectural patterns, custom layers, and integration with"
+https://docs.avitai.bio/artifex/user-guide/advanced/checkpointing/,Checkpointing strategies for saving model state and reducing memory usage during training. Artifex provides both gradient checkpointing (activation
+https://docs.avitai.bio/artifex/user-guide/advanced/distributed/,Distributed training enables training large models across multiple GPUs or nodes by parallelizing computation and distributing data. Artifex provides
+https://docs.avitai.bio/artifex/user-guide/advanced/parallelism/,"Model parallelism techniques for training large models that don't fit on a single device. Artifex supports tensor parallelism, pipeline parallelism, and"
+https://docs.avitai.bio/artifex/user-guide/concepts/autoregressive-01-foundations/,"This chapter establishes the chain-rule factorization, conditional-complexity choices, likelihood objective, ordering assumptions, and masking rules on which"
+https://docs.avitai.bio/artifex/user-guide/concepts/autoregressive-02-architectures/,"This chapter shows how NADE recurrence, MADE masks, recurrent networks, masked convolutions, Transformers, audio models, and multiscale vision architectures"
+https://docs.avitai.bio/artifex/user-guide/concepts/autoregressive-03-training/,"This chapter develops maximum-likelihood training, teacher forcing, loss construction, numerical stability, and optimization practices. For uninterrupted"
+https://docs.avitai.bio/artifex/user-guide/concepts/autoregressive-04-decoding/,"This chapter compares deterministic and stochastic decoding, including temperature, top-k, nucleus sampling, and beam search. For uninterrupted reading, use the"
+https://docs.avitai.bio/artifex/user-guide/concepts/autoregressive-05-connections/,"This chapter relates autoregression to VAEs, GANs, diffusion, flows, and EBMs before examining sparse, recurrent-state, deliberative, multimodal, and"
+https://docs.avitai.bio/artifex/user-guide/concepts/autoregressive-06-practice/,"This chapter connects theory to Artifex usage, density and capability evaluation, throughput, deployment, quantization, and safety. For uninterrupted reading,"
+https://docs.avitai.bio/artifex/user-guide/concepts/autoregressive-07-synthesis/,"This chapter consolidates the family’s principles, architecture and sampler choices, future directions, practical next steps, and primary reading sequence. For"
+https://docs.avitai.bio/artifex/user-guide/concepts/autoregressive-explained/,"An autoregressive probabilistic model chooses an ordering of an object and represents its joint law as normalized conditional distributions, one coordinate or"
+https://docs.avitai.bio/artifex/user-guide/concepts/bayesian-flow-networks-01-story/,"This chapter separates input, output, sender, receiver, update, accuracy, training-flow, and generative-flow objects. For uninterrupted reading, use the"
+https://docs.avitai.bio/artifex/user-guide/concepts/bayesian-flow-networks-02-continuous/,"This chapter derives Gaussian conjugate updates, additive precision, natural parameters, vector beliefs, receiver distributions, and discretized observations."
+https://docs.avitai.bio/artifex/user-guide/concepts/bayesian-flow-networks-03-discrete/,"This chapter develops simplex-valued beliefs, categorical Bayes updates, receiver codelength, discrete/discretized distinctions, and within-step factorization."
+https://docs.avitai.bio/artifex/user-guide/concepts/bayesian-flow-networks-04-algorithms/,"This chapter specifies training, generation, accuracy scheduling, compression interpretation, conditional guidance, and executable invariants. For uninterrupted"
+https://docs.avitai.bio/artifex/user-guide/concepts/bayesian-flow-networks-05-relations/,"This chapter qualifies BFN relationships with diffusion SDEs, variational inference, discrete iterative models, and flow matching. For uninterrupted reading,"
+https://docs.avitai.bio/artifex/user-guide/concepts/bayesian-flow-networks-06-practice/,"This chapter defines evaluation, debugging, failure-mode, evidence-maturity, and research-exercise contracts. For uninterrupted reading, use the complete guide."
+https://docs.avitai.bio/artifex/user-guide/concepts/bayesian-flow-networks-explained/,Bayesian Flow Networks (BFNs) generate data by evolving the parameters of simple input distributions through Bayesian updates. A neural network reads those
+https://docs.avitai.bio/artifex/user-guide/concepts/bayesian-learning-01-object/,"This chapter begins from five Bayesian queries, defines the joint generative object, and works through Beta–Bernoulli updating, prediction, evidence, and"
+https://docs.avitai.bio/artifex/user-guide/concepts/bayesian-learning-02-priors/,"This chapter develops prior roles, conjugacy, exchangeability, hierarchical partial pooling, and centered versus noncentered parameterizations. For"
+https://docs.avitai.bio/artifex/user-guide/concepts/bayesian-learning-03-assessment/,"This chapter separates evidence, posterior prediction, predictive comparison, model criticism, and missing-data mechanisms while keeping their estimands and"
+https://docs.avitai.bio/artifex/user-guide/concepts/bayesian-learning-04-practice/,"This chapter turns Bayesian specification and assessment into a reproducible workflow, then consolidates misconceptions, retrieval questions, synthesis, and"
+https://docs.avitai.bio/artifex/user-guide/concepts/bayesian-learning-and-model-assessment/,"A generative model usually contains quantities that are not observed directly: component probabilities, decoder weights, population effects, noise scales, or"
+https://docs.avitai.bio/artifex/user-guide/concepts/bayesian-nonparametric-models-explained/,A Bayesian nonparametric model places a prior on an object whose dimension is not fixed in advance by one finite parameter vector. Gaussian processes do this
+https://docs.avitai.bio/artifex/user-guide/concepts/bnp-01-random-measures/,"This chapter develops distributions over measures through the Dirichlet process, conjugacy, predictive probabilities, stick breaking, and completely random"
+https://docs.avitai.bio/artifex/user-guide/concepts/bnp-02-partitions-mixtures/,"This chapter connects random measures to exchangeable partitions, mixture models, predictive allocation, Pitman–Yor laws, and the limits of interpreting"
+https://docs.avitai.bio/artifex/user-guide/concepts/bnp-03-feature-allocations/,"This chapter distinguishes one-cluster-per-item partitions from feature and trait allocations, then develops the Indian buffet and beta–Bernoulli process views."
+https://docs.avitai.bio/artifex/user-guide/concepts/bnp-04-hierarchies/,"This chapter develops shared-atom hierarchies, dependent random measures, normalized random-measure variants, and the distinct roles neural networks can play"
+https://docs.avitai.bio/artifex/user-guide/concepts/bnp-05-inference/,"This chapter compares collapsed, slice, truncation, sequential, variational, and amortized algorithms while keeping each finite computation distinct from its"
+https://docs.avitai.bio/artifex/user-guide/concepts/bnp-06-evaluation/,"This chapter makes evaluation query-specific, develops predictive and simulation checks, reviews current dependent and neural compositions, and ends with"
+https://docs.avitai.bio/artifex/user-guide/concepts/causal-generative-01-semantics/,"This chapter distinguishes observation, intervention, exogenous-state abduction, and same-unit counterfactual generation through one exact finite SCM and worked"
+https://docs.avitai.bio/artifex/user-guide/concepts/causal-generative-02-identifiability/,"This chapter applies identification before estimation, returns to the finite SCM for exact effect and counterfactual bounds, and then develops observational"
+https://docs.avitai.bio/artifex/user-guide/concepts/causal-generative-03-families/,"This chapter separates causal semantics from the VAE, flow, GAN, diffusion, and hybrid machinery used to parameterize structural mechanisms. For uninterrupted"
+https://docs.avitai.bio/artifex/user-guide/concepts/causal-generative-04-counterfactuals/,"This chapter covers modular mechanism changes, soft and policy interventions, unit-level counterfactual generation, action-conditioned world models, and high-"
+https://docs.avitai.bio/artifex/user-guide/concepts/causal-generative-05-discovery/,"This chapter connects causal discovery, equivalence classes, Bayesian graph uncertainty, DAG-GFlowNet, latent confounding, and peer-reviewed research. For"
+https://docs.avitai.bio/artifex/user-guide/concepts/causal-generative-06-practice/,"This chapter provides claim-matched metrics, evidence tiers, safety rules, a reporting template, research exercises, and a verified evidence audit. For"
+https://docs.avitai.bio/artifex/user-guide/concepts/causal-generative-models-explained/,A statistical generator answers questions about patterns it was trained to represent. A causal generative model additionally specifies how those patterns arise
+https://docs.avitai.bio/artifex/user-guide/concepts/classical-01-latent-foundations/,"This chapter builds a visual and plate-notation grammar, then develops exponential families, latent-variable semantics, finite mixtures, and EM. For"
+https://docs.avitai.bio/artifex/user-guide/concepts/classical-02-factor-analysis/,"This chapter compares probabilistic PCA, factor analysis, ICA, sparse coding, NMF, and matrix factorization while keeping their identification assumptions and"
+https://docs.avitai.bio/artifex/user-guide/concepts/classical-03-directed-graphs/,"This chapter develops Bayesian networks, HMMs, linear dynamical systems, switching and nonlinear state-space models, structural time series, and the queries"
+https://docs.avitai.bio/artifex/user-guide/concepts/classical-04-undirected-structure/,"This chapter introduces undirected energies and then separates covariance, precision, DAG, latent, score-based, constraint-based, and task-specific dependency"
+https://docs.avitai.bio/artifex/user-guide/concepts/classical-05-sequences-functions/,"This chapter connects topic models, Gaussian processes, exact inference, and a fully worked two-state HMM filter as distinct classical generative objects and"
+https://docs.avitai.bio/artifex/user-guide/concepts/classical-06-practice/,"This chapter completes a Bernoulli-mixture workflow from generation to EM, then consolidates diagnostics, misconceptions, primary reading, retrieval, and cross-"
+https://docs.avitai.bio/artifex/user-guide/concepts/classical-generative-models/,"Modern neural generators did not invent latent variables, sequential factorization, energy functions, approximate inference, or structured conditional"
+https://docs.avitai.bio/artifex/user-guide/concepts/compute-01-training/,"This chapter separates total/active/trainable parameters, data exposure, FLOP conventions, wall time, time-to-quality, and regime-specific compute-optimality."
+https://docs.avitai.bio/artifex/user-guide/concepts/compute-02-systems/,"This chapter covers complete memory ledgers, parallelism, communication, precision, utilization, hardware timing, and rule-defined system benchmarks. Read it"
+https://docs.avitai.bio/artifex/user-guide/concepts/compute-03-inference/,"This chapter defines complete ledgers for AR, diffusion/flow, direct/latent, MCMC/EBM, GFlowNet, search/verifier, and end-to-end generation. Read it"
+https://docs.avitai.bio/artifex/user-guide/concepts/compute-04-controls/,"This chapter identifies experimental estimands and develops matching tables, matched budgets, factorial ablations, hyperparameter fairness, paired randomness,"
+https://docs.avitai.bio/artifex/user-guide/concepts/compute-05-pareto/,"This chapter covers multi-objective Pareto analysis, training/inference amortization, scaling-law boundaries, energy/carbon scopes, rebound, reliability, and"
+https://docs.avitai.bio/artifex/user-guide/concepts/compute-06-frontier/,This chapter audits peer-reviewed efficiency evidence and provides a minimum compute card and end-to-end research exercises. Read it continuously in the
+https://docs.avitai.bio/artifex/user-guide/concepts/compute-and-controlled-comparisons/,"A quality result without a resource boundary is incomplete. Parameters, active parameters, training tokens/examples, optimizer steps, FLOPs, NFEs, candidate"
+https://docs.avitai.bio/artifex/user-guide/concepts/conditioning-steering-and-constraints/,"A generator answers a distributional or constructive question. A controlled generative system adds a second question: which outputs should be preferred,"
+https://docs.avitai.bio/artifex/user-guide/concepts/copula-01-semantics/,"This chapter defines copulas, states Sklar's theorem with its uniqueness boundary, derives density factorization and quantile generation, and treats"
+https://docs.avitai.bio/artifex/user-guide/concepts/copula-02-classical/,"This chapter compares reference, elliptical, Archimedean, and extreme-value copulas through their structural and tail behavior. For uninterrupted reading, use"
+https://docs.avitai.bio/artifex/user-guide/concepts/copula-03-inference/,"This chapter develops full and two-stage likelihood, rank pseudo-likelihood, conditional simulation, Rosenblatt residuals, density-ratio estimation, and"
+https://docs.avitai.bio/artifex/user-guide/concepts/copula-04-vines/,"This chapter derives pair-copula constructions, separates exact decomposition from the simplifying assumption, and analyzes structure selection, truncation,"
+https://docs.avitai.bio/artifex/user-guide/concepts/copula-05-neural/,"This chapter treats rectangle likelihoods and nonuniqueness for discontinuous marginals, then classifies neural constructions by how they establish copula"
+https://docs.avitai.bio/artifex/user-guide/concepts/copula-06-evaluation/,"This chapter separates marginal validity, dependence fit, conditional calibration, observed-scale utility, and computational cost, then reviews current research"
+https://docs.avitai.bio/artifex/user-guide/concepts/copula-models-explained/,A copula model separates two questions that an ordinary joint distribution answers at once:
+https://docs.avitai.bio/artifex/user-guide/concepts/data-governance-and-provenance/,"Generative systems inherit the rights, errors, duplication, private information, synthetic artifacts, and security weaknesses of their data pipeline. Data"
+https://docs.avitai.bio/artifex/user-guide/concepts/density-latent-energy-01-objects/,"This chapter distinguishes normalized densities, conditionals, latent joints, energies, scores, transports, and implicit samples by their tractable queries."
+https://docs.avitai.bio/artifex/user-guide/concepts/density-latent-energy-02-normalized/,"This chapter compares how autoregressive models, invertible flows, and probabilistic circuits build normalization into different structures. Read it in the"
+https://docs.avitai.bio/artifex/user-guide/concepts/density-latent-energy-03-latent/,"This chapter derives observed free energies, variational gaps, Fisher's identity, and the precise hierarchical-latent interpretation of finite diffusion."
+https://docs.avitai.bio/artifex/user-guide/concepts/density-latent-energy-04-score/,"This chapter derives score identities, integrability conditions, score matching, Langevin limitations, and exponential tilting. Read it in the complete guide"
+https://docs.avitai.bio/artifex/user-guide/concepts/density-latent-energy-05-correspondences/,"This chapter labels exact identities, assumption-dependent distributional equivalences, population optima, and hidden conversion costs. Read it in the complete"
+https://docs.avitai.bio/artifex/user-guide/concepts/density-latent-energy-06-composition/,"This chapter covers products, mixtures, tilts, classifier energies, evaluation, exercises, and peer-reviewed energy/score research. Read it in the complete"
+https://docs.avitai.bio/artifex/user-guide/concepts/density-latent-energy-relationships/,"Generative-model families often describe the same distribution through different interfaces: normalized conditionals, an invertible transformation, a latent"
+https://docs.avitai.bio/artifex/user-guide/concepts/diffusion-01-foundations/,"This chapter develops discrete noising chains, the three ELBO term classes, denoising objectives, schedule-induced training measures, conditional and marginal"
+https://docs.avitai.bio/artifex/user-guide/concepts/diffusion-02-architectures/,"This chapter studies U-Nets, DiTs, conditioning, time embeddings, the exact conversion boundaries among prediction targets, EDM preconditioning, and structured-"
+https://docs.avitai.bio/artifex/user-guide/concepts/diffusion-03-training/,"This chapter turns the objectives into training procedures and examines parameterization-dependent weighting, learned reverse variance, Min-SNR, schedule"
+https://docs.avitai.bio/artifex/user-guide/concepts/diffusion-04-sampling/,"This chapter compares stochastic and deterministic samplers, coarse-transition multimodality, solver error, classifier-free guidance, posterior sampling,"
+https://docs.avitai.bio/artifex/user-guide/concepts/diffusion-05-variants/,"This chapter covers latent, cascade, conditional, discrete, language, multimodal, scientific, graph, 3D, and geometric diffusion systems. For uninterrupted"
+https://docs.avitai.bio/artifex/user-guide/concepts/diffusion-06-theory-frontier/,"This chapter connects diffusion to adjacent families, stochastic transport, EDM, flow matching, stochastic interpolants, Schrödinger bridges, distillation, and"
+https://docs.avitai.bio/artifex/user-guide/concepts/diffusion-07-synthesis/,"This chapter covers deployment, efficiency, safety, key takeaways, next steps, and a structured route through foundational and research references. For"
+https://docs.avitai.bio/artifex/user-guide/concepts/diffusion-explained/,A diffusion generative model defines a probability path that corrupts data toward a tractable reference law and learns information needed to simulate a reverse-
+https://docs.avitai.bio/artifex/user-guide/concepts/discrete-iterative-01-masked/,"This chapter separates masked conditional training from MaskGIT-style iterative sampling, then tests conditional compatibility, Gibbs and pseudo-Gibbs"
+https://docs.avitai.bio/artifex/user-guide/concepts/discrete-iterative-02-diffusion/,"This chapter derives D3PM transition matrices, exact terminal/reference mismatch, forward posteriors, reverse parameterizations, ELBO terms, and parallel-"
+https://docs.avitai.bio/artifex/user-guide/concepts/discrete-iterative-03-ctmc/,"This chapter develops generator matrices, reverse rates, discrete density ratios, score entropy, and absorbing-mask processes. It adds global cycle-"
+https://docs.avitai.bio/artifex/user-guide/concepts/discrete-iterative-04-flow/,"This chapter connects Markov generators, discrete flow matching, conditional-to-marginal learning, order-agnostic factorization, superposition, and adaptive"
+https://docs.avitai.bio/artifex/user-guide/concepts/discrete-iterative-05-modalities/,"This chapter treats text, image, video, audio, graph, molecular, and protein representations as complete encoder/tokenizer–prior–sampler–decoder systems. It"
+https://docs.avitai.bio/artifex/user-guide/concepts/discrete-iterative-06-practice/,"This capstone provides typed training and sampler audits, an oracle-to-deployment evaluation ladder, failure interventions, evidence-calibrated research"
+https://docs.avitai.bio/artifex/user-guide/concepts/discrete-iterative-generation-explained/,"Autoregressive models generate discrete objects one position at a time. Discrete iterative models instead begin from a masked, corrupted, or simple reference"
+https://docs.avitai.bio/artifex/user-guide/concepts/ebm-01-foundations/,"This chapter defines energy functions, normalized and unnormalized densities, partition functions, scores, and the geometric intuition behind energy landscapes."
+https://docs.avitai.bio/artifex/user-guide/concepts/ebm-02-training-sampling/,"This chapter derives one objective tree from maximum likelihood through CD and PCD, basic, denoising, and sliced score matching, NCE and negative sampling,"
+https://docs.avitai.bio/artifex/user-guide/concepts/ebm-03-architectures/,"This chapter develops joint energy models and architecture choices for unconditional, conditional, and structured energy functions. For uninterrupted reading,"
+https://docs.avitai.bio/artifex/user-guide/concepts/ebm-04-practice/,"This chapter focuses on stable optimization, sampler behavior, monitoring, failure diagnosis, and the distinction between qualitative energy trends and"
+https://docs.avitai.bio/artifex/user-guide/concepts/ebm-05-relations-frontier/,"This chapter compares EBMs with normalized, implicit, score-based, and flow models and examines energy–score–flow constructions, their assumptions, and"
+https://docs.avitai.bio/artifex/user-guide/concepts/ebm-06-synthesis/,"This chapter covers likelihood estimation, typicality, OOD limits, production constraints, key takeaways, next steps, and the primary reading sequence. For"
+https://docs.avitai.bio/artifex/user-guide/concepts/ebm-explained/,An energy-based probabilistic model assigns a scalar \(E_\theta(x)\) and defines a density or mass function proportional to \(\exp[-E_\theta(x)]\) relative to a
+https://docs.avitai.bio/artifex/user-guide/concepts/evaluation-01-likelihood/,"This chapter defines test NLL, ELBO gaps, bits per dimension, perplexity, tokenizer dependence, typicality, and likelihood-estimator semantics. Read it"
+https://docs.avitai.bio/artifex/user-guide/concepts/evaluation-02-distribution/,"This chapter derives FID, KID/MMD, and CMMD and covers precision/recall, FVD, audio, MAUVE, representation blind spots, and finite-sample behavior. Read it"
+https://docs.avitai.bio/artifex/user-guide/concepts/evaluation-03-conditional/,"This chapter covers alignment, controllability, guidance curves, event/sequence calibration, proper scores, diversity, task utility, and safety. Read it"
+https://docs.avitai.bio/artifex/user-guide/concepts/evaluation-04-human/,"This chapter develops construct validity, blinded pairwise studies, Bradley–Terry models, clustered uncertainty, rater populations, model-judge validation, and"
+https://docs.avitai.bio/artifex/user-guide/concepts/evaluation-05-protocol/,"This chapter covers predeclaration, system boundaries, hierarchical variance, multiple comparisons, metric validation, gaming, contamination, and protocol"
+https://docs.avitai.bio/artifex/user-guide/concepts/evaluation-06-frontier/,"This chapter audits peer-reviewed evaluation evidence, defines research exercises, and corrects common metric misconceptions. Read it continuously in the"
+https://docs.avitai.bio/artifex/user-guide/concepts/extended-generative-model-landscape/,The best-known neural families do not exhaust generative modeling. Copulas isolate dependence from marginals; generative stochastic networks specify a
+https://docs.avitai.bio/artifex/user-guide/concepts/few-step-01-foundations/,"This chapter defines deterministic flow maps, stochastic transition kernels, composition laws, large-step error, and the four incompatible meanings of “one"
+https://docs.avitai.bio/artifex/user-guide/concepts/few-step-02-consistency/,"This chapter compares endpoint consistency, two-time flow maps, semigroup constraints, teacher distillation, self-distillation, and direct map training. Read it"
+https://docs.avitai.bio/artifex/user-guide/concepts/few-step-03-meanflow/,"This chapter derives average velocity, total-derivative training identities, shortcut recursion, guidance boundaries, and direct-training failure modes. Read it"
+https://docs.avitai.bio/artifex/user-guide/concepts/few-step-04-transition/,"This chapter covers expressive stochastic transition heads, Difference Transition Matching, continuous autoregressive factorizations, full-history causality,"
+https://docs.avitai.bio/artifex/user-guide/concepts/few-step-05-distillation/,"This chapter distinguishes progressive, consistency, adversarial, distribution-matching, and inverse distillation by the teacher behavior each preserves. Read"
+https://docs.avitai.bio/artifex/user-guide/concepts/few-step-06-practice/,"This chapter supplies compute-matched reporting, relationship labels, a peer-reviewed evidence set, and research exercises. Read it continuously in the complete"
+https://docs.avitai.bio/artifex/user-guide/concepts/filtering-01-bayes-recursions/,"This chapter derives filtering, smoothing, forecasting, evidence, and path queries from one state-space law. Read it continuously in the complete guide."
+https://docs.avitai.bio/artifex/user-guide/concepts/filtering-02-kalman/,"This chapter derives the Kalman filter, its likelihood contribution, exactness boundary, missing-data semantics, and stable numerical forms. Read it"
+https://docs.avitai.bio/artifex/user-guide/concepts/filtering-03-smoothing/,"This chapter develops RTS smoothing, coherent backward path simulation, information coordinates, learning statistics, and temporal scans. Read it continuously"
+https://docs.avitai.bio/artifex/user-guide/concepts/filtering-04-nonlinear-gaussian/,"This chapter separates local linearization, deterministic integration, moment estimation, and Gaussian representation error. Read it continuously in the"
+https://docs.avitai.bio/artifex/user-guide/concepts/filtering-05-projection-ensemble/,"This chapter derives moment projection and compares mixtures, switching approximations, ensembles, robust updates, and flow roles. Read it continuously in the"
+https://docs.avitai.bio/artifex/user-guide/concepts/filtering-06-practice-research/,This chapter connects non-Gaussian and learned inference to a query-specific validation and method-selection protocol. Read it continuously in the complete
+https://docs.avitai.bio/artifex/user-guide/concepts/filtering-and-smoothing-state-space/,"A state-space generator defines a law over a latent trajectory and its observations. Filtering, smoothing, forecasting, path sampling, and parameter learning"
+https://docs.avitai.bio/artifex/user-guide/concepts/first-course-01-generative-systems/,"This chapter begins with the questions a generator must answer, then separates model, objective, estimator, optimizer, inference, sampling, and evaluation. For"
+https://docs.avitai.bio/artifex/user-guide/concepts/first-course-02-probability/,"This chapter builds joint, marginal, and conditional probability from the four-state tile world and distinguishes mass, density, likelihood, and sampling. For"
+https://docs.avitai.bio/artifex/user-guide/concepts/first-course-03-math-neural-networks/,"This chapter introduces the minimum vectors, matrices, expectations, gradients, and neural output contracts needed to read the family chapters. For"
+https://docs.avitai.bio/artifex/user-guide/concepts/first-course-04-learning-inference-sampling/,"This chapter traces population targets, finite objectives, parameter learning, latent inference, generation, and evaluation as distinct computations. For"
+https://docs.avitai.bio/artifex/user-guide/concepts/first-course-05-six-families/,"This chapter compares AR, VAE, GAN, EBM, diffusion, and flow models against one four-state target so their shared structures and non-equivalences stay visible."
+https://docs.avitai.bio/artifex/user-guide/concepts/first-course-06-code-and-equations/,This chapter turns the tile equations into an auditable standard-library Python generator and teaches a repeatable method for reading mathematical notation. For
+https://docs.avitai.bio/artifex/user-guide/concepts/first-course-07-diagnostic/,"This chapter tests explanation, calculation, family comparison, and executable reasoning, then routes each specific gap into the complete book. For"
+https://docs.avitai.bio/artifex/user-guide/concepts/flow-01-foundations/,"This chapter establishes map direction, the change-of-variables theorem, Jacobian signs, support, topology, likelihood, and the distinction between classical"
+https://docs.avitai.bio/artifex/user-guide/concepts/flow-02-architectures/,"This chapter begins with affine, monotone-scalar, and residual design primitives, then studies NICE, RealNVP, Glow, MAF, IAF, splines, residual flows, and"
+https://docs.avitai.bio/artifex/user-guide/concepts/flow-03-training/,"This chapter separates normalized models, conditional and joint densities, variational posteriors, simulator-trained likelihoods and posteriors, direct"
+https://docs.avitai.bio/artifex/user-guide/concepts/flow-04-continuous/,"This chapter develops CNFs, Neural ODEs, divergence estimation, adjoints, conditional flow matching, OT couplings, rectified flow, stochastic interpolants, and"
+https://docs.avitai.bio/artifex/user-guide/concepts/flow-05-practice/,"This chapter compares flow families, provides implementation guidance, and examines metrics, numerical behavior, sampling cost, and production constraints. For"
+https://docs.avitai.bio/artifex/user-guide/concepts/flow-06-synthesis/,"This chapter consolidates the classical and continuous-time perspectives, routes readers to next steps, and organizes foundational and research references. For"
+https://docs.avitai.bio/artifex/user-guide/concepts/flow-explained/,"Classical, continuous, and matching flows construct transport differently; this volume separates their density, likelihood, and numerical contracts."
+https://docs.avitai.bio/artifex/user-guide/concepts/gan-01-foundations/,"This chapter begins with the implicit generator as a pushforward law, then derives sample-comparison requirements, proper-scoring density ratios, variational"
+https://docs.avitai.bio/artifex/user-guide/concepts/gan-02-architectures/,"This chapter connects generator and critic design, raw-score and probability semantics, and objective-compatible outputs to the geometry of the game and the"
+https://docs.avitai.bio/artifex/user-guide/concepts/gan-03-training/,"This chapter studies support mismatch, mode collapse, continuous and discretized game dynamics, discrete-output gradient estimators, Wasserstein objectives,"
+https://docs.avitai.bio/artifex/user-guide/concepts/gan-04-representations/,"This chapter covers latent geometry, inversion and editing, evaluation metrics, training practice, and careful comparisons with neighboring model families. For"
+https://docs.avitai.bio/artifex/user-guide/concepts/gan-05-frontier/,"This chapter places pure GAN objectives beside adversarial diffusion distillation and other hybrid objectives, then examines deployment limits and research"
+https://docs.avitai.bio/artifex/user-guide/concepts/gan-06-synthesis/,"This chapter consolidates the theory, diagnostics, family-selection guidance, implementation routes, and primary reading sequence. For uninterrupted reading,"
+https://docs.avitai.bio/artifex/user-guide/concepts/gan-explained/,"GANs learn an implicit generator through a discriminator or critic; this volume separates the population objective, finite game dynamics, and deployed sampler."
+https://docs.avitai.bio/artifex/user-guide/concepts/general-markov-01-operators/,"This chapter develops transition semigroups, infinitesimal generators, adjoint forward equations, domains, boundary conditions, and martingale"
+https://docs.avitai.bio/artifex/user-guide/concepts/general-markov-02-families/,"This chapter derives deterministic, diffusion, jump, jump-diffusion, and piecewise-deterministic generators on continuous and discrete state spaces. Read it"
+https://docs.avitai.bio/artifex/user-guide/concepts/general-markov-03-matching/,"This chapter derives the conditional-to-marginal operator formula, Markovian projection, Bregman training identity, constrained coefficients, and endpoint"
+https://docs.avitai.bio/artifex/user-guide/concepts/general-markov-04-superposition/,"This chapter distinguishes valid generator sums, same-path convex combinations, product-state coupling, mixtures, and operator splitting. Read it continuously"
+https://docs.avitai.bio/artifex/user-guide/concepts/general-markov-05-simulation/,"This chapter covers diffusion and CTMC reversal, exact and approximate event simulation, ODE/SDE solvers, splitting, stability, and error decomposition. Read it"
+https://docs.avitai.bio/artifex/user-guide/concepts/general-markov-06-practice/,"This chapter provides the operator comparison, evidence audit, evaluation contract, primary reference trail, and research exercises. Read it continuously in the"
+https://docs.avitai.bio/artifex/user-guide/concepts/general-markov-generators/,"An infinitesimal generator describes how the expectation of every suitable test function changes under a continuous-time Markov process. Deterministic flows,"
+https://docs.avitai.bio/artifex/user-guide/concepts/generative-model-evaluation/,Generative evaluation asks several questions at once: Does the model assign probability correctly? Are samples faithful and diverse? Does conditioning work? Are
+https://docs.avitai.bio/artifex/user-guide/concepts/generative-modeling-first-course/,"A beginner on-ramp from generative questions and finite probability through learning, inference, sampling, six model families, executable Python, and a next-route diagnostic."
+https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-notation/,Generative-model papers often reuse the same symbol for different objects or reverse the direction of a map without warning. This chapter fixes the conventions
+https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/,"A query-first map of generative models that classifies probability semantics, training information, supported operations, and evidence-bounded connections."
+https://docs.avitai.bio/artifex/user-guide/concepts/geometric-01-symmetry/,"This chapter defines group actions, invariant distributions, equivariant scores and dynamics, reflection/chirality distinctions, and augmentation versus exact"
+https://docs.avitai.bio/artifex/user-guide/concepts/geometric-02-structures/,"This chapter covers sets, graphs, point clouds, meshes, variable cardinality, E(n)-equivariant networks, tensor features, and center-of-mass measures. Read it"
+https://docs.avitai.bio/artifex/user-guide/concepts/geometric-03-manifolds/,"This chapter develops Riemannian scores, tangent dynamics, exponential/log maps, SO(3), SE(3), quotient spaces, gauge equivariance, and parallel transport. Read"
+https://docs.avitai.bio/artifex/user-guide/concepts/geometric-04-families/,"This chapter compares equivariant diffusion, normalizing and matching flows, autoregression, EBMs, and mixed coordinate/topology generators. Read it"
+https://docs.avitai.bio/artifex/user-guide/concepts/geometric-05-constraints/,"This chapter separates group symmetry from stereochemistry, topology, embeddability, conservation, periodicity, gauge structure, and scientific validity. Read"
+https://docs.avitai.bio/artifex/user-guide/concepts/geometric-06-practice/,"This chapter gives symmetry, geometry, topology, validity, quality, and compute metrics plus six peer-reviewed research records. Read it continuously in the"
+https://docs.avitai.bio/artifex/user-guide/concepts/geometric-equivariant-generative-modeling/,Geometric data is not an ordinary vector with unusual formatting. Sets have no canonical order; molecular coordinates are unchanged in meaning by global
+https://docs.avitai.bio/artifex/user-guide/concepts/gflownets-01-foundations/,"This chapter derives state, edge, trajectory, and terminal flow and reward-proportional sampling on constructive DAGs. For uninterrupted reading, use the"
+https://docs.avitai.bio/artifex/user-guide/concepts/gflownets-02-local-balance/,"This chapter develops node conservation, edge detailed balance, reward boundary conditions, and local credit propagation. For uninterrupted reading, use the"
+https://docs.avitai.bio/artifex/user-guide/concepts/gflownets-03-trajectory-balance/,"This chapter derives trajectory balance, backward path allocation, SubTB, zero-reward handling, and off-policy coverage. For uninterrupted reading, use the"
+https://docs.avitai.bio/artifex/user-guide/concepts/gflownets-04-inference/,"This chapter develops learned normalizers, conditional GFlowNets, Bayesian posteriors, partial-object marginals, entropy, and comparisons with MCMC and VI. For"
+https://docs.avitai.bio/artifex/user-guide/concepts/gflownets-05-relations/,"This chapter distinguishes GFlowNets from RL, EBMs, normalizing flows, autoregressive models, and diffusion while labeling valid correspondences. For"
+https://docs.avitai.bio/artifex/user-guide/concepts/gflownets-06-practice/,"This chapter covers exploration, proportionality evaluation, the five-component design-and-evidence loop, invariants, scientific applications, failure modes,"
+https://docs.avitai.bio/artifex/user-guide/concepts/gflownets-explained/,Generative Flow Networks (GFlowNets) learn a stochastic constructive policy whose terminal objects are sampled with probability proportional to a nonnegative
+https://docs.avitai.bio/artifex/user-guide/concepts/governance-01-lineage/,"This chapter treats datasets as versioned transformations with record-level sources, rights, consent, hashes, derived/synthetic lineage, documentation, and"
+https://docs.avitai.bio/artifex/user-guide/concepts/governance-02-contamination/,"This chapter covers exact/near/semantic overlap, entity/time leakage, benchmark and evaluator contamination, objective reweighting, split construction, and"
+https://docs.avitai.bio/artifex/user-guide/concepts/governance-03-privacy/,"This chapter defines memorization and privacy attacks, threat models, differential privacy and DP-SGD, adjacency units, formal/empirical evidence, and layered"
+https://docs.avitai.bio/artifex/user-guide/concepts/governance-04-provenance/,"This chapter separates provenance from detection and covers C2PA 2.4, signatures, hard/soft bindings, watermark threat models, and generated-media lineage. Read"
+https://docs.avitai.bio/artifex/user-guide/concepts/governance-05-rights/,"This chapter separates rights by action, distinguishes public/open/permissive data, points to current official EU/U.S. materials, and defines release governance"
+https://docs.avitai.bio/artifex/user-guide/concepts/governance-06-practice/,"This chapter covers removal guarantees, unlearning evaluation, audit schedules, incident response, peer-reviewed evidence, and research exercises. Read it"
+https://docs.avitai.bio/artifex/user-guide/concepts/gradients-01-taxonomy/,"This chapter classifies parameter, Monte Carlo, state, natural, game, implicit, functional, and search gradients through one typed contract. Read it in the"
+https://docs.avitai.bio/artifex/user-guide/concepts/gradients-02-natural-geometry/,This chapter constructs Fisher--Rao geometry from tangent scores and states the exact boundary of natural-gradient invariance. Read it in the complete guide for
+https://docs.avitai.bio/artifex/user-guide/concepts/gradients-03-variational/,"This chapter develops dual natural and mean coordinates, moment motion, conjugate SVI, and the geometry of amortized variational families. Read it in the"
+https://docs.avitai.bio/artifex/user-guide/concepts/gradients-04-estimators/,"This chapter treats exact marginalization, score-function and pathwise estimators, control variates, discrete relaxations, multi-sample bounds, and stochastic"
+https://docs.avitai.bio/artifex/user-guide/concepts/gradients-05-computation/,"This chapter turns an exact natural vector into matrix-free Fisher products, damped solves, structured approximations, and auditable diagnostics. Read it in the"
+https://docs.avitai.bio/artifex/user-guide/concepts/gradients-06-model-applications/,"This chapter locates parameter gradients, state scores, the Fisher, and their required expectations in autoregressive models, flows, VAEs, EBMs, and tractable"
+https://docs.avitai.bio/artifex/user-guide/concepts/gradients-07-implicit-games/,"This chapter handles singular pushforwards, adversarial game fields, bilevel derivatives, transport pullbacks, and the distinct time-indexed laws in diffusion"
+https://docs.avitai.bio/artifex/user-guide/concepts/gradients-08-processes/,"This chapter differentiates through ODEs, SDEs, MCMC, SMC, trajectory rewards, score teachers, and nonsmooth constraints while keeping the finite derivative"
+https://docs.avitai.bio/artifex/user-guide/concepts/gradients-09-functional/,"This chapter develops first variations, Wasserstein gradient flows, state scores and guidance, pathwise transport velocities, SVGD, and sample-manifold"
+https://docs.avitai.bio/artifex/user-guide/concepts/gradients-10-practice/,"This chapter develops natural evolution strategies, a family-by-family gradient selection procedure, controlled comparisons, and an evidence map. Read it in the"
+https://docs.avitai.bio/artifex/user-guide/concepts/gradients-and-geometry-in-generative-modeling/,Generative modeling uses the word gradient for several mathematical objects. A parameter gradient trains a neural likelihood. A score is a derivative with
+https://docs.avitai.bio/artifex/user-guide/concepts/grammar-01-semantics/,"This chapter defines probability laws over derivation trees, derives yield marginalization, and explains ambiguity, recursive consistency, and weighted-grammar"
+https://docs.avitai.bio/artifex/user-guide/concepts/grammar-02-inference/,"This chapter derives inside and outside probabilities, semiring queries, posterior sampling, length conditioning, product constraints, and chart-to-circuit"
+https://docs.avitai.bio/artifex/user-guide/concepts/grammar-03-learning/,"This chapter develops supervised rule estimation, inside–outside EM, neural and compound PCFGs, low-rank parameterization, and grammar-induction"
+https://docs.avitai.bio/artifex/user-guide/concepts/grammar-04-programs/,"This chapter maps grammar-derived syntax trees through execution, separates syntax from behavior, and treats Bayesian program learning, neural-guided search,"
+https://docs.avitai.bio/artifex/user-guide/concepts/grammar-05-hybrids/,"This chapter connects grammar laws to VAEs, autoregressive and diffusion constraints, chart circuits, program search, and GFlowNets while keeping support"
+https://docs.avitai.bio/artifex/user-guide/concepts/grammar-06-evaluation/,"This chapter separates yield likelihood, structural recovery, syntax, types, execution, behavioral diversity, termination, compute, and evidence maturity. For"
+https://docs.avitai.bio/artifex/user-guide/concepts/graphical-inference-and-message-passing/,"A factorized generative model describes a global law through local functions. Graphical Models and Structured Probability establishes the directed, undirected,"
+https://docs.avitai.bio/artifex/user-guide/concepts/graphical-models-01-directed/,"This chapter turns a DAG and normalized local kernels into a joint distribution, an ancestral sampler, Markov statements, and a plate-based repeated model. Read"
+https://docs.avitai.bio/artifex/user-guide/concepts/graphical-models-02-separation/,"This chapter develops d-separation, explaining away, selection, Markov blankets, faithfulness, Markov equivalence, and the boundary between statistical and"
+https://docs.avitai.bio/artifex/user-guide/concepts/graphical-models-03-undirected/,"This chapter constructs MRFs from potentials, states the Hammersley–Clifford positivity boundary, derives local conditionals, and connects energies to Gaussian"
+https://docs.avitai.bio/artifex/user-guide/concepts/graphical-models-04-learning/,"This chapter separates modular DAG learning, latent marginalization, MRF likelihood, pseudolikelihood, CRFs, and local versus global normalization. Read it"
+https://docs.avitai.bio/artifex/user-guide/concepts/graphical-models-05-representations/,"This chapter distinguishes factor refactoring, moralization, chordal conversions, chain-graph conventions, ADMG latent projection, and specialized graphical"
+https://docs.avitai.bio/artifex/user-guide/concepts/graphical-models-06-workflow/,"This chapter combines probability law, graph semantics, estimator, inference, sampling, validation, and causal boundaries into one executable model contract."
+https://docs.avitai.bio/artifex/user-guide/concepts/graphical-models-and-structured-probability/,A graphical model is a probability model whose structure is exposed through a graph. The graph can make a large joint law intelligible: it shows which local
+https://docs.avitai.bio/artifex/user-guide/concepts/implicit-generators-01-foundations/,"This chapter defines implicit distributions, likelihood-free learning, simulator settings, manifold support, gradient-access interfaces, latent non-"
+https://docs.avitai.bio/artifex/user-guide/concepts/implicit-generators-02-mmd/,"This chapter derives maximum mean discrepancy, its optimal witness and topology, quadratic and linear empirical estimators, point-mass gradients, adaptive-"
+https://docs.avitai.bio/artifex/user-guide/concepts/implicit-generators-03-kernels/,"This chapter examines bandwidth, high-dimensional features, random features, statistical power, degenerate-null calibration, conditional MMD, rare modes, and a"
+https://docs.avitai.bio/artifex/user-guide/concepts/implicit-generators-04-imle/,"This chapter derives implicit maximum likelihood estimation, its hard and soft assignment gradients, pool-occupancy mass diagnostics, likelihood boundary,"
+https://docs.avitai.bio/artifex/user-guide/concepts/implicit-generators-05-sliced/,"This chapter develops sliced-Wasserstein gradients, average, max, and generalized projections, finite feature moments, energy–MMD equivalence, Sinkhorn bridges,"
+https://docs.avitai.bio/artifex/user-guide/concepts/implicit-generators-06-practice/,"This chapter compares complete objectives and systems, specifies KID/MMD and independent-witness evaluation contracts, routes methods from failure models, and"
+https://docs.avitai.bio/artifex/user-guide/concepts/implicit-generators-explained/,An implicit generator defines a distribution by a sampling program
+https://docs.avitai.bio/artifex/user-guide/concepts/inference-01-objects-and-queries/,"This chapter separates targets, queries, returned representations, guarantees, and validation protocols before comparing exact conditioning, MAP, grid"
+https://docs.avitai.bio/artifex/user-guide/concepts/inference-02-variational/,"This chapter derives the ELBO and CAVI, builds the VMP–SVI–BBVI–ADVI automation ladder, compares posterior families, and separates model mismatch, variational"
+https://docs.avitai.bio/artifex/user-guide/concepts/inference-03-estimators/,"This chapter derives the inference-facing BBVI and ADVI estimators, then compares pathwise, score-function, enumerated, Rao–Blackwellized, relaxed, biased, and"
+https://docs.avitai.bio/artifex/user-guide/concepts/inference-04-weighted-sequential/,"This chapter develops importance sampling, IWAE and its parameter-block gradients, wake–sleep, SMC, AIS, and their support, weight, objective, resampling, and"
+https://docs.avitai.bio/artifex/user-guide/concepts/inference-05-amortized-simulation/,"This chapter connects posterior collapse, probabilistic programs, amortized and semi-amortized refinement, and simulator-based posterior learning while"
+https://docs.avitai.bio/artifex/user-guide/concepts/inference-06-validation/,"This chapter compares returned objects on shared finite targets, then builds a validation ladder from exact oracles through reference targets, SBC, posterior"
+https://docs.avitai.bio/artifex/user-guide/concepts/information-coding-01-measures/,"This chapter develops surprise, entropy, cross-entropy, KL divergence, continuous reference-measure boundaries, and typicality. Read it continuously in the"
+https://docs.avitai.bio/artifex/user-guide/concepts/information-coding-02-dependence/,"This chapter develops mutual information, conditional dependence, data processing, sufficiency, multivariate dependence, and neural estimation limits. Read it"
+https://docs.avitai.bio/artifex/user-guide/concepts/information-coding-03-lossless/,"This chapter turns normalized source probabilities into prefix, arithmetic, range, and ANS codes, then audits NLL, perplexity, BPD, and real bitstream overhead."
+https://docs.avitai.bio/artifex/user-guide/concepts/information-coding-04-lossy/,"This chapter develops operational rate–distortion, learned entropy models, VAE rate decomposition, bits back, and the fidelity boundary of generative"
+https://docs.avitai.bio/artifex/user-guide/concepts/information-coding-05-channels/,"This chapter separates source coding from channel coding, derives capacity and Bayesian decoding, and scopes the connection to generative denoising. Read it"
+https://docs.avitai.bio/artifex/user-guide/concepts/information-coding-06-bottlenecks/,"This chapter separates exact and variational information bottlenecks, MDL, Bayesian evidence, algorithmic information, and operational research claims. Read it"
+https://docs.avitai.bio/artifex/user-guide/concepts/information-coding-and-generative-modeling/,Information theory gives generative modeling a precise language for four different questions. How uncertain is a source? How much dependence is shared by two
+https://docs.avitai.bio/artifex/user-guide/concepts/landscape-01-copulas/,"This chapter develops Sklar factorization, density and sampling formulas, tail dependence, vines, discrete non-uniqueness, and diffusion/flow copulas. Read it"
+https://docs.avitai.bio/artifex/user-guide/concepts/landscape-02-gsn/,"This chapter treats learned transition operators, stationary laws, denoising/score connections, ergodicity, mixing, clamped conditionals, and modern placement."
+https://docs.avitai.bio/artifex/user-guide/concepts/landscape-03-ppl/,"This chapter defines execution traces, conditioning, model–inference composition, dynamic control flow, inference compilation, likelihood-free simulation, and"
+https://docs.avitai.bio/artifex/user-guide/concepts/landscape-04-tensors/,"This chapter develops MPS factorizations, nonnegative and Born constructions, contractions, bond dimension, ordering, exact queries, and evidence maturity. Read"
+https://docs.avitai.bio/artifex/user-guide/concepts/landscape-05-quantum/,"This chapter covers QCBMs, quantum GANs, training objectives, finite-shot and hardware errors, data loading, output costs, and the evidence required for"
+https://docs.avitai.bio/artifex/user-guide/concepts/landscape-06-constructive/,"This chapter covers probabilistic grammars, executable program distributions, neural cellular automata, randomness, local/global constraints, routing decisions,"
+https://docs.avitai.bio/artifex/user-guide/concepts/landscape-07-bnp/,"This chapter develops random measures, Dirichlet processes and mixtures, stick breaking, exchangeable partitions, feature allocations, posterior computation,"
+https://docs.avitai.bio/artifex/user-guide/concepts/landscape-08-point-processes/,"This chapter treats random counting measures, Poisson and history-dependent intensities, Cox processes, determinantal point processes, correct likelihoods,"
+https://docs.avitai.bio/artifex/user-guide/concepts/landscape-09-random-graphs/,"This chapter develops graph-valued probability laws, stochastic block models, labeled and unlabeled likelihoods, exchangeability, graphons, sparse models, deep"
+https://docs.avitai.bio/artifex/user-guide/concepts/latent-variables-and-inference/,Latent variables express unobserved structure but create difficult integrals and posteriors; this volume develops the shared inference toolkit for generative models.
+https://docs.avitai.bio/artifex/user-guide/concepts/likelihood-and-normalizer-estimation/,"A generative model can have a tractable joint density while hiding the quantity a reader actually wants behind a sum, integral, or partition function. In a"
+https://docs.avitai.bio/artifex/user-guide/concepts/message-passing-01-factor-graphs/,"This chapter turns a product of local factors into a declared inference query, distinguishes five graph representations, and establishes an exact finite"
+https://docs.avitai.bio/artifex/user-guide/concepts/message-passing-02-elimination/,"This chapter derives variable elimination from distributivity and makes its cost explicit through intermediate scope, fill-in, induced width, cardinality, time,"
+https://docs.avitai.bio/artifex/user-guide/concepts/message-passing-03-sum-product/,"This chapter derives both factor-graph message rules, solves the running model in two passes, and separates marginals, max-marginals, MPE, marginal MAP,"
+https://docs.avitai.bio/artifex/user-guide/concepts/message-passing-04-junction-trees/,"This chapter restores exact tree computation by clustering variables, derives separator messages, and connects reusable calibration to arithmetic and"
+https://docs.avitai.bio/artifex/user-guide/concepts/message-passing-05-loopy/,"This chapter separates convergence, local consistency, and accuracy; gives a converged-but-wrong finite example; derives Gaussian information-form messages and"
+https://docs.avitai.bio/artifex/user-guide/concepts/message-passing-06-compilation-learning/,"This chapter derives marginals as log-normalizer derivatives and separates cached exact algebra, randomized optimization, exact and approximate perturb-and-MAP"
+https://docs.avitai.bio/artifex/user-guide/concepts/new-families-frontier-evidence/,This ledger records the primary-source research audit behind the family curriculum. It is not a leaderboard. Its purpose is to distinguish mature foundations
+https://docs.avitai.bio/artifex/user-guide/concepts/normalization-01-queries/,"This chapter separates latent marginal likelihood, Bayesian evidence, EBM partition functions, and conditional normalizers before deriving a finite exact"
+https://docs.avitai.bio/artifex/user-guide/concepts/normalization-02-importance/,"This chapter derives ordinary and self-normalized importance sampling, proposal-support conditions, variance, ESS, Pareto-tail diagnostics, and importance-"
+https://docs.avitai.bio/artifex/user-guide/concepts/normalization-03-annealing/,"This chapter derives annealed importance sampling and sequential Monte Carlo as path-space normalizer-ratio estimators, with explicit direction, kernels,"
+https://docs.avitai.bio/artifex/user-guide/concepts/normalization-04-bridges/,"This chapter compares bridge sampling, thermodynamic integration, nested sampling, posterior-ordinate identities, harmonic-mean failure, and bidirectional"
+https://docs.avitai.bio/artifex/user-guide/concepts/normalization-05-diagnostics/,"This chapter separates model, target, Monte Carlo, transition, numerical, and dataset errors, then develops estimator-specific diagnostics and a tractable"
+https://docs.avitai.bio/artifex/user-guide/concepts/normalization-06-reporting/,"This chapter turns estimator assumptions, diagnostics, uncertainty, current research, and family-specific consequences into a publication-ready reporting"
+https://docs.avitai.bio/artifex/user-guide/concepts/objectives-01-discrepancies/,"This chapter asks what information reaches the optimizer, then compares KL orientations, variational f-divergences, density-ratio estimation, integral"
+https://docs.avitai.bio/artifex/user-guide/concepts/objectives-02-support-score-ratios/,"This chapter compares three support-mismatch remedies, score matching, noise-contrastive estimation, and conditional regression without conflating their"
+https://docs.avitai.bio/artifex/user-guide/concepts/objectives-03-transport-information/,"This chapter develops optimal-transport objectives, rate–distortion and information bottlenecks, and the identification limits of composite losses. For"
+https://docs.avitai.bio/artifex/user-guide/concepts/objectives-04-practice/,"This chapter works through finite MMD and classifier-to-ratio constructions, then provides a selection checklist, primary reading, retrieval with solutions, and"
+https://docs.avitai.bio/artifex/user-guide/concepts/objectives-and-statistical-distances/,"A training loss is not merely a score to minimize: it determines which information about the data distribution is observable to the optimizer, how finite"
+https://docs.avitai.bio/artifex/user-guide/concepts/optimization-01-differentiation/,"This chapter separates objectives, automatic differentiation, custom derivative rules, and optimizer updates. Read it continuously in the complete guide."
+https://docs.avitai.bio/artifex/user-guide/concepts/optimization-02-stochastic-gradients/,"This chapter derives score-function and pathwise gradients, valid control variates, discrete relaxations, and estimator diagnostics. Read it continuously in the"
+https://docs.avitai.bio/artifex/user-guide/concepts/optimization-03-dynamics/,"This chapter develops optimizer state, Fisher geometry, curvature boundaries, adversarial games, and structured optimizer evidence. Read it continuously in the"
+https://docs.avitai.bio/artifex/user-guide/concepts/optimization-04-latent-learning/,"This chapter derives EM, generalized EM, variational EM, Monte Carlo variants, and their convergence boundaries. Read it continuously in the complete guide."
+https://docs.avitai.bio/artifex/user-guide/concepts/optimization-05-search/,"This chapter places EDAs, CEM, evolution strategies, Bayesian optimization, submodular selection, and DPPs within generative workflows. Read it continuously in"
+https://docs.avitai.bio/artifex/user-guide/concepts/optimization-06-transport/,"This chapter separates maps, couplings, Wasserstein metrics, entropic transport, Sinkhorn divergence, and dynamic probability paths. Read it continuously in the"
+https://docs.avitai.bio/artifex/user-guide/concepts/optimization-and-learning-dynamics/,A generative objective is a mathematical target. A gradient estimator is a random procedure for estimating a derivative of that target. An optimizer turns those
+https://docs.avitai.bio/artifex/user-guide/concepts/point-processes-01-semantics/,"This chapter defines counting measures, simple configurations, cardinality laws, Janossy densities, finite-set integrals, and marks. For uninterrupted reading,"
+https://docs.avitai.bio/artifex/user-guide/concepts/point-processes-02-temporal/,"This chapter derives temporal likelihoods from conditional intensity and survival, then compares Poisson, renewal, Hawkes, and self-correcting processes. For"
+https://docs.avitai.bio/artifex/user-guide/concepts/point-processes-03-spatial-sets/,"This chapter distinguishes intensity from interaction and develops Poisson, Cox, cluster, Gibbs, determinantal, and random-finite-set constructions. For"
+https://docs.avitai.bio/artifex/user-guide/concepts/point-processes-04-inference/,"This chapter separates exact likelihood, compensator approximation, branching augmentation, latent-intensity inference, pseudolikelihood, observation"
+https://docs.avitai.bio/artifex/user-guide/concepts/point-processes-05-simulation/,"This chapter develops direct, inverse-compensator, thinning, branching, spectral, MCMC, and learned configuration samplers with explicit correctness conditions."
+https://docs.avitai.bio/artifex/user-guide/concepts/point-processes-06-neural-evaluation/,"This chapter classifies neural point-process interfaces, reviews current evidence, and builds a configuration-level evaluation and comparison protocol. For"
+https://docs.avitai.bio/artifex/user-guide/concepts/point-processes-and-random-finite-sets/,"A point process generates a configuration: a random number of events, their locations in time or space, and optionally a mark attached to each event. A random"
+https://docs.avitai.bio/artifex/user-guide/concepts/probabilistic-circuits-01-semantics/,"This chapter constructs probability distributions from tractable leaves, mixture sums, factorized products, scopes, and shared subcircuits. For uninterrupted"
+https://docs.avitai.bio/artifex/user-guide/concepts/probabilistic-circuits-02-properties/,"This chapter separates smoothness, decomposability, determinism, and structured decomposability and maps each property to the queries it supports. For"
+https://docs.avitai.bio/artifex/user-guide/concepts/probabilistic-circuits-03-inference/,"This chapter executes marginals, conditionals, sampling, responsibilities, and MPE-style dynamic programs while explaining why marginal MAP is harder. For"
+https://docs.avitai.bio/artifex/user-guide/concepts/probabilistic-circuits-04-learning/,"This chapter derives fixed-structure EM and examines recursive structure induction, soft learning, pruning/growing, regular region graphs, and generalization."
+https://docs.avitai.bio/artifex/user-guide/concepts/probabilistic-circuits-05-hybrids/,"This chapter studies expressivity, neural and conditional leaves, flow hybrids, distillation, structured domains, and exactness boundaries. For uninterrupted"
+https://docs.avitai.bio/artifex/user-guide/concepts/probabilistic-circuits-06-practice/,"This chapter provides selection guidance, evaluation and production contracts, research exercises, research directions, and a primary reading trail. For"
+https://docs.avitai.bio/artifex/user-guide/concepts/probabilistic-circuits-explained/,Probabilistic circuits (PCs) represent a probability distribution as a directed acyclic computation graph whose leaves are simple distributions and whose
+https://docs.avitai.bio/artifex/user-guide/concepts/probabilistic-grammars-and-program-derivations/,"A grammar does more than declare which objects are legal. Once its alternatives carry probabilities or nonnegative weights, it defines a law over constructive"
+https://docs.avitai.bio/artifex/user-guide/concepts/probability-01-objects/,"This chapter starts from four generative queries, then separates probability laws, random variables, mass functions, densities, joints, marginals, and"
+https://docs.avitai.bio/artifex/user-guide/concepts/probability-02-factorization-queries/,"This chapter connects the chain rule to autoregressive factorization, develops entropy and KL divergence, and separates generation, scoring, conditioning,"
+https://docs.avitai.bio/artifex/user-guide/concepts/probability-03-likelihood-examples/,"This chapter distinguishes likelihood from probability, explains discrete likelihood and dequantization boundaries, and works through a finite joint law and a"
+https://docs.avitai.bio/artifex/user-guide/concepts/probability-04-practice/,"This chapter consolidates the probability foundation through primary reading, misconception checks, retrieval questions with solutions, and a route into"
+https://docs.avitai.bio/artifex/user-guide/concepts/probability-and-generative-modeling/,"Probability laws are the main mathematical substrate of generative modeling, but they are not its outer boundary. A probabilistic generator defines a law over"
+https://docs.avitai.bio/artifex/user-guide/concepts/probability-paths-01-foundations/,"This chapter separates endpoints, couplings, marginal paths, particle dynamics, continuity equations, and Fokker–Planck evolution. Read it continuously in the"
+https://docs.avitai.bio/artifex/user-guide/concepts/probability-paths-02-diffusion/,"This chapter derives reverse score dynamics, the probability-flow ODE, conditional/marginal score distinctions, and finite-solver boundaries. Read it"
+https://docs.avitai.bio/artifex/user-guide/concepts/probability-paths-03-flow/,"This chapter derives conditional flow matching, coupling-induced ambiguity, rectification, and exact target conversions for matched Gaussian paths. Read it"
+https://docs.avitai.bio/artifex/user-guide/concepts/probability-paths-04-bridges/,"This chapter unifies deterministic and noisy interpolants, defines Schrödinger bridges in path space, and distinguishes finite-noise bridges from optimal"
+https://docs.avitai.bio/artifex/user-guide/concepts/probability-paths-05-generalizations/,"This chapter covers PFGM++, CTMC paths, manifolds, function spaces, and why shared exact marginals do not equal shared finite algorithms. Read it continuously"
+https://docs.avitai.bio/artifex/user-guide/concepts/probability-paths-06-practice/,"This chapter provides the relationship audit, compute-matched evaluation protocol, exercises, and peer-reviewed transport evidence. Read it continuously in the"
+https://docs.avitai.bio/artifex/user-guide/concepts/probability-paths-and-stochastic-transport/,"Diffusion, probability-flow ODEs, flow matching, stochastic interpolants, and Schrödinger bridges all construct paths between probability distributions. Their"
+https://docs.avitai.bio/artifex/user-guide/concepts/random-graphs-01-semantics/,"This chapter defines variable-size graph laws, labeled and unlabeled sample spaces, orbit probability, automorphisms, invariance, and equivariance. For"
+https://docs.avitai.bio/artifex/user-guide/concepts/random-graphs-02-classical/,"This chapter develops independent-edge, degree-constrained, block, latent-position, ERGM, graphon, and sparse exchangeable models. For uninterrupted reading,"
+https://docs.avitai.bio/artifex/user-guide/concepts/random-graphs-03-inference/,"This chapter covers graph sampling units, unlabeled likelihoods, SBM posteriors and detectability, ERGM normalizers, graphon identifiability, missingness, and"
+https://docs.avitai.bio/artifex/user-guide/concepts/random-graphs-04-neural/,"This chapter classifies one-shot, autoregressive, variational, adversarial, flow, energy, circuit, and GFlowNet graph systems by their probability and sampling"
+https://docs.avitai.bio/artifex/user-guide/concepts/random-graphs-05-iterative/,"This chapter develops discrete and relaxed graph diffusion, flow and Bayesian belief paths, multiscale topology, hard constraints, guidance, structured graph"
+https://docs.avitai.bio/artifex/user-guide/concepts/random-graphs-06-evaluation/,"This chapter builds a graph-specific evaluation protocol spanning topology, distributional fidelity, domain validity, privacy, compute, and current evidence."
+https://docs.avitai.bio/artifex/user-guide/concepts/random-graphs-and-relational-generators/,"A random-graph model generates a relational structure: a random number of entities, their attributes, and the edges or higher-arity relations among them. When"
+https://docs.avitai.bio/artifex/user-guide/concepts/representations-01-semantics/,"This chapter treats the codec as part of the probabilistic model and develops a query-first map for reconstruction, sufficiency, accessibility, invariance,"
+https://docs.avitai.bio/artifex/user-guide/concepts/representations-02-codecs/,"This chapter compares vector/scalar quantization, code-index and learned-prior interfaces, continuous latents, latent diffusion, hierarchies, and temporal"
+https://docs.avitai.bio/artifex/user-guide/concepts/representations-03-fusion/,"This chapter covers early/late/joint fusion, cross-attention, conditional factorization, causal masks, clocks, pairing, and missing modalities. Read it"
+https://docs.avitai.bio/artifex/user-guide/concepts/representations-04-unified/,"This chapter distinguishes shared representations, backbones, heads, objectives, AR–diffusion composition, interleaving, and true task synergy. Read it"
+https://docs.avitai.bio/artifex/user-guide/concepts/representations-05-training/,"This chapter diagnoses modality imbalance, underuse, code collapse, synchronization, leakage, codec metrics, synergy, and complete compute. Read it continuously"
+https://docs.avitai.bio/artifex/user-guide/concepts/representations-06-practice/,"This chapter audits peer-reviewed tokenizer, representation-autoencoder, shared-model, synergy, reasoning, and medical evidence and supplies research exercises."
+https://docs.avitai.bio/artifex/user-guide/concepts/representations-and-multimodal-systems/,"Modern generators rarely model raw observations directly. They operate on text tokens, acoustic codes, image/video latents, geometric features, or hierarchical"
+https://docs.avitai.bio/artifex/user-guide/concepts/reproducibility-and-research-methods/,"Research needs more than a new score. It needs a falsifiable question, a controlled estimand, uncertainty, mechanism-revealing ablations, reproducible"
+https://docs.avitai.bio/artifex/user-guide/concepts/research-01-questions/,"This chapter turns ideas into bounded estimands, mechanism predictions, falsifiers, scope ladders, and baseline hierarchies. Read it continuously in the"
+https://docs.avitai.bio/artifex/user-guide/concepts/research-02-statistics/,"This chapter covers independent units, paired/hierarchical uncertainty, intervals, significance, multiplicity, power, seeds, nondeterminism, and stratification."
+https://docs.avitai.bio/artifex/user-guide/concepts/research-03-ablations/,"This chapter treats ablations as interventions and covers factorial interactions, mechanism tests, null/negative reporting, debugging, sensitivity, and"
+https://docs.avitai.bio/artifex/user-guide/concepts/research-04-artifacts/,"This chapter defines repeatability, artifact reproduction, independent replication, generalization studies, artifact bundles, acceptance criteria, and"
+https://docs.avitai.bio/artifex/user-guide/concepts/research-05-evidence/,"This chapter standardizes maturity and reproduction labels, claim-ledger fields, relationship types, source hierarchy, protocol qualifiers, and superseding"
+https://docs.avitai.bio/artifex/user-guide/concepts/research-06-maintenance/,"This chapter defines release-time evidence reviews, search logs, status/version updates, peer-reviewed evidence, and exercises for maintaining a research"
+https://docs.avitai.bio/artifex/user-guide/concepts/sampling-01-monte-carlo/,"This chapter begins from one target and four computational routes, then develops Monte Carlo estimands, uncertainty, direct and weighted sampling, and variance-"
+https://docs.avitai.bio/artifex/user-guide/concepts/sampling-02-markov-kernels/,"This chapter develops stationarity, detailed balance, Metropolis–Hastings, Gibbs and blocked updates, and auxiliary-variable constructions as explicit kernel"
+https://docs.avitai.bio/artifex/user-guide/concepts/sampling-03-gradient-hamiltonian/,"This chapter connects Langevin and Hamiltonian methods to geometry, warmup, diagnostics, stochastic-gradient and kinetic variants, and transdimensional kernels."
+https://docs.avitai.bio/artifex/user-guide/concepts/sampling-04-tempering-transport/,"This chapter separates annealing, tempering, deterministic continuity equations, stochastic Fokker–Planck dynamics, solver cost, and Schrödinger bridges. For"
+https://docs.avitai.bio/artifex/user-guide/concepts/sampling-05-practice/,"This chapter works through ULA and a finite Metropolis move, compares family-specific diagnostics, and closes with primary reading, retrieval, solutions, and"
+https://docs.avitai.bio/artifex/user-guide/concepts/sampling-and-continuous-time/,"Training specifies a distribution, energy, score, transition, or vector field; a sampler turns that object into draws. Those draws are usually an intermediate"
+https://docs.avitai.bio/artifex/user-guide/concepts/sequential-monte-carlo-and-particle-methods/,"Sequential Monte Carlo (SMC) approximates a sequence of related target laws with a population of weighted samples. Mutation moves particles into new states,"
+https://docs.avitai.bio/artifex/user-guide/concepts/smc-01-targets/,"This chapter defines the target sequence, path measure, proposal, potential, weights, and returned objects that make an SMC algorithm auditable. Read it"
+https://docs.avitai.bio/artifex/user-guide/concepts/smc-02-filtering-resampling/,This chapter derives particle filtering and separates current weight concentration from particle impoverishment and genealogical collapse. Read it continuously
+https://docs.avitai.bio/artifex/user-guide/concepts/smc-03-proposals/,"This chapter develops observation-aware, fully adapted, approximate, learned, and auxiliary proposals while keeping support and weight correction explicit. Read"
+https://docs.avitai.bio/artifex/user-guide/concepts/smc-04-smoothing-hybrids/,"This chapter connects particle smoothing, conditional exact submodels, invariant rejuvenation, and extended-target particle MCMC. Read it continuously in the"
+https://docs.avitai.bio/artifex/user-guide/concepts/smc-05-static-targets/,"This chapter applies particle populations to fixed-dimensional target paths, adaptive tempering, rare events, and likelihood-free targets. Read it continuously"
+https://docs.avitai.bio/artifex/user-guide/concepts/smc-06-learning-practice/,"This chapter separates model, proposal, twist, and gradient learning and places particle-guided modern generators inside a reproducible evaluation contract."
+https://docs.avitai.bio/artifex/user-guide/concepts/steering-01-targets/,"This chapter defines reweighted, conditional, reward-tilted, and hard-feasible targets before choosing an algorithm. Read it continuously in the complete guide."
+https://docs.avitai.bio/artifex/user-guide/concepts/steering-02-conditioning/,"This chapter separates conditional probability semantics from concatenation, modulation, cross-attention, adapters, prefixes, and condition dropout. Read it"
+https://docs.avitai.bio/artifex/user-guide/concepts/steering-03-guidance/,"This chapter derives continuous score guidance, a finite-state Doob transform, exact discrete-rate semantics, and twisted particle sampling. Read it"
+https://docs.avitai.bio/artifex/user-guide/concepts/steering-04-constraints/,"This chapter separates feasibility from conditional-law preservation across rejection, grammar masks, projections, feasible maps, and constrained Monte Carlo."
+https://docs.avitai.bio/artifex/user-guide/concepts/steering-05-selection/,"This chapter derives probabilistic acceptance and best-of-N output laws, then distinguishes search and minimum-Bayes-risk decisions from sampling. Read it"
+https://docs.avitai.bio/artifex/user-guide/concepts/steering-06-composition/,"This chapter writes retrieval, filtering, routing, and verification as explicit system components and assigns evidence to the layer that produced it. Read it"
+https://docs.avitai.bio/artifex/user-guide/concepts/stochastic-process-01-foundations/,"This chapter defines random functions, finite-dimensional distributions, projective consistency, context/target sets, and coherent function samples. For"
+https://docs.avitai.bio/artifex/user-guide/concepts/stochastic-process-02-gaussian-processes/,"This chapter constructs a random function from compatible finite GP laws, derives joint and sequential conditioning, studies learned priors, and then develops"
+https://docs.avitai.bio/artifex/user-guide/concepts/stochastic-process-03-neural-processes/,"This chapter develops conditional, latent, attentive, convolutional, equivariant, and Transformer Neural Processes and their consistency limits. For"
+https://docs.avitai.bio/artifex/user-guide/concepts/stochastic-process-04-dynamics/,"This chapter treats transition kernels, exact and approximate beliefs, particle filtering and smoothing, latent SDE inference, neural SDE GANs, state-space"
+https://docs.avitai.bio/artifex/user-guide/concepts/stochastic-process-05-diffusion/,"This chapter develops process-valued noise, function-space scores, resolution consistency, deterministic and stochastic operator semantics, SPDE operators,"
+https://docs.avitai.bio/artifex/user-guide/concepts/stochastic-process-06-practice/,"This chapter provides model selection, function-space evaluation, failure modes, evidence review, research exercises, and primary sources. For uninterrupted"
+https://docs.avitai.bio/artifex/user-guide/concepts/stochastic-process-generators-explained/,"A fixed-dimensional generator models a random vector. A stochastic-process generator models a random function, field, or trajectory whose values may be queried"
+https://docs.avitai.bio/artifex/user-guide/concepts/tensor-01-semantics/,"This chapter separates probability tensors, nonnegative factorizations, Born amplitudes, and locally purified constructions; it also develops normalization,"
+https://docs.avitai.bio/artifex/user-guide/concepts/tensor-02-mps/,"This chapter develops matrix product states and tensor trains, parameter counts, unfolding ranks, gauge freedom, canonical forms, variable-order sensitivity,"
+https://docs.avitai.bio/artifex/user-guide/concepts/tensor-03-inference/,"This chapter derives contraction environments, normalization, marginals, conditionals, expectations, sequential sampling, stable arithmetic, and the boundary"
+https://docs.avitai.bio/artifex/user-guide/concepts/tensor-04-learning/,"This chapter derives likelihood learning, normalization gradients, canonical optimization, DMRG-style sweeps, rank adaptation, continuous feature maps, Gram"
+https://docs.avitai.bio/artifex/user-guide/concepts/tensor-05-connections/,"This chapter distinguishes exact relationships with HMMs, weighted automata, autoregressive laws, arithmetic circuits, and graphical-model inference from hybrid"
+https://docs.avitai.bio/artifex/user-guide/concepts/tensor-06-evaluation/,"This chapter defines likelihood, normalization, calibration, sampling, rank, order, contraction, systems, and evidence protocols; it closes with applications,"
+https://docs.avitai.bio/artifex/user-guide/concepts/tensor-network-and-born-probability-models/,A joint distribution over many discrete variables is a tensor: one axis per variable and one nonnegative entry per configuration. The representation is exact
+https://docs.avitai.bio/artifex/user-guide/concepts/transitions-and-few-step-generation/,"Diffusion and flow models learn infinitesimal motion and pay for numerical integration at inference. Few-step methods instead learn finite transitions, endpoint"
+https://docs.avitai.bio/artifex/user-guide/concepts/vae-01-foundations/,"This chapter develops the latent-variable generative story, posterior approximation, ELBO, decoder likelihood, architecture, and reparameterization estimator."
+https://docs.avitai.bio/artifex/user-guide/concepts/vae-02-training/,"This chapter turns the ELBO into a numerically stable training procedure and explains reconstruction semantics, KL accounting, optimization, and implementation"
+https://docs.avitai.bio/artifex/user-guide/concepts/vae-03-variants/,"This chapter studies objective reweighting, conditional and multimodal VAEs, missing-modality inference, semi-supervised labels, discrete latent estimators and"
+https://docs.avitai.bio/artifex/user-guide/concepts/vae-04-modern-latents/,"This chapter develops hierarchical latent factorizations, layerwise rates, pruning diagnostics, importance-weighted and flow posteriors, learned codecs, latent"
+https://docs.avitai.bio/artifex/user-guide/concepts/vae-05-practice/,"This chapter covers implementation, diagnostics, metrics, deployment constraints, and the evidence needed to distinguish reconstruction quality from generation"
+https://docs.avitai.bio/artifex/user-guide/concepts/vae-06-synthesis/,"This chapter consolidates the family’s mathematical and practical lessons, routes readers to implementation guides, and organizes the primary reading sequence."
+https://docs.avitai.bio/artifex/user-guide/concepts/vae-explained/,"A variational autoencoder is a latent-variable probability model \(p_\theta(x,z)=p(z)p_\theta(x\mid z)\) paired with an approximate posterior \(q_\phi(z\mid"
+https://docs.avitai.bio/artifex/user-guide/concepts/world-models-01-semantics/,"This chapter distinguishes environment state, belief, policy, observation prediction, value-equivalent dynamics, interactive rendering, planning, and causal"
+https://docs.avitai.bio/artifex/user-guide/concepts/world-models-02-dynamics/,"This chapter connects exact state-space query semantics to RSSMs, amortized filtering, imagination, aleatoric/epistemic uncertainty, rollout-error accumulation,"
+https://docs.avitai.bio/artifex/user-guide/concepts/world-models-03-objectives/,"This chapter compares variational sequence learning, pixel/token/feature/semantic prediction, value equivalence, inverse dynamics, latent actions, and multi-"
+https://docs.avitai.bio/artifex/user-guide/concepts/world-models-04-planning/,"This chapter covers MPC, CEM, MCTS, differentiable planning, imagined actor learning, the five-component planning loop, planner exploitation, distribution"
+https://docs.avitai.bio/artifex/user-guide/concepts/world-models-05-causal/,"This chapter separates action conditioning from intervention, derives a confounded policy example, and develops structural dynamics, mechanism shifts, and"
+https://docs.avitai.bio/artifex/user-guide/concepts/world-models-06-practice/,"This chapter provides a model-to-system evaluation ladder, audits peer-reviewed research, and specifies reproducibility records and research exercises. Read it"
+https://docs.avitai.bio/artifex/user-guide/concepts/world-models-and-causal-simulators/,"A world model predicts consequences of actions well enough to answer a specified query. That query may be next-observation prediction, long-horizon simulation,"
+https://docs.avitai.bio/artifex/user-guide/data/data-guide/,This guide covers loading and preprocessing data in Artifex. All dataset APIs follow the same two-layer pattern: pure data generation functions that return
+https://docs.avitai.bio/artifex/user-guide/data/overview/,"This guide provides an overview of Artifex's data loading system, including the modality framework, dataset classes, and data pipeline architecture."
+https://docs.avitai.bio/artifex/user-guide/inference/optimization/,"Advanced techniques for optimizing generative model inference: JIT compilation, quantization, memory management, and hardware-specific optimizations."
+https://docs.avitai.bio/artifex/user-guide/inference/overview/,"Artifex does not currently ship one shared inference framework across every model family. Loading and generation stay family-owned, while the only separate"
+https://docs.avitai.bio/artifex/user-guide/inference/sampling/,"Sampling in Artifex stays family-owned. The runtime does not ship a second generic sampler framework on top of the model families, so the supported entry points"
+https://docs.avitai.bio/artifex/user-guide/integrations/deployment/,"Artifex does not currently ship a generic deployment framework, service scaffold, or deployment CLI. The retained deployment boundary is low-level and family-"
+https://docs.avitai.bio/artifex/user-guide/integrations/huggingface/,Status: Coming soon
+https://docs.avitai.bio/artifex/user-guide/integrations/tensorboard/,Artifex currently supports TensorBoard through training callbacks. It does not ship a separate fit-style integration layer or a custom TensorBoard-specific
+https://docs.avitai.bio/artifex/user-guide/integrations/wandb/,Artifex currently supports Weights & Biases through WandbLoggerCallback in the training callback layer and the package-local WandbLogger utility for direct
+https://docs.avitai.bio/artifex/user-guide/modalities/audio/,"This guide covers working with audio data in Artifex, including audio representations, waveform processing, spectrograms, and best practices for audio-based"
+https://docs.avitai.bio/artifex/user-guide/modalities/image/,"This guide covers working with image data in Artifex, including image representations, datasets, preprocessing, and best practices for image-based generative"
+https://docs.avitai.bio/artifex/user-guide/modalities/multimodal/,"This guide covers working with the experimental multi-modal helper package in Artifex, including aligned datasets, modality fusion, cross-modal generation, and"
+https://docs.avitai.bio/artifex/user-guide/modalities/text/,"This guide covers working with text data in Artifex, including tokenization, vocabulary management, text datasets, and best practices for text-based generative"
+https://docs.avitai.bio/artifex/user-guide/models/autoregressive-guide/,"Complete guide to building, training, and using Autoregressive Models with Artifex."
+https://docs.avitai.bio/artifex/user-guide/models/diffusion-guide/,"This guide covers practical usage of diffusion models in Artifex, from basic DDPM to advanced techniques like latent diffusion and guidance."
+https://docs.avitai.bio/artifex/user-guide/models/ebm-guide/,"Complete guide to building, training, and using Energy-Based Models with Artifex."
+https://docs.avitai.bio/artifex/user-guide/models/flow-guide/,"This guide provides practical instructions for working with normalizing flow models in Artifex. We cover creating, training, and using various flow"
+https://docs.avitai.bio/artifex/user-guide/models/gan-guide/,"This guide provides practical instructions for training and using Generative Adversarial Networks (GANs) in Artifex. We cover all GAN variants, training"
+https://docs.avitai.bio/artifex/user-guide/models/vae-guide/,"Complete guide to building, training, and using Variational Autoencoders with Artifex."
+https://docs.avitai.bio/artifex/user-guide/training/advanced-features/,This guide covers advanced training utilities in Artifex for optimizing training performance and handling challenging scenarios like large batch training and
+https://docs.avitai.bio/artifex/user-guide/training/configuration/,Artifex training is configured with typed frozen dataclasses. The supported public import surface is artifex.configs.
+https://docs.avitai.bio/artifex/user-guide/training/logging/,"Artifex logging lives at the shared Trainer layer. Model-family trainers own objectives; callback-driven logging, checkpointing, and progress reporting are"
+https://docs.avitai.bio/artifex/user-guide/training/overview/,Artifex provides a training system built on JAX/Flax NNX. The training infrastructure handles the training lifecycle from model initialization to checkpointing
+https://docs.avitai.bio/artifex/user-guide/training/profiling/,Profiling is configured at the shared Trainer layer through CallbackList. Use the trace profiler for short focused windows and the memory profiler for longer-
+https://docs.avitai.bio/artifex/user-guide/training/rl-training/,"Artifex RL training is sequence-first and type-driven. The RL trainers are standalone optimizer helpers, not subclasses of the shared epoch-oriented Trainer."
+https://docs.avitai.bio/artifex/user-guide/training/training-guide/,"This guide provides practical examples and patterns for training generative models with Artifex. From basic training to advanced techniques, you'll learn"
+https://docs.avitai.bio/artifex/utils/,The top-level artifex.utils namespace is intentionally narrow. The current utility docs cover only the small set of live modules that still ship in the repo.
+https://docs.avitai.bio/artifex/utils/attention_vis/,Status: Coming soon Planned module target: artifex.generative_models.utils.visualization.attention_vis
+https://docs.avitai.bio/artifex/utils/color/,Status: Coming soon Planned module target: artifex.generative_models.utils.image.color
+https://docs.avitai.bio/artifex/utils/dependency_analyzer/,Status: Supported runtime utility Module: artifex.generative_models.utils.code_analysis.dependency_analyzer Source:
+https://docs.avitai.bio/artifex/utils/device/,Status: Supported runtime utility Module: artifex.generative_models.utils.jax.device Source: src/artifex/generative_models/utils/jax/device.py
+https://docs.avitai.bio/artifex/utils/dtype/,Status: Coming soon Planned module target: artifex.generative_models.utils.jax.dtype
+https://docs.avitai.bio/artifex/utils/env/,Status: Coming soon Planned module target: artifex.generative_models.utils.misc.env
+https://docs.avitai.bio/artifex/utils/file/,Status: Coming soon Planned module target: artifex.generative_models.utils.io.file
+https://docs.avitai.bio/artifex/utils/file_utils/,Status: Supported runtime utility Module: artifex.utils.file_utils Source: src/artifex/utils/file_utils.py
+https://docs.avitai.bio/artifex/utils/flax_utils/,Status: Coming soon Planned module target: artifex.generative_models.utils.jax.flax_utils
+https://docs.avitai.bio/artifex/utils/formats/,Status: Coming soon Planned module target: artifex.generative_models.utils.io.formats
+https://docs.avitai.bio/artifex/utils/image_grid/,Status: Coming soon Planned module target: artifex.generative_models.utils.visualization.image_grid
+https://docs.avitai.bio/artifex/utils/latent_space/,Status: Coming soon Planned module target: artifex.generative_models.utils.visualization.latent_space
+https://docs.avitai.bio/artifex/utils/logger/,Status: Supported runtime utility Module: artifex.generative_models.utils.logging.logger Source: src/artifex/generative_models/utils/logging/logger.py
+https://docs.avitai.bio/artifex/utils/math/,Status: Coming soon Planned module target: artifex.generative_models.utils.numerical.math
+https://docs.avitai.bio/artifex/utils/memory/,Status: Coming soon Planned module target: artifex.generative_models.utils.profiling.memory
+https://docs.avitai.bio/artifex/utils/metrics/,Status: Supported runtime utility Module: artifex.generative_models.utils.logging.metrics Source: src/artifex/generative_models/utils/logging/metrics.py
+https://docs.avitai.bio/artifex/utils/mlflow/,Status: Supported runtime utility Module: artifex.generative_models.utils.logging.mlflow Source: src/artifex/generative_models/utils/logging/mlflow.py
+https://docs.avitai.bio/artifex/utils/performance/,Status: Coming soon Planned module target: artifex.generative_models.utils.profiling.performance
+https://docs.avitai.bio/artifex/utils/plotting/,Status: Coming soon Planned module target: artifex.generative_models.utils.visualization.plotting
+https://docs.avitai.bio/artifex/utils/postprocessing/,Status: Coming soon Planned module target: artifex.generative_models.utils.text.postprocessing
+https://docs.avitai.bio/artifex/utils/prng/,Status: Coming soon Planned module target: artifex.generative_models.utils.jax.prng
+https://docs.avitai.bio/artifex/utils/processing/,Status: Coming soon Planned module target: artifex.generative_models.utils.text.processing
+https://docs.avitai.bio/artifex/utils/protein/,Status: Supported runtime utility Module: artifex.visualization.protein_viz Source: src/artifex/visualization/protein_viz.py
+https://docs.avitai.bio/artifex/utils/registry/,Status: Coming soon Planned module target: artifex.generative_models.utils.misc.registry
+https://docs.avitai.bio/artifex/utils/serialization/,Status: Coming soon Planned module target: artifex.generative_models.utils.io.serialization
+https://docs.avitai.bio/artifex/utils/shapes/,Status: Coming soon Planned module target: artifex.generative_models.utils.jax.shapes
+https://docs.avitai.bio/artifex/utils/stability/,Status: Coming soon Planned module target: artifex.generative_models.utils.numerical.stability
+https://docs.avitai.bio/artifex/utils/stats/,Status: Coming soon Planned module target: artifex.generative_models.utils.numerical.stats
+https://docs.avitai.bio/artifex/utils/timer/,Status: Coming soon Planned module target: artifex.generative_models.utils.misc.timer
+https://docs.avitai.bio/artifex/utils/transforms/,Status: Coming soon Planned module target: artifex.generative_models.utils.image.transforms
+https://docs.avitai.bio/artifex/utils/types/,Status: Coming soon Planned module target: artifex.generative_models.utils.misc.types
+https://docs.avitai.bio/artifex/utils/wandb/,Status: Supported runtime utility Module: artifex.generative_models.utils.logging.wandb Source: src/artifex/generative_models/utils/logging/wandb.py
+https://docs.avitai.bio/artifex/utils/xprof/,Status: Coming soon Planned module target: artifex.generative_models.utils.profiling.xprof
+https://docs.avitai.bio/artifex/visualization/,The top-level artifex.visualization namespace currently ships one retained public helper: ProteinVisualizer from artifex.visualization.protein_viz.
+https://docs.avitai.bio/artifex/visualization/protein_viz/,artifex.visualization.protein_viz is the canonical public owner for protein visualization in Artifex.
+https://docs.avitai.bio/artifex/zoo/,The legacy Artifex model zoo has been removed as a live runtime surface.

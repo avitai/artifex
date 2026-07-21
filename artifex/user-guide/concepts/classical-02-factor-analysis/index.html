@@ -1,0 +1,1472 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="This chapter compares probabilistic PCA, factor analysis, ICA, sparse coding, NMF, and matrix factorization while keeping their identification assumptions and" name="description"/>
+<meta content="Mahdi Shafiei" name="author"/>
+<link href="https://docs.avitai.bio/artifex/user-guide/concepts/classical-02-factor-analysis/" rel="canonical"/>
+<link href="../classical-01-latent-foundations/" rel="prev"/>
+<link href="../classical-03-directed-graphs/" rel="next"/>
+<link href="../../../assets/images/favicon.png" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.7.7" name="generator"/>
+<title>Classical Models 2 — Factor Analysis and Matrix Factorization - Artifex</title>
+<link href="../../../assets/stylesheets/main.ec1eaa64.min.css" rel="stylesheet"/>
+<link href="../../../assets/stylesheets/palette.ab4e12ef.min.css" rel="stylesheet"/>
+<script src="../../../assets/vendor/iframe-worker/index.js"></script>
+<link href="../../../assets/_mkdocstrings.css" rel="stylesheet"/>
+<link href="../../../_static/extra.css" rel="stylesheet"/>
+<script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+<meta content="article" property="og:type"/>
+<meta content="The Artifex Generative Models Book" property="og:site_name"/>
+<meta content="Classical Models 2 — Factor Analysis and Matrix Factorization" property="og:title"/>
+<meta content="This chapter compares probabilistic PCA, factor analysis, ICA, sparse coding, NMF, and matrix factorization while keeping their identification assumptions and" property="og:description"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/classical-02-factor-analysis/" property="og:url"/>
+<meta content="2026-07-15" property="article:modified_time"/>
+<meta content="summary" name="twitter:card"/>
+<meta content="Classical Models 2 — Factor Analysis and Matrix Factorization" name="twitter:title"/>
+<meta content="This chapter compares probabilistic PCA, factor analysis, ICA, sparse coding, NMF, and matrix factorization while keeping their identification assumptions and" name="twitter:description"/>
+<meta content="Generative models, Machine learning, Probabilistic modeling, foundation, required, canonical_chapter, classical-factor-analysis, newcomer, practitioner, researcher" name="keywords"/>
+<meta content="Classical Models 2 — Factor Analysis and Matrix Factorization" name="citation_title"/>
+<meta content="Mahdi Shafiei" name="citation_author"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/classical-02-factor-analysis/" name="citation_public_url"/>
+<meta content="en" name="citation_language"/>
+<meta content="Classical Models 2 — Factor Analysis and Matrix Factorization" name="DC.title"/>
+<meta content="Mahdi Shafiei" name="DC.creator"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/classical-02-factor-analysis/" name="DC.identifier"/>
+<meta content="Text.LearningResource" name="DC.type"/>
+<meta content="2026-07-15" name="DCTERMS.modified"/>
+<meta content="https://github.com/avitai/artifex/blob/main/LICENSE" name="DCTERMS.license"/>
+<meta content="foundation" name="DCTERMS.educationLevel"/>
+<meta content="newcomer, practitioner, researcher" name="DCTERMS.audience"/>
+<link href="https://github.com/avitai/artifex/blob/main/LICENSE" rel="license"/>
+<script id="artifex-book-metadata" type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Chapter",
+  "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/classical-02-factor-analysis/",
+  "url": "https://docs.avitai.bio/artifex/user-guide/concepts/classical-02-factor-analysis/",
+  "name": "Classical Models 2 \u2014 Factor Analysis and Matrix Factorization",
+  "description": "This chapter compares probabilistic PCA, factor analysis, ICA, sparse coding, NMF, and matrix factorization while keeping their identification assumptions and",
+  "identifier": "classical-factor-analysis",
+  "inLanguage": "en",
+  "isAccessibleForFree": true,
+  "learningResourceType": "Canonical chapter",
+  "educationalLevel": "foundation",
+  "educationalUse": "required",
+  "audience": [
+    
+      {"@type": "EducationalAudience", "audienceType": "newcomer"},
+    
+      {"@type": "EducationalAudience", "audienceType": "practitioner"},
+    
+      {"@type": "EducationalAudience", "audienceType": "researcher"}
+    
+  ],
+  "dateModified": "2026-07-15",
+  "keywords": ["Generative models", "Machine learning", "Probabilistic modeling", "foundation", "required", "canonical_chapter", "classical-factor-analysis", "newcomer", "practitioner", "researcher"],
+  "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+  "author": [
+    
+      {"@type": "Person", "name": "Mahdi Shafiei"}
+    
+  ],
+  "isPartOf": {
+    "@type": "Book",
+    "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/#book",
+    "url": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/",
+    "name": "The Artifex Generative Models Book",
+    "bookEdition": "Living Web Edition",
+    "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+    "author": [
+      
+        {"@type": "Person", "name": "Mahdi Shafiei"}
+      
+    ]
+  }
+}
+</script>
+<link href="../../../assets/vendor/katex/katex.min.css" id="artifex-katex-stylesheet" integrity="sha384-UA8juhPf75SzzAMA/4fo3yOU7sBJ0om7SCD2GHq0fZqZco6tr1UCV7nUbk9J90JM" rel="stylesheet"/>
+<script defer="" integrity="sha384-T/0lMUdJpd2S1ZHtRiofG3htU3xPCrFVeAQ1UUE2TJwlEJSV5NUwn30kP28n238E" src="../../../assets/vendor/mermaid/mermaid.min.js"></script>
+<script defer="" src="../../../assets/vendor/katex/katex-shadow.js"></script>
+<script defer="" src="../../../javascripts/mermaid-math.js"></script>
+<script defer="" src="../../../javascripts/mathjax.js"></script>
+<script defer="" integrity="sha384-OrHfGTnIbkl0do3N76qW/uWr38o91N05sbSPuYBPLH+hG8X/dNSrjZf3AGjzrCwC" src="../../../assets/vendor/mathjax/tex-mml-chtml.js"></script>
+</head>
+<body data-md-color-accent="amber" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#classical-models-2-factor-analysis-and-matrix-factorization">
+          Skip to content
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header md-header--shadow" data-md-component="header">
+<nav aria-label="Header" class="md-header__inner md-grid">
+<a aria-label="Artifex" class="md-header__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            Artifex
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+            
+              Classical Models 2 — Factor Analysis and Matrix Factorization
+            
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-label="Switch to dark mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: light)" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_1" hidden="" title="Switch to dark mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+<input aria-label="Switch to light mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-primary="indigo" data-md-color-scheme="slate" id="__palette_1" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_0" hidden="" title="Switch to light mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+</form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div aria-label="Search" class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Search" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="Search" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="Search" class="md-search__options">
+<a aria-label="Share" class="md-search__icon md-icon" data-clipboard="" data-clipboard-text="" data-md-component="search-share" href="javascript:void(0)" tabindex="-1" title="Share">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"></path></svg>
+</a>
+<button aria-label="Clear" class="md-search__icon md-icon" tabindex="-1" title="Clear" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            Initializing search
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Navigation" class="md-nav md-nav--primary" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="Artifex" class="md-nav__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+    Artifex
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../..">
+<span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../getting-started/installation/">
+<span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Generative Models Book
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Generative Models Book
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    
+  
+    Start Here — The Landscape
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../first-course-01-generative-systems/">
+<span class="md-ellipsis">
+    
+  
+    First Course — New to Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Foundations
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_3_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Foundations
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../probability-01-objects/">
+<span class="md-ellipsis">
+    
+  
+    1. Probability and Generative Modeling
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_3_2" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_3_2" id="__nav_3_3_2_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    2. Classical Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_3_2_label" class="md-nav" data-md-level="3">
+<label class="md-nav__title" for="__nav_3_3_2">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    2. Classical Generative Models
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../classical-01-latent-foundations/">
+<span class="md-ellipsis">
+    
+  
+    1. Exponential and Latent-Variable Foundations
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
+    
+  
+    2. Factor Analysis and Matrix Factorization
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
+<span class="md-ellipsis">
+    
+  
+    2. Factor Analysis and Matrix Factorization
+  
+
+    
+  </span>
+</a>
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#4-factor-analysis-and-matrix-factorization">
+<span class="md-ellipsis">
+      
+        4. Factor Analysis and Matrix Factorization
+      
+    </span>
+</a>
+<nav aria-label="4. Factor Analysis and Matrix Factorization" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#factor-and-source-model-learning-objectives">
+<span class="md-ellipsis">
+      
+        Factor and source-model learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-two-dimensional-factor-model">
+<span class="md-ellipsis">
+      
+        Worked Two-Dimensional Factor Model
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#probabilistic-pca-and-identifiability">
+<span class="md-ellipsis">
+      
+        Probabilistic PCA and Identifiability
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#matrix-factorization-needs-a-probability-model">
+<span class="md-ellipsis">
+      
+        Matrix Factorization Needs a Probability Model
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mixtures-of-local-factor-models">
+<span class="md-ellipsis">
+      
+        Mixtures of Local Factor Models
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#paired-views-and-probabilistic-cca">
+<span class="md-ellipsis">
+      
+        Paired Views and Probabilistic CCA
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#exponential-family-factors-and-nonlinear-decoders">
+<span class="md-ellipsis">
+      
+        Exponential-Family Factors and Nonlinear Decoders
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#independent-components-and-the-source-separation-contract">
+<span class="md-ellipsis">
+      
+        Independent Components and the Source-Separation Contract
+      
+    </span>
+</a>
+<nav aria-label="Independent Components and the Source-Separation Contract" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-finite-example-six-observations-one-exact-unmixing-rule">
+<span class="md-ellipsis">
+      
+        Worked finite example: six observations, one exact unmixing rule
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#sparse-coding-and-dictionary-learning">
+<span class="md-ellipsis">
+      
+        Sparse Coding and Dictionary Learning
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#nonlinear-ica-expressivity-removes-the-linear-theorem">
+<span class="md-ellipsis">
+      
+        Nonlinear ICA: Expressivity Removes the Linear Theorem
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#factor-and-source-model-retrieval-practice">
+<span class="md-ellipsis">
+      
+        Factor and source-model retrieval practice
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#factor-and-source-model-synthesis">
+<span class="md-ellipsis">
+      
+        Factor and source-model synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../classical-03-directed-graphs/">
+<span class="md-ellipsis">
+    
+  
+    3. Directed Graphical Models
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../classical-04-undirected-structure/">
+<span class="md-ellipsis">
+    
+  
+    4. Undirected Models and Structure Learning
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../classical-05-sequences-functions/">
+<span class="md-ellipsis">
+    
+  
+    5. Topics, Functions, and Sequential Inference
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../classical-06-practice/">
+<span class="md-ellipsis">
+    
+  
+    6. Worked Synthesis and Retrieval
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../classical-generative-models/">
+<span class="md-ellipsis">
+    
+  
+    Continuous View (All Chapters)
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../bayesian-learning-01-object/">
+<span class="md-ellipsis">
+    
+  
+    3. Bayesian Learning and Model Assessment
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../inference-01-objects-and-queries/">
+<span class="md-ellipsis">
+    
+  
+    4. Latent Variables and Inference
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../objectives-01-discrepancies/">
+<span class="md-ellipsis">
+    
+  
+    5. Objectives and Statistical Distances
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../information-coding-01-measures/">
+<span class="md-ellipsis">
+    
+  
+    6. Information, Coding, and Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../graphical-models-01-directed/">
+<span class="md-ellipsis">
+    
+  
+    7. Graphical Models and Structured Probability
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../message-passing-01-factor-graphs/">
+<span class="md-ellipsis">
+    
+  
+    8. Graphical Inference and Message Passing
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../filtering-01-bayes-recursions/">
+<span class="md-ellipsis">
+    
+  
+    9. Filtering and Smoothing for State-Space Generators
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../sampling-01-monte-carlo/">
+<span class="md-ellipsis">
+    
+  
+    10. Sampling and Continuous Time
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../smc-01-targets/">
+<span class="md-ellipsis">
+    
+  
+    11. Sequential Monte Carlo and Particle Methods
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../optimization-01-differentiation/">
+<span class="md-ellipsis">
+    
+  
+    12. Optimization and Learning Dynamics
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../generative-models-notation/">
+<span class="md-ellipsis">
+    
+  
+    13. Canonical Notation
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../autoregressive-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Model Families
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gradients-01-taxonomy/">
+<span class="md-ellipsis">
+    
+  
+    Connections and Compositions
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../normalization-01-queries/">
+<span class="md-ellipsis">
+    
+  
+    Research Practice
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../models/vae-guide/">
+<span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/core/base/">
+<span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../examples/overview/">
+<span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../zoo/">
+<span class="md-ellipsis">
+    
+  
+    Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../training/overview/">
+<span class="md-ellipsis">
+    
+  
+    Training
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../data/overview/">
+<span class="md-ellipsis">
+    
+  
+    Data &amp; Modalities
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../inference/overview/">
+<span class="md-ellipsis">
+    
+  
+    Inference &amp; Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../benchmarks/">
+<span class="md-ellipsis">
+    
+  
+    Evaluation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../guides/extensions/">
+<span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../extensions/">
+<span class="md-ellipsis">
+    
+  
+    Advanced Topics
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../cli/">
+<span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../community/contributing/">
+<span class="md-ellipsis">
+    
+  
+    Community
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/configs/protein-extension/">
+<span class="md-ellipsis">
+    
+  
+    Reference Library
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#4-factor-analysis-and-matrix-factorization">
+<span class="md-ellipsis">
+      
+        4. Factor Analysis and Matrix Factorization
+      
+    </span>
+</a>
+<nav aria-label="4. Factor Analysis and Matrix Factorization" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#factor-and-source-model-learning-objectives">
+<span class="md-ellipsis">
+      
+        Factor and source-model learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-two-dimensional-factor-model">
+<span class="md-ellipsis">
+      
+        Worked Two-Dimensional Factor Model
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#probabilistic-pca-and-identifiability">
+<span class="md-ellipsis">
+      
+        Probabilistic PCA and Identifiability
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#matrix-factorization-needs-a-probability-model">
+<span class="md-ellipsis">
+      
+        Matrix Factorization Needs a Probability Model
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mixtures-of-local-factor-models">
+<span class="md-ellipsis">
+      
+        Mixtures of Local Factor Models
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#paired-views-and-probabilistic-cca">
+<span class="md-ellipsis">
+      
+        Paired Views and Probabilistic CCA
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#exponential-family-factors-and-nonlinear-decoders">
+<span class="md-ellipsis">
+      
+        Exponential-Family Factors and Nonlinear Decoders
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#independent-components-and-the-source-separation-contract">
+<span class="md-ellipsis">
+      
+        Independent Components and the Source-Separation Contract
+      
+    </span>
+</a>
+<nav aria-label="Independent Components and the Source-Separation Contract" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-finite-example-six-observations-one-exact-unmixing-rule">
+<span class="md-ellipsis">
+      
+        Worked finite example: six observations, one exact unmixing rule
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#sparse-coding-and-dictionary-learning">
+<span class="md-ellipsis">
+      
+        Sparse Coding and Dictionary Learning
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#nonlinear-ica-expressivity-removes-the-linear-theorem">
+<span class="md-ellipsis">
+      
+        Nonlinear ICA: Expressivity Removes the Linear Theorem
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#factor-and-source-model-retrieval-practice">
+<span class="md-ellipsis">
+      
+        Factor and source-model retrieval practice
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#factor-and-source-model-synthesis">
+<span class="md-ellipsis">
+      
+        Factor and source-model synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<nav aria-label="Breadcrumb" class="md-path">
+<ol class="md-path__list">
+<li class="md-path__item">
+<a class="md-path__link" href="../../..">
+<span class="md-ellipsis">
+    Home
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    Generative Models Book
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../probability-01-objects/">
+<span class="md-ellipsis">
+    Foundations
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../classical-01-latent-foundations/">
+<span class="md-ellipsis">
+    2. Classical Generative Models
+  </span>
+</a>
+</li>
+</ol>
+</nav>
+<article class="md-content__inner md-typeset">
+<h1 id="classical-models-2-factor-analysis-and-matrix-factorization">Classical Models 2 — Factor Analysis and Matrix Factorization<a class="headerlink" href="#classical-models-2-factor-analysis-and-matrix-factorization" title="Permanent link">¤</a></h1><aside aria-label="Learning path" class="admonition abstract artifex-learning-path"><p class="admonition-title">Learning path</p><p><strong>Required knowledge</strong></p><ul class="artifex-learning-path__links" data-learning-path-role="required"><li><a href="../classical-01-latent-foundations/">Classical Models 1 — Exponential and Latent-Variable Foundations</a></li></ul><p><strong>Readiness check:</strong> can you explain the central object and reproduce one worked example from each required chapter? If not, follow its link before continuing.</p><p><strong>Newly unlocked in the default route</strong></p><ul class="artifex-learning-path__links" data-learning-path-role="unlocks"><li><a href="../classical-03-directed-graphs/">Classical Models 3 — Directed Graphical Models</a></li></ul></aside>
+<p>This chapter compares probabilistic PCA, factor analysis, ICA, sparse coding,
+NMF, and matrix factorization while keeping their identification assumptions
+and inference objects distinct. For uninterrupted reading, use the <a href="../classical-generative-models/#4-factor-analysis-and-matrix-factorization">continuous
+view</a>.</p>
+<h2 id="4-factor-analysis-and-matrix-factorization">4. Factor Analysis and Matrix Factorization<a class="headerlink" href="#4-factor-analysis-and-matrix-factorization" title="Permanent link">¤</a></h2>
+<h3 id="factor-and-source-model-learning-objectives">Factor and source-model learning objectives<a class="headerlink" href="#factor-and-source-model-learning-objectives" title="Permanent link">¤</a></h3>
+<p>This projection assumes latent-variable likelihoods and linear algebra. By the
+end, you should be able to derive the factor-analysis covariance and posterior,
+identify rotation/scale ambiguities, distinguish probabilistic PCA from generic
+matrix factorization, compare mixture/local factor models and probabilistic CCA,
+and state the assumptions that identify linear or auxiliary-variable nonlinear
+ICA rather than treating every latent coordinate as a source.</p>
+<p>A finite mixture uses a discrete latent to choose among component distributions. A factor model uses a continuous latent vector to induce dependence among observed coordinates. In factor analysis,</p>
+<div class="arithmatex">\[
+z\sim\mathcal N(0,I_L),
+\qquad
+x\mid z\sim\mathcal N(Wz+\mu,\Psi),
+\]</div>
+<p>where <span class="arithmatex">\(W\in\mathbb R^{D\times L}\)</span> and <span class="arithmatex">\(\Psi\)</span> is usually diagonal. Marginalizing <span class="arithmatex">\(z\)</span> gives</p>
+<div class="arithmatex">\[
+p(x)=\mathcal N\!\left(x;\mu,WW^\top+\Psi\right).
+\]</div>
+<p>The graph is almost identical to the mixture plate; the state space and factor
+family changed. The assignment is now a continuous vector and the observation
+factor is linear Gaussian:</p>
+<figure class="book-figure" id="fig-classical-generative-models-4-factor-analysis-and-matrix-factorization"><pre class="mermaid"><code>flowchart LR
+    params["Fixed&amp;nbsp;$$W,\mu,\Psi$$"]
+    subgraph items["items (repeated N times)"]
+        z(("Factor&amp;nbsp;$$z_i\in\mathbb{R}^{L}$$")) --&gt; x(("Observed&amp;nbsp;$$x_i\in\mathbb{R}^{D}$$"))
+    end
+    params --&gt; x
+    class x observed</code></pre><figcaption class="book-object-caption"><span class="book-object-number">Figure CLASS.4.</span> 4. Factor Analysis and Matrix Factorization</figcaption></figure>
+<p>This visual similarity isolates the mathematical change responsible for
+analytic Gaussian marginalization instead of making factor analysis look like
+an unrelated list of formulas.</p>
+<p>The low-rank term <span class="arithmatex">\(WW^\top\)</span> explains covariance shared across features; the diagonal term <span class="arithmatex">\(\Psi\)</span> represents feature-specific residual variation. The model therefore uses <span class="arithmatex">\(O(DL+D)\)</span> covariance parameters rather than the <span class="arithmatex">\(O(D^2)\)</span> entries of an unrestricted covariance matrix when <span class="arithmatex">\(L\ll D\)</span>.</p>
+<p>The posterior is also Gaussian. With <span class="arithmatex">\(M=I_L+W^\top\Psi^{-1}W\)</span>,</p>
+<div class="arithmatex">\[
+p(z\mid x)=\mathcal N\!\left(
+z;
+M^{-1}W^\top\Psi^{-1}(x-\mu),
+M^{-1}
+\right).
+\]</div>
+<p>This exactness comes from linear-Gaussian closure. Replacing <span class="arithmatex">\(Wz+\mu\)</span> by a nonlinear neural decoder preserves the directed graph <span class="arithmatex">\(z\to x\)</span> but usually destroys the analytic marginal and posterior. That replacement leads toward the generative model used by a VAE; adding <span class="arithmatex">\(q_\phi(z\mid x)\)</span> supplies an approximate inference model rather than changing the latent joint by itself (<a href="https://arxiv.org/abs/1312.6114">Kingma and Welling, 2014</a>).</p>
+<h3 id="worked-two-dimensional-factor-model">Worked Two-Dimensional Factor Model<a class="headerlink" href="#worked-two-dimensional-factor-model" title="Permanent link">¤</a></h3>
+<p>Let <span class="arithmatex">\(L=1\)</span>, <span class="arithmatex">\(D=2\)</span>, <span class="arithmatex">\(W=(1,1)^\top\)</span>, <span class="arithmatex">\(\mu=0\)</span>, and <span class="arithmatex">\(\Psi=I_2\)</span>. Then</p>
+<div class="arithmatex">\[
+z\sim\mathcal N(0,1),
+\qquad
+x\mid z\sim\mathcal N\!\left(
+\begin{bmatrix}z\\z\end{bmatrix},I_2
+\right),
+\]</div>
+<p>so the observed covariance is</p>
+<div class="arithmatex">\[
+WW^\top+I_2=
+\begin{bmatrix}2&amp;1\\1&amp;2\end{bmatrix}.
+\]</div>
+<p>The two coordinates are correlated even though their observation noises are independent: both inherit the same latent factor. For the observation <span class="arithmatex">\(x=(2,0)^\top\)</span>,</p>
+<div class="arithmatex">\[
+M=1+W^\top W=3,
+\qquad
+p(z\mid x)=\mathcal N\!\left(z;\frac23,\frac13\right).
+\]</div>
+<p>The value <span class="arithmatex">\(2/3\)</span> is a posterior mean, not a deterministically recovered code. Its variance <span class="arithmatex">\(1/3\)</span> records uncertainty left after seeing the noisy coordinates. Generation runs in the other direction: sample one <span class="arithmatex">\(z\)</span>, then add an independent noise draw to each coordinate.</p>
+<h3 id="probabilistic-pca-and-identifiability">Probabilistic PCA and Identifiability<a class="headerlink" href="#probabilistic-pca-and-identifiability" title="Permanent link">¤</a></h3>
+<p>Probabilistic PCA restricts <span class="arithmatex">\(\Psi=\sigma^2I\)</span>. Maximum-likelihood loading directions span the principal subspace, while the probabilistic model also supplies a noise scale, a density, missing-data handling, and posterior uncertainty (<a href="https://doi.org/10.1111/1467-9868.00196">Tipping and Bishop, 1999</a>). It is not identical to applying deterministic PCA and then declaring its coordinates random.</p>
+<p>Factor coordinates are not unique. For any orthogonal <span class="arithmatex">\(R\)</span>,</p>
+<div class="arithmatex">\[
+(WR)(WR)^\top=WW^\top,
+\]</div>
+<p>so rotating <span class="arithmatex">\(W\)</span> and the latent coordinate leaves the observed law unchanged under an isotropic latent prior. Sparsity, non-Gaussian independent components, supervision, temporal structure, or other constraints can reduce the equivalence class, but a named axis is not automatically an identified concept.</p>
+<h3 id="matrix-factorization-needs-a-probability-model">Matrix Factorization Needs a Probability Model<a class="headerlink" href="#matrix-factorization-needs-a-probability-model" title="Permanent link">¤</a></h3>
+<p>A deterministic low-rank approximation writes a data matrix as <span class="arithmatex">\(X\approx UV^\top\)</span> and minimizes a reconstruction loss. Non-negative matrix factorization additionally constrains the factors. These are useful representation or optimization methods, but neither is a generative probability model until a likelihood, priors or parameter constraints, and a sampling procedure are declared.</p>
+<p>For example, probabilistic matrix factorization may specify</p>
+<div class="arithmatex">\[
+u_i\sim\mathcal N(0,\lambda_u^{-1}I),
+\quad
+v_j\sim\mathcal N(0,\lambda_v^{-1}I),
+\quad
+x_{ij}\mid u_i,v_j\sim\mathcal N(u_i^\top v_j,\sigma^2)
+\]</div>
+<p>for observed entries. This model has global collections of row and column latents; posterior inference couples them through the observed matrix. A Poisson or multinomial likelihood is often more appropriate for counts, and simplex or non-negativity constraints change both semantics and inference. Topic models are one structured count-data branch of this idea. Deep decoders replace bilinear maps with networks, but they still require a declared observation law if likelihood or posterior claims are made.</p>
+<p>A probabilistic non-negative factorization for counts can instead use Gamma-distributed non-negative factors and a Poisson observation law, for example</p>
+<div class="arithmatex">\[
+u_{ik}\sim\operatorname{Gamma}(a_u,b_u),
+\quad
+v_{jk}\sim\operatorname{Gamma}(a_v,b_v),
+\quad
+x_{ij}\mid u_i,v_j
+\sim\operatorname{Poisson}\!\left(\sum_k u_{ik}v_{jk}\right).
+\]</div>
+<p>Now prior sampling, count generation, posterior inference, and held-out predictive likelihood are defined. Gamma–Poisson conjugacy can support coordinate or augmented-variable updates, but integrating both factor matrices is not thereby trivial. Different NMF losses correspond to different observation/noise assumptions when a probabilistic interpretation exists; non-negativity alone does not select one. <a href="https://doi.org/10.1155/2009/785152">Cemgil (2009)</a> develops the Poisson/Gamma construction and separates maximum-likelihood NMF updates from full Bayesian inference.</p>
+<div class="admonition failure">
+<p class="admonition-title">Counterexample: a reconstruction factorization is not yet a generator</p>
+<p>An algorithm that returns matrices <span class="arithmatex">\(U,V\)</span> minimizing <span class="arithmatex">\(\|X-UV^\top\|_F^2\)</span> has not specified how to sample a new row, how missing entries are distributed, what noise measure the squared loss represents, or whether <span class="arithmatex">\(U\)</span> and <span class="arithmatex">\(V\)</span> are parameters or random variables. Calling it “generative” before those choices are made hides the probability space.</p>
+</div>
+<h3 id="mixtures-of-local-factor-models">Mixtures of Local Factor Models<a class="headerlink" href="#mixtures-of-local-factor-models" title="Permanent link">¤</a></h3>
+<p>One linear subspace may be too rigid for curved or heterogeneous data. A
+mixture of factor analyzers introduces a component <span class="arithmatex">\(c\)</span> and local factor <span class="arithmatex">\(z\)</span>:</p>
+<div class="arithmatex">\[
+\begin{aligned}
+c &amp;\sim \operatorname{Categorical}(\pi),\\
+z\mid c=k &amp;\sim \mathcal N(0,I),\\
+x\mid z,c=k &amp;\sim
+\mathcal N(W_kz+\mu_k,\Psi_k).
+\end{aligned}
+\]</div>
+<p>After marginalizing <span class="arithmatex">\(z\)</span>, component <span class="arithmatex">\(k\)</span> has covariance
+<span class="arithmatex">\(W_kW_k^\top+\Psi_k\)</span>. The model is therefore a constrained Gaussian mixture
+whose local low-rank covariance needs <span class="arithmatex">\(O(DL)\)</span> rather than <span class="arithmatex">\(O(D^2)\)</span> parameters
+per component when <span class="arithmatex">\(L\ll D\)</span>. It can approximate a curved distribution using
+several local subspaces, but component labels, local rotations, and redundant
+components remain non-identifiable. A finite mixture of local linear maps is
+not one globally invertible flow. The original exact-EM construction makes this
+local-density interpretation explicit
+(<a href="https://www.cs.utoronto.ca/~hinton/absps/tr96-1.html">Ghahramani and Hinton, 1996</a>).</p>
+<h3 id="paired-views-and-probabilistic-cca">Paired Views and Probabilistic CCA<a class="headerlink" href="#paired-views-and-probabilistic-cca" title="Permanent link">¤</a></h3>
+<p>For paired observations <span class="arithmatex">\((x,y)\)</span>, a shared latent model writes</p>
+<div class="arithmatex">\[
+z\sim\mathcal N(0,I),\qquad
+x\mid z\sim\mathcal N(W_xz+\mu_x,\Psi_x),\qquad
+y\mid z\sim\mathcal N(W_yz+\mu_y,\Psi_y).
+\]</div>
+<p>The views are conditionally independent given <span class="arithmatex">\(z\)</span>, and their cross-covariance
+is <span class="arithmatex">\(W_xW_y^\top\)</span>. Under the probabilistic CCA restrictions, maximum likelihood
+recovers the classical canonical subspaces—not unique named coordinates.
+View-private latent variables are needed when each view contains structured
+variation absent from the other; otherwise the shared code is forced to explain
+both common and private variation. More than two views, nonlinear decoders, or
+non-Gaussian observation laws change the model and usually the inference
+problem, even when the training objective still contains a correlation term.
+The Gaussian latent-variable equivalence to classical CCA is an
+assumption-specific maximum-likelihood result
+(<a href="https://www.stat.berkeley.edu/~jordan/688.pdf">Bach and Jordan, 2005</a>).</p>
+<h3 id="exponential-family-factors-and-nonlinear-decoders">Exponential-Family Factors and Nonlinear Decoders<a class="headerlink" href="#exponential-family-factors-and-nonlinear-decoders" title="Permanent link">¤</a></h3>
+<p>Factor analysis extends beyond real-valued Gaussian observations. A conditional
+exponential-family model can use</p>
+<div class="arithmatex">\[
+p(x_d\mid z)
+=
+h_d(x_d)\exp\!\left\{
+T_d(x_d)^\top\eta_d(z)-A_d(\eta_d(z))
+\right\},
+\]</div>
+<p>with a linear natural parameter <span class="arithmatex">\(\eta_d(z)=W_dz+b_d\)</span> for Bernoulli, count, or
+categorical data. The likelihood remains normalized, but a Gaussian prior is
+generally no longer conjugate to this observation law. A deterministic
+"exponential-family PCA" point estimate of every <span class="arithmatex">\(z_n\)</span> is therefore not the
+same procedure as integrating those latents or maintaining a non-degenerate
+variational posterior.</p>
+<p><a href="https://proceedings.neurips.cc/paper_files/paper/2001/hash/f410588e48dc83f2822a880a68f78923-Abstract.html">Collins, Dasgupta, and Schapire (2001)</a>
+derive the point-estimation and Bregman-loss construction. The normalized
+conditional model above is a probabilistic extension; it should not be
+attributed every property of that deterministic objective without an inference
+and parameter-learning specification.</p>
+<p>Replacing <span class="arithmatex">\(W_dz+b_d\)</span> by a neural network gives the decoder side of a VAE-like
+latent model; adding an encoder specifies an inference algorithm. Replacing it
+by a Gaussian-process function gives a GP latent-variable model. In the
+classical GP-LVM, latent inputs for the training cases are often optimized
+rather than produced by an amortized encoder. Sampling a new observation still
+requires a declared latent prior and the appropriate integration over the GP
+function or posterior. A nonlinear map increases flexibility; it does not by
+itself identify the latent coordinates (<a href="https://www.jmlr.org/papers/v6/lawrence05a.html">Lawrence, 2005</a>).</p>
+<h3 id="independent-components-and-the-source-separation-contract">Independent Components and the Source-Separation Contract<a class="headerlink" href="#independent-components-and-the-source-separation-contract" title="Permanent link">¤</a></h3>
+<p>Independent component analysis (ICA) changes the latent assumption rather than
+merely rotating PCA after the fact. In the square noiseless model,</p>
+<div class="arithmatex">\[
+z_j\ \text{independent},
+\qquad
+x=Az,
+\qquad
+B=A^{-1},
+\]</div>
+<p>so a continuous density transforms as</p>
+<div class="arithmatex">\[
+p_X(x)
+=
+\left|\det B\right|
+\prod_{j=1}^{D}p_j\!\left((Bx)_j\right).
+\]</div>
+<p>The determinant is essential: optimizing only independent-looking recovered
+coordinates is not maximum likelihood for a general unmixing matrix. In
+practice, centering and whitening can reduce the remaining search to an
+orthogonal rotation, after which likelihood, non-Gaussian contrast functions,
+or independence objectives estimate the axes.</p>
+<figure class="book-figure" id="fig-classical-generative-models-independent-components-and-the-source-separation-contract"><pre class="mermaid"><code>flowchart LR
+    z(("Independent sources&amp;nbsp;$$z$$"))
+    mixer["Invertible mixer&amp;nbsp;$$A$$"]
+    x(("Observed mixture&amp;nbsp;$$x$$"))
+    unmix["Estimated inverse&amp;nbsp;$$B$$"]
+    recovered(("Recovered sources&amp;nbsp;$$\hat z$$"))
+    z --&gt; mixer --&gt; x --&gt; unmix --&gt; recovered
+    class x observed</code></pre><figcaption class="book-object-caption"><span class="book-object-number">Figure CLASS.5.</span> Independent Components and the Source-Separation Contract</figcaption></figure>
+<h4 id="worked-finite-example-six-observations-one-exact-unmixing-rule">Worked finite example: six observations, one exact unmixing rule<a class="headerlink" href="#worked-finite-example-six-observations-one-exact-unmixing-rule" title="Permanent link">¤</a></h4>
+<p>Let <span class="arithmatex">\(Z_1\)</span> be uniform on <span class="arithmatex">\(\{-1,+1\}\)</span>, let <span class="arithmatex">\(Z_2\)</span> have probabilities
+<span class="arithmatex">\((1/4,1/2,1/4)\)</span> on <span class="arithmatex">\(\{-2,0,+2\}\)</span>, and make the two sources independent. Mix
+them with</p>
+<div class="arithmatex">\[
+\begin{aligned}
+A&amp;=
+\begin{bmatrix}1&amp;1\\1&amp;-1\end{bmatrix},\\[4pt]
+B=A^{-1}
+&amp;=\frac12
+\begin{bmatrix}1&amp;1\\1&amp;-1\end{bmatrix}.
+\end{aligned}
+\]</div>
+<p>For example, <span class="arithmatex">\(z=(1,2)^\top\)</span> produces <span class="arithmatex">\(x=(3,-1)^\top\)</span>, and
+<span class="arithmatex">\(Bx=(1,2)^\top\)</span> recovers the source exactly. Enumerating the <span class="arithmatex">\(2\times3\)</span> latent
+states gives six observation locations with the corresponding product masses.
+The observed coordinates are mixtures; the recovered coordinates are
+independent by construction.</p>
+<p>This example does <strong>not</strong> prove that a learning algorithm will recover <span class="arithmatex">\(B\)</span> from
+finite samples. Classical linear ICA identification additionally requires an
+appropriate non-degenerate mixing model and non-Gaussian independent sources,
+with at most one Gaussian source under the standard theorem. Even then,
+permutation and nonzero scaling (including sign) are unavoidable equivalences
+(<a href="https://doi.org/10.1016/0165-1684(94)90029-9">Comon, 1994</a>). If instead
+<span class="arithmatex">\(Z\sim\mathcal N(0,I)\)</span>, every orthogonal <span class="arithmatex">\(R\)</span> gives <span class="arithmatex">\(RZ\overset{d}{=}Z\)</span>; replacing
+<span class="arithmatex">\(A\)</span> by <span class="arithmatex">\(AR^\top\)</span> preserves the observed law, so whitening cannot choose a
+unique rotation.</p>
+<h3 id="sparse-coding-and-dictionary-learning">Sparse Coding and Dictionary Learning<a class="headerlink" href="#sparse-coding-and-dictionary-learning" title="Permanent link">¤</a></h3>
+<p>Sparse coding permits a noisy, rectangular, even overcomplete dictionary:</p>
+<div class="arithmatex">\[
+\begin{aligned}
+z_k&amp;\overset{\mathrm{iid}}\sim\operatorname{Laplace}(0,1/\lambda),\\
+x\mid z,W&amp;\sim\mathcal N(Wz,\sigma^2I).
+\end{aligned}
+\]</div>
+<p>For fixed <span class="arithmatex">\(W\)</span>, MAP inference is the Lasso-shaped problem</p>
+<div class="arithmatex">\[
+\begin{aligned}
+\mathcal J(z)
+&amp;=\frac{1}{2\sigma^2}\|x-Wz\|_2^2\\
+&amp;\phantom{{}={}}+\lambda\|z\|_1,\\
+\hat z_{\mathrm{MAP}}&amp;=\arg\min_z\mathcal J(z).
+\end{aligned}
+\]</div>
+<p>With</p>
+<div class="arithmatex">\[
+W=
+\begin{bmatrix}1&amp;0&amp;1\\0&amp;1&amp;1\end{bmatrix},
+\qquad x=\begin{bmatrix}3\\1\end{bmatrix},
+\]</div>
+<p>both <span class="arithmatex">\(z=(3,1,0)^\top\)</span> and <span class="arithmatex">\(z=(2,0,1)^\top\)</span> reconstruct <span class="arithmatex">\(x\)</span> exactly, but their
+<span class="arithmatex">\(\ell_1\)</span> norms are <span class="arithmatex">\(4\)</span> and <span class="arithmatex">\(3\)</span>. The MAP objective prefers the latter when the
+residuals tie. This is estimator behavior under a declared prior—not proof that
+the selected atoms are unique physical causes.</p>
+<p>Learning <span class="arithmatex">\(W\)</span> while integrating <span class="arithmatex">\(z\)</span> maximizes a marginal likelihood. Alternating
+between point estimates of <span class="arithmatex">\(z_n\)</span> and updates of <span class="arithmatex">\(W\)</span> instead optimizes a joint or
+profile objective. These procedures can be useful but are not interchangeable.
+Dictionary-column norms must also be constrained: replacing one column by
+<span class="arithmatex">\(cw_k\)</span> and its coefficient by <span class="arithmatex">\(z_k/c\)</span> preserves reconstruction while shrinking
+the coefficient penalty as <span class="arithmatex">\(c\)</span> grows. Modern sparse autoencoders inherit these
+scaling, overcompleteness, stability, and identification questions even when
+the encoder makes inference fast (<a href="https://www.jmlr.org/papers/v11/mairal10a.html">Mairal et al., 2010</a>).</p>
+<h3 id="nonlinear-ica-expressivity-removes-the-linear-theorem">Nonlinear ICA: Expressivity Removes the Linear Theorem<a class="headerlink" href="#nonlinear-ica-expressivity-removes-the-linear-theorem" title="Permanent link">¤</a></h3>
+<p>An unrestricted invertible nonlinear mixing <span class="arithmatex">\(x=f(z)\)</span> is not identified from
+one observational distribution merely because the coordinates of <span class="arithmatex">\(z\)</span> are
+independent. Flexible measure-preserving transformations can produce different
+independent coordinates with the same observed law. Positive nonlinear-ICA
+results therefore add information or structure: temporal nonstationarity,
+multiple environments, paired views, an auxiliary variable, restricted mixing
+maps, sparsity, or interventions.</p>
+<p><a href="https://proceedings.mlr.press/v89/hyvarinen19a.html">Hyvärinen, Sasaki, and Turner (2019)</a>
+derive one auxiliary-variable route using generalized contrastive learning.
+<a href="https://proceedings.mlr.press/v108/khemakhem20a.html">Khemakhem et al. (2020)</a>
+obtain identification for a conditional, factorized exponential-family prior
+under their stated assumptions; an ordinary unconditional VAE does not inherit
+that theorem. More specific results extend particular identification routes to
+<a href="https://openreview.net/forum?id=OIhwTkpkS1">multi-domain linear mixtures with dependent components</a>
+and study <a href="https://openreview.net/forum?id=miLK9YcxtA">sparse-autoencoder stability through dictionary-learning
+conditions</a>. These results enlarge
+the assumption–conclusion map. They do not make arbitrary nonlinear latents,
+ICA axes, or sparse-autoencoder features uniquely meaningful.</p>
+<div class="admonition warning">
+<p class="admonition-title">Independence is a model claim, not a visual impression</p>
+<p>Low sample correlation establishes neither mutual independence nor source recovery. State the allowed equivalence class, test held-out density or independence with uncertainty, rerun estimation, perturb preprocessing and dimension, and validate any semantic interpretation using external variables or interventions.</p>
+</div>
+<h2 id="factor-and-source-model-retrieval-practice">Factor and source-model retrieval practice<a class="headerlink" href="#factor-and-source-model-retrieval-practice" title="Permanent link">¤</a></h2>
+<details class="question">
+<summary>Retrieval practice: factors, views, and sources</summary>
+<ol>
+<li>Why are factor-loading matrices not uniquely identified by the observed covariance?</li>
+<li>What probabilistic ingredients are absent from an unqualified low-rank matrix factorization?</li>
+<li>Which assumptions make the finite ICA unmixing example identifiable beyond permutation and scaling?</li>
+<li>Why does nonlinear decoder expressivity weaken ordinary nonlinear-ICA identification?</li>
+</ol>
+<p><strong>Solutions.</strong> (1) Rotating latent coordinates and counter-rotating loadings preserves the covariance under an isotropic latent prior. (2) A sampling law, noise model, priors/regularization semantics, and predictive distribution. (3) Independent non-Gaussian sources and an invertible linear mixing model, with the usual unavoidable ambiguities. (4) Arbitrary invertible nonlinear transformations can produce observationally equivalent latent representations without auxiliary structure or restrictions.</p>
+</details>
+<h2 id="factor-and-source-model-synthesis">Factor and source-model synthesis<a class="headerlink" href="#factor-and-source-model-synthesis" title="Permanent link">¤</a></h2>
+<p>Factor models become generative only after their latent, loading, and noise laws
+are declared. Their coordinates are generally identified only up to a symmetry.
+Multiple views, sparsity, temporal structure, or auxiliary variables can reduce
+ambiguity, but each conclusion inherits the assumptions that supplied it.</p>
+<hr/>
+<p><strong>Continue:</strong> <a href="../classical-03-directed-graphs/">3. Directed Graphical Models</a> · <a href="../classical-generative-models/">Continuous view</a></p>
+</article>
+</div>
+<script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  Back to top
+</button>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+<div class="md-social">
+<a class="md-social__link" href="https://github.com/avitai/artifex" rel="noopener" target="_blank" title="github.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</a>
+<a class="md-social__link" href="https://pypi.org/project/avitai-artifex/" rel="noopener" target="_blank" title="pypi.org">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-66.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.3v101.8c0 29 25.2 46 53.4 54.3 33.8 9.9 66.3 11.7 106.8 0 26.9-7.8 53.4-23.5 53.4-54.3v-40.7H226.2v-13.6h160.2c31.1 0 42.6-21.7 53.4-54.2 11.2-33.5 10.7-65.7 0-108.6M286.2 444.7a20.4 20.4 0 1 1 0-40.7 20.4 20.4 0 1 1 0 40.7M167.8 248.1h106.8c29.7 0 53.4-24.5 53.4-54.3V91.9c0-29-24.4-50.7-53.4-55.6-35.8-5.9-74.7-5.6-106.8.1-45.2 8-53.4 24.7-53.4 55.6v40.7h106.9v13.6h-147c-31.1 0-58.3 18.7-66.8 54.2-9.8 40.7-10.2 66.1 0 108.6 7.6 31.6 25.7 54.2 56.8 54.2H101v-48.8c0-35.3 30.5-66.4 66.8-66.4m-6.6-183.4a20.4 20.4 0 1 1 0 40.8 20.4 20.4 0 1 1 0-40.8"></path></svg>
+</a>
+<a class="md-social__link" href="https://twitter.com/mahdi_shafiei" rel="noopener" target="_blank" title="twitter.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M459.4 151.7c.3 4.5.3 9.1.3 13.6 0 138.7-105.6 298.6-298.6 298.6-59.5 0-114.7-17.2-161.1-47.1 8.4 1 16.6 1.3 25.3 1.3 49.1 0 94.2-16.6 130.3-44.8-46.1-1-84.8-31.2-98.1-72.8 6.5 1 13 1.6 19.8 1.6 9.4 0 18.8-1.3 27.6-3.6-48.1-9.7-84.1-52-84.1-103v-1.3c14 7.8 30.2 12.7 47.4 13.3-28.3-18.8-46.8-51-46.8-87.4 0-19.5 5.2-37.4 14.3-53C87.4 130.8 165 172.4 252.1 176.9c-1.6-7.8-2.6-15.9-2.6-24C249.5 95.1 296.3 48 354.4 48c30.2 0 57.5 12.7 76.7 33.1 23.7-4.5 46.5-13.3 66.6-25.3-7.8 24.4-24.4 44.8-46.1 57.8 21.1-2.3 41.6-8.1 60.4-16.2-14.3 20.8-32.2 39.3-52.6 54.3"></path></svg>
+</a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.path", "navigation.top", "navigation.prune", "toc.follow", "search.highlight", "search.share", "search.suggest", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "content.mermaid"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+<script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+<script src="../../../javascripts/reading-layout.js"></script>
+</body>
+</html>

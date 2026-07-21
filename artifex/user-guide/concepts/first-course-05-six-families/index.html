@@ -1,0 +1,1253 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="This chapter compares AR, VAE, GAN, EBM, diffusion, and flow models against one four-state target so their shared structures and non-equivalences stay visible." name="description"/>
+<meta content="Mahdi Shafiei" name="author"/>
+<link href="https://docs.avitai.bio/artifex/user-guide/concepts/first-course-05-six-families/" rel="canonical"/>
+<link href="../first-course-04-learning-inference-sampling/" rel="prev"/>
+<link href="../first-course-06-code-and-equations/" rel="next"/>
+<link href="../../../assets/images/favicon.png" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.7.7" name="generator"/>
+<title>First Course 5 — Six Families, One Toy Distribution - Artifex</title>
+<link href="../../../assets/stylesheets/main.ec1eaa64.min.css" rel="stylesheet"/>
+<link href="../../../assets/stylesheets/palette.ab4e12ef.min.css" rel="stylesheet"/>
+<script src="../../../assets/vendor/iframe-worker/index.js"></script>
+<link href="../../../assets/_mkdocstrings.css" rel="stylesheet"/>
+<link href="../../../_static/extra.css" rel="stylesheet"/>
+<script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+<meta content="article" property="og:type"/>
+<meta content="The Artifex Generative Models Book" property="og:site_name"/>
+<meta content="First Course 5 — Six Families, One Toy Distribution" property="og:title"/>
+<meta content="This chapter compares AR, VAE, GAN, EBM, diffusion, and flow models against one four-state target so their shared structures and non-equivalences stay visible." property="og:description"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/first-course-05-six-families/" property="og:url"/>
+<meta content="2026-07-17" property="article:modified_time"/>
+<meta content="summary" name="twitter:card"/>
+<meta content="First Course 5 — Six Families, One Toy Distribution" name="twitter:title"/>
+<meta content="This chapter compares AR, VAE, GAN, EBM, diffusion, and flow models against one four-state target so their shared structures and non-equivalences stay visible." name="twitter:description"/>
+<meta content="Generative models, Machine learning, Probabilistic modeling, foundation, required, canonical_chapter, first-course-six-families, newcomer, practitioner, researcher" name="keywords"/>
+<meta content="First Course 5 — Six Families, One Toy Distribution" name="citation_title"/>
+<meta content="Mahdi Shafiei" name="citation_author"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/first-course-05-six-families/" name="citation_public_url"/>
+<meta content="en" name="citation_language"/>
+<meta content="First Course 5 — Six Families, One Toy Distribution" name="DC.title"/>
+<meta content="Mahdi Shafiei" name="DC.creator"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/first-course-05-six-families/" name="DC.identifier"/>
+<meta content="Text.LearningResource" name="DC.type"/>
+<meta content="2026-07-17" name="DCTERMS.modified"/>
+<meta content="https://github.com/avitai/artifex/blob/main/LICENSE" name="DCTERMS.license"/>
+<meta content="foundation" name="DCTERMS.educationLevel"/>
+<meta content="newcomer, practitioner, researcher" name="DCTERMS.audience"/>
+<link href="https://github.com/avitai/artifex/blob/main/LICENSE" rel="license"/>
+<script id="artifex-book-metadata" type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Chapter",
+  "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/first-course-05-six-families/",
+  "url": "https://docs.avitai.bio/artifex/user-guide/concepts/first-course-05-six-families/",
+  "name": "First Course 5 \u2014 Six Families, One Toy Distribution",
+  "description": "This chapter compares AR, VAE, GAN, EBM, diffusion, and flow models against one four-state target so their shared structures and non-equivalences stay visible.",
+  "identifier": "first-course-six-families",
+  "inLanguage": "en",
+  "isAccessibleForFree": true,
+  "learningResourceType": "Canonical chapter",
+  "educationalLevel": "foundation",
+  "educationalUse": "required",
+  "audience": [
+    
+      {"@type": "EducationalAudience", "audienceType": "newcomer"},
+    
+      {"@type": "EducationalAudience", "audienceType": "practitioner"},
+    
+      {"@type": "EducationalAudience", "audienceType": "researcher"}
+    
+  ],
+  "dateModified": "2026-07-17",
+  "keywords": ["Generative models", "Machine learning", "Probabilistic modeling", "foundation", "required", "canonical_chapter", "first-course-six-families", "newcomer", "practitioner", "researcher"],
+  "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+  "author": [
+    
+      {"@type": "Person", "name": "Mahdi Shafiei"}
+    
+  ],
+  "isPartOf": {
+    "@type": "Book",
+    "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/#book",
+    "url": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/",
+    "name": "The Artifex Generative Models Book",
+    "bookEdition": "Living Web Edition",
+    "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+    "author": [
+      
+        {"@type": "Person", "name": "Mahdi Shafiei"}
+      
+    ]
+  }
+}
+</script>
+<link href="../../../assets/vendor/katex/katex.min.css" id="artifex-katex-stylesheet" integrity="sha384-UA8juhPf75SzzAMA/4fo3yOU7sBJ0om7SCD2GHq0fZqZco6tr1UCV7nUbk9J90JM" rel="stylesheet"/>
+<script defer="" integrity="sha384-T/0lMUdJpd2S1ZHtRiofG3htU3xPCrFVeAQ1UUE2TJwlEJSV5NUwn30kP28n238E" src="../../../assets/vendor/mermaid/mermaid.min.js"></script>
+<script defer="" src="../../../assets/vendor/katex/katex-shadow.js"></script>
+<script defer="" src="../../../javascripts/mermaid-math.js"></script>
+<script defer="" src="../../../javascripts/mathjax.js"></script>
+<script defer="" integrity="sha384-OrHfGTnIbkl0do3N76qW/uWr38o91N05sbSPuYBPLH+hG8X/dNSrjZf3AGjzrCwC" src="../../../assets/vendor/mathjax/tex-mml-chtml.js"></script>
+</head>
+<body data-md-color-accent="amber" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#first-course-5-six-families-one-toy-distribution">
+          Skip to content
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header md-header--shadow" data-md-component="header">
+<nav aria-label="Header" class="md-header__inner md-grid">
+<a aria-label="Artifex" class="md-header__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            Artifex
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+            
+              First Course 5 — Six Families, One Toy Distribution
+            
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-label="Switch to dark mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: light)" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_1" hidden="" title="Switch to dark mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+<input aria-label="Switch to light mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-primary="indigo" data-md-color-scheme="slate" id="__palette_1" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_0" hidden="" title="Switch to light mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+</form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div aria-label="Search" class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Search" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="Search" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="Search" class="md-search__options">
+<a aria-label="Share" class="md-search__icon md-icon" data-clipboard="" data-clipboard-text="" data-md-component="search-share" href="javascript:void(0)" tabindex="-1" title="Share">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"></path></svg>
+</a>
+<button aria-label="Clear" class="md-search__icon md-icon" tabindex="-1" title="Clear" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            Initializing search
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Navigation" class="md-nav md-nav--primary" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="Artifex" class="md-nav__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+    Artifex
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../..">
+<span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../getting-started/installation/">
+<span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Generative Models Book
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Generative Models Book
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    
+  
+    Start Here — The Landscape
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_2" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    First Course — New to Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_2_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_2">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    First Course — New to Generative Models
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../first-course-01-generative-systems/">
+<span class="md-ellipsis">
+    
+  
+    1. Generative Systems and Queries
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../first-course-02-probability/">
+<span class="md-ellipsis">
+    
+  
+    2. Probability and Conditional Generation
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../first-course-03-math-neural-networks/">
+<span class="md-ellipsis">
+    
+  
+    3. Math and Neural-Network Bridge
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../first-course-04-learning-inference-sampling/">
+<span class="md-ellipsis">
+    
+  
+    4. Learning, Inference, and Sampling
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
+    
+  
+    5. Six Families, One Toy Distribution
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
+<span class="md-ellipsis">
+    
+  
+    5. Six Families, One Toy Distribution
+  
+
+    
+  </span>
+</a>
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#5-six-families-through-one-toy-distribution">
+<span class="md-ellipsis">
+      
+        5. Six Families Through One Toy Distribution
+      
+    </span>
+</a>
+<nav aria-label="5. Six Families Through One Toy Distribution" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#prerequisites-and-learning-objectives-for-chapter-5">
+<span class="md-ellipsis">
+      
+        Prerequisites and learning objectives for Chapter 5
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#one-target-different-interfaces">
+<span class="md-ellipsis">
+      
+        One target, different interfaces
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#autoregressive-models-multiply-normalized-conditionals">
+<span class="md-ellipsis">
+      
+        Autoregressive models: multiply normalized conditionals
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#variational-autoencoders-latent-generation-plus-learned-inference">
+<span class="md-ellipsis">
+      
+        Variational autoencoders: latent generation plus learned inference
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#gans-match-through-a-learned-comparison">
+<span class="md-ellipsis">
+      
+        GANs: match through a learned comparison
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#energy-based-models-assign-scalar-compatibility-then-normalize">
+<span class="md-ellipsis">
+      
+        Energy-based models: assign scalar compatibility, then normalize
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#diffusion-models-learn-to-reverse-a-corruption-process">
+<span class="md-ellipsis">
+      
+        Diffusion models: learn to reverse a corruption process
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#normalizing-flows-transport-through-an-invertible-map">
+<span class="md-ellipsis">
+      
+        Normalizing flows: transport through an invertible map
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#side-by-side-family-contract">
+<span class="md-ellipsis">
+      
+        Side-by-side family contract
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-comparison-choose-by-query">
+<span class="md-ellipsis">
+      
+        Worked comparison: choose by query
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#your-turn-compare-do-not-merely-list">
+<span class="md-ellipsis">
+      
+        Your turn: compare, do not merely list
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-5-retrieval-practice">
+<span class="md-ellipsis">
+      
+        Chapter 5 retrieval practice
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-5-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 5 synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../first-course-06-code-and-equations/">
+<span class="md-ellipsis">
+    
+  
+    6. Equations and Executable Code
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../first-course-07-diagnostic/">
+<span class="md-ellipsis">
+    
+  
+    7. Diagnostic and Next Routes
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../generative-modeling-first-course/">
+<span class="md-ellipsis">
+    
+  
+    Continuous View (All Chapters)
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../probability-01-objects/">
+<span class="md-ellipsis">
+    
+  
+    Foundations
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../autoregressive-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Model Families
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gradients-01-taxonomy/">
+<span class="md-ellipsis">
+    
+  
+    Connections and Compositions
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../normalization-01-queries/">
+<span class="md-ellipsis">
+    
+  
+    Research Practice
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../models/vae-guide/">
+<span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/core/base/">
+<span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../examples/overview/">
+<span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../zoo/">
+<span class="md-ellipsis">
+    
+  
+    Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../training/overview/">
+<span class="md-ellipsis">
+    
+  
+    Training
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../data/overview/">
+<span class="md-ellipsis">
+    
+  
+    Data &amp; Modalities
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../inference/overview/">
+<span class="md-ellipsis">
+    
+  
+    Inference &amp; Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../benchmarks/">
+<span class="md-ellipsis">
+    
+  
+    Evaluation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../guides/extensions/">
+<span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../extensions/">
+<span class="md-ellipsis">
+    
+  
+    Advanced Topics
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../cli/">
+<span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../community/contributing/">
+<span class="md-ellipsis">
+    
+  
+    Community
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/configs/protein-extension/">
+<span class="md-ellipsis">
+    
+  
+    Reference Library
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#5-six-families-through-one-toy-distribution">
+<span class="md-ellipsis">
+      
+        5. Six Families Through One Toy Distribution
+      
+    </span>
+</a>
+<nav aria-label="5. Six Families Through One Toy Distribution" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#prerequisites-and-learning-objectives-for-chapter-5">
+<span class="md-ellipsis">
+      
+        Prerequisites and learning objectives for Chapter 5
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#one-target-different-interfaces">
+<span class="md-ellipsis">
+      
+        One target, different interfaces
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#autoregressive-models-multiply-normalized-conditionals">
+<span class="md-ellipsis">
+      
+        Autoregressive models: multiply normalized conditionals
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#variational-autoencoders-latent-generation-plus-learned-inference">
+<span class="md-ellipsis">
+      
+        Variational autoencoders: latent generation plus learned inference
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#gans-match-through-a-learned-comparison">
+<span class="md-ellipsis">
+      
+        GANs: match through a learned comparison
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#energy-based-models-assign-scalar-compatibility-then-normalize">
+<span class="md-ellipsis">
+      
+        Energy-based models: assign scalar compatibility, then normalize
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#diffusion-models-learn-to-reverse-a-corruption-process">
+<span class="md-ellipsis">
+      
+        Diffusion models: learn to reverse a corruption process
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#normalizing-flows-transport-through-an-invertible-map">
+<span class="md-ellipsis">
+      
+        Normalizing flows: transport through an invertible map
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#side-by-side-family-contract">
+<span class="md-ellipsis">
+      
+        Side-by-side family contract
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-comparison-choose-by-query">
+<span class="md-ellipsis">
+      
+        Worked comparison: choose by query
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#your-turn-compare-do-not-merely-list">
+<span class="md-ellipsis">
+      
+        Your turn: compare, do not merely list
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-5-retrieval-practice">
+<span class="md-ellipsis">
+      
+        Chapter 5 retrieval practice
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-5-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 5 synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<nav aria-label="Breadcrumb" class="md-path">
+<ol class="md-path__list">
+<li class="md-path__item">
+<a class="md-path__link" href="../../..">
+<span class="md-ellipsis">
+    Home
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    Generative Models Book
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../first-course-01-generative-systems/">
+<span class="md-ellipsis">
+    First Course — New to Generative Models
+  </span>
+</a>
+</li>
+</ol>
+</nav>
+<article class="md-content__inner md-typeset">
+<h1 id="first-course-5-six-families-one-toy-distribution">First Course 5 — Six Families, One Toy Distribution<a class="headerlink" href="#first-course-5-six-families-one-toy-distribution" title="Permanent link">¤</a></h1><aside aria-label="Learning path" class="admonition abstract artifex-learning-path"><p class="admonition-title">Learning path</p><p><strong>Required knowledge</strong></p><ul class="artifex-learning-path__links" data-learning-path-role="required"><li><a href="../first-course-04-learning-inference-sampling/">First Course 4 — Learning, Inference, and Sampling</a></li></ul><p><strong>Readiness check:</strong> can you explain the central object and reproduce one worked example from each required chapter? If not, follow its link before continuing.</p><p><strong>Newly unlocked in the default route</strong></p><ul class="artifex-learning-path__links" data-learning-path-role="unlocks"><li><a href="../first-course-06-code-and-equations/">First Course 6 — Equations and Executable Code</a></li></ul></aside>
+<p>This chapter compares AR, VAE, GAN, EBM, diffusion, and flow models against one
+four-state target so their shared structures and non-equivalences stay visible.
+For uninterrupted reading, use the <a href="../generative-modeling-first-course/#5-six-families-through-one-toy-distribution">continuous
+view</a>.</p>
+<h2 id="5-six-families-through-one-toy-distribution">5. Six Families Through One Toy Distribution<a class="headerlink" href="#5-six-families-through-one-toy-distribution" title="Permanent link">¤</a></h2>
+<h3 id="prerequisites-and-learning-objectives-for-chapter-5">Prerequisites and learning objectives for Chapter 5<a class="headerlink" href="#prerequisites-and-learning-objectives-for-chapter-5" title="Permanent link">¤</a></h3>
+<p>This chapter assumes the four-state law and workflow from earlier chapters.
+After it, you should be able to:</p>
+<ol>
+<li>give a one-sentence generative story for AR, VAE, GAN, EBM, diffusion, and
+   flow models;</li>
+<li>identify each family's modeled object, common training signal, and
+   generation procedure;</li>
+<li>explain which comparisons are exact in the toy world and which are only
+   structural analogies; and</li>
+<li>choose a plausible family based on required queries rather than popularity.</li>
+</ol>
+<h3 id="one-target-different-interfaces">One target, different interfaces<a class="headerlink" href="#one-target-different-interfaces" title="Permanent link">¤</a></h3>
+<p>The target remains</p>
+<div class="arithmatex">\[
+p_\star=(0.45,0.05,0.15,0.35)
+\]</div>
+<p>over <span class="arithmatex">\(00,01,10,11\)</span>. Each family can be related to this target, but it exposes a
+different interface and makes different approximations at realistic scale.</p>
+<figure class="book-figure" id="fig-generative-modeling-first-course-one-target-different-interfaces"><pre class="mermaid"><code>flowchart LR
+    accTitle: Six model-family interfaces to one target distribution
+    accDescr: One target tile law is connected to autoregressive, VAE, GAN, energy-based, diffusion, and flow interfaces without claiming that their parameterizations or objectives are equivalent.
+    T["Target tile law"]
+    T --- AR["AR&lt;br/&gt;ordered conditionals"]
+    T --- VAE["VAE&lt;br/&gt;latent joint + inference"]
+    T --- GAN["GAN&lt;br/&gt;generator + discriminator game"]
+    T --- EBM["EBM&lt;br/&gt;energy + normalizer"]
+    T --- DIFF["Diffusion&lt;br/&gt;corrupt + reverse"]
+    T --- FLOW["Flow&lt;br/&gt;invertible transport"]</code></pre><figcaption class="book-object-caption"><span class="book-object-number">Figure FIRST.3.</span> Six model-family interfaces to one target distribution</figcaption></figure>
+<p>The diagram does not claim that the parameterizations or objectives are
+equivalent. It fixes one target so their structural differences are visible.</p>
+<h3 id="autoregressive-models-multiply-normalized-conditionals">Autoregressive models: multiply normalized conditionals<a class="headerlink" href="#autoregressive-models-multiply-normalized-conditionals" title="Permanent link">¤</a></h3>
+<p>Choose an order, then factorize:</p>
+<div class="arithmatex">\[
+p(x_1,x_2)=p(x_1)p(x_2\mid x_1).
+\]</div>
+<p>The exact tile parameters are</p>
+<div class="arithmatex">\[
+\begin{aligned}
+p(X_1=1) &amp;= 0.5, \\
+p(X_2=1\mid X_1=0) &amp;= 0.1, \\
+p(X_2=1\mid X_1=1) &amp;= 0.7.
+\end{aligned}
+\]</div>
+<p>Generation draws color, then shape conditional on color. Scoring multiplies
+the two normalized terms. In high dimensions, the architecture shares
+parameters across conditionals and the order affects computation and inductive
+bias even though the chain rule itself is universal.</p>
+<p><strong>Connection:</strong> the inverse-CDF tile sampler and a token-by-token language
+model are both ancestral samplers. The surface objects differ, but both append
+one draw conditional on the prefix.</p>
+<h3 id="variational-autoencoders-latent-generation-plus-learned-inference">Variational autoencoders: latent generation plus learned inference<a class="headerlink" href="#variational-autoencoders-latent-generation-plus-learned-inference" title="Permanent link">¤</a></h3>
+<p>The hidden-mode model from Chapter 4 writes</p>
+<div class="arithmatex">\[
+p_\theta(x)=\sum_z p_\theta(z)p_\theta(x\mid z).
+\]</div>
+<p>A VAE uses neural networks for a decoder <span class="arithmatex">\(p_\theta(x\mid z)\)</span> and an approximate
+posterior <span class="arithmatex">\(q_\phi(z\mid x)\)</span>. It commonly trains with the evidence lower bound</p>
+<div class="arithmatex">\[
+\mathbb E_{q_\phi(z\mid x)}[\log p_\theta(x\mid z)]
+-\operatorname{KL}\!\left(q_\phi(z\mid x)\,\|\,p(z)\right)
+\le \log p_\theta(x).
+\]</div>
+<p>Generation samples the prior and decodes. Encoding a datum with
+<span class="arithmatex">\(q_\phi(z\mid x)\)</span> is inference, not the unconditional generative direction.
+The finite tile posterior is exact; “VAE” specifically adds amortized
+variational inference for settings where exact posterior calculations are not
+generally available.</p>
+<p><strong>Connection:</strong> an autoregressive decoder may appear inside a VAE. “VAE” names
+the latent-model and inference/training structure, while “autoregressive” names
+a factorization of an output law; they are composable rather than mutually
+exclusive labels.</p>
+<h3 id="gans-match-through-a-learned-comparison">GANs: match through a learned comparison<a class="headerlink" href="#gans-match-through-a-learned-comparison" title="Permanent link">¤</a></h3>
+<p>Let <span class="arithmatex">\(U\sim\operatorname{Uniform}(0,1)\)</span> and let a generator <span class="arithmatex">\(G_\theta(U)\)</span> map
+noise to a tile. A sufficiently flexible generator can allocate intervals of
+length <span class="arithmatex">\(0.45,0.05,0.15,0.35\)</span> to the four states. The pushforward law of
+<span class="arithmatex">\(G_\theta(U)\)</span> then matches the target.</p>
+<p>A GAN does not fit those interval lengths by maximum likelihood. A
+discriminator or critic learns to distinguish data from generated samples,
+while the generator changes to improve the adversarial objective. At an ideal
+population optimum under the stated game, generated and data laws can agree;
+finite networks, finite samples, and optimization dynamics need not reach that
+optimum.</p>
+<p>Generation is direct once <span class="arithmatex">\(G_\theta\)</span> is trained. A normalized likelihood for
+an arbitrary tile is not generally exposed by the neural generator.</p>
+<p><strong>Connection:</strong> both a GAN and a VAE can use a decoder-shaped network from
+latent noise to observations. The same architectural arrow does not make their
+probability semantics or training objectives the same.</p>
+<h3 id="energy-based-models-assign-scalar-compatibility-then-normalize">Energy-based models: assign scalar compatibility, then normalize<a class="headerlink" href="#energy-based-models-assign-scalar-compatibility-then-normalize" title="Permanent link">¤</a></h3>
+<p>An EBM writes</p>
+<div class="arithmatex">\[
+p_\theta(x)=\frac{e^{-E_\theta(x)}}{Z_\theta},
+\qquad
+Z_\theta=\sum_{x'}e^{-E_\theta(x')}
+\]</div>
+<p>for the finite tile world. Choosing</p>
+<div class="arithmatex">\[
+E(x)=-\log p_\star(x)
+\]</div>
+<p>gives <span class="arithmatex">\(Z=1\)</span> and exactly recovers the target. Adding the same constant to every
+energy changes <span class="arithmatex">\(Z\)</span> but not the normalized law. For large spaces, calculating
+<span class="arithmatex">\(Z_\theta\)</span> and drawing representative samples can be the hard parts. MCMC is a
+sampling method for an energy-defined law; the energy function is the model
+component.</p>
+<p><strong>Connection:</strong> the score of a differentiable continuous EBM is
+<span class="arithmatex">\(\nabla_x\log p_\theta(x)=-\nabla_xE_\theta(x)\)</span> because the normalizer does not
+depend on <span class="arithmatex">\(x\)</span>. Diffusion models often learn scores without first learning an
+explicit scalar energy.</p>
+<h3 id="diffusion-models-learn-to-reverse-a-corruption-process">Diffusion models: learn to reverse a corruption process<a class="headerlink" href="#diffusion-models-learn-to-reverse-a-corruption-process" title="Permanent link">¤</a></h3>
+<p>A discrete corruption kernel can randomly replace a tile with progressively
+less informative states. If <span class="arithmatex">\(q_t(y\mid x)\)</span> is the forward corruption law, then
+the exact reverse conditional under the data law is</p>
+<div class="arithmatex">\[
+q_t(x\mid y)
+=\frac{p_\star(x)q_t(y\mid x)}
+       {\sum_{x'}p_\star(x')q_t(y\mid x')}.
+\]</div>
+<p>Training examples can be constructed by drawing a real tile and corrupting it.
+A neural model learns reverse conditionals, noise predictions, scores, or
+velocity-like targets depending on the formulation. Generation begins from a
+simple high-noise distribution and applies a numerical reverse process.</p>
+<p>For four states the reverse table can be computed exactly. In image, audio, or
+continuous-state models it is learned and the finite-step sampler introduces
+an additional approximation.</p>
+<p><strong>Connection:</strong> diffusion generation is sequential like autoregressive
+generation, but its sequence usually evolves whole noisy states over time
+rather than appending one observed component at a time.</p>
+<h3 id="normalizing-flows-transport-through-an-invertible-map">Normalizing flows: transport through an invertible map<a class="headerlink" href="#normalizing-flows-transport-through-an-invertible-map" title="Permanent link">¤</a></h3>
+<p>For continuous variables, an invertible map <span class="arithmatex">\(x=f_\theta(z)\)</span> transforms a base
+density according to</p>
+<div class="arithmatex">\[
+p_X(x)=p_Z(f_\theta^{-1}(x))
+\left|\det J_{f_\theta^{-1}}(x)\right|.
+\]</div>
+<p>Generation applies the forward map to base noise; scoring uses the inverse and
+Jacobian determinant. Continuous-time flows replace a finite composition of
+maps with an ODE and track density change through a divergence.</p>
+<p>The discrete tile world exposes a useful limitation. A bijection of four
+states merely permutes four base masses. A uniform discrete base therefore
+remains uniform and cannot become <span class="arithmatex">\((0.45,0.05,0.15,0.35)\)</span> through a bijection
+alone. One needs a nonuniform base, an augmented/discrete construction, or a
+continuous representation such as dequantized tiles. “Invertible” does not by
+itself imply universal distribution matching.</p>
+<p><strong>Connection:</strong> GAN generators and flows both push base noise through a neural
+map. The flow constrains the map so that density transformation is available;
+a typical GAN permits a noninvertible map and uses adversarial comparison
+instead of change-of-variables likelihood.</p>
+<h3 id="side-by-side-family-contract">Side-by-side family contract<a class="headerlink" href="#side-by-side-family-contract" title="Permanent link">¤</a></h3>
+<div class="md-typeset__table book-table-container"><table id="tbl-generative-modeling-first-course-side-by-side-family-contract"><caption class="book-object-caption"><span class="book-object-number">Table FIRST.5.</span> Side-by-side family contract</caption>
+<thead>
+<tr>
+<th>Family</th>
+<th>Declared object</th>
+<th>Common learning signal</th>
+<th>Generation</th>
+<th>Direct normalized score?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AR</td>
+<td>ordered normalized conditionals</td>
+<td>log-likelihood</td>
+<td>ancestral, component by component</td>
+<td>yes, when conditionals are tractable</td>
+</tr>
+<tr>
+<td>VAE</td>
+<td>latent joint plus approximate posterior</td>
+<td>ELBO or related variational objective</td>
+<td>prior sample, then decoder</td>
+<td>lower bound commonly; exact marginal may be hard</td>
+</tr>
+<tr>
+<td>GAN</td>
+<td>implicit pushforward plus adversarial game</td>
+<td>discriminator/critic comparison</td>
+<td>one generator pass, possibly composed</td>
+<td>generally no</td>
+</tr>
+<tr>
+<td>EBM</td>
+<td>scalar energy defining an unnormalized law</td>
+<td>likelihood approximations, score matching, contrastive criteria</td>
+<td>usually MCMC or another energy-aware sampler</td>
+<td>only after handling the normalizer</td>
+</tr>
+<tr>
+<td>Diffusion</td>
+<td>forward path plus learned reverse/score/velocity object</td>
+<td>denoising, score, variational, or flow objectives</td>
+<td>iterative numerical reverse process</td>
+<td>formulation-dependent; exact data likelihood is not automatic</td>
+</tr>
+<tr>
+<td>Flow</td>
+<td>invertible discrete or continuous transport</td>
+<td>exact or simulation-free transport objectives</td>
+<td>map base noise through transport</td>
+<td>yes for tractable invertible density flows</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="worked-comparison-choose-by-query">Worked comparison: choose by query<a class="headerlink" href="#worked-comparison-choose-by-query" title="Permanent link">¤</a></h3>
+<p>Suppose exact per-tile scoring and fast sampling are both required. In the
+four-state world, a table or AR factorization provides both directly. A
+tractable discrete flow with a suitable base can also score and sample, though
+the uniform-base limitation above matters. A GAN offers fast sampling but not
+the required score. An EBM offers energies but may make normalization and
+sampling expensive. A diffusion model introduces an iterative sampler that is
+unnecessary for this tiny space. A VAE is useful if a latent representation is
+part of the query, but its marginal score may require a bound or estimator.</p>
+<p>This is not a universal ranking. Change the query to “learn a useful latent
+representation” or “generate high-dimensional perceptual data under a fixed
+latency budget,” and the tradeoffs change.</p>
+<h3 id="your-turn-compare-do-not-merely-list">Your turn: compare, do not merely list<a class="headerlink" href="#your-turn-compare-do-not-merely-list" title="Permanent link">¤</a></h3>
+<p>For each pair, state one shared structure and one non-equivalence:</p>
+<ol>
+<li>GAN and flow;</li>
+<li>EBM and diffusion;</li>
+<li>AR and diffusion;</li>
+<li>VAE and AR.</li>
+</ol>
+<details class="success">
+<summary>Check your answer</summary>
+<ol>
+<li>Both can push base noise through neural computation; a density flow is
+   invertible with a tractable change-of-variables contract, while a
+   typical GAN is implicit and adversarially trained.</li>
+<li>Both can use score-like information; an EBM begins from a scalar energy
+   defining one law, while diffusion usually learns time-indexed reverse or
+   score objects along a corruption path.</li>
+<li>Both generate sequentially; AR appends ordered observed components,
+   while diffusion updates noisy whole-state representations over time.</li>
+<li>Both may contain normalized autoregressive conditionals; a VAE adds a
+   latent joint, approximate posterior, and variational training structure,
+   whereas AR alone only specifies an ordered factorization.</li>
+</ol>
+</details>
+<h3 id="chapter-5-retrieval-practice">Chapter 5 retrieval practice<a class="headerlink" href="#chapter-5-retrieval-practice" title="Permanent link">¤</a></h3>
+<p>Cover the comparison table and reconstruct one sentence for each family using
+the pattern: <strong>object → learning signal → generation procedure</strong>. Then answer:</p>
+<ol>
+<li>Which two families most clearly illustrate that similar decoder
+   architectures need not imply the same objective?</li>
+<li>Why can a uniform four-state base not become the nonuniform tile law through
+   a discrete bijection alone?</li>
+<li>Which family makes the normalizer an explicit obstacle?</li>
+<li>In what sense are AR and diffusion both sequential, and how do their
+   sequences differ?</li>
+</ol>
+<h3 id="chapter-5-synthesis">Chapter 5 synthesis<a class="headerlink" href="#chapter-5-synthesis" title="Permanent link">¤</a></h3>
+<p>The six families are different interfaces to distribution construction and
+learning, not six brand names for interchangeable neural networks. Comparing
+them on one target makes the shared structures visible while forcing every
+claimed connection to state what is—and is not—preserved.</p>
+<hr/>
+<p><strong>Continue:</strong> <a href="../first-course-06-code-and-equations/">6. Equations and Executable Code</a> · <a href="../generative-modeling-first-course/">Continuous view</a></p>
+</article>
+</div>
+<script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  Back to top
+</button>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+<div class="md-social">
+<a class="md-social__link" href="https://github.com/avitai/artifex" rel="noopener" target="_blank" title="github.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</a>
+<a class="md-social__link" href="https://pypi.org/project/avitai-artifex/" rel="noopener" target="_blank" title="pypi.org">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-66.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.3v101.8c0 29 25.2 46 53.4 54.3 33.8 9.9 66.3 11.7 106.8 0 26.9-7.8 53.4-23.5 53.4-54.3v-40.7H226.2v-13.6h160.2c31.1 0 42.6-21.7 53.4-54.2 11.2-33.5 10.7-65.7 0-108.6M286.2 444.7a20.4 20.4 0 1 1 0-40.7 20.4 20.4 0 1 1 0 40.7M167.8 248.1h106.8c29.7 0 53.4-24.5 53.4-54.3V91.9c0-29-24.4-50.7-53.4-55.6-35.8-5.9-74.7-5.6-106.8.1-45.2 8-53.4 24.7-53.4 55.6v40.7h106.9v13.6h-147c-31.1 0-58.3 18.7-66.8 54.2-9.8 40.7-10.2 66.1 0 108.6 7.6 31.6 25.7 54.2 56.8 54.2H101v-48.8c0-35.3 30.5-66.4 66.8-66.4m-6.6-183.4a20.4 20.4 0 1 1 0 40.8 20.4 20.4 0 1 1 0-40.8"></path></svg>
+</a>
+<a class="md-social__link" href="https://twitter.com/mahdi_shafiei" rel="noopener" target="_blank" title="twitter.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M459.4 151.7c.3 4.5.3 9.1.3 13.6 0 138.7-105.6 298.6-298.6 298.6-59.5 0-114.7-17.2-161.1-47.1 8.4 1 16.6 1.3 25.3 1.3 49.1 0 94.2-16.6 130.3-44.8-46.1-1-84.8-31.2-98.1-72.8 6.5 1 13 1.6 19.8 1.6 9.4 0 18.8-1.3 27.6-3.6-48.1-9.7-84.1-52-84.1-103v-1.3c14 7.8 30.2 12.7 47.4 13.3-28.3-18.8-46.8-51-46.8-87.4 0-19.5 5.2-37.4 14.3-53C87.4 130.8 165 172.4 252.1 176.9c-1.6-7.8-2.6-15.9-2.6-24C249.5 95.1 296.3 48 354.4 48c30.2 0 57.5 12.7 76.7 33.1 23.7-4.5 46.5-13.3 66.6-25.3-7.8 24.4-24.4 44.8-46.1 57.8 21.1-2.3 41.6-8.1 60.4-16.2-14.3 20.8-32.2 39.3-52.6 54.3"></path></svg>
+</a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.path", "navigation.top", "navigation.prune", "toc.follow", "search.highlight", "search.share", "search.suggest", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "content.mermaid"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+<script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+<script src="../../../javascripts/reading-layout.js"></script>
+</body>
+</html>

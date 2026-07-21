@@ -1,0 +1,2860 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="This ledger records the primary-source research audit behind the family curriculum. It is not a leaderboard. Its purpose is to distinguish mature foundations" name="description"/>
+<meta content="Mahdi Shafiei" name="author"/>
+<link href="https://docs.avitai.bio/artifex/user-guide/concepts/new-families-frontier-evidence/" rel="canonical"/>
+<link href="../causal-generative-models-explained/" rel="prev"/>
+<link href="../gradients-01-taxonomy/" rel="next"/>
+<link href="../../../assets/images/favicon.png" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.7.7" name="generator"/>
+<title>Generative Families — Research Evidence Ledger - Artifex</title>
+<link href="../../../assets/stylesheets/main.ec1eaa64.min.css" rel="stylesheet"/>
+<link href="../../../assets/stylesheets/palette.ab4e12ef.min.css" rel="stylesheet"/>
+<script src="../../../assets/vendor/iframe-worker/index.js"></script>
+<link href="../../../assets/_mkdocstrings.css" rel="stylesheet"/>
+<link href="../../../_static/extra.css" rel="stylesheet"/>
+<script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+<meta content="article" property="og:type"/>
+<meta content="The Artifex Generative Models Book" property="og:site_name"/>
+<meta content="Generative Families — Research Evidence Ledger" property="og:title"/>
+<meta content="This ledger records the primary-source research audit behind the family curriculum. It is not a leaderboard. Its purpose is to distinguish mature foundations" property="og:description"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/new-families-frontier-evidence/" property="og:url"/>
+<meta content="2026-07-14" property="article:modified_time"/>
+<meta content="summary" name="twitter:card"/>
+<meta content="Generative Families — Research Evidence Ledger" name="twitter:title"/>
+<meta content="This ledger records the primary-source research audit behind the family curriculum. It is not a leaderboard. Its purpose is to distinguish mature foundations" name="twitter:description"/>
+<meta content="Generative models, Machine learning, Probabilistic modeling, research, reference, standalone, new-families-frontier-evidence, practitioner, researcher" name="keywords"/>
+<meta content="Generative Families — Research Evidence Ledger" name="citation_title"/>
+<meta content="Mahdi Shafiei" name="citation_author"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/new-families-frontier-evidence/" name="citation_public_url"/>
+<meta content="en" name="citation_language"/>
+<meta content="Generative Families — Research Evidence Ledger" name="DC.title"/>
+<meta content="Mahdi Shafiei" name="DC.creator"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/new-families-frontier-evidence/" name="DC.identifier"/>
+<meta content="Text.LearningResource" name="DC.type"/>
+<meta content="2026-07-14" name="DCTERMS.modified"/>
+<meta content="https://github.com/avitai/artifex/blob/main/LICENSE" name="DCTERMS.license"/>
+<meta content="research" name="DCTERMS.educationLevel"/>
+<meta content="practitioner, researcher" name="DCTERMS.audience"/>
+<link href="https://github.com/avitai/artifex/blob/main/LICENSE" rel="license"/>
+<script id="artifex-book-metadata" type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Chapter",
+  "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/new-families-frontier-evidence/",
+  "url": "https://docs.avitai.bio/artifex/user-guide/concepts/new-families-frontier-evidence/",
+  "name": "Generative Families \u2014 Research Evidence Ledger",
+  "description": "This ledger records the primary-source research audit behind the family curriculum. It is not a leaderboard. Its purpose is to distinguish mature foundations",
+  "identifier": "new-families-frontier-evidence",
+  "inLanguage": "en",
+  "isAccessibleForFree": true,
+  "learningResourceType": "Standalone synthesis",
+  "educationalLevel": "research",
+  "educationalUse": "reference",
+  "audience": [
+    
+      {"@type": "EducationalAudience", "audienceType": "practitioner"},
+    
+      {"@type": "EducationalAudience", "audienceType": "researcher"}
+    
+  ],
+  "dateModified": "2026-07-14",
+  "keywords": ["Generative models", "Machine learning", "Probabilistic modeling", "research", "reference", "standalone", "new-families-frontier-evidence", "practitioner", "researcher"],
+  "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+  "author": [
+    
+      {"@type": "Person", "name": "Mahdi Shafiei"}
+    
+  ],
+  "isPartOf": {
+    "@type": "Book",
+    "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/#book",
+    "url": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/",
+    "name": "The Artifex Generative Models Book",
+    "bookEdition": "Living Web Edition",
+    "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+    "author": [
+      
+        {"@type": "Person", "name": "Mahdi Shafiei"}
+      
+    ]
+  }
+}
+</script>
+<script defer="" src="../../../javascripts/mathjax.js"></script>
+<script defer="" integrity="sha384-OrHfGTnIbkl0do3N76qW/uWr38o91N05sbSPuYBPLH+hG8X/dNSrjZf3AGjzrCwC" src="../../../assets/vendor/mathjax/tex-mml-chtml.js"></script>
+</head>
+<body data-md-color-accent="amber" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#generative-families-research-evidence-ledger">
+          Skip to content
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header md-header--shadow" data-md-component="header">
+<nav aria-label="Header" class="md-header__inner md-grid">
+<a aria-label="Artifex" class="md-header__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            Artifex
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+            
+              Generative Families — Research Evidence Ledger
+            
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-label="Switch to dark mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: light)" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_1" hidden="" title="Switch to dark mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+<input aria-label="Switch to light mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-primary="indigo" data-md-color-scheme="slate" id="__palette_1" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_0" hidden="" title="Switch to light mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+</form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div aria-label="Search" class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Search" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="Search" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="Search" class="md-search__options">
+<a aria-label="Share" class="md-search__icon md-icon" data-clipboard="" data-clipboard-text="" data-md-component="search-share" href="javascript:void(0)" tabindex="-1" title="Share">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"></path></svg>
+</a>
+<button aria-label="Clear" class="md-search__icon md-icon" tabindex="-1" title="Clear" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            Initializing search
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Navigation" class="md-nav md-nav--primary" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="Artifex" class="md-nav__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+    Artifex
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../..">
+<span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../getting-started/installation/">
+<span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Generative Models Book
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Generative Models Book
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    
+  
+    Start Here — The Landscape
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../first-course-01-generative-systems/">
+<span class="md-ellipsis">
+    
+  
+    First Course — New to Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../probability-01-objects/">
+<span class="md-ellipsis">
+    
+  
+    Foundations
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_4" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_4" id="__nav_3_4_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Model Families
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_4_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_4">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Model Families
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../autoregressive-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Autoregressive Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../vae-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Variational Autoencoders
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gan-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Generative Adversarial Networks
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../ebm-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Energy-Based Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../diffusion-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Diffusion Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../flow-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Normalizing Flows and Flow Matching
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../probabilistic-circuits-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Probabilistic Circuits
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../tensor-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Tensor-Network and Born Probability Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../implicit-generators-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Implicit Generators Beyond GANs
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../discrete-iterative-01-masked/">
+<span class="md-ellipsis">
+    
+  
+    Discrete Iterative Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../bayesian-flow-networks-01-story/">
+<span class="md-ellipsis">
+    
+  
+    Bayesian Flow Networks
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gflownets-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Generative Flow Networks
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../bnp-01-random-measures/">
+<span class="md-ellipsis">
+    
+  
+    Bayesian Nonparametric Random-Measure Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../stochastic-process-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Stochastic-Process and Function-Space Generators
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../point-processes-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Point Processes and Random Finite Sets
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../random-graphs-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Random Graphs and Relational Generators
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../copula-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Copula Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../grammar-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Probabilistic Grammars and Program Derivations
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../causal-generative-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Causal Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
+    
+  
+    Research Evidence Ledger
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
+<span class="md-ellipsis">
+    
+  
+    Research Evidence Ledger
+  
+
+    
+  </span>
+</a>
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#evidence-labels">
+<span class="md-ellipsis">
+      
+        Evidence Labels
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#probabilistic-circuits">
+<span class="md-ellipsis">
+      
+        Probabilistic Circuits
+      
+    </span>
+</a>
+<nav aria-label="Probabilistic Circuits" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#probabilistic-circuits-what-is-established">
+<span class="md-ellipsis">
+      
+        Probabilistic Circuits: What is established
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#probabilistic-circuits-research-map">
+<span class="md-ellipsis">
+      
+        Probabilistic Circuits: Research Map
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#probabilistic-circuits-research-conclusion">
+<span class="md-ellipsis">
+      
+        Probabilistic Circuits: Research conclusion
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#implicit-generators-beyond-gans">
+<span class="md-ellipsis">
+      
+        Implicit Generators Beyond GANs
+      
+    </span>
+</a>
+<nav aria-label="Implicit Generators Beyond GANs" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#implicit-generators-beyond-gans-what-is-established">
+<span class="md-ellipsis">
+      
+        Implicit Generators Beyond GANs: What is established
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#implicit-generators-beyond-gans-research-map">
+<span class="md-ellipsis">
+      
+        Implicit Generators Beyond GANs: Research Map
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#implicit-generators-beyond-gans-research-conclusion">
+<span class="md-ellipsis">
+      
+        Implicit Generators Beyond GANs: Research conclusion
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#discrete-iterative-generation">
+<span class="md-ellipsis">
+      
+        Discrete Iterative Generation
+      
+    </span>
+</a>
+<nav aria-label="Discrete Iterative Generation" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#discrete-iterative-generation-what-is-established">
+<span class="md-ellipsis">
+      
+        Discrete Iterative Generation: What is established
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#discrete-iterative-generation-research-map">
+<span class="md-ellipsis">
+      
+        Discrete Iterative Generation: Research Map
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#discrete-iterative-generation-research-conclusion">
+<span class="md-ellipsis">
+      
+        Discrete Iterative Generation: Research conclusion
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#bayesian-flow-networks">
+<span class="md-ellipsis">
+      
+        Bayesian Flow Networks
+      
+    </span>
+</a>
+<nav aria-label="Bayesian Flow Networks" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#what-is-established-versus-active-research">
+<span class="md-ellipsis">
+      
+        What Is Established Versus Active Research
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#bayesian-flow-networks-research-conclusion">
+<span class="md-ellipsis">
+      
+        Bayesian Flow Networks: Research conclusion
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#generative-flow-networks">
+<span class="md-ellipsis">
+      
+        Generative Flow Networks
+      
+    </span>
+</a>
+<nav aria-label="Generative Flow Networks" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#generative-flow-networks-what-is-established">
+<span class="md-ellipsis">
+      
+        Generative Flow Networks: What is established
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#generative-flow-networks-research-conclusion">
+<span class="md-ellipsis">
+      
+        Generative Flow Networks: Research conclusion
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#point-processes-and-random-finite-sets">
+<span class="md-ellipsis">
+      
+        Point Processes and Random Finite Sets
+      
+    </span>
+</a>
+<nav aria-label="Point Processes and Random Finite Sets" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#point-processes-and-random-finite-sets-what-is-established">
+<span class="md-ellipsis">
+      
+        Point Processes and Random Finite Sets: What is established
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#point-processes-and-random-finite-sets-research-conclusion">
+<span class="md-ellipsis">
+      
+        Point Processes and Random Finite Sets: Research conclusion
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#random-graphs-and-relational-generators">
+<span class="md-ellipsis">
+      
+        Random Graphs and Relational Generators
+      
+    </span>
+</a>
+<nav aria-label="Random Graphs and Relational Generators" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#random-graphs-and-relational-generators-what-is-established">
+<span class="md-ellipsis">
+      
+        Random Graphs and Relational Generators: What is established
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#random-graphs-and-relational-generators-research-conclusion">
+<span class="md-ellipsis">
+      
+        Random Graphs and Relational Generators: Research conclusion
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#copula-models">
+<span class="md-ellipsis">
+      
+        Copula Models
+      
+    </span>
+</a>
+<nav aria-label="Copula Models" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#copula-models-what-is-established">
+<span class="md-ellipsis">
+      
+        Copula Models: What is established
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#copula-models-research-conclusion">
+<span class="md-ellipsis">
+      
+        Copula Models: Research conclusion
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#tensor-network-and-born-probability-models">
+<span class="md-ellipsis">
+      
+        Tensor-Network and Born Probability Models
+      
+    </span>
+</a>
+<nav aria-label="Tensor-Network and Born Probability Models" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#tensor-network-and-born-probability-models-what-is-established">
+<span class="md-ellipsis">
+      
+        Tensor-Network and Born Probability Models: What is established
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#tensor-network-and-born-probability-models-research-conclusion">
+<span class="md-ellipsis">
+      
+        Tensor-Network and Born Probability Models: Research conclusion
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#probabilistic-grammars-and-program-derivations">
+<span class="md-ellipsis">
+      
+        Probabilistic Grammars and Program Derivations
+      
+    </span>
+</a>
+<nav aria-label="Probabilistic Grammars and Program Derivations" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#probabilistic-grammars-and-program-derivations-what-is-established">
+<span class="md-ellipsis">
+      
+        Probabilistic Grammars and Program Derivations: What is established
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#probabilistic-grammars-and-program-derivations-research-conclusion">
+<span class="md-ellipsis">
+      
+        Probabilistic Grammars and Program Derivations: Research conclusion
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#evidence-scope">
+<span class="md-ellipsis">
+      
+        Evidence Scope
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#stochastic-process-and-function-space-generators">
+<span class="md-ellipsis">
+      
+        Stochastic-Process and Function-Space Generators
+      
+    </span>
+</a>
+<nav aria-label="Stochastic-Process and Function-Space Generators" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#stochastic-process-and-function-space-generators-what-is-established">
+<span class="md-ellipsis">
+      
+        Stochastic-Process and Function-Space Generators: What is established
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#stochastic-process-and-function-space-generators-research-conclusion">
+<span class="md-ellipsis">
+      
+        Stochastic-Process and Function-Space Generators: Research conclusion
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#causal-generative-models">
+<span class="md-ellipsis">
+      
+        Causal Generative Models
+      
+    </span>
+</a>
+<nav aria-label="Causal Generative Models" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#causal-generative-models-what-is-established">
+<span class="md-ellipsis">
+      
+        Causal Generative Models: What is established
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#causal-generative-models-research-conclusion">
+<span class="md-ellipsis">
+      
+        Causal Generative Models: Research conclusion
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#cross-family-research-conclusions">
+<span class="md-ellipsis">
+      
+        Cross-Family Research Conclusions
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gradients-01-taxonomy/">
+<span class="md-ellipsis">
+    
+  
+    Connections and Compositions
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../normalization-01-queries/">
+<span class="md-ellipsis">
+    
+  
+    Research Practice
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../models/vae-guide/">
+<span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/core/base/">
+<span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../examples/overview/">
+<span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../zoo/">
+<span class="md-ellipsis">
+    
+  
+    Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../training/overview/">
+<span class="md-ellipsis">
+    
+  
+    Training
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../data/overview/">
+<span class="md-ellipsis">
+    
+  
+    Data &amp; Modalities
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../inference/overview/">
+<span class="md-ellipsis">
+    
+  
+    Inference &amp; Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../benchmarks/">
+<span class="md-ellipsis">
+    
+  
+    Evaluation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../guides/extensions/">
+<span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../extensions/">
+<span class="md-ellipsis">
+    
+  
+    Advanced Topics
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../cli/">
+<span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../community/contributing/">
+<span class="md-ellipsis">
+    
+  
+    Community
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/configs/protein-extension/">
+<span class="md-ellipsis">
+    
+  
+    Reference Library
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#evidence-labels">
+<span class="md-ellipsis">
+      
+        Evidence Labels
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#probabilistic-circuits">
+<span class="md-ellipsis">
+      
+        Probabilistic Circuits
+      
+    </span>
+</a>
+<nav aria-label="Probabilistic Circuits" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#probabilistic-circuits-what-is-established">
+<span class="md-ellipsis">
+      
+        Probabilistic Circuits: What is established
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#probabilistic-circuits-research-map">
+<span class="md-ellipsis">
+      
+        Probabilistic Circuits: Research Map
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#probabilistic-circuits-research-conclusion">
+<span class="md-ellipsis">
+      
+        Probabilistic Circuits: Research conclusion
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#implicit-generators-beyond-gans">
+<span class="md-ellipsis">
+      
+        Implicit Generators Beyond GANs
+      
+    </span>
+</a>
+<nav aria-label="Implicit Generators Beyond GANs" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#implicit-generators-beyond-gans-what-is-established">
+<span class="md-ellipsis">
+      
+        Implicit Generators Beyond GANs: What is established
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#implicit-generators-beyond-gans-research-map">
+<span class="md-ellipsis">
+      
+        Implicit Generators Beyond GANs: Research Map
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#implicit-generators-beyond-gans-research-conclusion">
+<span class="md-ellipsis">
+      
+        Implicit Generators Beyond GANs: Research conclusion
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#discrete-iterative-generation">
+<span class="md-ellipsis">
+      
+        Discrete Iterative Generation
+      
+    </span>
+</a>
+<nav aria-label="Discrete Iterative Generation" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#discrete-iterative-generation-what-is-established">
+<span class="md-ellipsis">
+      
+        Discrete Iterative Generation: What is established
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#discrete-iterative-generation-research-map">
+<span class="md-ellipsis">
+      
+        Discrete Iterative Generation: Research Map
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#discrete-iterative-generation-research-conclusion">
+<span class="md-ellipsis">
+      
+        Discrete Iterative Generation: Research conclusion
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#bayesian-flow-networks">
+<span class="md-ellipsis">
+      
+        Bayesian Flow Networks
+      
+    </span>
+</a>
+<nav aria-label="Bayesian Flow Networks" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#what-is-established-versus-active-research">
+<span class="md-ellipsis">
+      
+        What Is Established Versus Active Research
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#bayesian-flow-networks-research-conclusion">
+<span class="md-ellipsis">
+      
+        Bayesian Flow Networks: Research conclusion
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#generative-flow-networks">
+<span class="md-ellipsis">
+      
+        Generative Flow Networks
+      
+    </span>
+</a>
+<nav aria-label="Generative Flow Networks" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#generative-flow-networks-what-is-established">
+<span class="md-ellipsis">
+      
+        Generative Flow Networks: What is established
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#generative-flow-networks-research-conclusion">
+<span class="md-ellipsis">
+      
+        Generative Flow Networks: Research conclusion
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#point-processes-and-random-finite-sets">
+<span class="md-ellipsis">
+      
+        Point Processes and Random Finite Sets
+      
+    </span>
+</a>
+<nav aria-label="Point Processes and Random Finite Sets" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#point-processes-and-random-finite-sets-what-is-established">
+<span class="md-ellipsis">
+      
+        Point Processes and Random Finite Sets: What is established
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#point-processes-and-random-finite-sets-research-conclusion">
+<span class="md-ellipsis">
+      
+        Point Processes and Random Finite Sets: Research conclusion
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#random-graphs-and-relational-generators">
+<span class="md-ellipsis">
+      
+        Random Graphs and Relational Generators
+      
+    </span>
+</a>
+<nav aria-label="Random Graphs and Relational Generators" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#random-graphs-and-relational-generators-what-is-established">
+<span class="md-ellipsis">
+      
+        Random Graphs and Relational Generators: What is established
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#random-graphs-and-relational-generators-research-conclusion">
+<span class="md-ellipsis">
+      
+        Random Graphs and Relational Generators: Research conclusion
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#copula-models">
+<span class="md-ellipsis">
+      
+        Copula Models
+      
+    </span>
+</a>
+<nav aria-label="Copula Models" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#copula-models-what-is-established">
+<span class="md-ellipsis">
+      
+        Copula Models: What is established
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#copula-models-research-conclusion">
+<span class="md-ellipsis">
+      
+        Copula Models: Research conclusion
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#tensor-network-and-born-probability-models">
+<span class="md-ellipsis">
+      
+        Tensor-Network and Born Probability Models
+      
+    </span>
+</a>
+<nav aria-label="Tensor-Network and Born Probability Models" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#tensor-network-and-born-probability-models-what-is-established">
+<span class="md-ellipsis">
+      
+        Tensor-Network and Born Probability Models: What is established
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#tensor-network-and-born-probability-models-research-conclusion">
+<span class="md-ellipsis">
+      
+        Tensor-Network and Born Probability Models: Research conclusion
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#probabilistic-grammars-and-program-derivations">
+<span class="md-ellipsis">
+      
+        Probabilistic Grammars and Program Derivations
+      
+    </span>
+</a>
+<nav aria-label="Probabilistic Grammars and Program Derivations" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#probabilistic-grammars-and-program-derivations-what-is-established">
+<span class="md-ellipsis">
+      
+        Probabilistic Grammars and Program Derivations: What is established
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#probabilistic-grammars-and-program-derivations-research-conclusion">
+<span class="md-ellipsis">
+      
+        Probabilistic Grammars and Program Derivations: Research conclusion
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#evidence-scope">
+<span class="md-ellipsis">
+      
+        Evidence Scope
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#stochastic-process-and-function-space-generators">
+<span class="md-ellipsis">
+      
+        Stochastic-Process and Function-Space Generators
+      
+    </span>
+</a>
+<nav aria-label="Stochastic-Process and Function-Space Generators" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#stochastic-process-and-function-space-generators-what-is-established">
+<span class="md-ellipsis">
+      
+        Stochastic-Process and Function-Space Generators: What is established
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#stochastic-process-and-function-space-generators-research-conclusion">
+<span class="md-ellipsis">
+      
+        Stochastic-Process and Function-Space Generators: Research conclusion
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#causal-generative-models">
+<span class="md-ellipsis">
+      
+        Causal Generative Models
+      
+    </span>
+</a>
+<nav aria-label="Causal Generative Models" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#causal-generative-models-what-is-established">
+<span class="md-ellipsis">
+      
+        Causal Generative Models: What is established
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#causal-generative-models-research-conclusion">
+<span class="md-ellipsis">
+      
+        Causal Generative Models: Research conclusion
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#cross-family-research-conclusions">
+<span class="md-ellipsis">
+      
+        Cross-Family Research Conclusions
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<nav aria-label="Breadcrumb" class="md-path">
+<ol class="md-path__list">
+<li class="md-path__item">
+<a class="md-path__link" href="../../..">
+<span class="md-ellipsis">
+    Home
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    Generative Models Book
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../autoregressive-01-foundations/">
+<span class="md-ellipsis">
+    Model Families
+  </span>
+</a>
+</li>
+</ol>
+</nav>
+<article class="md-content__inner md-typeset">
+<h1 id="generative-families-research-evidence-ledger">Generative Families — Research Evidence Ledger<a class="headerlink" href="#generative-families-research-evidence-ledger" title="Permanent link">¤</a></h1><aside aria-label="Learning path" class="admonition abstract artifex-learning-path"><p class="admonition-title">Learning path</p><p><strong>Required knowledge</strong></p><ul class="artifex-learning-path__links" data-learning-path-role="required"><li><a href="../generative-models-unified/">The Generative Modeling Landscape</a></li><li><a href="../probabilistic-circuits-06-practice/">Probabilistic Circuits 6 — Evaluation and Research</a></li><li><a href="../implicit-generators-06-practice/">Implicit Generators 6 — Practice and Research</a></li><li><a href="../discrete-iterative-06-practice/">Discrete Iterative Generation 6 — Practice and Research</a></li><li><a href="../bayesian-flow-networks-06-practice/">Bayesian Flow Networks 6 — Practice and Research</a></li><li><a href="../gflownets-06-practice/">GFlowNets 6 — Practice and Research</a></li><li><a href="../point-processes-06-neural-evaluation/">Point Processes 6 — Neural Models and Evaluation</a></li><li><a href="../random-graphs-06-evaluation/">Random Graphs 6 — Evaluation and Research</a></li></ul><p><strong>Readiness check:</strong> can you explain the central object and reproduce one worked example from each required chapter? If not, follow its link before continuing.</p><p><strong>Newly unlocked in the default route</strong></p><p>No immediate successor names this page as its final required prerequisite. Continue through the book navigation or the chapter's cross-links.</p></aside>
+<div class="admonition info">
+<p class="admonition-title">Why this ledger remains one page</p>
+<p>This page is an auditable research register rather than a sequential
+instructional volume. Keeping the admission criteria, evidence status, and
+family records together makes cross-entry review and maintenance explicit.</p>
+</div>
+<p>This ledger records the primary-source research audit behind the family curriculum. It is not a leaderboard. Its purpose is to distinguish mature foundations from protocol- or assumption-specific research and prevent publication recency, workshop results, or attractive analogies from silently becoming established consensus.</p>
+<h2 id="evidence-labels">Evidence Labels<a class="headerlink" href="#evidence-labels" title="Permanent link">¤</a></h2>
+<ul>
+<li><strong>Established:</strong> a result with mature theory or repeated use whose assumptions are well understood.</li>
+<li><strong>Peer-reviewed research:</strong> an archival conference/journal result that remains protocol- or assumption-specific.</li>
+<li><strong>Preprint:</strong> publicly available research without confirmed archival peer review for the cited version.</li>
+<li><strong>Technical report:</strong> an organization or author report; useful but not equivalent to independent review.</li>
+<li><strong>Vendor claim:</strong> a product/model claim whose data, code, or protocol may be incomplete.</li>
+<li><strong>Interpretive synthesis:</strong> a curriculum-level connection derived from several sources rather than stated as a theorem by one paper.</li>
+</ul>
+<p>Dates below identify the cited version or venue; the page metadata records when statuses were verified. Submissions, withdrawn or rejected papers, and workshop versions are not promoted to peer-reviewed research evidence.</p>
+<h2 id="probabilistic-circuits">Probabilistic Circuits<a class="headerlink" href="#probabilistic-circuits" title="Permanent link">¤</a></h2>
+<h3 id="probabilistic-circuits-what-is-established">Probabilistic Circuits: What is established<a class="headerlink" href="#probabilistic-circuits-what-is-established" title="Permanent link">¤</a></h3>
+<p>Smooth and decomposable circuits support tractable marginal evaluation under tractable leaves. Determinism and structured decomposability enable additional queries and compatible circuit operations. These are property-specific guarantees, not a universal statement that every PC query is linear time. The canonical source is <a href="https://starai.cs.ucla.edu/papers/ProbCirc20.pdf">Choi, Vergari, and Van den Broeck's framework</a>.</p>
+<h3 id="probabilistic-circuits-research-map">Probabilistic Circuits: Research Map<a class="headerlink" href="#probabilistic-circuits-research-map" title="Permanent link">¤</a></h3>
+<div class="md-typeset__table book-table-container"><table id="tbl-new-families-frontier-evidence-research-map"><caption class="book-object-caption"><span class="book-object-number">Table FRONT.1.</span> Research Map</caption>
+<thead>
+<tr>
+<th>Work</th>
+<th>Evidence</th>
+<th>Contribution used in the curriculum</th>
+<th>Boundary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://arxiv.org/abs/2004.06231">Einsum Networks</a>, 2020</td>
+<td>Peer-reviewed foundation</td>
+<td>Tensorizes regular PCs for accelerator-scale training</td>
+<td>Speedups depend on regular structure and hardware; tensorization does not create tractability</td>
+</tr>
+<tr>
+<td><a href="https://proceedings.mlr.press/v216/sidheekh23a.html">Probabilistic Flow Circuits</a>, UAI 2023</td>
+<td>Peer-reviewed research</td>
+<td>Combines flow components with circuit structure; identifies decomposability requirements</td>
+<td>Exactness attaches to the composed model only when flow and circuit assumptions hold</td>
+</tr>
+<tr>
+<td><a href="https://proceedings.mlr.press/v246/ghandi24a.html">Soft Learning PCs</a>, PGM 2024</td>
+<td>Peer-reviewed research</td>
+<td>Replaces hard LearnSPN routing with soft structure induction</td>
+<td>Results concern particular learners/data; not proof soft routing always dominates</td>
+</tr>
+<tr>
+<td><a href="https://proceedings.mlr.press/v258/zhang25f.html">Restructuring Tractable PCs</a>, AISTATS 2025</td>
+<td>Peer-reviewed research</td>
+<td>Transforms structured PCs toward a target vtree for compatibility</td>
+<td>Restructuring can increase size; compatibility is not free</td>
+</tr>
+<tr>
+<td><a href="https://proceedings.mlr.press/v286/seng25a.html">Scaling PCs via Data Partitioning</a>, UAI 2025</td>
+<td>Peer-reviewed research</td>
+<td>Studies scalable learning through partitioned data</td>
+<td>Scaling likelihood learning does not imply every advanced query scales equally</td>
+</tr>
+<tr>
+<td><a href="https://proceedings.neurips.cc/paper_files/paper/2025/hash/3d5b603d631d595f56bc36b373458b27-Abstract-Conference.html">Hardness of Approximating Distributions with Tractable Models</a>, NeurIPS 2025</td>
+<td>Peer-reviewed research</td>
+<td>Establishes approximation hardness and an exponential size separation between studied decomposable and deterministic-decomposable PC classes</td>
+<td>Worst-case lower bounds do not say every practical deterministic circuit is large</td>
+</tr>
+<tr>
+<td><a href="https://openreview.net/forum?id=h8D75pVKja">Tractable Representation Learning with PCs</a>, TMLR 2025</td>
+<td>Peer-reviewed research</td>
+<td>Introduces autoencoding PCs with probabilistic embeddings and missing-data experiments</td>
+<td>A tractable PC encoder does not make every neural-decoder/raw-data query exact</td>
+</tr>
+<tr>
+<td><a href="https://openreview.net/forum?id=GP4CwozHGi">Rethinking PC Parameter Learning</a>, AISTATS 2026 Oral</td>
+<td>Peer-reviewed research</td>
+<td>KL-regularized interpretation of EM and the anemone adaptive minibatch update</td>
+<td>Addresses fixed-structure parameter optimisation, not initialization, structure learning, or every hybrid PC</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2605.12940">Expressivity Boundary of PCs vs LLMs</a>, May 2026</td>
+<td>Preprint</td>
+<td>Studies probability-space output and fixed-routing bottlenecks and proposes logit-space parameterization</td>
+<td>Non-archival theory/experiments; not a compute-matched universal language-model ranking</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="probabilistic-circuits-research-conclusion">Probabilistic Circuits: Research conclusion<a class="headerlink" href="#probabilistic-circuits-research-conclusion" title="Permanent link">¤</a></h3>
+<p>Probabilistic-circuit research studies the <strong>expressivity–query–size–optimisation trade-off</strong> through compatible structures, adaptive minibatch learning, hybrid leaves, relational objects, and exact expectations or conditionals. Curriculum comparisons should therefore evaluate query workload, circuit size, and optimisation protocol—not only sample metrics or whether a circuit replaces diffusion on unconstrained raw generation.</p>
+<h2 id="implicit-generators-beyond-gans">Implicit Generators Beyond GANs<a class="headerlink" href="#implicit-generators-beyond-gans" title="Permanent link">¤</a></h2>
+<h3 id="implicit-generators-beyond-gans-what-is-established">Implicit Generators Beyond GANs: What is established<a class="headerlink" href="#implicit-generators-beyond-gans-what-is-established" title="Permanent link">¤</a></h3>
+<p>An implicit model is defined by sampling without requiring pointwise density. MMD with characteristic kernels identifies distributions at population scale; IMLE assigns generated neighbors to data examples; sliced Wasserstein compares one-dimensional projections. None of these statements guarantees good finite-batch gradients or modern perceptual quality.</p>
+<h3 id="implicit-generators-beyond-gans-research-map">Implicit Generators Beyond GANs: Research Map<a class="headerlink" href="#implicit-generators-beyond-gans-research-map" title="Permanent link">¤</a></h3>
+<div class="md-typeset__table book-table-container"><table id="tbl-new-families-frontier-evidence-research-map_1"><caption class="book-object-caption"><span class="book-object-number">Table FRONT.2.</span> Research Map</caption>
+<thead>
+<tr>
+<th>Work</th>
+<th>Evidence</th>
+<th>Contribution used in the curriculum</th>
+<th>Boundary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://proceedings.mlr.press/v37/li15.html">GMMN</a>, ICML 2015</td>
+<td>Established foundation</td>
+<td>Direct MMD training of a neural sampler</td>
+<td>Original image benchmarks do not establish contemporary large-scale competitiveness</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/1809.09087">IMLE</a>, 2018</td>
+<td>Foundational preprint/conference submission</td>
+<td>Data-to-generated nearest-neighbor objective and conditional likelihood relationship</td>
+<td>Likelihood equivalence needs restrictive conditions</td>
+</tr>
+<tr>
+<td><a href="https://proceedings.mlr.press/v202/aghabozorgi23a.html">Adaptive IMLE</a>, ICML 2023</td>
+<td>Peer-reviewed research</td>
+<td>Weakens assumptions and adapts example difficulty in few-shot generation</td>
+<td>Few-shot image results are not a universal mode-coverage theorem</td>
+</tr>
+<tr>
+<td><a href="https://proceedings.mlr.press/v202/du23c.html">Conditional Sliced-Wasserstein Flows</a>, ICML 2023</td>
+<td>Peer-reviewed research</td>
+<td>Extends nonparametric sliced transport to conditional generation</td>
+<td>Iterative particle transport is different from a one-pass implicit generator</td>
+</tr>
+<tr>
+<td><a href="https://proceedings.mlr.press/v244/elkady24a.html">Vertical Validation</a>, UAI 2024</td>
+<td>Peer-reviewed research</td>
+<td>Evaluates implicit graph models on thin support regions</td>
+<td>An evaluation methodology, not a generator objective</td>
+</tr>
+<tr>
+<td><a href="https://proceedings.mlr.press/v336/thurin26a.html">Convergence Rates for Distribution Matching with Sliced OT</a>, COLT 2026</td>
+<td>Peer-reviewed research</td>
+<td>2026 theory for distribution matching with sliced optimal transport</td>
+<td>Convergence theory does not establish perceptual competitiveness of a particular neural generator</td>
+</tr>
+<tr>
+<td><a href="https://openreview.net/forum?id=CyQG7D7FwT">Explicit Density Approximation for Neural Implicit Samplers</a>, AISTATS 2026 Spotlight</td>
+<td>Peer-reviewed research</td>
+<td>dual-ISL rank discrepancy and Bernstein-based auxiliary density approximation</td>
+<td>Convexity in density space does not make arbitrary neural-generator optimization convex or recover an exact singular pushforward density</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="implicit-generators-beyond-gans-research-conclusion">Implicit Generators Beyond GANs: Research conclusion<a class="headerlink" href="#implicit-generators-beyond-gans-research-conclusion" title="Permanent link">¤</a></h3>
+<p>Standalone GMMN/IMLE/sliced-Wasserstein generator research is less active than diffusion and flow research. The ideas remain relevant inside few-shot synthesis, learned codecs, imitation policies, simulator inference, and evaluation. The curriculum preserves them as distinct objective families without manufacturing a false state-of-the-art narrative.</p>
+<h2 id="discrete-iterative-generation">Discrete Iterative Generation<a class="headerlink" href="#discrete-iterative-generation" title="Permanent link">¤</a></h2>
+<h3 id="discrete-iterative-generation-what-is-established">Discrete Iterative Generation: What is established<a class="headerlink" href="#discrete-iterative-generation-what-is-established" title="Permanent link">¤</a></h3>
+<p>D3PMs define discrete Markov corruption and a variational objective. CTMC reverse rates require density ratios. Masked iterative samplers depend materially on unmasking/remasking policy. Parallel token updates trade sequential depth for within-step conditional independence.</p>
+<h3 id="discrete-iterative-generation-research-map">Discrete Iterative Generation: Research Map<a class="headerlink" href="#discrete-iterative-generation-research-map" title="Permanent link">¤</a></h3>
+<div class="md-typeset__table book-table-container"><table id="tbl-new-families-frontier-evidence-research-map_2"><caption class="book-object-caption"><span class="book-object-number">Table FRONT.3.</span> Research Map</caption>
+<thead>
+<tr>
+<th>Work</th>
+<th>Evidence</th>
+<th>Contribution used in the curriculum</th>
+<th>Boundary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://proceedings.neurips.cc/paper_files/paper/2024/hash/eb0b13cc515724ab8015bc978fdde0ad-Abstract-Conference.html">Simple and Effective Masked Diffusion LMs</a>, NeurIPS 2024</td>
+<td>Peer-reviewed research</td>
+<td>Rao–Blackwellized masked objective and strong engineering baseline</td>
+<td>“Approaches AR perplexity” is benchmark/tokenization specific</td>
+</tr>
+<tr>
+<td><a href="https://proceedings.neurips.cc/paper_files/paper/2024/hash/f0d629a734b56a642701bba7bc8bb3ed-Abstract-Conference.html">Discrete Flow Matching</a>, NeurIPS 2024</td>
+<td>Peer-reviewed research</td>
+<td>General paths and posterior parameterizations on discrete spaces</td>
+<td>Shared generator equations do not make all samplers equivalent</td>
+</tr>
+<tr>
+<td><a href="https://proceedings.mlr.press/v267/von-rutte25a.html">Generalized Interpolating Discrete Diffusion</a>, ICML 2025</td>
+<td>Peer-reviewed research</td>
+<td>Mixes masking and uniform noise to enable revision</td>
+<td>Compute-matched claims remain tied to reported language protocols</td>
+</tr>
+<tr>
+<td><a href="https://proceedings.neurips.cc/paper_files/paper/2025/hash/f1e7c90552850afcc2558d78950c519d-Abstract-Conference.html">Discrete Diffusion Sampler Guarantees</a>, NeurIPS 2025</td>
+<td>Peer-reviewed research</td>
+<td>KL convergence analyses for tau-leaping/Euler-type samplers</td>
+<td>Bounds assume control of model/ratio errors not directly observable in large models</td>
+</tr>
+<tr>
+<td><a href="https://proceedings.neurips.cc/paper_files/paper/2025/hash/172e31282df16359324717fcfbdbead3-Abstract-Conference.html">E2D2</a>, NeurIPS 2025</td>
+<td>Peer-reviewed research</td>
+<td>Separates clean-context encoding from iterative denoising</td>
+<td>Throughput depends on architecture, block construction, task, and hardware</td>
+</tr>
+<tr>
+<td><a href="https://proceedings.neurips.cc/paper_files/paper/2025/hash/dffd1c523512e557f4e75e8309049213-Abstract-Conference.html">DCoLT</a>, NeurIPS 2025</td>
+<td>Peer-reviewed research</td>
+<td>RL over diffusion/unmasking reasoning trajectories</td>
+<td>Reported gains do not establish a general advantage over AR reasoning</td>
+</tr>
+<tr>
+<td><a href="https://proceedings.mlr.press/v336/chen26e.html">Optimal Inference Schedules for Masked Diffusion</a>, COLT 2026</td>
+<td>Peer-reviewed research</td>
+<td>Exact expected-divergence characterization and schedule bounds tied to total-correlation quantities</td>
+<td>Optimal schedules can require unavailable prior knowledge; theory does not make arbitrary parallel decoding lossless</td>
+</tr>
+<tr>
+<td><a href="https://proceedings.mlr.press/v336/dmitriev26a.html">Efficient Sampling with Discrete Diffusion</a>, COLT 2026</td>
+<td>Peer-reviewed research</td>
+<td>Sharp/adaptive tau-leaping guarantees for uniform and masking processes</td>
+<td>Assumes score-entropy error control and specified corruption structure</td>
+</tr>
+<tr>
+<td><a href="https://proceedings.mlr.press/v336/huang26c.html">Quantized Transition Diffusion</a>, COLT 2026</td>
+<td>Peer-reviewed research</td>
+<td>Reformulates continuous diffusion through spatial quantization and density-ratio information</td>
+<td>A theory-driven quantized construction, not evidence that token diffusion and continuous diffusion are universally interchangeable</td>
+</tr>
+<tr>
+<td><a href="https://openreview.net/forum?id=5bkAbueJwM">DLMs are Provably Optimal Parallel Samplers</a>, ICLR 2026</td>
+<td>Peer-reviewed research</td>
+<td>Formal simulation/optimal-sequential-depth results with polynomial CoT and revision/remasking conditions</td>
+<td>A theory model, not a finite-network wall-clock or quality guarantee</td>
+</tr>
+<tr>
+<td><a href="https://openreview.net/forum?id=VbvXjs5f72">Deletion–Insertion Diffusion</a>, ICLR 2026</td>
+<td>Peer-reviewed research</td>
+<td>CTMCs over variable-length sequences using deletion/insertion and exact subsequence-count dynamic programming</td>
+<td>Efficiency and quality claims remain tied to its architecture, datasets, and implementation</td>
+</tr>
+<tr>
+<td><a href="https://openreview.net/forum?id=mtdyZsa47V">DiDi-Instruct</a>, ICLR 2026</td>
+<td>Peer-reviewed research</td>
+<td>Integral-KL few-step distillation of discrete diffusion LMs</td>
+<td>Teacher/student, NFE, entropy, and extra training cost must accompany acceleration claims</td>
+</tr>
+<tr>
+<td><a href="https://openreview.net/forum?id=RSIoYWIzaP"><span class="arithmatex">\(\Psi\)</span>-Samplers</a>, ICLR 2026</td>
+<td>Peer-reviewed research</td>
+<td>Predictor–corrector sampling generalized across discrete noising processes</td>
+<td>Uniform-state gains are tied to named language/image protocols and do not establish universal corruption dominance</td>
+</tr>
+<tr>
+<td><a href="https://openreview.net/forum?id=ynRnOqI2W8">Efficient-DLM</a>, ICML 2026</td>
+<td>Peer-reviewed research</td>
+<td>AR-to-DLM conversion with block-wise attention and position-dependent masking</td>
+<td>Reported 8B accuracy/throughput comparisons are model- and serving-protocol-specific</td>
+</tr>
+<tr>
+<td><a href="https://openreview.net/forum?id=oYCCOl7ahf">Sampler-Centric DLM Evaluation</a>, ICML 2026</td>
+<td>Peer-reviewed research</td>
+<td>Exact-HMM oracle separates denoiser error from sampler-induced distributional error</td>
+<td>Controlled finite-state evidence; motivates but does not quantify every large-model sampler</td>
+</tr>
+<tr>
+<td><a href="https://openreview.net/forum?id=64HmKFCaq6">Consistent Diffusion Language Models</a>, ICML 2026</td>
+<td>Peer-reviewed research</td>
+<td>Multi-path consistency across exact discrete posterior bridges for few-step generation</td>
+<td>Not a categorical probability-flow ODE; empirical gains and limiting correspondences are construction- and protocol-specific</td>
+</tr>
+<tr>
+<td><a href="https://openreview.net/forum?id=h7WBYYJF1Q">Parallel Samplers for Recurrent-Depth Models</a>, ICML 2026 Spotlight</td>
+<td>Peer-reviewed research</td>
+<td>Diffusion-forcing sampler overlaps token advancement with recurrent latent refinement</td>
+<td>Reported speedup applies to named recurrent-depth models and hardware, not arbitrary fixed-depth AR conversion</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="discrete-iterative-generation-research-conclusion">Discrete Iterative Generation: Research conclusion<a class="headerlink" href="#discrete-iterative-generation-research-conclusion" title="Permanent link">¤</a></h3>
+<p>Discrete iterative research covers objective simplification, revisable corruption, block/semi-autoregressive hybrids, sampler theory, architecture specialization, and post-training in addition to basic generative capability. Peer-reviewed theory sharpens a central lesson: parallelism is controlled by dependency/information structure and schedule knowledge, not merely by choosing to unmask more tokens. Every speed claim must include sequence length, block size, number of changing tokens, NFE, and wall clock.</p>
+<h2 id="bayesian-flow-networks">Bayesian Flow Networks<a class="headerlink" href="#bayesian-flow-networks" title="Permanent link">¤</a></h2>
+<h3 id="what-is-established-versus-active-research">What Is Established Versus Active Research<a class="headerlink" href="#what-is-established-versus-active-research" title="Permanent link">¤</a></h3>
+<p>Conjugate Gaussian and categorical Bayesian updates are established probability. The claim that a full BFN provides a competitive generative framework has a different evidence status. The original <a href="https://arxiv.org/abs/2308.07037">BFN paper</a> is a preprint/technical research report; treat its framework as canonical to the family but its benchmark conclusions as preprint evidence.</p>
+<div class="md-typeset__table book-table-container"><table id="tbl-new-families-frontier-evidence-what-is-established-versus-active-research"><caption class="book-object-caption"><span class="book-object-number">Table FRONT.4.</span> What Is Established Versus Active Research</caption>
+<thead>
+<tr>
+<th>Work</th>
+<th>Evidence</th>
+<th>Contribution used in the curriculum</th>
+<th>Boundary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://arxiv.org/abs/2308.07037">Bayesian Flow Networks</a>, 2023</td>
+<td>Preprint</td>
+<td>Sender/receiver construction; continuous, discretized, discrete losses</td>
+<td>Original comparative benchmarks are not independently reproduced consensus</td>
+</tr>
+<tr>
+<td><a href="https://proceedings.mlr.press/v235/xue24d.html">BFN–Diffusion SDE Unification</a>, ICML 2024</td>
+<td>Peer-reviewed research</td>
+<td>Linear SDE correspondence, score-matching alignment, specialized solvers</td>
+<td>Applies to derived formulations; not every BFN variant/guidance rule</td>
+</tr>
+<tr>
+<td><a href="https://openreview.net/forum?id=NSVtmmzeRB">GeoBFN</a>, ICLR 2024 Oral</td>
+<td>Peer-reviewed research</td>
+<td>Equivariant multimodal belief modeling for 3-D molecules</td>
+<td>Molecule representations and benchmark protocols bound stability and speed claims</td>
+</tr>
+<tr>
+<td><a href="https://openreview.net/forum?id=Lz0XW99tE0">CrysBFN</a>, ICLR 2025 Spotlight</td>
+<td>Peer-reviewed research</td>
+<td>Periodic Bayesian flow with entropy conditioning for crystals</td>
+<td>Non-monotone entropy flow is not canonical Euclidean additive accuracy</td>
+</tr>
+<tr>
+<td><a href="https://openreview.net/forum?id=OYUG5SCg6k">GraphBFN</a>, ICML 2025</td>
+<td>Peer-reviewed research</td>
+<td>Continuous topological information and flowback for graph generation</td>
+<td>Graph benchmarks and representation assumptions are domain-specific</td>
+</tr>
+<tr>
+<td><a href="https://www.nature.com/articles/s41467-025-58250-2">ProtBFN</a>, Nature Communications 2025</td>
+<td>Peer-reviewed research</td>
+<td>Protein sequence modeling and SMC-based arbitrary conditional generation</td>
+<td>Baseline training data differ; learned structural metrics are not experimental validation</td>
+</tr>
+<tr>
+<td><a href="https://proceedings.neurips.cc/paper_files/paper/2025/hash/0463ec87d0ac1e98a6cbe3d95d4e3e35-Abstract-Conference.html">Unified Multimodal Protein Bayesian Flow</a>, NeurIPS 2025</td>
+<td>Peer-reviewed research</td>
+<td>Information-flow controls and hyperspherical orientation modeling</td>
+<td>Protein task protocols and evaluators bound the claims</td>
+</tr>
+<tr>
+<td><a href="https://openreview.net/forum?id=N7hieduZYV">Periodic BFN</a>, ICML 2026</td>
+<td>Peer-reviewed research</td>
+<td>Unit-circle embedding restores additive accuracy for periodic variables</td>
+<td>Periodic embedding and crystal/light-field benchmark scope require reproduction</td>
+</tr>
+<tr>
+<td><a href="https://www.nature.com/articles/s41524-026-02140-8">SymmBFN</a>, npj Computational Materials 2026</td>
+<td>Peer-reviewed research</td>
+<td>Space-group-aware and property-conditioned crystal generation</td>
+<td>Stability, speed, and quality are full-pipeline protocol claims</td>
+</tr>
+<tr>
+<td><a href="https://openreview.net/forum?id=py2NPbAdvH">GraphBSI</a>, ICLR 2026</td>
+<td>Peer-reviewed research</td>
+<td>Related one-shot Bayesian sample-inference graph generator</td>
+<td>Broader BSI family, not the canonical iterative BFN sampler</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2603.00751">General Proximal Flow Networks</a>, 2026</td>
+<td>Preprint</td>
+<td>Replaces the Bayesian KL proximal update with other divergences</td>
+<td>Only the KL case recovers BFN; other choices need new theory and reproduction</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2601.22524">Variational BFN for Graph Generation</a>, 2026</td>
+<td>Preprint</td>
+<td>Structured Gaussian precision couples node and edge beliefs</td>
+<td>Preprint geometry and benchmark evidence</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="bayesian-flow-networks-research-conclusion">Bayesian Flow Networks: Research conclusion<a class="headerlink" href="#bayesian-flow-networks-research-conclusion" title="Permanent link">¤</a></h3>
+<p>BFNs deserve a standalone guide because the distribution-parameter state and Bayesian message semantics are genuinely distinct pedagogical objects. The evidence base is still smaller than diffusion's. Curriculum language must say “promising/derived correspondence,” not “replacement for diffusion.”</p>
+<h2 id="generative-flow-networks">Generative Flow Networks<a class="headerlink" href="#generative-flow-networks" title="Permanent link">¤</a></h2>
+<h3 id="generative-flow-networks-what-is-established">Generative Flow Networks: What is established<a class="headerlink" href="#generative-flow-networks-what-is-established" title="Permanent link">¤</a></h3>
+<p>Under exact balance on the specified constructive graph, terminal probability is proportional to reward. Flow matching, detailed balance, trajectory balance, and subtrajectory balance impose conservation at different scales. Practical convergence still depends on exploration and function approximation.</p>
+<div class="md-typeset__table book-table-container"><table id="tbl-new-families-frontier-evidence-what-is-established_3"><caption class="book-object-caption"><span class="book-object-number">Table FRONT.5.</span> What is established</caption>
+<thead>
+<tr>
+<th>Work</th>
+<th>Evidence</th>
+<th>Contribution used in the curriculum</th>
+<th>Boundary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://jmlr.org/beta/papers/v24/22-0364.html">GFlowNet Foundations</a>, JMLR 2023</td>
+<td>Established canonical</td>
+<td>Formal state/edge/trajectory flow, queries, continuous extensions</td>
+<td>Theorems assume exact constraints/coverage</td>
+</tr>
+<tr>
+<td><a href="https://proceedings.mlr.press/v202/madan23a.html">Subtrajectory Balance</a>, ICML 2023</td>
+<td>Peer-reviewed research</td>
+<td>Partial-episode credit and bias–variance interpolation</td>
+<td>Empirical optimizer advantages depend on task and sampling</td>
+</tr>
+<tr>
+<td><a href="https://proceedings.mlr.press/v202/lahlou23a.html">Continuous GFlowNet Theory</a>, ICML 2023</td>
+<td>Established foundation</td>
+<td>Measure-theoretic construction for discrete, continuous, and hybrid spaces</td>
+<td>Requires declared reference measures, kernels, terminal measures, and support; sums cannot merely be replaced by integrals</td>
+</tr>
+<tr>
+<td><a href="https://proceedings.mlr.press/v202/hu23c.html">GFlowNet-EM</a>, ICML 2023</td>
+<td>Peer-reviewed research</td>
+<td>Uses GFlowNets for approximate E-steps with compositional discrete latents</td>
+<td>Approximate posterior sampling and changing model parameters interact; not exact EM by default</td>
+</tr>
+<tr>
+<td><a href="https://proceedings.neurips.cc/paper_files/paper/2024/file/8aaae73117c9266b35eb977e70fcf95f-Paper-Conference.pdf">Divergence Measures for GFlowNets</a>, NeurIPS 2024</td>
+<td>Peer-reviewed research</td>
+<td>Re-examines divergence training and gradient variance</td>
+<td>Does not invalidate balance objectives; changes optimization comparison</td>
+</tr>
+<tr>
+<td><a href="https://proceedings.neurips.cc/paper_files/paper/2024/hash/2fb57276bfbaf1b832d7bfcba36bb41c-Abstract-Conference.html">Streaming Bayes GFlowNets</a>, NeurIPS 2024</td>
+<td>Peer-reviewed research</td>
+<td>Updates amortized discrete posterior samplers as data arrive</td>
+<td>Named preference/phylogenetic tasks do not prove exact sequential Bayesian coherence under approximation</td>
+</tr>
+<tr>
+<td><a href="https://proceedings.neurips.cc/paper_files/paper/2024/hash/8b21a7ea42cbcd1c29a7a88c444cce45-Abstract-Conference.html">Relative TB for Diffusion Posteriors</a>, NeurIPS 2024</td>
+<td>Peer-reviewed research</td>
+<td>Extends GFlowNet balance to posterior fine-tuning of diffusion priors</td>
+<td>Hybrid continuous construction, not ordinary discrete GFlowNet training</td>
+</tr>
+<tr>
+<td><a href="https://proceedings.mlr.press/v267/pandey25b.html">Atomic GFlowNet Pretraining</a>, ICML 2025</td>
+<td>Peer-reviewed research</td>
+<td>Pretraining with inexpensive molecular rewards</td>
+<td>Scientific value still depends on prospective validation and oracle fidelity</td>
+</tr>
+<tr>
+<td><a href="https://openreview.net/forum?id=dPDOQs7qHl">Avoid What You Know: Divergent Trajectory Balance</a>, ICML 2026</td>
+<td>Peer-reviewed research</td>
+<td>Adaptive complementary exploration targets undersampled high-reward regions</td>
+<td>Benchmark-specific evidence; exploration gains do not alter the reward-proportional population target</td>
+</tr>
+<tr>
+<td><a href="https://openreview.net/forum?id=kWM0etSpBG">Evaluation Balance</a>, ICLR 2026</td>
+<td>Peer-reviewed research</td>
+<td>Partial-episode policy evaluator supporting parameterized backward policies and offline data</td>
+<td>Optimisation/evaluation result; exact target semantics and coverage assumptions remain</td>
+</tr>
+<tr>
+<td><a href="https://openreview.net/forum?id=i5Yfc5RY9q">Flow of Spans</a>, ICLR 2026</td>
+<td>Peer-reviewed research</td>
+<td>DAG construction for alternative retrieved-span segmentations in language generation</td>
+<td>MAUVE/task gains depend on retrieval, reward, datastore, and base-model protocol</td>
+</tr>
+<tr>
+<td><a href="https://openreview.net/forum?id=FXIy6qfQIR">Conservative GFlowNets</a>, ICML 2026</td>
+<td>Peer-reviewed research</td>
+<td>Formalizes offline SubTB non-identifiability on partially supported token-prefix DAGs and proposes CFlower</td>
+<td>Recommendation datasets and dataset-induced support bound the empirical remedy</td>
+</tr>
+<tr>
+<td><a href="https://openreview.net/forum?id=m3H7Oexpbx">PowerFlow</a>, ICML 2026</td>
+<td>Peer-reviewed research</td>
+<td>Length-aware TB for matching alpha-power language-model distributions</td>
+<td>Reasoning/creativity claims are model-, target-, length-, and evaluation-specific</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="generative-flow-networks-research-conclusion">Generative Flow Networks: Research conclusion<a class="headerlink" href="#generative-flow-networks-research-conclusion" title="Permanent link">¤</a></h3>
+<p>GFlowNet research spans objective design, exploration, partial-episode policy evaluation, richer constructive DAGs, support-aware offline training, continuous/diffusion extensions, reward conditioning, pretraining, and prospective scientific validation. Peer-reviewed evidence shows that unvisited high-reward regions, state-graph design, length effects, and incomplete logged support remain bottlenecks even when sampled balance equations are small. Best-reward tables are insufficient; proportionality, coverage, oracle cost, and amortization cost are the defining evidence.</p>
+<h2 id="point-processes-and-random-finite-sets">Point Processes and Random Finite Sets<a class="headerlink" href="#point-processes-and-random-finite-sets" title="Permanent link">¤</a></h2>
+<h3 id="point-processes-and-random-finite-sets-what-is-established">Point Processes and Random Finite Sets: What is established<a class="headerlink" href="#point-processes-and-random-finite-sets-what-is-established" title="Permanent link">¤</a></h3>
+<p>Point processes define laws on locally finite counting measures; finite simple configurations can also be represented as random finite sets. Conditional intensity determines temporal likelihood only together with its compensator and observation window. Janossy or set densities require an explicit reference measure and factorial convention. Poisson, renewal, Hawkes, self-correcting, Cox, Gibbs, and determinantal models make different independence or interaction assumptions, while inversion, thinning, branching, spectral, and MCMC algorithms are samplers rather than alternative definitions of the generated object.</p>
+<div class="md-typeset__table book-table-container"><table id="tbl-new-families-frontier-evidence-what-is-established_4"><caption class="book-object-caption"><span class="book-object-number">Table FRONT.6.</span> What is established</caption>
+<thead>
+<tr>
+<th>Work</th>
+<th>Evidence</th>
+<th>Contribution used in the curriculum</th>
+<th>Boundary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://doi.org/10.1093/biomet/58.1.83">Hawkes self-exciting processes</a>, 1971</td>
+<td>Established foundation</td>
+<td>Linear history-dependent excitation and kernel-based dependence</td>
+<td>Stationarity and branching claims require nonnegative linear kernels and the stated spectral condition</td>
+</tr>
+<tr>
+<td><a href="https://doi.org/10.1016/0304-4149(79)90008-5">Self-correcting point process</a>, 1979</td>
+<td>Established foundation</td>
+<td>Event-triggered inhibition and count regulation</td>
+<td>Not a generic model of every repulsive spatial or temporal process</td>
+</tr>
+<tr>
+<td><a href="https://doi.org/10.1109/TIT.1981.1056305">Ogata thinning</a>, 1981</td>
+<td>Established foundation</td>
+<td>Exact conditional-intensity simulation using a dominating proposal</td>
+<td>An invalid envelope biases the sampler; clipping does not restore exactness</td>
+</tr>
+<tr>
+<td><a href="https://doi.org/10.1111/1467-9469.00115">Log Gaussian Cox Processes</a>, 1998</td>
+<td>Established foundation</td>
+<td>Latent Gaussian random fields driving clustered Poisson configurations</td>
+<td>Conditional Poisson tractability does not make the latent-field posterior analytic</td>
+</tr>
+<tr>
+<td><a href="https://doi.org/10.1561/2200000044">DPP monograph</a>, 2012</td>
+<td>Established foundation</td>
+<td>Determinantal subset laws, marginals, learning, and spectral sampling</td>
+<td>Finite <span class="arithmatex">\(L\)</span>-ensemble formulas do not remove continuous-operator or kernel-learning conditions</td>
+</tr>
+<tr>
+<td><a href="https://proceedings.neurips.cc/paper_files/paper/2017/hash/6463c88460bd63bbe256e495c63aa40b-Abstract.html">Neural Hawkes</a>, NeurIPS 2017</td>
+<td>Established neural foundation</td>
+<td>Continuous-time recurrent-state marked intensities</td>
+<td>Neural history dependence is not automatically linear Hawkes branching or causal influence</td>
+</tr>
+<tr>
+<td><a href="https://openreview.net/forum?id=HygOjhEYDH">Point Process Flows</a>, ICLR 2020</td>
+<td>Peer-reviewed research</td>
+<td>Normalized conditional inter-event distributions without primary intensity parameterization</td>
+<td>Marks, window stopping, and terminal survival remain part of the process law</td>
+</tr>
+<tr>
+<td><a href="https://proceedings.neurips.cc/paper_files/paper/2023/hash/b1d9c7e7bd265d81aae8d74a7a6bd7f1-Abstract-Conference.html">Add and Thin</a>, NeurIPS 2023</td>
+<td>Peer-reviewed research</td>
+<td>Configuration-level addition and thinning transitions</td>
+<td>One learned iterative sampler, not the definition of point-process probability</td>
+</tr>
+<tr>
+<td><a href="https://doi.org/10.1162/neco_a_01745">Generalized time rescaling</a>, 2025</td>
+<td>Peer-reviewed research</td>
+<td>Extends residual semantics beyond standard complete nonterminating realizations</td>
+<td>Does not make a finite residual sample an omnibus goodness-of-fit proof</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2512.04617">Score Matching for Finite Point Processes</a>, 2025</td>
+<td>Preprint</td>
+<td>Janossy-score formalization and a cardinality/survival identifiability boundary</td>
+<td>Non-archival evidence; the limitation is family- and reference-convention-sensitive</td>
+</tr>
+<tr>
+<td><a href="https://openreview.net/forum?id=h9HwUAODFP">FIM-PP</a>, ICLR 2026</td>
+<td>Peer-reviewed research</td>
+<td>In-context amortized inference of temporal point-process intensities</td>
+<td>Changes inference, not the generated object, causal semantics, or calibration contract</td>
+</tr>
+<tr>
+<td><a href="https://openreview.net/forum?id=8tjGapjQ5J">Forward-Chaining TPP</a>, ICML 2026</td>
+<td>Peer-reviewed research</td>
+<td>Constraint-aware continuous-time generation with latent symbolic rules</td>
+<td>Constraint satisfaction and calibrated event-law generation remain separate claims</td>
+</tr>
+<tr>
+<td><a href="https://openreview.net/forum?id=M2KLWLHzX0">Reliable Detection of Empty Space</a>, ICLR 2026</td>
+<td>Peer-reviewed research</td>
+<td>Marked spatial point-process treatment of object detections and empty regions</td>
+<td>Detection protocols and marks bound the result; not a universal spatial generator comparison</td>
+</tr>
+<tr>
+<td><a href="https://openreview.net/forum?id=dIcNAg6ZuZ">EarthquakeNPP</a>, TMLR 2026</td>
+<td>Peer-reviewed counterevidence</td>
+<td>Leakage-corrected neural/classical earthquake comparison</td>
+<td>Domain- and protocol-specific; supports strong baselines rather than a universal family ranking</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="point-processes-and-random-finite-sets-research-conclusion">Point Processes and Random Finite Sets: Research conclusion<a class="headerlink" href="#point-processes-and-random-finite-sets-research-conclusion" title="Permanent link">¤</a></h3>
+<p>The active design space includes flexible intensity and cumulative-hazard networks, normalized conditional flows, latent intensity fields, configuration transitions, score objectives, logical constraints, and amortized inference. Progress must be evaluated on the whole law: counts and empty windows, event times, spatial interaction, marks, censoring, residual dependence, long-horizon rollouts, and compute. A lower next-event error or a faster parallel sampler does not by itself establish a better point-process generator.</p>
+<h2 id="random-graphs-and-relational-generators">Random Graphs and Relational Generators<a class="headerlink" href="#random-graphs-and-relational-generators" title="Permanent link">¤</a></h2>
+<h3 id="random-graphs-and-relational-generators-what-is-established">Random Graphs and Relational Generators: What is established<a class="headerlink" href="#random-graphs-and-relational-generators-what-is-established" title="Permanent link">¤</a></h3>
+<p>The complete <a href="../random-graphs-and-relational-generators/">Random Graphs and Relational Generators</a> volume develops the family and its evaluation contracts. A random-graph model places a law on relational structures, not merely on one convenient adjacency ordering. For arbitrary node labels, an unlabeled probability sums labeled masses over an isomorphism class; the automorphism shortcut additionally requires an invariant labeled law. Erdős–Rényi, stochastic block, latent-position, ERGM, graphon, and sparse exchangeable-process constructions encode different dependence and graph-size assumptions. An autoregressive order, equivariant network, latent code, energy, flow, denoising chain, circuit, or GFlowNet is a possible composition with those semantics rather than a substitute for them.</p>
+<div class="md-typeset__table book-table-container"><table id="tbl-new-families-frontier-evidence-what-is-established_5"><caption class="book-object-caption"><span class="book-object-number">Table FRONT.7.</span> What is established</caption>
+<thead>
+<tr>
+<th>Work</th>
+<th>Evidence</th>
+<th>Contribution used in the curriculum</th>
+<th>Boundary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://doi.org/10.1016/0378-8733(83)90021-7">Stochastic blockmodels</a>, 1983</td>
+<td>Established foundation</td>
+<td>Latent-class relation probabilities and block-structured dependence</td>
+<td>Block labels are non-identifiable up to permutation; communities need not be assortative</td>
+</tr>
+<tr>
+<td><a href="https://doi.org/10.1198/016214502388618906">Latent-space models</a>, 2002</td>
+<td>Established foundation</td>
+<td>Geometric latent positions for relational dependence</td>
+<td>Coordinates are identified only up to likelihood-preserving transformations</td>
+</tr>
+<tr>
+<td><a href="https://doi.org/10.1111/rssb.12233">Sparse exchangeable graphs</a>, 2017</td>
+<td>Established foundation</td>
+<td>Random-measure construction for sparse growing graph processes</td>
+<td>Uses a different exchangeability and sampling object from fixed dense graphons</td>
+</tr>
+<tr>
+<td><a href="https://proceedings.mlr.press/v80/you18a.html">GraphRNN</a>, ICML 2018</td>
+<td>Peer-reviewed research</td>
+<td>Autoregressive node/edge construction</td>
+<td>Exact trace likelihood is not automatically unlabeled terminal-graph likelihood</td>
+</tr>
+<tr>
+<td><a href="https://proceedings.mlr.press/v162/martinkus22a.html">SPECTRE</a>, ICML 2022</td>
+<td>Peer-reviewed research</td>
+<td>Spectral conditioning for graph generation</td>
+<td>Spectral summaries and the evaluated datasets bound the result</td>
+</tr>
+<tr>
+<td><a href="https://openreview.net/forum?id=UaAD-Nu86WX">DiGress</a>, ICLR 2023</td>
+<td>Peer-reviewed research</td>
+<td>Categorical node/edge diffusion with permutation-equivariant prediction</td>
+<td>Dense pair states, factorized reverse choices, constraints, and node count remain separate contracts</td>
+</tr>
+<tr>
+<td><a href="https://proceedings.mlr.press/v286/papez25a.html">Probabilistic Graph Circuits</a>, UAI 2025</td>
+<td>Peer-reviewed research</td>
+<td>Tractable graph distributions and invariance–expressivity–query trade-offs</td>
+<td>Exact queries require circuit properties; symmetrization can increase cost</td>
+</tr>
+<tr>
+<td><a href="https://openreview.net/forum?id=FZJow6BWiM">HOG-Diff</a>, ICLR 2026</td>
+<td>Peer-reviewed research</td>
+<td>Higher-order topology in coarse-to-fine diffusion bridges</td>
+<td>Benchmark improvements do not make a finite topology panel distribution-identifying</td>
+</tr>
+<tr>
+<td><a href="https://openreview.net/forum?id=IZV9k5BGxi">DualDiff</a>, ICLR 2026</td>
+<td>Peer-reviewed research</td>
+<td>Coupled local and global latent topology</td>
+<td>Results depend on codec, clustering, conditioning, and benchmark protocol</td>
+</tr>
+<tr>
+<td><a href="https://openreview.net/forum?id=py2NPbAdvH">GraphBSI</a>, ICLR 2026</td>
+<td>Peer-reviewed research</td>
+<td>Belief-parameter paths for discrete graph variables</td>
+<td>“One-shot” sample inference is not synonymous with one network evaluation or independent edges</td>
+</tr>
+<tr>
+<td><a href="https://openreview.net/forum?id=5Bl5qf3fON">Bures–Wasserstein Flow Matching</a>, ICLR 2026</td>
+<td>Peer-reviewed research</td>
+<td>Graph-associated MRF geometry for coupled node/edge paths</td>
+<td>Convergence and geometry claims belong to the declared representation and assumptions</td>
+</tr>
+<tr>
+<td><a href="https://openreview.net/forum?id=s2s5xGQCKM">Directo</a>, ICLR 2026</td>
+<td>Peer-reviewed research</td>
+<td>Asymmetric encoding and discrete flow matching for directed graphs</td>
+<td>Directed benchmark evidence does not transfer automatically to undirected or dynamic laws</td>
+</tr>
+<tr>
+<td><a href="https://openreview.net/forum?id=nGizKVBCgn">PolyGraph Discrepancy</a>, ICLR 2026</td>
+<td>Peer-reviewed research</td>
+<td>Classifier-based bounded comparison of graph distributions</td>
+<td>The bound and power depend on descriptors, classifier, split, and sample size</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="random-graphs-and-relational-generators-research-conclusion">Random Graphs and Relational Generators: Research conclusion<a class="headerlink" href="#random-graphs-and-relational-generators-research-conclusion" title="Permanent link">¤</a></h3>
+<p>Graph-generation research is broadening the probability path, representation, topology features, exact-query interface, constraint mechanism, and evaluation lens. No single trend removes the need to declare graph type, node-count law, labeling convention, data regime, target probability or reward, sampler cost, and scientific query. Whole-graph IID generation, one-network link prediction, molecular optimization, and posterior graph inference remain different experiments even when they reuse the same graph architecture.</p>
+<h2 id="copula-models">Copula Models<a class="headerlink" href="#copula-models" title="Permanent link">¤</a></h2>
+<h3 id="copula-models-what-is-established">Copula Models: What is established<a class="headerlink" href="#copula-models-what-is-established" title="Permanent link">¤</a></h3>
+<p>Sklar's theorem separates a multivariate CDF into declared marginals and a dependence distribution with uniform marginals. Whole-cube uniqueness requires continuous marginals; discrete observations identify only the values needed on their marginal range grid. Elliptical, Archimedean, extreme-value, and pair-copula constructions encode different symmetry, tail, and conditional-dependence assumptions. A neural model supported on the cube is not thereby a copula: marginal uniformity needs its own proof or construction.</p>
+<p>The complete derivations, worked examples, and evaluation protocol are in <a href="../copula-models-explained/">Copula Models</a>.</p>
+<div class="md-typeset__table book-table-container"><table id="tbl-new-families-frontier-evidence-what-is-established_6"><caption class="book-object-caption"><span class="book-object-number">Table FRONT.8.</span> What is established</caption>
+<thead>
+<tr>
+<th>Work</th>
+<th>Evidence</th>
+<th>Contribution used in the curriculum</th>
+<th>Boundary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4198458">Sklar's theorem</a>, 1959 original with 2023 English translation</td>
+<td>Established foundation</td>
+<td>Joint-CDF decomposition and continuous-marginal uniqueness</td>
+<td>Discontinuous marginals do not identify a unique whole-cube extension</td>
+</tr>
+<tr>
+<td><a href="https://doi.org/10.1214/aos/1031689016">Vines—A New Graphical Model</a>, 2002</td>
+<td>Established foundation</td>
+<td>Regular-vine organization of conditional pair copulas</td>
+<td>Factorization graph is not a causal graph; practical searches add assumptions</td>
+</tr>
+<tr>
+<td><a href="https://doi.org/10.1111/j.1751-5823.2005.tb00254.x">The <span class="arithmatex">\(t\)</span> Copula and Related Copulas</a>, 2005</td>
+<td>Established foundation</td>
+<td>Elliptical tail-dependence construction and formula</td>
+<td>Asymptotic tail dependence does not determine every finite-threshold risk</td>
+</tr>
+<tr>
+<td><a href="https://doi.org/10.1017/S0515036100014963">A Primer on Copulas for Count Data</a>, 2007</td>
+<td>Established foundation</td>
+<td>Discrete nonuniqueness, ties, and cell-probability semantics</td>
+<td>Continuous density and rank formulas do not transfer unchanged</td>
+</tr>
+<tr>
+<td><a href="https://doi.org/10.1214/07-AOS556">Multivariate Archimedean Copulas</a>, 2009</td>
+<td>Established foundation</td>
+<td><span class="arithmatex">\(d\)</span>-monotone generator criterion and sampling representation</td>
+<td>A generic decreasing or neural generator is insufficient</td>
+</tr>
+<tr>
+<td><a href="https://papers.nips.cc/paper/2021/hash/dac4a67bdc4a800113b0f1ad67ed696f-Abstract.html">Implicit Generative Copulas</a>, NeurIPS 2021</td>
+<td>Peer-reviewed research</td>
+<td>Implicit dependence generation followed by marginal uniformization</td>
+<td>Does not provide every density or exact finite-sample calibration</td>
+</tr>
+<tr>
+<td><a href="https://proceedings.mlr.press/v161/ng21a.html">Generative Archimedean Copulas</a>, UAI 2021</td>
+<td>Peer-reviewed research</td>
+<td>Neural latent mixing distribution for valid Archimedean construction</td>
+<td>Inherits Archimedean and hierarchy restrictions</td>
+</tr>
+<tr>
+<td><a href="https://proceedings.mlr.press/v258/huk25a.html">Your Copula Is a Classifier in Disguise</a>, AISTATS 2025</td>
+<td>Peer-reviewed research</td>
+<td>Copula density as a joint-versus-product density ratio</td>
+<td>Population-optimal classifier identity does not guarantee normalized finite estimates or direct sampling</td>
+</tr>
+<tr>
+<td><a href="https://openreview.net/forum?id=YrX77XRgku">Diffusion and Flow-based Copulas</a>, ICLR 2026</td>
+<td>Peer-reviewed research</td>
+<td>Dependence-forgetting processes that preserve marginal distributions</td>
+<td>Does not make arbitrary flow or diffusion processes valid copulas</td>
+</tr>
+<tr>
+<td><a href="https://www.jmlr.org/papers/volume27/23-1381/23-1381.pdf">Probabilistic Rainfall Downscaling</a>, JMLR 2026</td>
+<td>Peer-reviewed research</td>
+<td>Censored latent Gaussian-copula composition with learned spatial marginals</td>
+<td>Application, observation model, kernel, and spatial regime bound transfer</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="copula-models-research-conclusion">Copula Models: Research conclusion<a class="headerlink" href="#copula-models-research-conclusion" title="Permanent link">¤</a></h3>
+<p>Copula research is expanding the ways dependence can be parameterized without removing the uniform-marginal constraint. Classifiers offer density ratios; implicit networks offer samples after uniformization; structured generators preserve known family validity; and marginal-preserving paths support new density and sampling procedures. These are different query interfaces. Their comparison must control the marginal estimator, tie and censoring treatment, density access, conditional queries, tail protocol, and sampling cost.</p>
+<h2 id="tensor-network-and-born-probability-models">Tensor-Network and Born Probability Models<a class="headerlink" href="#tensor-network-and-born-probability-models" title="Permanent link">¤</a></h2>
+<h3 id="tensor-network-and-born-probability-models-what-is-established">Tensor-Network and Born Probability Models: What is established<a class="headerlink" href="#tensor-network-and-born-probability-models-what-is-established" title="Permanent link">¤</a></h3>
+<p>A tensor-network probability model factorizes a high-dimensional table or
+amplitude into contracted cores. Nonnegative models normalize a nonnegative
+contraction; Born models normalize its squared magnitude. Matrix product states
+make normalization, marginals, conditionals, and sequential sampling polynomial
+in sequence length and bond rank under their chain structure, but general
+tensor-network contraction depends on topology and contraction order. A
+classically stored Born MPS uses quantum probability algebra without requiring
+quantum hardware.</p>
+<p>The complete derivations, finite examples, family relationships, and evaluation
+protocol are in <a href="../tensor-network-and-born-probability-models/">Tensor-Network and Born Probability Models</a>.</p>
+<div class="md-typeset__table book-table-container"><table id="tbl-new-families-frontier-evidence-what-is-established_7"><caption class="book-object-caption"><span class="book-object-number">Table FRONT.9.</span> What is established</caption>
+<thead>
+<tr>
+<th>Work</th>
+<th>Evidence</th>
+<th>Contribution used in the curriculum</th>
+<th>Boundary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://doi.org/10.1103/PhysRevX.8.031012">Unsupervised Generative Modeling Using Matrix Product States</a>, 2018</td>
+<td>Established foundation</td>
+<td>Born MPS likelihood learning, canonical optimization, and direct sampling</td>
+<td>DMRG-style optimization is nonconvex, and classical MPS execution is not quantum hardware</td>
+</tr>
+<tr>
+<td><a href="https://proceedings.neurips.cc/paper_files/paper/2019/hash/b86e8d03fe992d1b0e19656875ee557c-Abstract.html">Expressive Power of Tensor-Network Factoring</a>, NeurIPS 2019</td>
+<td>Established theory</td>
+<td>Separates nonnegative, Born, and locally purified representation classes</td>
+<td>Expressivity comparisons are structure- and size-measure-specific, not universal benchmark rankings</td>
+</tr>
+<tr>
+<td><a href="https://proceedings.mlr.press/v130/miller21a.html">Tensor Networks for Probabilistic Sequence Modeling</a>, AISTATS 2021</td>
+<td>Peer-reviewed research</td>
+<td>Tensor-network sequence distributions and tractable queries</td>
+<td>Fixed-length representation, rank, order, and task protocol bound the result</td>
+</tr>
+<tr>
+<td><a href="https://www.jmlr.org/papers/v22/18-431.html">Matrix Product States for Inference in Discrete Probabilistic Models</a>, JMLR 2021</td>
+<td>Peer-reviewed research</td>
+<td>Marginalization, conditioning, sampling, and MPS variational inference</td>
+<td>Exactness applies to the represented MPS; fitting it to another target may remain approximate</td>
+</tr>
+<tr>
+<td><a href="https://proceedings.mlr.press/v161/novikov21a.html">Tensor-Train Density Estimation</a>, UAI 2021</td>
+<td>Peer-reviewed research</td>
+<td>Functional tensor-train densities, partition functions, CDFs, and sampling</td>
+<td>Basis, rank, optimization, and continuous support assumptions control accuracy</td>
+</tr>
+<tr>
+<td><a href="https://openreview.net/forum?id=Y7dRmpGiHj">What Is the Relationship between Tensor Factorizations and Circuits?</a>, TMLR 2025</td>
+<td>Peer-reviewed research</td>
+<td>Formal circuit language and modular tensorized-circuit construction</td>
+<td>A fixed correspondence does not make arbitrary tensor contractions or arbitrary circuit queries tractable</td>
+</tr>
+<tr>
+<td><a href="https://doi.org/10.21468/SciPostPhys.18.3.096">Generative Modeling with Continuous-Valued Matrix Product States</a>, 2025</td>
+<td>Peer-reviewed research</td>
+<td>Feature-map continuous Born MPS and canonical sampling</td>
+<td>Universal approximation permits growing features/rank; it is not a fixed-budget result</td>
+</tr>
+<tr>
+<td><a href="https://openreview.net/forum?id=gHPRSPxIsk">How to Square Tensor Networks and Circuits Without Squaring Them</a>, ICLR 2026</td>
+<td>Peer-reviewed research</td>
+<td>Orthogonality conditions for efficient marginalization in squared circuits</td>
+<td>The cost improvement requires the stated structural parameterization</td>
+</tr>
+<tr>
+<td><a href="https://openreview.net/forum?id=A6zrZmFpeQ">A Born Machine Approach to Controllable Text Generation</a>, SPIGM at ICML 2026</td>
+<td>Workshop research</td>
+<td>MPS lookahead probabilities for studied constrained-text tasks</td>
+<td>Does not establish exact preservation of an arbitrary language-model conditional or broad task superiority</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="tensor-network-and-born-probability-models-research-conclusion">Tensor-Network and Born Probability Models: Research conclusion<a class="headerlink" href="#tensor-network-and-born-probability-models-research-conclusion" title="Permanent link">¤</a></h3>
+<p>Current work extends tensor probability models from discrete chains to
+continuous bases and circuit structures, and explores them as exact-query
+components inside larger generators. The durable boundary remains structural:
+rank and order control representation, topology and contraction plan control
+queries, and shared Born semantics do not establish a quantum computational
+advantage.</p>
+<h2 id="probabilistic-grammars-and-program-derivations">Probabilistic Grammars and Program Derivations<a class="headerlink" href="#probabilistic-grammars-and-program-derivations" title="Permanent link">¤</a></h2>
+<h3 id="probabilistic-grammars-and-program-derivations-what-is-established">Probabilistic Grammars and Program Derivations: What is established<a class="headerlink" href="#probabilistic-grammars-and-program-derivations-what-is-established" title="Permanent link">¤</a></h3>
+<p>A probabilistic grammar defines a law over finite recursive derivations and pushes that law through a yield or execution map. Ambiguous observations require summing over compatible derivations. Local normalization of rules does not by itself establish almost-sure finite termination. Inside–outside dynamic programming exactly marginalizes context-free trees under its grammar and cycle assumptions; neural parameterization changes the rule scores but not those semantics. Program generators add a second many-to-one map through execution, where types, exceptions, nontermination, and semantic equivalence become part of the probability and evaluation contract.</p>
+<p>The complete derivations, finite counterexamples, hybrid relationships, and evaluation protocol are in <a href="../probabilistic-grammars-and-program-derivations/">Probabilistic Grammars and Program Derivations</a>.</p>
+<div class="md-typeset__table book-table-container"><table id="tbl-new-families-frontier-evidence-what-is-established_8"><caption class="book-object-caption"><span class="book-object-number">Table FRONT.10.</span> What is established</caption>
+<thead>
+<tr>
+<th>Work</th>
+<th>Evidence</th>
+<th>Contribution used in the curriculum</th>
+<th>Boundary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://doi.org/10.1109/T-C.1973.223746">Applying Probability Measures to Abstract Languages</a>, 1973</td>
+<td>Established foundation</td>
+<td>Global consistency of probability assignments to grammar-generated languages</td>
+<td>Locally normalized productions can still leave mass on infinite derivations</td>
+</tr>
+<tr>
+<td><a href="https://doi.org/10.1016/0885-2308(90)90022-X">Inside–Outside Estimation</a>, 1990</td>
+<td>Established foundation</td>
+<td>Dynamic-programming EM for stochastic context-free grammars</td>
+<td>Exactness depends on the grammar form and chart assumptions; EM is not globally optimizing</td>
+</tr>
+<tr>
+<td><a href="https://aclanthology.org/J99-4004/">Semiring Parsing</a>, 1999</td>
+<td>Established foundation</td>
+<td>One deductive chart supporting recognition, sums, Viterbi, forests, and expectations through different algebras</td>
+<td>An algebra changes the query; max-product is not marginal likelihood</td>
+</tr>
+<tr>
+<td><a href="https://aclanthology.org/P19-1228">Compound PCFGs</a>, ACL 2019</td>
+<td>Established neural foundation</td>
+<td>Sentence-level continuous latent with conditionally exact tree marginalization</td>
+<td>The latent integral and posterior remain approximate</td>
+</tr>
+<tr>
+<td><a href="https://proceedings.mlr.press/v70/kusner17a.html">Grammar VAE</a>, ICML 2017</td>
+<td>Established hybrid foundation</td>
+<td>VAE decoding over grammar production sequences</td>
+<td>Syntactic validity is weaker than semantic or domain validity</td>
+</tr>
+<tr>
+<td><a href="https://proceedings.mlr.press/v97/kajino19a.html">Molecular Hypergraph Grammar</a>, ICML 2019</td>
+<td>Peer-reviewed research</td>
+<td>Graph-grammar construction encoding declared molecular constraints</td>
+<td>Reported validity is method-, representation-, and benchmark-specific</td>
+</tr>
+<tr>
+<td><a href="https://proceedings.mlr.press/v235/palmarini24a.html">Bayesian Program Learning by Decompiling Amortized Knowledge</a>, ICML 2024</td>
+<td>Peer-reviewed research</td>
+<td>Uses amortized search knowledge to learn reusable program-library components</td>
+<td>Search budget, DSL, library schedule, and task suite bound the result</td>
+</tr>
+<tr>
+<td><a href="https://proceedings.mlr.press/v267/sun25aa.html">Foundation Molecular Grammar</a>, ICML 2025</td>
+<td>Peer-reviewed research</td>
+<td>Multimodal-foundation-model-assisted induction of an interpretable molecular graph language</td>
+<td>Does not establish universal chemical feasibility or grammar induction quality</td>
+</tr>
+<tr>
+<td><a href="https://aclanthology.org/2025.emnlp-main.1694/">Probability Distribution Collapse</a>, EMNLP 2025</td>
+<td>Peer-reviewed research</td>
+<td>Diagnoses compact neural-PCFG parameterization collapse and proposes a mitigation</td>
+<td>Multilingual parsing protocols and named parameterizations bound the conclusion</td>
+</tr>
+<tr>
+<td><a href="https://aclanthology.org/2025.findings-acl.177/">GRAMMAR-LLM</a>, ACL Findings 2025</td>
+<td>Peer-reviewed research</td>
+<td>Efficient constrained generation for an LL(1)-equivalent grammar class</td>
+<td>Formal syntax support does not imply arbitrary context-sensitive or semantic correctness</td>
+</tr>
+<tr>
+<td><a href="https://openreview.net/forum?id=7Sph4KyeYO">Constrained Decoding of Diffusion LLMs with CFGs</a>, ICLR 2026</td>
+<td>Peer-reviewed research</td>
+<td>Additive-infilling feasibility for arbitrary-order masked generation</td>
+<td>Near-perfect syntax on named tasks is not a universal semantic or target-law guarantee</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="probabilistic-grammars-and-program-derivations-research-conclusion">Probabilistic Grammars and Program Derivations: Research conclusion<a class="headerlink" href="#probabilistic-grammars-and-program-derivations-research-conclusion" title="Permanent link">¤</a></h3>
+<p>The active design space separates recursive probability semantics, neural parameterization, exact or approximate marginalization, executable program induction, and constrained sampling. Current work improves compact neural grammars, grammar induction, and formal-language support for left-to-right and arbitrary-order generation. None removes the need to prove finite termination, sum ambiguous derivations, distinguish local masking from global conditioning, and evaluate syntax, behavior, equivalence, and compute separately.</p>
+<h2 id="evidence-scope">Evidence Scope<a class="headerlink" href="#evidence-scope" title="Permanent link">¤</a></h2>
+<p>The evidence set covers these peer-reviewed areas and venues:</p>
+<ul>
+<li>COLT 2026: optimal masked-diffusion schedules, adaptive/sharp discrete-diffusion sampling, quantized transition diffusion, and sliced-OT distribution-matching rates;</li>
+<li>ICLR 2026: parallel-sampling theory, deletion–insertion diffusion, discrete-diffusion distillation, GFlowNet evaluation balance, and Flow of Spans;</li>
+<li>AISTATS 2026: an oral result on probabilistic-circuit parameter learning;</li>
+<li>CVPR 2026: frequency-aware flow matching under a class-conditional ImageNet protocol;</li>
+<li>ICLR 2026: causal delta embeddings and equivalence characterization for linear non-Gaussian latent-variable cyclic models;</li>
+<li>ICLR 2026: marginal-preserving diffusion and flow-based copulas; JMLR 2026: censored latent-copula rainfall downscaling;</li>
+<li>ICLR 2026: context-free constrained decoding for arbitrary-order diffusion-language-model infilling; ACL/EMNLP 2025: grammar-constrained generation and compact neural-grammar collapse; ICML 2025: multimodal molecular-grammar induction;</li>
+<li>ICML 2026: AR-to-DLM conversion, sampler-centric DLM evaluation, periodic BFNs, adaptive complementary exploration, conservative offline GFlowNets, length-aware GFlowNet language-model distribution matching, robust importance-weighted Neural Processes, stochastic neural operators, functional adjoint sampling, test-time interventional causal learning, and recursive latent-variable causal discovery;</li>
+<li>accepted work is labeled <strong>peer-reviewed research</strong>, not <strong>established</strong>;</li>
+<li>submissions without confirmed acceptance, withdrawn/rejected papers, and vendor announcements remain excluded from technical conclusions or labeled separately when pedagogically necessary.</li>
+</ul>
+<h2 id="stochastic-process-and-function-space-generators">Stochastic-Process and Function-Space Generators<a class="headerlink" href="#stochastic-process-and-function-space-generators" title="Permanent link">¤</a></h2>
+<h3 id="stochastic-process-and-function-space-generators-what-is-established">Stochastic-Process and Function-Space Generators: What is established<a class="headerlink" href="#stochastic-process-and-function-space-generators-what-is-established" title="Permanent link">¤</a></h3>
+<p>Gaussian processes define projectively consistent finite-dimensional laws. Conditional Neural Processes amortize set-conditioned prediction, while latent variants introduce shared uncertainty. Neural SDEs and stochastic operators define path/field distributions only together with their driving noise, initial/boundary conditions, and discretization semantics.</p>
+<div class="md-typeset__table book-table-container"><table id="tbl-new-families-frontier-evidence-what-is-established_9"><caption class="book-object-caption"><span class="book-object-number">Table FRONT.11.</span> What is established</caption>
+<thead>
+<tr>
+<th>Work</th>
+<th>Evidence</th>
+<th>Contribution used in the curriculum</th>
+<th>Boundary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://proceedings.mlr.press/v80/garnelo18a.html">Conditional Neural Processes</a>, ICML 2018</td>
+<td>Established foundation</td>
+<td>Permutation-invariant context-conditioned prediction</td>
+<td>Common factorized outputs do not provide arbitrary joint target coherence</td>
+</tr>
+<tr>
+<td><a href="https://proceedings.mlr.press/v139/kidger21b.html">Neural SDEs as Infinite-Dimensional GANs</a>, ICML 2021</td>
+<td>Established foundation</td>
+<td>Implicit adversarial learning of path distributions</td>
+<td>No tractable pointwise path density; critic and solver matter</td>
+</tr>
+<tr>
+<td><a href="https://proceedings.mlr.press/v202/bilos23a.html">Stochastic Process Diffusion</a>, ICML 2023</td>
+<td>Peer-reviewed research</td>
+<td>Treats temporal data as continuous functions with process noise</td>
+<td>Cross-grid consistency remains construction/evaluation dependent</td>
+</tr>
+<tr>
+<td><a href="https://proceedings.mlr.press/v206/kerrigan23a.html">Diffusion Generative Models in Infinite Dimensions</a>, AISTATS 2023</td>
+<td>Established foundation</td>
+<td>Gaussian-measure diffusion in declared Hilbert/Sobolev spaces</td>
+<td>Reference covariance, regularity, and discretization assumptions are essential</td>
+</tr>
+<tr>
+<td><a href="https://proceedings.mlr.press/v238/kerrigan24a.html">Functional Flow Matching</a>, AISTATS 2024</td>
+<td>Peer-reviewed research</td>
+<td>Probability paths and vector fields directly in function space</td>
+<td>Finite basis/grid and ODE implementations still require convergence tests</td>
+</tr>
+<tr>
+<td><a href="https://proceedings.mlr.press/v235/ashman24a.html">Translation-Equivariant TNPs</a>, ICML 2024</td>
+<td>Peer-reviewed research</td>
+<td>Symmetry-aware posterior prediction maps</td>
+<td>Translation equivariance assumes stationary structure</td>
+</tr>
+<tr>
+<td><a href="https://openreview.net/forum?id=rLJ5Hm5vbG">Conditioning Consistency Gap</a>, TMLR 2026</td>
+<td>Peer-reviewed research</td>
+<td>Quantifies how CNP re-encoding can disagree with probabilistic conditioning</td>
+<td>The rate uses bounded-encoder and Lipschitz-decoder assumptions and does not cover every NP</td>
+</tr>
+<tr>
+<td><a href="https://openreview.net/forum?id=W76xuQcrzS">Robust IW Neural Processes</a>, ICML 2026</td>
+<td>Peer-reviewed research</td>
+<td>Studies particle imbalance and tail-risk adaptation</td>
+<td>Protocol-specific result; robust and average performance can trade off</td>
+</tr>
+<tr>
+<td><a href="https://openreview.net/forum?id=uZWpKAqjEg">Expanding the Chaos</a>, ICML 2026</td>
+<td>Peer-reviewed research</td>
+<td>Wiener-chaos neural operators for SDE/SPDE solution trajectories</td>
+<td>One-pass operator results do not establish universal path-law fidelity</td>
+</tr>
+<tr>
+<td><a href="https://openreview.net/forum?id=XcJk9un0Tb">Functional Adjoint Sampler</a>, ICML 2026</td>
+<td>Peer-reviewed research</td>
+<td>Stochastic-control sampler for Gibbs targets on Hilbert spaces</td>
+<td>Functional representation, target, and optimization assumptions bound conclusions</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2512.12749">FLORAL</a>, ICLR 2026</td>
+<td>Peer-reviewed research</td>
+<td>Operator-valued flow matching for residual multi-fidelity PDE uncertainty</td>
+<td>Named PDEs, solvers, grids, and FNO architecture bound evidence</td>
+</tr>
+<tr>
+<td><a href="https://openreview.net/forum?id=7dkPGrmEMN">Direct Flow Neural Processes</a>, ICML 2026 SPIGM</td>
+<td>Workshop research</td>
+<td>Amortizes iterative flow-NP sampling</td>
+<td>Workshop evidence, not labeled main-conference peer review</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="stochastic-process-and-function-space-generators-research-conclusion">Stochastic-Process and Function-Space Generators: Research conclusion<a class="headerlink" href="#stochastic-process-and-function-space-generators-research-conclusion" title="Permanent link">¤</a></h3>
+<p>The decisive research question is not whether a network accepts arbitrary coordinates, but whether its predictions remain coherent across query sets, conditioning updates, resolutions, and observation patterns. The conditioning-consistency result sharpens the distinction between projective target consistency and learned conditioning coherence; the operator/sampler results broaden function-space generation without eliminating reference-measure or discretization assumptions. Function-space generators need projective, conditioning, pathwise, and refinement tests in addition to ordinary pointwise metrics.</p>
+<h2 id="causal-generative-models">Causal Generative Models<a class="headerlink" href="#causal-generative-models" title="Permanent link">¤</a></h2>
+<h3 id="causal-generative-models-what-is-established">Causal Generative Models: What is established<a class="headerlink" href="#causal-generative-models-what-is-established" title="Permanent link">¤</a></h3>
+<p>Structural causal models distinguish observational, interventional, and counterfactual distributions by specifying modular mechanisms and exogenous variables. Identification is prior to estimation: an expressive VAE, flow, GAN, diffusion model, or GFlowNet can parameterize a causal workflow, but observational fit cannot select among every interventionally distinct SCM.</p>
+<div class="md-typeset__table book-table-container"><table id="tbl-new-families-frontier-evidence-what-is-established_10"><caption class="book-object-caption"><span class="book-object-number">Table FRONT.12.</span> What is established</caption>
+<thead>
+<tr>
+<th>Work</th>
+<th>Evidence</th>
+<th>Contribution used in the curriculum</th>
+<th>Boundary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://proceedings.mlr.press/v108/khemakhem20a.html">Identifiable VAE / Nonlinear ICA</a>, AISTATS 2020</td>
+<td>Established foundation</td>
+<td>Auxiliary-variable conditions that can restore latent identifiability</td>
+<td>Requires the stated conditional family, variation, mixing, and specification assumptions</td>
+</tr>
+<tr>
+<td><a href="https://proceedings.neurips.cc/paper_files/paper/2020/hash/0987b8b338d6c90bbedd8631bc499221-Abstract.html">Deep Structural Causal Models</a>, NeurIPS 2020</td>
+<td>Established foundation</td>
+<td>Abduction–action–prediction with expressive invertible/variational mechanisms</td>
+<td>Correct architecture does not identify a wrong or unknown graph</td>
+</tr>
+<tr>
+<td><a href="https://openaccess.thecvf.com/content/CVPR2021/html/Yang_CausalVAE_Disentangled_Representation_Learning_via_Neural_Structural_Causal_Models_CVPR_2021_paper.html">CausalVAE</a>, CVPR 2021</td>
+<td>Established foundation</td>
+<td>Neural structural causal layer with concept supervision</td>
+<td>Not an unsupervised universal causal-identifiability guarantee</td>
+</tr>
+<tr>
+<td><a href="https://proceedings.mlr.press/v130/khemakhem21a.html">Causal Autoregressive Flows</a>, AISTATS 2021</td>
+<td>Established foundation</td>
+<td>Identifiability and exact abduction for specified affine/additive autoregressive-flow causal families</td>
+<td>An arbitrary flow order or invertible density model is not thereby causal</td>
+</tr>
+<tr>
+<td><a href="https://proceedings.mlr.press/v177/sanchez22a.html">Diffusion Causal Models</a>, CLeaR 2022</td>
+<td>Established foundation</td>
+<td>Diffusion/score machinery for counterfactual estimation under a known causal structure</td>
+<td>Image realism/minimality does not identify unrestricted observational counterfactuals</td>
+</tr>
+<tr>
+<td><a href="https://proceedings.mlr.press/v180/deleu22a.html">DAG-GFlowNet</a>, UAI 2022</td>
+<td>Established foundation</td>
+<td>Amortized sampling from score-defined Bayesian DAG posteriors</td>
+<td>Posterior validity remains relative to score, prior, model class, data, and optimization</td>
+</tr>
+<tr>
+<td><a href="https://proceedings.mlr.press/v202/nasr-esfahany23a.html">Counterfactual Identifiability of Bijective Causal Models</a>, ICML 2023</td>
+<td>Peer-reviewed research</td>
+<td>Positive counterfactual-identification results for specified bijective mechanisms and causal structures</td>
+<td>Bijectivity/structural assumptions supply cross-world information absent in arbitrary regime marginals</td>
+</tr>
+<tr>
+<td><a href="https://proceedings.mlr.press/v238/varici24a.html">General Identifiability and Achievability for CRL</a>, AISTATS 2024</td>
+<td>Peer-reviewed research</td>
+<td>Nonparametric recovery under declared hard-intervention coverage, including uncoupled settings</td>
+<td>Intervention number/coverage, mixing, and model assumptions bound recovery</td>
+</tr>
+<tr>
+<td><a href="https://proceedings.mlr.press/v235/morioka24a.html">Grouping-Based CRL</a>, ICML 2024</td>
+<td>Peer-reviewed research</td>
+<td>Observational identification using grouping of observed variables</td>
+<td>“No interventions” still relies on structural grouping information</td>
+</tr>
+<tr>
+<td><a href="https://openreview.net/forum?id=5d7prMWHNF">Causal Delta Embeddings</a>, ICLR 2026</td>
+<td>Peer-reviewed research</td>
+<td>Sparse scene-invariant representations of intervention pairs</td>
+<td>Benchmark OOD evidence does not make arbitrary image differences causal actions</td>
+</tr>
+<tr>
+<td><a href="https://openreview.net/forum?id=b8TlYh6PN6">Latent-Variable Cyclic Equivalence</a>, ICLR 2026</td>
+<td>Peer-reviewed research</td>
+<td>Characterizes distributional equivalence for linear non-Gaussian cyclic models with latent structure</td>
+<td>Conclusions do not transfer automatically to nonlinear or unrestricted models</td>
+</tr>
+<tr>
+<td><a href="https://openreview.net/forum?id=CwYxl2l2J6">Nonlinear Causal Reductions</a>, ICLR 2026</td>
+<td>Peer-reviewed research</td>
+<td>Approximate interventional consistency for high-level explanations of specified RL systems</td>
+<td>Reduction class, interventions, and policy tasks bound the abstraction guarantee</td>
+</tr>
+<tr>
+<td><a href="https://openreview.net/forum?id=Kmv7TjGCru">TICL</a>, ICML 2026</td>
+<td>Peer-reviewed research</td>
+<td>Test-time learning for interventional structure and unknown-target detection</td>
+<td>Assumptions and benchmark regimes do not cover arbitrary unlabeled domain shift</td>
+</tr>
+<tr>
+<td><a href="https://openreview.net/forum?id=jdbQzlnYll">DiCoLa</a>, ICML 2026</td>
+<td>Peer-reviewed research</td>
+<td>Recursive decomposition for causal discovery with latent variables</td>
+<td>Soundness/completeness inherit the assumptions of the base discovery setting</td>
+</tr>
+<tr>
+<td><a href="https://openreview.net/forum?id=39650lCGDP">ATE Identification under Selection Bias</a>, ICML 2026</td>
+<td>Peer-reviewed research</td>
+<td>Necessary/sufficient identification conditions in its selected-population setting</td>
+<td>Does not make arbitrary biased generative datasets transportable</td>
+</tr>
+<tr>
+<td><a href="https://openreview.net/forum?id=JTwryHNicJ">Task-Tailored Proper Scoring for Causal Estimation</a>, ICML 2026</td>
+<td>Peer-reviewed research</td>
+<td>Aligns probabilistic training curvature with downstream IPW/ATE error</td>
+<td>Improves estimation objective; does not replace identification or positivity</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="causal-generative-models-research-conclusion">Causal Generative Models: Research conclusion<a class="headerlink" href="#causal-generative-models-research-conclusion" title="Permanent link">¤</a></h3>
+<p>Research is increasingly explicit about <strong>equivalence classes, intervention representations, hidden structure, selection, and distribution shift</strong>. Positive results for bijective mechanisms, grouping, or interventional coverage illustrate that counterfactual and representation identification is possible only after the extra structure is named. That is progress in specifying what can be recovered—not evidence that causal variables, graph orientation, or individual counterfactuals can be learned from arbitrary IID observations. Evaluation must separate sample realism, interventional prediction, structural recovery, population effects, and unit-level counterfactual validity.</p>
+<h2 id="cross-family-research-conclusions">Cross-Family Research Conclusions<a class="headerlink" href="#cross-family-research-conclusions" title="Permanent link">¤</a></h2>
+<ol>
+<li><strong>Tractability moves rather than disappears.</strong> PCs pay with circuit structure/size; implicit generators pay with witness estimation; discrete iterative models pay with repeated transitions; BFNs pay with receiver approximation; GFlowNets pay with exploration and balance.</li>
+<li><strong>Parallelism changes conditional assumptions.</strong> Masked models and BFNs update many coordinates per step but must recover dependencies across iterations.</li>
+<li><strong>A unifying equation is not a benchmark equivalence.</strong> CTMC generators, SDE correspondences, and conservation identities clarify relationships without equalizing finite networks or solvers.</li>
+<li><strong>Scientific-generation claims need external validation.</strong> Reward or validity metrics can be exploited; novelty and high predicted reward are not laboratory success.</li>
+<li><strong>Maturity must remain visible.</strong> A 2026 accepted paper is peer-reviewed research, not established doctrine; an influential preprint remains a preprint.</li>
+</ol>
+<p>This ledger should be refreshed at release time. Stale verification dates generate a review report; they do not authorize automatic replacement of claims.</p>
+</article>
+</div>
+<script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  Back to top
+</button>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+<div class="md-social">
+<a class="md-social__link" href="https://github.com/avitai/artifex" rel="noopener" target="_blank" title="github.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</a>
+<a class="md-social__link" href="https://pypi.org/project/avitai-artifex/" rel="noopener" target="_blank" title="pypi.org">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-66.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.3v101.8c0 29 25.2 46 53.4 54.3 33.8 9.9 66.3 11.7 106.8 0 26.9-7.8 53.4-23.5 53.4-54.3v-40.7H226.2v-13.6h160.2c31.1 0 42.6-21.7 53.4-54.2 11.2-33.5 10.7-65.7 0-108.6M286.2 444.7a20.4 20.4 0 1 1 0-40.7 20.4 20.4 0 1 1 0 40.7M167.8 248.1h106.8c29.7 0 53.4-24.5 53.4-54.3V91.9c0-29-24.4-50.7-53.4-55.6-35.8-5.9-74.7-5.6-106.8.1-45.2 8-53.4 24.7-53.4 55.6v40.7h106.9v13.6h-147c-31.1 0-58.3 18.7-66.8 54.2-9.8 40.7-10.2 66.1 0 108.6 7.6 31.6 25.7 54.2 56.8 54.2H101v-48.8c0-35.3 30.5-66.4 66.8-66.4m-6.6-183.4a20.4 20.4 0 1 1 0 40.8 20.4 20.4 0 1 1 0-40.8"></path></svg>
+</a>
+<a class="md-social__link" href="https://twitter.com/mahdi_shafiei" rel="noopener" target="_blank" title="twitter.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M459.4 151.7c.3 4.5.3 9.1.3 13.6 0 138.7-105.6 298.6-298.6 298.6-59.5 0-114.7-17.2-161.1-47.1 8.4 1 16.6 1.3 25.3 1.3 49.1 0 94.2-16.6 130.3-44.8-46.1-1-84.8-31.2-98.1-72.8 6.5 1 13 1.6 19.8 1.6 9.4 0 18.8-1.3 27.6-3.6-48.1-9.7-84.1-52-84.1-103v-1.3c14 7.8 30.2 12.7 47.4 13.3-28.3-18.8-46.8-51-46.8-87.4 0-19.5 5.2-37.4 14.3-53C87.4 130.8 165 172.4 252.1 176.9c-1.6-7.8-2.6-15.9-2.6-24C249.5 95.1 296.3 48 354.4 48c30.2 0 57.5 12.7 76.7 33.1 23.7-4.5 46.5-13.3 66.6-25.3-7.8 24.4-24.4 44.8-46.1 57.8 21.1-2.3 41.6-8.1 60.4-16.2-14.3 20.8-32.2 39.3-52.6 54.3"></path></svg>
+</a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.path", "navigation.top", "navigation.prune", "toc.follow", "search.highlight", "search.share", "search.suggest", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "content.mermaid"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+<script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+<script src="../../../javascripts/reading-layout.js"></script>
+</body>
+</html>

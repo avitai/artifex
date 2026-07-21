@@ -1,0 +1,1668 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="This chapter separates evidence, posterior prediction, predictive comparison, model criticism, and missing-data mechanisms while keeping their estimands and" name="description"/>
+<meta content="Mahdi Shafiei" name="author"/>
+<link href="https://docs.avitai.bio/artifex/user-guide/concepts/bayesian-learning-03-assessment/" rel="canonical"/>
+<link href="../bayesian-learning-02-priors/" rel="prev"/>
+<link href="../bayesian-learning-04-practice/" rel="next"/>
+<link href="../../../assets/images/favicon.png" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.7.7" name="generator"/>
+<title>Bayesian Learning 3 — Evidence, Criticism, and Missingness - Artifex</title>
+<link href="../../../assets/stylesheets/main.ec1eaa64.min.css" rel="stylesheet"/>
+<link href="../../../assets/stylesheets/palette.ab4e12ef.min.css" rel="stylesheet"/>
+<script src="../../../assets/vendor/iframe-worker/index.js"></script>
+<link href="../../../assets/_mkdocstrings.css" rel="stylesheet"/>
+<link href="../../../_static/extra.css" rel="stylesheet"/>
+<script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+<meta content="article" property="og:type"/>
+<meta content="The Artifex Generative Models Book" property="og:site_name"/>
+<meta content="Bayesian Learning 3 — Evidence, Criticism, and Missingness" property="og:title"/>
+<meta content="This chapter separates evidence, posterior prediction, predictive comparison, model criticism, and missing-data mechanisms while keeping their estimands and" property="og:description"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/bayesian-learning-03-assessment/" property="og:url"/>
+<meta content="2026-07-15" property="article:modified_time"/>
+<meta content="summary" name="twitter:card"/>
+<meta content="Bayesian Learning 3 — Evidence, Criticism, and Missingness" name="twitter:title"/>
+<meta content="This chapter separates evidence, posterior prediction, predictive comparison, model criticism, and missing-data mechanisms while keeping their estimands and" name="twitter:description"/>
+<meta content="Generative models, Machine learning, Probabilistic modeling, foundation, required, canonical_chapter, bayesian-learning-assessment, newcomer, practitioner, researcher" name="keywords"/>
+<meta content="Bayesian Learning 3 — Evidence, Criticism, and Missingness" name="citation_title"/>
+<meta content="Mahdi Shafiei" name="citation_author"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/bayesian-learning-03-assessment/" name="citation_public_url"/>
+<meta content="en" name="citation_language"/>
+<meta content="Bayesian Learning 3 — Evidence, Criticism, and Missingness" name="DC.title"/>
+<meta content="Mahdi Shafiei" name="DC.creator"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/bayesian-learning-03-assessment/" name="DC.identifier"/>
+<meta content="Text.LearningResource" name="DC.type"/>
+<meta content="2026-07-15" name="DCTERMS.modified"/>
+<meta content="https://github.com/avitai/artifex/blob/main/LICENSE" name="DCTERMS.license"/>
+<meta content="foundation" name="DCTERMS.educationLevel"/>
+<meta content="newcomer, practitioner, researcher" name="DCTERMS.audience"/>
+<link href="https://github.com/avitai/artifex/blob/main/LICENSE" rel="license"/>
+<script id="artifex-book-metadata" type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Chapter",
+  "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/bayesian-learning-03-assessment/",
+  "url": "https://docs.avitai.bio/artifex/user-guide/concepts/bayesian-learning-03-assessment/",
+  "name": "Bayesian Learning 3 \u2014 Evidence, Criticism, and Missingness",
+  "description": "This chapter separates evidence, posterior prediction, predictive comparison, model criticism, and missing-data mechanisms while keeping their estimands and",
+  "identifier": "bayesian-learning-assessment",
+  "inLanguage": "en",
+  "isAccessibleForFree": true,
+  "learningResourceType": "Canonical chapter",
+  "educationalLevel": "foundation",
+  "educationalUse": "required",
+  "audience": [
+    
+      {"@type": "EducationalAudience", "audienceType": "newcomer"},
+    
+      {"@type": "EducationalAudience", "audienceType": "practitioner"},
+    
+      {"@type": "EducationalAudience", "audienceType": "researcher"}
+    
+  ],
+  "dateModified": "2026-07-15",
+  "keywords": ["Generative models", "Machine learning", "Probabilistic modeling", "foundation", "required", "canonical_chapter", "bayesian-learning-assessment", "newcomer", "practitioner", "researcher"],
+  "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+  "author": [
+    
+      {"@type": "Person", "name": "Mahdi Shafiei"}
+    
+  ],
+  "isPartOf": {
+    "@type": "Book",
+    "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/#book",
+    "url": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/",
+    "name": "The Artifex Generative Models Book",
+    "bookEdition": "Living Web Edition",
+    "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+    "author": [
+      
+        {"@type": "Person", "name": "Mahdi Shafiei"}
+      
+    ]
+  }
+}
+</script>
+<link href="../../../assets/vendor/katex/katex.min.css" id="artifex-katex-stylesheet" integrity="sha384-UA8juhPf75SzzAMA/4fo3yOU7sBJ0om7SCD2GHq0fZqZco6tr1UCV7nUbk9J90JM" rel="stylesheet"/>
+<script defer="" integrity="sha384-T/0lMUdJpd2S1ZHtRiofG3htU3xPCrFVeAQ1UUE2TJwlEJSV5NUwn30kP28n238E" src="../../../assets/vendor/mermaid/mermaid.min.js"></script>
+<script defer="" src="../../../assets/vendor/katex/katex-shadow.js"></script>
+<script defer="" src="../../../javascripts/mermaid-math.js"></script>
+<script defer="" src="../../../javascripts/mathjax.js"></script>
+<script defer="" integrity="sha384-OrHfGTnIbkl0do3N76qW/uWr38o91N05sbSPuYBPLH+hG8X/dNSrjZf3AGjzrCwC" src="../../../assets/vendor/mathjax/tex-mml-chtml.js"></script>
+</head>
+<body data-md-color-accent="amber" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#bayesian-learning-3-evidence-criticism-and-missingness">
+          Skip to content
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header md-header--shadow" data-md-component="header">
+<nav aria-label="Header" class="md-header__inner md-grid">
+<a aria-label="Artifex" class="md-header__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            Artifex
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+            
+              Bayesian Learning 3 — Evidence, Criticism, and Missingness
+            
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-label="Switch to dark mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: light)" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_1" hidden="" title="Switch to dark mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+<input aria-label="Switch to light mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-primary="indigo" data-md-color-scheme="slate" id="__palette_1" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_0" hidden="" title="Switch to light mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+</form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div aria-label="Search" class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Search" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="Search" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="Search" class="md-search__options">
+<a aria-label="Share" class="md-search__icon md-icon" data-clipboard="" data-clipboard-text="" data-md-component="search-share" href="javascript:void(0)" tabindex="-1" title="Share">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"></path></svg>
+</a>
+<button aria-label="Clear" class="md-search__icon md-icon" tabindex="-1" title="Clear" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            Initializing search
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Navigation" class="md-nav md-nav--primary" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="Artifex" class="md-nav__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+    Artifex
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../..">
+<span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../getting-started/installation/">
+<span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Generative Models Book
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Generative Models Book
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    
+  
+    Start Here — The Landscape
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../first-course-01-generative-systems/">
+<span class="md-ellipsis">
+    
+  
+    First Course — New to Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Foundations
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_3_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Foundations
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../probability-01-objects/">
+<span class="md-ellipsis">
+    
+  
+    1. Probability and Generative Modeling
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../classical-01-latent-foundations/">
+<span class="md-ellipsis">
+    
+  
+    2. Classical Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_3_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_3_3" id="__nav_3_3_3_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    3. Bayesian Learning and Model Assessment
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_3_3_label" class="md-nav" data-md-level="3">
+<label class="md-nav__title" for="__nav_3_3_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    3. Bayesian Learning and Model Assessment
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../bayesian-learning-01-object/">
+<span class="md-ellipsis">
+    
+  
+    1. The Generative Object
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../bayesian-learning-02-priors/">
+<span class="md-ellipsis">
+    
+  
+    2. Priors, Conjugacy, and Hierarchies
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
+    
+  
+    3. Evidence, Criticism, and Missingness
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
+<span class="md-ellipsis">
+    
+  
+    3. Evidence, Criticism, and Missingness
+  
+
+    
+  </span>
+</a>
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#5-evidence-prediction-and-model-comparison">
+<span class="md-ellipsis">
+      
+        5. Evidence, Prediction, and Model Comparison
+      
+    </span>
+</a>
+<nav aria-label="5. Evidence, Prediction, and Model Comparison" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#assessment-and-missing-data-learning-objectives">
+<span class="md-ellipsis">
+      
+        Assessment and missing-data learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#evidence-and-bayes-factors">
+<span class="md-ellipsis">
+      
+        Evidence and Bayes factors
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#why-the-harmonic-mean-is-a-warning-not-a-default">
+<span class="md-ellipsis">
+      
+        Why the harmonic mean is a warning, not a default
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#bayesian-model-averaging">
+<span class="md-ellipsis">
+      
+        Bayesian model averaging
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#leave-one-out-predictive-evaluation">
+<span class="md-ellipsis">
+      
+        Leave-one-out predictive evaluation
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#waic-and-singular-models">
+<span class="md-ellipsis">
+      
+        WAIC and singular models
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#bic-has-a-narrower-contract">
+<span class="md-ellipsis">
+      
+        BIC has a narrower contract
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#predictive-stacking">
+<span class="md-ellipsis">
+      
+        Predictive stacking
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#a-comparison-table">
+<span class="md-ellipsis">
+      
+        A comparison table
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#6-model-criticism-generate-from-the-model">
+<span class="md-ellipsis">
+      
+        6. Model Criticism: Generate from the Model
+      
+    </span>
+</a>
+<nav aria-label="6. Model Criticism: Generate from the Model" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#prior-predictive-checks">
+<span class="md-ellipsis">
+      
+        Prior predictive checks
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#posterior-predictive-checks">
+<span class="md-ellipsis">
+      
+        Posterior predictive checks
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-criticism-of-the-coin-model">
+<span class="md-ellipsis">
+      
+        Worked criticism of the coin model
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#predictive-evaluation-and-criticism-are-complementary">
+<span class="md-ellipsis">
+      
+        Predictive evaluation and criticism are complementary
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#7-missing-data-and-observation-mechanisms">
+<span class="md-ellipsis">
+      
+        7. Missing Data and Observation Mechanisms
+      
+    </span>
+</a>
+<nav aria-label="7. Missing Data and Observation Mechanisms" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mcar-mar-and-mnar">
+<span class="md-ellipsis">
+      
+        MCAR, MAR, and MNAR
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#ignorability-requires-more-than-mar">
+<span class="md-ellipsis">
+      
+        Ignorability requires more than MAR
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-binary-completion">
+<span class="md-ellipsis">
+      
+        Worked binary completion
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#semi-supervised-generation">
+<span class="md-ellipsis">
+      
+        Semi-supervised generation
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#bayesian-assessment-retrieval-practice">
+<span class="md-ellipsis">
+      
+        Bayesian assessment retrieval practice
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#bayesian-assessment-synthesis">
+<span class="md-ellipsis">
+      
+        Bayesian assessment synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../bayesian-learning-04-practice/">
+<span class="md-ellipsis">
+    
+  
+    4. Workflow, Retrieval, and References
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../bayesian-learning-and-model-assessment/">
+<span class="md-ellipsis">
+    
+  
+    Continuous View (All Chapters)
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../inference-01-objects-and-queries/">
+<span class="md-ellipsis">
+    
+  
+    4. Latent Variables and Inference
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../objectives-01-discrepancies/">
+<span class="md-ellipsis">
+    
+  
+    5. Objectives and Statistical Distances
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../information-coding-01-measures/">
+<span class="md-ellipsis">
+    
+  
+    6. Information, Coding, and Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../graphical-models-01-directed/">
+<span class="md-ellipsis">
+    
+  
+    7. Graphical Models and Structured Probability
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../message-passing-01-factor-graphs/">
+<span class="md-ellipsis">
+    
+  
+    8. Graphical Inference and Message Passing
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../filtering-01-bayes-recursions/">
+<span class="md-ellipsis">
+    
+  
+    9. Filtering and Smoothing for State-Space Generators
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../sampling-01-monte-carlo/">
+<span class="md-ellipsis">
+    
+  
+    10. Sampling and Continuous Time
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../smc-01-targets/">
+<span class="md-ellipsis">
+    
+  
+    11. Sequential Monte Carlo and Particle Methods
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../optimization-01-differentiation/">
+<span class="md-ellipsis">
+    
+  
+    12. Optimization and Learning Dynamics
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../generative-models-notation/">
+<span class="md-ellipsis">
+    
+  
+    13. Canonical Notation
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../autoregressive-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Model Families
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gradients-01-taxonomy/">
+<span class="md-ellipsis">
+    
+  
+    Connections and Compositions
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../normalization-01-queries/">
+<span class="md-ellipsis">
+    
+  
+    Research Practice
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../models/vae-guide/">
+<span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/core/base/">
+<span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../examples/overview/">
+<span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../zoo/">
+<span class="md-ellipsis">
+    
+  
+    Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../training/overview/">
+<span class="md-ellipsis">
+    
+  
+    Training
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../data/overview/">
+<span class="md-ellipsis">
+    
+  
+    Data &amp; Modalities
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../inference/overview/">
+<span class="md-ellipsis">
+    
+  
+    Inference &amp; Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../benchmarks/">
+<span class="md-ellipsis">
+    
+  
+    Evaluation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../guides/extensions/">
+<span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../extensions/">
+<span class="md-ellipsis">
+    
+  
+    Advanced Topics
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../cli/">
+<span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../community/contributing/">
+<span class="md-ellipsis">
+    
+  
+    Community
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/configs/protein-extension/">
+<span class="md-ellipsis">
+    
+  
+    Reference Library
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#5-evidence-prediction-and-model-comparison">
+<span class="md-ellipsis">
+      
+        5. Evidence, Prediction, and Model Comparison
+      
+    </span>
+</a>
+<nav aria-label="5. Evidence, Prediction, and Model Comparison" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#assessment-and-missing-data-learning-objectives">
+<span class="md-ellipsis">
+      
+        Assessment and missing-data learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#evidence-and-bayes-factors">
+<span class="md-ellipsis">
+      
+        Evidence and Bayes factors
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#why-the-harmonic-mean-is-a-warning-not-a-default">
+<span class="md-ellipsis">
+      
+        Why the harmonic mean is a warning, not a default
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#bayesian-model-averaging">
+<span class="md-ellipsis">
+      
+        Bayesian model averaging
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#leave-one-out-predictive-evaluation">
+<span class="md-ellipsis">
+      
+        Leave-one-out predictive evaluation
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#waic-and-singular-models">
+<span class="md-ellipsis">
+      
+        WAIC and singular models
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#bic-has-a-narrower-contract">
+<span class="md-ellipsis">
+      
+        BIC has a narrower contract
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#predictive-stacking">
+<span class="md-ellipsis">
+      
+        Predictive stacking
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#a-comparison-table">
+<span class="md-ellipsis">
+      
+        A comparison table
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#6-model-criticism-generate-from-the-model">
+<span class="md-ellipsis">
+      
+        6. Model Criticism: Generate from the Model
+      
+    </span>
+</a>
+<nav aria-label="6. Model Criticism: Generate from the Model" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#prior-predictive-checks">
+<span class="md-ellipsis">
+      
+        Prior predictive checks
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#posterior-predictive-checks">
+<span class="md-ellipsis">
+      
+        Posterior predictive checks
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-criticism-of-the-coin-model">
+<span class="md-ellipsis">
+      
+        Worked criticism of the coin model
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#predictive-evaluation-and-criticism-are-complementary">
+<span class="md-ellipsis">
+      
+        Predictive evaluation and criticism are complementary
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#7-missing-data-and-observation-mechanisms">
+<span class="md-ellipsis">
+      
+        7. Missing Data and Observation Mechanisms
+      
+    </span>
+</a>
+<nav aria-label="7. Missing Data and Observation Mechanisms" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mcar-mar-and-mnar">
+<span class="md-ellipsis">
+      
+        MCAR, MAR, and MNAR
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#ignorability-requires-more-than-mar">
+<span class="md-ellipsis">
+      
+        Ignorability requires more than MAR
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-binary-completion">
+<span class="md-ellipsis">
+      
+        Worked binary completion
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#semi-supervised-generation">
+<span class="md-ellipsis">
+      
+        Semi-supervised generation
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#bayesian-assessment-retrieval-practice">
+<span class="md-ellipsis">
+      
+        Bayesian assessment retrieval practice
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#bayesian-assessment-synthesis">
+<span class="md-ellipsis">
+      
+        Bayesian assessment synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<nav aria-label="Breadcrumb" class="md-path">
+<ol class="md-path__list">
+<li class="md-path__item">
+<a class="md-path__link" href="../../..">
+<span class="md-ellipsis">
+    Home
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    Generative Models Book
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../probability-01-objects/">
+<span class="md-ellipsis">
+    Foundations
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../bayesian-learning-01-object/">
+<span class="md-ellipsis">
+    3. Bayesian Learning and Model Assessment
+  </span>
+</a>
+</li>
+</ol>
+</nav>
+<article class="md-content__inner md-typeset">
+<h1 id="bayesian-learning-3-evidence-criticism-and-missingness">Bayesian Learning 3 — Evidence, Criticism, and Missingness<a class="headerlink" href="#bayesian-learning-3-evidence-criticism-and-missingness" title="Permanent link">¤</a></h1><aside aria-label="Learning path" class="admonition abstract artifex-learning-path"><p class="admonition-title">Learning path</p><p><strong>Required knowledge</strong></p><ul class="artifex-learning-path__links" data-learning-path-role="required"><li><a href="../bayesian-learning-02-priors/">Bayesian Learning 2 — Priors, Conjugacy, and Hierarchies</a></li></ul><p><strong>Readiness check:</strong> can you explain the central object and reproduce one worked example from each required chapter? If not, follow its link before continuing.</p><p><strong>Newly unlocked in the default route</strong></p><ul class="artifex-learning-path__links" data-learning-path-role="unlocks"><li><a href="../bayesian-learning-04-practice/">Bayesian Learning 4 — Workflow, Retrieval, and References</a></li></ul></aside>
+<p>This chapter separates evidence, posterior prediction, predictive comparison,
+model criticism, and missing-data mechanisms while keeping their estimands and
+failure modes explicit. For uninterrupted reading, use the <a href="../bayesian-learning-and-model-assessment/#5-evidence-prediction-and-model-comparison">continuous
+view</a>.</p>
+<h2 id="5-evidence-prediction-and-model-comparison">5. Evidence, Prediction, and Model Comparison<a class="headerlink" href="#5-evidence-prediction-and-model-comparison" title="Permanent link">¤</a></h2>
+<h3 id="assessment-and-missing-data-learning-objectives">Assessment and missing-data learning objectives<a class="headerlink" href="#assessment-and-missing-data-learning-objectives" title="Permanent link">¤</a></h3>
+<p>This projection assumes posterior and predictive distributions. By the end, you
+should be able to compare evidence, Bayes factors, LOO, WAIC, BIC, model
+averaging, and stacking by estimand and assumptions; design prior and posterior
+predictive checks; distinguish predictive evaluation from model criticism; and
+derive when MCAR, MAR, MNAR, and ignorability permit or forbid omission of the
+observation mechanism.</p>
+<p>Model comparison begins by naming the target. Evidence asks how much prior
+predictive mass a complete model assigns to the observed data. Predictive
+criteria ask how well a fitted procedure predicts held-out or future data.
+These quantities can favor different models because they solve different
+problems.</p>
+<h3 id="evidence-and-bayes-factors">Evidence and Bayes factors<a class="headerlink" href="#evidence-and-bayes-factors" title="Permanent link">¤</a></h3>
+<p>For model index <span class="arithmatex">\(m\)</span>,</p>
+<div class="arithmatex">\[
+p(D\mid m)
+=\int p(D\mid\theta_m,m)p(\theta_m\mid m)\,d\theta_m.
+\]</div>
+<p>Posterior model probabilities satisfy</p>
+<div class="arithmatex">\[
+p(m\mid D)
+=\frac{p(D\mid m)p(m)}{\sum_{m'}p(D\mid m')p(m')}.
+\]</div>
+<p>For two models, the Bayes factor is</p>
+<div class="arithmatex">\[
+\mathrm{BF}_{12}=\frac{p(D\mid m_1)}{p(D\mid m_2)}.
+\]</div>
+<p>Evidence automatically integrates over parameter volume, but this is not a
+universal anti-overfitting guarantee. Bayes factors can be highly sensitive to
+prior scale, sampling design, stopping assumptions, and small likelihood
+changes. Arbitrary constants in improper priors make ordinary cross-model
+evidence ratios undefined unless a specialized construction resolves them.
+Threshold tables for Bayes factors are reporting conventions, not universal
+decision rules.</p>
+<p>The <a href="../likelihood-and-normalizer-estimation/">likelihood and normalizer estimation volume</a>
+develops importance, annealed, bridge, path, particle, and nested estimators.
+The estimator must not be confused with the evidence it targets.</p>
+<h3 id="why-the-harmonic-mean-is-a-warning-not-a-default">Why the harmonic mean is a warning, not a default<a class="headerlink" href="#why-the-harmonic-mean-is-a-warning-not-a-default" title="Permanent link">¤</a></h3>
+<p>The identity</p>
+<div class="arithmatex">\[
+\frac{1}{p(D)}
+=\mathbb E_{p(\theta\mid D)}
+\!\left[\frac{1}{p(D\mid\theta)}\right]
+\]</div>
+<p>holds when the displayed expectation exists under a proper prior and
+posterior. It uses <strong>posterior draws</strong>, not prior draws. The corresponding
+Monte Carlo estimator is nevertheless notorious: regions with small
+likelihood can give the reciprocal likelihood heavy or infinite-variance
+tails. Algebraic unbiasedness of an inverse estimate does not provide useful
+finite-sample stability after inversion.</p>
+<h3 id="bayesian-model-averaging">Bayesian model averaging<a class="headerlink" href="#bayesian-model-averaging" title="Permanent link">¤</a></h3>
+<p>If the candidate models and their priors are taken literally, the posterior
+predictive mixture is</p>
+<div class="arithmatex">\[
+p(\widetilde y\mid D)
+=\sum_m p(\widetilde y\mid D,m)p(m\mid D).
+\]</div>
+<p>This is Bayesian model averaging (BMA). It propagates uncertainty over the
+declared model list, but does not protect against all candidates being
+misspecified. A generic ensemble may also be a normalized predictive mixture;
+what distinguishes it from BMA is how component distributions and weights are
+defined or learned, not whether its weights happen to sum to one.</p>
+<h3 id="leave-one-out-predictive-evaluation">Leave-one-out predictive evaluation<a class="headerlink" href="#leave-one-out-predictive-evaluation" title="Permanent link">¤</a></h3>
+<p>For conditionally factorized observations, leave-one-out expected log
+predictive density is estimated by</p>
+<div class="arithmatex">\[
+\widehat{\operatorname{elpd}}_{\mathrm{LOO}}
+=\sum_{i=1}^n
+\log p(y_i\mid y_{-i}),
+\]</div>
+<p>where <span class="arithmatex">\(y_{-i}\)</span> omits observation <span class="arithmatex">\(i\)</span>. The factorization unit must match the
+deployment target: leaving out one token, one image, one patient, or one site
+answers different questions. Dependence may require blocked, grouped,
+leave-future-out, or other structured splits.</p>
+<p>Importance sampling can approximate each leave-one-out posterior from draws of
+the full posterior. Pareto-smoothed importance sampling (PSIS) stabilizes the
+largest ratios and estimates a tail-shape diagnostic <span class="arithmatex">\(\widehat k\)</span>. The current
+finite-sample warning threshold is</p>
+<div class="arithmatex">\[
+k_{\mathrm{warn}}(S)
+=\min\!\left(1-\frac{1}{\log_{10}S},\,0.7\right),
+\]</div>
+<p>where <span class="arithmatex">\(S\)</span> is the number of draws used by the importance calculation. It equals
+<span class="arithmatex">\(0.7\)</span> once <span class="arithmatex">\(S\ge2155\)</span> (roughly two thousand draws). A large <span class="arithmatex">\(\widehat k\)</span> is evidence that the finite
+approximation may have high bias or poor convergence; it is not a decorative
+model-fit score. Influential cases may require exact refitting, a more robust
+model, or a validation design that respects the data dependence.</p>
+<h3 id="waic-and-singular-models">WAIC and singular models<a class="headerlink" href="#waic-and-singular-models" title="Permanent link">¤</a></h3>
+<p>For pointwise likelihood terms <span class="arithmatex">\(p(y_i\mid\theta)\)</span>, one common WAIC convention
+uses</p>
+<div class="arithmatex">\[
+\operatorname{lppd}
+=\sum_i\log\mathbb E_{p(\theta\mid D)}
+  [p(y_i\mid\theta)],
+\]</div>
+<div class="arithmatex">\[
+p_{\mathrm{WAIC}}
+=\sum_i\operatorname{Var}_{p(\theta\mid D)}
+  [\log p(y_i\mid\theta)],
+\]</div>
+<p>and</p>
+<div class="arithmatex">\[
+\widehat{\operatorname{elpd}}_{\mathrm{WAIC}}
+=\operatorname{lppd}-p_{\mathrm{WAIC}}.
+\]</div>
+<p>The variance is of the <strong>pointwise log likelihood across posterior draws</strong>,
+not the variance of the predictive observation. WAIC is asymptotically related
+to Bayesian leave-one-out prediction under the conditions developed in
+singular learning theory. Finite-sample diagnostics can still favor PSIS-LOO,
+and neither method repairs a wrong factorization unit.</p>
+<h3 id="bic-has-a-narrower-contract">BIC has a narrower contract<a class="headerlink" href="#bic-has-a-narrower-contract" title="Permanent link">¤</a></h3>
+<p>The Bayesian information criterion</p>
+<div class="arithmatex">\[
+\mathrm{BIC}=-2\log p(D\mid\widehat\theta)+d\log n
+\]</div>
+<p>approximates a log-evidence comparison under regular, identifiable,
+fixed-dimensional asymptotics and suitable prior mass near an interior optimum.
+Mixtures, neural networks, hidden-state models, and many latent-variable
+generators are singular: parameters may be nonidentifiable and Fisher
+information may be degenerate. Their evidence asymptotics need not have the
+<span class="arithmatex">\(d\log n\)</span> penalty. BIC should therefore not be presented as a generic deep
+generative-model evidence estimator.</p>
+<h3 id="predictive-stacking">Predictive stacking<a class="headerlink" href="#predictive-stacking" title="Permanent link">¤</a></h3>
+<p>When every candidate is an approximation, predictive stacking chooses simplex
+weights to optimize held-out predictive performance, for example</p>
+<div class="arithmatex">\[
+\widehat{\mathbf w}
+=\arg\max_{\mathbf w\in\Delta^{M-1}}
+\sum_i
+\log\!\left(
+\sum_m w_m p_m(y_i\mid y_{-i})
+\right).
+\]</div>
+<p>This is a predictive optimization criterion, not a posterior probability over
+models. It can be appropriate in an <span class="arithmatex">\(M\)</span>-open setting where no candidate is
+assumed true. Its result still depends on the validation scheme, score,
+candidate diversity, and stability of the estimated predictive densities.</p>
+<h3 id="a-comparison-table">A comparison table<a class="headerlink" href="#a-comparison-table" title="Permanent link">¤</a></h3>
+<div class="md-typeset__table book-table-container"><table id="tbl-bayesian-learning-and-model-assessment-a-comparison-table"><caption class="book-object-caption"><span class="book-object-number">Table BAYES.1.</span> A comparison table</caption>
+<thead>
+<tr>
+<th>Method</th>
+<th>Primary target</th>
+<th>Uses parameter prior?</th>
+<th>Principal boundary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Evidence / Bayes factor</td>
+<td>Prior predictive probability of observed data</td>
+<td>Yes, essentially</td>
+<td>Prior and sampling-design sensitivity; improper-prior problem</td>
+</tr>
+<tr>
+<td>BMA</td>
+<td>Posterior predictive under a declared model list</td>
+<td>Yes</td>
+<td>All models may be misspecified</td>
+</tr>
+<tr>
+<td>LOO</td>
+<td>Predictive performance for the chosen held-out unit</td>
+<td>Through each fitted posterior</td>
+<td>Split unit and dependence must match deployment</td>
+</tr>
+<tr>
+<td>PSIS-LOO</td>
+<td>Importance approximation to LOO</td>
+<td>Same as LOO</td>
+<td>Tail diagnostic can invalidate the approximation</td>
+</tr>
+<tr>
+<td>WAIC</td>
+<td>Asymptotic pointwise predictive criterion</td>
+<td>Yes</td>
+<td>Pointwise factorization and finite-sample reliability</td>
+</tr>
+<tr>
+<td>BIC</td>
+<td>Regular-model evidence asymptotic</td>
+<td>Locally, through assumptions</td>
+<td>Not generic for singular or growing models</td>
+</tr>
+<tr>
+<td>Stacking</td>
+<td>Optimized held-out predictive mixture</td>
+<td>Not as model probabilities</td>
+<td>Validation and candidate-set dependent</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="6-model-criticism-generate-from-the-model">6. Model Criticism: Generate from the Model<a class="headerlink" href="#6-model-criticism-generate-from-the-model" title="Permanent link">¤</a></h2>
+<p>Fitting answers, "Which parameter regions agree with the observations under
+this model?" Criticism asks, "Can this model reproduce the aspects of data that
+matter?" Generative models make the second question constructive.</p>
+<h3 id="prior-predictive-checks">Prior predictive checks<a class="headerlink" href="#prior-predictive-checks" title="Permanent link">¤</a></h3>
+<p>Before fitting, simulate</p>
+<div class="arithmatex">\[
+\theta^{\mathrm{rep}}\sim p(\theta),
+\qquad
+y^{\mathrm{rep}}\sim p(y\mid\theta^{\mathrm{rep}}).
+\]</div>
+<p>Compare these replications with domain constraints and plausible scales. A
+prior that places most mass on impossible images, counts, durations, graph
+sizes, or physical energies is not weak merely because its parameter density
+looks diffuse. Prior predictive checks expose the induced observation-space
+assumptions.</p>
+<h3 id="posterior-predictive-checks">Posterior predictive checks<a class="headerlink" href="#posterior-predictive-checks" title="Permanent link">¤</a></h3>
+<p>After observing <span class="arithmatex">\(D\)</span>, simulate</p>
+<div class="arithmatex">\[
+\theta^{\mathrm{rep}}\sim p(\theta\mid D),
+\qquad
+y^{\mathrm{rep}}\sim p(y\mid\theta^{\mathrm{rep}}),
+\]</div>
+<p>and compare a discrepancy <span class="arithmatex">\(T(y,\theta)\)</span> or statistic <span class="arithmatex">\(T(y)\)</span> between replicated
+and observed data. Useful discrepancies are chosen to expose scientifically
+important failures: tail mass, group calibration, spatial clustering,
+sequence length, graph motifs, conservation errors, or conditional coverage.</p>
+<figure class="book-figure" id="fig-bayesian-learning-and-model-assessment-posterior-predictive-checks"><pre class="mermaid"><code>flowchart LR
+    fit["Fit posterior"] --&gt; replicate["Generate replicated data"]
+    replicate --&gt; compare["Compare targeted structure"]
+    compare --&gt; revise["Revise model or measurement"]
+    revise --&gt; fit</code></pre><figcaption class="book-object-caption"><span class="book-object-number">Figure BAYES.4.</span> Posterior predictive checks</figcaption></figure>
+<p>A check can reject adequacy for its chosen discrepancy; it cannot prove that
+the model is correct. Reusing the observations both to fit and to check makes
+posterior-predictive reference distributions different from classical null
+distributions. Posterior predictive tail probabilities are generally not
+uniform under the model and are often conservative. They should be interpreted
+as diagnostic summaries, not automatically as calibrated frequentist
+<span class="arithmatex">\(p\)</span>-values.</p>
+<h3 id="worked-criticism-of-the-coin-model">Worked criticism of the coin model<a class="headerlink" href="#worked-criticism-of-the-coin-model" title="Permanent link">¤</a></h3>
+<p>The Beta–Bernoulli model makes the ordered observations conditionally IID.
+Suppose the observed sequence has long runs despite a moderate success count.
+A statistic such as</p>
+<div class="arithmatex">\[
+T(x_{1:n})=\text{length of the longest constant run}
+\]</div>
+<p>tests temporal dependence that the success count cannot reveal. Posterior
+replications preserve uncertainty in <span class="arithmatex">\(\theta\)</span> but remain conditionally IID. If
+their longest runs are consistently much shorter than the observed run, the
+failure points toward serial dependence, regime switching, or a changing
+success probability—not merely a different posterior summary for one constant
+<span class="arithmatex">\(\theta\)</span>.</p>
+<h3 id="predictive-evaluation-and-criticism-are-complementary">Predictive evaluation and criticism are complementary<a class="headerlink" href="#predictive-evaluation-and-criticism-are-complementary" title="Permanent link">¤</a></h3>
+<p>A model can predict well under an aggregate score yet fail a safety-critical
+subgroup discrepancy. It can also reproduce a selected statistic while
+assigning poor held-out log probability. Report both the scoring target and the
+diagnostic target. Neither one is a universal scalar measure of realism.</p>
+<h2 id="7-missing-data-and-observation-mechanisms">7. Missing Data and Observation Mechanisms<a class="headerlink" href="#7-missing-data-and-observation-mechanisms" title="Permanent link">¤</a></h2>
+<p>Missingness is a generative-model problem because the observed dataset is
+produced by both a data process and an observation process. Let <span class="arithmatex">\(Y\)</span> denote the
+complete data and <span class="arithmatex">\(R\)</span> a mask, with <span class="arithmatex">\(R_j=1\)</span> when component <span class="arithmatex">\(Y_j\)</span> is observed.
+A selection-model factorization is</p>
+<div class="arithmatex">\[
+p(y,r\mid\theta,\psi)
+=p(y\mid\theta)p(r\mid y,\psi).
+\]</div>
+<p>The observed-data likelihood integrates over unobserved components. Define</p>
+<div class="arithmatex">\[
+f_\theta(y_{\mathrm{mis}})
+=p(y_{\mathrm{obs}},y_{\mathrm{mis}}\mid\theta)
+\]</div>
+<p>and</p>
+<div class="arithmatex">\[
+g_\psi(y_{\mathrm{mis}})
+=p(r\mid y_{\mathrm{obs}},y_{\mathrm{mis}},\psi).
+\]</div>
+<p>Then</p>
+<div class="arithmatex">\[
+p(y_{\mathrm{obs}},r\mid\theta,\psi)
+=\int f_\theta(u)g_\psi(u)\,du.
+\]</div>
+<h3 id="mcar-mar-and-mnar">MCAR, MAR, and MNAR<a class="headerlink" href="#mcar-mar-and-mnar" title="Permanent link">¤</a></h3>
+<p>The labels describe conditional independence in the missingness mechanism,
+relative to the variables and observed pattern being modeled.</p>
+<div class="grid cards">
+<ul>
+<li>
+<p><strong>MCAR — missing completely at random</strong></p>
+<hr/>
+<p><span class="arithmatex">\(p(r\mid y,\psi)=p(r\mid\psi)\)</span>. Missingness does not depend on observed
+or missing values under the model.</p>
+</li>
+<li>
+<p><strong>MAR — missing at random</strong></p>
+<hr/>
+<p><span class="arithmatex">\(p(r\mid y,\psi)=p(r\mid y_{\mathrm{obs}},\psi)\)</span>. Dependence on observed
+values is allowed; dependence on unseen values is excluded after
+conditioning.</p>
+</li>
+<li>
+<p><strong>MNAR — missing not at random</strong></p>
+<hr/>
+<p>Dependence on <span class="arithmatex">\(y_{\mathrm{mis}}\)</span> remains. The observation process must be
+modeled or bounded through additional assumptions.</p>
+</li>
+</ul>
+</div>
+<p>MAR does not mean that missingness is independent of the dataset, nor can MAR
+versus MNAR generally be identified from observed values alone. The distinction
+depends on untestable or externally informed assumptions about values that were
+not observed.</p>
+<h3 id="ignorability-requires-more-than-mar">Ignorability requires more than MAR<a class="headerlink" href="#ignorability-requires-more-than-mar" title="Permanent link">¤</a></h3>
+<p>Under MAR, the missingness term can be taken outside the integral over
+<span class="arithmatex">\(y_{\mathrm{mis}}\)</span>. For likelihood or Bayesian inference about <span class="arithmatex">\(\theta\)</span>, the
+mechanism is ignorable only with the required <strong>parameter distinctness</strong>—and,
+for the Bayesian factorization, an appropriate prior separation such as
+<span class="arithmatex">\(p(\theta,\psi)=p(\theta)p(\psi)\)</span>. Shared parameters, informative sampling,
+nonignorable selection, or a query about the missingness process itself break
+the simplification.</p>
+<h3 id="worked-binary-completion">Worked binary completion<a class="headerlink" href="#worked-binary-completion" title="Permanent link">¤</a></h3>
+<p>Let <span class="arithmatex">\(Y=(Y_1,Y_2)\)</span> have a joint Bernoulli table and suppose <span class="arithmatex">\(Y_2\)</span> is missing
+while <span class="arithmatex">\(Y_1=1\)</span> is observed. Under an ignorable mechanism, completion uses</p>
+<div class="arithmatex">\[
+q_1(\theta)=P(Y_2=1\mid Y_1=1,\theta).
+\]</div>
+<p>The completion probability averages that conditional query over parameter
+uncertainty. Write</p>
+<div class="arithmatex">\[
+P_1(D)=P(Y_2=1\mid Y_1=1,D).
+\]</div>
+<p>Then</p>
+<div class="arithmatex">\[
+P_1(D)=\mathbb E_{p(\theta\mid D_{\mathrm{obs}})}[q_1(\theta)].
+\]</div>
+<p>If the probability that <span class="arithmatex">\(Y_2\)</span> is hidden depends directly on its unseen value,
+then the observed mask is itself evidence about <span class="arithmatex">\(Y_2\)</span>. Omitting
+<span class="arithmatex">\(p(R\mid Y,\psi)\)</span> changes the target posterior, even if the joint model for
+<span class="arithmatex">\(Y\)</span> is otherwise correct.</p>
+<h3 id="semi-supervised-generation">Semi-supervised generation<a class="headerlink" href="#semi-supervised-generation" title="Permanent link">¤</a></h3>
+<p>For input <span class="arithmatex">\(X\)</span> and label <span class="arithmatex">\(Y\)</span>, a joint model uses unlabeled inputs through</p>
+<div class="arithmatex">\[
+p_\theta(x)=\sum_y p_\theta(x,y)
+\]</div>
+<p>or the corresponding integral. This can improve label prediction when the
+joint assumptions connect the input structure to the label. It is not an
+automatic benefit: a flexible discriminative boundary may be easier to learn
+than a correct model of the entire input distribution, and joint
+misspecification can make unlabeled data harmful. The evaluation must therefore
+separate density or generation quality, label prediction, calibration, and the
+missing-label mechanism.</p>
+<h2 id="bayesian-assessment-retrieval-practice">Bayesian assessment retrieval practice<a class="headerlink" href="#bayesian-assessment-retrieval-practice" title="Permanent link">¤</a></h2>
+<details class="question">
+<summary>Retrieval practice: prediction, criticism, and missingness</summary>
+<ol>
+<li>Why is the harmonic-mean estimator unsuitable as a default evidence estimator?</li>
+<li>What predictive target differs between Bayesian model averaging and stacking?</li>
+<li>Can a calibrated posterior predictive check prove that the model is true?</li>
+<li>Why is MAR alone insufficient to justify ignoring a missingness mechanism?</li>
+</ol>
+<p><strong>Solutions.</strong> (1) It can have infinite or extreme variance and is dominated by poorly sampled low-likelihood posterior regions. (2) Model averaging uses posterior model probabilities under a candidate model set; stacking directly chooses predictive weights, usually by held-out predictive performance. (3) No; checks can expose discrepancies relative to selected statistics but cannot validate every untested implication or identify a unique model. (4) Ignorability also depends on distinct parameters and the inferential/query setup, and the required conditioning variables must actually be observed and modeled.</p>
+</details>
+<h2 id="bayesian-assessment-synthesis">Bayesian assessment synthesis<a class="headerlink" href="#bayesian-assessment-synthesis" title="Permanent link">¤</a></h2>
+<p>Evidence-based selection, held-out prediction, model averaging, and model
+criticism answer different questions. Predictive checks generate from the fitted
+model to reveal mismatches rather than to certify truth. Missingness is another
+generative mechanism whose omission requires explicit assumptions, not only a
+label such as MAR.</p>
+<hr/>
+<p><strong>Continue:</strong> <a href="../bayesian-learning-04-practice/">4. Workflow, Retrieval, and References</a> · <a href="../bayesian-learning-and-model-assessment/">Continuous view</a></p>
+</article>
+</div>
+<script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  Back to top
+</button>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+<div class="md-social">
+<a class="md-social__link" href="https://github.com/avitai/artifex" rel="noopener" target="_blank" title="github.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</a>
+<a class="md-social__link" href="https://pypi.org/project/avitai-artifex/" rel="noopener" target="_blank" title="pypi.org">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-66.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.3v101.8c0 29 25.2 46 53.4 54.3 33.8 9.9 66.3 11.7 106.8 0 26.9-7.8 53.4-23.5 53.4-54.3v-40.7H226.2v-13.6h160.2c31.1 0 42.6-21.7 53.4-54.2 11.2-33.5 10.7-65.7 0-108.6M286.2 444.7a20.4 20.4 0 1 1 0-40.7 20.4 20.4 0 1 1 0 40.7M167.8 248.1h106.8c29.7 0 53.4-24.5 53.4-54.3V91.9c0-29-24.4-50.7-53.4-55.6-35.8-5.9-74.7-5.6-106.8.1-45.2 8-53.4 24.7-53.4 55.6v40.7h106.9v13.6h-147c-31.1 0-58.3 18.7-66.8 54.2-9.8 40.7-10.2 66.1 0 108.6 7.6 31.6 25.7 54.2 56.8 54.2H101v-48.8c0-35.3 30.5-66.4 66.8-66.4m-6.6-183.4a20.4 20.4 0 1 1 0 40.8 20.4 20.4 0 1 1 0-40.8"></path></svg>
+</a>
+<a class="md-social__link" href="https://twitter.com/mahdi_shafiei" rel="noopener" target="_blank" title="twitter.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M459.4 151.7c.3 4.5.3 9.1.3 13.6 0 138.7-105.6 298.6-298.6 298.6-59.5 0-114.7-17.2-161.1-47.1 8.4 1 16.6 1.3 25.3 1.3 49.1 0 94.2-16.6 130.3-44.8-46.1-1-84.8-31.2-98.1-72.8 6.5 1 13 1.6 19.8 1.6 9.4 0 18.8-1.3 27.6-3.6-48.1-9.7-84.1-52-84.1-103v-1.3c14 7.8 30.2 12.7 47.4 13.3-28.3-18.8-46.8-51-46.8-87.4 0-19.5 5.2-37.4 14.3-53C87.4 130.8 165 172.4 252.1 176.9c-1.6-7.8-2.6-15.9-2.6-24C249.5 95.1 296.3 48 354.4 48c30.2 0 57.5 12.7 76.7 33.1 23.7-4.5 46.5-13.3 66.6-25.3-7.8 24.4-24.4 44.8-46.1 57.8 21.1-2.3 41.6-8.1 60.4-16.2-14.3 20.8-32.2 39.3-52.6 54.3"></path></svg>
+</a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.path", "navigation.top", "navigation.prune", "toc.follow", "search.highlight", "search.share", "search.suggest", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "content.mermaid"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+<script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+<script src="../../../javascripts/reading-layout.js"></script>
+</body>
+</html>

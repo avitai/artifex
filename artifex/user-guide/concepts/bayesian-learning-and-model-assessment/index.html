@@ -1,0 +1,3186 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="A generative model usually contains quantities that are not observed directly: component probabilities, decoder weights, population effects, noise scales, or" name="description"/>
+<meta content="Mahdi Shafiei" name="author"/>
+<link href="https://docs.avitai.bio/artifex/user-guide/concepts/bayesian-learning-and-model-assessment/" rel="canonical"/>
+<link href="../bayesian-learning-04-practice/" rel="prev"/>
+<link href="../inference-01-objects-and-queries/" rel="next"/>
+<link href="../../../assets/images/favicon.png" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.7.7" name="generator"/>
+<title>Bayesian Learning and Model Assessment - Artifex</title>
+<link href="../../../assets/stylesheets/main.ec1eaa64.min.css" rel="stylesheet"/>
+<link href="../../../assets/stylesheets/palette.ab4e12ef.min.css" rel="stylesheet"/>
+<script src="../../../assets/vendor/iframe-worker/index.js"></script>
+<link href="../../../assets/_mkdocstrings.css" rel="stylesheet"/>
+<link href="../../../_static/extra.css" rel="stylesheet"/>
+<script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+<meta content="article" property="og:type"/>
+<meta content="The Artifex Generative Models Book" property="og:site_name"/>
+<meta content="Bayesian Learning and Model Assessment" property="og:title"/>
+<meta content="A generative model usually contains quantities that are not observed directly: component probabilities, decoder weights, population effects, noise scales, or" property="og:description"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/bayesian-learning-and-model-assessment/" property="og:url"/>
+<meta content="2026-07-15" property="article:modified_time"/>
+<meta content="summary" name="twitter:card"/>
+<meta content="Bayesian Learning and Model Assessment" name="twitter:title"/>
+<meta content="A generative model usually contains quantities that are not observed directly: component probabilities, decoder weights, population effects, noise scales, or" name="twitter:description"/>
+<meta content="Generative models, Machine learning, Probabilistic modeling, foundation, reference, continuous_view, bayesian-learning-model-assessment, newcomer, practitioner, researcher" name="keywords"/>
+<meta content="Bayesian Learning and Model Assessment" name="citation_title"/>
+<meta content="Mahdi Shafiei" name="citation_author"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/bayesian-learning-and-model-assessment/" name="citation_public_url"/>
+<meta content="en" name="citation_language"/>
+<meta content="Bayesian Learning and Model Assessment" name="DC.title"/>
+<meta content="Mahdi Shafiei" name="DC.creator"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/bayesian-learning-and-model-assessment/" name="DC.identifier"/>
+<meta content="Text.LearningResource" name="DC.type"/>
+<meta content="2026-07-15" name="DCTERMS.modified"/>
+<meta content="https://github.com/avitai/artifex/blob/main/LICENSE" name="DCTERMS.license"/>
+<meta content="foundation" name="DCTERMS.educationLevel"/>
+<meta content="newcomer, practitioner, researcher" name="DCTERMS.audience"/>
+<link href="https://github.com/avitai/artifex/blob/main/LICENSE" rel="license"/>
+<script id="artifex-book-metadata" type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Chapter",
+  "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/bayesian-learning-and-model-assessment/",
+  "url": "https://docs.avitai.bio/artifex/user-guide/concepts/bayesian-learning-and-model-assessment/",
+  "name": "Bayesian Learning and Model Assessment",
+  "description": "A generative model usually contains quantities that are not observed directly: component probabilities, decoder weights, population effects, noise scales, or",
+  "identifier": "bayesian-learning-model-assessment",
+  "inLanguage": "en",
+  "isAccessibleForFree": true,
+  "learningResourceType": "Continuous volume",
+  "educationalLevel": "foundation",
+  "educationalUse": "reference",
+  "audience": [
+    
+      {"@type": "EducationalAudience", "audienceType": "newcomer"},
+    
+      {"@type": "EducationalAudience", "audienceType": "practitioner"},
+    
+      {"@type": "EducationalAudience", "audienceType": "researcher"}
+    
+  ],
+  "dateModified": "2026-07-15",
+  "keywords": ["Generative models", "Machine learning", "Probabilistic modeling", "foundation", "reference", "continuous_view", "bayesian-learning-model-assessment", "newcomer", "practitioner", "researcher"],
+  "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+  "author": [
+    
+      {"@type": "Person", "name": "Mahdi Shafiei"}
+    
+  ],
+  "isPartOf": {
+    "@type": "Book",
+    "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/#book",
+    "url": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/",
+    "name": "The Artifex Generative Models Book",
+    "bookEdition": "Living Web Edition",
+    "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+    "author": [
+      
+        {"@type": "Person", "name": "Mahdi Shafiei"}
+      
+    ]
+  }
+}
+</script>
+<link href="../../../assets/vendor/katex/katex.min.css" id="artifex-katex-stylesheet" integrity="sha384-UA8juhPf75SzzAMA/4fo3yOU7sBJ0om7SCD2GHq0fZqZco6tr1UCV7nUbk9J90JM" rel="stylesheet"/>
+<script defer="" integrity="sha384-T/0lMUdJpd2S1ZHtRiofG3htU3xPCrFVeAQ1UUE2TJwlEJSV5NUwn30kP28n238E" src="../../../assets/vendor/mermaid/mermaid.min.js"></script>
+<script defer="" src="../../../assets/vendor/katex/katex-shadow.js"></script>
+<script defer="" src="../../../javascripts/mermaid-math.js"></script>
+<script defer="" src="../../../javascripts/mathjax.js"></script>
+<script defer="" integrity="sha384-OrHfGTnIbkl0do3N76qW/uWr38o91N05sbSPuYBPLH+hG8X/dNSrjZf3AGjzrCwC" src="../../../assets/vendor/mathjax/tex-mml-chtml.js"></script>
+<meta content="noindex,follow" name="robots"/>
+</head>
+<body data-md-color-accent="amber" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#bayesian-learning-and-model-assessment">
+          Skip to content
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header md-header--shadow" data-md-component="header">
+<nav aria-label="Header" class="md-header__inner md-grid">
+<a aria-label="Artifex" class="md-header__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            Artifex
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+            
+              Bayesian Learning and Model Assessment
+            
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-label="Switch to dark mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: light)" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_1" hidden="" title="Switch to dark mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+<input aria-label="Switch to light mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-primary="indigo" data-md-color-scheme="slate" id="__palette_1" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_0" hidden="" title="Switch to light mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+</form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div aria-label="Search" class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Search" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="Search" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="Search" class="md-search__options">
+<a aria-label="Share" class="md-search__icon md-icon" data-clipboard="" data-clipboard-text="" data-md-component="search-share" href="javascript:void(0)" tabindex="-1" title="Share">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"></path></svg>
+</a>
+<button aria-label="Clear" class="md-search__icon md-icon" tabindex="-1" title="Clear" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            Initializing search
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Navigation" class="md-nav md-nav--primary" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="Artifex" class="md-nav__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+    Artifex
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../..">
+<span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../getting-started/installation/">
+<span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Generative Models Book
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Generative Models Book
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    
+  
+    Start Here — The Landscape
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../first-course-01-generative-systems/">
+<span class="md-ellipsis">
+    
+  
+    First Course — New to Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Foundations
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_3_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Foundations
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../probability-01-objects/">
+<span class="md-ellipsis">
+    
+  
+    1. Probability and Generative Modeling
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../classical-01-latent-foundations/">
+<span class="md-ellipsis">
+    
+  
+    2. Classical Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_3_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_3_3" id="__nav_3_3_3_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    3. Bayesian Learning and Model Assessment
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_3_3_label" class="md-nav" data-md-level="3">
+<label class="md-nav__title" for="__nav_3_3_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    3. Bayesian Learning and Model Assessment
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../bayesian-learning-01-object/">
+<span class="md-ellipsis">
+    
+  
+    1. The Generative Object
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../bayesian-learning-02-priors/">
+<span class="md-ellipsis">
+    
+  
+    2. Priors, Conjugacy, and Hierarchies
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../bayesian-learning-03-assessment/">
+<span class="md-ellipsis">
+    
+  
+    3. Evidence, Criticism, and Missingness
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../bayesian-learning-04-practice/">
+<span class="md-ellipsis">
+    
+  
+    4. Workflow, Retrieval, and References
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
+    
+  
+    Continuous View (All Chapters)
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
+<span class="md-ellipsis">
+    
+  
+    Continuous View (All Chapters)
+  
+
+    
+  </span>
+</a>
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#begin-with-one-model-and-five-questions">
+<span class="md-ellipsis">
+      
+        Begin with One Model and Five Questions
+      
+    </span>
+</a>
+<nav aria-label="Begin with One Model and Five Questions" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#1-the-bayesian-generative-object">
+<span class="md-ellipsis">
+      
+        1. The Bayesian Generative Object
+      
+    </span>
+</a>
+<nav aria-label="1. The Bayesian Generative Object" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#parameters-and-latent-variables-use-the-same-probability-calculus">
+<span class="md-ellipsis">
+      
+        Parameters and latent variables use the same probability calculus
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#a-posterior-is-not-yet-a-decision">
+<span class="md-ellipsis">
+      
+        A posterior is not yet a decision
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#2-worked-example-betabernoulli-learning">
+<span class="md-ellipsis">
+      
+        2. Worked Example: Beta–Bernoulli Learning
+      
+    </span>
+</a>
+<nav aria-label="2. Worked Example: Beta–Bernoulli Learning" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#a-complete-numerical-update">
+<span class="md-ellipsis">
+      
+        A complete numerical update
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#ordered-sequence-evidence-is-not-count-evidence">
+<span class="md-ellipsis">
+      
+        Ordered sequence evidence is not count evidence
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#map-has-boundary-conditions">
+<span class="md-ellipsis">
+      
+        MAP has boundary conditions
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#pseudo-count-language-needs-a-convention">
+<span class="md-ellipsis">
+      
+        Pseudo-count language needs a convention
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#credible-sets-confidence-procedures-and-bootstrap-distributions">
+<span class="md-ellipsis">
+      
+        Credible sets, confidence procedures, and bootstrap distributions
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#regular-asymptotics-are-conditional-tools">
+<span class="md-ellipsis">
+      
+        Regular asymptotics are conditional tools
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#aleatoric-and-parameter-uncertainty-depend-on-the-query">
+<span class="md-ellipsis">
+      
+        Aleatoric and parameter uncertainty depend on the query
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#bayesian-object-retrieval-practice">
+<span class="md-ellipsis">
+      
+        Bayesian object retrieval practice
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#bayesian-object-synthesis">
+<span class="md-ellipsis">
+      
+        Bayesian object synthesis
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#3-priors-conjugacy-and-exchangeability">
+<span class="md-ellipsis">
+      
+        3. Priors, Conjugacy, and Exchangeability
+      
+    </span>
+</a>
+<nav aria-label="3. Priors, Conjugacy, and Exchangeability" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#priors-and-hierarchy-learning-objectives">
+<span class="md-ellipsis">
+      
+        Priors and hierarchy learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#priors-are-part-of-the-sampling-model">
+<span class="md-ellipsis">
+      
+        Priors are part of the sampling model
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#proper-improper-weakly-informative-and-reference-priors">
+<span class="md-ellipsis">
+      
+        Proper, improper, weakly informative, and reference priors
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#multivariate-priors-should-expose-scale-and-dependence">
+<span class="md-ellipsis">
+      
+        Multivariate priors should expose scale and dependence
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#the-conjugate-exponential-family-calculation">
+<span class="md-ellipsis">
+      
+        The conjugate exponential-family calculation
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#exchangeability-and-mixture-representations">
+<span class="md-ellipsis">
+      
+        Exchangeability and mixture representations
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#4-hierarchical-models-and-partial-pooling">
+<span class="md-ellipsis">
+      
+        4. Hierarchical Models and Partial Pooling
+      
+    </span>
+</a>
+<nav aria-label="4. Hierarchical Models and Partial Pooling" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-normalnormal-shrinkage">
+<span class="md-ellipsis">
+      
+        Worked normal–normal shrinkage
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#existing-group-and-new-group-prediction-differ">
+<span class="md-ellipsis">
+      
+        Existing-group and new-group prediction differ
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#centered-and-noncentered-parameterizations">
+<span class="md-ellipsis">
+      
+        Centered and noncentered parameterizations
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#empirical-bayes">
+<span class="md-ellipsis">
+      
+        Empirical Bayes
+      
+    </span>
+</a>
+<nav aria-label="Empirical Bayes" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-categorical-smoothing">
+<span class="md-ellipsis">
+      
+        Worked categorical smoothing
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#priors-and-hierarchy-retrieval-practice">
+<span class="md-ellipsis">
+      
+        Priors and hierarchy retrieval practice
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#priors-and-hierarchy-synthesis">
+<span class="md-ellipsis">
+      
+        Priors and hierarchy synthesis
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#5-evidence-prediction-and-model-comparison">
+<span class="md-ellipsis">
+      
+        5. Evidence, Prediction, and Model Comparison
+      
+    </span>
+</a>
+<nav aria-label="5. Evidence, Prediction, and Model Comparison" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#assessment-and-missing-data-learning-objectives">
+<span class="md-ellipsis">
+      
+        Assessment and missing-data learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#evidence-and-bayes-factors">
+<span class="md-ellipsis">
+      
+        Evidence and Bayes factors
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#why-the-harmonic-mean-is-a-warning-not-a-default">
+<span class="md-ellipsis">
+      
+        Why the harmonic mean is a warning, not a default
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#bayesian-model-averaging">
+<span class="md-ellipsis">
+      
+        Bayesian model averaging
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#leave-one-out-predictive-evaluation">
+<span class="md-ellipsis">
+      
+        Leave-one-out predictive evaluation
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#waic-and-singular-models">
+<span class="md-ellipsis">
+      
+        WAIC and singular models
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#bic-has-a-narrower-contract">
+<span class="md-ellipsis">
+      
+        BIC has a narrower contract
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#predictive-stacking">
+<span class="md-ellipsis">
+      
+        Predictive stacking
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#a-comparison-table">
+<span class="md-ellipsis">
+      
+        A comparison table
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#6-model-criticism-generate-from-the-model">
+<span class="md-ellipsis">
+      
+        6. Model Criticism: Generate from the Model
+      
+    </span>
+</a>
+<nav aria-label="6. Model Criticism: Generate from the Model" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#prior-predictive-checks">
+<span class="md-ellipsis">
+      
+        Prior predictive checks
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#posterior-predictive-checks">
+<span class="md-ellipsis">
+      
+        Posterior predictive checks
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-criticism-of-the-coin-model">
+<span class="md-ellipsis">
+      
+        Worked criticism of the coin model
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#predictive-evaluation-and-criticism-are-complementary">
+<span class="md-ellipsis">
+      
+        Predictive evaluation and criticism are complementary
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#7-missing-data-and-observation-mechanisms">
+<span class="md-ellipsis">
+      
+        7. Missing Data and Observation Mechanisms
+      
+    </span>
+</a>
+<nav aria-label="7. Missing Data and Observation Mechanisms" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mcar-mar-and-mnar">
+<span class="md-ellipsis">
+      
+        MCAR, MAR, and MNAR
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#ignorability-requires-more-than-mar">
+<span class="md-ellipsis">
+      
+        Ignorability requires more than MAR
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-binary-completion">
+<span class="md-ellipsis">
+      
+        Worked binary completion
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#semi-supervised-generation">
+<span class="md-ellipsis">
+      
+        Semi-supervised generation
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#bayesian-assessment-retrieval-practice">
+<span class="md-ellipsis">
+      
+        Bayesian assessment retrieval practice
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#bayesian-assessment-synthesis">
+<span class="md-ellipsis">
+      
+        Bayesian assessment synthesis
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#8-a-generative-modeling-workflow">
+<span class="md-ellipsis">
+      
+        8. A Generative Modeling Workflow
+      
+    </span>
+</a>
+<nav aria-label="8. A Generative Modeling Workflow" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#workflow-and-capstone-learning-objectives">
+<span class="md-ellipsis">
+      
+        Workflow and capstone learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#error-ledger">
+<span class="md-ellipsis">
+      
+        Error ledger
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#misconception-checks">
+<span class="md-ellipsis">
+      
+        Misconception Checks
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#retrieval-questions">
+<span class="md-ellipsis">
+      
+        Retrieval Questions
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#synthesis-and-next-steps">
+<span class="md-ellipsis">
+      
+        Synthesis and Next Steps
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#primary-and-canonical-references">
+<span class="md-ellipsis">
+      
+        Primary and Canonical References
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../inference-01-objects-and-queries/">
+<span class="md-ellipsis">
+    
+  
+    4. Latent Variables and Inference
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../objectives-01-discrepancies/">
+<span class="md-ellipsis">
+    
+  
+    5. Objectives and Statistical Distances
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../information-coding-01-measures/">
+<span class="md-ellipsis">
+    
+  
+    6. Information, Coding, and Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../graphical-models-01-directed/">
+<span class="md-ellipsis">
+    
+  
+    7. Graphical Models and Structured Probability
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../message-passing-01-factor-graphs/">
+<span class="md-ellipsis">
+    
+  
+    8. Graphical Inference and Message Passing
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../filtering-01-bayes-recursions/">
+<span class="md-ellipsis">
+    
+  
+    9. Filtering and Smoothing for State-Space Generators
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../sampling-01-monte-carlo/">
+<span class="md-ellipsis">
+    
+  
+    10. Sampling and Continuous Time
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../smc-01-targets/">
+<span class="md-ellipsis">
+    
+  
+    11. Sequential Monte Carlo and Particle Methods
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../optimization-01-differentiation/">
+<span class="md-ellipsis">
+    
+  
+    12. Optimization and Learning Dynamics
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../generative-models-notation/">
+<span class="md-ellipsis">
+    
+  
+    13. Canonical Notation
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../autoregressive-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Model Families
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gradients-01-taxonomy/">
+<span class="md-ellipsis">
+    
+  
+    Connections and Compositions
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../normalization-01-queries/">
+<span class="md-ellipsis">
+    
+  
+    Research Practice
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../models/vae-guide/">
+<span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/core/base/">
+<span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../examples/overview/">
+<span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../zoo/">
+<span class="md-ellipsis">
+    
+  
+    Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../training/overview/">
+<span class="md-ellipsis">
+    
+  
+    Training
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../data/overview/">
+<span class="md-ellipsis">
+    
+  
+    Data &amp; Modalities
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../inference/overview/">
+<span class="md-ellipsis">
+    
+  
+    Inference &amp; Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../benchmarks/">
+<span class="md-ellipsis">
+    
+  
+    Evaluation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../guides/extensions/">
+<span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../extensions/">
+<span class="md-ellipsis">
+    
+  
+    Advanced Topics
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../cli/">
+<span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../community/contributing/">
+<span class="md-ellipsis">
+    
+  
+    Community
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/configs/protein-extension/">
+<span class="md-ellipsis">
+    
+  
+    Reference Library
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#begin-with-one-model-and-five-questions">
+<span class="md-ellipsis">
+      
+        Begin with One Model and Five Questions
+      
+    </span>
+</a>
+<nav aria-label="Begin with One Model and Five Questions" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#1-the-bayesian-generative-object">
+<span class="md-ellipsis">
+      
+        1. The Bayesian Generative Object
+      
+    </span>
+</a>
+<nav aria-label="1. The Bayesian Generative Object" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#parameters-and-latent-variables-use-the-same-probability-calculus">
+<span class="md-ellipsis">
+      
+        Parameters and latent variables use the same probability calculus
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#a-posterior-is-not-yet-a-decision">
+<span class="md-ellipsis">
+      
+        A posterior is not yet a decision
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#2-worked-example-betabernoulli-learning">
+<span class="md-ellipsis">
+      
+        2. Worked Example: Beta–Bernoulli Learning
+      
+    </span>
+</a>
+<nav aria-label="2. Worked Example: Beta–Bernoulli Learning" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#a-complete-numerical-update">
+<span class="md-ellipsis">
+      
+        A complete numerical update
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#ordered-sequence-evidence-is-not-count-evidence">
+<span class="md-ellipsis">
+      
+        Ordered sequence evidence is not count evidence
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#map-has-boundary-conditions">
+<span class="md-ellipsis">
+      
+        MAP has boundary conditions
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#pseudo-count-language-needs-a-convention">
+<span class="md-ellipsis">
+      
+        Pseudo-count language needs a convention
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#credible-sets-confidence-procedures-and-bootstrap-distributions">
+<span class="md-ellipsis">
+      
+        Credible sets, confidence procedures, and bootstrap distributions
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#regular-asymptotics-are-conditional-tools">
+<span class="md-ellipsis">
+      
+        Regular asymptotics are conditional tools
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#aleatoric-and-parameter-uncertainty-depend-on-the-query">
+<span class="md-ellipsis">
+      
+        Aleatoric and parameter uncertainty depend on the query
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#bayesian-object-retrieval-practice">
+<span class="md-ellipsis">
+      
+        Bayesian object retrieval practice
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#bayesian-object-synthesis">
+<span class="md-ellipsis">
+      
+        Bayesian object synthesis
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#3-priors-conjugacy-and-exchangeability">
+<span class="md-ellipsis">
+      
+        3. Priors, Conjugacy, and Exchangeability
+      
+    </span>
+</a>
+<nav aria-label="3. Priors, Conjugacy, and Exchangeability" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#priors-and-hierarchy-learning-objectives">
+<span class="md-ellipsis">
+      
+        Priors and hierarchy learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#priors-are-part-of-the-sampling-model">
+<span class="md-ellipsis">
+      
+        Priors are part of the sampling model
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#proper-improper-weakly-informative-and-reference-priors">
+<span class="md-ellipsis">
+      
+        Proper, improper, weakly informative, and reference priors
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#multivariate-priors-should-expose-scale-and-dependence">
+<span class="md-ellipsis">
+      
+        Multivariate priors should expose scale and dependence
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#the-conjugate-exponential-family-calculation">
+<span class="md-ellipsis">
+      
+        The conjugate exponential-family calculation
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#exchangeability-and-mixture-representations">
+<span class="md-ellipsis">
+      
+        Exchangeability and mixture representations
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#4-hierarchical-models-and-partial-pooling">
+<span class="md-ellipsis">
+      
+        4. Hierarchical Models and Partial Pooling
+      
+    </span>
+</a>
+<nav aria-label="4. Hierarchical Models and Partial Pooling" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-normalnormal-shrinkage">
+<span class="md-ellipsis">
+      
+        Worked normal–normal shrinkage
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#existing-group-and-new-group-prediction-differ">
+<span class="md-ellipsis">
+      
+        Existing-group and new-group prediction differ
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#centered-and-noncentered-parameterizations">
+<span class="md-ellipsis">
+      
+        Centered and noncentered parameterizations
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#empirical-bayes">
+<span class="md-ellipsis">
+      
+        Empirical Bayes
+      
+    </span>
+</a>
+<nav aria-label="Empirical Bayes" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-categorical-smoothing">
+<span class="md-ellipsis">
+      
+        Worked categorical smoothing
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#priors-and-hierarchy-retrieval-practice">
+<span class="md-ellipsis">
+      
+        Priors and hierarchy retrieval practice
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#priors-and-hierarchy-synthesis">
+<span class="md-ellipsis">
+      
+        Priors and hierarchy synthesis
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#5-evidence-prediction-and-model-comparison">
+<span class="md-ellipsis">
+      
+        5. Evidence, Prediction, and Model Comparison
+      
+    </span>
+</a>
+<nav aria-label="5. Evidence, Prediction, and Model Comparison" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#assessment-and-missing-data-learning-objectives">
+<span class="md-ellipsis">
+      
+        Assessment and missing-data learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#evidence-and-bayes-factors">
+<span class="md-ellipsis">
+      
+        Evidence and Bayes factors
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#why-the-harmonic-mean-is-a-warning-not-a-default">
+<span class="md-ellipsis">
+      
+        Why the harmonic mean is a warning, not a default
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#bayesian-model-averaging">
+<span class="md-ellipsis">
+      
+        Bayesian model averaging
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#leave-one-out-predictive-evaluation">
+<span class="md-ellipsis">
+      
+        Leave-one-out predictive evaluation
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#waic-and-singular-models">
+<span class="md-ellipsis">
+      
+        WAIC and singular models
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#bic-has-a-narrower-contract">
+<span class="md-ellipsis">
+      
+        BIC has a narrower contract
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#predictive-stacking">
+<span class="md-ellipsis">
+      
+        Predictive stacking
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#a-comparison-table">
+<span class="md-ellipsis">
+      
+        A comparison table
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#6-model-criticism-generate-from-the-model">
+<span class="md-ellipsis">
+      
+        6. Model Criticism: Generate from the Model
+      
+    </span>
+</a>
+<nav aria-label="6. Model Criticism: Generate from the Model" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#prior-predictive-checks">
+<span class="md-ellipsis">
+      
+        Prior predictive checks
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#posterior-predictive-checks">
+<span class="md-ellipsis">
+      
+        Posterior predictive checks
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-criticism-of-the-coin-model">
+<span class="md-ellipsis">
+      
+        Worked criticism of the coin model
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#predictive-evaluation-and-criticism-are-complementary">
+<span class="md-ellipsis">
+      
+        Predictive evaluation and criticism are complementary
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#7-missing-data-and-observation-mechanisms">
+<span class="md-ellipsis">
+      
+        7. Missing Data and Observation Mechanisms
+      
+    </span>
+</a>
+<nav aria-label="7. Missing Data and Observation Mechanisms" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mcar-mar-and-mnar">
+<span class="md-ellipsis">
+      
+        MCAR, MAR, and MNAR
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#ignorability-requires-more-than-mar">
+<span class="md-ellipsis">
+      
+        Ignorability requires more than MAR
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-binary-completion">
+<span class="md-ellipsis">
+      
+        Worked binary completion
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#semi-supervised-generation">
+<span class="md-ellipsis">
+      
+        Semi-supervised generation
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#bayesian-assessment-retrieval-practice">
+<span class="md-ellipsis">
+      
+        Bayesian assessment retrieval practice
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#bayesian-assessment-synthesis">
+<span class="md-ellipsis">
+      
+        Bayesian assessment synthesis
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#8-a-generative-modeling-workflow">
+<span class="md-ellipsis">
+      
+        8. A Generative Modeling Workflow
+      
+    </span>
+</a>
+<nav aria-label="8. A Generative Modeling Workflow" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#workflow-and-capstone-learning-objectives">
+<span class="md-ellipsis">
+      
+        Workflow and capstone learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#error-ledger">
+<span class="md-ellipsis">
+      
+        Error ledger
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#misconception-checks">
+<span class="md-ellipsis">
+      
+        Misconception Checks
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#retrieval-questions">
+<span class="md-ellipsis">
+      
+        Retrieval Questions
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#synthesis-and-next-steps">
+<span class="md-ellipsis">
+      
+        Synthesis and Next Steps
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#primary-and-canonical-references">
+<span class="md-ellipsis">
+      
+        Primary and Canonical References
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<nav aria-label="Breadcrumb" class="md-path">
+<ol class="md-path__list">
+<li class="md-path__item">
+<a class="md-path__link" href="../../..">
+<span class="md-ellipsis">
+    Home
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    Generative Models Book
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../probability-01-objects/">
+<span class="md-ellipsis">
+    Foundations
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../bayesian-learning-01-object/">
+<span class="md-ellipsis">
+    3. Bayesian Learning and Model Assessment
+  </span>
+</a>
+</li>
+</ol>
+</nav>
+<article class="md-content__inner md-typeset">
+<h1 id="bayesian-learning-and-model-assessment">Bayesian Learning and Model Assessment<a class="headerlink" href="#bayesian-learning-and-model-assessment" title="Permanent link">¤</a></h1><aside aria-label="Learning path" class="admonition abstract artifex-learning-path"><p class="admonition-title">Learning path</p><p><strong>Required knowledge</strong></p><ul class="artifex-learning-path__links" data-learning-path-role="required"><li><a href="../probability-and-generative-modeling/">Probability and Generative Modeling</a></li><li><a href="../classical-generative-models/">Classical Generative Models and Graphical Structure</a></li></ul><p><strong>Readiness check:</strong> can you explain the central object and reproduce one worked example from each required chapter? If not, follow its link before continuing.</p><p><strong>Newly unlocked in the default route</strong></p><ul class="artifex-learning-path__links" data-learning-path-role="unlocks"><li><a href="../inference-01-objects-and-queries/">Inference 1 — Objects, Queries, and Local Approximations</a></li><li><a href="../latent-variables-and-inference/">Latent Variables and Inference</a></li></ul></aside>
+<p>A generative model usually contains quantities that are not observed directly:
+component probabilities, decoder weights, population effects, noise scales, or
+entire latent structures. Bayesian learning treats uncertainty about such
+quantities as part of the generative specification. It then asks what the data
+imply about them, what the fitted model predicts next, and where the model
+fails.</p>
+<p>This chapter develops those questions as one workflow. It begins with a coin
+model that can be calculated exactly, expands the same logic to exponential
+families and hierarchical populations, and then studies evidence, predictive
+comparison, model averaging, criticism, and incomplete data. The point is not
+that every modern generator must use a Bayesian neural posterior. The point is
+that <strong>parameter uncertainty, predictive uncertainty, model comparison, and
+model criticism are different operations</strong>, whatever approximation or neural
+architecture implements them.</p>
+<div class="admonition info">
+<p class="admonition-title">Reading routes</p>
+<p><strong>Beginner:</strong> read Sections 1–3, the Beta–Bernoulli example, Section 7,
+and the retrieval questions.<br/>
+<strong>Practitioner:</strong> also study hierarchical shrinkage, predictive
+comparison, prior/posterior predictive checks, and missingness.<br/>
+<strong>Research:</strong> read continuously; verify every model-comparison method
+against its target, asymptotic assumptions, and finite-sample diagnostic.</p>
+</div>
+<h2 id="begin-with-one-model-and-five-questions">Begin with One Model and Five Questions<a class="headerlink" href="#begin-with-one-model-and-five-questions" title="Permanent link">¤</a></h2>
+<p>Suppose a binary observation <span class="arithmatex">\(X_i\)</span> has an unknown success probability
+<span class="arithmatex">\(\theta\)</span>. A complete Bayesian model places a prior on <span class="arithmatex">\(\theta\)</span> and a sampling
+law on the data:</p>
+<div class="arithmatex">\[
+\theta\sim p(\theta),
+\qquad
+X_i\mid\theta\overset{\mathrm{iid}}{\sim}p(x_i\mid\theta).
+\]</div>
+<p>One joint law now supports five distinct queries.</p>
+<div class="grid cards">
+<ul>
+<li>
+<p><span class="twemoji lg middle"><svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 13c-2.17 0-4.07 1.16-5.12 2.89-.6.07-1.23.11-1.88.11-4.42 0-8-1.79-8-4V9c0 2.21 3.58 4 8 4s8-1.79 8-4v3c0 .36-.1.71-.28 1.05C19.5 13 19.24 13 19 13m-7-2c4.42 0 8-1.79 8-4s-3.58-4-8-4-8 1.79-8 4 3.58 4 8 4m1.1 6.96c-.36.04-.73.04-1.1.04-4.42 0-8-1.79-8-4v3c0 2.21 3.58 4 8 4 .46 0 .9 0 1.33-.06A6 6 0 0 1 13 19c0-.36.04-.7.1-1.04M19 15l-3 3h2v4h2v-4h2z"></path></svg></span> <strong>Learn</strong></p>
+<hr/>
+<p>Compute <span class="arithmatex">\(p(\theta\mid x_{1:n})\)</span>.</p>
+</li>
+<li>
+<p><span class="twemoji lg middle"><svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m9.38 8.38 2.12.96 2.12-.96-.96 2.12.96 2.12-2.12-.96-2.12.96.96-2.12zM16.5 2.5l1.09 2.91L20.5 6.5l-2.91 1.09-1.09 2.91-1.09-2.91L12.5 6.5l2.91-1.09zM6 19h1v-1a1 1 0 0 1 1-1h.26a7.47 7.47 0 0 1-3.76-6.5A7.5 7.5 0 0 1 12 3c1.05 0 2.05.22 2.96.61l-.37.98-1.42.53Q12.6 5 12 5a5.5 5.5 0 0 0-5.5 5.5A5.5 5.5 0 0 0 12 16c2.91 0 5.3-2.27 5.5-5.13l.91-2.46.71-.27c.25.74.38 1.54.38 2.36 0 2.78-1.5 5.2-3.76 6.5H16a1 1 0 0 1 1 1v1h1a2 2 0 0 1 2 2v1H4v-1a2 2 0 0 1 2-2"></path></svg></span> <strong>Predict</strong></p>
+<hr/>
+<p>Average <span class="arithmatex">\(p(x_{n+1}\mid\theta)\)</span> over posterior uncertainty.</p>
+</li>
+<li>
+<p><span class="twemoji lg middle"><svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 3c-1.27 0-2.4.8-2.82 2H3v2h1.95L2 14c-.47 2 1 3 3.5 3s4.06-1 3.5-3L6.05 7h3.12c.33.85.98 1.5 1.83 1.83V20H2v2h20v-2h-9V8.82c.85-.32 1.5-.97 1.82-1.82h3.13L15 14c-.47 2 1 3 3.5 3s4.06-1 3.5-3l-2.95-7H21V5h-6.17C14.4 3.8 13.27 3 12 3m0 2a1 1 0 0 1 1 1 1 1 0 0 1-1 1 1 1 0 0 1-1-1 1 1 0 0 1 1-1m-6.5 5.25L7 14H4zm13 0L20 14h-3z"></path></svg></span> <strong>Compare</strong></p>
+<hr/>
+<p>Evaluate evidence or out-of-sample predictive performance.</p>
+</li>
+<li>
+<p><span class="twemoji lg middle"><svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 8c.56 0 1 .43 1 1a1 1 0 0 1-1 1c-.57 0-1-.45-1-1 0-.57.43-1 1-1M2 2v9c0 2.96 2.19 5.5 5.14 5.91.62 3.01 3.28 5.09 6.36 5.09a6.5 6.5 0 0 0 6.5-6.5v-3.69c1.16-.42 2-1.52 2-2.81a3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 1.29.84 2.4 2 2.81v3.6c0 2.5-2 4.5-4.5 4.5-2 0-3.68-1.21-4.28-3.01C12 16.3 14 13.8 14 11V2h-4v3h2v6a4 4 0 0 1-4 4 4 4 0 0 1-4-4V5h2V2z"></path></svg></span> <strong>Criticize</strong></p>
+<hr/>
+<p>Ask whether replicated data reproduce relevant observed structure.</p>
+</li>
+<li>
+<p><span class="twemoji lg middle"><svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M2 5.27 3.28 4 20 20.72 18.73 22l-3.08-3.08c-1.15.38-2.37.58-3.65.58-5 0-9.27-3.11-11-7.5.69-1.76 1.79-3.31 3.19-4.54zM12 9a3 3 0 0 1 3 3 3 3 0 0 1-.17 1L11 9.17A3 3 0 0 1 12 9m0-4.5c5 0 9.27 3.11 11 7.5a11.8 11.8 0 0 1-4 5.19l-1.42-1.43A9.86 9.86 0 0 0 20.82 12 9.82 9.82 0 0 0 12 6.5c-1.09 0-2.16.18-3.16.5L7.3 5.47c1.44-.62 3.03-.97 4.7-.97M3.18 12A9.82 9.82 0 0 0 12 17.5c.69 0 1.37-.07 2-.21L11.72 15A3.064 3.064 0 0 1 9 12.28L5.6 8.87c-.99.85-1.82 1.91-2.42 3.13"></path></svg></span> <strong>Complete</strong></p>
+<hr/>
+<p>Infer missing values under an explicit observation mechanism.</p>
+</li>
+</ul>
+</div>
+<p>The arrows in a generative graph describe the model, not the direction of an
+inference algorithm. The outer rectangle below is plate notation: the
+<span class="arithmatex">\(X_i\)</span> node and its conditional draw are repeated <span class="arithmatex">\(n\)</span> times, while the shared
+parameter <span class="arithmatex">\(\theta\)</span> is drawn once.</p>
+<figure class="book-figure" id="fig-bayesian-learning-and-model-assessment-begin-with-one-model-and-five-questions"><pre class="mermaid"><code>flowchart LR
+    theta(("Population parameter"))
+    subgraph observations["observations repeated n times"]
+        x(("Observed item i"))
+    end
+    theta --&gt;|"sampling law"| x
+    class x observed</code></pre><figcaption class="book-object-caption"><span class="book-object-number">Figure BAYES.1.</span> Begin with One Model and Five Questions</figcaption></figure>
+<h3 id="prerequisites-and-learning-objectives">Prerequisites and learning objectives<a class="headerlink" href="#prerequisites-and-learning-objectives" title="Permanent link">¤</a></h3>
+<p>You should be able to manipulate a joint distribution, apply Bayes' rule,
+integrate or sum out a variable, and interpret a log score. Review
+<a href="../probability-and-generative-modeling/">Probability and Generative Modeling</a>
+and <a href="../classical-generative-models/">Classical Generative Models</a> if those
+operations are unfamiliar.</p>
+<p>After this chapter you should be able to:</p>
+<ol>
+<li>distinguish a parameter, hyperparameter, latent state, estimator, and
+   prediction;</li>
+<li>derive a posterior, marginal likelihood, and posterior predictive law from
+   one joint model;</li>
+<li>explain why posterior summaries depend on a loss and why flat priors and
+   MAP estimates depend on coordinates;</li>
+<li>update conjugate exponential-family hyperparameters without confusing a
+   mean parameter with the expectation of a natural parameter;</li>
+<li>distinguish infinite exchangeability from a finite symmetry assumption;</li>
+<li>construct a hierarchical model and separate prediction for an existing
+   group from prediction for a new group;</li>
+<li>state what empirical Bayes omits and when centered or noncentered
+   parameterizations change computation without changing the model;</li>
+<li>compare evidence, Bayes factors, Bayesian model averaging, leave-one-out
+   prediction, WAIC, PSIS, and predictive stacking by the quantity each
+   targets;</li>
+<li>design prior and posterior predictive checks without treating either as a
+   proof of model correctness; and</li>
+<li>write the observed-data likelihood under MCAR, MAR, or MNAR assumptions
+    and state the conditions required for ignorability.</li>
+</ol>
+<h2 id="1-the-bayesian-generative-object">1. The Bayesian Generative Object<a class="headerlink" href="#1-the-bayesian-generative-object" title="Permanent link">¤</a></h2>
+<p>Let <span class="arithmatex">\(D=x_{1:n}\)</span> denote observed data and let <span class="arithmatex">\(\theta\)</span> collect unknown model
+quantities. A Bayesian model begins with the joint law</p>
+<div class="arithmatex">\[
+p(\theta,D)=p(\theta)p(D\mid\theta).
+\]</div>
+<p>Bayes' rule produces the posterior</p>
+<div class="arithmatex">\[
+p(\theta\mid D)
+=\frac{p(D\mid\theta)p(\theta)}{p(D)},
+\qquad
+p(D)=\int p(D\mid\theta)p(\theta)\,d\theta.
+\]</div>
+<p>The denominator <span class="arithmatex">\(p(D)\)</span> is the <strong>marginal likelihood</strong> or <strong>evidence</strong>. It is a
+probability mass or density for the observed dataset under the complete model,
+not a posterior probability of the parameter. It normalizes the posterior and
+also enters model comparison. Its value depends on the data representation,
+reference measure, sampling design, and prior.</p>
+<p>For a new observation <span class="arithmatex">\(\widetilde X\)</span>, the posterior predictive law is</p>
+<div class="arithmatex">\[
+p(\widetilde x\mid D)
+=\int p(\widetilde x\mid\theta,D)
+        p(\theta\mid D)\,d\theta.
+\]</div>
+<p>When observations are conditionally IID given <span class="arithmatex">\(\theta\)</span>,
+<span class="arithmatex">\(p(\widetilde x\mid\theta,D)=p(\widetilde x\mid\theta)\)</span>. Time-series,
+spatial, causal, and adaptive-data models generally retain additional
+dependence on the observed history or design.</p>
+<h3 id="parameters-and-latent-variables-use-the-same-probability-calculus">Parameters and latent variables use the same probability calculus<a class="headerlink" href="#parameters-and-latent-variables-use-the-same-probability-calculus" title="Permanent link">¤</a></h3>
+<p>A distinction between a <em>parameter</em> and a <em>latent variable</em> is often semantic
+or computational rather than measure-theoretic. A global parameter may affect
+all records; a local latent state may affect one record; a hyperparameter may
+govern a population of parameters. Once assigned a distribution, all can be
+marginalized, conditioned, or predicted. What must remain explicit is their
+scope and the query being answered.</p>
+<figure class="book-figure" id="fig-bayesian-learning-and-model-assessment-parameters-and-latent-variables-use-the-same-probability-calculus"><pre class="mermaid"><code>flowchart LR
+    hyper(("Hyperparameter")) --&gt; global(("Global parameter"))
+    global --&gt; local(("Local latent state"))
+    local --&gt; observed(("Observed object"))
+    global --&gt; observed
+    class observed observed</code></pre><figcaption class="book-object-caption"><span class="book-object-number">Figure BAYES.2.</span> Parameters and latent variables use the same probability calculus</figcaption></figure>
+<h3 id="a-posterior-is-not-yet-a-decision">A posterior is not yet a decision<a class="headerlink" href="#a-posterior-is-not-yet-a-decision" title="Permanent link">¤</a></h3>
+<p>An action <span class="arithmatex">\(a\)</span> should minimize posterior expected loss,</p>
+<div class="arithmatex">\[
+a^*(D)=\arg\min_a
+\int L(a,\theta)p(\theta\mid D)\,d\theta.
+\]</div>
+<p>For a scalar <span class="arithmatex">\(\theta\)</span>, squared-error loss selects the posterior mean;
+absolute-error loss selects a posterior median; a small-neighborhood
+zero–one loss approaches a posterior mode under regularity. Consequently,
+"the Bayesian estimate" is incomplete language until the loss, action space,
+and posterior summary are named. Prediction under log loss selects the full
+posterior predictive distribution, not a plug-in point estimate.</p>
+<div class="admonition warning">
+<p class="admonition-title">Random in the model is not physically random</p>
+<p>A Bayesian distribution over a fixed but unknown quantity records the
+model's uncertainty. It does not assert that the physical constant is
+repeatedly redrawn. Conversely, frequentist procedures can be applied to
+randomized or hierarchical data-generating processes. The useful
+distinction is the target and calibration claim, not the slogan that one
+school makes data random and the other makes parameters random.</p>
+</div>
+<h2 id="2-worked-example-betabernoulli-learning">2. Worked Example: Beta–Bernoulli Learning<a class="headerlink" href="#2-worked-example-betabernoulli-learning" title="Permanent link">¤</a></h2>
+<p>Let <span class="arithmatex">\(\alpha,\beta&gt;0\)</span> and</p>
+<div class="arithmatex">\[
+\theta\sim\operatorname{Beta}(\alpha,\beta).
+\]</div>
+<p>Conditional on that shared draw,</p>
+<div class="arithmatex">\[
+X_i\mid\theta\overset{\mathrm{iid}}{\sim}
+\operatorname{Bernoulli}(\theta).
+\]</div>
+<p>For an ordered binary sequence <span class="arithmatex">\(x_{1:n}\)</span> containing
+<span class="arithmatex">\(s=\sum_i x_i\)</span> successes and <span class="arithmatex">\(f=n-s\)</span> failures,</p>
+<div class="arithmatex">\[
+p(x_{1:n}\mid\theta)=\theta^s(1-\theta)^f.
+\]</div>
+<p>Multiplying by the prior gives</p>
+<div class="arithmatex">\[
+p(\theta\mid x_{1:n})
+\propto
+\theta^{\alpha+s-1}(1-\theta)^{\beta+f-1},
+\]</div>
+<p>so</p>
+<div class="arithmatex">\[
+\theta\mid x_{1:n}
+\sim\operatorname{Beta}(\alpha+s,\beta+f).
+\]</div>
+<p>This is <strong>conjugacy</strong>: posterior and prior belong to the same named family.
+The data update two sufficient statistics, but conjugacy does not make every
+larger model or hyperparameter integral analytic.</p>
+<h3 id="a-complete-numerical-update">A complete numerical update<a class="headerlink" href="#a-complete-numerical-update" title="Permanent link">¤</a></h3>
+<p>Take <span class="arithmatex">\(\alpha=2\)</span>, <span class="arithmatex">\(\beta=2\)</span>, and observe the ordered sequence</p>
+<div class="arithmatex">\[
+(1,0,1,1,0),
+\]</div>
+<p>so <span class="arithmatex">\(s=3\)</span> and <span class="arithmatex">\(f=2\)</span>. Then</p>
+<div class="arithmatex">\[
+\theta\mid D\sim\operatorname{Beta}(5,4).
+\]</div>
+<p>The posterior mean and interior mode are</p>
+<div class="arithmatex">\[
+\mathbb E[\theta\mid D]=\frac{5}{9}.
+\]</div>
+<p>The attained interior mode is</p>
+<div class="arithmatex">\[
+\operatorname{mode}(\theta\mid D)
+=\frac{5-1}{5+4-2}
+=\frac47.
+\]</div>
+<p>They differ because they solve different summary problems. The predictive
+success probability is the posterior mean of the Bernoulli probability:</p>
+<div class="arithmatex">\[
+P(X_6=1\mid D)=\mathbb E[\theta\mid D]=\frac59.
+\]</div>
+<h3 id="ordered-sequence-evidence-is-not-count-evidence">Ordered sequence evidence is not count evidence<a class="headerlink" href="#ordered-sequence-evidence-is-not-count-evidence" title="Permanent link">¤</a></h3>
+<p>The marginal probability of the particular ordered sequence is</p>
+<div class="arithmatex">\[
+p(x_{1:n})
+=\frac{B(\alpha+s,\beta+f)}{B(\alpha,\beta)},
+\]</div>
+<p>where <span class="arithmatex">\(B\)</span> is the beta function. The probability of observing only the count
+<span class="arithmatex">\(S=s\)</span>, without the ordering, is instead</p>
+<p>For any one such sequence <span class="arithmatex">\(x_{1:n}^{(s)}\)</span>, the count probability is the sum
+over its <span class="arithmatex">\(\binom ns\)</span> orderings:</p>
+<div class="arithmatex">\[
+P(S=s)=\binom ns\,p(x_{1:n}^{(s)}).
+\]</div>
+<p>Substituting the sequence evidence above gives the usual beta–binomial mass.</p>
+<p>The combinatorial factor does not change the posterior for <span class="arithmatex">\(\theta\)</span> once <span class="arithmatex">\(s\)</span>
+and <span class="arithmatex">\(n\)</span> are known, because it is constant in <span class="arithmatex">\(\theta\)</span>. It <em>does</em> change the
+probability of the recorded observation and therefore the evidence. Dataset
+semantics cannot be discarded merely because they are irrelevant to one
+parameter update.</p>
+<h3 id="map-has-boundary-conditions">MAP has boundary conditions<a class="headerlink" href="#map-has-boundary-conditions" title="Permanent link">¤</a></h3>
+<p>For a <span class="arithmatex">\(\operatorname{Beta}(a,b)\)</span> posterior, the familiar formula</p>
+<div class="arithmatex">\[
+\frac{a-1}{a+b-2}
+\]</div>
+<p>is an attained interior mode only when <span class="arithmatex">\(a&gt;1\)</span> and <span class="arithmatex">\(b&gt;1\)</span>. If <span class="arithmatex">\(a&lt;1\)</span> the density
+diverges toward zero; if <span class="arithmatex">\(b&lt;1\)</span> it diverges toward one; if both are below one,
+both boundaries are modes in the extended-density sense. Equality cases can
+produce a boundary mode or a flat density. Quoting the interior formula
+without these conditions can return a negative number, a number above one, or
+division by zero.</p>
+<h3 id="pseudo-count-language-needs-a-convention">Pseudo-count language needs a convention<a class="headerlink" href="#pseudo-count-language-needs-a-convention" title="Permanent link">¤</a></h3>
+<p>The posterior update adds successes and failures to <span class="arithmatex">\((\alpha,\beta)\)</span>. That
+makes <span class="arithmatex">\((\alpha,\beta)\)</span> convenient <strong>concentration parameters</strong>. The prior
+kernel, however, uses exponents <span class="arithmatex">\((\alpha-1,\beta-1)\)</span>, and the interior MAP uses
+those exponent offsets. Thus "the prior has <span class="arithmatex">\(\alpha\)</span> successes and <span class="arithmatex">\(\beta\)</span>
+failures" is only a mnemonic, not a convention-free identity.</p>
+<h3 id="credible-sets-confidence-procedures-and-bootstrap-distributions">Credible sets, confidence procedures, and bootstrap distributions<a class="headerlink" href="#credible-sets-confidence-procedures-and-bootstrap-distributions" title="Permanent link">¤</a></h3>
+<p>A <span class="arithmatex">\((1-\gamma)\)</span> posterior credible set <span class="arithmatex">\(C(D)\)</span> satisfies</p>
+<div class="arithmatex">\[
+P(\theta\in C(D)\mid D)=1-\gamma
+\]</div>
+<p>under the fitted model and prior. Equal-tailed, central, shortest, and
+highest-posterior-density constructions can produce different sets. A credible
+set need not be one interval: a multimodal posterior can justify disconnected
+regions. Highest-density sets and MAP points also change under nonlinear
+reparameterization because density height changes with the Jacobian.</p>
+<p>A frequentist confidence procedure has a different calibration target:</p>
+<div class="arithmatex">\[
+P_{\theta_0}\!\left(\theta_0\in C(X_{1:n})\right)
+\ge 1-\gamma
+\]</div>
+<p>over repeated datasets from each declared <span class="arithmatex">\(\theta_0\)</span>, at least approximately
+or asymptotically. This statement does not assign a posterior probability to
+the fixed realized interval. Bayesian credible coverage and frequentist
+repeated-sampling coverage can coincide in special models and diverge in
+others; neither definition should be substituted for the other.</p>
+<p>The nonparametric bootstrap resamples observed units to approximate the
+sampling distribution of an estimator. Its ordinary IID form assumes that the
+resampled unit is exchangeable and representative. Sequences, clusters,
+patients with repeated measurements, spatial fields, or adaptively collected
+records require a block, cluster, parametric, or design-aware alternative.
+A bootstrap distribution is not a posterior unless an additional argument
+establishes a particular correspondence.</p>
+<h3 id="regular-asymptotics-are-conditional-tools">Regular asymptotics are conditional tools<a class="headerlink" href="#regular-asymptotics-are-conditional-tools" title="Permanent link">¤</a></h3>
+<p>Under differentiability, identifiability, an interior true or pseudo-true
+parameter, suitable moment and support conditions, and nonsingular information,
+an MLE can be asymptotically normal. Under correct specification, inverse
+Fisher information supplies its leading covariance. Under misspecification,
+the score-variance and expected-Hessian terms need not coincide and a sandwich
+covariance is required.</p>
+<p>Mixtures, latent neural models, boundary parameters, nonidentified symmetries,
+changing support, and overparameterized systems frequently violate these
+regular assumptions. A singular Fisher matrix may reveal a local redundant
+direction, but a nonsingular local matrix is not a global identifiability
+proof. Bootstrap and asymptotic intervals should therefore be validated
+against the actual sampling unit and model geometry rather than attached
+automatically to every fitted generator.</p>
+<h3 id="aleatoric-and-parameter-uncertainty-depend-on-the-query">Aleatoric and parameter uncertainty depend on the query<a class="headerlink" href="#aleatoric-and-parameter-uncertainty-depend-on-the-query" title="Permanent link">¤</a></h3>
+<p>For a scalar predictive quantity <span class="arithmatex">\(\widetilde Y\)</span>, define</p>
+<div class="arithmatex">\[
+V_{\mathrm{cond}}
+=\mathbb E_{p(\theta\mid D)}
+ [\operatorname{Var}(\widetilde Y\mid\theta,D)]
+\]</div>
+<p>and</p>
+<div class="arithmatex">\[
+V_{\mathrm{param}}
+=\operatorname{Var}_{p(\theta\mid D)}
+ [\mathbb E(\widetilde Y\mid\theta,D)].
+\]</div>
+<p>The law of total variance is then</p>
+<div class="arithmatex">\[
+\operatorname{Var}(\widetilde Y\mid D)
+=V_{\mathrm{cond}}+V_{\mathrm{param}}.
+\]</div>
+<p>The first term is often called conditional or aleatoric uncertainty and the
+second parameter or epistemic uncertainty. This decomposition is
+model- and query-dependent, not an intrinsic orthogonal labeling of every
+error. Latent-state ambiguity, model misspecification, distribution shift, and
+numerical approximation can enter elsewhere or be absorbed into either term
+by changing what is included in <span class="arithmatex">\(\theta\)</span>.</p>
+<h2 id="bayesian-object-retrieval-practice">Bayesian object retrieval practice<a class="headerlink" href="#bayesian-object-retrieval-practice" title="Permanent link">¤</a></h2>
+<details class="question">
+<summary>Retrieval practice: one Bayesian generative object</summary>
+<ol>
+<li>In the Beta–Bernoulli example, which expressions are the joint law, evidence, posterior, posterior predictive, and prior predictive?</li>
+<li>Why is likelihood not a probability distribution over parameters without further construction?</li>
+<li>Which query uses a new observation from an already observed group, and which query concerns a genuinely new group?</li>
+<li>What changes when the observation mechanism is included as part of the generative model?</li>
+</ol>
+<p><strong>Solutions.</strong> (1) The joint multiplies prior and sampling law; evidence marginalizes the parameter; posterior conditions the joint on data; posterior predictive averages the next-observation law over the posterior; prior predictive averages before seeing data. (2) It is the observed-data density viewed as a function of parameters and need not normalize over them. (3) Posterior predictive for the existing group versus a hierarchical new-group predictive law. (4) Conditioning and missing-data inferences must include selection/missingness rather than treating recorded values as an unbiased sample.</p>
+</details>
+<h2 id="bayesian-object-synthesis">Bayesian object synthesis<a class="headerlink" href="#bayesian-object-synthesis" title="Permanent link">¤</a></h2>
+<p>A Bayesian generative analysis begins with one joint law and names the query
+before selecting an estimator. Prior, likelihood, evidence, posterior, and
+predictive distributions are related operations on that law, not interchangeable
+scores. The Beta–Bernoulli example supplies the finite template reused by later
+hierarchical, comparison, and missing-data chapters.</p>
+<h2 id="3-priors-conjugacy-and-exchangeability">3. Priors, Conjugacy, and Exchangeability<a class="headerlink" href="#3-priors-conjugacy-and-exchangeability" title="Permanent link">¤</a></h2>
+<h3 id="priors-and-hierarchy-learning-objectives">Priors and hierarchy learning objectives<a class="headerlink" href="#priors-and-hierarchy-learning-objectives" title="Permanent link">¤</a></h3>
+<p>This projection assumes the Bayesian object and predictive queries from the
+first chapter. By the end, you should be able to distinguish proper, improper,
+weakly informative, and reference priors; derive conjugate exponential-family
+updates; state what exchangeability does and does not imply; compute partial
+pooling in the normal–normal model; and distinguish empirical-Bayes fitting,
+centered/noncentered parameterization, and new-group prediction.</p>
+<h3 id="priors-are-part-of-the-sampling-model">Priors are part of the sampling model<a class="headerlink" href="#priors-are-part-of-the-sampling-model" title="Permanent link">¤</a></h3>
+<p>A prior does more than regularize an optimizer. It defines probability mass
+over parameter regions, contributes to posterior uncertainty, determines the
+prior predictive law, and affects evidence. A useful prior audit asks:</p>
+<ul>
+<li>Is it proper, or is its normalizing constant intentionally unspecified?</li>
+<li>Does it place mass on scientifically plausible scales and supports?</li>
+<li>What observations does the induced prior predictive distribution generate?</li>
+<li>Is it invariant under a stated transformation, or does it change with
+  coordinates?</li>
+<li>Does it create pathological posterior geometry or conflict with the
+  likelihood?</li>
+</ul>
+<p>A density that is constant in <span class="arithmatex">\(\theta\)</span> is generally not constant after a
+nonlinear reparameterization <span class="arithmatex">\(\phi=g(\theta)\)</span>, because</p>
+<div class="arithmatex">\[
+p_\Phi(\phi)
+=p_\Theta(g^{-1}(\phi))
+\left|\frac{d g^{-1}(\phi)}{d\phi}\right|.
+\]</div>
+<p>For the same reason, MAP is not invariant under nonlinear changes of
+coordinates: a mode is a property of a density relative to a coordinate and
+reference measure, not of the underlying probability measure alone.</p>
+<h3 id="proper-improper-weakly-informative-and-reference-priors">Proper, improper, weakly informative, and reference priors<a class="headerlink" href="#proper-improper-weakly-informative-and-reference-priors" title="Permanent link">¤</a></h3>
+<p>A <strong>proper prior</strong> integrates to one. An <strong>improper prior</strong> is a nonnegative
+kernel with infinite or unspecified total mass. Some improper priors yield a
+proper posterior for a particular likelihood and dataset, but their arbitrary
+multiplicative constants usually make ordinary marginal likelihoods and Bayes
+factors undefined. Posterior propriety must be established rather than assumed.</p>
+<p>"Noninformative" has no coordinate-free universal meaning. Jeffreys' rule,</p>
+<div class="arithmatex">\[
+p_J(\theta)\propto\sqrt{I(\theta)},
+\]</div>
+<p>uses the scalar Fisher information and is invariant under smooth one-to-one
+reparameterization in the one-parameter setting. In multiparameter problems,
+joint Jeffreys, independent Jeffreys, and reference-prior constructions can
+differ. Weakly informative priors instead encode scale and regularity
+knowledge deliberately; their adequacy should be checked through implied data
+and sensitivity analyses.</p>
+<h3 id="multivariate-priors-should-expose-scale-and-dependence">Multivariate priors should expose scale and dependence<a class="headerlink" href="#multivariate-priors-should-expose-scale-and-dependence" title="Permanent link">¤</a></h3>
+<p>A covariance matrix combines marginal scales and correlations. Writing</p>
+<div class="arithmatex">\[
+\Sigma=D R D,
+\qquad
+D=\operatorname{diag}(\sigma_1,\ldots,\sigma_d),
+\]</div>
+<p>separates positive scales <span class="arithmatex">\(\sigma_j\)</span> from a correlation matrix <span class="arithmatex">\(R\)</span>. This makes
+it possible to assign domain-calibrated priors to the scales and a distinct
+dependence prior to <span class="arithmatex">\(R\)</span>. An inverse-Wishart prior can be conjugate in a
+multivariate Gaussian model, but its degrees-of-freedom and scale conventions
+vary across sources, and it couples variance and correlation behavior in ways
+that may be inappropriate for the application.</p>
+<p>One correlation-matrix family is LKJ:</p>
+<div class="arithmatex">\[
+p(R\mid\eta)\propto |R|^{\eta-1},
+\qquad \eta&gt;0.
+\]</div>
+<p>At <span class="arithmatex">\(\eta=1\)</span> the density is uniform over valid correlation matrices relative
+to the family’s matrix measure; this does not make the pairwise correlations
+independent uniforms. Values above one favor matrices nearer the identity,
+while values below one favor more extreme dependence. If a sampler works with
+a Cholesky factor of <span class="arithmatex">\(R\)</span>, the transformed factor density includes the
+appropriate Jacobian and diagonal powers. It is not obtained by replacing
+<span class="arithmatex">\(R\)</span> with <span class="arithmatex">\(L\)</span> in the matrix-density formula.</p>
+<p>For a high-dimensional generator, an unrestricted covariance has
+<span class="arithmatex">\(d(d+1)/2\)</span> free entries and may be both statistically and computationally
+unreasonable. Diagonal, low-rank-plus-diagonal, sparse-precision,
+Kronecker, equivariant, or other structured models encode different
+dependence assumptions; choosing one is part of the generative model, not
+merely a faster linear-algebra implementation.</p>
+<h3 id="the-conjugate-exponential-family-calculation">The conjugate exponential-family calculation<a class="headerlink" href="#the-conjugate-exponential-family-calculation" title="Permanent link">¤</a></h3>
+<p>Write a regular exponential-family likelihood as</p>
+<div class="arithmatex">\[
+p(x\mid\eta)
+=h(x)\exp\!\left\{\eta^\top T(x)-A(\eta)\right\}.
+\]</div>
+<p>A natural conjugate prior has kernel</p>
+<div class="arithmatex">\[
+p(\eta\mid\tau,\nu)
+\propto
+\exp\!\left\{\eta^\top\tau-\nu A(\eta)\right\}.
+\]</div>
+<p>For <span class="arithmatex">\(n\)</span> conditionally IID observations, multiplication gives the posterior
+hyperparameters</p>
+<div class="arithmatex">\[
+\tau' = \tau+\sum_{i=1}^n T(x_i),
+\qquad
+\nu'=\nu+n.
+\]</div>
+<p>The ratio <span class="arithmatex">\(\tau/\nu\)</span> belongs to the <strong>mean-parameter</strong> geometry. Under the
+properness and boundary conditions used in the Diaconis–Ylvisaker result,</p>
+<div class="arithmatex">\[
+\mathbb E[\nabla A(\eta)]=\frac{\tau}{\nu}.
+\]</div>
+<p>It is not generally true that <span class="arithmatex">\(\mathbb E[\eta]=\tau/\nu\)</span>. Natural parameter
+<span class="arithmatex">\(\eta\)</span> and mean parameter <span class="arithmatex">\(\mu=\nabla A(\eta)\)</span> are nonlinear transforms in
+most families. Confusing them produces incorrect prior means and shrinkage
+interpretations.</p>
+<div class="admonition example">
+<p class="admonition-title">Bernoulli coordinates expose the distinction</p>
+<p>For Bernoulli data, the natural parameter is the logit
+<span class="arithmatex">\(\eta=\log(\theta/(1-\theta))\)</span>, while the mean parameter is
+<span class="arithmatex">\(\mu=\theta\)</span>. A Beta prior can have
+<span class="arithmatex">\(\mathbb E[\theta]=\alpha/(\alpha+\beta)\)</span>, but
+<span class="arithmatex">\(\mathbb E[\eta]=\psi(\alpha)-\psi(\beta)\)</span>, where <span class="arithmatex">\(\psi\)</span> is the digamma
+function. These are not the same coordinate or the same expectation.</p>
+</div>
+<p>Conjugate analysis is especially useful as an exact reference case, a message
+passing primitive, and a component of a larger approximate method. It does
+not imply that a deep likelihood, a coupled graphical model, an unknown
+hyperparameter, or a requested normalizer remains closed form.</p>
+<h3 id="exchangeability-and-mixture-representations">Exchangeability and mixture representations<a class="headerlink" href="#exchangeability-and-mixture-representations" title="Permanent link">¤</a></h3>
+<p>A finite sequence <span class="arithmatex">\(X_{1:n}\)</span> is exchangeable when its joint law is invariant
+under every permutation of the indices. Conditional IID sampling from a
+shared random parameter implies exchangeability after the parameter is
+integrated out:</p>
+<div class="arithmatex">\[
+p(x_{1:n})
+=\int\prod_{i=1}^n p(x_i\mid\theta)p(d\theta).
+\]</div>
+<p>The converse requires care. De Finetti-type representations concern an
+<strong>infinitely exchangeable</strong> sequence—or a finite law that is extendible to
+arbitrary length—on an appropriate measurable space. A merely finite
+exchangeable law need not equal a mixture of IID laws at that fixed length.
+Finite representation theorems instead give approximation or signed-mixture
+statements under their own conditions.</p>
+<p>Exchangeability is a symmetry assumption, not a causal conclusion. The mixing
+measure represents a probability law over component distributions; it does not
+identify a unique physical mechanism merely from the observed joint law.</p>
+<h2 id="4-hierarchical-models-and-partial-pooling">4. Hierarchical Models and Partial Pooling<a class="headerlink" href="#4-hierarchical-models-and-partial-pooling" title="Permanent link">¤</a></h2>
+<p>Suppose observations belong to groups. Estimating every group independently
+can be noisy, while forcing all groups to share one parameter can erase real
+variation. A hierarchical model expresses exchangeability at the group level:</p>
+<div class="arithmatex">\[
+\phi\sim p(\phi),
+\qquad
+\theta_j\mid\phi\sim p(\theta_j\mid\phi),
+\qquad
+x_{ij}\mid\theta_j\sim p(x_{ij}\mid\theta_j).
+\]</div>
+<figure class="book-figure" id="fig-bayesian-learning-and-model-assessment-4-hierarchical-models-and-partial-pooling"><pre class="mermaid"><code>flowchart LR
+    phi(("Population state")) --&gt; theta(("Group state j"))
+    subgraph groups["groups repeated J times"]
+        theta
+        subgraph records["records repeated within group j"]
+            x(("Observed item i j"))
+        end
+        theta --&gt; x
+    end
+    class x observed</code></pre><figcaption class="book-object-caption"><span class="book-object-number">Figure BAYES.3.</span> 4. Hierarchical Models and Partial Pooling</figcaption></figure>
+<p>Information can now move in two directions. Records update their group state;
+all group states update the population; the population then regularizes each
+group. This is <strong>partial pooling</strong>. It is a consequence of the declared model,
+not a universal guarantee of improved prediction: nonexchangeable groups,
+misspecified tails, or an inappropriate population distribution can induce
+harmful shrinkage.</p>
+<h3 id="worked-normalnormal-shrinkage">Worked normal–normal shrinkage<a class="headerlink" href="#worked-normalnormal-shrinkage" title="Permanent link">¤</a></h3>
+<p>Let a group mean have prior and observation model</p>
+<div class="arithmatex">\[
+\theta_j\mid\mu,\tau^2\sim\mathcal N(\mu,\tau^2),
+\qquad
+\bar X_j\mid\theta_j\sim
+\mathcal N\!\left(\theta_j,\frac{\sigma^2}{n_j}\right),
+\]</div>
+<p>where <span class="arithmatex">\(\mu,\tau,sigma\)</span> are temporarily known. The posterior mean is</p>
+<div class="arithmatex">\[
+\mathbb E[\theta_j\mid\bar x_j]
+=w_j\bar x_j+(1-w_j)\mu,
+\qquad
+w_j=\frac{n_j\tau^2}{n_j\tau^2+\sigma^2}.
+\]</div>
+<p>If <span class="arithmatex">\(\mu=0\)</span>, <span class="arithmatex">\(\tau=1\)</span>, <span class="arithmatex">\(\sigma=2\)</span>, and <span class="arithmatex">\(n_j=4\)</span>, then <span class="arithmatex">\(w_j=1/2\)</span>. A group sample
+mean of <span class="arithmatex">\(3\)</span> is shrunk to <span class="arithmatex">\(1.5\)</span>. If <span class="arithmatex">\(n_j=100\)</span>, the weight becomes <span class="arithmatex">\(25/26\)</span>, so
+the data dominate. The formula makes the borrowing mechanism visible: it is
+precision weighting, not an arbitrary penalty.</p>
+<h3 id="existing-group-and-new-group-prediction-differ">Existing-group and new-group prediction differ<a class="headerlink" href="#existing-group-and-new-group-prediction-differ" title="Permanent link">¤</a></h3>
+<p>For another record in an observed group <span class="arithmatex">\(j\)</span>, prediction integrates the
+posterior of its learned state:</p>
+<div class="arithmatex">\[
+p(\widetilde x_j\mid D)
+=\iint p(\widetilde x_j\mid\theta_j,\phi)
+       p(\theta_j,\phi\mid D)\,d\theta_j\,d\phi.
+\]</div>
+<p>For a new exchangeable group, no group-specific posterior exists. One must
+draw a fresh state from the population:</p>
+<div class="arithmatex">\[
+p(\widetilde x_{\mathrm{new}}\mid D)
+=\iint p(\widetilde x_{\mathrm{new}}\mid\widetilde\theta,\phi)
+       p(\widetilde\theta\mid\phi)
+       p(\phi\mid D)\,d\widetilde\theta\,d\phi.
+\]</div>
+<p>Confusing these targets usually understates uncertainty for a new group.</p>
+<h3 id="centered-and-noncentered-parameterizations">Centered and noncentered parameterizations<a class="headerlink" href="#centered-and-noncentered-parameterizations" title="Permanent link">¤</a></h3>
+<p>The centered form directly samples <span class="arithmatex">\(\theta_j\sim\mathcal N(\mu,\tau^2)\)</span>. An
+equivalent noncentered form samples</p>
+<div class="arithmatex">\[
+z_j\sim\mathcal N(0,1),
+\qquad
+\theta_j=\mu+\tau z_j.
+\]</div>
+<p>These are algebraically equivalent model parameterizations when transformed
+correctly. They can have very different posterior geometry for optimization or
+MCMC. Noncentering often helps when group data are weak relative to the
+population prior; centering can be more efficient when each group is strongly
+informed. Neither dominates universally, and partial or adaptive
+parameterizations may interpolate between them.</p>
+<p>The <a href="../sampling-and-continuous-time/#hierarchical-funnels-require-parameterization-checks">sampling foundation's funnel example</a>
+shows how this algebraic equivalence becomes an HMC step-size problem; this
+chapter owns the hierarchical modeling and data-strength interpretation.</p>
+<h3 id="empirical-bayes">Empirical Bayes<a class="headerlink" href="#empirical-bayes" title="Permanent link">¤</a></h3>
+<p>Empirical Bayes estimates hyperparameters, often by maximizing the marginal
+likelihood,</p>
+<div class="arithmatex">\[
+\widehat\phi
+=\arg\max_\phi p(D\mid\phi),
+\qquad
+p(D\mid\phi)=\int p(D\mid\theta)p(\theta\mid\phi)\,d\theta,
+\]</div>
+<p>and then conditions on <span class="arithmatex">\(\widehat\phi\)</span>. This can be scalable and effective, but
+the plug-in posterior <span class="arithmatex">\(p(\theta\mid D,\widehat\phi)\)</span> does not propagate
+uncertainty about <span class="arithmatex">\(\phi\)</span>. The omission matters most when few groups determine
+the hyperparameters, the marginal likelihood is flat or multimodal, or a
+downstream decision is sensitive to population uncertainty.</p>
+<h4 id="worked-categorical-smoothing">Worked categorical smoothing<a class="headerlink" href="#worked-categorical-smoothing" title="Permanent link">¤</a></h4>
+<p>For context <span class="arithmatex">\(j\)</span>, let transition probabilities have prior</p>
+<div class="arithmatex">\[
+\boldsymbol\theta_j
+\sim\operatorname{Dirichlet}(\alpha_0\mathbf m),
+\qquad
+\sum_k m_k=1.
+\]</div>
+<p>If <span class="arithmatex">\(N_{jk}\)</span> is the observed count for outcome <span class="arithmatex">\(k\)</span> and
+<span class="arithmatex">\(N_j=\sum_k N_{jk}\)</span>, then</p>
+<div class="arithmatex">\[
+P(X_{\mathrm{next}}=k\mid j,D)
+=\frac{N_{jk}+\alpha_0m_k}{N_j+\alpha_0}
+=\frac{N_j}{N_j+\alpha_0}\frac{N_{jk}}{N_j}
++\frac{\alpha_0}{N_j+\alpha_0}m_k.
+\]</div>
+<p>The total concentration is <span class="arithmatex">\(\alpha_0\)</span>, not a context-specific symbol silently
+substituted into the shrinkage weight. Estimating <span class="arithmatex">\(\alpha_0\)</span> or <span class="arithmatex">\(\mathbf m\)</span>
+from all contexts is an empirical-Bayes step; assigning them a posterior is a
+fully hierarchical step.</p>
+<h2 id="priors-and-hierarchy-retrieval-practice">Priors and hierarchy retrieval practice<a class="headerlink" href="#priors-and-hierarchy-retrieval-practice" title="Permanent link">¤</a></h2>
+<details class="question">
+<summary>Retrieval practice: priors and partial pooling</summary>
+<ol>
+<li>When can an improper prior yield an unusable posterior?</li>
+<li>What representation does infinite exchangeability motivate, and what causal claim does it not supply?</li>
+<li>Why does partial pooling differ from both complete pooling and independent per-group fitting?</li>
+<li>When does a noncentered parameterization often improve computation?</li>
+</ol>
+<p><strong>Solutions.</strong> (1) When the likelihood does not provide enough information to make the posterior normalizable. (2) A mixture/latent-variable representation such as de Finetti's for the declared sequence; it does not establish causal independence or a physical latent mechanism. (3) It shares information through a population distribution while retaining group-specific uncertainty. (4) In weak-data or funnel-like regimes where latent effects are tightly coupled to a small group scale; the centered form can be better in strong-data regimes.</p>
+</details>
+<h2 id="priors-and-hierarchy-synthesis">Priors and hierarchy synthesis<a class="headerlink" href="#priors-and-hierarchy-synthesis" title="Permanent link">¤</a></h2>
+<p>Priors are part of the generative and predictive contract. Conjugacy exposes
+updates analytically, exchangeability motivates shared latent structure, and
+hierarchies implement adaptive partial pooling. Parameterization changes
+computation rather than the underlying model, while empirical Bayes changes how
+hyperparameter uncertainty is represented.</p>
+<h2 id="5-evidence-prediction-and-model-comparison">5. Evidence, Prediction, and Model Comparison<a class="headerlink" href="#5-evidence-prediction-and-model-comparison" title="Permanent link">¤</a></h2>
+<h3 id="assessment-and-missing-data-learning-objectives">Assessment and missing-data learning objectives<a class="headerlink" href="#assessment-and-missing-data-learning-objectives" title="Permanent link">¤</a></h3>
+<p>This projection assumes posterior and predictive distributions. By the end, you
+should be able to compare evidence, Bayes factors, LOO, WAIC, BIC, model
+averaging, and stacking by estimand and assumptions; design prior and posterior
+predictive checks; distinguish predictive evaluation from model criticism; and
+derive when MCAR, MAR, MNAR, and ignorability permit or forbid omission of the
+observation mechanism.</p>
+<p>Model comparison begins by naming the target. Evidence asks how much prior
+predictive mass a complete model assigns to the observed data. Predictive
+criteria ask how well a fitted procedure predicts held-out or future data.
+These quantities can favor different models because they solve different
+problems.</p>
+<h3 id="evidence-and-bayes-factors">Evidence and Bayes factors<a class="headerlink" href="#evidence-and-bayes-factors" title="Permanent link">¤</a></h3>
+<p>For model index <span class="arithmatex">\(m\)</span>,</p>
+<div class="arithmatex">\[
+p(D\mid m)
+=\int p(D\mid\theta_m,m)p(\theta_m\mid m)\,d\theta_m.
+\]</div>
+<p>Posterior model probabilities satisfy</p>
+<div class="arithmatex">\[
+p(m\mid D)
+=\frac{p(D\mid m)p(m)}{\sum_{m'}p(D\mid m')p(m')}.
+\]</div>
+<p>For two models, the Bayes factor is</p>
+<div class="arithmatex">\[
+\mathrm{BF}_{12}=\frac{p(D\mid m_1)}{p(D\mid m_2)}.
+\]</div>
+<p>Evidence automatically integrates over parameter volume, but this is not a
+universal anti-overfitting guarantee. Bayes factors can be highly sensitive to
+prior scale, sampling design, stopping assumptions, and small likelihood
+changes. Arbitrary constants in improper priors make ordinary cross-model
+evidence ratios undefined unless a specialized construction resolves them.
+Threshold tables for Bayes factors are reporting conventions, not universal
+decision rules.</p>
+<p>The <a href="../likelihood-and-normalizer-estimation/">likelihood and normalizer estimation volume</a>
+develops importance, annealed, bridge, path, particle, and nested estimators.
+The estimator must not be confused with the evidence it targets.</p>
+<h3 id="why-the-harmonic-mean-is-a-warning-not-a-default">Why the harmonic mean is a warning, not a default<a class="headerlink" href="#why-the-harmonic-mean-is-a-warning-not-a-default" title="Permanent link">¤</a></h3>
+<p>The identity</p>
+<div class="arithmatex">\[
+\frac{1}{p(D)}
+=\mathbb E_{p(\theta\mid D)}
+\!\left[\frac{1}{p(D\mid\theta)}\right]
+\]</div>
+<p>holds when the displayed expectation exists under a proper prior and
+posterior. It uses <strong>posterior draws</strong>, not prior draws. The corresponding
+Monte Carlo estimator is nevertheless notorious: regions with small
+likelihood can give the reciprocal likelihood heavy or infinite-variance
+tails. Algebraic unbiasedness of an inverse estimate does not provide useful
+finite-sample stability after inversion.</p>
+<h3 id="bayesian-model-averaging">Bayesian model averaging<a class="headerlink" href="#bayesian-model-averaging" title="Permanent link">¤</a></h3>
+<p>If the candidate models and their priors are taken literally, the posterior
+predictive mixture is</p>
+<div class="arithmatex">\[
+p(\widetilde y\mid D)
+=\sum_m p(\widetilde y\mid D,m)p(m\mid D).
+\]</div>
+<p>This is Bayesian model averaging (BMA). It propagates uncertainty over the
+declared model list, but does not protect against all candidates being
+misspecified. A generic ensemble may also be a normalized predictive mixture;
+what distinguishes it from BMA is how component distributions and weights are
+defined or learned, not whether its weights happen to sum to one.</p>
+<h3 id="leave-one-out-predictive-evaluation">Leave-one-out predictive evaluation<a class="headerlink" href="#leave-one-out-predictive-evaluation" title="Permanent link">¤</a></h3>
+<p>For conditionally factorized observations, leave-one-out expected log
+predictive density is estimated by</p>
+<div class="arithmatex">\[
+\widehat{\operatorname{elpd}}_{\mathrm{LOO}}
+=\sum_{i=1}^n
+\log p(y_i\mid y_{-i}),
+\]</div>
+<p>where <span class="arithmatex">\(y_{-i}\)</span> omits observation <span class="arithmatex">\(i\)</span>. The factorization unit must match the
+deployment target: leaving out one token, one image, one patient, or one site
+answers different questions. Dependence may require blocked, grouped,
+leave-future-out, or other structured splits.</p>
+<p>Importance sampling can approximate each leave-one-out posterior from draws of
+the full posterior. Pareto-smoothed importance sampling (PSIS) stabilizes the
+largest ratios and estimates a tail-shape diagnostic <span class="arithmatex">\(\widehat k\)</span>. The current
+finite-sample warning threshold is</p>
+<div class="arithmatex">\[
+k_{\mathrm{warn}}(S)
+=\min\!\left(1-\frac{1}{\log_{10}S},\,0.7\right),
+\]</div>
+<p>where <span class="arithmatex">\(S\)</span> is the number of draws used by the importance calculation. It equals
+<span class="arithmatex">\(0.7\)</span> once <span class="arithmatex">\(S\ge2155\)</span> (roughly two thousand draws). A large <span class="arithmatex">\(\widehat k\)</span> is evidence that the finite
+approximation may have high bias or poor convergence; it is not a decorative
+model-fit score. Influential cases may require exact refitting, a more robust
+model, or a validation design that respects the data dependence.</p>
+<h3 id="waic-and-singular-models">WAIC and singular models<a class="headerlink" href="#waic-and-singular-models" title="Permanent link">¤</a></h3>
+<p>For pointwise likelihood terms <span class="arithmatex">\(p(y_i\mid\theta)\)</span>, one common WAIC convention
+uses</p>
+<div class="arithmatex">\[
+\operatorname{lppd}
+=\sum_i\log\mathbb E_{p(\theta\mid D)}
+  [p(y_i\mid\theta)],
+\]</div>
+<div class="arithmatex">\[
+p_{\mathrm{WAIC}}
+=\sum_i\operatorname{Var}_{p(\theta\mid D)}
+  [\log p(y_i\mid\theta)],
+\]</div>
+<p>and</p>
+<div class="arithmatex">\[
+\widehat{\operatorname{elpd}}_{\mathrm{WAIC}}
+=\operatorname{lppd}-p_{\mathrm{WAIC}}.
+\]</div>
+<p>The variance is of the <strong>pointwise log likelihood across posterior draws</strong>,
+not the variance of the predictive observation. WAIC is asymptotically related
+to Bayesian leave-one-out prediction under the conditions developed in
+singular learning theory. Finite-sample diagnostics can still favor PSIS-LOO,
+and neither method repairs a wrong factorization unit.</p>
+<h3 id="bic-has-a-narrower-contract">BIC has a narrower contract<a class="headerlink" href="#bic-has-a-narrower-contract" title="Permanent link">¤</a></h3>
+<p>The Bayesian information criterion</p>
+<div class="arithmatex">\[
+\mathrm{BIC}=-2\log p(D\mid\widehat\theta)+d\log n
+\]</div>
+<p>approximates a log-evidence comparison under regular, identifiable,
+fixed-dimensional asymptotics and suitable prior mass near an interior optimum.
+Mixtures, neural networks, hidden-state models, and many latent-variable
+generators are singular: parameters may be nonidentifiable and Fisher
+information may be degenerate. Their evidence asymptotics need not have the
+<span class="arithmatex">\(d\log n\)</span> penalty. BIC should therefore not be presented as a generic deep
+generative-model evidence estimator.</p>
+<h3 id="predictive-stacking">Predictive stacking<a class="headerlink" href="#predictive-stacking" title="Permanent link">¤</a></h3>
+<p>When every candidate is an approximation, predictive stacking chooses simplex
+weights to optimize held-out predictive performance, for example</p>
+<div class="arithmatex">\[
+\widehat{\mathbf w}
+=\arg\max_{\mathbf w\in\Delta^{M-1}}
+\sum_i
+\log\!\left(
+\sum_m w_m p_m(y_i\mid y_{-i})
+\right).
+\]</div>
+<p>This is a predictive optimization criterion, not a posterior probability over
+models. It can be appropriate in an <span class="arithmatex">\(M\)</span>-open setting where no candidate is
+assumed true. Its result still depends on the validation scheme, score,
+candidate diversity, and stability of the estimated predictive densities.</p>
+<h3 id="a-comparison-table">A comparison table<a class="headerlink" href="#a-comparison-table" title="Permanent link">¤</a></h3>
+<div class="md-typeset__table book-table-container"><table id="tbl-bayesian-learning-and-model-assessment-a-comparison-table"><caption class="book-object-caption"><span class="book-object-number">Table BAYES.1.</span> A comparison table</caption>
+<thead>
+<tr>
+<th>Method</th>
+<th>Primary target</th>
+<th>Uses parameter prior?</th>
+<th>Principal boundary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Evidence / Bayes factor</td>
+<td>Prior predictive probability of observed data</td>
+<td>Yes, essentially</td>
+<td>Prior and sampling-design sensitivity; improper-prior problem</td>
+</tr>
+<tr>
+<td>BMA</td>
+<td>Posterior predictive under a declared model list</td>
+<td>Yes</td>
+<td>All models may be misspecified</td>
+</tr>
+<tr>
+<td>LOO</td>
+<td>Predictive performance for the chosen held-out unit</td>
+<td>Through each fitted posterior</td>
+<td>Split unit and dependence must match deployment</td>
+</tr>
+<tr>
+<td>PSIS-LOO</td>
+<td>Importance approximation to LOO</td>
+<td>Same as LOO</td>
+<td>Tail diagnostic can invalidate the approximation</td>
+</tr>
+<tr>
+<td>WAIC</td>
+<td>Asymptotic pointwise predictive criterion</td>
+<td>Yes</td>
+<td>Pointwise factorization and finite-sample reliability</td>
+</tr>
+<tr>
+<td>BIC</td>
+<td>Regular-model evidence asymptotic</td>
+<td>Locally, through assumptions</td>
+<td>Not generic for singular or growing models</td>
+</tr>
+<tr>
+<td>Stacking</td>
+<td>Optimized held-out predictive mixture</td>
+<td>Not as model probabilities</td>
+<td>Validation and candidate-set dependent</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="6-model-criticism-generate-from-the-model">6. Model Criticism: Generate from the Model<a class="headerlink" href="#6-model-criticism-generate-from-the-model" title="Permanent link">¤</a></h2>
+<p>Fitting answers, "Which parameter regions agree with the observations under
+this model?" Criticism asks, "Can this model reproduce the aspects of data that
+matter?" Generative models make the second question constructive.</p>
+<h3 id="prior-predictive-checks">Prior predictive checks<a class="headerlink" href="#prior-predictive-checks" title="Permanent link">¤</a></h3>
+<p>Before fitting, simulate</p>
+<div class="arithmatex">\[
+\theta^{\mathrm{rep}}\sim p(\theta),
+\qquad
+y^{\mathrm{rep}}\sim p(y\mid\theta^{\mathrm{rep}}).
+\]</div>
+<p>Compare these replications with domain constraints and plausible scales. A
+prior that places most mass on impossible images, counts, durations, graph
+sizes, or physical energies is not weak merely because its parameter density
+looks diffuse. Prior predictive checks expose the induced observation-space
+assumptions.</p>
+<h3 id="posterior-predictive-checks">Posterior predictive checks<a class="headerlink" href="#posterior-predictive-checks" title="Permanent link">¤</a></h3>
+<p>After observing <span class="arithmatex">\(D\)</span>, simulate</p>
+<div class="arithmatex">\[
+\theta^{\mathrm{rep}}\sim p(\theta\mid D),
+\qquad
+y^{\mathrm{rep}}\sim p(y\mid\theta^{\mathrm{rep}}),
+\]</div>
+<p>and compare a discrepancy <span class="arithmatex">\(T(y,\theta)\)</span> or statistic <span class="arithmatex">\(T(y)\)</span> between replicated
+and observed data. Useful discrepancies are chosen to expose scientifically
+important failures: tail mass, group calibration, spatial clustering,
+sequence length, graph motifs, conservation errors, or conditional coverage.</p>
+<figure class="book-figure" id="fig-bayesian-learning-and-model-assessment-posterior-predictive-checks"><pre class="mermaid"><code>flowchart LR
+    fit["Fit posterior"] --&gt; replicate["Generate replicated data"]
+    replicate --&gt; compare["Compare targeted structure"]
+    compare --&gt; revise["Revise model or measurement"]
+    revise --&gt; fit</code></pre><figcaption class="book-object-caption"><span class="book-object-number">Figure BAYES.4.</span> Posterior predictive checks</figcaption></figure>
+<p>A check can reject adequacy for its chosen discrepancy; it cannot prove that
+the model is correct. Reusing the observations both to fit and to check makes
+posterior-predictive reference distributions different from classical null
+distributions. Posterior predictive tail probabilities are generally not
+uniform under the model and are often conservative. They should be interpreted
+as diagnostic summaries, not automatically as calibrated frequentist
+<span class="arithmatex">\(p\)</span>-values.</p>
+<h3 id="worked-criticism-of-the-coin-model">Worked criticism of the coin model<a class="headerlink" href="#worked-criticism-of-the-coin-model" title="Permanent link">¤</a></h3>
+<p>The Beta–Bernoulli model makes the ordered observations conditionally IID.
+Suppose the observed sequence has long runs despite a moderate success count.
+A statistic such as</p>
+<div class="arithmatex">\[
+T(x_{1:n})=\text{length of the longest constant run}
+\]</div>
+<p>tests temporal dependence that the success count cannot reveal. Posterior
+replications preserve uncertainty in <span class="arithmatex">\(\theta\)</span> but remain conditionally IID. If
+their longest runs are consistently much shorter than the observed run, the
+failure points toward serial dependence, regime switching, or a changing
+success probability—not merely a different posterior summary for one constant
+<span class="arithmatex">\(\theta\)</span>.</p>
+<h3 id="predictive-evaluation-and-criticism-are-complementary">Predictive evaluation and criticism are complementary<a class="headerlink" href="#predictive-evaluation-and-criticism-are-complementary" title="Permanent link">¤</a></h3>
+<p>A model can predict well under an aggregate score yet fail a safety-critical
+subgroup discrepancy. It can also reproduce a selected statistic while
+assigning poor held-out log probability. Report both the scoring target and the
+diagnostic target. Neither one is a universal scalar measure of realism.</p>
+<h2 id="7-missing-data-and-observation-mechanisms">7. Missing Data and Observation Mechanisms<a class="headerlink" href="#7-missing-data-and-observation-mechanisms" title="Permanent link">¤</a></h2>
+<p>Missingness is a generative-model problem because the observed dataset is
+produced by both a data process and an observation process. Let <span class="arithmatex">\(Y\)</span> denote the
+complete data and <span class="arithmatex">\(R\)</span> a mask, with <span class="arithmatex">\(R_j=1\)</span> when component <span class="arithmatex">\(Y_j\)</span> is observed.
+A selection-model factorization is</p>
+<div class="arithmatex">\[
+p(y,r\mid\theta,\psi)
+=p(y\mid\theta)p(r\mid y,\psi).
+\]</div>
+<p>The observed-data likelihood integrates over unobserved components. Define</p>
+<div class="arithmatex">\[
+f_\theta(y_{\mathrm{mis}})
+=p(y_{\mathrm{obs}},y_{\mathrm{mis}}\mid\theta)
+\]</div>
+<p>and</p>
+<div class="arithmatex">\[
+g_\psi(y_{\mathrm{mis}})
+=p(r\mid y_{\mathrm{obs}},y_{\mathrm{mis}},\psi).
+\]</div>
+<p>Then</p>
+<div class="arithmatex">\[
+p(y_{\mathrm{obs}},r\mid\theta,\psi)
+=\int f_\theta(u)g_\psi(u)\,du.
+\]</div>
+<h3 id="mcar-mar-and-mnar">MCAR, MAR, and MNAR<a class="headerlink" href="#mcar-mar-and-mnar" title="Permanent link">¤</a></h3>
+<p>The labels describe conditional independence in the missingness mechanism,
+relative to the variables and observed pattern being modeled.</p>
+<div class="grid cards">
+<ul>
+<li>
+<p><strong>MCAR — missing completely at random</strong></p>
+<hr/>
+<p><span class="arithmatex">\(p(r\mid y,\psi)=p(r\mid\psi)\)</span>. Missingness does not depend on observed
+or missing values under the model.</p>
+</li>
+<li>
+<p><strong>MAR — missing at random</strong></p>
+<hr/>
+<p><span class="arithmatex">\(p(r\mid y,\psi)=p(r\mid y_{\mathrm{obs}},\psi)\)</span>. Dependence on observed
+values is allowed; dependence on unseen values is excluded after
+conditioning.</p>
+</li>
+<li>
+<p><strong>MNAR — missing not at random</strong></p>
+<hr/>
+<p>Dependence on <span class="arithmatex">\(y_{\mathrm{mis}}\)</span> remains. The observation process must be
+modeled or bounded through additional assumptions.</p>
+</li>
+</ul>
+</div>
+<p>MAR does not mean that missingness is independent of the dataset, nor can MAR
+versus MNAR generally be identified from observed values alone. The distinction
+depends on untestable or externally informed assumptions about values that were
+not observed.</p>
+<h3 id="ignorability-requires-more-than-mar">Ignorability requires more than MAR<a class="headerlink" href="#ignorability-requires-more-than-mar" title="Permanent link">¤</a></h3>
+<p>Under MAR, the missingness term can be taken outside the integral over
+<span class="arithmatex">\(y_{\mathrm{mis}}\)</span>. For likelihood or Bayesian inference about <span class="arithmatex">\(\theta\)</span>, the
+mechanism is ignorable only with the required <strong>parameter distinctness</strong>—and,
+for the Bayesian factorization, an appropriate prior separation such as
+<span class="arithmatex">\(p(\theta,\psi)=p(\theta)p(\psi)\)</span>. Shared parameters, informative sampling,
+nonignorable selection, or a query about the missingness process itself break
+the simplification.</p>
+<h3 id="worked-binary-completion">Worked binary completion<a class="headerlink" href="#worked-binary-completion" title="Permanent link">¤</a></h3>
+<p>Let <span class="arithmatex">\(Y=(Y_1,Y_2)\)</span> have a joint Bernoulli table and suppose <span class="arithmatex">\(Y_2\)</span> is missing
+while <span class="arithmatex">\(Y_1=1\)</span> is observed. Under an ignorable mechanism, completion uses</p>
+<div class="arithmatex">\[
+q_1(\theta)=P(Y_2=1\mid Y_1=1,\theta).
+\]</div>
+<p>The completion probability averages that conditional query over parameter
+uncertainty. Write</p>
+<div class="arithmatex">\[
+P_1(D)=P(Y_2=1\mid Y_1=1,D).
+\]</div>
+<p>Then</p>
+<div class="arithmatex">\[
+P_1(D)=\mathbb E_{p(\theta\mid D_{\mathrm{obs}})}[q_1(\theta)].
+\]</div>
+<p>If the probability that <span class="arithmatex">\(Y_2\)</span> is hidden depends directly on its unseen value,
+then the observed mask is itself evidence about <span class="arithmatex">\(Y_2\)</span>. Omitting
+<span class="arithmatex">\(p(R\mid Y,\psi)\)</span> changes the target posterior, even if the joint model for
+<span class="arithmatex">\(Y\)</span> is otherwise correct.</p>
+<h3 id="semi-supervised-generation">Semi-supervised generation<a class="headerlink" href="#semi-supervised-generation" title="Permanent link">¤</a></h3>
+<p>For input <span class="arithmatex">\(X\)</span> and label <span class="arithmatex">\(Y\)</span>, a joint model uses unlabeled inputs through</p>
+<div class="arithmatex">\[
+p_\theta(x)=\sum_y p_\theta(x,y)
+\]</div>
+<p>or the corresponding integral. This can improve label prediction when the
+joint assumptions connect the input structure to the label. It is not an
+automatic benefit: a flexible discriminative boundary may be easier to learn
+than a correct model of the entire input distribution, and joint
+misspecification can make unlabeled data harmful. The evaluation must therefore
+separate density or generation quality, label prediction, calibration, and the
+missing-label mechanism.</p>
+<h2 id="bayesian-assessment-retrieval-practice">Bayesian assessment retrieval practice<a class="headerlink" href="#bayesian-assessment-retrieval-practice" title="Permanent link">¤</a></h2>
+<details class="question">
+<summary>Retrieval practice: prediction, criticism, and missingness</summary>
+<ol>
+<li>Why is the harmonic-mean estimator unsuitable as a default evidence estimator?</li>
+<li>What predictive target differs between Bayesian model averaging and stacking?</li>
+<li>Can a calibrated posterior predictive check prove that the model is true?</li>
+<li>Why is MAR alone insufficient to justify ignoring a missingness mechanism?</li>
+</ol>
+<p><strong>Solutions.</strong> (1) It can have infinite or extreme variance and is dominated by poorly sampled low-likelihood posterior regions. (2) Model averaging uses posterior model probabilities under a candidate model set; stacking directly chooses predictive weights, usually by held-out predictive performance. (3) No; checks can expose discrepancies relative to selected statistics but cannot validate every untested implication or identify a unique model. (4) Ignorability also depends on distinct parameters and the inferential/query setup, and the required conditioning variables must actually be observed and modeled.</p>
+</details>
+<h2 id="bayesian-assessment-synthesis">Bayesian assessment synthesis<a class="headerlink" href="#bayesian-assessment-synthesis" title="Permanent link">¤</a></h2>
+<p>Evidence-based selection, held-out prediction, model averaging, and model
+criticism answer different questions. Predictive checks generate from the fitted
+model to reveal mismatches rather than to certify truth. Missingness is another
+generative mechanism whose omission requires explicit assumptions, not only a
+label such as MAR.</p>
+<h2 id="8-a-generative-modeling-workflow">8. A Generative Modeling Workflow<a class="headerlink" href="#8-a-generative-modeling-workflow" title="Permanent link">¤</a></h2>
+<h3 id="workflow-and-capstone-learning-objectives">Workflow and capstone learning objectives<a class="headerlink" href="#workflow-and-capstone-learning-objectives" title="Permanent link">¤</a></h3>
+<p>This capstone assumes the full Bayesian object, hierarchy, assessment, and
+missing-data chapters. By the end, you should be able to execute the workflow
+from sample space and joint law through prior predictive checking, computation,
+diagnosis, predictive evaluation, sensitivity analysis, and reporting; maintain
+an error ledger; and route a failed check to the model, inference, data, or
+decision layer responsible for it.</p>
+<p>The following workflow makes each inferential contract visible.</p>
+<ol>
+<li><strong>Declare the generated object and observation process.</strong> Name units,
+   support, dependence, missingness, and future prediction target.</li>
+<li><strong>Write the joint model.</strong> Separate data likelihood, local states, global
+   parameters, population variables, and model index.</li>
+<li><strong>Inspect prior implications.</strong> Simulate observation-space outcomes and
+   perform sensitivity analysis on consequential scales.</li>
+<li><strong>Choose the query.</strong> Posterior samples, a decision, evidence, a predictive
+   distribution, or missing-value completion are not interchangeable.</li>
+<li><strong>Choose and diagnose computation.</strong> Track approximation, optimization,
+   Monte Carlo, mixing, and numerical error separately from model error.</li>
+<li><strong>Check the fitted model.</strong> Use targeted replicated-data discrepancies and
+   conditional or subgroup diagnostics.</li>
+<li><strong>Evaluate the deployment prediction.</strong> Use held-out units and scores that
+   match the actual intervention, horizon, group, or modality.</li>
+<li><strong>Compare or combine models with a named target.</strong> Evidence, LOO, and
+   stacking answer different questions.</li>
+<li><strong>Revise assumptions, not only hyperparameters.</strong> A failed check may require
+   a new dependence structure, observation model, latent state, or support.</li>
+<li><strong>Report sensitivity and unresolved nonidentifiability.</strong> Some uncertainty
+    cannot be eliminated by additional computation on the same observations.</li>
+</ol>
+<h3 id="error-ledger">Error ledger<a class="headerlink" href="#error-ledger" title="Permanent link">¤</a></h3>
+<div class="md-typeset__table book-table-container"><table id="tbl-bayesian-learning-and-model-assessment-error-ledger"><caption class="book-object-caption"><span class="book-object-number">Table BAYES.2.</span> Error ledger</caption>
+<thead>
+<tr>
+<th>Error source</th>
+<th>Question</th>
+<th>Typical diagnostic</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Model misspecification</td>
+<td>Can the family reproduce relevant structure?</td>
+<td>Prior/posterior predictive checks, residual structure</td>
+</tr>
+<tr>
+<td>Posterior approximation</td>
+<td>Does <span class="arithmatex">\(q\)</span> or the chain represent the declared posterior?</td>
+<td>Exact small cases, simulation-based calibration, multiple methods</td>
+</tr>
+<tr>
+<td>Optimization</td>
+<td>Was a relevant optimum reached?</td>
+<td>Restarts, lower-bound gaps, gradient and curvature checks</td>
+</tr>
+<tr>
+<td>Monte Carlo</td>
+<td>Are estimates stable at finite draws?</td>
+<td>ESS, Monte Carlo SE, chain diagnostics, Pareto <span class="arithmatex">\(\widehat k\)</span></td>
+</tr>
+<tr>
+<td>Numerical</td>
+<td>Did arithmetic change the target?</td>
+<td>Precision, solver tolerances, stable log calculations</td>
+</tr>
+<tr>
+<td>Selection</td>
+<td>Does validation match deployment?</td>
+<td>Grouped/temporal splits, leakage audit, prospective evaluation</td>
+</tr>
+<tr>
+<td>Identification</td>
+<td>Can the observations distinguish the quantities?</td>
+<td>Sensitivity, equivalence classes, external assumptions</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="misconception-checks">Misconception Checks<a class="headerlink" href="#misconception-checks" title="Permanent link">¤</a></h2>
+<div class="admonition failure">
+<p class="admonition-title">A diffuse prior is objective</p>
+<p>Diffuseness depends on coordinates and can imply extreme observation-space
+behavior. Inspect the prior predictive law and sensitivity of the query.</p>
+</div>
+<div class="admonition failure">
+<p class="admonition-title">Integrating parameters prevents overfitting</p>
+<p>Marginalization propagates uncertainty under a model. Poor priors,
+misspecification, model search, leakage, or an inappropriate prediction
+target can still produce bad generalization.</p>
+</div>
+<div class="admonition failure">
+<p class="admonition-title">A hierarchical model always improves every group</p>
+<p>Partial pooling follows an exchangeable population assumption. It can harm
+nonexchangeable or misspecified groups and must be checked by group-aware
+prediction.</p>
+</div>
+<div class="admonition failure">
+<p class="admonition-title">Bayes factors, LOO, and posterior predictive checks rank the same thing</p>
+<p>Evidence scores prior predictive probability, LOO estimates a held-out
+predictive target, and predictive checks diagnose chosen data features.
+None is a substitute for the others.</p>
+</div>
+<div class="admonition failure">
+<p class="admonition-title">MAR can be verified from the observed table</p>
+<p>MAR constrains dependence on unseen values. Observed data alone generally
+cannot distinguish it from MNAR without additional assumptions or design
+information.</p>
+</div>
+<h2 id="retrieval-questions">Retrieval Questions<a class="headerlink" href="#retrieval-questions" title="Permanent link">¤</a></h2>
+<ol>
+<li>Why can a count and an ordered binary sequence produce the same posterior
+   for <span class="arithmatex">\(\theta\)</span> but different evidence?</li>
+<li>Under what conditions is <span class="arithmatex">\((a-1)/(a+b-2)\)</span> a Beta mode?</li>
+<li>In the generic conjugate exponential-family prior, what does <span class="arithmatex">\(\tau/\nu\)</span>
+   describe—and what does it not generally describe?</li>
+<li>Why does finite exchangeability not by itself imply an IID-mixture
+   representation?</li>
+<li>How does prediction for an existing group differ from prediction for a new
+   group?</li>
+<li>Why can a noncentered parameterization help one hierarchical dataset and
+   hurt another?</li>
+<li>What does a large PSIS <span class="arithmatex">\(\widehat k\)</span> diagnose?</li>
+<li>Why is BIC unreliable as a generic evidence approximation for neural
+   latent-variable models?</li>
+<li>Why is a posterior predictive tail probability not automatically a
+   frequentist <span class="arithmatex">\(p\)</span>-value?</li>
+<li>Which assumptions, in addition to MAR, permit an ignorable Bayesian
+    missingness analysis?</li>
+</ol>
+<details class="success">
+<summary>Complete solutions</summary>
+<ol>
+<li>The likelihoods differ by a combinatorial factor independent of
+   <span class="arithmatex">\(\theta\)</span>. It cancels from the posterior normalization but remains part
+   of the probability assigned to the recorded observation.</li>
+<li>It is an attained interior mode only when <span class="arithmatex">\(a&gt;1\)</span> and <span class="arithmatex">\(b&gt;1\)</span>; boundary and
+   equality cases require separate treatment.</li>
+<li>Under the conjugate-prior regularity and boundary conditions,
+   <span class="arithmatex">\(\tau/\nu\)</span> is the expected mean parameter <span class="arithmatex">\(\nabla A(\eta)\)</span>. It is not
+   generally <span class="arithmatex">\(\mathbb E[\eta]\)</span>.</li>
+<li>De Finetti's exact mixture representation requires an infinitely
+   exchangeable or suitably extendible sequence. A fixed finite symmetric
+   law need not extend.</li>
+<li>Existing-group prediction uses the posterior of that group's learned
+   state. New-group prediction draws and integrates a fresh state from the
+   population distribution, usually producing greater uncertainty.</li>
+<li>The two forms represent the same model but induce different posterior
+   geometry. Weak group data often favor noncentering; strongly informative
+   group data can favor centering.</li>
+<li>It estimates the tail behavior and finite-sample convergence of the
+   importance ratios. Exceeding the sample-size-aware threshold warns that
+   the PSIS approximation may be biased or unstable.</li>
+<li>BIC's <span class="arithmatex">\(d\log n\)</span> penalty assumes regular, identifiable,
+   fixed-dimensional asymptotics. Neural and latent models are commonly
+   singular or nonidentified.</li>
+<li>The observations help construct the posterior used to generate the
+   reference replications. This reuse changes calibration; posterior
+   predictive tail probabilities are generally nonuniform and often
+   conservative.</li>
+<li>The data and missingness parameters must be distinct for the target
+    analysis, with an appropriate prior factorization in Bayesian
+    inference. The query must also not require modeling the missingness
+    process itself.</li>
+</ol>
+</details>
+<h2 id="synthesis-and-next-steps">Synthesis and Next Steps<a class="headerlink" href="#synthesis-and-next-steps" title="Permanent link">¤</a></h2>
+<p>Bayesian learning starts from a joint generative law and derives posterior,
+predictive, and evidence queries by conditioning and marginalization. Those
+operations do not choose a decision loss, validate a model, or guarantee a
+stable computation. Conjugacy provides exact reference calculations;
+hierarchies pool information under population assumptions; empirical Bayes
+trades hyperparameter uncertainty for a plug-in fit; evidence and predictive
+criteria answer different comparison questions; predictive checks target
+chosen failures; and missing-data conclusions depend on an explicit
+observation mechanism.</p>
+<p>Continue to <a href="../latent-variables-and-inference/">Latent Variables and Inference</a>
+to study exact and approximate algorithms for the posterior integrals introduced
+here. Then read <a href="../objectives-and-statistical-distances/">Objectives and Statistical Distances</a>
+to separate a population discrepancy from its estimator and optimizer. Return
+to this chapter before <a href="../likelihood-and-normalizer-estimation/">Estimating Likelihoods and Normalizing Constants</a>
+or <a href="../generative-model-evaluation/">Evaluating Generative Models</a>: those volumes
+assume that evidence, posterior prediction, held-out scoring, and model
+criticism are already distinct.</p>
+<h2 id="primary-and-canonical-references">Primary and Canonical References<a class="headerlink" href="#primary-and-canonical-references" title="Permanent link">¤</a></h2>
+<ul>
+<li><a href="https://doi.org/10.1214/aos/1176344611">Diaconis and Ylvisaker (1979), <em>Conjugate Priors for Exponential Families</em></a> — proper conjugate priors and linear posterior expectations of mean parameters.</li>
+<li><a href="https://doi.org/10.1214/aop/1176994663">Diaconis and Freedman (1980), <em>Finite Exchangeable Sequences</em></a> — the boundary between finite symmetry, extendibility, and IID-mixture approximation.</li>
+<li><a href="https://doi.org/10.1016/j.jmva.2009.04.008">Lewandowski, Kurowicka, and Joe (2009), <em>Generating Random Correlation Matrices Based on Vines and Extended Onion Method</em></a> — the LKJ family and correlation-matrix generation.</li>
+<li><a href="https://doi.org/10.1093/biomet/63.3.581">Rubin (1976), <em>Inference and Missing Data</em></a> — MAR and parameter-distinctness conditions for ignoring a missingness mechanism.</li>
+<li><a href="https://doi.org/10.1214/ss/1032280214">Gelman, Meng, and Stern (1996), <em>Posterior Predictive Assessment of Model Fitness via Realized Discrepancies</em></a> — posterior predictive model assessment and calibration boundaries.</li>
+<li><a href="https://doi.org/10.1214/088342307000000014">Papaspiliopoulos, Roberts, and Sköld (2007), <em>A General Framework for the Parametrization of Hierarchical Models</em></a> — centered, noncentered, and partially noncentered computation.</li>
+<li><a href="https://www.jmlr.org/papers/v11/watanabe10a.html">Watanabe (2010), <em>Asymptotic Equivalence of Bayes Cross Validation and Widely Applicable Information Criterion in Singular Learning Theory</em></a> — WAIC, leave-one-out prediction, and singular-model asymptotics.</li>
+<li><a href="https://doi.org/10.1007/s11222-016-9696-4">Vehtari, Gelman, and Gabry (2017), <em>Practical Bayesian Model Evaluation Using Leave-One-Out Cross-Validation and WAIC</em></a> — practical predictive comparison and diagnostics.</li>
+<li><a href="https://doi.org/10.1214/17-BA1091">Yao et al. (2018), <em>Using Stacking to Average Bayesian Predictive Distributions</em></a> — predictive stacking in the model-misspecified setting.</li>
+<li><a href="https://jmlr.org/papers/v25/19-556.html">Vehtari et al. (2024), <em>Pareto Smoothed Importance Sampling</em></a> — current finite-sample Pareto-<span class="arithmatex">\(\widehat k\)</span> diagnostics and smoothing.</li>
+<li><a href="https://doi.org/10.1111/j.2517-6161.1994.tb01956.x">Newton and Raftery (1994), <em>Approximate Bayesian Inference with the Weighted Likelihood Bootstrap</em></a> — posterior simulation and the original harmonic-mean evidence construction.</li>
+<li><a href="https://doi.org/10.2307/1912526">White (1982), <em>Maximum Likelihood Estimation of Misspecified Models</em></a> — pseudo-true parameters and sandwich asymptotics under misspecification.</li>
+</ul>
+</article>
+</div>
+<script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  Back to top
+</button>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+<div class="md-social">
+<a class="md-social__link" href="https://github.com/avitai/artifex" rel="noopener" target="_blank" title="github.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</a>
+<a class="md-social__link" href="https://pypi.org/project/avitai-artifex/" rel="noopener" target="_blank" title="pypi.org">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-66.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.3v101.8c0 29 25.2 46 53.4 54.3 33.8 9.9 66.3 11.7 106.8 0 26.9-7.8 53.4-23.5 53.4-54.3v-40.7H226.2v-13.6h160.2c31.1 0 42.6-21.7 53.4-54.2 11.2-33.5 10.7-65.7 0-108.6M286.2 444.7a20.4 20.4 0 1 1 0-40.7 20.4 20.4 0 1 1 0 40.7M167.8 248.1h106.8c29.7 0 53.4-24.5 53.4-54.3V91.9c0-29-24.4-50.7-53.4-55.6-35.8-5.9-74.7-5.6-106.8.1-45.2 8-53.4 24.7-53.4 55.6v40.7h106.9v13.6h-147c-31.1 0-58.3 18.7-66.8 54.2-9.8 40.7-10.2 66.1 0 108.6 7.6 31.6 25.7 54.2 56.8 54.2H101v-48.8c0-35.3 30.5-66.4 66.8-66.4m-6.6-183.4a20.4 20.4 0 1 1 0 40.8 20.4 20.4 0 1 1 0-40.8"></path></svg>
+</a>
+<a class="md-social__link" href="https://twitter.com/mahdi_shafiei" rel="noopener" target="_blank" title="twitter.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M459.4 151.7c.3 4.5.3 9.1.3 13.6 0 138.7-105.6 298.6-298.6 298.6-59.5 0-114.7-17.2-161.1-47.1 8.4 1 16.6 1.3 25.3 1.3 49.1 0 94.2-16.6 130.3-44.8-46.1-1-84.8-31.2-98.1-72.8 6.5 1 13 1.6 19.8 1.6 9.4 0 18.8-1.3 27.6-3.6-48.1-9.7-84.1-52-84.1-103v-1.3c14 7.8 30.2 12.7 47.4 13.3-28.3-18.8-46.8-51-46.8-87.4 0-19.5 5.2-37.4 14.3-53C87.4 130.8 165 172.4 252.1 176.9c-1.6-7.8-2.6-15.9-2.6-24C249.5 95.1 296.3 48 354.4 48c30.2 0 57.5 12.7 76.7 33.1 23.7-4.5 46.5-13.3 66.6-25.3-7.8 24.4-24.4 44.8-46.1 57.8 21.1-2.3 41.6-8.1 60.4-16.2-14.3 20.8-32.2 39.3-52.6 54.3"></path></svg>
+</a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.path", "navigation.top", "navigation.prune", "toc.follow", "search.highlight", "search.share", "search.suggest", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "content.mermaid"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+<script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+<script src="../../../javascripts/reading-layout.js"></script>
+</body>
+</html>

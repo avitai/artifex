@@ -1,0 +1,1956 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="This chapter derives one objective tree from maximum likelihood through CD and PCD, basic, denoising, and sliced score matching, NCE and negative sampling," name="description"/>
+<meta content="Mahdi Shafiei" name="author"/>
+<link href="https://docs.avitai.bio/artifex/user-guide/concepts/ebm-02-training-sampling/" rel="canonical"/>
+<link href="../ebm-01-foundations/" rel="prev"/>
+<link href="../ebm-03-architectures/" rel="next"/>
+<link href="../../../assets/images/favicon.png" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.7.7" name="generator"/>
+<title>EBMs 2 — Objectives and Sampling - Artifex</title>
+<link href="../../../assets/stylesheets/main.ec1eaa64.min.css" rel="stylesheet"/>
+<link href="../../../assets/stylesheets/palette.ab4e12ef.min.css" rel="stylesheet"/>
+<script src="../../../assets/vendor/iframe-worker/index.js"></script>
+<link href="../../../assets/_mkdocstrings.css" rel="stylesheet"/>
+<link href="../../../_static/extra.css" rel="stylesheet"/>
+<script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+<meta content="article" property="og:type"/>
+<meta content="The Artifex Generative Models Book" property="og:site_name"/>
+<meta content="EBMs 2 — Objectives and Sampling" property="og:title"/>
+<meta content="This chapter derives one objective tree from maximum likelihood through CD and PCD, basic, denoising, and sliced score matching, NCE and negative sampling," property="og:description"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/ebm-02-training-sampling/" property="og:url"/>
+<meta content="2026-07-15" property="article:modified_time"/>
+<meta content="summary" name="twitter:card"/>
+<meta content="EBMs 2 — Objectives and Sampling" name="twitter:title"/>
+<meta content="This chapter derives one objective tree from maximum likelihood through CD and PCD, basic, denoising, and sliced score matching, NCE and negative sampling," name="twitter:description"/>
+<meta content="Generative models, Machine learning, Probabilistic modeling, advanced, specialization, canonical_chapter, ebm-training-sampling, practitioner, researcher" name="keywords"/>
+<meta content="EBMs 2 — Objectives and Sampling" name="citation_title"/>
+<meta content="Mahdi Shafiei" name="citation_author"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/ebm-02-training-sampling/" name="citation_public_url"/>
+<meta content="en" name="citation_language"/>
+<meta content="EBMs 2 — Objectives and Sampling" name="DC.title"/>
+<meta content="Mahdi Shafiei" name="DC.creator"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/ebm-02-training-sampling/" name="DC.identifier"/>
+<meta content="Text.LearningResource" name="DC.type"/>
+<meta content="2026-07-15" name="DCTERMS.modified"/>
+<meta content="https://github.com/avitai/artifex/blob/main/LICENSE" name="DCTERMS.license"/>
+<meta content="advanced" name="DCTERMS.educationLevel"/>
+<meta content="practitioner, researcher" name="DCTERMS.audience"/>
+<link href="https://github.com/avitai/artifex/blob/main/LICENSE" rel="license"/>
+<script id="artifex-book-metadata" type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Chapter",
+  "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/ebm-02-training-sampling/",
+  "url": "https://docs.avitai.bio/artifex/user-guide/concepts/ebm-02-training-sampling/",
+  "name": "EBMs 2 \u2014 Objectives and Sampling",
+  "description": "This chapter derives one objective tree from maximum likelihood through CD and PCD, basic, denoising, and sliced score matching, NCE and negative sampling,",
+  "identifier": "ebm-training-sampling",
+  "inLanguage": "en",
+  "isAccessibleForFree": true,
+  "learningResourceType": "Canonical chapter",
+  "educationalLevel": "advanced",
+  "educationalUse": "specialization",
+  "audience": [
+    
+      {"@type": "EducationalAudience", "audienceType": "practitioner"},
+    
+      {"@type": "EducationalAudience", "audienceType": "researcher"}
+    
+  ],
+  "dateModified": "2026-07-15",
+  "keywords": ["Generative models", "Machine learning", "Probabilistic modeling", "advanced", "specialization", "canonical_chapter", "ebm-training-sampling", "practitioner", "researcher"],
+  "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+  "author": [
+    
+      {"@type": "Person", "name": "Mahdi Shafiei"}
+    
+  ],
+  "isPartOf": {
+    "@type": "Book",
+    "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/#book",
+    "url": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/",
+    "name": "The Artifex Generative Models Book",
+    "bookEdition": "Living Web Edition",
+    "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+    "author": [
+      
+        {"@type": "Person", "name": "Mahdi Shafiei"}
+      
+    ]
+  }
+}
+</script>
+<link href="../../../assets/vendor/katex/katex.min.css" id="artifex-katex-stylesheet" integrity="sha384-UA8juhPf75SzzAMA/4fo3yOU7sBJ0om7SCD2GHq0fZqZco6tr1UCV7nUbk9J90JM" rel="stylesheet"/>
+<script defer="" integrity="sha384-T/0lMUdJpd2S1ZHtRiofG3htU3xPCrFVeAQ1UUE2TJwlEJSV5NUwn30kP28n238E" src="../../../assets/vendor/mermaid/mermaid.min.js"></script>
+<script defer="" src="../../../assets/vendor/katex/katex-shadow.js"></script>
+<script defer="" src="../../../javascripts/mermaid-math.js"></script>
+<script defer="" src="../../../javascripts/mathjax.js"></script>
+<script defer="" integrity="sha384-OrHfGTnIbkl0do3N76qW/uWr38o91N05sbSPuYBPLH+hG8X/dNSrjZf3AGjzrCwC" src="../../../assets/vendor/mathjax/tex-mml-chtml.js"></script>
+</head>
+<body data-md-color-accent="amber" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#ebms-2-objectives-and-sampling">
+          Skip to content
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header md-header--shadow" data-md-component="header">
+<nav aria-label="Header" class="md-header__inner md-grid">
+<a aria-label="Artifex" class="md-header__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            Artifex
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+            
+              EBMs 2 — Objectives and Sampling
+            
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-label="Switch to dark mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: light)" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_1" hidden="" title="Switch to dark mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+<input aria-label="Switch to light mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-primary="indigo" data-md-color-scheme="slate" id="__palette_1" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_0" hidden="" title="Switch to light mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+</form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div aria-label="Search" class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Search" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="Search" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="Search" class="md-search__options">
+<a aria-label="Share" class="md-search__icon md-icon" data-clipboard="" data-clipboard-text="" data-md-component="search-share" href="javascript:void(0)" tabindex="-1" title="Share">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"></path></svg>
+</a>
+<button aria-label="Clear" class="md-search__icon md-icon" tabindex="-1" title="Clear" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            Initializing search
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Navigation" class="md-nav md-nav--primary" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="Artifex" class="md-nav__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+    Artifex
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../..">
+<span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../getting-started/installation/">
+<span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Generative Models Book
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Generative Models Book
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    
+  
+    Start Here — The Landscape
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../first-course-01-generative-systems/">
+<span class="md-ellipsis">
+    
+  
+    First Course — New to Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../probability-01-objects/">
+<span class="md-ellipsis">
+    
+  
+    Foundations
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_4" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_4" id="__nav_3_4_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Model Families
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_4_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_4">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Model Families
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../autoregressive-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Autoregressive Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../vae-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Variational Autoencoders
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gan-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Generative Adversarial Networks
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_4_4" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_4_4" id="__nav_3_4_4_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Energy-Based Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_4_4_label" class="md-nav" data-md-level="3">
+<label class="md-nav__title" for="__nav_3_4_4">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Energy-Based Models
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../ebm-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    1. Energy and Normalization
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
+    
+  
+    2. Objectives and Sampling
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
+<span class="md-ellipsis">
+    
+  
+    2. Objectives and Sampling
+  
+
+    
+  </span>
+</a>
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#training-energy-based-models">
+<span class="md-ellipsis">
+      
+        Training Energy-Based Models
+      
+    </span>
+</a>
+<nav aria-label="Training Energy-Based Models" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#training-energy-based-models-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Training Energy-Based Models: Prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#maximum-likelihood-the-ideal-but-intractable-approach">
+<span class="md-ellipsis">
+      
+        Maximum Likelihood: The Ideal but Intractable Approach
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#the-objective-tree-what-each-transformation-removes">
+<span class="md-ellipsis">
+      
+        The objective tree: what each transformation removes
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#running-example-one-quadratic-energy-many-objectives">
+<span class="md-ellipsis">
+      
+        Running example: one quadratic energy, many objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#contrastive-divergence-practical-approximation">
+<span class="md-ellipsis">
+      
+        Contrastive Divergence: Practical Approximation
+      
+    </span>
+</a>
+<nav aria-label="Contrastive Divergence: Practical Approximation" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#running-example-a-one-step-chain-moves-the-exact-target">
+<span class="md-ellipsis">
+      
+        Running example: a one-step chain moves the exact target
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#persistent-contrastive-divergence-pcd">
+<span class="md-ellipsis">
+      
+        Persistent Contrastive Divergence (PCD)
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#langevin-dynamics-mcmc-sampling">
+<span class="md-ellipsis">
+      
+        Langevin Dynamics: MCMC Sampling
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#score-matching-avoiding-sampling">
+<span class="md-ellipsis">
+      
+        Score Matching: Avoiding Sampling
+      
+    </span>
+</a>
+<nav aria-label="Score Matching: Avoiding Sampling" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#running-example-basic-score-matching-reaches-the-mle-solution">
+<span class="md-ellipsis">
+      
+        Running example: basic score matching reaches the MLE solution
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#denoising-score-matching-the-conditional-target-learns-a-marginal-score">
+<span class="md-ellipsis">
+      
+        Denoising score matching: the conditional target learns a marginal score
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#sliced-score-matching-estimate-a-trace-with-directions">
+<span class="md-ellipsis">
+      
+        Sliced score matching: estimate a trace with directions
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#noise-contrastive-estimation-nce">
+<span class="md-ellipsis">
+      
+        Noise Contrastive Estimation (NCE)
+      
+    </span>
+</a>
+<nav aria-label="Noise Contrastive Estimation (NCE)" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#running-example-nce-also-fixes-the-additive-intercept">
+<span class="md-ellipsis">
+      
+        Running example: NCE also fixes the additive intercept
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#negative-sampling-is-a-related-construction-not-a-synonym">
+<span class="md-ellipsis">
+      
+        Negative sampling is a related construction, not a synonym
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#connection-to-adversarial-density-ratio-estimation">
+<span class="md-ellipsis">
+      
+        Connection to adversarial density-ratio estimation
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#stein-discrepancies-compare-through-witness-functions">
+<span class="md-ellipsis">
+      
+        Stein Discrepancies: Compare Through Witness Functions
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-example-verify-the-likelihood-gradient-sign">
+<span class="md-ellipsis">
+      
+        Worked example: verify the likelihood-gradient sign
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#independent-practice-and-assessment-map-objectives-and-samplers">
+<span class="md-ellipsis">
+      
+        Independent practice and assessment map: objectives and samplers
+      
+    </span>
+</a>
+<nav aria-label="Independent practice and assessment map: objectives and samplers" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#p1-compare-likelihood-transition-score-ratio-and-witness-routes">
+<span class="md-ellipsis">
+      
+        P1 — Compare likelihood, transition, score, ratio, and witness routes
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#training-energy-based-models-chapter-synthesis-and-retrieval-practice">
+<span class="md-ellipsis">
+      
+        Training Energy-Based Models: Chapter synthesis and retrieval practice
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../ebm-03-architectures/">
+<span class="md-ellipsis">
+    
+  
+    3. Architectures and JEM
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../ebm-04-practice/">
+<span class="md-ellipsis">
+    
+  
+    4. Practice and Diagnostics
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../ebm-05-relations-frontier/">
+<span class="md-ellipsis">
+    
+  
+    5. Relations and Research
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../ebm-06-synthesis/">
+<span class="md-ellipsis">
+    
+  
+    6. Evaluation and Synthesis
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../ebm-explained/">
+<span class="md-ellipsis">
+    
+  
+    Continuous View (All Chapters)
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../diffusion-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Diffusion Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../flow-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Normalizing Flows and Flow Matching
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../probabilistic-circuits-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Probabilistic Circuits
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../tensor-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Tensor-Network and Born Probability Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../implicit-generators-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Implicit Generators Beyond GANs
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../discrete-iterative-01-masked/">
+<span class="md-ellipsis">
+    
+  
+    Discrete Iterative Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../bayesian-flow-networks-01-story/">
+<span class="md-ellipsis">
+    
+  
+    Bayesian Flow Networks
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gflownets-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Generative Flow Networks
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../bnp-01-random-measures/">
+<span class="md-ellipsis">
+    
+  
+    Bayesian Nonparametric Random-Measure Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../stochastic-process-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Stochastic-Process and Function-Space Generators
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../point-processes-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Point Processes and Random Finite Sets
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../random-graphs-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Random Graphs and Relational Generators
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../copula-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Copula Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../grammar-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Probabilistic Grammars and Program Derivations
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../causal-generative-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Causal Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../new-families-frontier-evidence/">
+<span class="md-ellipsis">
+    
+  
+    Research Evidence Ledger
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gradients-01-taxonomy/">
+<span class="md-ellipsis">
+    
+  
+    Connections and Compositions
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../normalization-01-queries/">
+<span class="md-ellipsis">
+    
+  
+    Research Practice
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../models/vae-guide/">
+<span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/core/base/">
+<span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../examples/overview/">
+<span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../zoo/">
+<span class="md-ellipsis">
+    
+  
+    Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../training/overview/">
+<span class="md-ellipsis">
+    
+  
+    Training
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../data/overview/">
+<span class="md-ellipsis">
+    
+  
+    Data &amp; Modalities
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../inference/overview/">
+<span class="md-ellipsis">
+    
+  
+    Inference &amp; Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../benchmarks/">
+<span class="md-ellipsis">
+    
+  
+    Evaluation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../guides/extensions/">
+<span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../extensions/">
+<span class="md-ellipsis">
+    
+  
+    Advanced Topics
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../cli/">
+<span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../community/contributing/">
+<span class="md-ellipsis">
+    
+  
+    Community
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/configs/protein-extension/">
+<span class="md-ellipsis">
+    
+  
+    Reference Library
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#training-energy-based-models">
+<span class="md-ellipsis">
+      
+        Training Energy-Based Models
+      
+    </span>
+</a>
+<nav aria-label="Training Energy-Based Models" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#training-energy-based-models-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Training Energy-Based Models: Prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#maximum-likelihood-the-ideal-but-intractable-approach">
+<span class="md-ellipsis">
+      
+        Maximum Likelihood: The Ideal but Intractable Approach
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#the-objective-tree-what-each-transformation-removes">
+<span class="md-ellipsis">
+      
+        The objective tree: what each transformation removes
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#running-example-one-quadratic-energy-many-objectives">
+<span class="md-ellipsis">
+      
+        Running example: one quadratic energy, many objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#contrastive-divergence-practical-approximation">
+<span class="md-ellipsis">
+      
+        Contrastive Divergence: Practical Approximation
+      
+    </span>
+</a>
+<nav aria-label="Contrastive Divergence: Practical Approximation" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#running-example-a-one-step-chain-moves-the-exact-target">
+<span class="md-ellipsis">
+      
+        Running example: a one-step chain moves the exact target
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#persistent-contrastive-divergence-pcd">
+<span class="md-ellipsis">
+      
+        Persistent Contrastive Divergence (PCD)
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#langevin-dynamics-mcmc-sampling">
+<span class="md-ellipsis">
+      
+        Langevin Dynamics: MCMC Sampling
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#score-matching-avoiding-sampling">
+<span class="md-ellipsis">
+      
+        Score Matching: Avoiding Sampling
+      
+    </span>
+</a>
+<nav aria-label="Score Matching: Avoiding Sampling" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#running-example-basic-score-matching-reaches-the-mle-solution">
+<span class="md-ellipsis">
+      
+        Running example: basic score matching reaches the MLE solution
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#denoising-score-matching-the-conditional-target-learns-a-marginal-score">
+<span class="md-ellipsis">
+      
+        Denoising score matching: the conditional target learns a marginal score
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#sliced-score-matching-estimate-a-trace-with-directions">
+<span class="md-ellipsis">
+      
+        Sliced score matching: estimate a trace with directions
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#noise-contrastive-estimation-nce">
+<span class="md-ellipsis">
+      
+        Noise Contrastive Estimation (NCE)
+      
+    </span>
+</a>
+<nav aria-label="Noise Contrastive Estimation (NCE)" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#running-example-nce-also-fixes-the-additive-intercept">
+<span class="md-ellipsis">
+      
+        Running example: NCE also fixes the additive intercept
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#negative-sampling-is-a-related-construction-not-a-synonym">
+<span class="md-ellipsis">
+      
+        Negative sampling is a related construction, not a synonym
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#connection-to-adversarial-density-ratio-estimation">
+<span class="md-ellipsis">
+      
+        Connection to adversarial density-ratio estimation
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#stein-discrepancies-compare-through-witness-functions">
+<span class="md-ellipsis">
+      
+        Stein Discrepancies: Compare Through Witness Functions
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-example-verify-the-likelihood-gradient-sign">
+<span class="md-ellipsis">
+      
+        Worked example: verify the likelihood-gradient sign
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#independent-practice-and-assessment-map-objectives-and-samplers">
+<span class="md-ellipsis">
+      
+        Independent practice and assessment map: objectives and samplers
+      
+    </span>
+</a>
+<nav aria-label="Independent practice and assessment map: objectives and samplers" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#p1-compare-likelihood-transition-score-ratio-and-witness-routes">
+<span class="md-ellipsis">
+      
+        P1 — Compare likelihood, transition, score, ratio, and witness routes
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#training-energy-based-models-chapter-synthesis-and-retrieval-practice">
+<span class="md-ellipsis">
+      
+        Training Energy-Based Models: Chapter synthesis and retrieval practice
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<nav aria-label="Breadcrumb" class="md-path">
+<ol class="md-path__list">
+<li class="md-path__item">
+<a class="md-path__link" href="../../..">
+<span class="md-ellipsis">
+    Home
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    Generative Models Book
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../autoregressive-01-foundations/">
+<span class="md-ellipsis">
+    Model Families
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../ebm-01-foundations/">
+<span class="md-ellipsis">
+    Energy-Based Models
+  </span>
+</a>
+</li>
+</ol>
+</nav>
+<article class="md-content__inner md-typeset">
+<h1 id="ebms-2-objectives-and-sampling">EBMs 2 — Objectives and Sampling<a class="headerlink" href="#ebms-2-objectives-and-sampling" title="Permanent link">¤</a></h1><aside aria-label="Learning path" class="admonition abstract artifex-learning-path"><p class="admonition-title">Learning path</p><p><strong>Required knowledge</strong></p><ul class="artifex-learning-path__links" data-learning-path-role="required"><li><a href="../ebm-01-foundations/">EBMs 1 — Energy and Normalization</a></li></ul><p><strong>Readiness check:</strong> can you explain the central object and reproduce one worked example from each required chapter? If not, follow its link before continuing.</p><p><strong>Newly unlocked in the default route</strong></p><ul class="artifex-learning-path__links" data-learning-path-role="unlocks"><li><a href="../ebm-03-architectures/">EBMs 3 — Architectures, JEM, and Structured Prediction</a></li></ul></aside>
+<p>This chapter derives one objective tree from maximum likelihood through CD and PCD, basic, denoising, and sliced score matching, NCE and negative sampling, adversarial density ratios, and Stein discrepancies. A shared quadratic energy separates population identification from finite estimators, sampler bias, and optimization. For uninterrupted reading, use the <a href="../ebm-explained/#training-energy-based-models">complete guide</a>.</p>
+<h2 id="training-energy-based-models">Training Energy-Based Models<a class="headerlink" href="#training-energy-based-models" title="Permanent link">¤</a></h2>
+<h3 id="training-energy-based-models-prerequisites-and-learning-objectives">Training Energy-Based Models: Prerequisites and learning objectives<a class="headerlink" href="#training-energy-based-models-prerequisites-and-learning-objectives" title="Permanent link">¤</a></h3>
+<p>By the end of this chapter, you should be able to:</p>
+<ol>
+<li>derive the positive/negative-phase likelihood gradient with the correct sign;</li>
+<li>distinguish an exact model expectation from a CD/PCD estimate;</li>
+<li>state when ULA, MALA, and decoupled SGLD-style dynamics have a known target;</li>
+<li>derive basic, denoising, and sliced score matching;</li>
+<li>derive NCE with its class-prior ratio;</li>
+<li>distinguish NCE from negative sampling and adversarial ratio estimation; and</li>
+<li>state what a Stein discrepancy can identify under a declared witness class.</li>
+</ol>
+<h3 id="maximum-likelihood-the-ideal-but-intractable-approach">Maximum Likelihood: The Ideal but Intractable Approach<a class="headerlink" href="#maximum-likelihood-the-ideal-but-intractable-approach" title="Permanent link">¤</a></h3>
+<p>The maximum likelihood objective seeks to maximize the log-probability of observed data:</p>
+<div class="arithmatex">\[
+\max_\theta \mathbb{E}_{x \sim p_{\text{data}}}[\log p_\theta(x)]
+\]</div>
+<p>Substituting the Boltzmann distribution:</p>
+<div class="arithmatex">\[
+\log p_\theta(x) = -E_\theta(x) - \log Z_\theta
+\]</div>
+<p>Taking gradients with respect to <span class="arithmatex">\(\theta\)</span>:</p>
+<div class="arithmatex">\[
+\nabla_\theta \log p_\theta(x) = -\nabla_\theta E_\theta(x) - \nabla_\theta \log Z_\theta
+\]</div>
+<p>The first term <span class="arithmatex">\(-\nabla_\theta E_\theta(x)\)</span> is tractable—just backpropagation through the energy function evaluated at data <span class="arithmatex">\(x\)</span>.</p>
+<p>The second term is problematic:</p>
+<div class="arithmatex">\[
+\nabla_\theta \log Z_\theta = \frac{1}{Z_\theta} \nabla_\theta Z_\theta = \frac{1}{Z_\theta} \int \nabla_\theta e^{-E_\theta(x')} dx'
+\]</div>
+<div class="arithmatex">\[
+= -\int \frac{e^{-E_\theta(x')}}{Z_\theta} \nabla_\theta E_\theta(x') dx' = -\mathbb{E}_{x' \sim p_\theta}[\nabla_\theta E_\theta(x')]
+\]</div>
+<p>Substituting this result gives the positive/negative-phase identity</p>
+<div class="arithmatex">\[
+\nabla_\theta \log p_\theta(x)
+= -\nabla_\theta E_\theta(x)
++ \mathbb{E}_{x'\sim p_\theta}[\nabla_\theta E_\theta(x')].
+\]</div>
+<p>The minus sign in front of <span class="arithmatex">\(\log Z_\theta\)</span> is essential: maximum likelihood lowers data energy and, through the model expectation, raises energy where the current model places too much mass.</p>
+<p>This requires expectations under the current normalized model. Exact iid model samples would make a Monte Carlo gradient unbiased; finite MCMC, a changing parameter, and a discretized transition generally add different errors. The alternatives below do not all approximate the same finite-sample computation. Each removes a nuisance quantity by changing the statistical problem.</p>
+<h3 id="the-objective-tree-what-each-transformation-removes">The objective tree: what each transformation removes<a class="headerlink" href="#the-objective-tree-what-each-transformation-removes" title="Permanent link">¤</a></h3>
+<p>Start from normalized maximum likelihood, then ask which unavailable quantity prevents its use. A transition kernel approximates the model expectation; integration by parts turns density comparison into derivative comparison; binary classification estimates a density ratio; and a Stein identity restricts comparison to a witness class.</p>
+<figure class="book-figure" id="fig-ebm-explained-the-objective-tree-what-each-transformation-removes"><pre class="mermaid"><code>%%{init: {'themeCSS': '.nodeLabel p { color: #111827 !important; } .flowchart-link { stroke: #78879a !important; stroke-width: 2px !important; } marker path { fill: #78879a !important; stroke: #78879a !important; }'}}%%
+flowchart TD
+    MLE["Normalized maximum likelihood&lt;br/&gt;exact model expectation"]
+    MLE --&gt;|"finite transition"| CD["CD and PCD&lt;br/&gt;short-chain negative phase"]
+    MLE --&gt;|"differentiate in x&lt;br/&gt;and integrate by parts"| SM["Score matching&lt;br/&gt;no partition function"]
+    SM --&gt;|"corrupt data"| DSM["Denoising score matching&lt;br/&gt;conditional target"]
+    SM --&gt;|"random projection"| SSM["Sliced score matching&lt;br/&gt;Hessian-vector product"]
+    MLE --&gt;|"classify against&lt;br/&gt;known noise"| NCE["NCE&lt;br/&gt;learn density ratio and normalizer"]
+    NCE --&gt;|"simplify the&lt;br/&gt;classification task"| NEG["Negative sampling&lt;br/&gt;objective-specific surrogate"]
+    MLE --&gt;|"apply a target&lt;br/&gt;Stein identity"| STEIN["Stein discrepancy&lt;br/&gt;optimize over witnesses"]
+    NCE --&gt;|"replace fixed noise&lt;br/&gt;by a learned generator"| ADV["Adversarial ratio estimation&lt;br/&gt;moving comparison law"]
+
+    style MLE fill:#e1f5ff,color:#111827
+    style CD fill:#ffccbc,color:#111827
+    style SM fill:#c8e6c9,color:#111827
+    style NCE fill:#fff3cd,color:#111827
+    style STEIN fill:#e8def8,color:#111827</code></pre><figcaption class="book-object-caption"><span class="book-object-number">Figure EBM.2.</span> The objective tree: what each transformation removes</figcaption></figure>
+<div class="md-typeset__table book-table-container"><table id="tbl-ebm-explained-the-objective-tree-what-each-transformation-removes"><caption class="book-object-caption"><span class="book-object-number">Table EBM.2.</span> The objective tree: what each transformation removes</caption>
+<thead>
+<tr>
+<th>Route</th>
+<th>Population object</th>
+<th>What is removed</th>
+<th>What is introduced</th>
+<th>Finite-computation boundary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Exact MLE gradient</td>
+<td><span class="arithmatex">\(D_{\mathrm{KL}}(p_{\mathrm{data}}\|p_\theta)\)</span></td>
+<td>Explicit evaluation of <span class="arithmatex">\(Z_\theta\)</span></td>
+<td>Expectation under the normalized current model</td>
+<td>Monte Carlo is unbiased only for exact samples; MCMC adds initialization, mixing, and discretization error</td>
+</tr>
+<tr>
+<td>CD or PCD</td>
+<td>Short-run or persistent transition law</td>
+<td>An equilibrated negative-phase draw</td>
+<td>Kernel, initialization, chain length, and parameter drift</td>
+<td>The usual update omits how the transition law depends on <span class="arithmatex">\(\theta\)</span> and is generally a biased likelihood gradient</td>
+</tr>
+<tr>
+<td>Basic score matching</td>
+<td>Fisher divergence</td>
+<td><span class="arithmatex">\(Z_\theta\)</span>, model samples, and the unknown data score after integration by parts</td>
+<td>Smooth positive density, boundary decay, and a divergence or Hessian trace</td>
+<td>Empirical data averaging can be unbiased while automatic differentiation and trace computation remain costly</td>
+</tr>
+<tr>
+<td>Denoising score matching</td>
+<td>Fisher divergence at a corrupted marginal</td>
+<td>Clean data score and model sampling</td>
+<td>Corruption kernel, noise level or path, and loss weighting</td>
+<td>At fixed nonzero noise the population target is the corrupted law, not the clean endpoint</td>
+</tr>
+<tr>
+<td>Sliced score matching</td>
+<td>Projected Fisher divergence</td>
+<td>Full Jacobian trace</td>
+<td>Projection distribution and trace-estimation variance</td>
+<td>A finite number of directions is a stochastic estimator; identification needs a nondegenerate projection law</td>
+</tr>
+<tr>
+<td>NCE</td>
+<td>Logistic data-versus-noise classification</td>
+<td>Partition-function integration and model sampling</td>
+<td>Evaluable noise density, support overlap, class ratio, and a normalizer parameter</td>
+<td>Population consistency does not prevent poor finite conditioning when classification is too easy</td>
+</tr>
+<tr>
+<td>Negative sampling</td>
+<td>Task-specific binary surrogate</td>
+<td>Full softmax or a more exact classification construction</td>
+<td>Chosen negative law and altered target</td>
+<td>It is not automatically a consistent normalized-density estimator</td>
+</tr>
+<tr>
+<td>Stein discrepancy</td>
+<td>Supremum of a Stein expectation</td>
+<td><span class="arithmatex">\(Z_\theta\)</span> and target-model sampling</td>
+<td>Stein operator, boundary conditions, and witness or kernel class</td>
+<td>Restricted witnesses can miss discrepancies; common kernel estimators are pairwise in sample count</td>
+</tr>
+<tr>
+<td>Adversarial ratio estimation</td>
+<td>Population discriminator game</td>
+<td>Known fixed noise and often an evaluable generator density</td>
+<td>Learned comparison law, restricted discriminator, and game optimization</td>
+<td>The optimal-discriminator identity does not describe finite alternating-training dynamics</td>
+</tr>
+</tbody>
+</table></div>
+<p>This table separates three levels. A <strong>population identity</strong> states what an unrestricted objective identifies. An <strong>estimator statement</strong> describes expectations over finite data, negative samples, projections, or witness evaluations. An <strong>optimization statement</strong> concerns the path followed by a parameterized energy, sampler, or discriminator. Agreement at one level does not imply agreement at the other two.</p>
+<h3 id="running-example-one-quadratic-energy-many-objectives">Running example: one quadratic energy, many objectives<a class="headerlink" href="#running-example-one-quadratic-energy-many-objectives" title="Permanent link">¤</a></h3>
+<p>Let the data law be <span class="arithmatex">\(P=\mathcal N(m,v)\)</span> with <span class="arithmatex">\(v&gt;0\)</span>, and define</p>
+<div class="arithmatex">\[
+E_{a,b,c}(x)=\frac12 a x^2-bx+c,\qquad a&gt;0.
+\]</div>
+<p>Completing the square gives</p>
+<div class="arithmatex">\[
+Z_{a,b,c}=e^{-c+b^2/(2a)}\sqrt{\frac{2\pi}{a}},
+\qquad
+p_{a,b}(x)=\mathcal N\!\left(x;\frac ba,\frac1a\right).
+\]</div>
+<p>The normalized law is independent of the additive constant <span class="arithmatex">\(c\)</span>. Both population MLE and basic score matching therefore recover</p>
+<div class="arithmatex">\[
+a^*=\frac1v,qquad b^*=\frac mv.
+\]</div>
+<p>NCE can additionally identify the intercept that makes the unnormalized expression integrate to one,</p>
+<div class="arithmatex">\[
+c^*=\frac{(b^*)^2}{2a^*}+\frac12\log\frac{2\pi}{a^*}.
+\]</div>
+<p>The same example will expose where the finite CD, DSM, sliced, NCE, and Stein constructions differ.</p>
+<h3 id="contrastive-divergence-practical-approximation">Contrastive Divergence: Practical Approximation<a class="headerlink" href="#contrastive-divergence-practical-approximation" title="Permanent link">¤</a></h3>
+<p><strong>Contrastive Divergence (CD)</strong> (<a href="https://www.cs.toronto.edu/~hinton/absps/tr00-004.pdf">Hinton, 2002 — Neural Computation</a>) approximates the intractable expectation using short MCMC chains:</p>
+<p><strong>Algorithm</strong>:</p>
+<ol>
+<li><strong>Positive phase</strong>: Sample data <span class="arithmatex">\(x^+ \sim p_{\text{data}}\)</span>, compute <span class="arithmatex">\(\nabla_\theta E_\theta(x^+)\)</span>.</li>
+<li><strong>Negative phase</strong>: Initialise <span class="arithmatex">\(x^- = x^+\)</span> (or from a persistent buffer), run <span class="arithmatex">\(k\)</span> MCMC steps to obtain a model sample <span class="arithmatex">\(x^-\)</span>, compute <span class="arithmatex">\(\nabla_\theta E_\theta(x^-)\)</span>.</li>
+<li>
+<p><strong>Gradient of the negative log-likelihood</strong>:</p>
+<div class="arithmatex">\[
+\nabla_\theta \mathcal{L}_{\text{CD}} \;\approx\; \nabla_\theta E_\theta(x^+) \;-\; \nabla_\theta E_\theta(x^-).
+\]</div>
+<p>Equivalently, the SGD parameter update is <span class="arithmatex">\(\theta \leftarrow \theta - \alpha\, \nabla_\theta \mathcal{L}_{\text{CD}}\)</span>, which <strong>lowers</strong> the energy on data and <strong>raises</strong> it on model samples.</p>
+</li>
+</ol>
+<figure class="book-figure" id="fig-ebm-explained-contrastive-divergence-practical-approximation"><pre class="mermaid"><code>%%{init: {'themeCSS': '.nodeLabel p { color: #111827 !important; } .flowchart-link { stroke: #78879a !important; stroke-width: 2px !important; } marker path { fill: #78879a !important; stroke: #78879a !important; }'}}%%
+graph TD
+    Data["Data sample&amp;nbsp;$$x^+$$"] --&gt; PosGrad["Positive gradient&amp;nbsp;$$-\nabla_\theta E_\theta(x^+)$$"]
+    Data --&gt; Init["Initialize&amp;nbsp;$$x^-=x^+$$"]
+    Init --&gt; MCMC["MCMC steps&amp;nbsp;$$k$$&amp;nbsp;(typically 1–60)"]
+    MCMC --&gt; Neg["Model sample&amp;nbsp;$$x^-$$"]
+    Neg --&gt; NegGrad["Negative gradient&amp;nbsp;$$+\nabla_\theta E_\theta(x^-)$$"]
+    PosGrad --&gt; Update["Parameter Update"]
+    NegGrad --&gt; Update
+
+    style Data fill:#c8e6c9,color:#111827
+    style Neg fill:#ffccbc,color:#111827
+    style Update fill:#e1f5ff,color:#111827</code></pre><figcaption class="book-object-caption"><span class="book-object-number">Figure EBM.3.</span> Contrastive Divergence: Practical Approximation</figcaption></figure>
+<p><strong>Why it works:</strong></p>
+<ul>
+<li><strong>Positive gradient</strong> pushes down energy at data points</li>
+<li><strong>Negative gradient</strong> pushes up energy at model samples</li>
+<li><strong>Equilibrated chains</strong> estimate the model expectation when their draws are representative of the current <span class="arithmatex">\(p_\theta\)</span></li>
+<li><strong>Short chains</strong> instead use a transition law near their initialization; they need not approximate the equilibrium expectation</li>
+<li><strong>Persistent chains</strong> (PCD) reuse state across iterations and can reduce burn-in, but must still track a moving target and mix between modes</li>
+</ul>
+<p>If <span class="arithmatex">\(K_\theta\)</span> is the transition kernel and <span class="arithmatex">\(P_k=P K_\theta^k\)</span>, the formal contrast associated with CD-<span class="arithmatex">\(k\)</span> is</p>
+<div class="arithmatex">\[
+\operatorname{CD}_k(\theta)
+=D_{\mathrm{KL}}(P\|p_\theta)-D_{\mathrm{KL}}(P_k\|p_\theta).
+\]</div>
+<p>Because <span class="arithmatex">\(P_k\)</span> itself depends on <span class="arithmatex">\(\theta\)</span>, differentiating this expression includes a transition-law term. The usual endpoint update omits that term.</p>
+<div class="admonition warning">
+<p class="admonition-title">CD-<span class="arithmatex">\(k\)</span> is generally not the likelihood gradient</p>
+<p>The familiar positive-minus-negative update treats the sampled endpoint as constant when differentiating. It is not generally the gradient of either likelihood or the complete <span class="arithmatex">\(\operatorname{CD}_k\)</span> expression above. The estimator approaches the equilibrium negative phase only when the transition mixes to the current model under the required limits. PCD can reduce initialization bias; persistence alone proves neither mixing nor unbiasedness (<a href="https://www.cs.toronto.edu/~hinton/absps/tr00-004.pdf">Hinton, 2002</a>).</p>
+</div>
+<h4 id="running-example-a-one-step-chain-moves-the-exact-target">Running example: a one-step chain moves the exact target<a class="headerlink" href="#running-example-a-one-step-chain-moves-the-exact-target" title="Permanent link">¤</a></h4>
+<p>Initialize the calibrated ULA step at <span class="arithmatex">\(X_0\sim\mathcal N(m,v)\)</span> and use the exact quadratic parameters <span class="arithmatex">\(a^*=1/v\)</span>, <span class="arithmatex">\(b^*=m/v\)</span>:</p>
+<div class="arithmatex">\[
+X_1=\left(1-\frac{\delta}{2v}\right)X_0
++\frac{\delta m}{2v}+\sqrt{\delta}\,\xi,
+\qquad \xi\sim\mathcal N(0,1).
+\]</div>
+<p>The mean stays equal to <span class="arithmatex">\(m\)</span>, but</p>
+<div class="arithmatex">\[
+\operatorname{Var}(X_1)
+=\left(1-\frac{\delta}{2v}\right)^2v+\delta
+=v+\frac{\delta^2}{4v}.
+\]</div>
+<p>Thus a one-step CD negative phase has the wrong second moment even when the model already equals the data. The resulting <span class="arithmatex">\(a\)</span> update is nonzero for every fixed <span class="arithmatex">\(\delta&gt;0\)</span>. This is discretization bias, not evidence that the optimum should move. An exact Ornstein--Uhlenbeck transition or a valid Metropolis correction preserves the Gaussian target; taking appropriate step-size and long-chain limits can also remove the discrepancy.</p>
+<h3 id="persistent-contrastive-divergence-pcd">Persistent Contrastive Divergence (PCD)<a class="headerlink" href="#persistent-contrastive-divergence-pcd" title="Permanent link">¤</a></h3>
+<p><strong>PCD</strong> (<a href="https://www.cs.toronto.edu/~tijmen/pcd/pcd.pdf">Tieleman, 2008 — ICML</a>) maintains a persistent sample buffer across training iterations:</p>
+<p><strong>Algorithm</strong>:</p>
+<ol>
+<li><strong>Initialize buffer</strong>: <span class="arithmatex">\(\mathcal{B} = \{x_1, x_2, \ldots, x_M\}\)</span> with random samples</li>
+<li><strong>Each training iteration</strong>:<ul>
+<li>Sample data batch <span class="arithmatex">\(\{x^+_i\}\)</span></li>
+<li>Sample buffer batch <span class="arithmatex">\(\{x^-_j\} \sim \mathcal{B}\)</span></li>
+<li>Run <span class="arithmatex">\(k\)</span> MCMC steps from each <span class="arithmatex">\(x^-_j\)</span> to get updated <span class="arithmatex">\(\tilde{x}^-_j\)</span></li>
+<li>Update buffer: <span class="arithmatex">\(\mathcal{B} \leftarrow \mathcal{B} \cup \{\tilde{x}^-_j\}\)</span></li>
+<li>For negative log likelihood, compute <span class="arithmatex">\(\nabla_\theta \mathcal{L} \approx \frac{1}{N}\sum_i \nabla E(x^+_i)-\frac{1}{N}\sum_j \nabla E(\tilde{x}^-_j)\)</span>. The opposite sign is the approximate log-likelihood gradient.</li>
+<li>Update parameters</li>
+</ul>
+</li>
+</ol>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a href="#__codelineno-0-1" id="__codelineno-0-1" name="__codelineno-0-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">persistent_contrastive_divergence</span><span class="p">(</span>
+</span><span id="__span-0-2"><a href="#__codelineno-0-2" id="__codelineno-0-2" name="__codelineno-0-2"></a>    <span class="n">energy_fn</span><span class="p">,</span> <span class="n">real_samples</span><span class="p">,</span> <span class="n">sample_buffer</span><span class="p">,</span> <span class="n">rng_key</span><span class="p">,</span>
+</span><span id="__span-0-3"><a href="#__codelineno-0-3" id="__codelineno-0-3" name="__codelineno-0-3"></a>    <span class="n">n_mcmc_steps</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="n">step_size</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">noise_scale</span><span class="o">=</span><span class="mf">0.005</span>
+</span><span id="__span-0-4"><a href="#__codelineno-0-4" id="__codelineno-0-4" name="__codelineno-0-4"></a><span class="p">):</span>
+</span><span id="__span-0-5"><a href="#__codelineno-0-5" id="__codelineno-0-5" name="__codelineno-0-5"></a><span class="w">    </span><span class="sd">"""Persistent Contrastive Divergence training step."""</span>
+</span><span id="__span-0-6"><a href="#__codelineno-0-6" id="__codelineno-0-6" name="__codelineno-0-6"></a>    <span class="n">batch_size</span> <span class="o">=</span> <span class="n">real_samples</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</span><span id="__span-0-7"><a href="#__codelineno-0-7" id="__codelineno-0-7" name="__codelineno-0-7"></a>    <span class="n">sample_shape</span> <span class="o">=</span> <span class="n">real_samples</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+</span><span id="__span-0-8"><a href="#__codelineno-0-8" id="__codelineno-0-8" name="__codelineno-0-8"></a>
+</span><span id="__span-0-9"><a href="#__codelineno-0-9" id="__codelineno-0-9" name="__codelineno-0-9"></a>    <span class="c1"># Sample initial points from buffer</span>
+</span><span id="__span-0-10"><a href="#__codelineno-0-10" id="__codelineno-0-10" name="__codelineno-0-10"></a>    <span class="n">init_samples</span> <span class="o">=</span> <span class="n">sample_buffer</span><span class="o">.</span><span class="n">sample_initial</span><span class="p">(</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">rng_key</span><span class="p">,</span> <span class="n">sample_shape</span><span class="p">)</span>
+</span><span id="__span-0-11"><a href="#__codelineno-0-11" id="__codelineno-0-11" name="__codelineno-0-11"></a>
+</span><span id="__span-0-12"><a href="#__codelineno-0-12" id="__codelineno-0-12" name="__codelineno-0-12"></a>    <span class="c1"># Run MCMC chain</span>
+</span><span id="__span-0-13"><a href="#__codelineno-0-13" id="__codelineno-0-13" name="__codelineno-0-13"></a>    <span class="n">final_samples</span> <span class="o">=</span> <span class="n">langevin_dynamics</span><span class="p">(</span>
+</span><span id="__span-0-14"><a href="#__codelineno-0-14" id="__codelineno-0-14" name="__codelineno-0-14"></a>        <span class="n">energy_fn</span><span class="p">,</span> <span class="n">init_samples</span><span class="p">,</span> <span class="n">n_mcmc_steps</span><span class="p">,</span> <span class="n">step_size</span><span class="p">,</span> <span class="n">noise_scale</span><span class="p">,</span> <span class="n">rng_key</span>
+</span><span id="__span-0-15"><a href="#__codelineno-0-15" id="__codelineno-0-15" name="__codelineno-0-15"></a>    <span class="p">)</span>
+</span><span id="__span-0-16"><a href="#__codelineno-0-16" id="__codelineno-0-16" name="__codelineno-0-16"></a>
+</span><span id="__span-0-17"><a href="#__codelineno-0-17" id="__codelineno-0-17" name="__codelineno-0-17"></a>    <span class="c1"># Update buffer with new samples</span>
+</span><span id="__span-0-18"><a href="#__codelineno-0-18" id="__codelineno-0-18" name="__codelineno-0-18"></a>    <span class="n">sample_buffer</span><span class="o">.</span><span class="n">push</span><span class="p">(</span><span class="n">final_samples</span><span class="p">)</span>
+</span><span id="__span-0-19"><a href="#__codelineno-0-19" id="__codelineno-0-19" name="__codelineno-0-19"></a>
+</span><span id="__span-0-20"><a href="#__codelineno-0-20" id="__codelineno-0-20" name="__codelineno-0-20"></a>    <span class="k">return</span> <span class="n">init_samples</span><span class="p">,</span> <span class="n">final_samples</span>
+</span></code></pre></div>
+<p><strong>Advantages over CD</strong>:</p>
+<ul>
+<li><strong>Longer effective chain history</strong>: chains continue across parameter updates rather than restarting at data every iteration</li>
+<li><strong>Potentially lower negative-phase bias</strong>: only when the persistent chains track the changing model sufficiently well</li>
+<li><strong>Reusable diagnostics</strong>: buffer age, chain traces, and reinitialisation sensitivity can reveal failures; persistence does not guarantee mixing or stable training</li>
+</ul>
+<h3 id="langevin-dynamics-mcmc-sampling">Langevin Dynamics: MCMC Sampling<a class="headerlink" href="#langevin-dynamics-mcmc-sampling" title="Permanent link">¤</a></h3>
+<p>The <a href="../sampling-and-continuous-time/#5-langevin-algorithms">canonical sampling chapter</a>
+derives ULA, MALA, SGLD, preconditioning, stochastic-gradient error, and their
+diagnostics. This section specializes them to a learned energy whose target
+moves during training.</p>
+<p><strong>Langevin dynamics</strong> (<a href="https://www.stats.ox.ac.uk/~teh/research/compstats/WelTeh2011a.pdf">Welling &amp; Teh, 2011 — ICML</a>) provides the MCMC sampler for EBMs. The continuous-time SDE has the well-calibrated discretisation</p>
+<div class="arithmatex">\[
+x_{t+1} = x_t - \frac{\epsilon}{2} \nabla_x E_\theta(x_t) + \sqrt{\epsilon} \, \xi_t, \qquad \xi_t \sim \mathcal{N}(0, I),
+\]</div>
+<p>whose continuous-time diffusion has <span class="arithmatex">\(p_\theta\)</span> as a stationary law under regularity conditions. Fixed-step unadjusted Langevin has discretization bias; recovering the target additionally requires an appropriate long-time and vanishing-step limit, or a Metropolis correction.</p>
+<p>Some deep-EBM training recipes instead use an <strong>SGLD-style decoupled</strong> step where the gradient step size <span class="arithmatex">\(\eta\)</span> and noise scale <span class="arithmatex">\(\sigma\)</span> are tuned independently:</p>
+<div class="arithmatex">\[
+x_{t+1} = x_t - \eta\, \nabla_x E_\theta(x_t) + \sigma\, \xi_t,
+\]</div>
+<p>Clipping and choosing <span class="arithmatex">\(\eta,\sigma\)</span> independently generally change the stationary law. Such dynamics may be useful as a negative-sample heuristic, but must not be reported as exact Boltzmann sampling. The implementation below exposes both coefficients and therefore needs protocol-specific validation.</p>
+<p><strong>Two components:</strong></p>
+<ol>
+<li><strong>Gradient descent</strong> <span class="arithmatex">\(-\eta \nabla_x E_\theta(x_t)\)</span> moves toward lower energy.</li>
+<li><strong>Brownian motion</strong> <span class="arithmatex">\(\sigma \xi_t\)</span> explores the space and prevents the chain from collapsing onto a single mode.</li>
+</ol>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a href="#__codelineno-1-1" id="__codelineno-1-1" name="__codelineno-1-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">langevin_dynamics</span><span class="p">(</span>
+</span><span id="__span-1-2"><a href="#__codelineno-1-2" id="__codelineno-1-2" name="__codelineno-1-2"></a>    <span class="n">energy_fn</span><span class="p">,</span> <span class="n">init_samples</span><span class="p">,</span> <span class="n">n_steps</span><span class="p">,</span> <span class="n">step_size</span><span class="p">,</span> <span class="n">noise_scale</span><span class="p">,</span> <span class="n">rng_key</span>
+</span><span id="__span-1-3"><a href="#__codelineno-1-3" id="__codelineno-1-3" name="__codelineno-1-3"></a><span class="p">):</span>
+</span><span id="__span-1-4"><a href="#__codelineno-1-4" id="__codelineno-1-4" name="__codelineno-1-4"></a><span class="w">    </span><span class="sd">"""Sample from EBM using Langevin dynamics."""</span>
+</span><span id="__span-1-5"><a href="#__codelineno-1-5" id="__codelineno-1-5" name="__codelineno-1-5"></a>    <span class="n">x</span> <span class="o">=</span> <span class="n">init_samples</span>
+</span><span id="__span-1-6"><a href="#__codelineno-1-6" id="__codelineno-1-6" name="__codelineno-1-6"></a>
+</span><span id="__span-1-7"><a href="#__codelineno-1-7" id="__codelineno-1-7" name="__codelineno-1-7"></a>    <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_steps</span><span class="p">):</span>
+</span><span id="__span-1-8"><a href="#__codelineno-1-8" id="__codelineno-1-8" name="__codelineno-1-8"></a>        <span class="c1"># Compute energy gradient</span>
+</span><span id="__span-1-9"><a href="#__codelineno-1-9" id="__codelineno-1-9" name="__codelineno-1-9"></a>        <span class="n">energy_grad</span> <span class="o">=</span> <span class="n">jax</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">jnp</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">energy_fn</span><span class="p">(</span><span class="n">x</span><span class="p">)))(</span><span class="n">x</span><span class="p">)</span>
+</span><span id="__span-1-10"><a href="#__codelineno-1-10" id="__codelineno-1-10" name="__codelineno-1-10"></a>
+</span><span id="__span-1-11"><a href="#__codelineno-1-11" id="__codelineno-1-11" name="__codelineno-1-11"></a>        <span class="c1"># Gradient descent step</span>
+</span><span id="__span-1-12"><a href="#__codelineno-1-12" id="__codelineno-1-12" name="__codelineno-1-12"></a>        <span class="n">x</span> <span class="o">=</span> <span class="n">x</span> <span class="o">-</span> <span class="p">(</span><span class="n">step_size</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">energy_grad</span>
+</span><span id="__span-1-13"><a href="#__codelineno-1-13" id="__codelineno-1-13" name="__codelineno-1-13"></a>
+</span><span id="__span-1-14"><a href="#__codelineno-1-14" id="__codelineno-1-14" name="__codelineno-1-14"></a>        <span class="c1"># Add noise</span>
+</span><span id="__span-1-15"><a href="#__codelineno-1-15" id="__codelineno-1-15" name="__codelineno-1-15"></a>        <span class="n">rng_key</span><span class="p">,</span> <span class="n">noise_key</span> <span class="o">=</span> <span class="n">jax</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">rng_key</span><span class="p">)</span>
+</span><span id="__span-1-16"><a href="#__codelineno-1-16" id="__codelineno-1-16" name="__codelineno-1-16"></a>        <span class="n">noise</span> <span class="o">=</span> <span class="n">jax</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">noise_key</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">*</span> <span class="n">noise_scale</span>
+</span><span id="__span-1-17"><a href="#__codelineno-1-17" id="__codelineno-1-17" name="__codelineno-1-17"></a>        <span class="n">x</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">noise</span>
+</span><span id="__span-1-18"><a href="#__codelineno-1-18" id="__codelineno-1-18" name="__codelineno-1-18"></a>
+</span><span id="__span-1-19"><a href="#__codelineno-1-19" id="__codelineno-1-19" name="__codelineno-1-19"></a>        <span class="c1"># Clip to valid range</span>
+</span><span id="__span-1-20"><a href="#__codelineno-1-20" id="__codelineno-1-20" name="__codelineno-1-20"></a>        <span class="n">x</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+</span><span id="__span-1-21"><a href="#__codelineno-1-21" id="__codelineno-1-21" name="__codelineno-1-21"></a>
+</span><span id="__span-1-22"><a href="#__codelineno-1-22" id="__codelineno-1-22" name="__codelineno-1-22"></a>    <span class="k">return</span> <span class="n">x</span>
+</span></code></pre></div>
+<p><strong>Convergence</strong>: Under regularity and ergodicity conditions, an appropriate infinite-time/vanishing-discretisation limit targets <span class="arithmatex">\(p_\theta\)</span>. Fixed-step ULA has discretisation bias, finite chains have transient and mixing error, and independently tuning noise, clipping the state, or changing the drift generally changes or removes the claimed stationary target.</p>
+<h3 id="score-matching-avoiding-sampling">Score Matching: Avoiding Sampling<a class="headerlink" href="#score-matching-avoiding-sampling" title="Permanent link">¤</a></h3>
+<p><strong>Score Matching</strong> (<a href="https://jmlr.org/papers/v6/hyvarinen05a.html">Hyvärinen, 2005 — JMLR</a>) bypasses MCMC sampling by matching the <strong>score function</strong> (gradient of log-density):</p>
+<div class="arithmatex">\[
+\psi_\theta(x) = \nabla_x \log p_\theta(x) = -\nabla_x E_\theta(x)
+\]</div>
+<p>The population Fisher divergence is</p>
+<div class="arithmatex">\[
+\mathcal{D}_{F}(p_{\mathrm{data}}\|p_\theta)
+=\frac12\mathbb{E}_{p_{\mathrm{data}}}
+\left\|s_{\mathrm{data}}(X)-s_\theta(X)\right\|^2.
+\]</div>
+<p>It contains the unknown data score. Expanding the square and integrating the cross term by parts gives, up to a constant independent of <span class="arithmatex">\(\theta\)</span>,</p>
+<div class="arithmatex">\[
+\mathcal J_{\mathrm{SM}}(\theta)
+=\mathbb E_{p_{\mathrm{data}}}
+\left[\frac12\|s_\theta(X)\|^2+\nabla_x\!\cdot s_\theta(X)\right]
+=\mathbb E_{p_{\mathrm{data}}}
+\left[\frac12\|\nabla_xE_\theta(X)\|^2-\Delta_xE_\theta(X)\right].
+\]</div>
+<p>This identity needs differentiable densities on a common continuous support and boundary terms that vanish or are otherwise controlled. Ordinary Euclidean score matching is not valid unchanged for discrete variables, arbitrary bounded domains, singular data laws, or manifolds. Matching scores identifies a normalized density only on connected support components under the necessary regularity; disconnected components can retain undetermined relative masses.</p>
+<p><strong>Advantages</strong>:</p>
+<ul>
+<li><strong>No sampling required</strong> during training</li>
+<li><strong>No partition function</strong> computation needed</li>
+<li>Avoids a negative-phase Markov chain, although Hessian traces or stochastic trace estimators can still be expensive</li>
+</ul>
+<p><strong>Disadvantages</strong>:</p>
+<ul>
+<li><strong>Second derivatives</strong> enter the Hyvärinen objective through a Laplacian or Jacobian trace; forming a full Hessian is unnecessary, but exact trace evaluation can still scale poorly.</li>
+<li><strong>Generation still requires MCMC</strong> at test time (or a learned sampler).</li>
+<li>Denoising and sliced score matching replace the inaccessible or expensive term with a different estimator; they introduce noise-path or random-projection choices rather than eliminating statistical error.</li>
+</ul>
+<h4 id="running-example-basic-score-matching-reaches-the-mle-solution">Running example: basic score matching reaches the MLE solution<a class="headerlink" href="#running-example-basic-score-matching-reaches-the-mle-solution" title="Permanent link">¤</a></h4>
+<p>For the quadratic energy, <span class="arithmatex">\(s_{a,b}(x)=b-ax\)</span> and <span class="arithmatex">\(\partial_xs_{a,b}=-a\)</span>, so</p>
+<div class="arithmatex">\[
+\mathcal J_{\mathrm{SM}}(a,b)
+=\mathbb E_P\left[\frac12(b-aX)^2-a\right].
+\]</div>
+<p>The first-order conditions are <span class="arithmatex">\(b=am\)</span> and <span class="arithmatex">\(av=1\)</span>. Hence <span class="arithmatex">\(a^*=1/v\)</span> and <span class="arithmatex">\(b^*=m/v\)</span>, exactly the population MLE parameters. This equivalence is a statement about this well-specified, regular population problem; it does not make their finite estimators or optimization dynamics identical.</p>
+<h4 id="denoising-score-matching-the-conditional-target-learns-a-marginal-score">Denoising score matching: the conditional target learns a marginal score<a class="headerlink" href="#denoising-score-matching-the-conditional-target-learns-a-marginal-score" title="Permanent link">¤</a></h4>
+<p><strong>Denoising Score Matching</strong> (<a href="https://www.iro.umontreal.ca/~vincentp/Publications/smdae_techreport.pdf">Vincent, 2011 — Neural Computation</a>): A practical variant adds noise to data:</p>
+<div class="arithmatex">\[
+\mathcal J_{\mathrm{DSM}}(\theta;\sigma)
+=\frac12\mathbb E_{X\sim P,\,\widetilde X\sim q_\sigma(\cdot\mid X)}
+\left\|s_\theta(\widetilde X)
+-\nabla_{\widetilde x}\log q_\sigma(\widetilde X\mid X)\right\|^2.
+\]</div>
+<p>For <span class="arithmatex">\(\widetilde X=X+\sigma\epsilon\)</span>, the conditional target is <span class="arithmatex">\((X-\widetilde X)/\sigma^2=-\epsilon/\sigma\)</span>. Squared-error regression returns its conditional expectation given <span class="arithmatex">\(\widetilde X\)</span>, which is the score of the <strong>corrupted marginal</strong> <span class="arithmatex">\(q_\sigma(\widetilde x)=\int q_\sigma(\widetilde x\mid x)p_{\mathrm{data}}(x)dx\)</span>. The conditional target and marginal score are therefore related by a population conditional expectation; they are not equal sample by sample.</p>
+<p>For the running Gaussian, <span class="arithmatex">\(q_\sigma=\mathcal N(m,v+\sigma^2)\)</span>. A quadratic score fitted at one fixed nonzero noise level recovers</p>
+<div class="arithmatex">\[
+a_\sigma^*=\frac1{v+\sigma^2},\qquad
+b_\sigma^*=\frac m{v+\sigma^2},
+\]</div>
+<p>not the clean parameters. Score-based diffusion instead learns a time-indexed family of corrupted-marginal scores and couples it to a reverse-time sampler. Its clean-generation claim depends on the whole path, endpoint limit, score accuracy, and numerical solver—not on a single fixed-noise DSM objective (<a href="https://proceedings.neurips.cc/paper_files/paper/2019/hash/3001ef257407d5a371a96dcd947c7d93-Abstract.html">Song &amp; Ermon, 2019 — NeurIPS</a>).</p>
+<h4 id="sliced-score-matching-estimate-a-trace-with-directions">Sliced score matching: estimate a trace with directions<a class="headerlink" href="#sliced-score-matching-estimate-a-trace-with-directions" title="Permanent link">¤</a></h4>
+<p>Let <span class="arithmatex">\(V\)</span> be independent of <span class="arithmatex">\(X\)</span>, with <span class="arithmatex">\(\mathbb E[VV^\top]\)</span> positive definite. Sliced score matching projects the score difference before squaring. Under the same integration-by-parts conditions, its implicit form is</p>
+<div class="arithmatex">\[
+\mathcal J_{\mathrm{SSM}}(\theta)
+=\mathbb E_{X,V}
+\left[
+\frac12\bigl(V^\top s_\theta(X)\bigr)^2
++V^\top\bigl(\nabla_xs_\theta(X)\bigr)V
+\right].
+\]</div>
+<p>It uses Hessian-vector or Jacobian-vector products instead of materializing a full Hessian (<a href="https://proceedings.mlr.press/v115/song20a.html">Song et al., 2020 — UAI</a>). With <span class="arithmatex">\(\mathbb E[VV^\top]=I\)</span>, the second term is also a Hutchinson estimator of <span class="arithmatex">\(\nabla\cdot s_\theta\)</span>. The expectation is exact; a finite number of directions has Monte Carlo variance.</p>
+<p>In one dimension, write the projection as <span class="arithmatex">\(R\)</span>. If <span class="arithmatex">\(\mathbb E[R^2]=1\)</span>, then</p>
+<div class="arithmatex">\[
+\mathcal J_{\mathrm{SSM}}(a,b)
+=\mathbb E[R^2]\,
+\mathbb E_P\left[\frac12(b-aX)^2-a\right]
+=\mathcal J_{\mathrm{SM}}(a,b).
+\]</div>
+<p>A Rademacher direction <span class="arithmatex">\(R\in\{-1,+1\}\)</span> has <span class="arithmatex">\(R^2=1\)</span> and adds no projection variance in this scalar example. That convenient collapse does not extend to a single arbitrary direction in higher dimensions.</p>
+<h3 id="noise-contrastive-estimation-nce">Noise Contrastive Estimation (NCE)<a class="headerlink" href="#noise-contrastive-estimation-nce" title="Permanent link">¤</a></h3>
+<p><strong>NCE</strong> (<a href="https://proceedings.mlr.press/v9/gutmann10a.html">Gutmann &amp; Hyvärinen, 2010 — AISTATS</a>) frames training as <strong>binary classification</strong>:</p>
+<p><strong>Setup</strong>: Given data samples <span class="arithmatex">\(\{x_i\}\)</span> and noise samples <span class="arithmatex">\(\{\tilde{x}_j\}\)</span> from distribution <span class="arithmatex">\(p_n\)</span>, train a classifier to distinguish them.</p>
+<p>Let <span class="arithmatex">\(k\)</span> be the number of noise examples per data example. Write <span class="arithmatex">\(\bar E_\theta\)</span> for an energy without its free additive intercept, and parameterize a candidate log-density as <span class="arithmatex">\(\log p_{\theta,c}(x)=-\bar E_\theta(x)-c\)</span>, where <span class="arithmatex">\(c\)</span> is learned rather than obtained by integration. Equivalently, the complete energy is <span class="arithmatex">\(E_{\theta,c}=\bar E_\theta+c\)</span>. The model posterior probability that a mixture observation came from data is</p>
+<div class="arithmatex">\[
+h_{\theta,c}(x)
+=\frac{e^{-\bar E_\theta(x)-c}}{e^{-\bar E_\theta(x)-c}+k p_n(x)}
+=\sigma\!\left(-\bar E_\theta(x)-c-\log p_n(x)-\log k\right).
+\]</div>
+<p><strong>NCE objective</strong>:</p>
+<div class="arithmatex">\[
+\mathcal{L}_{\text{NCE}}
+=-\mathbb{E}_{X\sim p_{\text{data}}}[\log h_{\theta,c}(X)]
+-k\mathbb{E}_{Y\sim p_n}[\log(1-h_{\theta,c}(Y))].
+\]</div>
+<p>At the unrestricted population optimum, matching the true and modeled class posterior implies <span class="arithmatex">\(p_{\theta,c}=p_{\mathrm{data}}\)</span> wherever the noise law supplies the required support. In a well-specified identifiable model this yields a consistent parameter estimator under the theorem's asymptotic conditions (<a href="https://proceedings.mlr.press/v9/gutmann10a.html">Gutmann &amp; Hyvärinen, 2010 — AISTATS</a>). That statement does not say a finite classifier is well conditioned. When <span class="arithmatex">\(p_n\)</span> scarcely overlaps the data, labels become easy while the useful density-ratio region receives little information.</p>
+<p><strong>Advantages</strong>:</p>
+<ul>
+<li>Avoids evaluating the partition-function integral by estimating its log-normalizer parameter jointly, under NCE's identifiability and noise-coverage conditions</li>
+<li><strong>Simple implementation</strong> like standard classification</li>
+<li>Requires a known, samplable noise density with adequate support; a Gaussian is only one option and is unsuitable for many discrete domains</li>
+</ul>
+<p><strong>When to use</strong>:</p>
+<ul>
+<li>Problems where an evaluable noise distribution overlaps the data sufficiently and the NCE estimator is appropriate</li>
+<li>Density-ratio or normalization estimation where direct model MCMC is undesirable</li>
+<li>Not every representation-level “contrastive learning” loss is NCE for a normalized generative model</li>
+</ul>
+<h4 id="running-example-nce-also-fixes-the-additive-intercept">Running example: NCE also fixes the additive intercept<a class="headerlink" href="#running-example-nce-also-fixes-the-additive-intercept" title="Permanent link">¤</a></h4>
+<p>For <span class="arithmatex">\(P=\mathcal N(m,v)\)</span> and a noise law that has positive density on <span class="arithmatex">\(\mathbb R\)</span>, the population NCE posterior is represented exactly by the quadratic family at</p>
+<div class="arithmatex">\[
+a^*=\frac1v,\qquad b^*=\frac mv,qquad
+c^*=\frac{(b^*)^2}{2a^*}+\frac12\log\frac{2\pi}{a^*}.
+\]</div>
+<p>Substitution makes <span class="arithmatex">\(e^{-E_{a^*,b^*,c^*}(x)}\)</span> equal to the normalized data density, so the NCE logit becomes <span class="arithmatex">\(\log p_{\mathrm{data}}(x)-\log p_n(x)-\log k\)</span>. MLE and score matching could not identify <span class="arithmatex">\(c\)</span> because normalized probabilities and input scores cancel an additive energy constant. NCE identifies it only because the classification parameterization and known noise density put the absolute scale back into the problem.</p>
+<h4 id="negative-sampling-is-a-related-construction-not-a-synonym">Negative sampling is a related construction, not a synonym<a class="headerlink" href="#negative-sampling-is-a-related-construction-not-a-synonym" title="Permanent link">¤</a></h4>
+<p>The skip-gram negative-sampling objective, for example, retains positive and sampled-negative logistic terms but does not preserve every ingredient of NCE as a normalized-density estimator. It is a simplified objective for learning representations, with its own negative distribution and population target (<a href="https://papers.nips.cc/paper/2013/hash/9aa42b31882ec039965f3c4923ce901b-Abstract.html">Mikolov et al., 2013 — NeurIPS</a>). Calling any loss with negative examples “NCE” silently imports consistency, normalization, and density-ratio claims that may not apply. To make a generative claim, specify the class mixture, the evaluable noise law, the normalizer treatment, and the recovered probabilistic object.</p>
+<h4 id="connection-to-adversarial-density-ratio-estimation">Connection to adversarial density-ratio estimation<a class="headerlink" href="#connection-to-adversarial-density-ratio-estimation" title="Permanent link">¤</a></h4>
+<p>With equal class priors and fixed laws <span class="arithmatex">\(P\)</span> and <span class="arithmatex">\(Q\)</span>, the population-optimal binary discriminator satisfies</p>
+<div class="arithmatex">\[
+D^*(x)=\frac{p(x)}{p(x)+q(x)},
+\qquad
+\operatorname{logit}D^*(x)=\log\frac{p(x)}{q(x)}.
+\]</div>
+<p>This is the shared density-ratio identity behind NCE and the original GAN discriminator (<a href="https://proceedings.neurips.cc/paper_files/paper/2014/hash/f033ed80deb0234979a61f95710dbe25-Abstract.html">Goodfellow et al., 2014 — NeurIPS</a>). The roles differ. NCE contrasts data with a fixed, evaluable noise density and can learn a normalizer; a GAN usually contrasts data with a learned implicit generator whose density need not be evaluable. Their population-optimal classifiers correspond algebraically, but their generator objectives, finite discriminators, and alternating optimization do not become equivalent.</p>
+<h3 id="stein-discrepancies-compare-through-witness-functions">Stein Discrepancies: Compare Through Witness Functions<a class="headerlink" href="#stein-discrepancies-compare-through-witness-functions" title="Permanent link">¤</a></h3>
+<p>For a differentiable one-dimensional target <span class="arithmatex">\(p_\theta\)</span>, define the Langevin Stein operator</p>
+<div class="arithmatex">\[
+(\mathcal T_{p_\theta}f)(x)
+=s_\theta(x)f(x)+f'(x).
+\]</div>
+<p>If <span class="arithmatex">\(f(x)p_\theta(x)\)</span> vanishes at the boundary, integration by parts gives <span class="arithmatex">\(\mathbb E_{p_\theta}[\mathcal T_{p_\theta}f]=0\)</span>. A Stein discrepancy evaluates the violation under the data law:</p>
+<div class="arithmatex">\[
+\mathcal D_{\mathrm{Stein}}(P,p_\theta;\mathcal F)
+=\sup_{f\in\mathcal F}
+\left|\mathbb E_{X\sim P}[(\mathcal T_{p_\theta}f)(X)]\right|.
+\]</div>
+<p>The partition function disappears because <span class="arithmatex">\(s_\theta=-\partial_xE_\theta\)</span>. What replaces it is a choice of operator, boundary condition, and witness class <span class="arithmatex">\(\mathcal F\)</span>. For suitable rich classes, zero discrepancy identifies the target. For a restricted class, zero means only that the selected Stein moments vanish.</p>
+<p>The running quadratic example makes this visible. With <span class="arithmatex">\(f_0(x)=1\)</span>,</p>
+<div class="arithmatex">\[
+\mathbb E_P[\mathcal T_{p_{a,b}}f_0(X)]=b-am,
+\]</div>
+<p>which detects a mean mismatch but is zero for every <span class="arithmatex">\(a\)</span> satisfying <span class="arithmatex">\(b=am\)</span>. Adding <span class="arithmatex">\(f_1(x)=x\)</span> gives</p>
+<div class="arithmatex">\[
+\mathbb E_P[\mathcal T_{p_{a,b}}f_1(X)]
+=bm-a(m^2+v)+1.
+\]</div>
+<p>After <span class="arithmatex">\(b=am\)</span>, the second condition becomes <span class="arithmatex">\(1-av=0\)</span> and recovers the variance. One witness was insufficient; the pair identifies this two-parameter Gaussian family.</p>
+<p>Kernel Stein discrepancies take <span class="arithmatex">\(\mathcal F\)</span> to be a unit ball in a vector-valued RKHS, producing a sample statistic from target scores and kernel derivatives without target samples or <span class="arithmatex">\(Z_\theta\)</span> (<a href="https://proceedings.mlr.press/v48/liub16.html">Liu, Lee &amp; Jordan, 2016 — ICML</a>). The kernel still matters: commonly used KSDs can fail to detect non-convergence even for Gaussian targets, whereas convergence-determining results require appropriate kernels and target assumptions (<a href="https://proceedings.mlr.press/v70/gorham17a.html">Gorham &amp; Mackey, 2017 — ICML</a>). A finite near-zero KSD is therefore evidence relative to its kernel, estimator, sample size, and assumptions—not an unconditional certificate that two distributions are equal.</p>
+<h3 id="worked-example-verify-the-likelihood-gradient-sign">Worked example: verify the likelihood-gradient sign<a class="headerlink" href="#worked-example-verify-the-likelihood-gradient-sign" title="Permanent link">¤</a></h3>
+<p>For a two-state EBM with <span class="arithmatex">\(E_\theta(a)=0\)</span> and <span class="arithmatex">\(E_\theta(b)=\theta\)</span>, suppose the observation is <span class="arithmatex">\(b\)</span>. Then <span class="arithmatex">\(p_\theta(b)=e^{-\theta}/(1+e^{-\theta})\)</span> and</p>
+<div class="arithmatex">\[\frac{d}{d\theta}\log p_\theta(b)=-1+p_\theta(b).\]</div>
+<p>The general identity gives <span class="arithmatex">\(-\partial_\theta E(b)+\mathbb E_p[\partial_\theta E(X)]=-1+p(b)\)</span> because <span class="arithmatex">\(\partial_\theta E(a)=0\)</span> and <span class="arithmatex">\(\partial_\theta E(b)=1\)</span>. Gradient ascent decreases <span class="arithmatex">\(\theta\)</span>, lowering the observed state's energy. A negative-log-likelihood optimizer uses the opposite sign. This one-line finite model is an effective unit test for implementation conventions.</p>
+<h3 id="independent-practice-and-assessment-map-objectives-and-samplers">Independent practice and assessment map: objectives and samplers<a class="headerlink" href="#independent-practice-and-assessment-map-objectives-and-samplers" title="Permanent link">¤</a></h3>
+<p>For each route, report the population target, finite estimator, and
+optimization procedure separately. A shared sign pattern is not evidence that
+two objectives or samplers are equivalent.</p>
+<h4 id="p1-compare-likelihood-transition-score-ratio-and-witness-routes">P1 — Compare likelihood, transition, score, ratio, and witness routes<a class="headerlink" href="#p1-compare-likelihood-transition-score-ratio-and-witness-routes" title="Permanent link">¤</a></h4>
+<ol>
+<li><strong>P1.1 — Predict before computing.</strong> For the quadratic running example, predict which quantities are identified by exact MLE, one-step CD with fixed-step ULA, basic score matching, fixed-noise DSM, NCE, and a single constant Stein witness. Predict which methods identify the additive intercept and which finite procedures remain biased even at the population optimum.</li>
+<li><strong>P1.2 — Likelihood sign and transition bias.</strong> Re-derive both the log-likelihood and negative-log-likelihood gradients for the two-state worked model. Then use the chapter's one-step Gaussian ULA calculation to determine the sign of the resulting quadratic-parameter update at the exact data model. Separate endpoint discretization bias, incomplete mixing, parameter drift, and the omitted derivative of the transition law.</li>
+<li><strong>P1.3 — Sampler-target audit.</strong> For a standard-normal target compare (a) ULA <span class="arithmatex">\(X'=(1-\epsilon/2)X+\sqrt\epsilon\,\xi\)</span>, (b) its Metropolis-adjusted version, and © <span class="arithmatex">\(X'=(1-\eta)X+\sigma\xi\)</span> followed by clipping. Derive the unbounded stationary variance of ©, state the coefficient relation that would recover variance one before clipping, and explain which methods have a known exact invariant target, a biased invariant law, or only heuristic negative-sample semantics.</li>
+<li><strong>P1.4 — Score estimators.</strong> For <span class="arithmatex">\(P=\mathcal N(m,v)\)</span> and a quadratic energy, derive the optima for basic score matching and Gaussian DSM at variance <span class="arithmatex">\(\sigma^2\)</span>. Derive the one-dimensional sliced objective for a unit-second-moment direction, then explain what changes in higher dimensions with finitely many directions. State all integration-by-parts, support, and smoothness obligations.</li>
+<li><strong>P1.5 — Ratios and witnesses.</strong> Let <span class="arithmatex">\(P=(3/4,1/4)\)</span>, <span class="arithmatex">\(N=(1/2,1/2)\)</span>, and use two noise samples per datum. Compute the population NCE posterior and logit on both states, including the class-ratio term. Contrast the recovered object with generic negative sampling and a learned-generator discriminator. Then choose Stein witnesses sufficient to identify both mean and variance in the Gaussian running family and show why the constant witness alone fails.</li>
+<li><strong>P1.6 — Transfer.</strong> Design an objective-and-sampler protocol for a discrete protein-sequence EBM. Explain why ordinary Euclidean score matching is not valid unchanged, define either a support-covering NCE noise law or a mutation-kernel negative phase, specify class ratios or stationary-target conditions, and give diagnostics that distinguish objective error from poor discrete-state mixing.</li>
+</ol>
+<h5 id="outcome-to-task-alignment-objectives-and-samplers">Outcome-to-task alignment: objectives and samplers<a class="headerlink" href="#outcome-to-task-alignment-objectives-and-samplers" title="Permanent link">¤</a></h5>
+<div class="md-typeset__table book-table-container"><table id="tbl-ebm-explained-outcome-to-task-alignment-objectives-and-samplers"><caption class="book-object-caption"><span class="book-object-number">Table EBM.11.</span> Outcome-to-task alignment for EBM objectives and samplers</caption>
+<thead>
+<tr>
+<th>Learning objective</th>
+<th>Independently assessed by</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>O1 — Derive the signed positive/negative-phase likelihood gradient</td>
+<td>P1.1, P1.2</td>
+</tr>
+<tr>
+<td>O2 — Distinguish an exact model expectation from CD and PCD estimates</td>
+<td>P1.1, P1.2, P1.6</td>
+</tr>
+<tr>
+<td>O3 — State target semantics for ULA, MALA, and decoupled SGLD-style dynamics</td>
+<td>P1.3</td>
+</tr>
+<tr>
+<td>O4 — Derive basic, denoising, and sliced score matching</td>
+<td>P1.1, P1.4</td>
+</tr>
+<tr>
+<td>O5 — Derive NCE with its class-prior ratio</td>
+<td>P1.1, P1.5</td>
+</tr>
+<tr>
+<td>O6 — Distinguish NCE, negative sampling, and adversarial ratio estimation</td>
+<td>P1.5, P1.6</td>
+</tr>
+<tr>
+<td>O7 — Bound Stein identification by the declared witness class</td>
+<td>P1.1, P1.5</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="training-energy-based-models-chapter-synthesis-and-retrieval-practice">Training Energy-Based Models: Chapter synthesis and retrieval practice<a class="headerlink" href="#training-energy-based-models-chapter-synthesis-and-retrieval-practice" title="Permanent link">¤</a></h3>
+<p>MLE, CD/PCD, score matching, DSM, sliced estimators, NCE, negative sampling, adversarial ratios, and Stein discrepancies are not interchangeable names for “push data down.” Each removes a different unavailable quantity and introduces a different support, smoothness, noise, transition, projection, witness, or optimization obligation. Population identification, finite estimation, and parameter optimization must be reported separately.</p>
+<p>The EBM application in <a href="../gradients-and-geometry-in-generative-modeling/#ebms-fisher-estimation-inherits-the-negative-phase-problem">Gradients and Geometry in Generative
+Modeling</a>
+separates the parameter likelihood gradient, state score, sampler derivative,
+and model Fisher, and shows why poor negative-phase mixing can bias both the
+likelihood gradient and curvature estimate.</p>
+<details class="question">
+<summary>Retrieval practice: objectives and samplers</summary>
+<ol>
+<li>What are the positive and negative phases of the log-likelihood gradient?</li>
+<li>Does persistence guarantee PCD samples follow the current model?</li>
+<li>When do ULA updates have discretization bias?</li>
+<li>What term enters the NCE logit with <span class="arithmatex">\(k\)</span> noise samples per datum?</li>
+<li>At fixed Gaussian corruption variance <span class="arithmatex">\(\sigma^2\)</span>, which law does DSM identify?</li>
+<li>Why can a zero Stein moment for one witness fail to identify a distribution?</li>
+<li>Which NCE ingredient is normally absent from a generic negative-sampling heuristic?</li>
+</ol>
+<p><strong>Solutions.</strong> (1) Lower data energy and raise energy under the exact current model expectation. (2) No; the chain must mix while parameters change slowly enough. (3) At any fixed nonzero step unless special structure removes it; MALA corrects proposals under its assumptions. (4) <span class="arithmatex">\(-\log k\)</span>. (5) The corrupted marginal <span class="arithmatex">\(q_\sigma\)</span>, not the clean endpoint. (6) A restricted witness checks only one Stein moment; another mismatch can lie in its null space. (7) A complete normalized-density construction with an evaluable noise law, class ratio, and explicit treatment of the normalizer.</p>
+</details>
+<p><strong>Bridge to Chapter 3.</strong> Objectives define scalar or score targets, but architecture decides normalization, symmetry, conditional structure, and whether classification and generation truly share a coherent joint model.</p>
+<hr/>
+<hr/>
+<p><strong>Navigate:</strong> <a href="../ebm-01-foundations/">← Foundations</a> · <a href="../ebm-03-architectures/">3. Architectures and JEM →</a> · <a href="../ebm-explained/#training-energy-based-models">Complete guide</a></p>
+</article>
+</div>
+<script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  Back to top
+</button>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+<div class="md-social">
+<a class="md-social__link" href="https://github.com/avitai/artifex" rel="noopener" target="_blank" title="github.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</a>
+<a class="md-social__link" href="https://pypi.org/project/avitai-artifex/" rel="noopener" target="_blank" title="pypi.org">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-66.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.3v101.8c0 29 25.2 46 53.4 54.3 33.8 9.9 66.3 11.7 106.8 0 26.9-7.8 53.4-23.5 53.4-54.3v-40.7H226.2v-13.6h160.2c31.1 0 42.6-21.7 53.4-54.2 11.2-33.5 10.7-65.7 0-108.6M286.2 444.7a20.4 20.4 0 1 1 0-40.7 20.4 20.4 0 1 1 0 40.7M167.8 248.1h106.8c29.7 0 53.4-24.5 53.4-54.3V91.9c0-29-24.4-50.7-53.4-55.6-35.8-5.9-74.7-5.6-106.8.1-45.2 8-53.4 24.7-53.4 55.6v40.7h106.9v13.6h-147c-31.1 0-58.3 18.7-66.8 54.2-9.8 40.7-10.2 66.1 0 108.6 7.6 31.6 25.7 54.2 56.8 54.2H101v-48.8c0-35.3 30.5-66.4 66.8-66.4m-6.6-183.4a20.4 20.4 0 1 1 0 40.8 20.4 20.4 0 1 1 0-40.8"></path></svg>
+</a>
+<a class="md-social__link" href="https://twitter.com/mahdi_shafiei" rel="noopener" target="_blank" title="twitter.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M459.4 151.7c.3 4.5.3 9.1.3 13.6 0 138.7-105.6 298.6-298.6 298.6-59.5 0-114.7-17.2-161.1-47.1 8.4 1 16.6 1.3 25.3 1.3 49.1 0 94.2-16.6 130.3-44.8-46.1-1-84.8-31.2-98.1-72.8 6.5 1 13 1.6 19.8 1.6 9.4 0 18.8-1.3 27.6-3.6-48.1-9.7-84.1-52-84.1-103v-1.3c14 7.8 30.2 12.7 47.4 13.3-28.3-18.8-46.8-51-46.8-87.4 0-19.5 5.2-37.4 14.3-53C87.4 130.8 165 172.4 252.1 176.9c-1.6-7.8-2.6-15.9-2.6-24C249.5 95.1 296.3 48 354.4 48c30.2 0 57.5 12.7 76.7 33.1 23.7-4.5 46.5-13.3 66.6-25.3-7.8 24.4-24.4 44.8-46.1 57.8 21.1-2.3 41.6-8.1 60.4-16.2-14.3 20.8-32.2 39.3-52.6 54.3"></path></svg>
+</a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.path", "navigation.top", "navigation.prune", "toc.follow", "search.highlight", "search.share", "search.suggest", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "content.mermaid"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+<script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+<script src="../../../javascripts/reading-layout.js"></script>
+</body>
+</html>

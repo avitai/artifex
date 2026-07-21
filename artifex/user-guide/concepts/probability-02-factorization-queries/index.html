@@ -1,0 +1,1404 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="This chapter connects the chain rule to autoregressive factorization, develops entropy and KL divergence, and separates generation, scoring, conditioning," name="description"/>
+<meta content="Mahdi Shafiei" name="author"/>
+<link href="https://docs.avitai.bio/artifex/user-guide/concepts/probability-02-factorization-queries/" rel="canonical"/>
+<link href="../probability-01-objects/" rel="prev"/>
+<link href="../probability-03-likelihood-examples/" rel="next"/>
+<link href="../../../assets/images/favicon.png" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.7.7" name="generator"/>
+<title>Probability 2 — Factorizations and Generative Queries - Artifex</title>
+<link href="../../../assets/stylesheets/main.ec1eaa64.min.css" rel="stylesheet"/>
+<link href="../../../assets/stylesheets/palette.ab4e12ef.min.css" rel="stylesheet"/>
+<script src="../../../assets/vendor/iframe-worker/index.js"></script>
+<link href="../../../assets/_mkdocstrings.css" rel="stylesheet"/>
+<link href="../../../_static/extra.css" rel="stylesheet"/>
+<script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+<meta content="article" property="og:type"/>
+<meta content="The Artifex Generative Models Book" property="og:site_name"/>
+<meta content="Probability 2 — Factorizations and Generative Queries" property="og:title"/>
+<meta content="This chapter connects the chain rule to autoregressive factorization, develops entropy and KL divergence, and separates generation, scoring, conditioning," property="og:description"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/probability-02-factorization-queries/" property="og:url"/>
+<meta content="2026-07-14" property="article:modified_time"/>
+<meta content="summary" name="twitter:card"/>
+<meta content="Probability 2 — Factorizations and Generative Queries" name="twitter:title"/>
+<meta content="This chapter connects the chain rule to autoregressive factorization, develops entropy and KL divergence, and separates generation, scoring, conditioning," name="twitter:description"/>
+<meta content="Generative models, Machine learning, Probabilistic modeling, foundation, required, canonical_chapter, probability-factorization-queries, newcomer, practitioner, researcher" name="keywords"/>
+<meta content="Probability 2 — Factorizations and Generative Queries" name="citation_title"/>
+<meta content="Mahdi Shafiei" name="citation_author"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/probability-02-factorization-queries/" name="citation_public_url"/>
+<meta content="en" name="citation_language"/>
+<meta content="Probability 2 — Factorizations and Generative Queries" name="DC.title"/>
+<meta content="Mahdi Shafiei" name="DC.creator"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/probability-02-factorization-queries/" name="DC.identifier"/>
+<meta content="Text.LearningResource" name="DC.type"/>
+<meta content="2026-07-14" name="DCTERMS.modified"/>
+<meta content="https://github.com/avitai/artifex/blob/main/LICENSE" name="DCTERMS.license"/>
+<meta content="foundation" name="DCTERMS.educationLevel"/>
+<meta content="newcomer, practitioner, researcher" name="DCTERMS.audience"/>
+<link href="https://github.com/avitai/artifex/blob/main/LICENSE" rel="license"/>
+<script id="artifex-book-metadata" type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Chapter",
+  "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/probability-02-factorization-queries/",
+  "url": "https://docs.avitai.bio/artifex/user-guide/concepts/probability-02-factorization-queries/",
+  "name": "Probability 2 \u2014 Factorizations and Generative Queries",
+  "description": "This chapter connects the chain rule to autoregressive factorization, develops entropy and KL divergence, and separates generation, scoring, conditioning,",
+  "identifier": "probability-factorization-queries",
+  "inLanguage": "en",
+  "isAccessibleForFree": true,
+  "learningResourceType": "Canonical chapter",
+  "educationalLevel": "foundation",
+  "educationalUse": "required",
+  "audience": [
+    
+      {"@type": "EducationalAudience", "audienceType": "newcomer"},
+    
+      {"@type": "EducationalAudience", "audienceType": "practitioner"},
+    
+      {"@type": "EducationalAudience", "audienceType": "researcher"}
+    
+  ],
+  "dateModified": "2026-07-14",
+  "keywords": ["Generative models", "Machine learning", "Probabilistic modeling", "foundation", "required", "canonical_chapter", "probability-factorization-queries", "newcomer", "practitioner", "researcher"],
+  "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+  "author": [
+    
+      {"@type": "Person", "name": "Mahdi Shafiei"}
+    
+  ],
+  "isPartOf": {
+    "@type": "Book",
+    "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/#book",
+    "url": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/",
+    "name": "The Artifex Generative Models Book",
+    "bookEdition": "Living Web Edition",
+    "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+    "author": [
+      
+        {"@type": "Person", "name": "Mahdi Shafiei"}
+      
+    ]
+  }
+}
+</script>
+<link href="../../../assets/vendor/katex/katex.min.css" id="artifex-katex-stylesheet" integrity="sha384-UA8juhPf75SzzAMA/4fo3yOU7sBJ0om7SCD2GHq0fZqZco6tr1UCV7nUbk9J90JM" rel="stylesheet"/>
+<script defer="" integrity="sha384-T/0lMUdJpd2S1ZHtRiofG3htU3xPCrFVeAQ1UUE2TJwlEJSV5NUwn30kP28n238E" src="../../../assets/vendor/mermaid/mermaid.min.js"></script>
+<script defer="" src="../../../assets/vendor/katex/katex-shadow.js"></script>
+<script defer="" src="../../../javascripts/mermaid-math.js"></script>
+<script defer="" src="../../../javascripts/mathjax.js"></script>
+<script defer="" integrity="sha384-OrHfGTnIbkl0do3N76qW/uWr38o91N05sbSPuYBPLH+hG8X/dNSrjZf3AGjzrCwC" src="../../../assets/vendor/mathjax/tex-mml-chtml.js"></script>
+</head>
+<body data-md-color-accent="amber" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#probability-2-factorizations-and-generative-queries">
+          Skip to content
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header md-header--shadow" data-md-component="header">
+<nav aria-label="Header" class="md-header__inner md-grid">
+<a aria-label="Artifex" class="md-header__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            Artifex
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+            
+              Probability 2 — Factorizations and Generative Queries
+            
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-label="Switch to dark mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: light)" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_1" hidden="" title="Switch to dark mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+<input aria-label="Switch to light mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-primary="indigo" data-md-color-scheme="slate" id="__palette_1" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_0" hidden="" title="Switch to light mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+</form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div aria-label="Search" class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Search" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="Search" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="Search" class="md-search__options">
+<a aria-label="Share" class="md-search__icon md-icon" data-clipboard="" data-clipboard-text="" data-md-component="search-share" href="javascript:void(0)" tabindex="-1" title="Share">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"></path></svg>
+</a>
+<button aria-label="Clear" class="md-search__icon md-icon" tabindex="-1" title="Clear" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            Initializing search
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Navigation" class="md-nav md-nav--primary" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="Artifex" class="md-nav__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+    Artifex
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../..">
+<span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../getting-started/installation/">
+<span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Generative Models Book
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Generative Models Book
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    
+  
+    Start Here — The Landscape
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../first-course-01-generative-systems/">
+<span class="md-ellipsis">
+    
+  
+    First Course — New to Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Foundations
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_3_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Foundations
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_3_1" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_3_1" id="__nav_3_3_1_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    1. Probability and Generative Modeling
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_3_1_label" class="md-nav" data-md-level="3">
+<label class="md-nav__title" for="__nav_3_3_1">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    1. Probability and Generative Modeling
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../probability-01-objects/">
+<span class="md-ellipsis">
+    
+  
+    1. Laws, Densities, and Conditioning
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
+    
+  
+    2. Factorizations and Generative Queries
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
+<span class="md-ellipsis">
+    
+  
+    2. Factorizations and Generative Queries
+  
+
+    
+  </span>
+</a>
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#3-chain-rule-and-autoregressive-factorization">
+<span class="md-ellipsis">
+      
+        3. Chain Rule and Autoregressive Factorization
+      
+    </span>
+</a>
+<nav aria-label="3. Chain Rule and Autoregressive Factorization" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#factorization-information-and-query-learning-objectives">
+<span class="md-ellipsis">
+      
+        Factorization, information, and query learning objectives
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#4-entropy-cross-entropy-and-kl-divergence">
+<span class="md-ellipsis">
+      
+        4. Entropy, Cross-Entropy, and KL Divergence
+      
+    </span>
+</a>
+<nav aria-label="4. Entropy, Cross-Entropy, and KL Divergence" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#differential-entropy-is-coordinate-dependent">
+<span class="md-ellipsis">
+      
+        Differential Entropy Is Coordinate-Dependent
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#proper-scoring-rules">
+<span class="md-ellipsis">
+      
+        Proper Scoring Rules
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#from-probability-to-code-length">
+<span class="md-ellipsis">
+      
+        From probability to code length
+      
+    </span>
+</a>
+<nav aria-label="From probability to code length" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-prefix-code-four-directions">
+<span class="md-ellipsis">
+      
+        Worked prefix code: four directions
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#5-what-a-generative-model-may-be-asked-to-do">
+<span class="md-ellipsis">
+      
+        5. What a Generative Model May Be Asked to Do
+      
+    </span>
+</a>
+<nav aria-label="5. What a Generative Model May Be Asked to Do" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#generation-density-estimation-and-structured-prediction">
+<span class="md-ellipsis">
+      
+        Generation, Density Estimation, and Structured Prediction
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#a-conditional-law-is-not-a-decision-rule">
+<span class="md-ellipsis">
+      
+        A Conditional Law Is Not a Decision Rule
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#factorization-and-query-retrieval-practice">
+<span class="md-ellipsis">
+      
+        Factorization and query retrieval practice
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#factorization-and-query-synthesis">
+<span class="md-ellipsis">
+      
+        Factorization and query synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../probability-03-likelihood-examples/">
+<span class="md-ellipsis">
+    
+  
+    3. Likelihood and Worked Examples
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../probability-04-practice/">
+<span class="md-ellipsis">
+    
+  
+    4. Misconceptions, Retrieval, and Synthesis
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../probability-and-generative-modeling/">
+<span class="md-ellipsis">
+    
+  
+    Continuous View (All Chapters)
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../classical-01-latent-foundations/">
+<span class="md-ellipsis">
+    
+  
+    2. Classical Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../bayesian-learning-01-object/">
+<span class="md-ellipsis">
+    
+  
+    3. Bayesian Learning and Model Assessment
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../inference-01-objects-and-queries/">
+<span class="md-ellipsis">
+    
+  
+    4. Latent Variables and Inference
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../objectives-01-discrepancies/">
+<span class="md-ellipsis">
+    
+  
+    5. Objectives and Statistical Distances
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../information-coding-01-measures/">
+<span class="md-ellipsis">
+    
+  
+    6. Information, Coding, and Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../graphical-models-01-directed/">
+<span class="md-ellipsis">
+    
+  
+    7. Graphical Models and Structured Probability
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../message-passing-01-factor-graphs/">
+<span class="md-ellipsis">
+    
+  
+    8. Graphical Inference and Message Passing
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../filtering-01-bayes-recursions/">
+<span class="md-ellipsis">
+    
+  
+    9. Filtering and Smoothing for State-Space Generators
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../sampling-01-monte-carlo/">
+<span class="md-ellipsis">
+    
+  
+    10. Sampling and Continuous Time
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../smc-01-targets/">
+<span class="md-ellipsis">
+    
+  
+    11. Sequential Monte Carlo and Particle Methods
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../optimization-01-differentiation/">
+<span class="md-ellipsis">
+    
+  
+    12. Optimization and Learning Dynamics
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../generative-models-notation/">
+<span class="md-ellipsis">
+    
+  
+    13. Canonical Notation
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../autoregressive-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Model Families
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gradients-01-taxonomy/">
+<span class="md-ellipsis">
+    
+  
+    Connections and Compositions
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../normalization-01-queries/">
+<span class="md-ellipsis">
+    
+  
+    Research Practice
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../models/vae-guide/">
+<span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/core/base/">
+<span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../examples/overview/">
+<span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../zoo/">
+<span class="md-ellipsis">
+    
+  
+    Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../training/overview/">
+<span class="md-ellipsis">
+    
+  
+    Training
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../data/overview/">
+<span class="md-ellipsis">
+    
+  
+    Data &amp; Modalities
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../inference/overview/">
+<span class="md-ellipsis">
+    
+  
+    Inference &amp; Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../benchmarks/">
+<span class="md-ellipsis">
+    
+  
+    Evaluation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../guides/extensions/">
+<span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../extensions/">
+<span class="md-ellipsis">
+    
+  
+    Advanced Topics
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../cli/">
+<span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../community/contributing/">
+<span class="md-ellipsis">
+    
+  
+    Community
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/configs/protein-extension/">
+<span class="md-ellipsis">
+    
+  
+    Reference Library
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#3-chain-rule-and-autoregressive-factorization">
+<span class="md-ellipsis">
+      
+        3. Chain Rule and Autoregressive Factorization
+      
+    </span>
+</a>
+<nav aria-label="3. Chain Rule and Autoregressive Factorization" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#factorization-information-and-query-learning-objectives">
+<span class="md-ellipsis">
+      
+        Factorization, information, and query learning objectives
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#4-entropy-cross-entropy-and-kl-divergence">
+<span class="md-ellipsis">
+      
+        4. Entropy, Cross-Entropy, and KL Divergence
+      
+    </span>
+</a>
+<nav aria-label="4. Entropy, Cross-Entropy, and KL Divergence" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#differential-entropy-is-coordinate-dependent">
+<span class="md-ellipsis">
+      
+        Differential Entropy Is Coordinate-Dependent
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#proper-scoring-rules">
+<span class="md-ellipsis">
+      
+        Proper Scoring Rules
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#from-probability-to-code-length">
+<span class="md-ellipsis">
+      
+        From probability to code length
+      
+    </span>
+</a>
+<nav aria-label="From probability to code length" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-prefix-code-four-directions">
+<span class="md-ellipsis">
+      
+        Worked prefix code: four directions
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#5-what-a-generative-model-may-be-asked-to-do">
+<span class="md-ellipsis">
+      
+        5. What a Generative Model May Be Asked to Do
+      
+    </span>
+</a>
+<nav aria-label="5. What a Generative Model May Be Asked to Do" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#generation-density-estimation-and-structured-prediction">
+<span class="md-ellipsis">
+      
+        Generation, Density Estimation, and Structured Prediction
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#a-conditional-law-is-not-a-decision-rule">
+<span class="md-ellipsis">
+      
+        A Conditional Law Is Not a Decision Rule
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#factorization-and-query-retrieval-practice">
+<span class="md-ellipsis">
+      
+        Factorization and query retrieval practice
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#factorization-and-query-synthesis">
+<span class="md-ellipsis">
+      
+        Factorization and query synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<nav aria-label="Breadcrumb" class="md-path">
+<ol class="md-path__list">
+<li class="md-path__item">
+<a class="md-path__link" href="../../..">
+<span class="md-ellipsis">
+    Home
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    Generative Models Book
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../probability-01-objects/">
+<span class="md-ellipsis">
+    Foundations
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../probability-01-objects/">
+<span class="md-ellipsis">
+    1. Probability and Generative Modeling
+  </span>
+</a>
+</li>
+</ol>
+</nav>
+<article class="md-content__inner md-typeset">
+<h1 id="probability-2-factorizations-and-generative-queries">Probability 2 — Factorizations and Generative Queries<a class="headerlink" href="#probability-2-factorizations-and-generative-queries" title="Permanent link">¤</a></h1><aside aria-label="Learning path" class="admonition abstract artifex-learning-path"><p class="admonition-title">Learning path</p><p><strong>Required knowledge</strong></p><ul class="artifex-learning-path__links" data-learning-path-role="required"><li><a href="../probability-01-objects/">Probability 1 — Laws, Densities, and Conditioning</a></li></ul><p><strong>Readiness check:</strong> can you explain the central object and reproduce one worked example from each required chapter? If not, follow its link before continuing.</p><p><strong>Newly unlocked in the default route</strong></p><ul class="artifex-learning-path__links" data-learning-path-role="unlocks"><li><a href="../probability-03-likelihood-examples/">Probability 3 — Likelihood and Worked Examples</a></li></ul></aside>
+<p>This chapter connects the chain rule to autoregressive factorization, develops
+entropy and KL divergence, and separates generation, scoring, conditioning,
+representation, and decision queries. For uninterrupted reading, use the
+<a href="../probability-and-generative-modeling/#3-chain-rule-and-autoregressive-factorization">continuous view</a>.</p>
+<h2 id="3-chain-rule-and-autoregressive-factorization">3. Chain Rule and Autoregressive Factorization<a class="headerlink" href="#3-chain-rule-and-autoregressive-factorization" title="Permanent link">¤</a></h2>
+<h3 id="factorization-information-and-query-learning-objectives">Factorization, information, and query learning objectives<a class="headerlink" href="#factorization-information-and-query-learning-objectives" title="Permanent link">¤</a></h3>
+<p>This projection assumes joint and conditional probability. By the end, you
+should be able to derive the chain rule under an ordering, distinguish a
+probability identity from an autoregressive architecture, compute discrete
+entropy, cross-entropy, KL, and code length, explain coordinate dependence of
+differential entropy, and separate generation, density estimation, conditional
+prediction, representation, and decision queries.</p>
+<p>The chain rule turns one joint question into a sequence of conditional
+questions. For three variables, one possible reading order is</p>
+<figure class="book-figure" id="fig-probability-and-generative-modeling-3-chain-rule-and-autoregressive-factorization"><pre class="mermaid"><code>flowchart LR
+    x1(("$$X_1$$")) --&gt; x2(("$$X_2$$")) --&gt; x3(("$$X_3$$"))
+    x1 --&gt; x3</code></pre><figcaption class="book-object-caption"><span class="book-object-number">Figure PROB.3.</span> 3. Chain Rule and Autoregressive Factorization</figcaption></figure>
+<p>The arrows visualize the selected factorization, not a claim that <span class="arithmatex">\(X_1\)</span> causes
+<span class="arithmatex">\(X_2\)</span> or <span class="arithmatex">\(X_3\)</span>. Another order gives another exact factorization of the same
+joint law.</p>
+<p>Repeated application of the product rule gives, for any ordering <span class="arithmatex">\(\pi\)</span> of <span class="arithmatex">\(D\)</span> variables,</p>
+<div class="arithmatex">\[
+p(x_1,\ldots,x_D)
+=\prod_{i=1}^{D}p\!\left(x_{\pi(i)}\mid x_{\pi(&lt;i)}\right).
+\]</div>
+<p>This is an identity for every joint distribution, not an assumption that data are intrinsically sequential. An autoregressive model chooses an ordering and parameterizes those conditionals. The ordering affects architecture, inductive bias, sampling cost, and approximation error even though the exact chain rule is valid for all orderings.</p>
+<p>For a graph or set, one can factor a distribution over a construction sequence, but several trajectories may lead to the same terminal object. The object probability is the sum over those trajectories unless a canonical ordering makes the map one-to-one. This distinction becomes central in GFlowNets and order-agnostic generation.</p>
+<h2 id="4-entropy-cross-entropy-and-kl-divergence">4. Entropy, Cross-Entropy, and KL Divergence<a class="headerlink" href="#4-entropy-cross-entropy-and-kl-divergence" title="Permanent link">¤</a></h2>
+<div class="admonition example">
+<p class="admonition-title">The coding question</p>
+<p>If an outcome is surprising under <span class="arithmatex">\(q\)</span>, it needs a long ideal description;
+if it is common, it needs a short one. Entropy is the best expected length
+when the source law is known, cross-entropy is the expected length when a
+possibly wrong model supplies the code, and KL is the excess.</p>
+</div>
+<p>For a discrete distribution <span class="arithmatex">\(p\)</span>,</p>
+<div class="arithmatex">\[
+H(p)=-\mathbb E_{x\sim p}[\log p(x)].
+\]</div>
+<p>The cross-entropy of data distribution <span class="arithmatex">\(p\)</span> under model <span class="arithmatex">\(q\)</span> is</p>
+<div class="arithmatex">\[
+H(p,q)=-\mathbb E_{p}[\log q(x)],
+\]</div>
+<p>and decomposes as</p>
+<div class="arithmatex">\[
+H(p,q)=H(p)+D_{\mathrm{KL}}(p\|q).
+\]</div>
+<p>Because <span class="arithmatex">\(H(p)\)</span> does not depend on model parameters, minimizing expected negative log-likelihood is equivalent at the population level to minimizing forward KL. Finite data replace the expectation by an empirical average, introducing estimation and generalization questions that the identity alone does not resolve.</p>
+<h3 id="differential-entropy-is-coordinate-dependent">Differential Entropy Is Coordinate-Dependent<a class="headerlink" href="#differential-entropy-is-coordinate-dependent" title="Permanent link">¤</a></h3>
+<p>For continuous variables, <span class="arithmatex">\(h(X)=-\int p(x)\log p(x)dx\)</span> can be negative and changes under rescaling. If <span class="arithmatex">\(Y=aX\)</span>, then <span class="arithmatex">\(h(Y)=h(X)+\log|a|\)</span>. KL divergence remains invariant under a shared smooth bijection because the Jacobian terms cancel. Do not compare differential entropies across representations as if they were intrinsic uncertainty measures.</p>
+<h3 id="proper-scoring-rules">Proper Scoring Rules<a class="headerlink" href="#proper-scoring-rules" title="Permanent link">¤</a></h3>
+<p>Log loss is a strictly proper scoring rule: in the population limit, a forecaster minimizes expected score by reporting the true distribution. Other proper scores include the Brier score for categorical outcomes and the continuous ranked probability score for scalar distributions. A loss can be useful without being a proper score, but calibration claims then require separate evidence.</p>
+<h3 id="from-probability-to-code-length">From probability to code length<a class="headerlink" href="#from-probability-to-code-length" title="Permanent link">¤</a></h3>
+<p>Take logarithms in base two and suppose a binary <strong>prefix code</strong> represents each discrete symbol. No codeword may be the prefix of another, so a decoder can determine where one symbol ends without looking ahead. Its integer lengths <span class="arithmatex">\(\ell(x)\)</span> must satisfy the Kraft inequality</p>
+<div class="arithmatex">\[
+\sum_x 2^{-\ell(x)}\leq 1.
+\]</div>
+<p>A probability model <span class="arithmatex">\(q\)</span> suggests the ideal length</p>
+<div class="arithmatex">\[
+\ell_q(x)=-\log_2q(x).
+\]</div>
+<p>This length need not be an integer. Huffman coding finds an optimal integer prefix code for a known finite symbol distribution, while arithmetic, range, and asymmetric-numeral-system coders operate across sequences and can approach the sequence negative log-likelihood up to finite-precision, termination, and metadata overhead. Thus “<span class="arithmatex">\(-\log_2 q(x)\)</span> bits” is an ideal coding quantity, not a promise that every individual file has exactly that many bits. This coding connection originates in <a href="https://reach.ieee.org/primary-sources/a-mathematical-theory-of-communication/">Shannon's source-coding analysis</a>.</p>
+<h4 id="worked-prefix-code-four-directions">Worked prefix code: four directions<a class="headerlink" href="#worked-prefix-code-four-directions" title="Permanent link">¤</a></h4>
+<p>Let a source emit four symbols with a dyadic distribution:</p>
+<div class="md-typeset__table book-table-container"><table id="tbl-probability-and-generative-modeling-worked-prefix-code-four-directions"><caption class="book-object-caption"><span class="book-object-number">Table PROB.1.</span> Worked prefix code: four directions</caption>
+<thead>
+<tr>
+<th>Symbol</th>
+<th style="text-align: right;"><span class="arithmatex">\(p(x)\)</span></th>
+<th style="text-align: right;"><span class="arithmatex">\(-\log_2p(x)\)</span></th>
+<th>Codeword</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>north</td>
+<td style="text-align: right;"><span class="arithmatex">\(1/2\)</span></td>
+<td style="text-align: right;">1 bit</td>
+<td><code>0</code></td>
+</tr>
+<tr>
+<td>east</td>
+<td style="text-align: right;"><span class="arithmatex">\(1/4\)</span></td>
+<td style="text-align: right;">2 bits</td>
+<td><code>10</code></td>
+</tr>
+<tr>
+<td>south</td>
+<td style="text-align: right;"><span class="arithmatex">\(1/8\)</span></td>
+<td style="text-align: right;">3 bits</td>
+<td><code>110</code></td>
+</tr>
+<tr>
+<td>west</td>
+<td style="text-align: right;"><span class="arithmatex">\(1/8\)</span></td>
+<td style="text-align: right;">3 bits</td>
+<td><code>111</code></td>
+</tr>
+</tbody>
+</table></div>
+<p>The code is prefix-free and its expected length is</p>
+<div class="arithmatex">\[
+\mathbb E_p[\ell_p(X)]
+=\tfrac12(1)+\tfrac14(2)+\tfrac18(3)+\tfrac18(3)
+=1.75\ \text{bits}.
+\]</div>
+<p>Because the probabilities are powers of two, the code attains the entropy exactly. Now encode the same source with a uniform model <span class="arithmatex">\(q(x)=1/4\)</span>, which assigns a two-bit codeword to every symbol. The expected length becomes</p>
+<div class="arithmatex">\[
+\underbrace{H_2(p,q)}_{2.00\ \text{bits}}
+=\underbrace{H_2(p)}_{1.75\ \text{bits}}
++\underbrace{D_{\mathrm{KL},2}(p\|q)}_{0.25\ \text{bits}}.
+\]</div>
+<p>Here the subscript 2 declares base-two logarithms. The extra quarter-bit per symbol is the expected price of using the wrong probability model. Over a sequence, an autoregressive model supplies a different <span class="arithmatex">\(q(x_i\mid x_{&lt;i})\)</span> at each position, so its total ideal length is the sum of token NLLs in bits. If it assigns <span class="arithmatex">\(q(x)=0\)</span> to an event the source can emit, both log loss and ideal code length are infinite; practical codecs therefore require a support-safe probability table.</p>
+<div class="admonition warning">
+<p class="admonition-title">Coding language has a declared scope</p>
+<p>The direct code-length interpretation applies to discrete messages and a specified lossless coding construction. A continuous log density depends on its reference measure and units, so it is not a standalone file length. Quantization or another discrete observation model must be declared first. Lossy coding additionally requires a distortion criterion and is developed in <a href="../objectives-and-statistical-distances/#9-ratedistortion-and-information-bottlenecks">Rate–Distortion and Information Bottlenecks</a>.</p>
+</div>
+<p>The complete <a href="../information-coding-and-generative-modeling/">Information, Coding, and Generative Models</a> volume continues from this finite example to mutual-information estimation, source and channel coding, learned codecs, generative reconstruction, information bottlenecks, MDL, and algorithmic-information boundaries.</p>
+<h2 id="5-what-a-generative-model-may-be-asked-to-do">5. What a Generative Model May Be Asked to Do<a class="headerlink" href="#5-what-a-generative-model-may-be-asked-to-do" title="Permanent link">¤</a></h2>
+<p>Return to the four opening questions and add two more: <em>which internal
+representation is useful?</em> and <em>which structured answer obeys the constraints?</em>
+The resulting task list is broader than unconditional sample generation.</p>
+<div class="md-typeset__table book-table-container"><table id="tbl-probability-and-generative-modeling-5-what-a-generative-model-may-be-asked-to-do"><caption class="book-object-caption"><span class="book-object-number">Table PROB.2.</span> 5. What a Generative Model May Be Asked to Do</caption>
+<thead>
+<tr>
+<th>Task</th>
+<th>Query</th>
+<th>Examples</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Sampling</td>
+<td>Draw <span class="arithmatex">\(x\sim p_\theta\)</span></td>
+<td>ancestral decoding, flow inversion, reverse diffusion, MCMC</td>
+</tr>
+<tr>
+<td>Density evaluation</td>
+<td>Evaluate or estimate <span class="arithmatex">\(p_\theta(x)\)</span></td>
+<td>AR likelihood, flow change of variables, VAE ELBO, AIS for EBMs</td>
+</tr>
+<tr>
+<td>Conditional generation</td>
+<td>Draw <span class="arithmatex">\(x\sim p_\theta(x\mid c)\)</span></td>
+<td>class/text guidance, conditional decoders, constrained generation</td>
+</tr>
+<tr>
+<td>Inference</td>
+<td>Estimate <span class="arithmatex">\(p_\theta(z\mid x)\)</span></td>
+<td>VAE encoder, message passing, SMC</td>
+</tr>
+<tr>
+<td>Imputation</td>
+<td>Draw missing variables conditioned on observed ones</td>
+<td>masked models, Gibbs sampling, circuits</td>
+</tr>
+<tr>
+<td>Representation learning</td>
+<td>Map observations to useful latent variables</td>
+<td>VAE encoders, tokenizer models, self-supervised features</td>
+</tr>
+<tr>
+<td>Structured prediction</td>
+<td>Model coupled outputs under constraints</td>
+<td>CRFs/EBMs, graph generators, causal models</td>
+</tr>
+<tr>
+<td>Constructive generation</td>
+<td>Execute a map, program, grammar, policy, or solver</td>
+<td>deterministic decoders, program generators, constraint solvers</td>
+</tr>
+</tbody>
+</table></div>
+<p>No family dominates all queries. A GAN may sample quickly while lacking a tractable density; a probabilistic circuit may answer exact conditionals while sacrificing unconstrained expressivity; a diffusion model may support flexible conditioning but require iterative sampling.</p>
+<h3 id="generation-density-estimation-and-structured-prediction">Generation, Density Estimation, and Structured Prediction<a class="headerlink" href="#generation-density-estimation-and-structured-prediction" title="Permanent link">¤</a></h3>
+<ul>
+<li><strong>Density estimation</strong> asks for a normalized probability law or a justified approximation to it.</li>
+<li><strong>Generation</strong> asks for samples whose distribution satisfies a target criterion; the density may be unavailable.</li>
+<li><strong>Conditional generation</strong> samples missing or target variables given context.</li>
+<li><strong>Structured prediction</strong> may return a point estimate, ranking, or constrained object without modeling all uncertainty.</li>
+<li><strong>Representation learning</strong> asks whether internal variables support specified downstream queries.</li>
+<li><strong>Constructive generation</strong> produces an object through declared operations;
+  probability semantics exist only if the seeds, choices, or outputs have a
+  declared law.</li>
+</ul>
+<p>One system may perform several tasks, but success on one is not evidence for all. A deterministic segmentation network is a structured predictor, not a generative model merely because its output is structured. A diffusion posterior sampler for an inverse problem is conditional generation, but it is calibrated only relative to its prior, likelihood, and numerical approximation.</p>
+<h3 id="a-conditional-law-is-not-a-decision-rule">A Conditional Law Is Not a Decision Rule<a class="headerlink" href="#a-conditional-law-is-not-a-decision-rule" title="Permanent link">¤</a></h3>
+<p>The expression <span class="arithmatex">\(p(y\mid c)\)</span> describes uncertainty about an output after context
+<span class="arithmatex">\(c\)</span> is known. It does not say whether a deployed system should sample, return a
+mode, minimize a task loss, abstain, or present several alternatives. Those are
+decision rules layered on top of the predictive law.</p>
+<p>Consider the finite conditional distribution</p>
+<div class="md-typeset__table book-table-container"><table id="tbl-probability-and-generative-modeling-a-conditional-law-is-not-a-decision-rule"><caption class="book-object-caption"><span class="book-object-number">Table PROB.3.</span> A Conditional Law Is Not a Decision Rule</caption>
+<thead>
+<tr>
+<th style="text-align: right;">outcome <span class="arithmatex">\(y\)</span></th>
+<th style="text-align: right;">probability <span class="arithmatex">\(p(y\mid c)\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;"><span class="arithmatex">\(0\)</span></td>
+<td style="text-align: right;"><span class="arithmatex">\(0.50\)</span></td>
+</tr>
+<tr>
+<td style="text-align: right;"><span class="arithmatex">\(1\)</span></td>
+<td style="text-align: right;"><span class="arithmatex">\(0.30\)</span></td>
+</tr>
+<tr>
+<td style="text-align: right;"><span class="arithmatex">\(4\)</span></td>
+<td style="text-align: right;"><span class="arithmatex">\(0.20\)</span></td>
+</tr>
+</tbody>
+</table></div>
+<p>An ancestral conditional draw returns <span class="arithmatex">\(0\)</span>, <span class="arithmatex">\(1\)</span>, and <span class="arithmatex">\(4\)</span> with those frequencies.
+Under <span class="arithmatex">\(0\)</span>--<span class="arithmatex">\(1\)</span> loss, the Bayes action is the mode, <span class="arithmatex">\(a=0\)</span>. Under squared loss,
+the unrestricted Bayes action is instead the conditional mean,</p>
+<div class="arithmatex">\[
+\begin{aligned}
+a^*&amp;=\mathbb E[Y\mid c]\\
+&amp;=0(0.50)+1(0.30)\\
+&amp;\qquad+4(0.20)\\
+&amp;=1.10.
+\end{aligned}
+\]</div>
+<p>If actions must belong to the candidate set <span class="arithmatex">\(\{0,1,4\}\)</span>, their conditional
+squared risks are</p>
+<div class="arithmatex">\[
+\begin{aligned}
+R(0)&amp;=0.50(0-0)^2\\
+&amp;\quad+0.30(0-1)^2\\
+&amp;\quad+0.20(0-4)^2=3.50,\\[2pt]
+R(1)&amp;=0.50(1-0)^2\\
+&amp;\quad+0.30(1-1)^2\\
+&amp;\quad+0.20(1-4)^2=2.30,\\[2pt]
+R(4)&amp;=0.50(4-0)^2\\
+&amp;\quad+0.30(4-1)^2\\
+&amp;\quad+0.20(4-4)^2=10.70.
+\end{aligned}
+\]</div>
+<p>The best allowed point action is therefore <span class="arithmatex">\(1\)</span>, even though <span class="arithmatex">\(0\)</span> is the most
+probable individual outcome. Repeating either point action does not reproduce
+the conditional distribution. Conversely, a calibrated conditional law can be
+paired with the wrong task loss or a poor search procedure. Held-out proper
+scores assess the probabilistic forecast, while task losses assess decisions;
+they answer different questions (<a href="https://doi.org/10.1198/016214506000001437">Gneiting and Raftery,
+2007</a>). The full treatment of
+minimum Bayes risk, candidate sets, and search appears in <a href="../conditioning-steering-and-constraints/#minimum-bayes-risk-is-a-decision-rule">Conditioning,
+Steering, Constraints, and Selection</a>.</p>
+<p>Output dimension does not create this distinction. A scalar class label can
+have a non-degenerate conditional law, and an image or sequence system can
+return one deterministic decision. The formula <span class="arithmatex">\(p(y\mid x)\)</span> alone therefore
+does not determine a family label. State whether the system defines only that
+conditional law, a joint law, a constructive output mechanism, or merely a
+point decision—not how many reference answers a benchmark happens to provide.</p>
+<h2 id="factorization-and-query-retrieval-practice">Factorization and query retrieval practice<a class="headerlink" href="#factorization-and-query-retrieval-practice" title="Permanent link">¤</a></h2>
+<details class="question">
+<summary>Retrieval practice: chain rules, information, and queries</summary>
+<ol>
+<li>Does the chain rule make every joint distribution efficiently autoregressive?</li>
+<li>What identity relates cross-entropy, entropy, and KL for discrete laws?</li>
+<li>Why can differential entropy change under a smooth reparameterization while KL remains invariant?</li>
+<li>Why is a conditional probability law not yet a decision rule?</li>
+</ol>
+<p><strong>Solutions.</strong> (1) No; the identity exists for any ordering, but representing, evaluating, and sampling its conditionals can still be intractable. (2) <span class="arithmatex">\(H(p,q)=H(p)+D_{\mathrm{KL}}(p\|q)\)</span>. (3) Both densities acquire Jacobian terms that cancel in KL, while a single entropy retains the coordinate-volume change. (4) A decision rule also requires actions, utility/loss, constraints, and possibly uncertainty or abstention policy.</p>
+</details>
+<h2 id="factorization-and-query-synthesis">Factorization and query synthesis<a class="headerlink" href="#factorization-and-query-synthesis" title="Permanent link">¤</a></h2>
+<p>Factorization is a probability identity whose computational value depends on
+the chosen ordering and conditional family. Information measures connect
+prediction and coding but retain support and representation assumptions. A
+generator can be queried for samples, densities, conditionals, representations,
+or decisions; success on one is not success on all.</p>
+<hr/>
+<p><strong>Continue:</strong> <a href="../probability-03-likelihood-examples/">3. Likelihood and Worked Examples</a> · <a href="../probability-and-generative-modeling/">Continuous view</a></p>
+</article>
+</div>
+<script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  Back to top
+</button>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+<div class="md-social">
+<a class="md-social__link" href="https://github.com/avitai/artifex" rel="noopener" target="_blank" title="github.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</a>
+<a class="md-social__link" href="https://pypi.org/project/avitai-artifex/" rel="noopener" target="_blank" title="pypi.org">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-66.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.3v101.8c0 29 25.2 46 53.4 54.3 33.8 9.9 66.3 11.7 106.8 0 26.9-7.8 53.4-23.5 53.4-54.3v-40.7H226.2v-13.6h160.2c31.1 0 42.6-21.7 53.4-54.2 11.2-33.5 10.7-65.7 0-108.6M286.2 444.7a20.4 20.4 0 1 1 0-40.7 20.4 20.4 0 1 1 0 40.7M167.8 248.1h106.8c29.7 0 53.4-24.5 53.4-54.3V91.9c0-29-24.4-50.7-53.4-55.6-35.8-5.9-74.7-5.6-106.8.1-45.2 8-53.4 24.7-53.4 55.6v40.7h106.9v13.6h-147c-31.1 0-58.3 18.7-66.8 54.2-9.8 40.7-10.2 66.1 0 108.6 7.6 31.6 25.7 54.2 56.8 54.2H101v-48.8c0-35.3 30.5-66.4 66.8-66.4m-6.6-183.4a20.4 20.4 0 1 1 0 40.8 20.4 20.4 0 1 1 0-40.8"></path></svg>
+</a>
+<a class="md-social__link" href="https://twitter.com/mahdi_shafiei" rel="noopener" target="_blank" title="twitter.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M459.4 151.7c.3 4.5.3 9.1.3 13.6 0 138.7-105.6 298.6-298.6 298.6-59.5 0-114.7-17.2-161.1-47.1 8.4 1 16.6 1.3 25.3 1.3 49.1 0 94.2-16.6 130.3-44.8-46.1-1-84.8-31.2-98.1-72.8 6.5 1 13 1.6 19.8 1.6 9.4 0 18.8-1.3 27.6-3.6-48.1-9.7-84.1-52-84.1-103v-1.3c14 7.8 30.2 12.7 47.4 13.3-28.3-18.8-46.8-51-46.8-87.4 0-19.5 5.2-37.4 14.3-53C87.4 130.8 165 172.4 252.1 176.9c-1.6-7.8-2.6-15.9-2.6-24C249.5 95.1 296.3 48 354.4 48c30.2 0 57.5 12.7 76.7 33.1 23.7-4.5 46.5-13.3 66.6-25.3-7.8 24.4-24.4 44.8-46.1 57.8 21.1-2.3 41.6-8.1 60.4-16.2-14.3 20.8-32.2 39.3-52.6 54.3"></path></svg>
+</a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.path", "navigation.top", "navigation.prune", "toc.follow", "search.highlight", "search.share", "search.suggest", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "content.mermaid"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+<script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+<script src="../../../javascripts/reading-layout.js"></script>
+</body>
+</html>

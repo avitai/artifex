@@ -1,0 +1,1810 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="This chapter builds a graph-specific evaluation protocol spanning topology, distributional fidelity, domain validity, privacy, compute, and current evidence." name="description"/>
+<meta content="Mahdi Shafiei" name="author"/>
+<link href="https://docs.avitai.bio/artifex/user-guide/concepts/random-graphs-06-evaluation/" rel="canonical"/>
+<link href="../random-graphs-05-iterative/" rel="prev"/>
+<link href="../random-graphs-and-relational-generators/" rel="next"/>
+<link href="../../../assets/images/favicon.png" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.7.7" name="generator"/>
+<title>Random Graphs 6 — Evaluation and Research - Artifex</title>
+<link href="../../../assets/stylesheets/main.ec1eaa64.min.css" rel="stylesheet"/>
+<link href="../../../assets/stylesheets/palette.ab4e12ef.min.css" rel="stylesheet"/>
+<script src="../../../assets/vendor/iframe-worker/index.js"></script>
+<link href="../../../assets/_mkdocstrings.css" rel="stylesheet"/>
+<link href="../../../_static/extra.css" rel="stylesheet"/>
+<script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+<meta content="article" property="og:type"/>
+<meta content="The Artifex Generative Models Book" property="og:site_name"/>
+<meta content="Random Graphs 6 — Evaluation and Research" property="og:title"/>
+<meta content="This chapter builds a graph-specific evaluation protocol spanning topology, distributional fidelity, domain validity, privacy, compute, and current evidence." property="og:description"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/random-graphs-06-evaluation/" property="og:url"/>
+<meta content="2026-07-19" property="article:modified_time"/>
+<meta content="summary" name="twitter:card"/>
+<meta content="Random Graphs 6 — Evaluation and Research" name="twitter:title"/>
+<meta content="This chapter builds a graph-specific evaluation protocol spanning topology, distributional fidelity, domain validity, privacy, compute, and current evidence." name="twitter:description"/>
+<meta content="Generative models, Machine learning, Probabilistic modeling, research, specialization, canonical_chapter, random-graph-evaluation, practitioner, researcher" name="keywords"/>
+<meta content="Random Graphs 6 — Evaluation and Research" name="citation_title"/>
+<meta content="Mahdi Shafiei" name="citation_author"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/random-graphs-06-evaluation/" name="citation_public_url"/>
+<meta content="en" name="citation_language"/>
+<meta content="Random Graphs 6 — Evaluation and Research" name="DC.title"/>
+<meta content="Mahdi Shafiei" name="DC.creator"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/random-graphs-06-evaluation/" name="DC.identifier"/>
+<meta content="Text.LearningResource" name="DC.type"/>
+<meta content="2026-07-19" name="DCTERMS.modified"/>
+<meta content="https://github.com/avitai/artifex/blob/main/LICENSE" name="DCTERMS.license"/>
+<meta content="research" name="DCTERMS.educationLevel"/>
+<meta content="practitioner, researcher" name="DCTERMS.audience"/>
+<link href="https://github.com/avitai/artifex/blob/main/LICENSE" rel="license"/>
+<script id="artifex-book-metadata" type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Chapter",
+  "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/random-graphs-06-evaluation/",
+  "url": "https://docs.avitai.bio/artifex/user-guide/concepts/random-graphs-06-evaluation/",
+  "name": "Random Graphs 6 \u2014 Evaluation and Research",
+  "description": "This chapter builds a graph-specific evaluation protocol spanning topology, distributional fidelity, domain validity, privacy, compute, and current evidence.",
+  "identifier": "random-graph-evaluation",
+  "inLanguage": "en",
+  "isAccessibleForFree": true,
+  "learningResourceType": "Canonical chapter",
+  "educationalLevel": "research",
+  "educationalUse": "specialization",
+  "audience": [
+    
+      {"@type": "EducationalAudience", "audienceType": "practitioner"},
+    
+      {"@type": "EducationalAudience", "audienceType": "researcher"}
+    
+  ],
+  "dateModified": "2026-07-19",
+  "keywords": ["Generative models", "Machine learning", "Probabilistic modeling", "research", "specialization", "canonical_chapter", "random-graph-evaluation", "practitioner", "researcher"],
+  "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+  "author": [
+    
+      {"@type": "Person", "name": "Mahdi Shafiei"}
+    
+  ],
+  "isPartOf": {
+    "@type": "Book",
+    "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/#book",
+    "url": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/",
+    "name": "The Artifex Generative Models Book",
+    "bookEdition": "Living Web Edition",
+    "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+    "author": [
+      
+        {"@type": "Person", "name": "Mahdi Shafiei"}
+      
+    ]
+  }
+}
+</script>
+<link href="../../../assets/vendor/katex/katex.min.css" id="artifex-katex-stylesheet" integrity="sha384-UA8juhPf75SzzAMA/4fo3yOU7sBJ0om7SCD2GHq0fZqZco6tr1UCV7nUbk9J90JM" rel="stylesheet"/>
+<script defer="" integrity="sha384-T/0lMUdJpd2S1ZHtRiofG3htU3xPCrFVeAQ1UUE2TJwlEJSV5NUwn30kP28n238E" src="../../../assets/vendor/mermaid/mermaid.min.js"></script>
+<script defer="" src="../../../assets/vendor/katex/katex-shadow.js"></script>
+<script defer="" src="../../../javascripts/mermaid-math.js"></script>
+<script defer="" src="../../../javascripts/mathjax.js"></script>
+<script defer="" integrity="sha384-OrHfGTnIbkl0do3N76qW/uWr38o91N05sbSPuYBPLH+hG8X/dNSrjZf3AGjzrCwC" src="../../../assets/vendor/mathjax/tex-mml-chtml.js"></script>
+</head>
+<body data-md-color-accent="amber" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#random-graphs-6-evaluation-and-research">
+          Skip to content
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header md-header--shadow" data-md-component="header">
+<nav aria-label="Header" class="md-header__inner md-grid">
+<a aria-label="Artifex" class="md-header__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            Artifex
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+            
+              Random Graphs 6 — Evaluation and Research
+            
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-label="Switch to dark mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: light)" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_1" hidden="" title="Switch to dark mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+<input aria-label="Switch to light mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-primary="indigo" data-md-color-scheme="slate" id="__palette_1" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_0" hidden="" title="Switch to light mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+</form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div aria-label="Search" class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Search" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="Search" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="Search" class="md-search__options">
+<a aria-label="Share" class="md-search__icon md-icon" data-clipboard="" data-clipboard-text="" data-md-component="search-share" href="javascript:void(0)" tabindex="-1" title="Share">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"></path></svg>
+</a>
+<button aria-label="Clear" class="md-search__icon md-icon" tabindex="-1" title="Clear" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            Initializing search
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Navigation" class="md-nav md-nav--primary" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="Artifex" class="md-nav__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+    Artifex
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../..">
+<span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../getting-started/installation/">
+<span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Generative Models Book
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Generative Models Book
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    
+  
+    Start Here — The Landscape
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../first-course-01-generative-systems/">
+<span class="md-ellipsis">
+    
+  
+    First Course — New to Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../probability-01-objects/">
+<span class="md-ellipsis">
+    
+  
+    Foundations
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_4" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_4" id="__nav_3_4_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Model Families
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_4_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_4">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Model Families
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../autoregressive-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Autoregressive Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../vae-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Variational Autoencoders
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gan-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Generative Adversarial Networks
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../ebm-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Energy-Based Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../diffusion-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Diffusion Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../flow-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Normalizing Flows and Flow Matching
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../probabilistic-circuits-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Probabilistic Circuits
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../tensor-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Tensor-Network and Born Probability Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../implicit-generators-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Implicit Generators Beyond GANs
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../discrete-iterative-01-masked/">
+<span class="md-ellipsis">
+    
+  
+    Discrete Iterative Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../bayesian-flow-networks-01-story/">
+<span class="md-ellipsis">
+    
+  
+    Bayesian Flow Networks
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gflownets-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Generative Flow Networks
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../bnp-01-random-measures/">
+<span class="md-ellipsis">
+    
+  
+    Bayesian Nonparametric Random-Measure Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../stochastic-process-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Stochastic-Process and Function-Space Generators
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../point-processes-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Point Processes and Random Finite Sets
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_4_16" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_4_16" id="__nav_3_4_16_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Random Graphs and Relational Generators
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_4_16_label" class="md-nav" data-md-level="3">
+<label class="md-nav__title" for="__nav_3_4_16">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Random Graphs and Relational Generators
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../random-graphs-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    1. Graph Laws and Relabeling
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../random-graphs-02-classical/">
+<span class="md-ellipsis">
+    
+  
+    2. Classical Laws and Sparsity
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../random-graphs-03-inference/">
+<span class="md-ellipsis">
+    
+  
+    3. Likelihood and Inference
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../random-graphs-04-neural/">
+<span class="md-ellipsis">
+    
+  
+    4. Neural Family Compositions
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../random-graphs-05-iterative/">
+<span class="md-ellipsis">
+    
+  
+    5. Iterative Generation and Constraints
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
+    
+  
+    6. Evaluation and Research
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
+<span class="md-ellipsis">
+    
+  
+    6. Evaluation and Research
+  
+
+    
+  </span>
+</a>
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#6-evaluation-scientific-use-and-current-research">
+<span class="md-ellipsis">
+      
+        6. Evaluation, Scientific Use, and Current Research
+      
+    </span>
+</a>
+<nav aria-label="6. Evaluation, Scientific Use, and Current Research" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-6-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 6 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#begin-with-the-scientific-query">
+<span class="md-ellipsis">
+      
+        Begin with the scientific query
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#a-six-level-evaluation-protocol">
+<span class="md-ellipsis">
+      
+        A six-level evaluation protocol
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#statistic-mmd-useful-but-conditional-on-its-lens">
+<span class="md-ellipsis">
+      
+        Statistic MMD: useful but conditional on its lens
+      
+    </span>
+</a>
+<nav aria-label="Statistic MMD: useful but conditional on its lens" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#complete-worked-counterexample-degree-matching-is-not-distribution-matching">
+<span class="md-ellipsis">
+      
+        Complete worked counterexample: degree matching is not distribution matching
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#learned-and-classifier-based-graph-metrics">
+<span class="md-ellipsis">
+      
+        Learned and classifier-based graph metrics
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#likelihood-and-calibration">
+<span class="md-ellipsis">
+      
+        Likelihood and calibration
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#novelty-memorization-and-privacy">
+<span class="md-ellipsis">
+      
+        Novelty, memorization, and privacy
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#scientific-validity-and-causal-restraint">
+<span class="md-ellipsis">
+      
+        Scientific validity and causal restraint
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#current-research-map">
+<span class="md-ellipsis">
+      
+        Current research map
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#reproducible-comparison-template">
+<span class="md-ellipsis">
+      
+        Reproducible comparison template
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#from-a-sample-to-a-defensible-claim">
+<span class="md-ellipsis">
+      
+        From a sample to a defensible claim
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#independent-practice-and-assessment-map-graph-evaluation">
+<span class="md-ellipsis">
+      
+        Independent practice and assessment map: graph evaluation
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-6-failure-cases-and-misconception-checks">
+<span class="md-ellipsis">
+      
+        Chapter 6 failure cases and misconception checks
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#research-exercises">
+<span class="md-ellipsis">
+      
+        Research exercises
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-6-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 6 synthesis
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#book-length-routes">
+<span class="md-ellipsis">
+      
+        Book-length routes
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#primary-reading-trail">
+<span class="md-ellipsis">
+      
+        Primary reading trail
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../random-graphs-and-relational-generators/">
+<span class="md-ellipsis">
+    
+  
+    Continuous View (All Chapters)
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../copula-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Copula Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../grammar-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Probabilistic Grammars and Program Derivations
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../causal-generative-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Causal Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../new-families-frontier-evidence/">
+<span class="md-ellipsis">
+    
+  
+    Research Evidence Ledger
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gradients-01-taxonomy/">
+<span class="md-ellipsis">
+    
+  
+    Connections and Compositions
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../normalization-01-queries/">
+<span class="md-ellipsis">
+    
+  
+    Research Practice
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../models/vae-guide/">
+<span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/core/base/">
+<span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../examples/overview/">
+<span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../zoo/">
+<span class="md-ellipsis">
+    
+  
+    Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../training/overview/">
+<span class="md-ellipsis">
+    
+  
+    Training
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../data/overview/">
+<span class="md-ellipsis">
+    
+  
+    Data &amp; Modalities
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../inference/overview/">
+<span class="md-ellipsis">
+    
+  
+    Inference &amp; Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../benchmarks/">
+<span class="md-ellipsis">
+    
+  
+    Evaluation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../guides/extensions/">
+<span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../extensions/">
+<span class="md-ellipsis">
+    
+  
+    Advanced Topics
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../cli/">
+<span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../community/contributing/">
+<span class="md-ellipsis">
+    
+  
+    Community
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/configs/protein-extension/">
+<span class="md-ellipsis">
+    
+  
+    Reference Library
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#6-evaluation-scientific-use-and-current-research">
+<span class="md-ellipsis">
+      
+        6. Evaluation, Scientific Use, and Current Research
+      
+    </span>
+</a>
+<nav aria-label="6. Evaluation, Scientific Use, and Current Research" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-6-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 6 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#begin-with-the-scientific-query">
+<span class="md-ellipsis">
+      
+        Begin with the scientific query
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#a-six-level-evaluation-protocol">
+<span class="md-ellipsis">
+      
+        A six-level evaluation protocol
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#statistic-mmd-useful-but-conditional-on-its-lens">
+<span class="md-ellipsis">
+      
+        Statistic MMD: useful but conditional on its lens
+      
+    </span>
+</a>
+<nav aria-label="Statistic MMD: useful but conditional on its lens" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#complete-worked-counterexample-degree-matching-is-not-distribution-matching">
+<span class="md-ellipsis">
+      
+        Complete worked counterexample: degree matching is not distribution matching
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#learned-and-classifier-based-graph-metrics">
+<span class="md-ellipsis">
+      
+        Learned and classifier-based graph metrics
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#likelihood-and-calibration">
+<span class="md-ellipsis">
+      
+        Likelihood and calibration
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#novelty-memorization-and-privacy">
+<span class="md-ellipsis">
+      
+        Novelty, memorization, and privacy
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#scientific-validity-and-causal-restraint">
+<span class="md-ellipsis">
+      
+        Scientific validity and causal restraint
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#current-research-map">
+<span class="md-ellipsis">
+      
+        Current research map
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#reproducible-comparison-template">
+<span class="md-ellipsis">
+      
+        Reproducible comparison template
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#from-a-sample-to-a-defensible-claim">
+<span class="md-ellipsis">
+      
+        From a sample to a defensible claim
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#independent-practice-and-assessment-map-graph-evaluation">
+<span class="md-ellipsis">
+      
+        Independent practice and assessment map: graph evaluation
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-6-failure-cases-and-misconception-checks">
+<span class="md-ellipsis">
+      
+        Chapter 6 failure cases and misconception checks
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#research-exercises">
+<span class="md-ellipsis">
+      
+        Research exercises
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-6-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 6 synthesis
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#book-length-routes">
+<span class="md-ellipsis">
+      
+        Book-length routes
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#primary-reading-trail">
+<span class="md-ellipsis">
+      
+        Primary reading trail
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<nav aria-label="Breadcrumb" class="md-path">
+<ol class="md-path__list">
+<li class="md-path__item">
+<a class="md-path__link" href="../../..">
+<span class="md-ellipsis">
+    Home
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    Generative Models Book
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../autoregressive-01-foundations/">
+<span class="md-ellipsis">
+    Model Families
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../random-graphs-01-semantics/">
+<span class="md-ellipsis">
+    Random Graphs and Relational Generators
+  </span>
+</a>
+</li>
+</ol>
+</nav>
+<article class="md-content__inner md-typeset">
+<h1 id="random-graphs-6-evaluation-and-research">Random Graphs 6 — Evaluation and Research<a class="headerlink" href="#random-graphs-6-evaluation-and-research" title="Permanent link">¤</a></h1><aside aria-label="Learning path" class="admonition abstract artifex-learning-path"><p class="admonition-title">Learning path</p><p><strong>Required knowledge</strong></p><ul class="artifex-learning-path__links" data-learning-path-role="required"><li><a href="../random-graphs-05-iterative/">Random Graphs 5 — Iterative Generation and Constraints</a></li></ul><p><strong>Readiness check:</strong> can you explain the central object and reproduce one worked example from each required chapter? If not, follow its link before continuing.</p><p><strong>Newly unlocked in the default route</strong></p><ul class="artifex-learning-path__links" data-learning-path-role="unlocks"><li><a href="../new-families-frontier-evidence/">Generative Families — Research Evidence Ledger</a></li></ul></aside>
+<p>This chapter builds a graph-specific evaluation protocol spanning topology, distributional fidelity, domain validity, privacy, compute, and current evidence. For uninterrupted reading, use the <a href="../random-graphs-and-relational-generators/#6-evaluation-scientific-use-and-current-research">complete guide</a>.</p>
+<p>The later <a href="../generative-model-evaluation/">Evaluating Generative Models</a> volume consolidates general statistical protocols across families; it is a follow-up, not a prerequisite for this graph-specific chapter.</p>
+<h2 id="6-evaluation-scientific-use-and-current-research">6. Evaluation, Scientific Use, and Current Research<a class="headerlink" href="#6-evaluation-scientific-use-and-current-research" title="Permanent link">¤</a></h2>
+<h3 id="chapter-6-prerequisites-and-learning-objectives">Chapter 6 prerequisites and learning objectives<a class="headerlink" href="#chapter-6-prerequisites-and-learning-objectives" title="Permanent link">¤</a></h3>
+<p>This chapter assumes statistical distances and Chapters 1–5. It develops the graph-specific evaluation concepts it needs; the later general evaluation volume consolidates them across model families. By the end, you should be able to:</p>
+<ol>
+<li><strong>O1 — Match evaluation to the query:</strong> distinguish whole-graph generation, completion, optimization, posterior, growth, and causal claims.</li>
+<li><strong>O2 — Build a multi-level protocol:</strong> assess representation, local and global topology, distributional fidelity, domain utility, integrity, and cost.</li>
+<li><strong>O3 — Bound descriptor metrics:</strong> explain exactly what statistic MMD and learned graph discrepancies can and cannot identify.</li>
+<li><strong>O4 — Audit probability and calibration:</strong> name the likelihood convention and use proper scores for count or conditional predictions.</li>
+<li><strong>O5 — Test integrity and scientific validity:</strong> investigate memorization, privacy, leakage, physical or executable constraints, and causal overreach.</li>
+<li><strong>O6 — Interpret current evidence:</strong> write source-bounded conclusions and design reproducible comparisons across graph families.</li>
+</ol>
+<h3 id="begin-with-the-scientific-query">Begin with the scientific query<a class="headerlink" href="#begin-with-the-scientific-query" title="Permanent link">¤</a></h3>
+<p>Graph generation can serve different estimands:</p>
+<ul>
+<li>sampling new IID graphs from a population;</li>
+<li>simulating one larger network under a fitted process;</li>
+<li>completing missing nodes, edges, or attributes;</li>
+<li>generating conditional structures with specified properties;</li>
+<li>sampling diverse high-reward candidates;</li>
+<li>anonymizing or augmenting relational data; or</li>
+<li>representing posterior uncertainty over a latent or causal structure.</li>
+</ul>
+<p>The evaluation unit must match the query. Whole-graph generation, link prediction, graph reconstruction, property optimization, and posterior calibration are not substitute leaderboards.</p>
+<h3 id="a-six-level-evaluation-protocol">A six-level evaluation protocol<a class="headerlink" href="#a-six-level-evaluation-protocol" title="Permanent link">¤</a></h3>
+<ol>
+<li><strong>Representation and count:</strong> node-count distribution, type frequencies, padding leakage, and relabeling invariance.</li>
+<li><strong>Local topology:</strong> degrees, wedges, clustering, small motifs, assortativity, and edge attributes.</li>
+<li><strong>Global topology:</strong> components, distances, diameter, communities, spectra, homology, and higher-order motifs.</li>
+<li><strong>Distributional fidelity:</strong> likelihood or bounds where meaningful, two-sample tests, precision/recall-like coverage, and uncertainty.</li>
+<li><strong>Domain validity and utility:</strong> chemical, physical, program, circuit, social, or operational constraints and downstream decisions.</li>
+<li><strong>Integrity and cost:</strong> novelty, memorization, privacy, contamination, compute, sampling failures, and post-processing.</li>
+</ol>
+<p>No one scalar spans all six.</p>
+<h3 id="statistic-mmd-useful-but-conditional-on-its-lens">Statistic MMD: useful but conditional on its lens<a class="headerlink" href="#statistic-mmd-useful-but-conditional-on-its-lens" title="Permanent link">¤</a></h3>
+<p>For graph descriptor <span class="arithmatex">\(\phi(G)\)</span> and kernel <span class="arithmatex">\(k\)</span>, an empirical squared MMD compares real and generated samples. Its population value is</p>
+<div class="arithmatex">\[
+\operatorname{MMD}_k^2(P,Q)
+=\mathbb E_{P,P}k(\phi(G),\phi(G'))
++\mathbb E_{Q,Q}k(\phi(H),\phi(H'))
+-2\mathbb E_{P,Q}k(\phi(G),\phi(H)).
+\]</div>
+<p>Degree, clustering, orbit, and spectral descriptors expose complementary discrepancies. Kernel bandwidth, histogram binning, normalization, sample size, and biased versus unbiased estimators materially change the result. <a href="https://openreview.net/forum?id=tBtoZYKd9n">O’Bray et al.</a> document practical MMD pitfalls, and <a href="https://openreview.net/forum?id=d9MhajJT04">graph-kernel evaluation</a> shows that kernels differ in which structural transitions they detect.</p>
+<h4 id="complete-worked-counterexample-degree-matching-is-not-distribution-matching">Complete worked counterexample: degree matching is not distribution matching<a class="headerlink" href="#complete-worked-counterexample-degree-matching-is-not-distribution-matching" title="Permanent link">¤</a></h4>
+<p>A six-cycle <span class="arithmatex">\(C_6\)</span> and the disjoint union of two triangles both have six vertices and every vertex has degree two. A degree-histogram MMD between point masses on these graphs is zero for any kernel applied only to that histogram. Yet <span class="arithmatex">\(C_6\)</span> is connected and triangle-free, while the other graph has two components and two triangles. The descriptor discarded the distinguishing information before MMD was computed.</p>
+<p>This does not make degree MMD useless. It makes its claim precise: the compared distributions agree under that chosen descriptor and kernel to the resolution supported by the samples.</p>
+<h3 id="learned-and-classifier-based-graph-metrics">Learned and classifier-based graph metrics<a class="headerlink" href="#learned-and-classifier-based-graph-metrics" title="Permanent link">¤</a></h3>
+<p>Graph embeddings from trained or random GNNs can capture attributes and structures missed by hand-crafted statistics, but they inherit architecture expressivity, training data, invariances, and task bias. A message-passing GNN may map non-isomorphic graphs to the same embedding; a powerful classifier may overfit a small test set.</p>
+<p><a href="https://openreview.net/forum?id=nGizKVBCgn">PolyGraph Discrepancy</a>, ICLR 2026, fits classifiers on graph descriptors and combines their variational lower bounds on Jensen–Shannon divergence. This supplies a bounded, descriptor-aware comparison. It does not equal the full graph-distribution JS divergence unless the representation and classifier family achieve the relevant optimum. Report held-out classifier evaluation and uncertainty, not only training separability.</p>
+<h3 id="likelihood-and-calibration">Likelihood and calibration<a class="headerlink" href="#likelihood-and-calibration" title="Permanent link">¤</a></h3>
+<p>When likelihood is available, state whether it is for:</p>
+<ul>
+<li>a labeled adjacency representation;</li>
+<li>an isomorphism class;</li>
+<li>one construction trace or a trajectory marginal;</li>
+<li>a dequantized tensor;</li>
+<li>an ELBO or importance-weighted bound; or</li>
+<li>a pseudo/composite likelihood.</li>
+</ul>
+<p>Count calibration can be checked through predictive intervals or proper scores for <span class="arithmatex">\(N\)</span>. Conditional generators need property-calibration curves and constraint satisfaction over the requested condition distribution. Posterior graph models need coverage of graph functionals or credible sets, not only a high-scoring point estimate.</p>
+<h3 id="novelty-memorization-and-privacy">Novelty, memorization, and privacy<a class="headerlink" href="#novelty-memorization-and-privacy" title="Permanent link">¤</a></h3>
+<p>Exact graph isomorphism detects literal memorization for small or rigid graphs, but near-duplicate subgraphs, scaffold copies, motif templates, or identity-bearing attributes require domain-specific similarity. Compare generated graphs with train, validation, and external corpora; report nearest-neighbor distributions and overlap at multiple structural scales.</p>
+<p>Relational data can reveal membership and sensitive links even after names are removed. Node attributes and rare neighborhoods can re-identify individuals. A generator that preserves utility-relevant topology may also preserve identifying structure, so privacy needs a declared adversary and formal or empirical audit rather than an “anonymous graph” label.</p>
+<h3 id="scientific-validity-and-causal-restraint">Scientific validity and causal restraint<a class="headerlink" href="#scientific-validity-and-causal-restraint" title="Permanent link">¤</a></h3>
+<p>For molecules, report valence/sanitization, uniqueness, novelty, scaffold diversity, 3-D plausibility where applicable, property-predictor uncertainty, synthesizability, and prospective assays. For circuits or programs, execute or formally verify outputs. For infrastructure, test safety and constraints under simulation. For social graphs, inspect fairness, privacy, and observation bias.</p>
+<p>A generated graph that resembles observed networks is not a causal simulator. Homophily and influence can produce similar motifs; latent confounding and sampling can imitate dependence. Counterfactual network claims require mechanisms for interventions and interference, not only a fitted graph law.</p>
+<h3 id="current-research-map">Current research map<a class="headerlink" href="#current-research-map" title="Permanent link">¤</a></h3>
+<div class="md-typeset__table book-table-container"><table id="tbl-random-graphs-and-relational-generators-current-research-map"><caption class="book-object-caption"><span class="book-object-number">Table RGRAPH.7.</span> Current research map</caption>
+<thead>
+<tr>
+<th>Work</th>
+<th>Evidence</th>
+<th>Contribution</th>
+<th>Boundary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://proceedings.mlr.press/v286/papez25a.html">Probabilistic Graph Circuits</a>, UAI 2025</td>
+<td>Peer-reviewed research</td>
+<td>Exact graph queries under circuit structures; explicit invariance trade-offs</td>
+<td>Tractability, invariance, efficiency, and expressivity cannot all be assumed simultaneously</td>
+</tr>
+<tr>
+<td><a href="https://openreview.net/forum?id=FZJow6BWiM">HOG-Diff</a>, ICLR 2026</td>
+<td>Peer-reviewed research</td>
+<td>Coarse-to-fine higher-order guidance through diffusion bridges</td>
+<td>Eight reported benchmarks do not identify a universal topology descriptor or sampler</td>
+</tr>
+<tr>
+<td><a href="https://openreview.net/forum?id=IZV9k5BGxi">DualDiff</a>, ICLR 2026</td>
+<td>Peer-reviewed research</td>
+<td>Coupled local/global latent topology</td>
+<td>Results depend on codec, clustering, benchmarks, and conditioning design</td>
+</tr>
+<tr>
+<td><a href="https://openreview.net/forum?id=py2NPbAdvH">GraphBSI</a>, ICLR 2026</td>
+<td>Peer-reviewed research</td>
+<td>Belief-parameter generation and connection to BSI/BFN/diffusion</td>
+<td>“One-shot” and quality claims are construction- and benchmark-specific</td>
+</tr>
+<tr>
+<td><a href="https://openreview.net/forum?id=5Bl5qf3fON">BWFlow</a>, ICLR 2026</td>
+<td>Peer-reviewed research</td>
+<td>MRF-based Bures–Wasserstein paths coupling nodes and edges</td>
+<td>Guarantees apply to the declared representation and assumptions</td>
+</tr>
+<tr>
+<td><a href="https://openreview.net/forum?id=s2s5xGQCKM">Directo</a>, ICLR 2026</td>
+<td>Peer-reviewed research</td>
+<td>Directed graph generation with asymmetric encoding and discrete flow matching</td>
+<td>Directed benchmark scope; not a universal replacement for directed classical models</td>
+</tr>
+<tr>
+<td><a href="https://openreview.net/forum?id=nGizKVBCgn">PolyGraph Discrepancy</a>, ICLR 2026</td>
+<td>Peer-reviewed research</td>
+<td>Classifier-based bounded graph-distribution comparison</td>
+<td>Lower bound and sensitivity depend on descriptors, classifier, data split, and sample size</td>
+</tr>
+</tbody>
+</table></div>
+<p>The shared direction is not one winning family. Research is changing representations, probability paths, topology features, tractable queries, and evaluation. Every result remains conditional on graph type, dataset regime, count distribution, baseline parity, compute, constraints, and metric implementation.</p>
+<h3 id="reproducible-comparison-template">Reproducible comparison template<a class="headerlink" href="#reproducible-comparison-template" title="Permanent link">¤</a></h3>
+<p>Report the following together:</p>
+<div class="md-typeset__table book-table-container"><table id="tbl-random-graphs-and-relational-generators-reproducible-comparison-template"><caption class="book-object-caption"><span class="book-object-number">Table RGRAPH.8.</span> Reproducible comparison template</caption>
+<thead>
+<tr>
+<th>Axis</th>
+<th>Required disclosure</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Data</td>
+<td>IID graphs versus one graph, collection process, splits, sizes, types, and preprocessing</td>
+</tr>
+<tr>
+<td>Target</td>
+<td>unconditional, conditional, completion, reward-proportional, posterior, or growth-process law</td>
+</tr>
+<tr>
+<td>Symmetry</td>
+<td>persistent labels, augmentation, canonicalization, equivariance, and orbit handling</td>
+</tr>
+<tr>
+<td>Training</td>
+<td>objective, estimator, negative sampling, corruption/path, and auxiliary losses</td>
+</tr>
+<tr>
+<td>Sampling</td>
+<td>algorithm, NFE/actions, stopping, constraints, rejection/repair, and random seeds</td>
+</tr>
+<tr>
+<td>Compute</td>
+<td>parameters, active parameters, graph tokens/pairs, FLOPs when available, memory, hardware, wall clock</td>
+</tr>
+<tr>
+<td>Evaluation</td>
+<td>graph count, node-count matching policy, descriptors/kernels, metric version, uncertainty, and domain tests</td>
+</tr>
+<tr>
+<td>Evidence</td>
+<td>paper/version, venue status, independent reproduction, and verification date</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="from-a-sample-to-a-defensible-claim">From a sample to a defensible claim<a class="headerlink" href="#from-a-sample-to-a-defensible-claim" title="Permanent link">¤</a></h3>
+<p>Every evaluation stage discards or tests different information. A defensible
+claim states how far down this ladder the evidence actually travels.</p>
+<figure class="book-figure" id="fig-random-graphs-and-relational-generators-from-a-sample-to-a-defensible-claim"><pre class="mermaid"><code>%%{init: {'themeCSS': '.nodeLabel p { color: #111827 !important; } .flowchart-link { stroke: #78879a !important; stroke-width: 2px !important; } marker path { fill: #78879a !important; stroke: #78879a !important; }'}}%%
+flowchart LR
+    S["Generated samples"] --&gt; C["Count and representation&lt;br/&gt;checks"]
+    C --&gt; D["Local plus global&lt;br/&gt;descriptor panels"]
+    D --&gt; T["Kernel or held-out&lt;br/&gt;classifier comparison"]
+    T --&gt; P["Likelihood, calibration,&lt;br/&gt;coverage when defined"]
+    P --&gt; V["Domain validity,&lt;br/&gt;utility, privacy"]
+    V --&gt; R["Replicated result under&lt;br/&gt;matched data and compute"]
+    D -.-&gt; L["Claim is bounded by&lt;br/&gt;chosen descriptors"]
+    T -.-&gt; F["Claim is bounded by&lt;br/&gt;features and classifier"]
+    R --&gt; Q{"Evidence breadth"}
+    Q --&gt;|"one benchmark"| B["Protocol-bounded claim"]
+    Q --&gt;|"replicated mechanisms"| M["Carefully scoped&lt;br/&gt;family-level claim"]</code></pre><figcaption class="book-object-caption"><span class="book-object-number">Figure RGRAPH.9.</span> From a sample to a defensible claim</figcaption></figure>
+<p>The dashed branches are not failures; they are honest stopping points. Degree
+MMD can support a degree-distribution statement, while scientific utility needs
+the later rungs and cannot be inferred by renaming that score “fidelity.”</p>
+<h3 id="independent-practice-and-assessment-map-graph-evaluation">Independent practice and assessment map: graph evaluation<a class="headerlink" href="#independent-practice-and-assessment-map-graph-evaluation" title="Permanent link">¤</a></h3>
+<p>Attempt each task before opening its hints. The typical time is a planning aid,
+not a speed target. Use the success criterion to decide whether to revise before
+reading the complete solution.</p>
+<ol>
+<li><strong>P1.1 — Predict before computing.</strong> <em>Type: predict · Difficulty: foundation · Typical time: 8 min.</em> Predict the degree-histogram MMD between point masses on <span class="arithmatex">\(C_6\)</span> and two disjoint triangles, then state two graph properties that still distinguish them.</li>
+<li><strong>P1.2 — Compute a descriptor MMD.</strong> <em>Type: derive · Difficulty: core · Typical time: 10 min.</em> Let <span class="arithmatex">\(\phi(G)\)</span> be triangle count and use the linear kernel <span class="arithmatex">\(k(x,y)=xy\)</span>. Compute population <span class="arithmatex">\(\operatorname{MMD}^2\)</span> between a point mass on <span class="arithmatex">\(C_6\)</span> and one on two disjoint triangles.</li>
+<li><strong>P1.3 — Diagnose a learned metric.</strong> <em>Type: diagnose · Difficulty: core · Typical time: 12 min.</em> A descriptor classifier perfectly separates 20 training graphs per class but scores 55% on a held-out balanced set. Explain what its variational divergence score establishes and list three missing checks.</li>
+<li><strong>P1.4 — Score a count forecast.</strong> <em>Type: derive · Difficulty: core · Typical time: 8 min.</em> A generator assigns probability <span class="arithmatex">\(0.8\)</span> to the event <span class="arithmatex">\(N\ge5\)</span>, but the observed graph has <span class="arithmatex">\(N&lt;5\)</span>. Compute the binary Brier score and log loss for the realized event.</li>
+<li><strong>P1.5 — Design an integrity audit.</strong> <em>Type: design · Difficulty: stretch · Typical time: 18 min.</em> Design a memorization and privacy audit for generated molecular graphs or identity-bearing social graphs. Include exact, near-duplicate, subgroup, external-corpus, and adversarial checks.</li>
+<li><strong>P1.6 — Research transfer.</strong> <em>Type: research · Difficulty: stretch · Typical time: 20 min.</em> Using the linked O’Bray evaluation audit, Probabilistic Graph Circuits, HOG-Diff, GraphBSI, Directo, and PolyGraph records, write one supported sentence per source and one universal-ranking conclusion that the combined evidence does not justify.</li>
+</ol>
+<h5 id="feedback-contract-graph-evaluation">Feedback contract: graph evaluation<a class="headerlink" href="#feedback-contract-graph-evaluation" title="Permanent link">¤</a></h5>
+<div class="md-typeset__table book-table-container"><table id="tbl-random-graphs-and-relational-generators-feedback-contract-graph-evaluation-1"><caption class="book-object-caption"><span class="book-object-number">Table RGRAPH.25.</span> Feedback contract: graph evaluation — table 1</caption>
+<thead>
+<tr>
+<th>Task</th>
+<th>Evidence of success</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>P1.1</td>
+<td>Zero under the chosen descriptor is separated from connectivity and triangle structure.</td>
+</tr>
+<tr>
+<td>P1.2</td>
+<td>The point-mass MMD calculation uses all three kernel terms and obtains the exact value.</td>
+</tr>
+<tr>
+<td>P1.3</td>
+<td>Training separation is rejected as generalization evidence and the score remains descriptor/classifier/sample bounded.</td>
+</tr>
+<tr>
+<td>P1.4</td>
+<td>Both proper scores use the probability assigned to the realized outcome.</td>
+</tr>
+<tr>
+<td>P1.5</td>
+<td>Literal and structural copying, data contamination, vulnerable subgroups, and a declared privacy adversary are all tested.</td>
+</tr>
+<tr>
+<td>P1.6</td>
+<td>Venue, contribution, benchmark or theorem scope, and non-justified synthesis remain explicit.</td>
+</tr>
+</tbody>
+</table></div>
+<details class="tip">
+<summary>Graduated hints for P1</summary>
+<div class="md-typeset__table book-table-container"><table id="tbl-random-graphs-and-relational-generators-feedback-contract-graph-evaluation-2"><caption class="book-object-caption"><span class="book-object-number">Table RGRAPH.26.</span> Feedback contract: graph evaluation — table 2</caption>
+<thead>
+<tr>
+<th>Task</th>
+<th>Hint 1 — Direction</th>
+<th>Hint 2 — Setup</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>P1.1</td>
+<td>The descriptor sees six copies of degree two in both graphs.</td>
+<td>Compare connected components and triangle counts after concluding descriptor equality.</td>
+</tr>
+<tr>
+<td>P1.2</td>
+<td>The triangle counts are zero and two.</td>
+<td>Substitute into <span class="arithmatex">\(k(0,0)+k(2,2)-2k(0,2)\)</span>.</td>
+</tr>
+<tr>
+<td>P1.3</td>
+<td>Generalization, not fitting, determines held-out discrimination.</td>
+<td>Check uncertainty, feature leakage, architecture expressivity, sample size, and multiple splits.</td>
+</tr>
+<tr>
+<td>P1.4</td>
+<td>The realized binary outcome is zero.</td>
+<td>Brier is <span class="arithmatex">\((0.8-0)^2\)</span>; log loss is <span class="arithmatex">\(-\log(1-0.8)\)</span>.</td>
+</tr>
+<tr>
+<td>P1.5</td>
+<td>Exact graph isomorphism is only the first rung.</td>
+<td>Add scaffolds/neighborhoods, nearest neighbors, rare attributes, membership and link inference, and external overlap.</td>
+</tr>
+<tr>
+<td>P1.6</td>
+<td>Read each venue record as an outer boundary on the claim.</td>
+<td>Separate classical audit evidence, tractable-query design, generator contributions, and learned-metric limitations.</td>
+</tr>
+</tbody>
+</table></div>
+</details>
+<h5 id="outcome-to-task-alignment-graph-evaluation">Outcome-to-task alignment: graph evaluation<a class="headerlink" href="#outcome-to-task-alignment-graph-evaluation" title="Permanent link">¤</a></h5>
+<div class="md-typeset__table book-table-container"><table id="tbl-random-graphs-and-relational-generators-outcome-to-task-alignment-graph-evaluation"><caption class="book-object-caption"><span class="book-object-number">Table RGRAPH.27.</span> Outcome-to-task alignment: graph evaluation</caption>
+<thead>
+<tr>
+<th>Learning objective</th>
+<th>Independently assessed by</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>O1 — Match evaluation to the query</td>
+<td>P1.5, P1.6</td>
+</tr>
+<tr>
+<td>O2 — Build a multi-level protocol</td>
+<td>P1.3, P1.5</td>
+</tr>
+<tr>
+<td>O3 — Bound descriptor metrics</td>
+<td>P1.1, P1.2, P1.3</td>
+</tr>
+<tr>
+<td>O4 — Audit probability and calibration</td>
+<td>P1.4</td>
+</tr>
+<tr>
+<td>O5 — Test integrity and scientific validity</td>
+<td>P1.5</td>
+</tr>
+<tr>
+<td>O6 — Interpret current evidence</td>
+<td>P1.6</td>
+</tr>
+</tbody>
+</table></div>
+<details class="success">
+<summary>Complete solutions to P1</summary>
+<ol>
+<li><strong>P1.1.</strong> Both graphs have the same degree histogram—six vertices of degree two—so any MMD applied only to that identical descriptor is zero. Yet <span class="arithmatex">\(C_6\)</span> has one connected component and no triangles, while the alternative has two components and two triangles. <strong>Check.</strong> The conclusion is descriptor equality, not graph-law equality.</li>
+<li><strong>P1.2.</strong> With point-mass descriptor values zero and two, <span class="arithmatex">\(\operatorname{MMD}^2=k(0,0)+k(2,2)-2k(0,2)=0+4-0=4\)</span>. <strong>Check.</strong> Replacing the descriptor with degree histograms changes the answer to zero; the kernel never recovers discarded information.</li>
+<li><strong>P1.3.</strong> Near-chance held-out accuracy gives little evidence that the fitted classifier detects a population discrepancy, regardless of perfect training separation. Report confidence intervals or permutation tests, multiple held-out splits, descriptor and architecture sensitivity, sample-size/power analysis, and leakage controls. <strong>Rubric.</strong> Any variational divergence claim remains a lower bound visible to the chosen descriptor and generalizing classifier.</li>
+<li><strong>P1.4.</strong> The realized indicator is zero, so the Brier score is <span class="arithmatex">\((0.8-0)^2=0.64\)</span> and log loss is <span class="arithmatex">\(-\log(0.2)\approx1.609\)</span>. <strong>Check.</strong> Both penalize the confident wrong count event; accuracy alone would hide forecast sharpness.</li>
+<li><strong>P1.5.</strong> Deduplicate and compare exact isomorphism first; then measure scaffold, motif, subgraph, neighborhood, and attribute-aware nearest-neighbor overlap against train, validation, and external corpora. Stratify rare groups, test membership and sensitive-link inference with a declared attacker and auxiliary knowledge, and report utility/privacy trade-offs with uncertainty. <strong>Rubric.</strong> Full credit includes all five requested layers and does not call removed names anonymous proof.</li>
+<li><strong>P1.6.</strong> O’Bray et al. demonstrate protocol and implementation pitfalls in common graph MMD evaluations; Probabilistic Graph Circuits study exact graph queries with explicit invariance/efficiency/expressivity trade-offs; HOG-Diff reports coarse-to-fine higher-order diffusion results on its evaluated benchmarks; GraphBSI evolves belief parameters over discrete graph variables and connects that construction to BSI, BFNs, and diffusion; Directo develops asymmetric directed-graph generation with discrete flow matching; PolyGraph builds a bounded classifier-based discrepancy whose result depends on descriptors, classifier, split, and sample size. Together these sources do <strong>not</strong> justify a universal ranking of graph-generator families or metrics. <strong>Rubric.</strong> Every sentence must retain evidence type and scope.</li>
+</ol>
+</details>
+<h3 id="chapter-6-failure-cases-and-misconception-checks">Chapter 6 failure cases and misconception checks<a class="headerlink" href="#chapter-6-failure-cases-and-misconception-checks" title="Permanent link">¤</a></h3>
+<ul>
+<li><strong>“Several graph statistics match, so the graph laws match.”</strong> Every finite descriptor panel is a many-to-one representation unless an identification theorem is supplied for the declared family.</li>
+<li><strong>“A low validity failure rate proves scientific usefulness.”</strong> Syntactic graph validity, physical realizability, calibrated properties, prospective performance, and safety require separate tests.</li>
+<li><strong>“Held-out edges are IID test examples.”</strong> Dyads from one network share nodes, latent structure, and the collection mechanism; the estimand is not whole-graph generalization.</li>
+<li><strong>“A newer graph metric is an objective ground truth.”</strong> Hand-crafted and learned metrics retain descriptor, architecture, fitting, finite-sample, and implementation assumptions.</li>
+</ul>
+<h3 id="research-exercises">Research exercises<a class="headerlink" href="#research-exercises" title="Permanent link">¤</a></h3>
+<ol>
+<li>Enumerate all unlabeled simple graphs on four vertices and verify orbit sizes from automorphism groups.</li>
+<li>Fit <span class="arithmatex">\(G(n,p)\)</span> and a two-block SBM to a small graph set; compare held-out graph likelihood and posterior predictive motifs.</li>
+<li>Enumerate the edge–triangle ERGM for <span class="arithmatex">\(n=4\)</span> and locate parameter regions where mass concentrates near empty or complete graphs.</li>
+<li>Train an order-based graph model under one canonical order and random permutations; measure the variance and bias of an order-marginal estimator.</li>
+<li>Construct two graph distributions with equal degree and clustering summaries but different global connectivity, then test several kernels.</li>
+<li>Compare rejection, repair, and constraint-preserving construction for connected graphs; estimate both validity and target distortion.</li>
+<li>Audit a molecular benchmark for train/test scaffold overlap and report conclusions before and after de-duplication.</li>
+<li>Reproduce a 2026 graph metric or generator on an exact finite law where the true distribution is enumerable.</li>
+</ol>
+<details class="question">
+<summary>Retrieval practice: evaluation</summary>
+<ol>
+<li>Why can zero degree-MMD coexist with visibly different graph laws?</li>
+<li>What does a classifier-based variational JS score lower-bound?</li>
+<li>Which likelihood convention must be reported for an order-based model?</li>
+<li>Why are uniqueness and novelty insufficient for scientific generation?</li>
+<li>What distinguishes network simulation from causal simulation?</li>
+</ol>
+<p><strong>Solutions.</strong> (1) The degree descriptor is many-to-one and discards other topology. (2) Divergence visible through the chosen descriptor and classifier family, at the achieved generalization optimum. (3) Whether the score is for one trace/order or marginalizes all traces/labelings yielding the graph. (4) They do not test validity, utility, physical realization, uncertainty, or prospective performance. (5) Causal simulation specifies intervention-responsive mechanisms and assumptions, not merely an observational graph distribution.</p>
+</details>
+<h3 id="chapter-6-synthesis">Chapter 6 synthesis<a class="headerlink" href="#chapter-6-synthesis" title="Permanent link">¤</a></h3>
+<p>Reliable graph evaluation is multi-level, invariant to irrelevant labels, explicit about the sampling unit, and matched to the scientific query. Finite statistic panels and learned metrics are lenses rather than complete identifications of a graph law. Current research expands those lenses and generation mechanisms, but classical probability, exact small cases, domain baselines, and protocol disclosure remain indispensable.</p>
+<p><strong>Where to continue.</strong> Study <a href="../geometric-equivariant-generative-modeling/">Geometric and Equivariant Generative Modeling</a> for coordinate symmetries, <a href="../discrete-iterative-generation-explained/">Discrete Iterative Generation</a> for categorical paths, <a href="../probabilistic-circuits-explained/">Probabilistic Circuits</a> for exact-query trade-offs, <a href="../gflownets-explained/">GFlowNets</a> for reward-proportional construction, <a href="../causal-generative-models-explained/">Causal Generative Models</a> for intervention semantics, and <a href="../generative-model-evaluation/">Evaluating Generative Models</a> for general statistical protocols.</p>
+<h3 id="book-length-routes">Book-length routes<a class="headerlink" href="#book-length-routes" title="Permanent link">¤</a></h3>
+<div class="md-typeset__table book-table-container"><table id="tbl-random-graphs-and-relational-generators-book-length-routes"><caption class="book-object-caption"><span class="book-object-number">Table RGRAPH.28.</span> Book-length routes</caption>
+<thead>
+<tr>
+<th>Route</th>
+<th>Book</th>
+<th>Best use in this volume</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Classical random-graph theory</td>
+<td><a href="https://doi.org/10.1017/CBO9780511814068">Bollobás, <em>Random Graphs</em>, 2<sup>nd</sup> ed.</a></td>
+<td>Rigorous finite and asymptotic foundations after Chapter 2</td>
+</tr>
+<tr>
+<td>Probability of complex networks</td>
+<td><a href="https://doi.org/10.1017/9781316779422">van der Hofstad, <em>Random Graphs and Complex Networks</em>, Volume 1</a></td>
+<td>Degree, branching-process, and network-model foundations</td>
+</tr>
+<tr>
+<td>Sparse limits and local structure</td>
+<td><a href="https://doi.org/10.1017/9781316795552">van der Hofstad, <em>Random Graphs and Complex Networks</em>, Volume 2</a></td>
+<td>Advanced sparse graph convergence and giant-component theory</td>
+</tr>
+<tr>
+<td>Network science breadth</td>
+<td><a href="https://doi.org/10.1093/oso/9780198805090.001.0001">Newman, <em>Networks</em>, 2<sup>nd</sup> ed.</a></td>
+<td>Measures, empirical mechanisms, and application context for Chapters 2 and 6</td>
+</tr>
+<tr>
+<td>Dense graph limits</td>
+<td><a href="https://bookstore.ams.org/coll-60/">Lovász, <em>Large Networks and Graph Limits</em></a></td>
+<td>Advanced graphon, homomorphism-density, and limit theory</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="primary-reading-trail">Primary reading trail<a class="headerlink" href="#primary-reading-trail" title="Permanent link">¤</a></h2>
+<div class="md-typeset__table book-table-container"><table id="tbl-random-graphs-and-relational-generators-primary-reading-trail"><caption class="book-object-caption"><span class="book-object-number">Table RGRAPH.9.</span> Primary reading trail</caption>
+<thead>
+<tr>
+<th>Topic</th>
+<th>Primary source</th>
+<th>Evidence role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Independent-edge random graphs</td>
+<td><a href="https://doi.org/10.5486/PMD.1959.6.3-4.12">Erdős and Rényi, <em>On Random Graphs</em></a></td>
+<td>Established foundation</td>
+</tr>
+<tr>
+<td>Stochastic block models</td>
+<td><a href="https://doi.org/10.1016/0378-8733(83)90021-7">Holland, Laskey, and Leinhardt, 1983</a></td>
+<td>Established foundation</td>
+</tr>
+<tr>
+<td>Latent positions</td>
+<td><a href="https://doi.org/10.1198/016214502388618906">Hoff, Raftery, and Handcock, 2002</a></td>
+<td>Established latent-geometry model</td>
+</tr>
+<tr>
+<td>Mixed membership</td>
+<td><a href="https://www.jmlr.org/papers/v9/airoldi08a.html">Airoldi et al., 2008</a></td>
+<td>Established latent relational model</td>
+</tr>
+<tr>
+<td>Dense graph limits</td>
+<td><a href="https://doi.org/10.1016/j.jctb.2006.05.002">Lovász and Szegedy, 2006</a></td>
+<td>Established graphon foundation</td>
+</tr>
+<tr>
+<td>Sparse exchangeable processes</td>
+<td><a href="https://doi.org/10.1111/rssb.12233">Caron and Fox, 2017</a></td>
+<td>Peer-reviewed sparse-process foundation</td>
+</tr>
+<tr>
+<td>Autoregressive graph generation</td>
+<td><a href="https://proceedings.mlr.press/v80/you18a.html">GraphRNN</a></td>
+<td>Peer-reviewed neural composition</td>
+</tr>
+<tr>
+<td>Implicit graph generation</td>
+<td><a href="https://proceedings.mlr.press/v80/bojchevski18a.html">NetGAN</a></td>
+<td>Peer-reviewed adversarial composition</td>
+</tr>
+<tr>
+<td>Discrete graph diffusion</td>
+<td><a href="https://openreview.net/forum?id=UaAD-Nu86WX">DiGress</a></td>
+<td>Peer-reviewed iterative foundation</td>
+</tr>
+<tr>
+<td>Graph evaluation pitfalls</td>
+<td><a href="https://openreview.net/forum?id=tBtoZYKd9n">O’Bray et al., ICLR 2022</a></td>
+<td>Peer-reviewed evaluation audit</td>
+</tr>
+</tbody>
+</table></div>
+<p>No architecture in this trail replaces the need to declare the graph-valued object, quotient, observation model, and query.</p>
+<hr/>
+<p><strong>Navigate:</strong> <a href="../random-graphs-05-iterative/">← Iterative Generation and Constraints</a> · <a href="../random-graphs-and-relational-generators/">Complete guide</a> · <a href="../generative-model-evaluation/">Evaluating Generative Models →</a></p>
+</article>
+</div>
+<script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  Back to top
+</button>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+<div class="md-social">
+<a class="md-social__link" href="https://github.com/avitai/artifex" rel="noopener" target="_blank" title="github.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</a>
+<a class="md-social__link" href="https://pypi.org/project/avitai-artifex/" rel="noopener" target="_blank" title="pypi.org">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-66.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.3v101.8c0 29 25.2 46 53.4 54.3 33.8 9.9 66.3 11.7 106.8 0 26.9-7.8 53.4-23.5 53.4-54.3v-40.7H226.2v-13.6h160.2c31.1 0 42.6-21.7 53.4-54.2 11.2-33.5 10.7-65.7 0-108.6M286.2 444.7a20.4 20.4 0 1 1 0-40.7 20.4 20.4 0 1 1 0 40.7M167.8 248.1h106.8c29.7 0 53.4-24.5 53.4-54.3V91.9c0-29-24.4-50.7-53.4-55.6-35.8-5.9-74.7-5.6-106.8.1-45.2 8-53.4 24.7-53.4 55.6v40.7h106.9v13.6h-147c-31.1 0-58.3 18.7-66.8 54.2-9.8 40.7-10.2 66.1 0 108.6 7.6 31.6 25.7 54.2 56.8 54.2H101v-48.8c0-35.3 30.5-66.4 66.8-66.4m-6.6-183.4a20.4 20.4 0 1 1 0 40.8 20.4 20.4 0 1 1 0-40.8"></path></svg>
+</a>
+<a class="md-social__link" href="https://twitter.com/mahdi_shafiei" rel="noopener" target="_blank" title="twitter.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M459.4 151.7c.3 4.5.3 9.1.3 13.6 0 138.7-105.6 298.6-298.6 298.6-59.5 0-114.7-17.2-161.1-47.1 8.4 1 16.6 1.3 25.3 1.3 49.1 0 94.2-16.6 130.3-44.8-46.1-1-84.8-31.2-98.1-72.8 6.5 1 13 1.6 19.8 1.6 9.4 0 18.8-1.3 27.6-3.6-48.1-9.7-84.1-52-84.1-103v-1.3c14 7.8 30.2 12.7 47.4 13.3-28.3-18.8-46.8-51-46.8-87.4 0-19.5 5.2-37.4 14.3-53C87.4 130.8 165 172.4 252.1 176.9c-1.6-7.8-2.6-15.9-2.6-24C249.5 95.1 296.3 48 354.4 48c30.2 0 57.5 12.7 76.7 33.1 23.7-4.5 46.5-13.3 66.6-25.3-7.8 24.4-24.4 44.8-46.1 57.8 21.1-2.3 41.6-8.1 60.4-16.2-14.3 20.8-32.2 39.3-52.6 54.3"></path></svg>
+</a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.path", "navigation.top", "navigation.prune", "toc.follow", "search.highlight", "search.share", "search.suggest", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "content.mermaid"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+<script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+<script src="../../../javascripts/reading-layout.js"></script>
+</body>
+</html>

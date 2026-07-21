@@ -1,0 +1,2982 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="Information theory gives generative modeling a precise language for four different questions. How uncertain is a source? How much dependence is shared by two" name="description"/>
+<meta content="Mahdi Shafiei" name="author"/>
+<link href="https://docs.avitai.bio/artifex/user-guide/concepts/information-coding-and-generative-modeling/" rel="canonical"/>
+<link href="../information-coding-06-bottlenecks/" rel="prev"/>
+<link href="../graphical-models-01-directed/" rel="next"/>
+<link href="../../../assets/images/favicon.png" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.7.7" name="generator"/>
+<title>Information, Coding, and Generative Models - Artifex</title>
+<link href="../../../assets/stylesheets/main.ec1eaa64.min.css" rel="stylesheet"/>
+<link href="../../../assets/stylesheets/palette.ab4e12ef.min.css" rel="stylesheet"/>
+<script src="../../../assets/vendor/iframe-worker/index.js"></script>
+<link href="../../../assets/_mkdocstrings.css" rel="stylesheet"/>
+<link href="../../../_static/extra.css" rel="stylesheet"/>
+<script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+<meta content="article" property="og:type"/>
+<meta content="The Artifex Generative Models Book" property="og:site_name"/>
+<meta content="Information, Coding, and Generative Models" property="og:title"/>
+<meta content="Information theory gives generative modeling a precise language for four different questions. How uncertain is a source? How much dependence is shared by two" property="og:description"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/information-coding-and-generative-modeling/" property="og:url"/>
+<meta content="2026-07-15" property="article:modified_time"/>
+<meta content="summary" name="twitter:card"/>
+<meta content="Information, Coding, and Generative Models" name="twitter:title"/>
+<meta content="Information theory gives generative modeling a precise language for four different questions. How uncertain is a source? How much dependence is shared by two" name="twitter:description"/>
+<meta content="Generative models, Machine learning, Probabilistic modeling, advanced, reference, continuous_view, information-coding-generative-modeling-complete, practitioner, researcher" name="keywords"/>
+<meta content="Information, Coding, and Generative Models" name="citation_title"/>
+<meta content="Mahdi Shafiei" name="citation_author"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/information-coding-and-generative-modeling/" name="citation_public_url"/>
+<meta content="en" name="citation_language"/>
+<meta content="Information, Coding, and Generative Models" name="DC.title"/>
+<meta content="Mahdi Shafiei" name="DC.creator"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/information-coding-and-generative-modeling/" name="DC.identifier"/>
+<meta content="Text.LearningResource" name="DC.type"/>
+<meta content="2026-07-15" name="DCTERMS.modified"/>
+<meta content="https://github.com/avitai/artifex/blob/main/LICENSE" name="DCTERMS.license"/>
+<meta content="advanced" name="DCTERMS.educationLevel"/>
+<meta content="practitioner, researcher" name="DCTERMS.audience"/>
+<link href="https://github.com/avitai/artifex/blob/main/LICENSE" rel="license"/>
+<script id="artifex-book-metadata" type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Chapter",
+  "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/information-coding-and-generative-modeling/",
+  "url": "https://docs.avitai.bio/artifex/user-guide/concepts/information-coding-and-generative-modeling/",
+  "name": "Information, Coding, and Generative Models",
+  "description": "Information theory gives generative modeling a precise language for four different questions. How uncertain is a source? How much dependence is shared by two",
+  "identifier": "information-coding-generative-modeling-complete",
+  "inLanguage": "en",
+  "isAccessibleForFree": true,
+  "learningResourceType": "Continuous volume",
+  "educationalLevel": "advanced",
+  "educationalUse": "reference",
+  "audience": [
+    
+      {"@type": "EducationalAudience", "audienceType": "practitioner"},
+    
+      {"@type": "EducationalAudience", "audienceType": "researcher"}
+    
+  ],
+  "dateModified": "2026-07-15",
+  "keywords": ["Generative models", "Machine learning", "Probabilistic modeling", "advanced", "reference", "continuous_view", "information-coding-generative-modeling-complete", "practitioner", "researcher"],
+  "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+  "author": [
+    
+      {"@type": "Person", "name": "Mahdi Shafiei"}
+    
+  ],
+  "isPartOf": {
+    "@type": "Book",
+    "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/#book",
+    "url": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/",
+    "name": "The Artifex Generative Models Book",
+    "bookEdition": "Living Web Edition",
+    "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+    "author": [
+      
+        {"@type": "Person", "name": "Mahdi Shafiei"}
+      
+    ]
+  }
+}
+</script>
+<link href="../../../assets/vendor/katex/katex.min.css" id="artifex-katex-stylesheet" integrity="sha384-UA8juhPf75SzzAMA/4fo3yOU7sBJ0om7SCD2GHq0fZqZco6tr1UCV7nUbk9J90JM" rel="stylesheet"/>
+<script defer="" integrity="sha384-T/0lMUdJpd2S1ZHtRiofG3htU3xPCrFVeAQ1UUE2TJwlEJSV5NUwn30kP28n238E" src="../../../assets/vendor/mermaid/mermaid.min.js"></script>
+<script defer="" src="../../../assets/vendor/katex/katex-shadow.js"></script>
+<script defer="" src="../../../javascripts/mermaid-math.js"></script>
+<script defer="" src="../../../javascripts/mathjax.js"></script>
+<script defer="" integrity="sha384-OrHfGTnIbkl0do3N76qW/uWr38o91N05sbSPuYBPLH+hG8X/dNSrjZf3AGjzrCwC" src="../../../assets/vendor/mathjax/tex-mml-chtml.js"></script>
+<meta content="noindex,follow" name="robots"/>
+</head>
+<body data-md-color-accent="amber" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#information-coding-and-generative-models">
+          Skip to content
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header md-header--shadow" data-md-component="header">
+<nav aria-label="Header" class="md-header__inner md-grid">
+<a aria-label="Artifex" class="md-header__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            Artifex
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+            
+              Information, Coding, and Generative Models
+            
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-label="Switch to dark mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: light)" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_1" hidden="" title="Switch to dark mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+<input aria-label="Switch to light mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-primary="indigo" data-md-color-scheme="slate" id="__palette_1" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_0" hidden="" title="Switch to light mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+</form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div aria-label="Search" class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Search" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="Search" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="Search" class="md-search__options">
+<a aria-label="Share" class="md-search__icon md-icon" data-clipboard="" data-clipboard-text="" data-md-component="search-share" href="javascript:void(0)" tabindex="-1" title="Share">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"></path></svg>
+</a>
+<button aria-label="Clear" class="md-search__icon md-icon" tabindex="-1" title="Clear" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            Initializing search
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Navigation" class="md-nav md-nav--primary" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="Artifex" class="md-nav__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+    Artifex
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../..">
+<span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../getting-started/installation/">
+<span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Generative Models Book
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Generative Models Book
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    
+  
+    Start Here — The Landscape
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../first-course-01-generative-systems/">
+<span class="md-ellipsis">
+    
+  
+    First Course — New to Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Foundations
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_3_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Foundations
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../probability-01-objects/">
+<span class="md-ellipsis">
+    
+  
+    1. Probability and Generative Modeling
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../classical-01-latent-foundations/">
+<span class="md-ellipsis">
+    
+  
+    2. Classical Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../bayesian-learning-01-object/">
+<span class="md-ellipsis">
+    
+  
+    3. Bayesian Learning and Model Assessment
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../inference-01-objects-and-queries/">
+<span class="md-ellipsis">
+    
+  
+    4. Latent Variables and Inference
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../objectives-01-discrepancies/">
+<span class="md-ellipsis">
+    
+  
+    5. Objectives and Statistical Distances
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_3_6" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_3_6" id="__nav_3_3_6_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    6. Information, Coding, and Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_3_6_label" class="md-nav" data-md-level="3">
+<label class="md-nav__title" for="__nav_3_3_6">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    6. Information, Coding, and Generative Models
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../information-coding-01-measures/">
+<span class="md-ellipsis">
+    
+  
+    1. Information Measures
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../information-coding-02-dependence/">
+<span class="md-ellipsis">
+    
+  
+    2. Dependence and Estimation
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../information-coding-03-lossless/">
+<span class="md-ellipsis">
+    
+  
+    3. Lossless Coding
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../information-coding-04-lossy/">
+<span class="md-ellipsis">
+    
+  
+    4. Lossy and Generative Coding
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../information-coding-05-channels/">
+<span class="md-ellipsis">
+    
+  
+    5. Noisy Channels and Denoising
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../information-coding-06-bottlenecks/">
+<span class="md-ellipsis">
+    
+  
+    6. Bottlenecks and Description Length
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
+    
+  
+    Continuous View (All Chapters)
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
+<span class="md-ellipsis">
+    
+  
+    Continuous View (All Chapters)
+  
+
+    
+  </span>
+</a>
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#the-five-objects-that-must-not-be-collapsed">
+<span class="md-ellipsis">
+      
+        The five objects that must not be collapsed
+      
+    </span>
+</a>
+<nav aria-label="The five objects that must not be collapsed" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#recurring-notation">
+<span class="md-ellipsis">
+      
+        Recurring notation
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#1-surprise-entropy-cross-entropy-and-relative-entropy">
+<span class="md-ellipsis">
+      
+        1. Surprise, Entropy, Cross-Entropy, and Relative Entropy
+      
+    </span>
+</a>
+<nav aria-label="1. Surprise, Entropy, Cross-Entropy, and Relative Entropy" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-1-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 1 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#information-begins-with-a-probability-assignment">
+<span class="md-ellipsis">
+      
+        Information begins with a probability assignment
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#running-source-four-messages">
+<span class="md-ellipsis">
+      
+        Running source: four messages
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#cross-entropy-and-model-mismatch">
+<span class="md-ellipsis">
+      
+        Cross-entropy and model mismatch
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#support-is-part-of-the-statement">
+<span class="md-ellipsis">
+      
+        Support is part of the statement
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chain-rule-and-processing">
+<span class="md-ellipsis">
+      
+        Chain rule and processing
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#continuous-variables-require-a-reference-measure">
+<span class="md-ellipsis">
+      
+        Continuous variables require a reference measure
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#typical-sequences-are-not-modal-sequences">
+<span class="md-ellipsis">
+      
+        Typical sequences are not modal sequences
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-1-synthesis-and-retrieval">
+<span class="md-ellipsis">
+      
+        Chapter 1 synthesis and retrieval
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#2-dependence-data-processing-and-information-estimation">
+<span class="md-ellipsis">
+      
+        2. Dependence, Data Processing, and Information Estimation
+      
+    </span>
+</a>
+<nav aria-label="2. Dependence, Data Processing, and Information Estimation" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-2-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 2 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mutual-information-compares-a-joint-law-with-independence">
+<span class="md-ellipsis">
+      
+        Mutual information compares a joint law with independence
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-dependence-table">
+<span class="md-ellipsis">
+      
+        Worked dependence table
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#conditional-information-and-chain-rules">
+<span class="md-ellipsis">
+      
+        Conditional information and chain rules
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#data-processing-and-sufficient-representations">
+<span class="md-ellipsis">
+      
+        Data processing and sufficient representations
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#deterministic-continuous-networks-expose-a-boundary">
+<span class="md-ellipsis">
+      
+        Deterministic continuous networks expose a boundary
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#several-variables-have-several-dependence-functionals">
+<span class="md-ellipsis">
+      
+        Several variables have several dependence functionals
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#variational-lower-and-upper-bounds">
+<span class="md-ellipsis">
+      
+        Variational lower and upper bounds
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#estimation-is-harder-than-writing-the-definition">
+<span class="md-ellipsis">
+      
+        Estimation is harder than writing the definition
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-2-synthesis-and-retrieval">
+<span class="md-ellipsis">
+      
+        Chapter 2 synthesis and retrieval
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#3-lossless-coding-likelihood-and-generative-prediction">
+<span class="md-ellipsis">
+      
+        3. Lossless Coding, Likelihood, and Generative Prediction
+      
+    </span>
+</a>
+<nav aria-label="3. Lossless Coding, Likelihood, and Generative Prediction" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-3-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 3 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#a-code-is-a-protocol-not-a-metaphor">
+<span class="md-ellipsis">
+      
+        A code is a protocol, not a metaphor
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#complete-prefix-code-example">
+<span class="md-ellipsis">
+      
+        Complete prefix-code example
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#the-source-coding-theorem-is-asymptotic-and-source-specific">
+<span class="md-ellipsis">
+      
+        The source-coding theorem is asymptotic and source-specific
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#sequential-probability-models-become-sequential-coders">
+<span class="md-ellipsis">
+      
+        Sequential probability models become sequential coders
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#metrics-must-declare-their-denominator">
+<span class="md-ellipsis">
+      
+        Metrics must declare their denominator
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#actual-size-has-more-terms-than-model-cross-entropy">
+<span class="md-ellipsis">
+      
+        Actual size has more terms than model cross-entropy
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#generation-and-compression-use-the-same-conditionals-in-opposite-roles">
+<span class="md-ellipsis">
+      
+        Generation and compression use the same conditionals in opposite roles
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-3-synthesis-and-retrieval">
+<span class="md-ellipsis">
+      
+        Chapter 3 synthesis and retrieval
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#4-ratedistortion-learned-codecs-and-generative-reconstruction">
+<span class="md-ellipsis">
+      
+        4. Rate–Distortion, Learned Codecs, and Generative Reconstruction
+      
+    </span>
+</a>
+<nav aria-label="4. Rate–Distortion, Learned Codecs, and Generative Reconstruction" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-4-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 4 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#lossy-coding-begins-with-what-may-be-forgotten">
+<span class="md-ellipsis">
+      
+        Lossy coding begins with what may be forgotten
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-binary-ratedistortion-function">
+<span class="md-ellipsis">
+      
+        Worked binary rate–distortion function
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#lagrangians-and-supported-operating-points">
+<span class="md-ellipsis">
+      
+        Lagrangians and supported operating points
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#learned-codecs-expose-a-probability-stack">
+<span class="md-ellipsis">
+      
+        Learned codecs expose a probability stack
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#vae-rate-and-its-decomposition">
+<span class="md-ellipsis">
+      
+        VAE rate and its decomposition
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#bits-back-is-a-coding-construction-with-prerequisites">
+<span class="md-ellipsis">
+      
+        Bits back is a coding construction with prerequisites
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#distortion-perception-and-hallucination">
+<span class="md-ellipsis">
+      
+        Distortion, perception, and hallucination
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#a-codec-is-also-a-representation-choice">
+<span class="md-ellipsis">
+      
+        A codec is also a representation choice
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-4-synthesis-and-retrieval">
+<span class="md-ellipsis">
+      
+        Chapter 4 synthesis and retrieval
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#5-noisy-channels-bayesian-decoding-and-generative-denoising">
+<span class="md-ellipsis">
+      
+        5. Noisy Channels, Bayesian Decoding, and Generative Denoising
+      
+    </span>
+</a>
+<nav aria-label="5. Noisy Channels, Bayesian Decoding, and Generative Denoising" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-5-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 5 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#a-channel-is-a-conditional-law">
+<span class="md-ellipsis">
+      
+        A channel is a conditional law
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#capacity-maximizes-reliable-information-rate">
+<span class="md-ellipsis">
+      
+        Capacity maximizes reliable information rate
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-repetition-code-posterior">
+<span class="md-ellipsis">
+      
+        Worked repetition-code posterior
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#fano-bounds-error-through-remaining-uncertainty">
+<span class="md-ellipsis">
+      
+        Fano bounds error through remaining uncertainty
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#asymptotic-capacity-does-not-predict-one-finite-system">
+<span class="md-ellipsis">
+      
+        Asymptotic capacity does not predict one finite system
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#generative-denoising-is-bayesian-decodingbut-not-always-channel-coding">
+<span class="md-ellipsis">
+      
+        Generative denoising is Bayesian decoding—but not always channel coding
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#joint-sourcechannel-and-semantic-systems-need-a-declared-target">
+<span class="md-ellipsis">
+      
+        Joint source–channel and semantic systems need a declared target
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-5-synthesis-and-retrieval">
+<span class="md-ellipsis">
+      
+        Chapter 5 synthesis and retrieval
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#6-information-bottlenecks-description-length-and-research-audit">
+<span class="md-ellipsis">
+      
+        6. Information Bottlenecks, Description Length, and Research Audit
+      
+    </span>
+</a>
+<nav aria-label="6. Information Bottlenecks, Description Length, and Research Audit" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-6-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 6 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#the-bottleneck-is-a-task-relative-trade-off">
+<span class="md-ellipsis">
+      
+        The bottleneck is a task-relative trade-off
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#finite-example-nuisance-removal">
+<span class="md-ellipsis">
+      
+        Finite example: nuisance removal
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#variational-information-bottleneck">
+<span class="md-ellipsis">
+      
+        Variational information bottleneck
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#determinism-creates-degenerate-or-singular-objectives">
+<span class="md-ellipsis">
+      
+        Determinism creates degenerate or singular objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#minimum-description-length-is-an-operational-model-selection-principle">
+<span class="md-ellipsis">
+      
+        Minimum description length is an operational model-selection principle
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#algorithmic-information-is-a-limit-concept-not-a-measured-neural-score">
+<span class="md-ellipsis">
+      
+        Algorithmic information is a limit concept, not a measured neural score
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#compression-prediction-and-understanding">
+<span class="md-ellipsis">
+      
+        Compression, prediction, and understanding
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#research-audit-twelve-questions">
+<span class="md-ellipsis">
+      
+        Research audit: twelve questions
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#research-exercises">
+<span class="md-ellipsis">
+      
+        Research exercises
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#primary-reading-path">
+<span class="md-ellipsis">
+      
+        Primary reading path
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#final-synthesis">
+<span class="md-ellipsis">
+      
+        Final synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../graphical-models-01-directed/">
+<span class="md-ellipsis">
+    
+  
+    7. Graphical Models and Structured Probability
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../message-passing-01-factor-graphs/">
+<span class="md-ellipsis">
+    
+  
+    8. Graphical Inference and Message Passing
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../filtering-01-bayes-recursions/">
+<span class="md-ellipsis">
+    
+  
+    9. Filtering and Smoothing for State-Space Generators
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../sampling-01-monte-carlo/">
+<span class="md-ellipsis">
+    
+  
+    10. Sampling and Continuous Time
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../smc-01-targets/">
+<span class="md-ellipsis">
+    
+  
+    11. Sequential Monte Carlo and Particle Methods
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../optimization-01-differentiation/">
+<span class="md-ellipsis">
+    
+  
+    12. Optimization and Learning Dynamics
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../generative-models-notation/">
+<span class="md-ellipsis">
+    
+  
+    13. Canonical Notation
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../autoregressive-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Model Families
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gradients-01-taxonomy/">
+<span class="md-ellipsis">
+    
+  
+    Connections and Compositions
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../normalization-01-queries/">
+<span class="md-ellipsis">
+    
+  
+    Research Practice
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../models/vae-guide/">
+<span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/core/base/">
+<span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../examples/overview/">
+<span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../zoo/">
+<span class="md-ellipsis">
+    
+  
+    Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../training/overview/">
+<span class="md-ellipsis">
+    
+  
+    Training
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../data/overview/">
+<span class="md-ellipsis">
+    
+  
+    Data &amp; Modalities
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../inference/overview/">
+<span class="md-ellipsis">
+    
+  
+    Inference &amp; Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../benchmarks/">
+<span class="md-ellipsis">
+    
+  
+    Evaluation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../guides/extensions/">
+<span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../extensions/">
+<span class="md-ellipsis">
+    
+  
+    Advanced Topics
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../cli/">
+<span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../community/contributing/">
+<span class="md-ellipsis">
+    
+  
+    Community
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/configs/protein-extension/">
+<span class="md-ellipsis">
+    
+  
+    Reference Library
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#the-five-objects-that-must-not-be-collapsed">
+<span class="md-ellipsis">
+      
+        The five objects that must not be collapsed
+      
+    </span>
+</a>
+<nav aria-label="The five objects that must not be collapsed" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#recurring-notation">
+<span class="md-ellipsis">
+      
+        Recurring notation
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#1-surprise-entropy-cross-entropy-and-relative-entropy">
+<span class="md-ellipsis">
+      
+        1. Surprise, Entropy, Cross-Entropy, and Relative Entropy
+      
+    </span>
+</a>
+<nav aria-label="1. Surprise, Entropy, Cross-Entropy, and Relative Entropy" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-1-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 1 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#information-begins-with-a-probability-assignment">
+<span class="md-ellipsis">
+      
+        Information begins with a probability assignment
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#running-source-four-messages">
+<span class="md-ellipsis">
+      
+        Running source: four messages
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#cross-entropy-and-model-mismatch">
+<span class="md-ellipsis">
+      
+        Cross-entropy and model mismatch
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#support-is-part-of-the-statement">
+<span class="md-ellipsis">
+      
+        Support is part of the statement
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chain-rule-and-processing">
+<span class="md-ellipsis">
+      
+        Chain rule and processing
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#continuous-variables-require-a-reference-measure">
+<span class="md-ellipsis">
+      
+        Continuous variables require a reference measure
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#typical-sequences-are-not-modal-sequences">
+<span class="md-ellipsis">
+      
+        Typical sequences are not modal sequences
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-1-synthesis-and-retrieval">
+<span class="md-ellipsis">
+      
+        Chapter 1 synthesis and retrieval
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#2-dependence-data-processing-and-information-estimation">
+<span class="md-ellipsis">
+      
+        2. Dependence, Data Processing, and Information Estimation
+      
+    </span>
+</a>
+<nav aria-label="2. Dependence, Data Processing, and Information Estimation" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-2-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 2 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mutual-information-compares-a-joint-law-with-independence">
+<span class="md-ellipsis">
+      
+        Mutual information compares a joint law with independence
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-dependence-table">
+<span class="md-ellipsis">
+      
+        Worked dependence table
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#conditional-information-and-chain-rules">
+<span class="md-ellipsis">
+      
+        Conditional information and chain rules
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#data-processing-and-sufficient-representations">
+<span class="md-ellipsis">
+      
+        Data processing and sufficient representations
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#deterministic-continuous-networks-expose-a-boundary">
+<span class="md-ellipsis">
+      
+        Deterministic continuous networks expose a boundary
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#several-variables-have-several-dependence-functionals">
+<span class="md-ellipsis">
+      
+        Several variables have several dependence functionals
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#variational-lower-and-upper-bounds">
+<span class="md-ellipsis">
+      
+        Variational lower and upper bounds
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#estimation-is-harder-than-writing-the-definition">
+<span class="md-ellipsis">
+      
+        Estimation is harder than writing the definition
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-2-synthesis-and-retrieval">
+<span class="md-ellipsis">
+      
+        Chapter 2 synthesis and retrieval
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#3-lossless-coding-likelihood-and-generative-prediction">
+<span class="md-ellipsis">
+      
+        3. Lossless Coding, Likelihood, and Generative Prediction
+      
+    </span>
+</a>
+<nav aria-label="3. Lossless Coding, Likelihood, and Generative Prediction" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-3-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 3 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#a-code-is-a-protocol-not-a-metaphor">
+<span class="md-ellipsis">
+      
+        A code is a protocol, not a metaphor
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#complete-prefix-code-example">
+<span class="md-ellipsis">
+      
+        Complete prefix-code example
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#the-source-coding-theorem-is-asymptotic-and-source-specific">
+<span class="md-ellipsis">
+      
+        The source-coding theorem is asymptotic and source-specific
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#sequential-probability-models-become-sequential-coders">
+<span class="md-ellipsis">
+      
+        Sequential probability models become sequential coders
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#metrics-must-declare-their-denominator">
+<span class="md-ellipsis">
+      
+        Metrics must declare their denominator
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#actual-size-has-more-terms-than-model-cross-entropy">
+<span class="md-ellipsis">
+      
+        Actual size has more terms than model cross-entropy
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#generation-and-compression-use-the-same-conditionals-in-opposite-roles">
+<span class="md-ellipsis">
+      
+        Generation and compression use the same conditionals in opposite roles
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-3-synthesis-and-retrieval">
+<span class="md-ellipsis">
+      
+        Chapter 3 synthesis and retrieval
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#4-ratedistortion-learned-codecs-and-generative-reconstruction">
+<span class="md-ellipsis">
+      
+        4. Rate–Distortion, Learned Codecs, and Generative Reconstruction
+      
+    </span>
+</a>
+<nav aria-label="4. Rate–Distortion, Learned Codecs, and Generative Reconstruction" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-4-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 4 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#lossy-coding-begins-with-what-may-be-forgotten">
+<span class="md-ellipsis">
+      
+        Lossy coding begins with what may be forgotten
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-binary-ratedistortion-function">
+<span class="md-ellipsis">
+      
+        Worked binary rate–distortion function
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#lagrangians-and-supported-operating-points">
+<span class="md-ellipsis">
+      
+        Lagrangians and supported operating points
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#learned-codecs-expose-a-probability-stack">
+<span class="md-ellipsis">
+      
+        Learned codecs expose a probability stack
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#vae-rate-and-its-decomposition">
+<span class="md-ellipsis">
+      
+        VAE rate and its decomposition
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#bits-back-is-a-coding-construction-with-prerequisites">
+<span class="md-ellipsis">
+      
+        Bits back is a coding construction with prerequisites
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#distortion-perception-and-hallucination">
+<span class="md-ellipsis">
+      
+        Distortion, perception, and hallucination
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#a-codec-is-also-a-representation-choice">
+<span class="md-ellipsis">
+      
+        A codec is also a representation choice
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-4-synthesis-and-retrieval">
+<span class="md-ellipsis">
+      
+        Chapter 4 synthesis and retrieval
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#5-noisy-channels-bayesian-decoding-and-generative-denoising">
+<span class="md-ellipsis">
+      
+        5. Noisy Channels, Bayesian Decoding, and Generative Denoising
+      
+    </span>
+</a>
+<nav aria-label="5. Noisy Channels, Bayesian Decoding, and Generative Denoising" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-5-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 5 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#a-channel-is-a-conditional-law">
+<span class="md-ellipsis">
+      
+        A channel is a conditional law
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#capacity-maximizes-reliable-information-rate">
+<span class="md-ellipsis">
+      
+        Capacity maximizes reliable information rate
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-repetition-code-posterior">
+<span class="md-ellipsis">
+      
+        Worked repetition-code posterior
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#fano-bounds-error-through-remaining-uncertainty">
+<span class="md-ellipsis">
+      
+        Fano bounds error through remaining uncertainty
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#asymptotic-capacity-does-not-predict-one-finite-system">
+<span class="md-ellipsis">
+      
+        Asymptotic capacity does not predict one finite system
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#generative-denoising-is-bayesian-decodingbut-not-always-channel-coding">
+<span class="md-ellipsis">
+      
+        Generative denoising is Bayesian decoding—but not always channel coding
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#joint-sourcechannel-and-semantic-systems-need-a-declared-target">
+<span class="md-ellipsis">
+      
+        Joint source–channel and semantic systems need a declared target
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-5-synthesis-and-retrieval">
+<span class="md-ellipsis">
+      
+        Chapter 5 synthesis and retrieval
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#6-information-bottlenecks-description-length-and-research-audit">
+<span class="md-ellipsis">
+      
+        6. Information Bottlenecks, Description Length, and Research Audit
+      
+    </span>
+</a>
+<nav aria-label="6. Information Bottlenecks, Description Length, and Research Audit" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-6-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 6 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#the-bottleneck-is-a-task-relative-trade-off">
+<span class="md-ellipsis">
+      
+        The bottleneck is a task-relative trade-off
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#finite-example-nuisance-removal">
+<span class="md-ellipsis">
+      
+        Finite example: nuisance removal
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#variational-information-bottleneck">
+<span class="md-ellipsis">
+      
+        Variational information bottleneck
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#determinism-creates-degenerate-or-singular-objectives">
+<span class="md-ellipsis">
+      
+        Determinism creates degenerate or singular objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#minimum-description-length-is-an-operational-model-selection-principle">
+<span class="md-ellipsis">
+      
+        Minimum description length is an operational model-selection principle
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#algorithmic-information-is-a-limit-concept-not-a-measured-neural-score">
+<span class="md-ellipsis">
+      
+        Algorithmic information is a limit concept, not a measured neural score
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#compression-prediction-and-understanding">
+<span class="md-ellipsis">
+      
+        Compression, prediction, and understanding
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#research-audit-twelve-questions">
+<span class="md-ellipsis">
+      
+        Research audit: twelve questions
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#research-exercises">
+<span class="md-ellipsis">
+      
+        Research exercises
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#primary-reading-path">
+<span class="md-ellipsis">
+      
+        Primary reading path
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#final-synthesis">
+<span class="md-ellipsis">
+      
+        Final synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<nav aria-label="Breadcrumb" class="md-path">
+<ol class="md-path__list">
+<li class="md-path__item">
+<a class="md-path__link" href="../../..">
+<span class="md-ellipsis">
+    Home
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    Generative Models Book
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../probability-01-objects/">
+<span class="md-ellipsis">
+    Foundations
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../information-coding-01-measures/">
+<span class="md-ellipsis">
+    6. Information, Coding, and Generative Models
+  </span>
+</a>
+</li>
+</ol>
+</nav>
+<article class="md-content__inner md-typeset">
+<h1 id="information-coding-and-generative-models">Information, Coding, and Generative Models<a class="headerlink" href="#information-coding-and-generative-models" title="Permanent link">¤</a></h1><aside aria-label="Learning path" class="admonition abstract artifex-learning-path"><p class="admonition-title">Learning path</p><p><strong>Required knowledge</strong></p><ul class="artifex-learning-path__links" data-learning-path-role="required"><li><a href="../probability-and-generative-modeling/">Probability and Generative Modeling</a></li><li><a href="../latent-variables-and-inference/">Latent Variables and Inference</a></li><li><a href="../objectives-and-statistical-distances/">Objectives and Statistical Distances</a></li></ul><p><strong>Readiness check:</strong> can you explain the central object and reproduce one worked example from each required chapter? If not, follow its link before continuing.</p><p><strong>Newly unlocked in the default route</strong></p><ul class="artifex-learning-path__links" data-learning-path-role="unlocks"><li><a href="../optimization-01-differentiation/">Optimization 1 — Derivative Programs</a></li></ul></aside>
+<p>Information theory gives generative modeling a precise language for four different questions. How uncertain is a source? How much dependence is shared by two random variables? How many bits must a communication protocol transmit? How much information can a representation discard without losing what a declared task needs? The answers are connected, but they are not interchangeable.</p>
+<p>This volume develops those questions from finite probability tables before moving to learned likelihoods, latent codecs, contrastive objectives, noisy channels, information bottlenecks, and description-length principles. Its recurring rule is operational: every reported bit, entropy, rate, or information value must name the random variables, logarithm base, probability law, reference measure or quantizer, and coding or estimation protocol that gives the number meaning.</p>
+<div class="admonition info">
+<p class="admonition-title">Reading routes</p>
+<p><strong>Entry after prerequisites:</strong> Chapters 1 and 3 establish entropy and lossless coding through a four-symbol source. Read Chapter 2 through the finite dependence examples, then Chapter 4 through the binary rate–distortion calculation.</p>
+<p><strong>Practitioner:</strong> Chapters 1–5 connect likelihood, tokenization, learned entropy models, bits-back coding, perceptual reconstruction, and probabilistic decoding.</p>
+<p><strong>Research:</strong> read all six chapters, including mutual-information estimator limits, finite-blocklength channel qualifications, deterministic-bottleneck pathologies, MDL conventions, and uncomputability boundaries.</p>
+</div>
+<div class="admonition info">
+<p class="admonition-title">Evidence convention</p>
+<p>Finite identities and independently rederived theorems under their stated assumptions are <strong>Established</strong>. Archival results and peer-reviewed modern extensions are <strong>Peer-reviewed research</strong>. A neural estimator value, benchmark rate, or preprint result is never treated as the information-theoretic quantity itself without its estimator and protocol.</p>
+</div>
+<h2 id="the-five-objects-that-must-not-be-collapsed">The five objects that must not be collapsed<a class="headerlink" href="#the-five-objects-that-must-not-be-collapsed" title="Permanent link">¤</a></h2>
+<figure class="book-figure" id="fig-information-coding-and-generative-modeling-the-five-objects-that-must-not-be-collapsed"><pre class="mermaid"><code>flowchart TB
+    source["Source law&lt;br/&gt;&amp;nbsp;$$p(x)$$"]
+    measure["Information functional&lt;br/&gt;entropy, KL, or MI"]
+    representation["Representation&lt;br/&gt;&amp;nbsp;$$Z\sim q(z\mid x)$$"]
+    code["Coding protocol&lt;br/&gt;finite bitstream"]
+    estimator["Estimator&lt;br/&gt;samples and assumptions"]
+    source --&gt; measure
+    source --&gt; representation
+    representation --&gt; code
+    source --&gt; estimator
+    estimator -. approximates .-&gt; measure</code></pre><figcaption class="book-object-caption"><span class="book-object-number">Figure INFO.1.</span> The five objects that must not be collapsed</figcaption></figure>
+<p>A probability law defines ideal information quantities. A representation changes the random variables under study. A code turns a declared discrete probability model into an operational bitstream. An estimator uses finite data to approximate a functional. These components may be designed together, but success in one layer does not prove success in the others.</p>
+<h3 id="recurring-notation">Recurring notation<a class="headerlink" href="#recurring-notation" title="Permanent link">¤</a></h3>
+<div class="md-typeset__table book-table-container"><table id="tbl-information-coding-and-generative-modeling-recurring-notation"><caption class="book-object-caption"><span class="book-object-number">Table INFO.1.</span> Recurring notation</caption>
+<thead>
+<tr>
+<th>Symbol</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="arithmatex">\(\log_b\)</span></td>
+<td>logarithm in base <span class="arithmatex">\(b\)</span>; <span class="arithmatex">\(b=2\)</span> gives bits and <span class="arithmatex">\(b=e\)</span> gives nats</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(\imath_p(x)=-\log p(x)\)</span></td>
+<td>self-information of outcome <span class="arithmatex">\(x\)</span> under discrete law <span class="arithmatex">\(p\)</span></td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(H_p(X)\)</span>, <span class="arithmatex">\(h_p(X)\)</span></td>
+<td>discrete entropy and differential entropy</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(H(p,q)\)</span></td>
+<td>cross-entropy of source <span class="arithmatex">\(p\)</span> under model <span class="arithmatex">\(q\)</span></td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(D_{\mathrm{KL}}(p\|q)\)</span></td>
+<td>relative entropy, with expectation under <span class="arithmatex">\(p\)</span></td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(I(X;Y)\)</span></td>
+<td>mutual information under the declared joint law</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(\ell(x)\)</span></td>
+<td>integer codeword length for a discrete message</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(R\)</span>, <span class="arithmatex">\(D\)</span></td>
+<td>operational rate and declared distortion</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(P_e\)</span></td>
+<td>decoding error probability under a named message prior, encoder, and channel</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="1-surprise-entropy-cross-entropy-and-relative-entropy">1. Surprise, Entropy, Cross-Entropy, and Relative Entropy<a class="headerlink" href="#1-surprise-entropy-cross-entropy-and-relative-entropy" title="Permanent link">¤</a></h2>
+<h3 id="chapter-1-prerequisites-and-learning-objectives">Chapter 1 prerequisites and learning objectives<a class="headerlink" href="#chapter-1-prerequisites-and-learning-objectives" title="Permanent link">¤</a></h3>
+<p>You should know finite probability distributions, expectations, and logarithms. By the end of this chapter, you should be able to:</p>
+<ul>
+<li>compute self-information, entropy, cross-entropy, and KL divergence in bits or nats;</li>
+<li>state their support and reference-measure conditions;</li>
+<li>distinguish a discrete entropy from a differential entropy;</li>
+<li>explain why likelihood, ideal codelength, and an actual file size are related but different; and</li>
+<li>use typicality without confusing a high-probability set with a set of modes.</li>
+</ul>
+<h3 id="information-begins-with-a-probability-assignment">Information begins with a probability assignment<a class="headerlink" href="#information-begins-with-a-probability-assignment" title="Permanent link">¤</a></h3>
+<p>For a discrete outcome <span class="arithmatex">\(x\)</span> assigned probability <span class="arithmatex">\(p(x)&gt;0\)</span>, its self-information is</p>
+<div class="arithmatex">\[
+\imath_p(x)=-\log_b p(x).
+\]</div>
+<p>Multiplication of independent probabilities becomes addition of information: <span class="arithmatex">\(-\log p(x_1,x_2)=-\log p(x_1)-\log p(x_2)\)</span> when the joint factorizes. Changing the logarithm base changes only the unit. One bit equals <span class="arithmatex">\(\log 2\)</span> nats; one nat equals <span class="arithmatex">\(1/\log 2\)</span> bits.</p>
+<p>Self-information is relative to a model. The same observation can be routine under one law and surprising under another. It is not a semantic importance score, a causal effect, or an intrinsic property of a data item.</p>
+<h3 id="running-source-four-messages">Running source: four messages<a class="headerlink" href="#running-source-four-messages" title="Permanent link">¤</a></h3>
+<p>Let a source emit <span class="arithmatex">\(A,B,C,D\)</span> with probabilities</p>
+<div class="arithmatex">\[
+p=(1/2,1/4,1/8,1/8).
+\]</div>
+<p>With base-two logarithms, their self-information values are <span class="arithmatex">\(1,2,3,3\)</span> bits. The entropy is the expected self-information:</p>
+<div class="arithmatex">\[
+\begin{aligned}
+H_p(X)
+&amp;=-\sum_x p(x)\log_2p(x)\\
+&amp;=\tfrac12(1)+\tfrac14(2)+\tfrac18(3)+\tfrac18(3)\\
+&amp;=1.75\ \text{bits}.
+\end{aligned}
+\]</div>
+<p>This is an expectation over repeated source draws. It does not say that every individual message can be stored in exactly <span class="arithmatex">\(1.75\)</span> bits.</p>
+<h3 id="cross-entropy-and-model-mismatch">Cross-entropy and model mismatch<a class="headerlink" href="#cross-entropy-and-model-mismatch" title="Permanent link">¤</a></h3>
+<p>Suppose a model ignores the source imbalance and assigns</p>
+<div class="arithmatex">\[
+q=(1/4,1/4,1/4,1/4).
+\]</div>
+<p>The cross-entropy is</p>
+<div class="arithmatex">\[
+H(p,q)=-\mathbb E_{X\sim p}\log q(X),
+\]</div>
+<p>and relative entropy is</p>
+<div class="arithmatex">\[
+D_{\mathrm{KL}}(p\|q)
+=\mathbb E_{p}\log\frac{p(X)}{q(X)}.
+\]</div>
+<p>They satisfy</p>
+<div class="arithmatex">\[
+H(p,q)=H(p)+D_{\mathrm{KL}}(p\|q).
+\]</div>
+<p>For the four-message example, <span class="arithmatex">\(H(p,q)=2\)</span> bits and <span class="arithmatex">\(D_{\mathrm{KL}}(p\|q)=0.25\)</span> bit. The model pays one quarter of a bit per source symbol in expected ideal redundancy. This forward direction matters: samples come from <span class="arithmatex">\(p\)</span>, while code probabilities come from <span class="arithmatex">\(q\)</span>.</p>
+<p>The information inequality gives <span class="arithmatex">\(D_{\mathrm{KL}}(p\|q)\geq0\)</span>, with equality precisely when the laws agree almost everywhere under the usual common-measure formulation. KL is asymmetric and has no triangle inequality. Calling it a distance hides both facts.</p>
+<h3 id="support-is-part-of-the-statement">Support is part of the statement<a class="headerlink" href="#support-is-part-of-the-statement" title="Permanent link">¤</a></h3>
+<p>If <span class="arithmatex">\(p(x)&gt;0\)</span> but <span class="arithmatex">\(q(x)=0\)</span>, then <span class="arithmatex">\(D_{\mathrm{KL}}(p\|q)=\infty\)</span>. A model that declares an observed source event impossible cannot assign it a finite ideal code length. The reverse divergence may remain finite or fail for a different support reason.</p>
+<div class="admonition failure">
+<p class="admonition-title">The mode-covering slogan is not a theorem about every fit</p>
+<p>Under restricted approximation families, minimizing <span class="arithmatex">\(D_{\mathrm{KL}}(p\|q)\)</span> often penalizes missing target-supported regions, while minimizing <span class="arithmatex">\(D_{\mathrm{KL}}(q\|p)\)</span> often permits selecting one target mode. Parameterization, support smoothing, optimization, and the geometry of the family can reverse or weaken this picture. The divergence direction specifies an expectation and support penalty; it does not guarantee a visual behavior for every neural model.</p>
+</div>
+<h3 id="chain-rule-and-processing">Chain rule and processing<a class="headerlink" href="#chain-rule-and-processing" title="Permanent link">¤</a></h3>
+<p>For joint laws with compatible support,</p>
+<div class="arithmatex">\[
+\begin{aligned}
+D_{\mathrm{KL}}(p(x,y)\|q(x,y))
+&amp;=D_{\mathrm{KL}}(p(x)\|q(x))\\
+&amp;\quad+\mathbb E_{p(x)}D_{\mathrm{KL}}
+\bigl(p(y\mid x)\|q(y\mid x)\bigr).
+\end{aligned}
+\]</div>
+<p>If the same Markov kernel <span class="arithmatex">\(K(dy\mid x)\)</span> processes both laws, then</p>
+<div class="arithmatex">\[
+D_{\mathrm{KL}}(p_X\|q_X)
+\geq D_{\mathrm{KL}}(p_XK\|q_XK).
+\]</div>
+<p>Post-processing cannot improve the best distinction already present in the input distributions. Equality requires a sufficiency or recoverability condition; a deterministic map need not strictly reduce the divergence.</p>
+<h3 id="continuous-variables-require-a-reference-measure">Continuous variables require a reference measure<a class="headerlink" href="#continuous-variables-require-a-reference-measure" title="Permanent link">¤</a></h3>
+<p>For a density <span class="arithmatex">\(p=dP/d\mu\)</span>, differential entropy is</p>
+<div class="arithmatex">\[
+h_\mu(X)=-\int p(x)\log p(x)\,\mu(dx).
+\]</div>
+<p>It can be negative and changes under a smooth bijection <span class="arithmatex">\(Y=f(X)\)</span>:</p>
+<div class="arithmatex">\[
+h(Y)=h(X)+\mathbb E\log\left|\det J_f(X)\right|.
+\]</div>
+<p>Consequently a continuous log density or differential entropy is not a coordinate-free file length. KL between two measures is invariant under a shared invertible reparameterization because the Jacobian terms cancel. Mutual information has the same invariance when it is finite.</p>
+<p>Quantizing a real variable at resolution <span class="arithmatex">\(\Delta\)</span> gives, under regularity conditions,</p>
+<div class="arithmatex">\[
+H(X_\Delta)=h(X)+\log(1/\Delta)+o(1).
+\]</div>
+<p>The divergent resolution term is why continuous density evaluation must state units, preprocessing, dequantization, and base measure.</p>
+<h3 id="typical-sequences-are-not-modal-sequences">Typical sequences are not modal sequences<a class="headerlink" href="#typical-sequences-are-not-modal-sequences" title="Permanent link">¤</a></h3>
+<p>For IID draws <span class="arithmatex">\(X_{1:n}\sim p\)</span>, the law of large numbers applied to <span class="arithmatex">\(-\log p(X_i)\)</span> gives</p>
+<div class="arithmatex">\[
+-\frac1n\log p(X_{1:n})\longrightarrow H(X)
+\]</div>
+<p>in probability when the entropy and regularity assumptions hold. The typical set contains sequences whose per-symbol information is close to <span class="arithmatex">\(H(X)\)</span>. Its total probability approaches one even though each particular typical sequence can have tiny probability.</p>
+<p>For <span class="arithmatex">\(n\)</span> fair coin flips, every sequence has probability <span class="arithmatex">\(2^{-n}\)</span> and is typical. For a biased high-dimensional source, the single most probable sequence can be atypical because typicality concerns the mass of a large shell, not the location of a mode. This distinction recurs in likelihood-based out-of-distribution detection and energy-based sampling.</p>
+<h3 id="chapter-1-synthesis-and-retrieval">Chapter 1 synthesis and retrieval<a class="headerlink" href="#chapter-1-synthesis-and-retrieval" title="Permanent link">¤</a></h3>
+<p>Entropy averages surprise under the source. Cross-entropy averages the model's ideal length under that source. KL is their expected redundancy and carries a direction and support contract. Continuous entropy depends on coordinates, whereas relative entropy and mutual information compare measures. Typicality describes where probability mass concentrates across repeated draws, not which point has highest density.</p>
+<details class="question">
+<summary>Retrieval questions</summary>
+<ol>
+<li>Why is <span class="arithmatex">\(D_{\mathrm{KL}}(p\|q)\)</span> infinite when <span class="arithmatex">\(q\)</span> excludes a source event?</li>
+<li>A model has cross-entropy <span class="arithmatex">\(2.1\)</span> bits and the source entropy is <span class="arithmatex">\(1.7\)</span> bits. What is its expected ideal redundancy?</li>
+<li>Why can differential entropy be negative without violating any coding theorem?</li>
+<li>Why can a mode lie outside a typical set?</li>
+</ol>
+<p><strong>Solutions.</strong> (1) The event receives ideal length <span class="arithmatex">\(-\log q(x)=\infty\)</span> with positive probability under <span class="arithmatex">\(p\)</span>. (2) <span class="arithmatex">\(0.4\)</span> bit per source unit. (3) A density depends on units and can exceed one; operational coding first discretizes or quantizes and includes the resolution term. (4) A mode maximizes point probability, while a typical set collects exponentially many outcomes with near-entropy per-symbol information and nearly all total mass.</p>
+</details>
+<p><strong>Bridge.</strong> Entropy describes one variable. Chapter 2 asks what changes when two variables share information and what a learned representation retains.</p>
+<p><a href="../information-coding-01-measures/">Read Chapter 1 as a stopping-point page</a></p>
+<h2 id="2-dependence-data-processing-and-information-estimation">2. Dependence, Data Processing, and Information Estimation<a class="headerlink" href="#2-dependence-data-processing-and-information-estimation" title="Permanent link">¤</a></h2>
+<h3 id="chapter-2-prerequisites-and-learning-objectives">Chapter 2 prerequisites and learning objectives<a class="headerlink" href="#chapter-2-prerequisites-and-learning-objectives" title="Permanent link">¤</a></h3>
+<p>You should understand Chapter 1 and conditional probability. By the end of this chapter, you should be able to:</p>
+<ul>
+<li>compute mutual and conditional mutual information from a finite joint table;</li>
+<li>apply chain rules and the data-processing inequality with the correct Markov condition;</li>
+<li>distinguish sufficiency, minimal sufficiency, invertibility, and useful accessibility;</li>
+<li>separate total correlation from higher-order interaction measures; and</li>
+<li>audit variational and contrastive mutual-information estimates.</li>
+</ul>
+<h3 id="mutual-information-compares-a-joint-law-with-independence">Mutual information compares a joint law with independence<a class="headerlink" href="#mutual-information-compares-a-joint-law-with-independence" title="Permanent link">¤</a></h3>
+<p>For a joint law <span class="arithmatex">\(p(x,y)\)</span>,</p>
+<div class="arithmatex">\[
+I(X;Y)
+=D_{\mathrm{KL}}\bigl(p(x,y)\|p(x)p(y)\bigr).
+\]</div>
+<p>It is nonnegative and equals zero exactly when <span class="arithmatex">\(X\)</span> and <span class="arithmatex">\(Y\)</span> are independent, subject to the standard almost-everywhere qualification. Equivalent discrete identities are</p>
+<div class="arithmatex">\[
+\begin{aligned}
+I(X;Y)
+&amp;=H(X)-H(X\mid Y)\\
+&amp;=H(Y)-H(Y\mid X)\\
+&amp;=H(X)+H(Y)-H(X,Y).
+\end{aligned}
+\]</div>
+<p>For continuous variables, the KL definition is safer than reasoning with separate differential entropies: individual terms can be infinite even when a relative-entropy expression is meaningful.</p>
+<h3 id="worked-dependence-table">Worked dependence table<a class="headerlink" href="#worked-dependence-table" title="Permanent link">¤</a></h3>
+<p>Let <span class="arithmatex">\(X\)</span> be a fair bit and let <span class="arithmatex">\(Y=X\oplus N\)</span>, where <span class="arithmatex">\(N\sim\operatorname{Bernoulli}(1/4)\)</span> is independent. The joint table is</p>
+<div class="md-typeset__table book-table-container"><table id="tbl-information-coding-and-generative-modeling-worked-dependence-table"><caption class="book-object-caption"><span class="book-object-number">Table INFO.2.</span> Worked dependence table</caption>
+<thead>
+<tr>
+<th></th>
+<th style="text-align: right;"><span class="arithmatex">\(Y=0\)</span></th>
+<th style="text-align: right;"><span class="arithmatex">\(Y=1\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="arithmatex">\(X=0\)</span></td>
+<td style="text-align: right;"><span class="arithmatex">\(3/8\)</span></td>
+<td style="text-align: right;"><span class="arithmatex">\(1/8\)</span></td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(X=1\)</span></td>
+<td style="text-align: right;"><span class="arithmatex">\(1/8\)</span></td>
+<td style="text-align: right;"><span class="arithmatex">\(3/8\)</span></td>
+</tr>
+</tbody>
+</table></div>
+<p>Both marginals are uniform. Since <span class="arithmatex">\(H(Y)=1\)</span> bit and <span class="arithmatex">\(H(Y\mid X)=h_2(1/4)\)</span>,</p>
+<div class="arithmatex">\[
+I(X;Y)=1-h_2(1/4)\approx0.1887\ \text{bit},
+\]</div>
+<p>where <span class="arithmatex">\(h_2(u)=-u\log_2u-(1-u)\log_2(1-u)\)</span>. The channel retains less than one fifth of a bit about each source bit even though it predicts correctly three quarters of the time.</p>
+<h3 id="conditional-information-and-chain-rules">Conditional information and chain rules<a class="headerlink" href="#conditional-information-and-chain-rules" title="Permanent link">¤</a></h3>
+<p>Conditional mutual information is</p>
+<div class="arithmatex">\[
+I(X;Y\mid Z)
+=\mathbb E_{Z}D_{\mathrm{KL}}
+\bigl(p(x,y\mid Z)\|p(x\mid Z)p(y\mid Z)\bigr).
+\]</div>
+<p>It obeys</p>
+<div class="arithmatex">\[
+I(X;Y,Z)=I(X;Z)+I(X;Y\mid Z).
+\]</div>
+<p>Unconditional and conditional dependence need not agree. Two independent causes can become dependent after conditioning on their common effect; a common cause can explain away a marginal association. The graphical-model chapter supplies the structural separation rules, while conditional mutual information supplies a distribution-specific numerical measure.</p>
+<h3 id="data-processing-and-sufficient-representations">Data processing and sufficient representations<a class="headerlink" href="#data-processing-and-sufficient-representations" title="Permanent link">¤</a></h3>
+<p>If <span class="arithmatex">\(X\to Y\to Z\)</span> is a Markov chain, meaning <span class="arithmatex">\(X\perp Z\mid Y\)</span>, then</p>
+<div class="arithmatex">\[
+I(X;Z)\leq I(X;Y).
+\]</div>
+<p>For a representation <span class="arithmatex">\(Z\sim q(z\mid X)\)</span> and target <span class="arithmatex">\(Y\)</span>, the chain <span class="arithmatex">\(Y\to X\to Z\)</span> implies <span class="arithmatex">\(I(Y;Z)\leq I(Y;X)\)</span>. Equality means that <span class="arithmatex">\(Z\)</span> is sufficient for predicting <span class="arithmatex">\(Y\)</span> under the declared joint law. It does not mean that a finite classifier can extract the information, that <span class="arithmatex">\(Z\)</span> is minimal, or that <span class="arithmatex">\(Z\)</span> preserves information for a different task.</p>
+<figure class="book-figure" id="fig-information-coding-and-generative-modeling-data-processing-and-sufficient-representations"><pre class="mermaid"><code>flowchart LR
+    target["Task variable&lt;br/&gt;&amp;nbsp;$$Y$$"]
+    input["Observation&lt;br/&gt;&amp;nbsp;$$X$$"]
+    latent["Representation&lt;br/&gt;&amp;nbsp;$$Z$$"]
+    prediction["Declared decoder&lt;br/&gt;&amp;nbsp;$$\hat Y$$"]
+    target --&gt; input
+    input --&gt; latent
+    latent --&gt; prediction</code></pre><figcaption class="book-object-caption"><span class="book-object-number">Figure INFO.2.</span> Data processing and sufficient representations</figcaption></figure>
+<p>An invertible representation preserves all mutual information but may be inconvenient for a restricted decoder. A lossy representation can improve finite-sample prediction by discarding nuisance variation. Information sufficiency, computational accessibility, statistical efficiency, robustness, and causal adequacy are therefore separate claims.</p>
+<h3 id="deterministic-continuous-networks-expose-a-boundary">Deterministic continuous networks expose a boundary<a class="headerlink" href="#deterministic-continuous-networks-expose-a-boundary" title="Permanent link">¤</a></h3>
+<p>If <span class="arithmatex">\(X\)</span> is continuous and <span class="arithmatex">\(Z=f(X)\)</span> is a deterministic nonconstant representation, <span class="arithmatex">\(I(X;Z)\)</span> is often infinite: the joint law lies on a lower-dimensional graph relative to the product of marginals. If <span class="arithmatex">\(X\)</span> is discrete and <span class="arithmatex">\(f\)</span> is injective, <span class="arithmatex">\(I(X;Z)=H(X)\)</span> and cannot decrease during training unless the mapping loses distinctions. Binning activations or adding noise defines a different random variable and can produce a finite, changing estimate.</p>
+<p>This is why an observed “compression phase” from a histogram estimator is not automatically compression of the original deterministic network. <a href="https://arxiv.org/abs/1802.09766">Amjad and Geiger</a> and <a href="https://arxiv.org/abs/1810.05728">Goldfeld et al.</a> give complementary formal analyses of this boundary.</p>
+<h3 id="several-variables-have-several-dependence-functionals">Several variables have several dependence functionals<a class="headerlink" href="#several-variables-have-several-dependence-functionals" title="Permanent link">¤</a></h3>
+<p>For <span class="arithmatex">\(X_{1:d}\)</span>, total correlation is</p>
+<div class="arithmatex">\[
+\operatorname{TC}(X_{1:d})
+=D_{\mathrm{KL}}\!\left(
+p(x_{1:d})\middle\|\prod_{j=1}^{d}p(x_j)
+\right)
+=\sum_jH(X_j)-H(X_{1:d}).
+\]</div>
+<p>It is nonnegative and vanishes exactly at mutual independence. Interaction information or co-information uses alternating sums of entropies and can be negative. Its sign alone does not yield a unique decomposition into redundant, unique, and synergistic information; partial-information decompositions require additional axioms and choices. Pairwise mutual information can also be dense when conditional-independence structure is sparse.</p>
+<h3 id="variational-lower-and-upper-bounds">Variational lower and upper bounds<a class="headerlink" href="#variational-lower-and-upper-bounds" title="Permanent link">¤</a></h3>
+<p>If a decoder <span class="arithmatex">\(r_\phi(x\mid y)\)</span> approximates <span class="arithmatex">\(p(x\mid y)\)</span>, the Barber–Agakov construction gives</p>
+<div class="arithmatex">\[
+I(X;Y)
+\geq H(X)+\mathbb E_{p(x,y)}\log r_\phi(x\mid y).
+\]</div>
+<p>It is tight only when the variational conditional matches the true conditional. Donsker–Varadhan, NWJ, MINE, and contrastive bounds use a learned critic instead. They differ in normalization, sampling, bias, variance, and gradient behavior; the name “neural MI estimator” does not erase these distinctions.</p>
+<p>For one-positive, <span class="arithmatex">\(K-1\)</span>-negative InfoNCE under its standard sampling construction,</p>
+<div class="arithmatex">\[
+I(X;Y)\geq \log K-\mathcal L_{\mathrm{NCE}}.
+\]</div>
+<p>This particular lower bound cannot exceed <span class="arithmatex">\(\log K\)</span>. Dependent in-batch negatives, false negatives, multiple positives, hard-negative mining, and a mismatched proposal change what objective is being estimated.</p>
+<h3 id="estimation-is-harder-than-writing-the-definition">Estimation is harder than writing the definition<a class="headerlink" href="#estimation-is-harder-than-writing-the-definition" title="Permanent link">¤</a></h3>
+<p>High-dimensional MI estimation without structural assumptions is statistically severe. <a href="https://proceedings.mlr.press/v97/poole19a.html">Poole et al. (2019)</a> analyze bias–variance trade-offs among variational bounds. <a href="https://proceedings.mlr.press/v108/mcallester20a.html">McAllester and Stratos (2020)</a> prove that a distribution-free, high-confidence lower bound obtained from <span class="arithmatex">\(N\)</span> IID pairs cannot in general certify much more than order <span class="arithmatex">\(\log N\)</span> information. These results do not make MI useless; they require the claim to name the bound, critic family, sampling law, optimization split, uncertainty, and structural assumptions.</p>
+<div class="admonition failure">
+<p class="admonition-title">A large optimized lower bound is not an accurate MI measurement by default</p>
+<p>Optimization can overfit the same samples used to report the value. A bound can be loose even with perfect numerical optimization, and a high-variance estimator can look favorable after selection. Use held-out pairs or cross-fitting, controlled distributions with known MI, estimator ablations, confidence intervals where justified, and task-level measurements that do not depend on the same critic.</p>
+</div>
+<h3 id="chapter-2-synthesis-and-retrieval">Chapter 2 synthesis and retrieval<a class="headerlink" href="#chapter-2-synthesis-and-retrieval" title="Permanent link">¤</a></h3>
+<p>Mutual information measures departure from independence under one joint law. Data processing orders information only along a declared Markov chain. Sufficiency is target-specific, and finite decoders add an accessibility question. Neural objectives can bound or proxy mutual information, but their finite-sample values inherit critic, sampling, and optimization limits.</p>
+<details class="question">
+<summary>Retrieval questions</summary>
+<ol>
+<li>If <span class="arithmatex">\(Z=f(X)\)</span> is invertible, what does data processing say about <span class="arithmatex">\(I(Y;Z)\)</span>?</li>
+<li>Why can <span class="arithmatex">\(I(X;f(X))\)</span> be infinite for continuous <span class="arithmatex">\(X\)</span>?</li>
+<li>What is the largest value a standard <span class="arithmatex">\(K\)</span>-candidate InfoNCE lower bound can certify?</li>
+<li>Does zero pairwise MI among all coordinates imply zero total correlation?</li>
+</ol>
+<p><strong>Solutions.</strong> (1) It is equal to <span class="arithmatex">\(I(Y;X)\)</span> under the declared joint law because each variable can be processed into the other. (2) The deterministic joint is generally singular with respect to the product of its marginals. (3) <span class="arithmatex">\(\log K\)</span> in the chosen logarithm units. (4) No; higher-order dependence such as parity can have independent pairs but nonzero joint dependence.</p>
+</details>
+<p><strong>Bridge.</strong> Chapter 3 turns source probabilities into uniquely decodable bitstrings and shows exactly where likelihood becomes operational compression.</p>
+<p><a href="../information-coding-02-dependence/">Read Chapter 2 as a stopping-point page</a></p>
+<h2 id="3-lossless-coding-likelihood-and-generative-prediction">3. Lossless Coding, Likelihood, and Generative Prediction<a class="headerlink" href="#3-lossless-coding-likelihood-and-generative-prediction" title="Permanent link">¤</a></h2>
+<h3 id="chapter-3-prerequisites-and-learning-objectives">Chapter 3 prerequisites and learning objectives<a class="headerlink" href="#chapter-3-prerequisites-and-learning-objectives" title="Permanent link">¤</a></h3>
+<p>You should understand entropy and autoregressive factorization. By the end of this chapter, you should be able to:</p>
+<ul>
+<li>distinguish a prefix code, a uniquely decodable code, and an ideal real-valued codelength;</li>
+<li>apply the Kraft–McMillan condition and the source-coding bound;</li>
+<li>trace how a normalized generative model drives Huffman, arithmetic, range, or ANS coding;</li>
+<li>convert sequence likelihood into a correctly normalized coding metric; and</li>
+<li>identify every source of overhead between model NLL and a stored file.</li>
+</ul>
+<h3 id="a-code-is-a-protocol-not-a-metaphor">A code is a protocol, not a metaphor<a class="headerlink" href="#a-code-is-a-protocol-not-a-metaphor" title="Permanent link">¤</a></h3>
+<p>A binary <strong>prefix code</strong> assigns each source symbol a finite bitstring such that no codeword begins another. Its lengths <span class="arithmatex">\(\ell(x)\)</span> satisfy the Kraft inequality</p>
+<div class="arithmatex">\[
+\sum_x2^{-\ell(x)}\leq1.
+\]</div>
+<p>Conversely, integer lengths satisfying this inequality can be realized by a binary prefix code. The McMillan extension shows that every uniquely decodable code obeys the same inequality. Prefix codes are convenient because concatenated messages can be decoded immediately from left to right, but unique decodability is the more general property.</p>
+<p>For any source distribution <span class="arithmatex">\(p\)</span> and uniquely decodable binary code,</p>
+<div class="arithmatex">\[
+\mathbb E_p[\ell(X)]\geq H_2(X).
+\]</div>
+<p>Choosing Shannon lengths <span class="arithmatex">\(\ell(x)=\lceil-\log_2p(x)\rceil\)</span> gives an expected length below <span class="arithmatex">\(H_2(X)+1\)</span>. An optimal Huffman code is no worse for a finite alphabet. These are single-symbol integer-code bounds; block and streaming coders can amortize the sub-bit gap.</p>
+<h3 id="complete-prefix-code-example">Complete prefix-code example<a class="headerlink" href="#complete-prefix-code-example" title="Permanent link">¤</a></h3>
+<p>Return to <span class="arithmatex">\(p=(1/2,1/4,1/8,1/8)\)</span>. Assign</p>
+<div class="md-typeset__table book-table-container"><table id="tbl-information-coding-and-generative-modeling-complete-prefix-code-example"><caption class="book-object-caption"><span class="book-object-number">Table INFO.3.</span> Complete prefix-code example</caption>
+<thead>
+<tr>
+<th>Symbol</th>
+<th style="text-align: right;">Probability</th>
+<th>Code</th>
+<th style="text-align: right;">Length</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="arithmatex">\(A\)</span></td>
+<td style="text-align: right;"><span class="arithmatex">\(1/2\)</span></td>
+<td><code>0</code></td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(B\)</span></td>
+<td style="text-align: right;"><span class="arithmatex">\(1/4\)</span></td>
+<td><code>10</code></td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(C\)</span></td>
+<td style="text-align: right;"><span class="arithmatex">\(1/8\)</span></td>
+<td><code>110</code></td>
+<td style="text-align: right;">3</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(D\)</span></td>
+<td style="text-align: right;"><span class="arithmatex">\(1/8\)</span></td>
+<td><code>111</code></td>
+<td style="text-align: right;">3</td>
+</tr>
+</tbody>
+</table></div>
+<p>The Kraft sum is <span class="arithmatex">\(1/2+1/4+1/8+1/8=1\)</span>, and the expected length is <span class="arithmatex">\(1.75\)</span> bits—exactly the entropy because all probabilities are dyadic. The stream <code>010111</code> decodes uniquely as <span class="arithmatex">\(A,B,D\)</span>.</p>
+<p>If the true source is <span class="arithmatex">\(p\)</span> but code lengths are induced by the mismatched <span class="arithmatex">\(q\)</span> from Chapter 1, expected ideal length increases from <span class="arithmatex">\(1.75\)</span> to <span class="arithmatex">\(2\)</span> bits. The <span class="arithmatex">\(0.25\)</span>-bit difference is <span class="arithmatex">\(D_{\mathrm{KL}}(p\|q)\)</span>.</p>
+<h3 id="the-source-coding-theorem-is-asymptotic-and-source-specific">The source-coding theorem is asymptotic and source-specific<a class="headerlink" href="#the-source-coding-theorem-is-asymptotic-and-source-specific" title="Permanent link">¤</a></h3>
+<p>For a finite-alphabet memoryless source, block codes can approach entropy rate with vanishing excess rate and vanishing or zero decoding error according to the coding formulation. More general stationary ergodic sources use an entropy <strong>rate</strong></p>
+<div class="arithmatex">\[
+\bar H(X)=\lim_{n\to\infty}\frac1nH(X_{1:n}),
+\]</div>
+<p>when that limit exists. Nonstationarity, side information, streaming delay, bounded memory, finite block size, and nonzero error criteria define different operational problems. “[Entropy is] the number of bits” is therefore incomplete unless the source class and code regime are stated. The foundational noiseless and noisy coding results originate in <a href="https://onlinelibrary.wiley.com/doi/abs/10.1002/j.1538-7305.1948.tb00917.x">Shannon's 1948 analysis</a>.</p>
+<h3 id="sequential-probability-models-become-sequential-coders">Sequential probability models become sequential coders<a class="headerlink" href="#sequential-probability-models-become-sequential-coders" title="Permanent link">¤</a></h3>
+<p>For a discrete sequence,</p>
+<div class="arithmatex">\[
+q(x_{1:T})=\prod_{t=1}^{T}q(x_t\mid x_{&lt;t}),
+\]</div>
+<p>so ideal length decomposes as</p>
+<div class="arithmatex">\[
+-\log_2q(x_{1:T})
+=\sum_{t=1}^{T}-\log_2q(x_t\mid x_{&lt;t}).
+\]</div>
+<p>An arithmetic or range coder refines an interval according to each conditional probability table. An asymmetric numeral system updates a discrete coder state using the same model probabilities, often with stack-like ordering. The encoder and decoder must produce identical quantized probability tables in identical order; a numerically excellent model is not a valid codec if the two sides disagree by one rounding decision.</p>
+<figure class="book-figure" id="fig-information-coding-and-generative-modeling-sequential-probability-models-become-sequential-coders"><pre class="mermaid"><code>flowchart LR
+    prefix["Decoded prefix&lt;br/&gt;&amp;nbsp;$$x_{1:t-1}$$"]
+    model["Normalized model&lt;br/&gt;&amp;nbsp;$$q_t$$"]
+    coder["Entropy-coder state"]
+    symbol["Next symbol&lt;br/&gt;&amp;nbsp;$$x_t$$"]
+    prefix --&gt; model
+    model --&gt; coder
+    symbol --&gt; coder
+    coder --&gt; prefix</code></pre><figcaption class="book-object-caption"><span class="book-object-number">Figure INFO.3.</span> Sequential probability models become sequential coders</figcaption></figure>
+<p>Huffman coding rounds each individual symbol length to a tree depth. Arithmetic, range, and ANS methods amortize fractional ideal lengths across a sequence. None makes the exact bitstream length equal to <span class="arithmatex">\(-\log_2q(x)\)</span> for every file: termination, finite-state normalization, probability quantization, and container conventions remain.</p>
+<h3 id="metrics-must-declare-their-denominator">Metrics must declare their denominator<a class="headerlink" href="#metrics-must-declare-their-denominator" title="Permanent link">¤</a></h3>
+<p>For a test sequence with total negative log likelihood <span class="arithmatex">\(L=-\log q(x_{1:T})\)</span> in nats:</p>
+<div class="arithmatex">\[
+\operatorname{PPL}=\exp(L/T)
+\]</div>
+<p>is token perplexity, whereas</p>
+<div class="arithmatex">\[
+\operatorname{bits/token}=\frac{L}{T\log2}.
+\]</div>
+<p>For <span class="arithmatex">\(D\)</span> declared scalar image dimensions,</p>
+<div class="arithmatex">\[
+\operatorname{BPD}=\frac{L}{D\log2}.
+\]</div>
+<p>If <span class="arithmatex">\(L\)</span> is already a mean rather than a sum, dividing by <span class="arithmatex">\(T\)</span> or <span class="arithmatex">\(D\)</span> again is an error. Perplexity changes with tokenizer because the unit called a token changes. Bits per byte or character can improve comparability only when corpus bytes, encoding, context treatment, and evaluation boundaries match. Image BPD additionally depends on bit depth, color transform, quantization, dequantization, and whether <span class="arithmatex">\(L\)</span> is an exact likelihood or a variational bound.</p>
+<h3 id="actual-size-has-more-terms-than-model-cross-entropy">Actual size has more terms than model cross-entropy<a class="headerlink" href="#actual-size-has-more-terms-than-model-cross-entropy" title="Permanent link">¤</a></h3>
+<p>A reproducible compression report separates</p>
+<div class="arithmatex">\[
+L_{\mathrm{file}}
+=L_{\mathrm{payload}}
++L_{\mathrm{side}}
++L_{\mathrm{model}}
++L_{\mathrm{container}}
++L_{\mathrm{termination}}.
+\]</div>
+<ul>
+<li><strong>Payload</strong> is the entropy-coded data under synchronized probability tables.</li>
+<li><strong>Side information</strong> includes shapes, hyperlatents, masks, or indexes required by the decoder.</li>
+<li><strong>Model cost</strong> matters unless encoder and decoder are assumed to share the trained parameters.</li>
+<li><strong>Container and termination</strong> costs include headers, padding, checksums, final coder state, and block boundaries.</li>
+</ul>
+<p>A large pretrained model can compress a benchmark well when its weights are free shared context. Counting those weights answers a different universal or two-part coding question. Both conventions are valid when declared; silently switching between them is not.</p>
+<h3 id="generation-and-compression-use-the-same-conditionals-in-opposite-roles">Generation and compression use the same conditionals in opposite roles<a class="headerlink" href="#generation-and-compression-use-the-same-conditionals-in-opposite-roles" title="Permanent link">¤</a></h3>
+<p>An autoregressive generator draws a symbol from <span class="arithmatex">\(q_t\)</span> and updates its prefix. A lossless decoder reads coded state using <span class="arithmatex">\(q_t\)</span> and recovers the unique transmitted symbol. These operations share the normalized conditional model, but their randomness and guarantees differ. Generation samples a new sequence; decompression must reproduce a particular original sequence exactly.</p>
+<div class="admonition failure">
+<p class="admonition-title">A low NLL model is not automatically a deployable compressor</p>
+<p>It may use nondeterministic kernels, floating-point probabilities that are not synchronized across hardware, unavailable future context, an intractable latent marginal, or enormous shared parameters. Validate a real round trip, bit count, random-access policy, latency, memory, and failure behavior in addition to test NLL.</p>
+</div>
+<h3 id="chapter-3-synthesis-and-retrieval">Chapter 3 synthesis and retrieval<a class="headerlink" href="#chapter-3-synthesis-and-retrieval" title="Permanent link">¤</a></h3>
+<p>Entropy lower-bounds expected lossless description length only for a declared source and coding regime. A generative model supplies probabilities; an entropy coder turns discrete synchronized tables into bits. Model mismatch contributes forward-KL redundancy, while real systems add side information and finite implementation overhead. NLL-derived metrics remain comparable only under matched probability units and denominators.</p>
+<details class="question">
+<summary>Retrieval questions</summary>
+<ol>
+<li>Why can an ideal length <span class="arithmatex">\(-\log_2q(x)\)</span> be noninteger while a prefix-code length cannot?</li>
+<li>What expected redundancy does a mismatched model add?</li>
+<li>Why can two models with the same sequence likelihood have different token perplexities?</li>
+<li>What must a codec test prove beyond low NLL?</li>
+</ol>
+<p><strong>Solutions.</strong> (1) The ideal value is a real-valued logarithmic accounting quantity; a finite binary codeword has an integer number of bits. Sequence coders amortize fractional values. (2) <span class="arithmatex">\(D_{\mathrm{KL}}(p\|q)\)</span> in the selected units. (3) Different tokenizers divide the same sequence log likelihood by different token counts. (4) Deterministic encoder–decoder synchronization, exact round trip, measured total size, side-information accounting, resource cost, and behavior on malformed or unsupported input.</p>
+</details>
+<p><strong>Bridge.</strong> Lossless coding preserves every source distinction. Chapter 4 permits reconstruction error and asks which distinctions are worth transmitting.</p>
+<p><a href="../information-coding-03-lossless/">Read Chapter 3 as a stopping-point page</a></p>
+<h2 id="4-ratedistortion-learned-codecs-and-generative-reconstruction">4. Rate–Distortion, Learned Codecs, and Generative Reconstruction<a class="headerlink" href="#4-ratedistortion-learned-codecs-and-generative-reconstruction" title="Permanent link">¤</a></h2>
+<h3 id="chapter-4-prerequisites-and-learning-objectives">Chapter 4 prerequisites and learning objectives<a class="headerlink" href="#chapter-4-prerequisites-and-learning-objectives" title="Permanent link">¤</a></h3>
+<p>You should understand mutual information, latent-variable models, and lossless coding. By the end of this chapter, you should be able to:</p>
+<ul>
+<li>define an operational lossy code and Shannon's rate–distortion function;</li>
+<li>solve the binary symmetric source with Hamming distortion;</li>
+<li>distinguish transmitted rate, entropy-model rate, variational rate, and token-count proxies;</li>
+<li>derive the VAE rate decomposition and bits-back accounting; and</li>
+<li>audit generative reconstructions that trade distortion for perceptual realism.</li>
+</ul>
+<h3 id="lossy-coding-begins-with-what-may-be-forgotten">Lossy coding begins with what may be forgotten<a class="headerlink" href="#lossy-coding-begins-with-what-may-be-forgotten" title="Permanent link">¤</a></h3>
+<p>For a source block <span class="arithmatex">\(X^n\)</span>, an encoder emits a finite message <span class="arithmatex">\(M\)</span>, and a decoder produces <span class="arithmatex">\(\hat X^n\)</span>. With single-letter distortion <span class="arithmatex">\(d\)</span>,</p>
+<div class="arithmatex">\[
+R_n=\frac{\mathbb E[|M|]}{n},
+\qquad
+D_n=\frac1n\sum_{i=1}^{n}\mathbb E[d(X_i,\hat X_i)].
+\]</div>
+<p>The distortion function is part of the problem. Squared pixel error, waveform error, perceptual-feature distance, semantic error, physical-constraint violation, and downstream decision loss preserve different information. A plausible reconstruction can be wrong about the specific source; a low-distortion reconstruction can look perceptually poor.</p>
+<p>For a memoryless source under the standard asymptotic expected-distortion formulation,</p>
+<div class="arithmatex">\[
+R(D_0)=
+\inf_{r(\hat x\mid x):\,\mathbb E d(X,\hat X)\leq D_0}
+I(X;\hat X).
+\]</div>
+<p>This is an information-theoretic limit over conditional reconstruction laws, not the training loss or achieved bitrate of one neural architecture. The fidelity-criterion theorem was established by <a href="https://ieeexplore.ieee.org/document/5311476">Shannon (1959)</a>.</p>
+<h3 id="worked-binary-ratedistortion-function">Worked binary rate–distortion function<a class="headerlink" href="#worked-binary-ratedistortion-function" title="Permanent link">¤</a></h3>
+<p>Let <span class="arithmatex">\(X\sim\operatorname{Bernoulli}(1/2)\)</span> and use Hamming distortion <span class="arithmatex">\(d(x,\hat x)=\mathbf1\{x\neq\hat x\}\)</span>. For <span class="arithmatex">\(0\leq D\leq1/2\)</span>,</p>
+<div class="arithmatex">\[
+R(D)=1-h_2(D),
+\]</div>
+<p>and <span class="arithmatex">\(R(D)=0\)</span> for <span class="arithmatex">\(D\geq1/2\)</span>. A binary symmetric reconstruction channel with crossover probability <span class="arithmatex">\(D\)</span> achieves the curve. For <span class="arithmatex">\(D=1/4\)</span>, the minimum asymptotic rate is approximately <span class="arithmatex">\(0.1887\)</span> bit per source bit—the same calculation as the noisy dependence example, now interpreted as a coding limit.</p>
+<p>Zero rate permits the decoder to ignore the message and guess a constant or random reconstruction with error <span class="arithmatex">\(1/2\)</span>. Zero distortion requires one bit per source symbol. Neither endpoint says what a finite neural codec achieves.</p>
+<h3 id="lagrangians-and-supported-operating-points">Lagrangians and supported operating points<a class="headerlink" href="#lagrangians-and-supported-operating-points" title="Permanent link">¤</a></h3>
+<p>Practical systems often optimize</p>
+<div class="arithmatex">\[
+R+\lambda D
+\quad\text{or}\quad
+D+\beta R.
+\]</div>
+<p>The multipliers have reciprocal roles and units. Increasing <span class="arithmatex">\(\beta\)</span> in the second form puts more weight on rate; increasing <span class="arithmatex">\(\lambda\)</span> in the first puts more weight on distortion. Sweeping a multiplier recovers supported points of an ideal convex boundary. Nonconvex parameterizations, quantization relaxations, finite data, and optimization error can leave dominated solutions or miss parts of an empirical envelope.</p>
+<h3 id="learned-codecs-expose-a-probability-stack">Learned codecs expose a probability stack<a class="headerlink" href="#learned-codecs-expose-a-probability-stack" title="Permanent link">¤</a></h3>
+<figure class="book-figure" id="fig-information-coding-and-generative-modeling-learned-codecs-expose-a-probability-stack"><pre class="mermaid"><code>flowchart TB
+    input["Source&lt;br/&gt;&amp;nbsp;$$X$$"]
+    encoder["Analysis transform"]
+    quantizer["Discrete latent&lt;br/&gt;&amp;nbsp;$$\hat Z$$"]
+    entropy["Entropy model&lt;br/&gt;&amp;nbsp;$$m_\psi$$"]
+    bits["Bitstream"]
+    decoder["Synthesis transform"]
+    output["Reconstruction&lt;br/&gt;&amp;nbsp;$$\hat X$$"]
+    input --&gt; encoder --&gt; quantizer
+    quantizer --&gt; entropy --&gt; bits
+    bits --&gt; decoder --&gt; output</code></pre><figcaption class="book-object-caption"><span class="book-object-number">Figure INFO.4.</span> Learned codecs expose a probability stack</figcaption></figure>
+<p>At least four quantities are commonly called rate:</p>
+<ol>
+<li>measured bits per source unit in the serialized file;</li>
+<li>entropy-model cross-entropy <span class="arithmatex">\(\mathbb E[-\log_2m_\psi(\hat Z)]\)</span>;</li>
+<li>a differentiable variational proxy before hard quantization; and</li>
+<li>a fixed token-count or nominal codebook-capacity calculation.</li>
+</ol>
+<p>They coincide only under additional coding, discretization, and overhead assumptions. Hyperpriors and context models can lower payload cross-entropy while adding side bits or sequential latency. A large codebook does not imply high empirical entropy, and a compact latent grid does not imply a compact file.</p>
+<h3 id="vae-rate-and-its-decomposition">VAE rate and its decomposition<a class="headerlink" href="#vae-rate-and-its-decomposition" title="Permanent link">¤</a></h3>
+<p>For data distribution <span class="arithmatex">\(p_D(x)\)</span>, encoder <span class="arithmatex">\(q_\phi(z\mid x)\)</span>, and prior <span class="arithmatex">\(p_\theta(z)\)</span>, define</p>
+<div class="arithmatex">\[
+R_{\mathrm{var}}
+=\mathbb E_{p_D(x)}D_{\mathrm{KL}}
+\bigl(q_\phi(z\mid x)\|p_\theta(z)\bigr).
+\]</div>
+<p>With aggregate posterior <span class="arithmatex">\(q_\phi(z)=\int p_D(x)q_\phi(z\mid x)dx\)</span>,</p>
+<div class="arithmatex">\[
+R_{\mathrm{var}}
+=I_q(X;Z)
++D_{\mathrm{KL}}\bigl(q_\phi(z)\|p_\theta(z)\bigr).
+\]</div>
+<p>Thus the variational rate upper-bounds mutual information but includes aggregate-prior mismatch. Reducing it can remove instance information, improve prior matching, or both. The distortion term <span class="arithmatex">\(-\mathbb E\log p_\theta(x\mid z)\)</span> also inherits the decoder likelihood and its scale; it is not automatically a perceptual distortion.</p>
+<h3 id="bits-back-is-a-coding-construction-with-prerequisites">Bits back is a coding construction with prerequisites<a class="headerlink" href="#bits-back-is-a-coding-construction-with-prerequisites" title="Permanent link">¤</a></h3>
+<p>For one datum, the negative ELBO in bits is</p>
+<div class="arithmatex">\[
+\mathbb E_{q(z\mid x)}
+\left[-\log_2p(x,z)+\log_2q(z\mid x)\right].
+\]</div>
+<p>A naive latent code pays for <span class="arithmatex">\(z\)</span> under the prior plus the residual <span class="arithmatex">\(x\)</span> under the decoder. A bits-back protocol uses coder state to draw <span class="arithmatex">\(z\)</span> from the approximate posterior and later recovers information corresponding to <span class="arithmatex">\(-\log_2q(z\mid x)\)</span>. The net expected ideal cost becomes the negative ELBO rather than the naive two-part cross-entropy.</p>
+<p>The construction requires discrete or discretized distributions, synchronized tables, a reversible entropy coder, initial random state, and message chaining or another way to amortize startup cost. Approximate inference creates a posterior gap; finite precision and termination add overhead. <a href="https://openreview.net/forum?id=ryE98iR5tm">Townsend, Bird, and Barber</a> demonstrate a practical ANS construction rather than merely invoking the ELBO analogy.</p>
+<h3 id="distortion-perception-and-hallucination">Distortion, perception, and hallucination<a class="headerlink" href="#distortion-perception-and-hallucination" title="Permanent link">¤</a></h3>
+<p>A generative decoder can draw plausible details from a learned conditional prior when the bitstream did not preserve them. This can improve distributional perceptual metrics while increasing instance-level error. The rate–distortion–perception result of <a href="https://proceedings.mlr.press/v97/blau19a.html">Blau and Michaeli</a> formalizes a trade-off under its declared distributional perception criterion.</p>
+<p>At very low rates, a reconstructed face, lesion, word, molecule, or physical field may be realistic but not faithful. Reports should separate:</p>
+<ul>
+<li>rate, including all transmitted side information;</li>
+<li>distortion to the particular source;</li>
+<li>distributional realism of reconstructions;</li>
+<li>task or semantic error;</li>
+<li>stochastic variability across repeated decodes; and</li>
+<li>decoder compute and number of generative steps.</li>
+</ul>
+<p><a href="https://proceedings.mlr.press/v267/ohayon25a.html">Compressed Image Generation with Denoising Diffusion Codebook Models</a> is a <strong>Peer-reviewed research</strong> example of combining a diffusion generator with an operational bitstream. Its reported perceptual compression result is protocol-specific; it does not change the distinction between a sample that looks likely and a reconstruction that preserves the source.</p>
+<h3 id="a-codec-is-also-a-representation-choice">A codec is also a representation choice<a class="headerlink" href="#a-codec-is-also-a-representation-choice" title="Permanent link">¤</a></h3>
+<p>Learned tokens reused by an autoregressive, diffusion, or multimodal generator define its state space and observation bottleneck. Optimizing only reconstruction can preserve nuisance detail that burdens the prior. Optimizing only perceptual realism can discard text, counts, phase, identity, or scientific quantities. Joint codec-prior training changes both representation and generative model, so codec-only, prior-only, and end-to-end evaluations are all needed.</p>
+<h3 id="chapter-4-synthesis-and-retrieval">Chapter 4 synthesis and retrieval<a class="headerlink" href="#chapter-4-synthesis-and-retrieval" title="Permanent link">¤</a></h3>
+<p>Rate–distortion theory bounds an operational coding problem defined by a source, distortion, block regime, and error criterion. Learned codecs replace the abstract test channel with finite transforms, quantizers, entropy models, and bitstream syntax. Variational rates and bits-back connect latent models to coding under explicit conditions. Generative realism never substitutes for source fidelity.</p>
+<details class="question">
+<summary>Retrieval questions</summary>
+<ol>
+<li>What is the binary symmetric source rate at Hamming distortion <span class="arithmatex">\(D=1/2\)</span>?</li>
+<li>Why is token count not measured bitrate?</li>
+<li>What two terms make up the VAE variational rate?</li>
+<li>What does a stochastic generative decoder need to report beyond a perceptual score?</li>
+</ol>
+<p><strong>Solutions.</strong> (1) Zero: the decoder can ignore the message and incur error one half. (2) Token probabilities, entropy coding, side information, headers, and implementation overhead determine stored bits. (3) <span class="arithmatex">\(I_q(X;Z)\)</span> plus aggregate-posterior mismatch <span class="arithmatex">\(D_{\mathrm{KL}}(q(z)\|p(z))\)</span>. (4) Rate, source distortion, task/semantic error, variation across decodes, conditioning protocol, and decoding compute.</p>
+</details>
+<p><strong>Bridge.</strong> Chapter 5 keeps a transmitted message but corrupts the channel. Probabilistic decoding then becomes posterior inference under a generative corruption model.</p>
+<p><a href="../information-coding-04-lossy/">Read Chapter 4 as a stopping-point page</a></p>
+<h2 id="5-noisy-channels-bayesian-decoding-and-generative-denoising">5. Noisy Channels, Bayesian Decoding, and Generative Denoising<a class="headerlink" href="#5-noisy-channels-bayesian-decoding-and-generative-denoising" title="Permanent link">¤</a></h2>
+<h3 id="chapter-5-prerequisites-and-learning-objectives">Chapter 5 prerequisites and learning objectives<a class="headerlink" href="#chapter-5-prerequisites-and-learning-objectives" title="Permanent link">¤</a></h3>
+<p>You should understand conditional probability, mutual information, and source coding. By the end of this chapter, you should be able to:</p>
+<ul>
+<li>define a channel separately from a source and an error-correcting code;</li>
+<li>compute the capacity of a binary symmetric channel;</li>
+<li>perform exact Bayesian decoding for a finite repetition code;</li>
+<li>use Fano's inequality and finite-blocklength qualifications correctly; and</li>
+<li>explain the limited but important connection to denoising generative models.</li>
+</ul>
+<h3 id="a-channel-is-a-conditional-law">A channel is a conditional law<a class="headerlink" href="#a-channel-is-a-conditional-law" title="Permanent link">¤</a></h3>
+<p>A communication channel is a probability kernel <span class="arithmatex">\(W(y\mid x)\)</span> from transmitted symbol <span class="arithmatex">\(X\)</span> to observation <span class="arithmatex">\(Y\)</span>. The message prior, encoder, channel, and decoder are separate components:</p>
+<figure class="book-figure" id="fig-information-coding-and-generative-modeling-a-channel-is-a-conditional-law"><pre class="mermaid"><code>flowchart TB
+    message["Message&lt;br/&gt;&amp;nbsp;$$M$$"]
+    encoder["Channel encoder"]
+    sent["Codeword&lt;br/&gt;&amp;nbsp;$$X^n$$"]
+    channel["Noisy channel&lt;br/&gt;&amp;nbsp;$$W$$"]
+    received["Observation&lt;br/&gt;&amp;nbsp;$$Y^n$$"]
+    decoder["Bayesian decoder"]
+    estimate["Estimate&lt;br/&gt;&amp;nbsp;$$\hat M$$"]
+    message --&gt; encoder --&gt; sent --&gt; channel --&gt; received --&gt; decoder --&gt; estimate</code></pre><figcaption class="book-object-caption"><span class="book-object-number">Figure INFO.5.</span> A channel is a conditional law</figcaption></figure>
+<p>Source coding removes statistical redundancy to reduce rate. Channel coding deliberately adds structured redundancy to resist corruption. A deployed system may use both, but their objectives point in opposite directions and their rates have different denominators.</p>
+<h3 id="capacity-maximizes-reliable-information-rate">Capacity maximizes reliable information rate<a class="headerlink" href="#capacity-maximizes-reliable-information-rate" title="Permanent link">¤</a></h3>
+<p>For a discrete memoryless channel,</p>
+<div class="arithmatex">\[
+C=\max_{p(x)}I(X;Y)
+\]</div>
+<p>is the asymptotic capacity in bits per channel use when base-two logarithms are used. The maximization is over allowed input distributions and may include cost constraints. Shannon's coding theorem relates rates below capacity to codes whose error probability can vanish with increasing blocklength, and rates above capacity to a converse under its stated error criterion.</p>
+<p>For a binary symmetric channel with flip probability <span class="arithmatex">\(\varepsilon\)</span>,</p>
+<div class="arithmatex">\[
+W(y\mid x)=
+\begin{cases}
+1-\varepsilon,&amp;y=x,\\
+\varepsilon,&amp;y\neq x,
+\end{cases}
+\]</div>
+<p>the uniform input achieves</p>
+<div class="arithmatex">\[
+C=1-h_2(\varepsilon)
+\]</div>
+<p>for <span class="arithmatex">\(0\leq\varepsilon\leq1/2\)</span>. At <span class="arithmatex">\(\varepsilon=1/4\)</span>, capacity is approximately <span class="arithmatex">\(0.1887\)</span> bit per use. This is the same mutual-information value computed in Chapter 2, now maximized over input laws and interpreted as a reliable communication limit.</p>
+<h3 id="worked-repetition-code-posterior">Worked repetition-code posterior<a class="headerlink" href="#worked-repetition-code-posterior" title="Permanent link">¤</a></h3>
+<p>Encode a fair message bit <span class="arithmatex">\(M\)</span> as <span class="arithmatex">\(X^3=(M,M,M)\)</span> and transmit each bit through an independent binary symmetric channel with <span class="arithmatex">\(\varepsilon=0.1\)</span>. Suppose <span class="arithmatex">\(Y^3=(1,0,1)\)</span>. Then</p>
+<div class="arithmatex">\[
+\begin{aligned}
+p(y\mid M=1)&amp;=0.9^2(0.1)=0.081,\\
+p(y\mid M=0)&amp;=0.1^2(0.9)=0.009.
+\end{aligned}
+\]</div>
+<p>With equal message priors,</p>
+<div class="arithmatex">\[
+p(M=1\mid y)=\frac{0.081}{0.081+0.009}=0.9.
+\]</div>
+<p>Majority vote is the MAP decoder here because the prior is uniform and bit flips are symmetric and independent. Change the prior, introduce burst errors, or make coordinates unequally reliable, and majority vote need not be optimal. The generative channel likelihood makes those assumptions visible.</p>
+<p>The repetition code transmits one message bit using three channel uses, so its nominal rate is <span class="arithmatex">\(1/3\)</span>. Redundancy improves error probability but does not guarantee correction of every corruption; all three bits can flip.</p>
+<h3 id="fano-bounds-error-through-remaining-uncertainty">Fano bounds error through remaining uncertainty<a class="headerlink" href="#fano-bounds-error-through-remaining-uncertainty" title="Permanent link">¤</a></h3>
+<p>Let <span class="arithmatex">\(M\)</span> take values in an alphabet of size <span class="arithmatex">\(K\)</span>, let <span class="arithmatex">\(\hat M=g(Y)\)</span>, and let <span class="arithmatex">\(P_e=P(\hat M\neq M)\)</span>. Fano's inequality gives</p>
+<div class="arithmatex">\[
+\begin{aligned}
+H(M\mid Y)
+&amp;\leq h_2(P_e)\\
+&amp;\quad+P_e\log_2(K-1).
+\end{aligned}
+\]</div>
+<p>It converts a decoding-error statement into a conditional-entropy bound. Rearranged with <span class="arithmatex">\(I(M;Y)=H(M)-H(M\mid Y)\)</span>, it can prove lower bounds on error when observations carry too little information. The alphabet size, message prior, logarithm base, and estimator class must be stated. Fano is generally not an exact formula for the Bayes error.</p>
+<h3 id="asymptotic-capacity-does-not-predict-one-finite-system">Asymptotic capacity does not predict one finite system<a class="headerlink" href="#asymptotic-capacity-does-not-predict-one-finite-system" title="Permanent link">¤</a></h3>
+<p>At blocklength <span class="arithmatex">\(n\)</span>, target error probability <span class="arithmatex">\(\epsilon\)</span>, and a declared channel and cost, the maximal coding rate is a finite-blocklength object. It is below capacity by a term related to channel dispersion in common regular settings, with further lower-order terms. <a href="https://doi.org/10.1109/TIT.2010.2043769">Polyanskiy, Poor, and Verdú (2010)</a> develop achievability and converse bounds for this regime.</p>
+<p>Therefore a capacity number alone does not determine latency, code construction, decoding compute, burst-error robustness, or performance at a chosen <span class="arithmatex">\(n\)</span>. Reports must attach blocklength, rate, error criterion, channel law, input constraint, and decoder.</p>
+<h3 id="generative-denoising-is-bayesian-decodingbut-not-always-channel-coding">Generative denoising is Bayesian decoding—but not always channel coding<a class="headerlink" href="#generative-denoising-is-bayesian-decodingbut-not-always-channel-coding" title="Permanent link">¤</a></h3>
+<p>Suppose a clean object <span class="arithmatex">\(X\)</span> has prior <span class="arithmatex">\(p_\theta(x)\)</span> and a corruption process produces <span class="arithmatex">\(Y\sim c(y\mid x)\)</span>. Posterior denoising targets</p>
+<div class="arithmatex">\[
+p_\theta(x\mid y)
+\propto c(y\mid x)p_\theta(x).
+\]</div>
+<p>This is the same Bayesian structure as channel decoding. It appears in inverse problems, error correction, masked reconstruction, and diffusion-style corruption. But the operational labels must remain accurate:</p>
+<ul>
+<li>if no message is encoded and no communication rate is measured, the task is denoising or posterior inference, not automatically channel coding;</li>
+<li>if the prior is learned from data, posterior quality depends on both prior misspecification and corruption calibration;</li>
+<li>if a decoder returns one plausible sample, it need not minimize symbol error, sequence error, squared distortion, or another decision loss; and</li>
+<li>a training corruption schedule need not model the physical observation channel used at deployment.</li>
+</ul>
+<p>Discrete diffusion and masked generation can be interpreted through time-indexed channels <span class="arithmatex">\(q_t(x_t\mid x_0)\)</span>. Mutual information <span class="arithmatex">\(I(X_0;X_t)\)</span> measures retained dependence under a declared data law, but matching that scalar across two corruptions does not make their reverse conditionals, computational costs, or finite-step samplers equivalent.</p>
+<h3 id="joint-sourcechannel-and-semantic-systems-need-a-declared-target">Joint source–channel and semantic systems need a declared target<a class="headerlink" href="#joint-sourcechannel-and-semantic-systems-need-a-declared-target" title="Permanent link">¤</a></h3>
+<p>Classical separation theorems justify independent source and channel code design only under asymptotic assumptions. Finite latency, task-specific distortion, unequal error protection, learned representations, and semantic objectives can motivate joint systems. Such a system must still report what is transmitted, which channel is assumed, what the receiver reconstructs or decides, and what errors matter. “Semantic communication” is not permission to replace fidelity with an unspecified realism score.</p>
+<h3 id="chapter-5-synthesis-and-retrieval">Chapter 5 synthesis and retrieval<a class="headerlink" href="#chapter-5-synthesis-and-retrieval" title="Permanent link">¤</a></h3>
+<p>A channel is a corruption kernel, capacity is an optimized asymptotic rate, and an error-correcting code is a finite construction. Bayesian decoding combines a message prior with the channel likelihood. The same posterior form supports generative denoising, but a denoiser becomes a communication system only when messages, encoding, rate, channel, and error criteria are operationally present.</p>
+<details class="question">
+<summary>Retrieval questions</summary>
+<ol>
+<li>Why does source coding remove redundancy while channel coding adds it?</li>
+<li>What is the capacity of a noiseless binary channel?</li>
+<li>When is majority vote the MAP decoder for a repetition code?</li>
+<li>Why is a diffusion denoiser not automatically an error-correcting code?</li>
+</ol>
+<p><strong>Solutions.</strong> (1) Source coding reduces expected representation length; channel coding spends extra channel uses to make messages distinguishable after noise. (2) One bit per channel use. (3) With a uniform message prior and conditionally independent, symmetric bit flips of equal reliability. (4) It may have no encoded message, rate, physical channel, exact recovery goal, or declared communication error criterion.</p>
+</details>
+<p><strong>Bridge.</strong> Chapters 1–5 measure information in laws and protocols. Chapter 6 uses those measures to choose representations and models, then draws a firm boundary around description-length ideas that are not computable observables.</p>
+<p><a href="../information-coding-05-channels/">Read Chapter 5 as a stopping-point page</a></p>
+<h2 id="6-information-bottlenecks-description-length-and-research-audit">6. Information Bottlenecks, Description Length, and Research Audit<a class="headerlink" href="#6-information-bottlenecks-description-length-and-research-audit" title="Permanent link">¤</a></h2>
+<h3 id="chapter-6-prerequisites-and-learning-objectives">Chapter 6 prerequisites and learning objectives<a class="headerlink" href="#chapter-6-prerequisites-and-learning-objectives" title="Permanent link">¤</a></h3>
+<p>You should understand all preceding chapters and variational inference. By the end of this chapter, you should be able to:</p>
+<ul>
+<li>formulate an information-bottleneck problem as a constrained representation problem;</li>
+<li>distinguish the exact functional from variational neural surrogates;</li>
+<li>diagnose deterministic-network and estimator pathologies;</li>
+<li>separate MDL, Bayesian evidence, variational objectives, and Kolmogorov complexity; and</li>
+<li>design an information-theoretic generative-model experiment whose claims survive a protocol audit.</li>
+</ul>
+<h3 id="the-bottleneck-is-a-task-relative-trade-off">The bottleneck is a task-relative trade-off<a class="headerlink" href="#the-bottleneck-is-a-task-relative-trade-off" title="Permanent link">¤</a></h3>
+<p>Let <span class="arithmatex">\((X,Y)\sim p\)</span> and let a stochastic encoder produce <span class="arithmatex">\(Z\sim q(z\mid X)\)</span>. The Markov relation <span class="arithmatex">\(Y\to X\to Z\)</span> holds by construction. One information-bottleneck formulation is</p>
+<div class="arithmatex">\[
+\min_{q(z\mid x)} I(X;Z)
+\quad\text{subject to}\quad
+I(Y;Z)\geq c.
+\]</div>
+<p>Its Lagrangian is often written</p>
+<div class="arithmatex">\[
+\mathcal L_{\mathrm{IB}}
+=I(X;Z)-\beta I(Y;Z),
+\]</div>
+<p>with convention-dependent placement of the multiplier. The original method of <a href="https://arxiv.org/abs/physics/0004057">Tishby, Pereira, and Bialek</a> connects this problem to rate–distortion with a relevance-dependent distortion.</p>
+<p>The word <strong>minimal</strong> is conditional on a target and an admissible encoder family. A representation compact for predicting <span class="arithmatex">\(Y\)</span> may discard information needed for generation, causal intervention, calibration under shift, or a different downstream task.</p>
+<h3 id="finite-example-nuisance-removal">Finite example: nuisance removal<a class="headerlink" href="#finite-example-nuisance-removal" title="Permanent link">¤</a></h3>
+<p>Let <span class="arithmatex">\(Y\)</span> and <span class="arithmatex">\(N\)</span> be independent fair bits, let <span class="arithmatex">\(X=(Y,N)\)</span>, and choose <span class="arithmatex">\(Z=Y\)</span>. Then</p>
+<div class="arithmatex">\[
+I(X;Z)=1\ \text{bit},
+\qquad
+I(Y;Z)=1\ \text{bit}.
+\]</div>
+<p>The representation keeps all target information and drops the nuisance bit. The identity representation <span class="arithmatex">\(Z=X\)</span> also has <span class="arithmatex">\(I(Y;Z)=1\)</span> bit but costs <span class="arithmatex">\(I(X;Z)=2\)</span> bits. For reconstructing <span class="arithmatex">\(X\)</span>, however, <span class="arithmatex">\(Z=Y\)</span> is insufficient. The bottleneck did not discover a universally irrelevant factor; the task declared <span class="arithmatex">\(N\)</span> irrelevant.</p>
+<h3 id="variational-information-bottleneck">Variational information bottleneck<a class="headerlink" href="#variational-information-bottleneck" title="Permanent link">¤</a></h3>
+<p>In high dimensions, the exact terms are rarely available. Let <span class="arithmatex">\(r(z)\)</span> approximate the aggregate representation law and let <span class="arithmatex">\(d_\psi(y\mid z)\)</span> be a predictive decoder. Then</p>
+<div class="arithmatex">\[
+I(X;Z)
+\leq \mathbb E_{p(x)}D_{\mathrm{KL}}
+\bigl(q_\phi(z\mid x)\|r(z)\bigr)
+\]</div>
+<p>and</p>
+<div class="arithmatex">\[
+I(Y;Z)
+\geq H(Y)+\mathbb E\log d_\psi(Y\mid Z).
+\]</div>
+<p>Dropping the constant <span class="arithmatex">\(H(Y)\)</span> yields a tractable objective containing predictive NLL plus a KL rate. Equality requires the auxiliary marginal and decoder to match their target distributions. A successful classifier trained by this surrogate does not prove that the exact IB curve was found.</p>
+<h3 id="determinism-creates-degenerate-or-singular-objectives">Determinism creates degenerate or singular objectives<a class="headerlink" href="#determinism-creates-degenerate-or-singular-objectives" title="Permanent link">¤</a></h3>
+<p>For continuous <span class="arithmatex">\(X\)</span> and deterministic <span class="arithmatex">\(Z=f_\theta(X)\)</span>, <span class="arithmatex">\(I(X;Z)\)</span> may be infinite. For discrete empirical inputs and an injective map, it can be constant at <span class="arithmatex">\(H(X)\)</span>. Invertible reparameterizations preserve MI even when they change geometry, margin, robustness, or decoder complexity. Adding stochastic noise, quantization, a restricted decoder, or a reference distribution yields a different well-posed objective, but the added choice must be named.</p>
+<p><a href="https://arxiv.org/abs/1808.07593">Kolchinsky, Tracey, and Van Kuyk</a> show additional degeneracies when the relevance variable is a deterministic function of the input: a simple Lagrangian sweep may not recover the full bottleneck trade-off boundary, and trivial sufficient representations can populate it. These are boundaries on interpretation, not a rejection of task-aware compression.</p>
+<h3 id="minimum-description-length-is-an-operational-model-selection-principle">Minimum description length is an operational model-selection principle<a class="headerlink" href="#minimum-description-length-is-an-operational-model-selection-principle" title="Permanent link">¤</a></h3>
+<p>A two-part description can encode a model or parameters and then encode data under that model:</p>
+<div class="arithmatex">\[
+L(M,D)=L(M)+L(D\mid M).
+\]</div>
+<p>The <a href="https://doi.org/10.1016/0005-1098(78)90005-5">minimum-description-length principle</a> selects a model using a specified code or universal coding construction. The result depends on what is shared, parameter precision, model class, coding scheme, and data order. Merely adding “parameter count” to NLL is not a complete MDL derivation.</p>
+<p>Bayesian marginal likelihood</p>
+<div class="arithmatex">\[
+p(D\mid\mathcal M)
+=\int p(D\mid\theta,\mathcal M)p(\theta\mid\mathcal M)d\theta
+\]</div>
+<p>also embodies a complexity–fit trade-off through prior mass. Under particular coding and prior constructions, Bayesian and MDL quantities can be closely related. They are not generally identical, and neither is universally equal to BIC, a PAC-Bayes bound, parameter entropy, or the number of stored checkpoint bits.</p>
+<h3 id="algorithmic-information-is-a-limit-concept-not-a-measured-neural-score">Algorithmic information is a limit concept, not a measured neural score<a class="headerlink" href="#algorithmic-information-is-a-limit-concept-not-a-measured-neural-score" title="Permanent link">¤</a></h3>
+<p>Fix a universal prefix machine <span class="arithmatex">\(U\)</span>. The prefix Kolmogorov complexity of a finite string is</p>
+<div class="arithmatex">\[
+K_U(x)=\min_{p:\,U(p)=x}|p|.
+\]</div>
+<p>Changing the universal machine changes complexity by at most an additive constant independent of <span class="arithmatex">\(x\)</span>, but that constant can matter for finite strings. More importantly, <span class="arithmatex">\(K_U(x)\)</span> is uncomputable. A compressor length is an upper bound supplied by one algorithm, not the Kolmogorov complexity itself.</p>
+<p>The foundational algorithmic approach was introduced independently in work by Solomonoff, Kolmogorov, and Chaitin; <a href="https://www.mathnet.ru/php/archive.phtml?jrnid=ppi&amp;option_lang=eng&amp;paperid=68&amp;wshow=paper">Kolmogorov's original account</a> makes the contrast with probabilistic information explicit. Algorithmic randomness formalizes incompressibility of individual infinite sequences under a chosen effective-test framework. It does not license a claim that one visually irregular sample is “truly random.”</p>
+<p>Solomonoff induction mixes computable sequence predictors with complexity-based weights. Its universality and convergence results are mathematical limit statements, while the exact predictor is uncomputable. Training a Transformer on program-generated strings may investigate an approximation, but it is not an implementation of the universal prior and does not inherit its guarantees automatically.</p>
+<h3 id="compression-prediction-and-understanding">Compression, prediction, and understanding<a class="headerlink" href="#compression-prediction-and-understanding" title="Permanent link">¤</a></h3>
+<p>A normalized predictor can drive lossless compression because accurate probabilities shorten expected code length. This supplies a strong test of predictive density. It does not alone establish causal understanding, factual correctness under intervention, planning ability, human-aligned semantics, or useful latent factors. Conversely, an implicit generator may produce valuable samples without exposing an exact lossless code probability.</p>
+<p>Use compression as one query in a broader generative evaluation:</p>
+<div class="md-typeset__table book-table-container"><table id="tbl-information-coding-and-generative-modeling-compression-prediction-and-understanding"><caption class="book-object-caption"><span class="book-object-number">Table INFO.4.</span> Compression, prediction, and understanding</caption>
+<thead>
+<tr>
+<th>Claim</th>
+<th>Necessary evidence</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>improved density model</td>
+<td>held-out NLL or exact/qualified bound under matched preprocessing</td>
+</tr>
+<tr>
+<td>improved compressor</td>
+<td>real round-trip bitstream and full rate accounting</td>
+</tr>
+<tr>
+<td>better representation</td>
+<td>declared tasks, adapters, sample sizes, and shift tests</td>
+</tr>
+<tr>
+<td>more information</td>
+<td>identified random variables and a validated estimator or exact calculation</td>
+</tr>
+<tr>
+<td>shorter description</td>
+<td>explicit code, shared context, model cost, and decoding procedure</td>
+</tr>
+<tr>
+<td>algorithmic simplicity</td>
+<td>only a computable upper bound unless a special theorem applies</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="research-audit-twelve-questions">Research audit: twelve questions<a class="headerlink" href="#research-audit-twelve-questions" title="Permanent link">¤</a></h3>
+<p>Before accepting an information-theoretic claim, ask:</p>
+<ol>
+<li>What are the random variables and their joint law?</li>
+<li>Are they discrete, quantized, continuous, mixed, or singular?</li>
+<li>What is the logarithm base and reported unit?</li>
+<li>Which expectation direction and support condition are used?</li>
+<li>Is the number an exact functional, a bound, a proxy, or an operational measurement?</li>
+<li>If estimated, what samples, critic, proposal, split, and uncertainty are used?</li>
+<li>If coded, what probability precision, side information, termination, and model-sharing convention are used?</li>
+<li>If lossy, what distortion and reconstruction law define fidelity?</li>
+<li>If a channel is present, what blocklength, cost, decoder, and error criterion apply?</li>
+<li>If a bottleneck is claimed, what relevance variable and admissible encoder family define minimality?</li>
+<li>If description length selects a model, what code or prior pays for parameters and structure?</li>
+<li>Which conclusion remains valid under tokenization, coordinate, quantization, and estimator changes?</li>
+</ol>
+<h3 id="research-exercises">Research exercises<a class="headerlink" href="#research-exercises" title="Permanent link">¤</a></h3>
+<ol>
+<li>Derive the equality condition for KL data processing in a finite deterministic map and relate it to recoverability of the likelihood ratio.</li>
+<li>Construct three fair bits that are pairwise independent but have nonzero total correlation. Compute every relevant entropy.</li>
+<li>Implement Huffman and arithmetic coding for the four-symbol source. Compare ideal, payload, and complete-file lengths across block sizes.</li>
+<li>Derive <span class="arithmatex">\(R(D)=1-h_2(D)\)</span> for a fair Bernoulli source with Hamming distortion, including the converse and achieving test channel.</li>
+<li>Compare an entropy-model rate, measured rate, and nominal token rate for one learned codec. Account for every discrepancy.</li>
+<li>Reproduce a mutual-information bound on a synthetic Gaussian pair whose exact MI is known. Vary batch size, critic capacity, and train/evaluation splitting.</li>
+<li>Show why <span class="arithmatex">\(I(X;f(X))\)</span> is infinite for a smooth deterministic embedding of an absolutely continuous <span class="arithmatex">\(X\)</span> into a graph-supported joint law.</li>
+<li>Design a noisy-channel experiment in which MAP decoding differs from majority vote because of a nonuniform prior or correlated errors.</li>
+<li>Compare MDL, marginal likelihood, BIC, and validation NLL on one finite model class. State which approximations create agreements or differences.</li>
+<li>Audit a “generative compression” paper by separating source rate, distortion, perception, stochasticity, model cost, and decoder compute.</li>
+</ol>
+<h3 id="primary-reading-path">Primary reading path<a class="headerlink" href="#primary-reading-path" title="Permanent link">¤</a></h3>
+<ul>
+<li><a href="https://onlinelibrary.wiley.com/doi/abs/10.1002/j.1538-7305.1948.tb00917.x">Shannon, <em>A Mathematical Theory of Communication</em></a> — <strong>Established archival foundation</strong> for entropy, source coding, noisy channels, and capacity.</li>
+<li><a href="https://doi.org/10.1214/aoms/1177729694">Kullback and Leibler, <em>On Information and Sufficiency</em></a> — <strong>Established archival foundation</strong> for relative information and sufficiency.</li>
+<li><a href="https://ieeexplore.ieee.org/document/5311476">Shannon, <em>Coding Theorems for a Discrete Source With a Fidelity Criterion</em></a> — <strong>Established archival foundation</strong> for rate–distortion.</li>
+<li><a href="https://arxiv.org/abs/physics/0004057">Tishby, Pereira, and Bialek, <em>The Information Bottleneck Method</em></a> — <strong>Peer-reviewed research</strong> on task-relevant compression.</li>
+<li><a href="https://proceedings.mlr.press/v97/poole19a.html">Poole et al., <em>On Variational Bounds of Mutual Information</em></a> and <a href="https://proceedings.mlr.press/v108/mcallester20a.html">McAllester and Stratos, <em>Formal Limitations on the Measurement of Mutual Information</em></a> — <strong>Peer-reviewed research</strong> on neural bounds and finite-sample limitations.</li>
+<li><a href="https://doi.org/10.1016/0005-1098(78)90005-5">Rissanen, <em>Modeling by Shortest Data Description</em></a> — <strong>Established archival foundation</strong> for MDL.</li>
+<li><a href="https://www.mathnet.ru/php/archive.phtml?jrnid=ppi&amp;option_lang=eng&amp;paperid=68&amp;wshow=paper">Kolmogorov, <em>Three Approaches to the Definition of the Quantity of Information</em></a> — <strong>Established archival foundation</strong> for algorithmic information.</li>
+</ul>
+<h3 id="final-synthesis">Final synthesis<a class="headerlink" href="#final-synthesis" title="Permanent link">¤</a></h3>
+<p>Information theory connects probability, prediction, representation, and communication only after the operational object is fixed. Entropy and mutual information are functionals of laws. Source and channel coding are protocols with finite messages and error criteria. Rate–distortion permits declared losses; it does not define semantic fidelity for free. Bottleneck and description-length principles choose among representations or models under explicit tasks and codes. Algorithmic information supplies profound limit concepts, but its central complexity is uncomputable.</p>
+<p>The practical consequence for generative modeling is precise: report the probability model, the representation, the estimator, the sampler or coder, and the evaluation protocol as different components. Then the shared mathematics becomes a reliable bridge rather than a source of category errors.</p>
+<details class="question">
+<summary>Final misconception check</summary>
+<ol>
+<li>Does lower perplexity imply a smaller deployed file?</li>
+<li>Does high mutual information imply that a linear probe can recover the shared variable?</li>
+<li>Does a realistic low-rate reconstruction preserve the original instance?</li>
+<li>Does a shorter gzip file establish lower Kolmogorov complexity?</li>
+<li>Does a diffusion corruption process make the model an error-correcting code?</li>
+</ol>
+<p><strong>Solutions.</strong> (1) Only after matching tokenization and proving the coding implementation and overhead. (2) No; mutual information does not guarantee accessibility to a restricted decoder. (3) No; the decoder can synthesize plausible but untransmitted detail. (4) It provides one computable upper bound under one compressor. (5) Not unless an encoded message, operational channel, rate, decoder, and error criterion are present.</p>
+</details>
+<p><strong>Continue:</strong> <a href="../graphical-models-and-structured-probability/">Graphical Models and Structured Probability</a> studies how structured factorizations expose the laws whose information quantities are measured. <a href="../autoregressive-explained/">Autoregressive Models</a> turns conditional likelihoods into sequential generation and coding. <a href="../representations-and-multimodal-systems/">Representations and Multimodal Generative Systems</a> applies rate, sufficiency, and alignment distinctions to learned state spaces.</p>
+<p><a href="../information-coding-06-bottlenecks/">Read Chapter 6 as a stopping-point page</a></p>
+</article>
+</div>
+<script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  Back to top
+</button>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+<div class="md-social">
+<a class="md-social__link" href="https://github.com/avitai/artifex" rel="noopener" target="_blank" title="github.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</a>
+<a class="md-social__link" href="https://pypi.org/project/avitai-artifex/" rel="noopener" target="_blank" title="pypi.org">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-66.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.3v101.8c0 29 25.2 46 53.4 54.3 33.8 9.9 66.3 11.7 106.8 0 26.9-7.8 53.4-23.5 53.4-54.3v-40.7H226.2v-13.6h160.2c31.1 0 42.6-21.7 53.4-54.2 11.2-33.5 10.7-65.7 0-108.6M286.2 444.7a20.4 20.4 0 1 1 0-40.7 20.4 20.4 0 1 1 0 40.7M167.8 248.1h106.8c29.7 0 53.4-24.5 53.4-54.3V91.9c0-29-24.4-50.7-53.4-55.6-35.8-5.9-74.7-5.6-106.8.1-45.2 8-53.4 24.7-53.4 55.6v40.7h106.9v13.6h-147c-31.1 0-58.3 18.7-66.8 54.2-9.8 40.7-10.2 66.1 0 108.6 7.6 31.6 25.7 54.2 56.8 54.2H101v-48.8c0-35.3 30.5-66.4 66.8-66.4m-6.6-183.4a20.4 20.4 0 1 1 0 40.8 20.4 20.4 0 1 1 0-40.8"></path></svg>
+</a>
+<a class="md-social__link" href="https://twitter.com/mahdi_shafiei" rel="noopener" target="_blank" title="twitter.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M459.4 151.7c.3 4.5.3 9.1.3 13.6 0 138.7-105.6 298.6-298.6 298.6-59.5 0-114.7-17.2-161.1-47.1 8.4 1 16.6 1.3 25.3 1.3 49.1 0 94.2-16.6 130.3-44.8-46.1-1-84.8-31.2-98.1-72.8 6.5 1 13 1.6 19.8 1.6 9.4 0 18.8-1.3 27.6-3.6-48.1-9.7-84.1-52-84.1-103v-1.3c14 7.8 30.2 12.7 47.4 13.3-28.3-18.8-46.8-51-46.8-87.4 0-19.5 5.2-37.4 14.3-53C87.4 130.8 165 172.4 252.1 176.9c-1.6-7.8-2.6-15.9-2.6-24C249.5 95.1 296.3 48 354.4 48c30.2 0 57.5 12.7 76.7 33.1 23.7-4.5 46.5-13.3 66.6-25.3-7.8 24.4-24.4 44.8-46.1 57.8 21.1-2.3 41.6-8.1 60.4-16.2-14.3 20.8-32.2 39.3-52.6 54.3"></path></svg>
+</a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.path", "navigation.top", "navigation.prune", "toc.follow", "search.highlight", "search.share", "search.suggest", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "content.mermaid"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+<script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+<script src="../../../javascripts/reading-layout.js"></script>
+</body>
+</html>

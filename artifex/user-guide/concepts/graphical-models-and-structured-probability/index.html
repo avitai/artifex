@@ -1,0 +1,3209 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="A graphical model is a probability model whose structure is exposed through a graph. The graph can make a large joint law intelligible: it shows which local" name="description"/>
+<meta content="Mahdi Shafiei" name="author"/>
+<link href="https://docs.avitai.bio/artifex/user-guide/concepts/graphical-models-and-structured-probability/" rel="canonical"/>
+<link href="../graphical-models-06-workflow/" rel="prev"/>
+<link href="../message-passing-01-factor-graphs/" rel="next"/>
+<link href="../../../assets/images/favicon.png" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.7.7" name="generator"/>
+<title>Graphical Models and Structured Probability - Artifex</title>
+<link href="../../../assets/stylesheets/main.ec1eaa64.min.css" rel="stylesheet"/>
+<link href="../../../assets/stylesheets/palette.ab4e12ef.min.css" rel="stylesheet"/>
+<script src="../../../assets/vendor/iframe-worker/index.js"></script>
+<link href="../../../assets/_mkdocstrings.css" rel="stylesheet"/>
+<link href="../../../_static/extra.css" rel="stylesheet"/>
+<script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+<meta content="article" property="og:type"/>
+<meta content="The Artifex Generative Models Book" property="og:site_name"/>
+<meta content="Graphical Models and Structured Probability" property="og:title"/>
+<meta content="A graphical model is a probability model whose structure is exposed through a graph. The graph can make a large joint law intelligible: it shows which local" property="og:description"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/graphical-models-and-structured-probability/" property="og:url"/>
+<meta content="2026-07-15" property="article:modified_time"/>
+<meta content="summary" name="twitter:card"/>
+<meta content="Graphical Models and Structured Probability" name="twitter:title"/>
+<meta content="A graphical model is a probability model whose structure is exposed through a graph. The graph can make a large joint law intelligible: it shows which local" name="twitter:description"/>
+<meta content="Generative models, Machine learning, Probabilistic modeling, advanced, reference, continuous_view, graphical-models-structured-probability-complete, practitioner, researcher" name="keywords"/>
+<meta content="Graphical Models and Structured Probability" name="citation_title"/>
+<meta content="Mahdi Shafiei" name="citation_author"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/graphical-models-and-structured-probability/" name="citation_public_url"/>
+<meta content="en" name="citation_language"/>
+<meta content="Graphical Models and Structured Probability" name="DC.title"/>
+<meta content="Mahdi Shafiei" name="DC.creator"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/graphical-models-and-structured-probability/" name="DC.identifier"/>
+<meta content="Text.LearningResource" name="DC.type"/>
+<meta content="2026-07-15" name="DCTERMS.modified"/>
+<meta content="https://github.com/avitai/artifex/blob/main/LICENSE" name="DCTERMS.license"/>
+<meta content="advanced" name="DCTERMS.educationLevel"/>
+<meta content="practitioner, researcher" name="DCTERMS.audience"/>
+<link href="https://github.com/avitai/artifex/blob/main/LICENSE" rel="license"/>
+<script id="artifex-book-metadata" type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Chapter",
+  "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/graphical-models-and-structured-probability/",
+  "url": "https://docs.avitai.bio/artifex/user-guide/concepts/graphical-models-and-structured-probability/",
+  "name": "Graphical Models and Structured Probability",
+  "description": "A graphical model is a probability model whose structure is exposed through a graph. The graph can make a large joint law intelligible: it shows which local",
+  "identifier": "graphical-models-structured-probability-complete",
+  "inLanguage": "en",
+  "isAccessibleForFree": true,
+  "learningResourceType": "Continuous volume",
+  "educationalLevel": "advanced",
+  "educationalUse": "reference",
+  "audience": [
+    
+      {"@type": "EducationalAudience", "audienceType": "practitioner"},
+    
+      {"@type": "EducationalAudience", "audienceType": "researcher"}
+    
+  ],
+  "dateModified": "2026-07-15",
+  "keywords": ["Generative models", "Machine learning", "Probabilistic modeling", "advanced", "reference", "continuous_view", "graphical-models-structured-probability-complete", "practitioner", "researcher"],
+  "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+  "author": [
+    
+      {"@type": "Person", "name": "Mahdi Shafiei"}
+    
+  ],
+  "isPartOf": {
+    "@type": "Book",
+    "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/#book",
+    "url": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/",
+    "name": "The Artifex Generative Models Book",
+    "bookEdition": "Living Web Edition",
+    "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+    "author": [
+      
+        {"@type": "Person", "name": "Mahdi Shafiei"}
+      
+    ]
+  }
+}
+</script>
+<link href="../../../assets/vendor/katex/katex.min.css" id="artifex-katex-stylesheet" integrity="sha384-UA8juhPf75SzzAMA/4fo3yOU7sBJ0om7SCD2GHq0fZqZco6tr1UCV7nUbk9J90JM" rel="stylesheet"/>
+<script defer="" integrity="sha384-T/0lMUdJpd2S1ZHtRiofG3htU3xPCrFVeAQ1UUE2TJwlEJSV5NUwn30kP28n238E" src="../../../assets/vendor/mermaid/mermaid.min.js"></script>
+<script defer="" src="../../../assets/vendor/katex/katex-shadow.js"></script>
+<script defer="" src="../../../javascripts/mermaid-math.js"></script>
+<script defer="" src="../../../javascripts/mathjax.js"></script>
+<script defer="" integrity="sha384-OrHfGTnIbkl0do3N76qW/uWr38o91N05sbSPuYBPLH+hG8X/dNSrjZf3AGjzrCwC" src="../../../assets/vendor/mathjax/tex-mml-chtml.js"></script>
+<meta content="noindex,follow" name="robots"/>
+</head>
+<body data-md-color-accent="amber" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#graphical-models-and-structured-probability">
+          Skip to content
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header md-header--shadow" data-md-component="header">
+<nav aria-label="Header" class="md-header__inner md-grid">
+<a aria-label="Artifex" class="md-header__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            Artifex
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+            
+              Graphical Models and Structured Probability
+            
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-label="Switch to dark mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: light)" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_1" hidden="" title="Switch to dark mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+<input aria-label="Switch to light mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-primary="indigo" data-md-color-scheme="slate" id="__palette_1" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_0" hidden="" title="Switch to light mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+</form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div aria-label="Search" class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Search" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="Search" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="Search" class="md-search__options">
+<a aria-label="Share" class="md-search__icon md-icon" data-clipboard="" data-clipboard-text="" data-md-component="search-share" href="javascript:void(0)" tabindex="-1" title="Share">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"></path></svg>
+</a>
+<button aria-label="Clear" class="md-search__icon md-icon" tabindex="-1" title="Clear" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            Initializing search
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Navigation" class="md-nav md-nav--primary" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="Artifex" class="md-nav__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+    Artifex
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../..">
+<span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../getting-started/installation/">
+<span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Generative Models Book
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Generative Models Book
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    
+  
+    Start Here — The Landscape
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../first-course-01-generative-systems/">
+<span class="md-ellipsis">
+    
+  
+    First Course — New to Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Foundations
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_3_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Foundations
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../probability-01-objects/">
+<span class="md-ellipsis">
+    
+  
+    1. Probability and Generative Modeling
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../classical-01-latent-foundations/">
+<span class="md-ellipsis">
+    
+  
+    2. Classical Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../bayesian-learning-01-object/">
+<span class="md-ellipsis">
+    
+  
+    3. Bayesian Learning and Model Assessment
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../inference-01-objects-and-queries/">
+<span class="md-ellipsis">
+    
+  
+    4. Latent Variables and Inference
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../objectives-01-discrepancies/">
+<span class="md-ellipsis">
+    
+  
+    5. Objectives and Statistical Distances
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../information-coding-01-measures/">
+<span class="md-ellipsis">
+    
+  
+    6. Information, Coding, and Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_3_7" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_3_7" id="__nav_3_3_7_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    7. Graphical Models and Structured Probability
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_3_7_label" class="md-nav" data-md-level="3">
+<label class="md-nav__title" for="__nav_3_3_7">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    7. Graphical Models and Structured Probability
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../graphical-models-01-directed/">
+<span class="md-ellipsis">
+    
+  
+    1. Directed Generative Laws
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../graphical-models-02-separation/">
+<span class="md-ellipsis">
+    
+  
+    2. Separation and Graphical Claims
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../graphical-models-03-undirected/">
+<span class="md-ellipsis">
+    
+  
+    3. Undirected Laws and Energies
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../graphical-models-04-learning/">
+<span class="md-ellipsis">
+    
+  
+    4. Learning and Structured Conditionals
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../graphical-models-05-representations/">
+<span class="md-ellipsis">
+    
+  
+    5. Representations and Latent Projections
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../graphical-models-06-workflow/">
+<span class="md-ellipsis">
+    
+  
+    6. Model Design and Research Audit
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
+    
+  
+    Continuous View (All Chapters)
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
+<span class="md-ellipsis">
+    
+  
+    Continuous View (All Chapters)
+  
+
+    
+  </span>
+</a>
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#a-visual-grammar-for-this-volume">
+<span class="md-ellipsis">
+      
+        A visual grammar for this volume
+      
+    </span>
+</a>
+<nav aria-label="A visual grammar for this volume" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#recurring-notation">
+<span class="md-ellipsis">
+      
+        Recurring notation
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#1-directed-graphs-as-generative-laws">
+<span class="md-ellipsis">
+      
+        1. Directed Graphs as Generative Laws
+      
+    </span>
+</a>
+<nav aria-label="1. Directed Graphs as Generative Laws" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-1-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 1 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#a-graph-is-structure-the-conditionals-define-the-law">
+<span class="md-ellipsis">
+      
+        A graph is structure; the conditionals define the law
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#running-model-two-possible-causes-and-two-measurements">
+<span class="md-ellipsis">
+      
+        Running model: two possible causes and two measurements
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#exact-generation-by-ancestral-sampling">
+<span class="md-ellipsis">
+      
+        Exact generation by ancestral sampling
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#parameter-count-and-structural-economy">
+<span class="md-ellipsis">
+      
+        Parameter count and structural economy
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#three-equivalent-markov-views-for-a-dag-law">
+<span class="md-ellipsis">
+      
+        Three equivalent Markov views for a DAG law
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#plates-show-indexed-repetition">
+<span class="md-ellipsis">
+      
+        Plates show indexed repetition
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#complete-finite-checks">
+<span class="md-ellipsis">
+      
+        Complete finite checks
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-1-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 1 synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#2-separation-colliders-and-graphical-claims">
+<span class="md-ellipsis">
+      
+        2. Separation, Colliders, and Graphical Claims
+      
+    </span>
+</a>
+<nav aria-label="2. Separation, Colliders, and Graphical Claims" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-2-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 2 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#active-and-blocked-trails">
+<span class="md-ellipsis">
+      
+        Active and blocked trails
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-explaining-away-calculation">
+<span class="md-ellipsis">
+      
+        Worked explaining-away calculation
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#selection-is-conditioning-too">
+<span class="md-ellipsis">
+      
+        Selection is conditioning too
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#markov-blankets">
+<span class="md-ellipsis">
+      
+        Markov blankets
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#four-levels-of-graphical-fit">
+<span class="md-ellipsis">
+      
+        Four levels of graphical fit
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#markov-equivalence">
+<span class="md-ellipsis">
+      
+        Markov equivalence
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#statistical-dags-and-causal-dags-are-different-declarations">
+<span class="md-ellipsis">
+      
+        Statistical DAGs and causal DAGs are different declarations
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-2-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 2 synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#3-undirected-laws-potentials-and-energies">
+<span class="md-ellipsis">
+      
+        3. Undirected Laws, Potentials, and Energies
+      
+    </span>
+</a>
+<nav aria-label="3. Undirected Laws, Potentials, and Energies" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-3-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 3 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#local-compatibility-global-normalization">
+<span class="md-ellipsis">
+      
+        Local compatibility, global normalization
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#hammersley-clifford-and-the-support-boundary">
+<span class="md-ellipsis">
+      
+        Hammersley-Clifford and the support boundary
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#energy-is-a-parameterization-not-a-probability">
+<span class="md-ellipsis">
+      
+        Energy is a parameterization, not a probability
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-two-spin-ising-model">
+<span class="md-ellipsis">
+      
+        Worked two-spin Ising model
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#undirected-separation-and-markov-blankets">
+<span class="md-ellipsis">
+      
+        Undirected separation and Markov blankets
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#gaussian-graphical-models">
+<span class="md-ellipsis">
+      
+        Gaussian graphical models
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#directed-versus-undirected-generation">
+<span class="md-ellipsis">
+      
+        Directed versus undirected generation
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-3-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 3 synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#4-learning-normalization-and-structured-conditionals">
+<span class="md-ellipsis">
+      
+        4. Learning, Normalization, and Structured Conditionals
+      
+    </span>
+</a>
+<nav aria-label="4. Learning, Normalization, and Structured Conditionals" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-4-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 4 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#complete-data-dag-learning-the-modular-case">
+<span class="md-ellipsis">
+      
+        Complete-data DAG learning: the modular case
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#hidden-variables-recouple-local-terms">
+<span class="md-ellipsis">
+      
+        Hidden variables recouple local terms
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#undirected-maximum-likelihood">
+<span class="md-ellipsis">
+      
+        Undirected maximum likelihood
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#pseudolikelihood-is-a-composite-objective">
+<span class="md-ellipsis">
+      
+        Pseudolikelihood is a composite objective
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#conditional-random-fields">
+<span class="md-ellipsis">
+      
+        Conditional random fields
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#local-and-global-normalization">
+<span class="md-ellipsis">
+      
+        Local and global normalization
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#learning-and-sampling-are-separate-choices">
+<span class="md-ellipsis">
+      
+        Learning and sampling are separate choices
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-4-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 4 synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#5-representations-conversions-and-latent-projections">
+<span class="md-ellipsis">
+      
+        5. Representations, Conversions, and Latent Projections
+      
+    </span>
+</a>
+<nav aria-label="5. Representations, Conversions, and Latent Projections" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-5-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 5 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#four-preservation-questions">
+<span class="md-ellipsis">
+      
+        Four preservation questions
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#factor-graphs-expose-factor-scopes">
+<span class="md-ellipsis">
+      
+        Factor graphs expose factor scopes
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#moralization-is-query-aware-information-loss">
+<span class="md-ellipsis">
+      
+        Moralization is query-aware information loss
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chordality-and-perfect-directedundirected-maps">
+<span class="md-ellipsis">
+      
+        Chordality and perfect directed/undirected maps
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#why-a-generic-undirected-to-directed-dummy-node-needs-conditions">
+<span class="md-ellipsis">
+      
+        Why a generic undirected-to-directed dummy node needs conditions
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chain-graphs-need-a-markov-convention">
+<span class="md-ellipsis">
+      
+        Chain graphs need a Markov convention
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#latent-projection-and-admgs">
+<span class="md-ellipsis">
+      
+        Latent projection and ADMGs
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#representation-routing">
+<span class="md-ellipsis">
+      
+        Representation routing
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-5-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 5 synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#6-from-model-design-to-research-audit">
+<span class="md-ellipsis">
+      
+        6. From Model Design to Research Audit
+      
+    </span>
+</a>
+<nav aria-label="6. From Model Design to Research Audit" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-6-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 6 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#the-eight-part-model-contract">
+<span class="md-ellipsis">
+      
+        The eight-part model contract
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#capstone-the-monitoring-model-from-generation-to-diagnosis">
+<span class="md-ellipsis">
+      
+        Capstone: the monitoring model from generation to diagnosis
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#a-counterfactual-implementation-audit">
+<span class="md-ellipsis">
+      
+        A counterfactual implementation audit
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#diagnostics-by-abstraction-layer">
+<span class="md-ellipsis">
+      
+        Diagnostics by abstraction layer
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#misconception-checks">
+<span class="md-ellipsis">
+      
+        Misconception checks
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#research-exercises">
+<span class="md-ellipsis">
+      
+        Research exercises
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#primary-reading-trail">
+<span class="md-ellipsis">
+      
+        Primary reading trail
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#final-synthesis-and-next-steps">
+<span class="md-ellipsis">
+      
+        Final synthesis and next steps
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../message-passing-01-factor-graphs/">
+<span class="md-ellipsis">
+    
+  
+    8. Graphical Inference and Message Passing
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../filtering-01-bayes-recursions/">
+<span class="md-ellipsis">
+    
+  
+    9. Filtering and Smoothing for State-Space Generators
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../sampling-01-monte-carlo/">
+<span class="md-ellipsis">
+    
+  
+    10. Sampling and Continuous Time
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../smc-01-targets/">
+<span class="md-ellipsis">
+    
+  
+    11. Sequential Monte Carlo and Particle Methods
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../optimization-01-differentiation/">
+<span class="md-ellipsis">
+    
+  
+    12. Optimization and Learning Dynamics
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../generative-models-notation/">
+<span class="md-ellipsis">
+    
+  
+    13. Canonical Notation
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../autoregressive-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Model Families
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gradients-01-taxonomy/">
+<span class="md-ellipsis">
+    
+  
+    Connections and Compositions
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../normalization-01-queries/">
+<span class="md-ellipsis">
+    
+  
+    Research Practice
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../models/vae-guide/">
+<span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/core/base/">
+<span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../examples/overview/">
+<span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../zoo/">
+<span class="md-ellipsis">
+    
+  
+    Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../training/overview/">
+<span class="md-ellipsis">
+    
+  
+    Training
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../data/overview/">
+<span class="md-ellipsis">
+    
+  
+    Data &amp; Modalities
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../inference/overview/">
+<span class="md-ellipsis">
+    
+  
+    Inference &amp; Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../benchmarks/">
+<span class="md-ellipsis">
+    
+  
+    Evaluation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../guides/extensions/">
+<span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../extensions/">
+<span class="md-ellipsis">
+    
+  
+    Advanced Topics
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../cli/">
+<span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../community/contributing/">
+<span class="md-ellipsis">
+    
+  
+    Community
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/configs/protein-extension/">
+<span class="md-ellipsis">
+    
+  
+    Reference Library
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#a-visual-grammar-for-this-volume">
+<span class="md-ellipsis">
+      
+        A visual grammar for this volume
+      
+    </span>
+</a>
+<nav aria-label="A visual grammar for this volume" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#recurring-notation">
+<span class="md-ellipsis">
+      
+        Recurring notation
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#1-directed-graphs-as-generative-laws">
+<span class="md-ellipsis">
+      
+        1. Directed Graphs as Generative Laws
+      
+    </span>
+</a>
+<nav aria-label="1. Directed Graphs as Generative Laws" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-1-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 1 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#a-graph-is-structure-the-conditionals-define-the-law">
+<span class="md-ellipsis">
+      
+        A graph is structure; the conditionals define the law
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#running-model-two-possible-causes-and-two-measurements">
+<span class="md-ellipsis">
+      
+        Running model: two possible causes and two measurements
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#exact-generation-by-ancestral-sampling">
+<span class="md-ellipsis">
+      
+        Exact generation by ancestral sampling
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#parameter-count-and-structural-economy">
+<span class="md-ellipsis">
+      
+        Parameter count and structural economy
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#three-equivalent-markov-views-for-a-dag-law">
+<span class="md-ellipsis">
+      
+        Three equivalent Markov views for a DAG law
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#plates-show-indexed-repetition">
+<span class="md-ellipsis">
+      
+        Plates show indexed repetition
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#complete-finite-checks">
+<span class="md-ellipsis">
+      
+        Complete finite checks
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-1-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 1 synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#2-separation-colliders-and-graphical-claims">
+<span class="md-ellipsis">
+      
+        2. Separation, Colliders, and Graphical Claims
+      
+    </span>
+</a>
+<nav aria-label="2. Separation, Colliders, and Graphical Claims" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-2-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 2 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#active-and-blocked-trails">
+<span class="md-ellipsis">
+      
+        Active and blocked trails
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-explaining-away-calculation">
+<span class="md-ellipsis">
+      
+        Worked explaining-away calculation
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#selection-is-conditioning-too">
+<span class="md-ellipsis">
+      
+        Selection is conditioning too
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#markov-blankets">
+<span class="md-ellipsis">
+      
+        Markov blankets
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#four-levels-of-graphical-fit">
+<span class="md-ellipsis">
+      
+        Four levels of graphical fit
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#markov-equivalence">
+<span class="md-ellipsis">
+      
+        Markov equivalence
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#statistical-dags-and-causal-dags-are-different-declarations">
+<span class="md-ellipsis">
+      
+        Statistical DAGs and causal DAGs are different declarations
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-2-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 2 synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#3-undirected-laws-potentials-and-energies">
+<span class="md-ellipsis">
+      
+        3. Undirected Laws, Potentials, and Energies
+      
+    </span>
+</a>
+<nav aria-label="3. Undirected Laws, Potentials, and Energies" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-3-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 3 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#local-compatibility-global-normalization">
+<span class="md-ellipsis">
+      
+        Local compatibility, global normalization
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#hammersley-clifford-and-the-support-boundary">
+<span class="md-ellipsis">
+      
+        Hammersley-Clifford and the support boundary
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#energy-is-a-parameterization-not-a-probability">
+<span class="md-ellipsis">
+      
+        Energy is a parameterization, not a probability
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-two-spin-ising-model">
+<span class="md-ellipsis">
+      
+        Worked two-spin Ising model
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#undirected-separation-and-markov-blankets">
+<span class="md-ellipsis">
+      
+        Undirected separation and Markov blankets
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#gaussian-graphical-models">
+<span class="md-ellipsis">
+      
+        Gaussian graphical models
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#directed-versus-undirected-generation">
+<span class="md-ellipsis">
+      
+        Directed versus undirected generation
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-3-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 3 synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#4-learning-normalization-and-structured-conditionals">
+<span class="md-ellipsis">
+      
+        4. Learning, Normalization, and Structured Conditionals
+      
+    </span>
+</a>
+<nav aria-label="4. Learning, Normalization, and Structured Conditionals" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-4-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 4 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#complete-data-dag-learning-the-modular-case">
+<span class="md-ellipsis">
+      
+        Complete-data DAG learning: the modular case
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#hidden-variables-recouple-local-terms">
+<span class="md-ellipsis">
+      
+        Hidden variables recouple local terms
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#undirected-maximum-likelihood">
+<span class="md-ellipsis">
+      
+        Undirected maximum likelihood
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#pseudolikelihood-is-a-composite-objective">
+<span class="md-ellipsis">
+      
+        Pseudolikelihood is a composite objective
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#conditional-random-fields">
+<span class="md-ellipsis">
+      
+        Conditional random fields
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#local-and-global-normalization">
+<span class="md-ellipsis">
+      
+        Local and global normalization
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#learning-and-sampling-are-separate-choices">
+<span class="md-ellipsis">
+      
+        Learning and sampling are separate choices
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-4-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 4 synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#5-representations-conversions-and-latent-projections">
+<span class="md-ellipsis">
+      
+        5. Representations, Conversions, and Latent Projections
+      
+    </span>
+</a>
+<nav aria-label="5. Representations, Conversions, and Latent Projections" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-5-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 5 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#four-preservation-questions">
+<span class="md-ellipsis">
+      
+        Four preservation questions
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#factor-graphs-expose-factor-scopes">
+<span class="md-ellipsis">
+      
+        Factor graphs expose factor scopes
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#moralization-is-query-aware-information-loss">
+<span class="md-ellipsis">
+      
+        Moralization is query-aware information loss
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chordality-and-perfect-directedundirected-maps">
+<span class="md-ellipsis">
+      
+        Chordality and perfect directed/undirected maps
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#why-a-generic-undirected-to-directed-dummy-node-needs-conditions">
+<span class="md-ellipsis">
+      
+        Why a generic undirected-to-directed dummy node needs conditions
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chain-graphs-need-a-markov-convention">
+<span class="md-ellipsis">
+      
+        Chain graphs need a Markov convention
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#latent-projection-and-admgs">
+<span class="md-ellipsis">
+      
+        Latent projection and ADMGs
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#representation-routing">
+<span class="md-ellipsis">
+      
+        Representation routing
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-5-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 5 synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#6-from-model-design-to-research-audit">
+<span class="md-ellipsis">
+      
+        6. From Model Design to Research Audit
+      
+    </span>
+</a>
+<nav aria-label="6. From Model Design to Research Audit" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-6-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 6 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#the-eight-part-model-contract">
+<span class="md-ellipsis">
+      
+        The eight-part model contract
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#capstone-the-monitoring-model-from-generation-to-diagnosis">
+<span class="md-ellipsis">
+      
+        Capstone: the monitoring model from generation to diagnosis
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#a-counterfactual-implementation-audit">
+<span class="md-ellipsis">
+      
+        A counterfactual implementation audit
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#diagnostics-by-abstraction-layer">
+<span class="md-ellipsis">
+      
+        Diagnostics by abstraction layer
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#misconception-checks">
+<span class="md-ellipsis">
+      
+        Misconception checks
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#research-exercises">
+<span class="md-ellipsis">
+      
+        Research exercises
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#primary-reading-trail">
+<span class="md-ellipsis">
+      
+        Primary reading trail
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#final-synthesis-and-next-steps">
+<span class="md-ellipsis">
+      
+        Final synthesis and next steps
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<nav aria-label="Breadcrumb" class="md-path">
+<ol class="md-path__list">
+<li class="md-path__item">
+<a class="md-path__link" href="../../..">
+<span class="md-ellipsis">
+    Home
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    Generative Models Book
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../probability-01-objects/">
+<span class="md-ellipsis">
+    Foundations
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../graphical-models-01-directed/">
+<span class="md-ellipsis">
+    7. Graphical Models and Structured Probability
+  </span>
+</a>
+</li>
+</ol>
+</nav>
+<article class="md-content__inner md-typeset">
+<h1 id="graphical-models-and-structured-probability">Graphical Models and Structured Probability<a class="headerlink" href="#graphical-models-and-structured-probability" title="Permanent link">¤</a></h1><aside aria-label="Learning path" class="admonition abstract artifex-learning-path"><p class="admonition-title">Learning path</p><p><strong>Required knowledge</strong></p><ul class="artifex-learning-path__links" data-learning-path-role="required"><li><a href="../probability-and-generative-modeling/">Probability and Generative Modeling</a></li><li><a href="../classical-generative-models/">Classical Generative Models and Graphical Structure</a></li><li><a href="../bayesian-learning-and-model-assessment/">Bayesian Learning and Model Assessment</a></li><li><a href="../latent-variables-and-inference/">Latent Variables and Inference</a></li><li><a href="../objectives-and-statistical-distances/">Objectives and Statistical Distances</a></li></ul><p><strong>Readiness check:</strong> can you explain the central object and reproduce one worked example from each required chapter? If not, follow its link before continuing.</p><p><strong>Newly unlocked in the default route</strong></p><ul class="artifex-learning-path__links" data-learning-path-role="unlocks"><li><a href="../message-passing-01-factor-graphs/">Graphical Inference 1 — Factors, Graphs, and Queries</a></li><li><a href="../graphical-inference-and-message-passing/">Graphical Inference and Message Passing</a></li></ul></aside>
+<p>A graphical model is a probability model whose structure is exposed through a graph. The graph can make a large joint law intelligible: it shows which local conditional distributions or factors define the law, which conditional independences follow for every compatible parameter choice, and which variables must interact when a query is answered. It does not, by itself, make inference cheap, establish causality, or turn arbitrary node scores into a normalized distribution.</p>
+<p>This volume develops that distinction from a four-variable finite model. Directed graphs first encode a normalized generative process. Separation then turns graph topology into conditional-independence statements. Undirected graphs replace local conditionals with potentials and a global normalizer. Conditional random fields, pseudolikelihood, mixed graphs, factor graphs, plates, and latent projections are introduced only after their probability objects are explicit. The final chapter combines these pieces into a model-design workflow and routes specialized constructions to the rest of the book.</p>
+<div class="admonition info">
+<p class="admonition-title">Reading routes</p>
+<p><strong>Entry after prerequisites:</strong> Chapters 1–3 explain directed and undirected laws through finite tables, diagrams, and exact enumeration.<br/>
+<strong>Practitioner:</strong> Chapters 1–4 add model learning, conditional structured laws, normalization, and diagnostics.<br>
+<strong>Research:</strong> read all six chapters, including positivity boundaries, Markov equivalence, composite-likelihood uncertainty, chain-graph semantics, and latent projections.</br></p>
+</div>
+<div class="admonition info">
+<p class="admonition-title">Evidence convention</p>
+<p>Definitions and independently derived finite identities are <strong>Established</strong>. Archival results are <strong>Peer-reviewed research</strong>. A diagrammatic analogy is never promoted to a distributional or causal equivalence. Every graph conversion states which probability laws, independence statements, or queries it preserves.</p>
+</div>
+<h2 id="a-visual-grammar-for-this-volume">A visual grammar for this volume<a class="headerlink" href="#a-visual-grammar-for-this-volume" title="Permanent link">¤</a></h2>
+<figure class="book-figure" id="fig-graphical-models-and-structured-probability-a-visual-grammar-for-this-volume"><pre class="mermaid"><code>flowchart TB
+    story["Generative story&lt;br/&gt;variables and support"]
+    law["Probability law&lt;br/&gt;&amp;nbsp;$$p(x)$$&amp;nbsp;or&amp;nbsp;$$\gamma(x)/Z$$"]
+    structure["Graph semantics&lt;br/&gt;factorization and separation"]
+    query["Declared query&lt;br/&gt;generate, condition, learn, or compare"]
+    algorithm["Algorithm&lt;br/&gt;ancestral sampling, elimination, MCMC, or optimization"]
+    story --&gt; law
+    law --&gt; structure
+    structure --&gt; query
+    query --&gt; algorithm</code></pre><figcaption class="book-object-caption"><span class="book-object-number">Figure GRAPH.1.</span> A visual grammar for this volume</figcaption></figure>
+<p>The arrows describe a design discipline, not a new probabilistic graph. Begin with the generated variables and their support. State the law and the meaning of every local term. Use a graph to expose structure. Only then choose a query and an algorithm.</p>
+<h3 id="recurring-notation">Recurring notation<a class="headerlink" href="#recurring-notation" title="Permanent link">¤</a></h3>
+<div class="md-typeset__table book-table-container"><table id="tbl-graphical-models-and-structured-probability-recurring-notation"><caption class="book-object-caption"><span class="book-object-number">Table GRAPH.1.</span> Recurring notation</caption>
+<thead>
+<tr>
+<th>Symbol</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="arithmatex">\(G=(V,E)\)</span></td>
+<td>a graph with vertices <span class="arithmatex">\(V\)</span> and edges <span class="arithmatex">\(E\)</span></td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(X_V=(X_v:v\in V)\)</span></td>
+<td>random variables indexed by graph vertices</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(\operatorname{pa}(v),\operatorname{ch}(v)\)</span></td>
+<td>parents and children of <span class="arithmatex">\(v\)</span> in a directed graph</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(\operatorname{ne}(v)\)</span></td>
+<td>neighbors of <span class="arithmatex">\(v\)</span> in an undirected graph</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(X_A\perp X_B\mid X_C\)</span></td>
+<td>conditional independence under a declared distribution</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(\psi_c(x_c)\)</span></td>
+<td>nonnegative potential on factor or clique scope <span class="arithmatex">\(c\)</span></td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(\gamma(x)=\prod_c\psi_c(x_c)\)</span></td>
+<td>unnormalized mass or density</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(Z=\int\gamma(x)\,\mu(dx)\)</span></td>
+<td>partition function relative to base measure <span class="arithmatex">\(\mu\)</span></td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(\mathcal I(G),\mathcal I(p)\)</span></td>
+<td>conditional-independence statements encoded by <span class="arithmatex">\(G\)</span> or satisfied by <span class="arithmatex">\(p\)</span></td>
+</tr>
+</tbody>
+</table></div>
+<p>For continuous variables, every density is relative to a declared reference measure. For deterministic or hard-constrained factors, zeros in the support are part of the model and invalidate results that assume a strictly positive density.</p>
+<h2 id="1-directed-graphs-as-generative-laws">1. Directed Graphs as Generative Laws<a class="headerlink" href="#1-directed-graphs-as-generative-laws" title="Permanent link">¤</a></h2>
+<h3 id="chapter-1-prerequisites-and-learning-objectives">Chapter 1 prerequisites and learning objectives<a class="headerlink" href="#chapter-1-prerequisites-and-learning-objectives" title="Permanent link">¤</a></h3>
+<p>You should know joint, marginal, and conditional probability. By the end of this chapter, you should be able to:</p>
+<ul>
+<li>distinguish a directed graph from the conditional distributions that parameterize it;</li>
+<li>derive a joint law from normalized local conditionals;</li>
+<li>generate an exact prior sample in topological order;</li>
+<li>read local, ordered, and global Markov statements without causal overreach; and</li>
+<li>use a plate to show repetition and parameter sharing without mistaking it for an algorithm.</li>
+</ul>
+<h3 id="a-graph-is-structure-the-conditionals-define-the-law">A graph is structure; the conditionals define the law<a class="headerlink" href="#a-graph-is-structure-the-conditionals-define-the-law" title="Permanent link">¤</a></h3>
+<p>Let <span class="arithmatex">\(G\)</span> be a directed acyclic graph, or DAG. A topological order places every parent before its children. Associate each vertex <span class="arithmatex">\(v\)</span> with a conditional probability kernel</p>
+<div class="arithmatex">\[
+p_v(x_v\mid x_{\operatorname{pa}(v)}).
+\]</div>
+<p>The directed graphical model is the joint law</p>
+<div class="arithmatex">\[
+p(x_V)=\prod_{v\in V}p_v(x_v\mid x_{\operatorname{pa}(v)}).
+\]</div>
+<p>Each factor is locally normalized over <span class="arithmatex">\(x_v\)</span>. Iterated summation or integration in reverse topological order therefore proves that the product is globally normalized. This is stronger than drawing arrows: replacing a conditional distribution by an arbitrary nonnegative score generally destroys the proof.</p>
+<p>The same DAG can host tabular, linear-Gaussian, neural, mixture, or deterministic conditionals. Those parameterizations can differ radically in expressivity and compute while sharing the same graph-level conditional independences.</p>
+<h3 id="running-model-two-possible-causes-and-two-measurements">Running model: two possible causes and two measurements<a class="headerlink" href="#running-model-two-possible-causes-and-two-measurements" title="Permanent link">¤</a></h3>
+<p>Consider a monitoring system with four binary variables:</p>
+<ul>
+<li><span class="arithmatex">\(F=1\)</span> means a component is faulty;</li>
+<li><span class="arithmatex">\(O=1\)</span> means the machine is overloaded;</li>
+<li><span class="arithmatex">\(A=1\)</span> means a general alarm fires; and</li>
+<li><span class="arithmatex">\(S=1\)</span> means a targeted inspection signal is positive.</li>
+</ul>
+<p>The model assumes independent prior causes, an alarm affected by both causes, and a targeted signal affected only by the fault:</p>
+<figure class="book-figure" id="fig-graphical-models-and-structured-probability-running-model-two-possible-causes-and-two-measurements"><pre class="mermaid"><code>flowchart LR
+    F(("Fault&amp;nbsp;$$F$$"))
+    O(("Overload&amp;nbsp;$$O$$"))
+    A(("Alarm&amp;nbsp;$$A$$"))
+    S(("Inspection&amp;nbsp;$$S$$"))
+    F --&gt; A
+    O --&gt; A
+    F --&gt; S
+    class A,S observed</code></pre><figcaption class="book-object-caption"><span class="book-object-number">Figure GRAPH.2.</span> Running model: two possible causes and two measurements</figcaption></figure>
+<p>Its joint distribution is</p>
+<div class="arithmatex">\[
+\begin{aligned}
+p(f,o,a,s)
+&amp;=p(f)p(o)\\
+&amp;\quad\times p(a\mid f,o)p(s\mid f).
+\end{aligned}
+\]</div>
+<p>Use</p>
+<div class="arithmatex">\[
+p(F=1)=0.1,
+\qquad
+p(O=1)=0.2,
+\]</div>
+<p>and the alarm table</p>
+<div class="md-typeset__table book-table-container"><table id="tbl-graphical-models-and-structured-probability-running-model-two-possible-causes-and-two-measurements"><caption class="book-object-caption"><span class="book-object-number">Table GRAPH.2.</span> Running model: two possible causes and two measurements</caption>
+<thead>
+<tr>
+<th style="text-align: right;"><span class="arithmatex">\(f\)</span></th>
+<th style="text-align: right;"><span class="arithmatex">\(o\)</span></th>
+<th style="text-align: right;"><span class="arithmatex">\(p(A=1\mid f,o)\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;"><span class="arithmatex">\(0.01\)</span></td>
+</tr>
+<tr>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;"><span class="arithmatex">\(0.80\)</span></td>
+</tr>
+<tr>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;"><span class="arithmatex">\(0.60\)</span></td>
+</tr>
+<tr>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;"><span class="arithmatex">\(0.95\)</span></td>
+</tr>
+</tbody>
+</table></div>
+<p>with <span class="arithmatex">\(p(S=1\mid F=0)=0.1\)</span> and <span class="arithmatex">\(p(S=1\mid F=1)=0.9\)</span>. The graph alone contains none of these numbers. The tables alone do not make their shared conditional-independence structure as visible as the graph.</p>
+<h3 id="exact-generation-by-ancestral-sampling">Exact generation by ancestral sampling<a class="headerlink" href="#exact-generation-by-ancestral-sampling" title="Permanent link">¤</a></h3>
+<p>One valid topological order is <span class="arithmatex">\(F,O,A,S\)</span>. An exact prior sample is obtained by:</p>
+<ol>
+<li>draw <span class="arithmatex">\(F\sim\operatorname{Bernoulli}(0.1)\)</span>;</li>
+<li>draw <span class="arithmatex">\(O\sim\operatorname{Bernoulli}(0.2)\)</span> independently;</li>
+<li>draw <span class="arithmatex">\(A\sim\operatorname{Bernoulli}(p(A=1\mid F,O))\)</span>; and</li>
+<li>draw <span class="arithmatex">\(S\sim\operatorname{Bernoulli}(0.1+0.8F)\)</span>.</li>
+</ol>
+<p>Every completed trace has the product probability above. Repeating the procedure produces independent samples if the random draws are independent. Ancestral sampling answers an unconditional generation query. Conditioning on <span class="arithmatex">\(A=1\)</span> is a different task and usually cannot be implemented by simply clamping <span class="arithmatex">\(A\)</span> while retaining the same forward sampler.</p>
+<h3 id="parameter-count-and-structural-economy">Parameter count and structural economy<a class="headerlink" href="#parameter-count-and-structural-economy" title="Permanent link">¤</a></h3>
+<p>Suppose every vertex has <span class="arithmatex">\(K\)</span> states and at most <span class="arithmatex">\(r\)</span> parents. A full joint table over <span class="arithmatex">\(d=|V|\)</span> variables requires <span class="arithmatex">\(K^d-1\)</span> free probabilities. A tabular DAG requires at most</p>
+<div class="arithmatex">\[
+d(K-1)K^r
+\]</div>
+<p>free parameters. The reduction is exponential in <span class="arithmatex">\(d\)</span> only when <span class="arithmatex">\(r\)</span> remains small. Sparse arrows do not guarantee that the local conditional functions are simple, statistically identifiable, or computationally cheap.</p>
+<h3 id="three-equivalent-markov-views-for-a-dag-law">Three equivalent Markov views for a DAG law<a class="headerlink" href="#three-equivalent-markov-views-for-a-dag-law" title="Permanent link">¤</a></h3>
+<p>For distributions that factorize over a DAG, the following descriptions agree under the standard finite or density-kernel formulation:</p>
+<ol>
+<li><strong>Ordered Markov property.</strong> Given its parents, a node is independent of its earlier nonparents in a topological order.</li>
+<li><strong>Local Markov property.</strong> Given its parents, a node is independent of its nondescendants that are not parents.</li>
+<li><strong>Global Markov property.</strong> Sets separated by the DAG's d-separation criterion are conditionally independent.</li>
+</ol>
+<p>The graph guarantees only statements in <span class="arithmatex">\(\mathcal I(G)\)</span>. Particular parameter values may create additional independences. Conversely, a distribution that violates even one graph-encoded independence is not Markov with respect to that graph.</p>
+<h3 id="plates-show-indexed-repetition">Plates show indexed repetition<a class="headerlink" href="#plates-show-indexed-repetition" title="Permanent link">¤</a></h3>
+<p>Let <span class="arithmatex">\(\theta\)</span> be a global parameter and let each observation have a local latent state <span class="arithmatex">\(Z_n\)</span>:</p>
+<div class="arithmatex">\[
+p(\theta,z_{1:N},x_{1:N})
+=p(\theta)\prod_{n=1}^{N}p(z_n\mid\theta)p(x_n\mid z_n,\theta).
+\]</div>
+<figure class="book-figure" id="fig-graphical-models-and-structured-probability-plates-show-indexed-repetition"><pre class="mermaid"><code>flowchart LR
+    theta(("Global&amp;nbsp;$$\theta$$"))
+    subgraph cases["cases repeated&amp;nbsp;$$N$$&amp;nbsp;times"]
+        z(("Latent&amp;nbsp;$$Z_n$$"))
+        x(("Observed&amp;nbsp;$$X_n$$"))
+        z --&gt; x
+    end
+    theta --&gt; z
+    theta --&gt; x
+    class x observed</code></pre><figcaption class="book-object-caption"><span class="book-object-number">Figure GRAPH.3.</span> Plates show indexed repetition</figcaption></figure>
+<p>The plate states which variables repeat and which parameter is shared. It does not express sequential recurrence, declare exchangeability beyond the displayed factorization, choose an inference method, or imply that mini-batch subsampling is unbiased for every objective.</p>
+<h3 id="complete-finite-checks">Complete finite checks<a class="headerlink" href="#complete-finite-checks" title="Permanent link">¤</a></h3>
+<p>The running model gives a direct normalization check:</p>
+<div class="arithmatex">\[
+\sum_{f,o,a,s}p(f)p(o)p(a\mid f,o)p(s\mid f)=1,
+\]</div>
+<p>because the sums over <span class="arithmatex">\(s\)</span> and <span class="arithmatex">\(a\)</span> each remove a normalized conditional, followed by the normalized root laws. It also implies</p>
+<div class="arithmatex">\[
+F\perp O,
+\qquad
+S\perp\{O,A\}\mid F
+\]</div>
+<p>only where the second statement is interpreted through the graph and joint law. The alarm's two parents are marginally independent but, as Chapter 2 shows, generally become dependent after the alarm is observed.</p>
+<div class="admonition failure">
+<p class="admonition-title">Counterexample: the first-order Markov product</p>
+<p>A first-order chain has</p>
+<div class="arithmatex">\[
+p(x_{1:T})=p(x_1)\prod_{t=2}^{T}p(x_t\mid x_{t-1}).
+\]</div>
+<p>Writing the final product as <span class="arithmatex">\(\prod_t p(x_t\mid x_{1:t-1})\)</span> is merely the unrestricted chain rule unless the Markov equality is stated. The two conditionals are equal under the first-order assumption; the notation should not hide that assumption.</p>
+</div>
+<h3 id="chapter-1-synthesis">Chapter 1 synthesis<a class="headerlink" href="#chapter-1-synthesis" title="Permanent link">¤</a></h3>
+<p>A DAG plus normalized local kernels defines a normalized joint law and an ancestral sampler. Its edges encode a family of factorizations and graph-implied independences, not one neural architecture, one inference procedure, or a causal claim. Plates compress repeated structure but do not execute the model.</p>
+<details class="question">
+<summary>Retrieval practice: directed laws</summary>
+<ol>
+<li>Why is a product of DAG conditionals normalized without a global partition function?</li>
+<li>Can two models with the same DAG use different conditional families?</li>
+<li>What query does ancestral sampling answer?</li>
+<li>What does a plate fail to specify?</li>
+</ol>
+<p><strong>Solutions.</strong> (1) Sum or integrate child variables in reverse topological order; each normalized conditional contributes one. (2) Yes. The graph fixes parent scopes, not the tabular, Gaussian, neural, or deterministic parameterization. (3) Exact unconditional sampling from the joint law. (4) It does not select an inference, optimization, or sampling algorithm, and it does not represent arbitrary recurrence.</p>
+</details>
+<p><strong>Bridge.</strong> The DAG factorization generates samples locally, but posterior evidence can connect variables that were independent in the prior. <a href="./#2-separation-colliders-and-graphical-claims">Continue continuously</a> or open <a href="../graphical-models-02-separation/">Chapter 2</a>.</p>
+<h2 id="2-separation-colliders-and-graphical-claims">2. Separation, Colliders, and Graphical Claims<a class="headerlink" href="#2-separation-colliders-and-graphical-claims" title="Permanent link">¤</a></h2>
+<h3 id="chapter-2-prerequisites-and-learning-objectives">Chapter 2 prerequisites and learning objectives<a class="headerlink" href="#chapter-2-prerequisites-and-learning-objectives" title="Permanent link">¤</a></h3>
+<p>You should understand the directed factorization in Chapter 1. By the end of this chapter, you should be able to:</p>
+<ul>
+<li>apply d-separation to chains, forks, colliders, and descendants of colliders;</li>
+<li>compute a node's Markov blanket in a DAG;</li>
+<li>distinguish an I-map, minimal I-map, perfect map, and faithful distribution;</li>
+<li>recognize Markov-equivalent DAGs; and</li>
+<li>explain why statistical arrows are not automatically causal arrows.</li>
+</ul>
+<h3 id="active-and-blocked-trails">Active and blocked trails<a class="headerlink" href="#active-and-blocked-trails" title="Permanent link">¤</a></h3>
+<p>A <strong>trail</strong> ignores arrow direction while tracing adjacent vertices. Given a conditioning set <span class="arithmatex">\(C\)</span>, a trail is active when:</p>
+<ul>
+<li>every noncollider on the trail is outside <span class="arithmatex">\(C\)</span>; and</li>
+<li>every collider on the trail has itself or at least one descendant in <span class="arithmatex">\(C\)</span>.</li>
+</ul>
+<p>Two vertex sets are d-separated by <span class="arithmatex">\(C\)</span> when no active trail connects them. For every distribution Markov to the DAG,</p>
+<div class="arithmatex">\[
+A\mathbin{\perp_G}B\mid C
+\quad\Longrightarrow\quad
+X_A\perp X_B\mid X_C.
+\]</div>
+<p>The implication is a sound statement about every compatible distribution. Its converse for one fitted parameter vector requires additional conditions.</p>
+<figure class="book-figure" id="fig-graphical-models-and-structured-probability-active-and-blocked-trails"><pre class="mermaid"><code>flowchart TB
+    chain["Chain&lt;br/&gt;&amp;nbsp;$$X\to M\to Y$$"]
+    fork["Fork&lt;br/&gt;&amp;nbsp;$$X\leftarrow M\to Y$$"]
+    collider["Collider&lt;br/&gt;&amp;nbsp;$$X\to M\leftarrow Y$$"]
+    chainRule["Condition on&amp;nbsp;$$M$$&amp;nbsp;&lt;br/&gt;blocks the trail"]
+    forkRule["Condition on&amp;nbsp;$$M$$&amp;nbsp;&lt;br/&gt;blocks the trail"]
+    colliderRule["Leave collider and descendants unobserved:&lt;br/&gt;trail is blocked&lt;br/&gt;Condition on either: trail opens"]
+    chain --&gt; chainRule
+    fork --&gt; forkRule
+    collider --&gt; colliderRule</code></pre><figcaption class="book-object-caption"><span class="book-object-number">Figure GRAPH.4.</span> Active and blocked trails</figcaption></figure>
+<p>Removing conditioned vertices from a DAG is not a correct general separation algorithm because conditioning on a collider can open rather than close a trail. Bayes-ball and ancestral-moralization procedures implement the full rule.</p>
+<h3 id="worked-explaining-away-calculation">Worked explaining-away calculation<a class="headerlink" href="#worked-explaining-away-calculation" title="Permanent link">¤</a></h3>
+<p>In the monitoring model, <span class="arithmatex">\(F\to A\leftarrow O\)</span> is a collider. Before observing the alarm,</p>
+<div class="arithmatex">\[
+F\perp O.
+\]</div>
+<p>The alarm probability is</p>
+<div class="arithmatex">\[
+\begin{aligned}
+p(A=1)
+&amp;=0.0072+0.064\\
+&amp;\quad+0.108+0.019\\
+&amp;=0.1982.
+\end{aligned}
+\]</div>
+<p>Average the alarm probability over overload when the component is faulty:</p>
+<div class="arithmatex">\[
+r_F=0.8(0.80)+0.2(0.95)=0.83.
+\]</div>
+<p>The fault-and-alarm mass is therefore</p>
+<div class="arithmatex">\[
+p(F=1,A=1)=0.1r_F=0.083.
+\]</div>
+<p>Consequently,</p>
+<div class="arithmatex">\[
+p(F=1\mid A=1)
+=\frac{0.083}{0.1982}
+\approx0.419.
+\]</div>
+<p>If overload is also observed, it already explains much of the alarm. The two
+fault-specific contributions to the alarm evidence at <span class="arithmatex">\(O=1\)</span> are</p>
+<div class="arithmatex">\[
+q_1=0.1(0.95)=0.095.
+\]</div>
+<p>For a nonfaulty component, the corresponding mass is</p>
+<div class="arithmatex">\[
+q_0=0.9(0.60)=0.540.
+\]</div>
+<p>Hence <span class="arithmatex">\(p(A=1\mid O=1)=q_1+q_0=0.635\)</span>, and</p>
+<div class="arithmatex">\[
+p(F=1\mid A=O=1)
+=\frac{q_1}{q_1+q_0}.
+\]</div>
+<p>Substitution gives approximately <span class="arithmatex">\(0.150\)</span>.</p>
+<p>Observing one possible cause reduces belief in the other after their common effect is fixed. This is <strong>explaining away</strong>. The sign and size of the change depend on the conditional table; the graph guarantees dependence can be induced, not that it must have a particular numerical direction for every parameterization.</p>
+<h3 id="selection-is-conditioning-too">Selection is conditioning too<a class="headerlink" href="#selection-is-conditioning-too" title="Permanent link">¤</a></h3>
+<p>Suppose a dataset includes a machine only when <span class="arithmatex">\(A=1\)</span>. Analysis inside the selected dataset conditions on a common effect of fault and overload. A correlation between <span class="arithmatex">\(F\)</span> and <span class="arithmatex">\(O\)</span> can therefore appear even though their population priors are independent. This is collider or selection bias, not evidence that one cause generates the other.</p>
+<p>The same issue arises when inclusion, response, filtering, survival, or successful decoding is affected by multiple variables. A selection variable belongs in the generative model whenever its mechanism changes the distribution being analyzed.</p>
+<h3 id="markov-blankets">Markov blankets<a class="headerlink" href="#markov-blankets" title="Permanent link">¤</a></h3>
+<p>For a vertex <span class="arithmatex">\(v\)</span> in a DAG, its Markov blanket contains:</p>
+<div class="arithmatex">\[
+\operatorname{mb}(v)
+=\operatorname{pa}(v)
+\cup\operatorname{ch}(v)
+\cup\bigcup_{u\in\operatorname{ch}(v)}
+\left(\operatorname{pa}(u)\setminus\{v\}\right).
+\]</div>
+<p>Given this set, <span class="arithmatex">\(X_v\)</span> is conditionally independent of every other vertex. In the running model,</p>
+<div class="arithmatex">\[
+\operatorname{mb}(F)=\{A,S,O\}.
+\]</div>
+<p>The co-parent <span class="arithmatex">\(O\)</span> belongs because conditioning on their common child <span class="arithmatex">\(A\)</span> couples the parents. A Markov blanket is a distributional shielding set under the model, not necessarily a minimal predictive feature set in finite data and not a causal adjustment set by default.</p>
+<h3 id="four-levels-of-graphical-fit">Four levels of graphical fit<a class="headerlink" href="#four-levels-of-graphical-fit" title="Permanent link">¤</a></h3>
+<p>Let <span class="arithmatex">\(\mathcal I(G)\)</span> be the independences implied by a graph and <span class="arithmatex">\(\mathcal I(p)\)</span> those satisfied by a distribution.</p>
+<div class="md-typeset__table book-table-container"><table id="tbl-graphical-models-and-structured-probability-four-levels-of-graphical-fit"><caption class="book-object-caption"><span class="book-object-number">Table GRAPH.3.</span> Four levels of graphical fit</caption>
+<thead>
+<tr>
+<th>Term</th>
+<th>Requirement</th>
+<th>What it permits</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>I-map</td>
+<td><span class="arithmatex">\(\mathcal I(G)\subseteq\mathcal I(p)\)</span></td>
+<td>the distribution may have extra independences</td>
+</tr>
+<tr>
+<td>minimal I-map</td>
+<td>removing any graph edge breaks the I-map property</td>
+<td>another nonnested graph may still be smaller or equally valid</td>
+</tr>
+<tr>
+<td>perfect map</td>
+<td><span class="arithmatex">\(\mathcal I(G)=\mathcal I(p)\)</span></td>
+<td>graph and distribution independence models agree exactly</td>
+</tr>
+<tr>
+<td>faithful distribution</td>
+<td>usually <span class="arithmatex">\(\mathcal I(p)=\mathcal I(G)\)</span> for the declared graph</td>
+<td>excludes cancellations that create extra independences</td>
+</tr>
+</tbody>
+</table></div>
+<p>Faithfulness is an assumption about a graph-distribution pair. It is not a consequence of factorization. For example, a linear path <span class="arithmatex">\(X\to M\to Y\)</span> plus a direct edge <span class="arithmatex">\(X\to Y\)</span> can have coefficients whose total effects cancel, producing an independence not visible from the graph.</p>
+<h3 id="markov-equivalence">Markov equivalence<a class="headerlink" href="#markov-equivalence" title="Permanent link">¤</a></h3>
+<p>Two DAGs are Markov equivalent when they encode the same conditional-independence model. For DAGs, this occurs exactly when they share:</p>
+<ol>
+<li>the same undirected skeleton; and</li>
+<li>the same unshielded colliders, also called v-structures.</li>
+</ol>
+<p>Thus <span class="arithmatex">\(X\to M\to Y\)</span>, <span class="arithmatex">\(X\leftarrow M\to Y\)</span>, and <span class="arithmatex">\(X\leftarrow M\leftarrow Y\)</span> are Markov equivalent: all encode <span class="arithmatex">\(X\perp Y\mid M\)</span>. The collider <span class="arithmatex">\(X\to M\leftarrow Y\)</span> is not equivalent because it instead encodes marginal independence of <span class="arithmatex">\(X\)</span> and <span class="arithmatex">\(Y\)</span>.</p>
+<p>Observational conditional independences generally identify an equivalence class, not a unique arrow orientation. Interventions, time order, functional restrictions, background knowledge, or other assumptions are needed to go further.</p>
+<h3 id="statistical-dags-and-causal-dags-are-different-declarations">Statistical DAGs and causal DAGs are different declarations<a class="headerlink" href="#statistical-dags-and-causal-dags-are-different-declarations" title="Permanent link">¤</a></h3>
+<p>A statistical DAG asserts factorization and conditional independence. A causal DAG additionally interprets each local conditional as a stable mechanism under a declared intervention semantics. The same drawn arrow can therefore carry different meaning in two books or software systems.</p>
+<p>Do not infer any of the following from statistical factorization alone:</p>
+<ul>
+<li>that a parent is a manipulable cause;</li>
+<li>that deleting incoming arrows computes an intervention;</li>
+<li>that latent common causes are absent;</li>
+<li>that conditioning on a Markov blanket estimates a causal effect; or</li>
+<li>that observational fit identifies individual counterfactuals.</li>
+</ul>
+<p>Those questions belong to <a href="../causal-generative-models-explained/">Causal Generative Models</a>, where observational, interventional, and counterfactual laws are separate objects.</p>
+<h3 id="chapter-2-synthesis">Chapter 2 synthesis<a class="headerlink" href="#chapter-2-synthesis" title="Permanent link">¤</a></h3>
+<p>D-separation converts a DAG into distribution-wide independence claims. Chains and forks are blocked by conditioning on their middle vertex; colliders behave in the opposite way. I-maps, faithfulness, and Markov equivalence clarify what graph structure does and does not identify. Causal semantics require an additional model contract.</p>
+<details class="question">
+<summary>Retrieval practice: separation</summary>
+<ol>
+<li>When does conditioning open a trail rather than block it?</li>
+<li>Why is a co-parent in a DAG Markov blanket?</li>
+<li>What two graphical features characterize DAG Markov equivalence?</li>
+<li>Does a perfectly fitted observational DAG identify interventions?</li>
+</ol>
+<p><strong>Solutions.</strong> (1) When the conditioned vertex is a collider on that trail, or when a descendant of the collider is conditioned on. (2) Conditioning on the shared child can couple its parents. (3) The same skeleton and the same unshielded colliders. (4) No. Intervention semantics and identifying assumptions are additional to observational factorization.</p>
+</details>
+<p><strong>Bridge.</strong> Directed graphs normalize through local conditionals. Symmetric spatial and relational interactions are often easier to state as undirected potentials, which changes both the normalization and learning problem. <a href="./#3-undirected-laws-potentials-and-energies">Continue continuously</a> or open <a href="../graphical-models-03-undirected/">Chapter 3</a>.</p>
+<h2 id="3-undirected-laws-potentials-and-energies">3. Undirected Laws, Potentials, and Energies<a class="headerlink" href="#3-undirected-laws-potentials-and-energies" title="Permanent link">¤</a></h2>
+<h3 id="chapter-3-prerequisites-and-learning-objectives">Chapter 3 prerequisites and learning objectives<a class="headerlink" href="#chapter-3-prerequisites-and-learning-objectives" title="Permanent link">¤</a></h3>
+<p>You should understand factorization, support, and conditional independence. By the end of this chapter, you should be able to:</p>
+<ul>
+<li>construct a normalized undirected law from nonnegative potentials;</li>
+<li>state the positivity boundary in the Hammersley–Clifford theorem;</li>
+<li>derive full conditionals and Markov blankets from local factors;</li>
+<li>interpret zeros in a Gaussian precision matrix; and</li>
+<li>distinguish an energy value, a normalized probability, and a sample.</li>
+</ul>
+<h3 id="local-compatibility-global-normalization">Local compatibility, global normalization<a class="headerlink" href="#local-compatibility-global-normalization" title="Permanent link">¤</a></h3>
+<p>An undirected graphical model, Markov random field, or MRF associates nonnegative potentials with scopes such as cliques or factors:</p>
+<div class="arithmatex">\[
+\gamma(x)=\prod_{c\in\mathcal C}\psi_c(x_c),
+\qquad
+\psi_c(x_c)\ge 0.
+\]</div>
+<p>Relative to a base measure <span class="arithmatex">\(\mu\)</span>, this product defines a probability law only if</p>
+<div class="arithmatex">\[
+0&lt;Z=\int\gamma(x)\,\mu(dx)&lt;\infty,
+\qquad
+p(x)=\frac{\gamma(x)}{Z}.
+\]</div>
+<p>Unlike a DAG conditional, a potential need not sum or integrate to one over any argument. Multiplying one potential by a positive constant changes <span class="arithmatex">\(Z\)</span> by the same constant but leaves <span class="arithmatex">\(p\)</span> unchanged. Potentials are therefore not individually identifiable without a gauge or parameter convention.</p>
+<p>For a finite undirected graph, clique potentials make the graph separation rule immediate: if a set <span class="arithmatex">\(C\)</span> separates <span class="arithmatex">\(A\)</span> from <span class="arithmatex">\(B\)</span>, conditioning on <span class="arithmatex">\(X_C\)</span> splits all remaining factors between the two sides, so <span class="arithmatex">\(X_A\perp X_B\mid X_C\)</span>.</p>
+<h3 id="hammersley-clifford-and-the-support-boundary">Hammersley-Clifford and the support boundary<a class="headerlink" href="#hammersley-clifford-and-the-support-boundary" title="Permanent link">¤</a></h3>
+<p>For a <strong>strictly positive</strong> finite mass function, the following are equivalent:</p>
+<ul>
+<li>the distribution satisfies the undirected global Markov property; and</li>
+<li>the distribution factorizes into positive potentials over graph cliques.</li>
+</ul>
+<p>This is the Hammersley–Clifford theorem. Strict positivity is not decoration. When the law assigns zero mass to some configurations, a clique factorization still implies the associated Markov properties under its conditions, but the converse can fail. A hard constraint should therefore be stated as part of the support or as an explicit zero-valued factor rather than inferred from conditional independence alone.</p>
+<div class="admonition failure">
+<p class="admonition-title">Counterexample boundary: hard parity</p>
+<p>Let three binary variables have positive mass only when <span class="arithmatex">\(X_1\oplus X_2\oplus X_3=0\)</span>. Conditional probabilities can become undefined on zero-probability events, and support restrictions can create dependencies not summarized by ordinary positive-density reasoning. Do not apply a positivity-based equivalence after silently deleting the forbidden states.</p>
+</div>
+<h3 id="energy-is-a-parameterization-not-a-probability">Energy is a parameterization, not a probability<a class="headerlink" href="#energy-is-a-parameterization-not-a-probability" title="Permanent link">¤</a></h3>
+<p>Positive potentials can be written as exponentials of local negative energies:</p>
+<div class="arithmatex">\[
+\psi_c(x_c)=\exp[-E_c(x_c)],
+\qquad
+E(x)=\sum_c E_c(x_c),
+\]</div>
+<p>which gives</p>
+<div class="arithmatex">\[
+p(x)=\frac{\exp[-E(x)]}{Z}.
+\]</div>
+<p>An energy may be negative, zero, or positive. Adding a constant <span class="arithmatex">\(b\)</span> to every energy changes <span class="arithmatex">\(Z\)</span> by <span class="arithmatex">\(e^{-b}\)</span> and leaves the distribution unchanged. Only energy differences affect probability ratios:</p>
+<div class="arithmatex">\[
+\log\frac{p(x)}{p(x')}=-E(x)+E(x').
+\]</div>
+<p>A low-energy configuration need not be typical in high dimension because a vast number of moderately higher-energy configurations may carry more total probability mass. An optimizer that finds <span class="arithmatex">\(\arg\min_x E(x)\)</span> returns a mode, not a representative sample.</p>
+<h3 id="worked-two-spin-ising-model">Worked two-spin Ising model<a class="headerlink" href="#worked-two-spin-ising-model" title="Permanent link">¤</a></h3>
+<p>Let <span class="arithmatex">\(X_1,X_2\in\{-1,+1\}\)</span> and</p>
+<div class="arithmatex">\[
+\gamma(x_1,x_2)=\exp(Jx_1x_2),
+\qquad
+J=\log 2.
+\]</div>
+<p>Equal spins have weight <span class="arithmatex">\(2\)</span> and unequal spins have weight <span class="arithmatex">\(1/2\)</span>:</p>
+<div class="md-typeset__table book-table-container"><table id="tbl-graphical-models-and-structured-probability-worked-two-spin-ising-model"><caption class="book-object-caption"><span class="book-object-number">Table GRAPH.4.</span> Worked two-spin Ising model</caption>
+<thead>
+<tr>
+<th><span class="arithmatex">\((x_1,x_2)\)</span></th>
+<th style="text-align: right;"><span class="arithmatex">\(\gamma(x_1,x_2)\)</span></th>
+<th style="text-align: right;"><span class="arithmatex">\(p(x_1,x_2)\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="arithmatex">\((-1,-1)\)</span></td>
+<td style="text-align: right;"><span class="arithmatex">\(2\)</span></td>
+<td style="text-align: right;"><span class="arithmatex">\(0.4\)</span></td>
+</tr>
+<tr>
+<td><span class="arithmatex">\((-1,+1)\)</span></td>
+<td style="text-align: right;"><span class="arithmatex">\(1/2\)</span></td>
+<td style="text-align: right;"><span class="arithmatex">\(0.1\)</span></td>
+</tr>
+<tr>
+<td><span class="arithmatex">\((+1,-1)\)</span></td>
+<td style="text-align: right;"><span class="arithmatex">\(1/2\)</span></td>
+<td style="text-align: right;"><span class="arithmatex">\(0.1\)</span></td>
+</tr>
+<tr>
+<td><span class="arithmatex">\((+1,+1)\)</span></td>
+<td style="text-align: right;"><span class="arithmatex">\(2\)</span></td>
+<td style="text-align: right;"><span class="arithmatex">\(0.4\)</span></td>
+</tr>
+</tbody>
+</table></div>
+<p>Thus <span class="arithmatex">\(Z=5\)</span>. The local conditional does not require the global partition function:</p>
+<div class="arithmatex">\[
+p(X_1=+1\mid X_2=x_2)
+=\frac{e^{Jx_2}}{e^{Jx_2}+e^{-Jx_2}}
+=\sigma(2Jx_2).
+\]</div>
+<p>For <span class="arithmatex">\(x_2=+1\)</span>, this probability is <span class="arithmatex">\(4/5\)</span>. This cancellation makes single-site Gibbs updates and pseudolikelihood possible even when <span class="arithmatex">\(Z\)</span> is hard to compute.</p>
+<figure class="book-figure" id="fig-graphical-models-and-structured-probability-worked-two-spin-ising-model"><pre class="mermaid"><code>flowchart LR
+    x1(("Spin&amp;nbsp;$$X_1$$"))
+    pair["Pair potential&lt;br/&gt;&amp;nbsp;$$e^{JX_1X_2}$$"]
+    x2(("Spin&amp;nbsp;$$X_2$$"))
+    x1 --- pair
+    pair --- x2</code></pre><figcaption class="book-object-caption"><span class="book-object-number">Figure GRAPH.5.</span> Worked two-spin Ising model</figcaption></figure>
+<h3 id="undirected-separation-and-markov-blankets">Undirected separation and Markov blankets<a class="headerlink" href="#undirected-separation-and-markov-blankets" title="Permanent link">¤</a></h3>
+<p>In an undirected graph, <span class="arithmatex">\(C\)</span> separates <span class="arithmatex">\(A\)</span> and <span class="arithmatex">\(B\)</span> when every path from <span class="arithmatex">\(A\)</span> to <span class="arithmatex">\(B\)</span> passes through <span class="arithmatex">\(C\)</span>. For a positive law that is Markov to the graph,</p>
+<div class="arithmatex">\[
+C\text{ separates }A\text{ and }B
+\quad\Longrightarrow\quad
+X_A\perp X_B\mid X_C.
+\]</div>
+<p>The Markov blanket of a vertex is simply its neighbor set. Its full conditional uses only factors that mention that vertex:</p>
+<div class="arithmatex">\[
+p(x_v\mid x_{V\setminus\{v\}})
+\propto
+\prod_{c:v\in c}\psi_c(x_c).
+\]</div>
+<p>This is a local normalization identity. It neither evaluates the global partition function nor guarantees that repeated local updates mix rapidly.</p>
+<h3 id="gaussian-graphical-models">Gaussian graphical models<a class="headerlink" href="#gaussian-graphical-models" title="Permanent link">¤</a></h3>
+<p>For a nonsingular Gaussian law</p>
+<div class="arithmatex">\[
+p(x)\propto
+\exp\left(
+-\frac12x^\top\Lambda x+\eta^\top x
+\right),
+\]</div>
+<p>the precision matrix <span class="arithmatex">\(\Lambda=\Sigma^{-1}\)</span> must be symmetric positive definite. For distinct indices <span class="arithmatex">\(i,j\)</span>,</p>
+<div class="arithmatex">\[
+\Lambda_{ij}=0
+\quad\Longleftrightarrow\quad
+X_i\perp X_j\mid X_{V\setminus\{i,j\}}.
+\]</div>
+<p>Zeros in the covariance matrix instead encode marginal uncorrelatedness, which equals marginal independence only for a joint Gaussian. Sparse covariance, sparse precision, and sparse directed regression matrices represent different graphical objects.</p>
+<p>For a three-node Gaussian chain, a tridiagonal precision matrix may yield a dense covariance matrix. The endpoints can be marginally correlated while remaining conditionally independent given the middle node. This is expected, not a contradiction.</p>
+<p>Sparse precision is computational structure as well as independence structure.
+When a non-Gaussian observation model is coupled to a latent Gaussian Markov
+random field, <a href="../graphical-inference-and-message-passing/#integrated-nested-laplace-approximation-structure-specific-deterministic-inference">Graphical Inference and Message Passing</a>
+develops integrated nested Laplace approximation and states the sparsity,
+hyperparameter-dimension, and posterior-geometry limits under which that
+deterministic approximation is appropriate.</p>
+<h3 id="directed-versus-undirected-generation">Directed versus undirected generation<a class="headerlink" href="#directed-versus-undirected-generation" title="Permanent link">¤</a></h3>
+<div class="md-typeset__table book-table-container"><table id="tbl-graphical-models-and-structured-probability-directed-versus-undirected-generation"><caption class="book-object-caption"><span class="book-object-number">Table GRAPH.5.</span> Directed versus undirected generation</caption>
+<thead>
+<tr>
+<th>Property</th>
+<th>Directed model</th>
+<th>Undirected model</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>local object</td>
+<td>normalized conditional kernel</td>
+<td>nonnegative potential</td>
+</tr>
+<tr>
+<td>global normalization</td>
+<td>follows from acyclic conditional product</td>
+<td>usually requires <span class="arithmatex">\(Z\)</span></td>
+</tr>
+<tr>
+<td>prior sampling</td>
+<td>ancestral sampling</td>
+<td>often MCMC, exact structured sampling, or a special construction</td>
+</tr>
+<tr>
+<td>edge semantics</td>
+<td>parent scope and d-separation</td>
+<td>symmetric factor scope and graph separation</td>
+</tr>
+<tr>
+<td>hard constraints</td>
+<td>deterministic conditional or restricted support</td>
+<td>zero potential or restricted support</td>
+</tr>
+<tr>
+<td>parameter modularity</td>
+<td>often local, subject to parameter sharing and priors</td>
+<td>global normalizer couples parameters</td>
+</tr>
+</tbody>
+</table></div>
+<p>Neither representation is universally more expressive. Each exposes some independence models compactly that the other cannot reproduce without adding edges, states, or latent variables.</p>
+<h3 id="chapter-3-synthesis">Chapter 3 synthesis<a class="headerlink" href="#chapter-3-synthesis" title="Permanent link">¤</a></h3>
+<p>An MRF defines a global law through local nonnegative potentials and a partition function. Positivity makes undirected Markov properties and clique factorization equivalent; hard constraints require separate care. Energy is a nonunique score parameterization, and local conditionals can be tractable even when global normalization is not.</p>
+<details class="question">
+<summary>Retrieval practice: undirected laws</summary>
+<ol>
+<li>Must an MRF potential be normalized?</li>
+<li>Where does strict positivity enter Hammersley–Clifford?</li>
+<li>Why may an energy be negative?</li>
+<li>What does a zero off-diagonal precision entry mean in a nonsingular Gaussian?</li>
+</ol>
+<p><strong>Solutions.</strong> (1) No; the product is normalized globally by <span class="arithmatex">\(Z\)</span>. (2) It is required for the implication from undirected Markov properties to clique factorization in the standard theorem. (3) Adding a constant to every energy changes no probabilities, so zero has no intrinsic meaning. (4) Conditional independence of those two variables given all remaining variables.</p>
+</details>
+<p><strong>Bridge.</strong> Directed and undirected factorizations make different terms easy to evaluate. Learning exposes the consequence: complete-data DAG parameters may separate, whereas an MRF gradient usually requires an expectation under the whole model. <a href="./#4-learning-normalization-and-structured-conditionals">Continue continuously</a> or open <a href="../graphical-models-04-learning/">Chapter 4</a>.</p>
+<h2 id="4-learning-normalization-and-structured-conditionals">4. Learning, Normalization, and Structured Conditionals<a class="headerlink" href="#4-learning-normalization-and-structured-conditionals" title="Permanent link">¤</a></h2>
+<h3 id="chapter-4-prerequisites-and-learning-objectives">Chapter 4 prerequisites and learning objectives<a class="headerlink" href="#chapter-4-prerequisites-and-learning-objectives" title="Permanent link">¤</a></h3>
+<p>You should know maximum likelihood, latent-variable marginalization, and statistical distances. By the end of this chapter, you should be able to:</p>
+<ul>
+<li>state when complete-data DAG learning separates by local conditional;</li>
+<li>derive the positive- and negative-phase terms in an undirected likelihood gradient;</li>
+<li>distinguish pseudolikelihood from likelihood and calibrate its uncertainty correctly;</li>
+<li>define a conditional random field and its input-dependent normalizer; and</li>
+<li>explain label bias without equating local normalization with short context.</li>
+</ul>
+<h3 id="complete-data-dag-learning-the-modular-case">Complete-data DAG learning: the modular case<a class="headerlink" href="#complete-data-dag-learning-the-modular-case" title="Permanent link">¤</a></h3>
+<p>For independent complete observations <span class="arithmatex">\(x^{(1:N)}\)</span> from a DAG,</p>
+<div class="arithmatex">\[
+\log p_\theta(x^{(1:N)})
+=\sum_{n=1}^{N}\sum_{v\in V}
+\log p_{\theta_v}
+\left(x_v^{(n)}\mid x_{\operatorname{pa}(v)}^{(n)}\right).
+\]</div>
+<p>The optimization separates by vertex when the parameter blocks <span class="arithmatex">\(\theta_v\)</span> are disjoint and the regularizer or prior also separates. Parameter tying, hierarchical priors, neural modules shared across vertices, or constraints across conditional tables couple the problems even when every variable is observed.</p>
+<p>For a tabular conditional, the maximum-likelihood estimate is the empirical conditional frequency when the parent configuration has positive count. Zero-count parent configurations are unidentified by likelihood. Smoothing, hierarchy, or a structured parameterization supplies information; the graph alone does not.</p>
+<h3 id="hidden-variables-recouple-local-terms">Hidden variables recouple local terms<a class="headerlink" href="#hidden-variables-recouple-local-terms" title="Permanent link">¤</a></h3>
+<p>With a latent variable <span class="arithmatex">\(Z_n\)</span> and observation <span class="arithmatex">\(X_n\)</span>,</p>
+<div class="arithmatex">\[
+p_\theta(x_n)=\sum_{z_n}p_{\theta_Z}(z_n)p_{\theta_X}(x_n\mid z_n).
+\]</div>
+<p>The logarithm of this sum does not decompose into separate objectives for <span class="arithmatex">\(\theta_Z\)</span> and <span class="arithmatex">\(\theta_X\)</span>. EM uses posterior expected sufficient statistics; direct gradients use the identity</p>
+<div class="arithmatex">\[
+\nabla_\theta\log p_\theta(x)
+=\mathbb E_{p_\theta(z\mid x)}
+\left[\nabla_\theta\log p_\theta(x,z)\right]
+\]</div>
+<p>when differentiation and marginalization may be exchanged. Exactness of the identity does not make the posterior expectation cheap.</p>
+<h3 id="undirected-maximum-likelihood">Undirected maximum likelihood<a class="headerlink" href="#undirected-maximum-likelihood" title="Permanent link">¤</a></h3>
+<p>Consider an exponential-family MRF</p>
+<div class="arithmatex">\[
+p_\theta(x)=
+\exp\!\left(\theta^\top\phi(x)-A(\theta)\right),
+\qquad
+A(\theta)=\log\int e^{\theta^\top\phi(x)}\,\mu(dx).
+\]</div>
+<p>For the average log likelihood, the gradient is</p>
+<div class="arithmatex">\[
+\nabla_\theta\ell(\theta)
+=\frac1N\sum_{n=1}^{N}\phi(x^{(n)})
+-\mathbb E_{p_\theta}[\phi(X)].
+\]</div>
+<p>The empirical or positive phase is directly observed. The model or negative phase requires expectation under the current normalized law. At an attained interior optimum in a minimal regular family, the corresponding moments match. Approximate MCMC, variational, score-matching, contrastive, and ratio-estimation methods replace or avoid this expectation under different assumptions; they are not interchangeable estimators of finite-sample likelihood.</p>
+<h3 id="pseudolikelihood-is-a-composite-objective">Pseudolikelihood is a composite objective<a class="headerlink" href="#pseudolikelihood-is-a-composite-objective" title="Permanent link">¤</a></h3>
+<p>The nodewise pseudolikelihood for one fully observed vector is</p>
+<div class="arithmatex">\[
+\operatorname{PL}_\theta(x)
+=\prod_{v\in V}p_\theta(x_v\mid x_{V\setminus\{v\}}),
+\]</div>
+<p>and the empirical objective sums its log over cases. Each full conditional has only a local normalizer because factors not containing <span class="arithmatex">\(v\)</span> cancel. The product is generally not the joint probability <span class="arithmatex">\(p_\theta(x)\)</span> and need not sum to one over complete configurations.</p>
+<p>Maximum pseudolikelihood can be consistent under identifiability, correct specification, sampling, support, and regularity conditions appropriate to the model. This is not a universal finite-sample equivalence to maximum likelihood. Its asymptotic covariance uses sensitivity and variability matrices:</p>
+<div class="arithmatex">\[
+\operatorname{Avar}(\hat\theta_{\mathrm{PL}})
+=H^{-1}JH^{-1},
+\]</div>
+<p>not a likelihood Fisher-information formula unless a special identity makes them coincide. Calibration should therefore use composite-likelihood or estimating-equation theory, a justified bootstrap, or another method matched to the sampling design.</p>
+<div class="admonition failure">
+<p class="admonition-title">Counterexample: conditionals are not a free joint model</p>
+<p>Independently fitting one predictor for every <span class="arithmatex">\(X_v\mid X_{-v}\)</span> need not produce mutually compatible conditionals for any joint distribution. A shared MRF parameterization can enforce compatibility; separate black-box conditionals generally cannot assume it.</p>
+</div>
+<h3 id="conditional-random-fields">Conditional random fields<a class="headerlink" href="#conditional-random-fields" title="Permanent link">¤</a></h3>
+<p>A conditional random field, or CRF, directly models a structured output <span class="arithmatex">\(Y\)</span> given an observed input <span class="arithmatex">\(X=x\)</span>:</p>
+<div class="arithmatex">\[
+p_\theta(y\mid x)
+=\frac{\exp s_\theta(x,y)}{Z_\theta(x)},
+\qquad
+Z_\theta(x)=\sum_{y'}\exp s_\theta(x,y').
+\]</div>
+<p>For a log-linear score <span class="arithmatex">\(s_\theta(x,y)=\theta^\top\phi(x,y)\)</span>, the conditional log likelihood is concave in <span class="arithmatex">\(\theta\)</span> and the negative log likelihood is convex. A deep nonlinear score generally removes that convexity. In either case, the gradient contains a feature or score-gradient expectation under <span class="arithmatex">\(p_\theta(y\mid x)\)</span> for every input.</p>
+<p>A CRF is a normalized conditional probability model. A structured energy predictor that returns only</p>
+<div class="arithmatex">\[
+\hat y(x)=\arg\min_y E_\theta(x,y)
+\]</div>
+<p>may be useful without defining probabilities. Calling it a CRF requires a finite normalizer and a declared base measure or state space.</p>
+<h3 id="local-and-global-normalization">Local and global normalization<a class="headerlink" href="#local-and-global-normalization" title="Permanent link">¤</a></h3>
+<p>A locally normalized sequence model has</p>
+<div class="arithmatex">\[
+p(y_{1:T}\mid x)
+=\prod_{t=1}^{T}p(y_t\mid y_{&lt;t},x),
+\]</div>
+<p>where each decision normalizes over its legal next states. A globally normalized model assigns complete-path scores and normalizes once over all paths. The distinction is normalization scope, not merely whether the network sees future input tokens: a local conditional may use all of <span class="arithmatex">\(x\)</span> and still be locally normalized.</p>
+<p>Local softmax probabilities are invariant to adding a history-dependent constant to all next-state logits. Consequently, absolute score mass discarded at one state cannot be recovered later. In constrained state graphs, states with few outgoing transitions can retain probability regardless of weak downstream evidence. This family of representational effects is label bias.</p>
+<figure class="book-figure" id="fig-graphical-models-and-structured-probability-local-and-global-normalization"><pre class="mermaid"><code>flowchart TB
+    start(("start"))
+    a(("state&amp;nbsp;$$a$$"))
+    b(("state&amp;nbsp;$$b$$"))
+    endA(("one legal continuation"))
+    endB1(("continuation 1"))
+    endB2(("continuation 2"))
+    start --&gt; a
+    start --&gt; b
+    a --&gt; endA
+    b --&gt; endB1
+    b --&gt; endB2</code></pre><figcaption class="book-object-caption"><span class="book-object-number">Figure GRAPH.6.</span> Local and global normalization</figcaption></figure>
+<p>At state <span class="arithmatex">\(a\)</span>, the only legal transition has local probability one regardless of its absolute score. A globally normalized path model can compare that weak complete path against both paths through <span class="arithmatex">\(b\)</span>. Lookahead features can mitigate some local decisions but do not make local and global normalization algebraically identical.</p>
+<h3 id="learning-and-sampling-are-separate-choices">Learning and sampling are separate choices<a class="headerlink" href="#learning-and-sampling-are-separate-choices" title="Permanent link">¤</a></h3>
+<div class="md-typeset__table book-table-container"><table id="tbl-graphical-models-and-structured-probability-learning-and-sampling-are-separate-choices"><caption class="book-object-caption"><span class="book-object-number">Table GRAPH.6.</span> Learning and sampling are separate choices</caption>
+<thead>
+<tr>
+<th>Model</th>
+<th>A common training query</th>
+<th>A common generation query</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>DAG</td>
+<td>local or joint likelihood</td>
+<td>ancestral sampling</td>
+</tr>
+<tr>
+<td>latent DAG</td>
+<td>marginal likelihood or ELBO</td>
+<td>sample latents, then descendants</td>
+</tr>
+<tr>
+<td>MRF/EBM</td>
+<td>likelihood, score, ratio, or contrastive objective</td>
+<td>MCMC or specialized exact sampler</td>
+</tr>
+<tr>
+<td>CRF</td>
+<td>conditional likelihood or structured surrogate</td>
+<td>conditional sampling or MAP given <span class="arithmatex">\(x\)</span></td>
+</tr>
+</tbody>
+</table></div>
+<p>The training objective need not supply the deployment sampler. Conversely, a sampler that leaves a target law invariant does not estimate its parameters. Keep the probability object, estimator, optimizer, and sampling transition distinct.</p>
+<h3 id="chapter-4-synthesis">Chapter 4 synthesis<a class="headerlink" href="#chapter-4-synthesis" title="Permanent link">¤</a></h3>
+<p>Complete-data DAG learning separates only under parameter and prior modularity. Latent marginalization and global normalizers recouple local factors. Pseudolikelihood replaces joint likelihood with a composite conditional objective and needs its own uncertainty theory. CRFs normalize complete output structures conditional on inputs; label bias concerns local normalization, not merely limited context.</p>
+<details class="question">
+<summary>Retrieval practice: learning and normalization</summary>
+<ol>
+<li>What besides complete observations is needed for DAG parameter learning to separate by node?</li>
+<li>What two expectations form an exponential-family MRF likelihood gradient?</li>
+<li>Why is the pseudolikelihood product generally not a joint probability?</li>
+<li>Is a locally normalized model necessarily unable to inspect the full input?</li>
+</ol>
+<p><strong>Solutions.</strong> (1) Disjoint parameter blocks and a separable regularizer or prior, with no shared constraints. (2) Empirical feature expectation minus model feature expectation. (3) Its overlapping full conditionals are each normalized for a different held-fixed context; their product has no general joint normalizer or compatibility guarantee. (4) No. It may use the full input; local refers to normalization over the next decision.</p>
+</details>
+<p><strong>Bridge.</strong> The same probability law can be drawn in several ways, but conversions preserve different things. Chapter 5 separates factor-graph refactoring, moralization, chordality, mixed graphs, and latent projections. <a href="./#5-representations-conversions-and-latent-projections">Continue continuously</a> or open <a href="../graphical-models-05-representations/">Chapter 5</a>.</p>
+<h2 id="5-representations-conversions-and-latent-projections">5. Representations, Conversions, and Latent Projections<a class="headerlink" href="#5-representations-conversions-and-latent-projections" title="Permanent link">¤</a></h2>
+<h3 id="chapter-5-prerequisites-and-learning-objectives">Chapter 5 prerequisites and learning objectives<a class="headerlink" href="#chapter-5-prerequisites-and-learning-objectives" title="Permanent link">¤</a></h3>
+<p>You should know directed and undirected Markov properties. By the end of this chapter, you should be able to:</p>
+<ul>
+<li>distinguish refactoring a function from preserving an independence model;</li>
+<li>moralize a DAG for a declared inference or separation task;</li>
+<li>state when directed and undirected graphs can be perfect maps of the same independence model;</li>
+<li>interpret factor graphs, chain graphs, and ADMGs under explicit conventions; and</li>
+<li>route circuits, relational models, and probabilistic programs to their specialized volumes.</li>
+</ul>
+<h3 id="four-preservation-questions">Four preservation questions<a class="headerlink" href="#four-preservation-questions" title="Permanent link">¤</a></h3>
+<p>Before converting any graphical representation, ask what must remain unchanged:</p>
+<ol>
+<li><strong>Function preservation:</strong> is the same normalized or unnormalized function represented?</li>
+<li><strong>Distribution preservation:</strong> is the same law obtained after normalization or marginalization?</li>
+<li><strong>Independence preservation:</strong> are exactly the same conditional-independence statements visible?</li>
+<li><strong>Algorithm preservation:</strong> does the same complexity, schedule, or sampler remain valid?</li>
+</ol>
+<p>These are different claims. A conversion may preserve a joint law while hiding independences, or preserve a factor product while changing the graph on which a message algorithm runs.</p>
+<h3 id="factor-graphs-expose-factor-scopes">Factor graphs expose factor scopes<a class="headerlink" href="#factor-graphs-expose-factor-scopes" title="Permanent link">¤</a></h3>
+<p>If</p>
+<div class="arithmatex">\[
+\gamma(x)=\prod_{a\in\mathcal F}f_a(x_a),
+\]</div>
+<p>a bipartite factor graph has one variable vertex for every <span class="arithmatex">\(X_v\)</span>, one factor vertex for every <span class="arithmatex">\(f_a\)</span>, and an edge whenever <span class="arithmatex">\(v\in a\)</span>. It records the exact factor scopes rather than only pairwise adjacency.</p>
+<figure class="book-figure" id="fig-graphical-models-and-structured-probability-factor-graphs-expose-factor-scopes"><pre class="mermaid"><code>flowchart LR
+    x1(("$$X_1$$"))
+    x2(("$$X_2$$"))
+    x3(("$$X_3$$"))
+    f12["$$f_{12}$$"]
+    f23["$$f_{23}$$"]
+    x1 --- f12
+    x2 --- f12
+    x2 --- f23
+    x3 --- f23</code></pre><figcaption class="book-object-caption"><span class="book-object-number">Figure GRAPH.7.</span> Factor graphs expose factor scopes</figcaption></figure>
+<p>A DAG becomes a factor graph by creating one factor for each local conditional. An MRF becomes one by exposing its chosen potentials. Multiple factorizations can yield the same function, and merging or splitting factors can change message complexity without changing <span class="arithmatex">\(\gamma\)</span>.</p>
+<p>Forney or normal factor graphs place factors at vertices and variables on edges; equality constraints copy a variable into multiple factors. They are useful computational diagrams, but their edge directions, when drawn, need a declared signal or generative interpretation rather than inheriting DAG semantics automatically.</p>
+<h3 id="moralization-is-query-aware-information-loss">Moralization is query-aware information loss<a class="headerlink" href="#moralization-is-query-aware-information-loss" title="Permanent link">¤</a></h3>
+<p>To use undirected separation for a DAG query <span class="arithmatex">\(A\perp B\mid C\)</span>:</p>
+<ol>
+<li>retain <span class="arithmatex">\(A\cup B\cup C\)</span> and their ancestors;</li>
+<li>connect every pair of parents with a common child;</li>
+<li>drop arrowheads; and</li>
+<li>test ordinary graph separation by <span class="arithmatex">\(C\)</span>.</li>
+</ol>
+<p>Connecting co-parents is <strong>moralization</strong>. Moralizing the entire DAG can add edges created by descendants irrelevant to a particular query and thereby hide valid independences. Taking the ancestral subgraph first preserves the d-separation test for that query.</p>
+<p>Moralization also helps compile directed factors into undirected cliques for elimination. It need not produce a perfect undirected independence map of the original DAG.</p>
+<h3 id="chordality-and-perfect-directedundirected-maps">Chordality and perfect directed/undirected maps<a class="headerlink" href="#chordality-and-perfect-directedundirected-maps" title="Permanent link">¤</a></h3>
+<p>A v-structure <span class="arithmatex">\(X\to M\leftarrow Y\)</span> has no undirected perfect map: the DAG encodes <span class="arithmatex">\(X\perp Y\)</span> but generally not <span class="arithmatex">\(X\perp Y\mid M\)</span>. An undirected chain encodes the opposite conditional pattern. Conversely, a chordless undirected four-cycle has no DAG perfect map without adding an independence or an edge.</p>
+<p>An undirected graph admits an orientation with no new unshielded colliders exactly when it is chordal, also called decomposable. A perfect elimination order then turns clique factorizations into directed conditionals while preserving the independence model. Chordality is also what allows junction-tree compilation without first adding fill edges.</p>
+<h3 id="why-a-generic-undirected-to-directed-dummy-node-needs-conditions">Why a generic undirected-to-directed dummy node needs conditions<a class="headerlink" href="#why-a-generic-undirected-to-directed-dummy-node-needs-conditions" title="Permanent link">¤</a></h3>
+<p>It is tempting to encode every potential <span class="arithmatex">\(\psi_c(x_c)\)</span> as the probability of an observed child. A binary conditional must, however, lie in <span class="arithmatex">\([0,1]\)</span>. On finite support, choose a positive base law <span class="arithmatex">\(q(x)\)</span> and constants <span class="arithmatex">\(M_c\)</span> such that the likelihood factors are bounded. Conditioning on auxiliary events can then reproduce a target proportional to</p>
+<div class="arithmatex">\[
+q(x)\prod_c\frac{\psi_c(x_c)}{M_c}.
+\]</div>
+<p>This is a likelihood-evidence construction under explicit boundedness and base-law conditions. It is not a general local conversion for arbitrary continuous, unbounded, or hard-constrained potentials. Independently, any ordinary joint distribution can be written as a saturated DAG by the chain rule, but that construction can discard the MRF's sparse semantics and computational advantages.</p>
+<h3 id="chain-graphs-need-a-markov-convention">Chain graphs need a Markov convention<a class="headerlink" href="#chain-graphs-need-a-markov-convention" title="Permanent link">¤</a></h3>
+<p>A graph containing directed and undirected edges is not fully specified by saying “chain graph.” Several non-equivalent Markov interpretations exist, including Lauritzen–Wermuth–Frydenberg and alternative AMP or multivariate-regression semantics. A valid model declaration must name:</p>
+<ul>
+<li>the allowed edge types and forbidden cycles;</li>
+<li>the chain components;</li>
+<li>the factorization or kernel associated with each component; and</li>
+<li>the separation rule.</li>
+</ul>
+<p>Under an LWF-style block-recursive construction, directed edges order chain components and an undirected conditional random field defines each component given its parents. Switching conventions can change the independence model even when the picture is unchanged.</p>
+<h3 id="latent-projection-and-admgs">Latent projection and ADMGs<a class="headerlink" href="#latent-projection-and-admgs" title="Permanent link">¤</a></h3>
+<p>Marginalizing latent variables from a DAG can produce observed independences that no observed-variable DAG represents compactly. An acyclic directed mixed graph, or ADMG, uses directed edges <span class="arithmatex">\(X\to Y\)</span> and bidirected edges <span class="arithmatex">\(X\leftrightarrow Y\)</span>. In a latent projection:</p>
+<ul>
+<li>a directed observed edge records a directed path through latent nonendpoints; and</li>
+<li>a bidirected edge records an appropriate latent common-cause path with arrowheads at both observed endpoints.</li>
+</ul>
+<p>Conditional independence is read by <strong>m-separation</strong>, an extension of d-separation. An ADMG edge is a statement in a marginal graph; it does not assert that one scalar latent parent exists for that pair, fix a unique structural equation model, or identify counterfactual coupling.</p>
+<figure class="book-figure" id="fig-graphical-models-and-structured-probability-latent-projection-and-admgs"><pre class="mermaid"><code>flowchart LR
+    subgraph latent["latent-variable DAG"]
+        U(("Latent&amp;nbsp;$$U$$"))
+        X(("Observed&amp;nbsp;$$X$$"))
+        Y(("Observed&amp;nbsp;$$Y$$"))
+        Z(("Observed&amp;nbsp;$$Z$$"))
+        U --&gt; X
+        U --&gt; Y
+        X --&gt; Z
+    end
+    subgraph projected["observed latent projection"]
+        Xp(("$$X$$"))
+        Yp(("$$Y$$"))
+        Zp(("$$Z$$"))
+        Xp &lt;--&gt; Yp
+        Xp --&gt; Zp
+    end</code></pre><figcaption class="book-object-caption"><span class="book-object-number">Figure GRAPH.8.</span> Latent projection and ADMGs</figcaption></figure>
+<p>A bidirected <strong>covariance graph</strong> can use missing edges to encode marginal independences, while a causal or latent-projection ADMG uses bidirected edges within a different mixed-graph Markov semantics. Similar arrowheads do not make the two objects interchangeable.</p>
+<h3 id="representation-routing">Representation routing<a class="headerlink" href="#representation-routing" title="Permanent link">¤</a></h3>
+<div class="md-typeset__table book-table-container"><table id="tbl-graphical-models-and-structured-probability-representation-routing"><caption class="book-object-caption"><span class="book-object-number">Table GRAPH.7.</span> Representation routing</caption>
+<thead>
+<tr>
+<th>Representation</th>
+<th>Canonical purpose</th>
+<th>Continue in</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>plate diagram</td>
+<td>repeated indexed variables and shared parameters</td>
+<td><a href="../classical-generative-models/">Classical Generative Models</a></td>
+</tr>
+<tr>
+<td>factor graph</td>
+<td>explicit product scopes and message computation</td>
+<td><a href="../graphical-inference-and-message-passing/">Graphical Inference</a></td>
+</tr>
+<tr>
+<td>probabilistic circuit</td>
+<td>compiled structure with query-specific tractability properties</td>
+<td><a href="../probabilistic-circuits-explained/">Probabilistic Circuits</a></td>
+</tr>
+<tr>
+<td>relational or open-universe model</td>
+<td>objects, relations, identity, and variable-size worlds</td>
+<td><a href="../random-graphs-and-relational-generators/">Random Graphs and Relational Generators</a> and <a href="../bayesian-nonparametric-models-explained/">Bayesian Nonparametrics</a></td>
+</tr>
+<tr>
+<td>probabilistic program</td>
+<td>a measure on execution traces plus conditioning semantics</td>
+<td><a href="../extended-generative-model-landscape/#3-probabilistic-programming">Extended Landscape</a></td>
+</tr>
+<tr>
+<td>conditional structured predictor</td>
+<td>a conditional law or decision rule over coupled outputs</td>
+<td><a href="../probability-and-generative-modeling/#generation-density-estimation-and-structured-prediction">Probability and Generative Modeling</a> and <a href="../ebm-explained/#when-to-use-ebms">Energy-Based Models</a></td>
+</tr>
+<tr>
+<td>structural causal model</td>
+<td>mechanisms, interventions, and counterfactual worlds</td>
+<td><a href="../causal-generative-models-explained/">Causal Generative Models</a></td>
+</tr>
+</tbody>
+</table></div>
+<p>Probabilistic programs are not merely large static DAGs: stochastic control flow, recursion, continuous choices, and variable-dimensional traces require program semantics and inference machinery. Relational templates are not merely plates: grounding, identity uncertainty, and an unknown number of objects change the state space. Specialized volumes develop these objects without overloading one diagram language.</p>
+<h3 id="chapter-5-synthesis">Chapter 5 synthesis<a class="headerlink" href="#chapter-5-synthesis" title="Permanent link">¤</a></h3>
+<p>A graphical conversion must name what it preserves. Factor graphs refactor products; moralization supports particular separation and inference constructions; chordality governs perfect DAG–MRF conversions; chain graphs require a Markov convention; and ADMGs summarize latent-variable margins without identifying a unique latent mechanism.</p>
+<details class="question">
+<summary>Retrieval practice: representations</summary>
+<ol>
+<li>Why moralize an ancestral subgraph rather than always moralizing the full DAG?</li>
+<li>When can an undirected graph be oriented without losing its independence model?</li>
+<li>Why is “mixed graph” not a complete probability-model specification?</li>
+<li>What does a bidirected edge in a latent-projection ADMG fail to identify?</li>
+</ol>
+<p><strong>Solutions.</strong> (1) Irrelevant descendants can introduce moral edges that hide a valid query-specific separation. (2) When it is chordal and a perfect elimination order supplies an orientation without new unshielded colliders. (3) Different chain-graph and mixed-graph Markov conventions assign different factorizations and separation rules to the same edge picture. (4) It does not identify the number, state space, distribution, or structural equations of latent common causes, nor an individual counterfactual coupling.</p>
+</details>
+<p><strong>Bridge.</strong> The graph languages are now defined. Chapter 6 combines them into a disciplined workflow that begins with the generated object and ends with executable verification. <a href="./#6-from-model-design-to-research-audit">Continue continuously</a> or open <a href="../graphical-models-06-workflow/">Chapter 6</a>.</p>
+<h2 id="6-from-model-design-to-research-audit">6. From Model Design to Research Audit<a class="headerlink" href="#6-from-model-design-to-research-audit" title="Permanent link">¤</a></h2>
+<h3 id="chapter-6-prerequisites-and-learning-objectives">Chapter 6 prerequisites and learning objectives<a class="headerlink" href="#chapter-6-prerequisites-and-learning-objectives" title="Permanent link">¤</a></h3>
+<p>You should understand all previous chapters. By the end of this chapter, you should be able to design, learn, query, and audit a structured probability model without conflating its graph, architecture, objective, or algorithm.</p>
+<h3 id="the-eight-part-model-contract">The eight-part model contract<a class="headerlink" href="#the-eight-part-model-contract" title="Permanent link">¤</a></h3>
+<p>For any graphical generative model, record:</p>
+<ol>
+<li><strong>Variables and support.</strong> What is random, observed, latent, selected, repeated, or fixed?</li>
+<li><strong>Reference measure.</strong> Is the law a mass function, Euclidean density, manifold density, point-process law, or mixed measure?</li>
+<li><strong>Factorization.</strong> Which terms are normalized kernels and which are unnormalized potentials?</li>
+<li><strong>Graph semantics.</strong> DAG, MRF, factor graph, chain graph under which convention, ADMG, plate, or computation graph?</li>
+<li><strong>Query.</strong> Prior sample, conditional, marginal, evidence, MAP, structure, intervention, or counterfactual?</li>
+<li><strong>Estimator.</strong> Likelihood, variational, score, ratio, pseudolikelihood, Bayesian posterior, or another declared objective?</li>
+<li><strong>Algorithm.</strong> Enumeration, elimination, messages, MCMC, SMC, optimization, compilation, or amortization?</li>
+<li><strong>Validation.</strong> Which exact small case, calibration target, convergence diagnostic, and misspecification check can falsify the implementation?</li>
+</ol>
+<p>This record prevents a common category error: an attractive graph can describe factor scopes while leaving the distribution improper, the query unidentified, or the proposed algorithm inexact.</p>
+<h3 id="capstone-the-monitoring-model-from-generation-to-diagnosis">Capstone: the monitoring model from generation to diagnosis<a class="headerlink" href="#capstone-the-monitoring-model-from-generation-to-diagnosis" title="Permanent link">¤</a></h3>
+<p>Return to</p>
+<div class="arithmatex">\[
+p(f,o,a,s)=p(f)p(o)p(a\mid f,o)p(s\mid f).
+\]</div>
+<p>Suppose both sensors are positive. Enumerating the four <span class="arithmatex">\((f,o)\)</span> states gives unnormalized posterior weights:</p>
+<div class="md-typeset__table book-table-container"><table id="tbl-graphical-models-and-structured-probability-capstone-the-monitoring-model-from-generation-to-diagnosis"><caption class="book-object-caption"><span class="book-object-number">Table GRAPH.8.</span> Capstone: the monitoring model from generation to diagnosis</caption>
+<thead>
+<tr>
+<th style="text-align: right;"><span class="arithmatex">\(f\)</span></th>
+<th style="text-align: right;"><span class="arithmatex">\(o\)</span></th>
+<th style="text-align: right;"><span class="arithmatex">\(p(f)p(o)p(A=1\mid f,o)p(S=1\mid f)\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;"><span class="arithmatex">\(0.9(0.8)(0.01)(0.1)=0.00072\)</span></td>
+</tr>
+<tr>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;"><span class="arithmatex">\(0.9(0.2)(0.60)(0.1)=0.01080\)</span></td>
+</tr>
+<tr>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;"><span class="arithmatex">\(0.1(0.8)(0.80)(0.9)=0.05760\)</span></td>
+</tr>
+<tr>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;"><span class="arithmatex">\(0.1(0.2)(0.95)(0.9)=0.01710\)</span></td>
+</tr>
+</tbody>
+</table></div>
+<p>The evidence probability is</p>
+<div class="arithmatex">\[
+p(A=1,S=1)=0.08622.
+\]</div>
+<p>Hence</p>
+<div class="arithmatex">\[
+p(F=1\mid A=1,S=1)
+=\frac{0.05760+0.01710}{0.08622}
+\approx0.866.
+\]</div>
+<p>This calculation supplies several independent tests:</p>
+<ul>
+<li>ancestral samples should approach the declared joint frequencies;</li>
+<li>exact enumeration must normalize to one;</li>
+<li>an elimination or message implementation must reproduce <span class="arithmatex">\(0.866\)</span>;</li>
+<li>posterior samples should match all four normalized table entries; and</li>
+<li>removing the <span class="arithmatex">\(F\to S\)</span> edge changes both the factorization and the posterior, whereas changing the inference schedule should not change an exact answer.</li>
+</ul>
+<h3 id="a-counterfactual-implementation-audit">A counterfactual implementation audit<a class="headerlink" href="#a-counterfactual-implementation-audit" title="Permanent link">¤</a></h3>
+<p>Suppose code labels the arrow <span class="arithmatex">\(F\to A\)</span> as causal and answers “what if the component were repaired?” by setting <span class="arithmatex">\(F=0\)</span> in the observational conditional. That result is justified only if the model has declared stable structural mechanisms and the repair intervention replaces the <span class="arithmatex">\(F\)</span> mechanism as assumed. A statistical DAG alone supports</p>
+<div class="arithmatex">\[
+p(A\mid F=0),
+\]</div>
+<p>not automatically</p>
+<div class="arithmatex">\[
+p(A\mid \operatorname{do}(F=0)).
+\]</div>
+<p>If fault status is confounded with an unmodeled maintenance regime, the two can differ. The correct response is to expand or qualify the causal model, not to infer intervention semantics from arrow direction.</p>
+<h3 id="diagnostics-by-abstraction-layer">Diagnostics by abstraction layer<a class="headerlink" href="#diagnostics-by-abstraction-layer" title="Permanent link">¤</a></h3>
+<div class="md-typeset__table book-table-container"><table id="tbl-graphical-models-and-structured-probability-diagnostics-by-abstraction-layer"><caption class="book-object-caption"><span class="book-object-number">Table GRAPH.9.</span> Diagnostics by abstraction layer</caption>
+<thead>
+<tr>
+<th>Layer</th>
+<th>A useful check</th>
+<th>A failure means</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>probability law</td>
+<td>finite normalization or analytic integral</td>
+<td>the stated factors do not define the claimed law</td>
+</tr>
+<tr>
+<td>graph semantics</td>
+<td>hand-checked separation and factor scopes</td>
+<td>arrows or factors encode the wrong assumptions</td>
+</tr>
+<tr>
+<td>estimator</td>
+<td>population optimum and finite estimator derivation</td>
+<td>training may target a different object</td>
+</tr>
+<tr>
+<td>inference</td>
+<td>exact enumeration on a small instance</td>
+<td>implementation or approximation error</td>
+</tr>
+<tr>
+<td>sampler</td>
+<td>invariant-law check plus mixing diagnostics</td>
+<td>transitions may not represent target samples</td>
+</tr>
+<tr>
+<td>learning</td>
+<td>simulation-based parameter recovery under identifiability</td>
+<td>optimizer, estimator, or model can fail even on-model</td>
+</tr>
+<tr>
+<td>criticism</td>
+<td>discrepancies not used to fit the same feature blindly</td>
+<td>the model may miss scientifically relevant structure</td>
+</tr>
+<tr>
+<td>causality</td>
+<td>intervention/counterfactual identification audit</td>
+<td>predictive fit cannot support the causal query</td>
+</tr>
+</tbody>
+</table></div>
+<p>Passing one row never certifies the others. A perfectly normalized misspecified model can generate poor data. A sampler can mix well for the wrong energy. An accurate conditional predictor can be useless for an intervention.</p>
+<h3 id="misconception-checks">Misconception checks<a class="headerlink" href="#misconception-checks" title="Permanent link">¤</a></h3>
+<details class="question">
+<summary>If the graph is sparse, is exact inference cheap?</summary>
+<p>No. Sparse local degree can still produce large intermediate factors. Treewidth, state cardinalities, factor structure, and the query determine exact inference cost.</p>
+</details>
+<details class="question">
+<summary>Does an absent edge mean marginal independence?</summary>
+<p>Not generally. In an undirected model it usually means conditional independence given all other vertices; in a DAG the relevant statement depends on d-separation. In a covariance graph, a missing bidirected edge can encode marginal independence under that graph's semantics.</p>
+</details>
+<details class="question">
+<summary>Does an MRF energy have to be positive?</summary>
+<p>No. The unnormalized density <span class="arithmatex">\(e^{-E(x)}\)</span> is positive for finite real energy, and additive energy constants cancel after normalization.</p>
+</details>
+<details class="question">
+<summary>Is pseudolikelihood just a fast way to compute likelihood?</summary>
+<p>No. It is a different composite objective built from local conditionals. It can be statistically useful under stated conditions, but its efficiency and uncertainty differ from maximum likelihood.</p>
+</details>
+<details class="question">
+<summary>Are all arrows causal?</summary>
+<p>No. A causal interpretation requires structural mechanisms, intervention semantics, and identifying assumptions beyond a statistical DAG factorization.</p>
+</details>
+<h3 id="research-exercises">Research exercises<a class="headerlink" href="#research-exercises" title="Permanent link">¤</a></h3>
+<ol>
+<li><strong>Unfaithful parameterization.</strong> Construct a linear-Gaussian DAG with two directed paths from <span class="arithmatex">\(X\)</span> to <span class="arithmatex">\(Y\)</span> whose effects cancel. List the graph-implied and parameter-specific independences.</li>
+<li><strong>Hard constraint.</strong> Define a three-bit even-parity law. Determine which full conditionals exist on supported contexts and identify where a positivity-based theorem cannot be invoked.</li>
+<li><strong>Composite likelihood.</strong> For the two-spin Ising model, derive the pseudolikelihood estimate from repeated complete observations and compare its finite objective with exact likelihood.</li>
+<li><strong>Global normalization.</strong> Build a two-step state graph with unequal outgoing degrees. Show which history-dependent score shifts a local softmax discards and a global path normalizer retains.</li>
+<li><strong>Latent projection.</strong> Start with a DAG containing one latent common cause and one latent mediator. Compute the observed ADMG and verify two m-separation queries.</li>
+<li><strong>Causal boundary.</strong> Give two SCMs with the same observational DAG law but different counterfactual coupling. Explain which graph-level checks cannot distinguish them.</li>
+</ol>
+<h3 id="primary-reading-trail">Primary reading trail<a class="headerlink" href="#primary-reading-trail" title="Permanent link">¤</a></h3>
+<div class="md-typeset__table book-table-container"><table id="tbl-graphical-models-and-structured-probability-primary-reading-trail"><caption class="book-object-caption"><span class="book-object-number">Table GRAPH.10.</span> Primary reading trail</caption>
+<thead>
+<tr>
+<th>Resource</th>
+<th>Evidence role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://doi.org/10.1002/net.3230200503">Lauritzen, Dawid, Larsen, and Leimer, <em>Independence Properties of Directed Markov Fields</em></a></td>
+<td><strong>Established / peer-reviewed:</strong> equivalence of directed factorization and Markov properties under stated measure conditions</td>
+</tr>
+<tr>
+<td><a href="https://doi.org/10.1002/net.3230200504">Geiger, Verma, and Pearl, <em>Identifying Independence in Bayesian Networks</em></a></td>
+<td><strong>Established / peer-reviewed:</strong> soundness and completeness of d-separation</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/1301.7412">Shachter, <em>Bayes-Ball</em></a></td>
+<td><strong>Established / peer-reviewed archival version:</strong> linear-time relevance and separation procedure</td>
+</tr>
+<tr>
+<td><a href="https://dl.acm.org/doi/10.5555/647233.719736">Verma and Pearl, <em>Equivalence and Synthesis of Causal Models</em></a></td>
+<td><strong>Established / peer-reviewed:</strong> DAG Markov-equivalence characterization</td>
+</tr>
+<tr>
+<td><a href="https://doi.org/10.1111/j.2517-6161.1974.tb00999.x">Besag, <em>Spatial Interaction and the Statistical Analysis of Lattice Systems</em></a></td>
+<td><strong>Established / peer-reviewed:</strong> positive Markov fields and Gibbs representations</td>
+</tr>
+<tr>
+<td><a href="https://doi.org/10.2307/2987782">Besag, <em>Statistical Analysis of Non-Lattice Data</em></a></td>
+<td><strong>Established / peer-reviewed:</strong> pseudolikelihood construction</td>
+</tr>
+<tr>
+<td><a href="https://repository.upenn.edu/cis_papers/159/">Lafferty, McCallum, and Pereira, <em>Conditional Random Fields</em></a></td>
+<td><strong>Established / peer-reviewed:</strong> conditional structured normalization and label-bias comparison</td>
+</tr>
+<tr>
+<td><a href="https://aclanthology.org/P16-1231/">Andor et al., <em>Globally Normalized Transition-Based Neural Networks</em></a></td>
+<td><strong>Peer-reviewed research:</strong> expressivity boundary between local and global normalization</td>
+</tr>
+<tr>
+<td><a href="https://doi.org/10.1613/jair.62">Buntine, <em>Operations for Learning with Graphical Models</em></a></td>
+<td><strong>Established / peer-reviewed:</strong> plate notation and graphical learning operations</td>
+</tr>
+<tr>
+<td><a href="https://doi.org/10.1109/18.910572">Kschischang, Frey, and Loeliger, <em>Factor Graphs and the Sum-Product Algorithm</em></a></td>
+<td><strong>Established / peer-reviewed:</strong> factor-graph semantics and generic messages</td>
+</tr>
+<tr>
+<td><a href="https://www.jstor.org/stable/4616151">Frydenberg, <em>The Chain Graph Markov Property</em></a></td>
+<td><strong>Established / peer-reviewed:</strong> LWF chain-graph semantics and equivalence</td>
+</tr>
+<tr>
+<td><a href="https://doi.org/10.1111/1467-9469.00323">Richardson, <em>Markov Properties for Acyclic Directed Mixed Graphs</em></a></td>
+<td><strong>Established / peer-reviewed:</strong> ADMG global and local Markov properties via m-separation</td>
+</tr>
+<tr>
+<td><a href="https://doi.org/10.1145/2593882.2593900">Gordon et al., <em>Probabilistic Programming</em></a></td>
+<td><strong>Peer-reviewed synthesis:</strong> program traces, random choice, conditioning, and inference queries</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="final-synthesis-and-next-steps">Final synthesis and next steps<a class="headerlink" href="#final-synthesis-and-next-steps" title="Permanent link">¤</a></h3>
+<p>Graphical models turn a large probability law into local objects with explicit structural meaning. Directed graphs provide normalized generative kernels and ancestral samples. D-separation identifies graph-wide conditional independences, including the exceptional behavior of colliders. Undirected graphs provide symmetric potentials, energies, and local full conditionals but usually introduce a global normalizer. Learning, conversion, and causal interpretation each add assumptions that a drawing cannot supply.</p>
+<p>The next foundation volume, <a href="../graphical-inference-and-message-passing/">Graphical Inference and Message Passing</a>, takes correctly declared factor scopes and derives elimination, exact tree messages, junction trees, loopy approximations, and learned solvers. Use <a href="../ebm-explained/">Energy-Based Models</a> for nonlinear energies and MCMC training, <a href="../probabilistic-circuits-explained/">Probabilistic Circuits</a> for representation-level tractability, <a href="../random-graphs-and-relational-generators/">Random Graphs and Relational Generators</a> when the graph itself is generated, and <a href="../causal-generative-models-explained/">Causal Generative Models</a> when mechanisms and interventions—not only conditional independence—define the query.</p>
+</article>
+</div>
+<script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  Back to top
+</button>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+<div class="md-social">
+<a class="md-social__link" href="https://github.com/avitai/artifex" rel="noopener" target="_blank" title="github.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</a>
+<a class="md-social__link" href="https://pypi.org/project/avitai-artifex/" rel="noopener" target="_blank" title="pypi.org">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-66.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.3v101.8c0 29 25.2 46 53.4 54.3 33.8 9.9 66.3 11.7 106.8 0 26.9-7.8 53.4-23.5 53.4-54.3v-40.7H226.2v-13.6h160.2c31.1 0 42.6-21.7 53.4-54.2 11.2-33.5 10.7-65.7 0-108.6M286.2 444.7a20.4 20.4 0 1 1 0-40.7 20.4 20.4 0 1 1 0 40.7M167.8 248.1h106.8c29.7 0 53.4-24.5 53.4-54.3V91.9c0-29-24.4-50.7-53.4-55.6-35.8-5.9-74.7-5.6-106.8.1-45.2 8-53.4 24.7-53.4 55.6v40.7h106.9v13.6h-147c-31.1 0-58.3 18.7-66.8 54.2-9.8 40.7-10.2 66.1 0 108.6 7.6 31.6 25.7 54.2 56.8 54.2H101v-48.8c0-35.3 30.5-66.4 66.8-66.4m-6.6-183.4a20.4 20.4 0 1 1 0 40.8 20.4 20.4 0 1 1 0-40.8"></path></svg>
+</a>
+<a class="md-social__link" href="https://twitter.com/mahdi_shafiei" rel="noopener" target="_blank" title="twitter.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M459.4 151.7c.3 4.5.3 9.1.3 13.6 0 138.7-105.6 298.6-298.6 298.6-59.5 0-114.7-17.2-161.1-47.1 8.4 1 16.6 1.3 25.3 1.3 49.1 0 94.2-16.6 130.3-44.8-46.1-1-84.8-31.2-98.1-72.8 6.5 1 13 1.6 19.8 1.6 9.4 0 18.8-1.3 27.6-3.6-48.1-9.7-84.1-52-84.1-103v-1.3c14 7.8 30.2 12.7 47.4 13.3-28.3-18.8-46.8-51-46.8-87.4 0-19.5 5.2-37.4 14.3-53C87.4 130.8 165 172.4 252.1 176.9c-1.6-7.8-2.6-15.9-2.6-24C249.5 95.1 296.3 48 354.4 48c30.2 0 57.5 12.7 76.7 33.1 23.7-4.5 46.5-13.3 66.6-25.3-7.8 24.4-24.4 44.8-46.1 57.8 21.1-2.3 41.6-8.1 60.4-16.2-14.3 20.8-32.2 39.3-52.6 54.3"></path></svg>
+</a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.path", "navigation.top", "navigation.prune", "toc.follow", "search.highlight", "search.share", "search.suggest", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "content.mermaid"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+<script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+<script src="../../../javascripts/reading-layout.js"></script>
+</body>
+</html>

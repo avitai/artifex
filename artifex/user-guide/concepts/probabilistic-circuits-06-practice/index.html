@@ -1,0 +1,1570 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="This chapter provides selection guidance, evaluation and production contracts, research exercises, research directions, and a primary reading trail. For" name="description"/>
+<meta content="Mahdi Shafiei" name="author"/>
+<link href="https://docs.avitai.bio/artifex/user-guide/concepts/probabilistic-circuits-06-practice/" rel="canonical"/>
+<link href="../probabilistic-circuits-05-hybrids/" rel="prev"/>
+<link href="../probabilistic-circuits-explained/" rel="next"/>
+<link href="../../../assets/images/favicon.png" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.7.7" name="generator"/>
+<title>Probabilistic Circuits 6 — Evaluation and Research - Artifex</title>
+<link href="../../../assets/stylesheets/main.ec1eaa64.min.css" rel="stylesheet"/>
+<link href="../../../assets/stylesheets/palette.ab4e12ef.min.css" rel="stylesheet"/>
+<script src="../../../assets/vendor/iframe-worker/index.js"></script>
+<link href="../../../assets/_mkdocstrings.css" rel="stylesheet"/>
+<link href="../../../_static/extra.css" rel="stylesheet"/>
+<script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+<meta content="article" property="og:type"/>
+<meta content="The Artifex Generative Models Book" property="og:site_name"/>
+<meta content="Probabilistic Circuits 6 — Evaluation and Research" property="og:title"/>
+<meta content="This chapter provides selection guidance, evaluation and production contracts, research exercises, research directions, and a primary reading trail. For" property="og:description"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/probabilistic-circuits-06-practice/" property="og:url"/>
+<meta content="2026-07-12" property="article:modified_time"/>
+<meta content="summary" name="twitter:card"/>
+<meta content="Probabilistic Circuits 6 — Evaluation and Research" name="twitter:title"/>
+<meta content="This chapter provides selection guidance, evaluation and production contracts, research exercises, research directions, and a primary reading trail. For" name="twitter:description"/>
+<meta content="Generative models, Machine learning, Probabilistic modeling, research, specialization, canonical_chapter, probabilistic-circuits-practice, practitioner, researcher" name="keywords"/>
+<meta content="Probabilistic Circuits 6 — Evaluation and Research" name="citation_title"/>
+<meta content="Mahdi Shafiei" name="citation_author"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/probabilistic-circuits-06-practice/" name="citation_public_url"/>
+<meta content="en" name="citation_language"/>
+<meta content="Probabilistic Circuits 6 — Evaluation and Research" name="DC.title"/>
+<meta content="Mahdi Shafiei" name="DC.creator"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/probabilistic-circuits-06-practice/" name="DC.identifier"/>
+<meta content="Text.LearningResource" name="DC.type"/>
+<meta content="2026-07-12" name="DCTERMS.modified"/>
+<meta content="https://github.com/avitai/artifex/blob/main/LICENSE" name="DCTERMS.license"/>
+<meta content="research" name="DCTERMS.educationLevel"/>
+<meta content="practitioner, researcher" name="DCTERMS.audience"/>
+<link href="https://github.com/avitai/artifex/blob/main/LICENSE" rel="license"/>
+<script id="artifex-book-metadata" type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Chapter",
+  "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/probabilistic-circuits-06-practice/",
+  "url": "https://docs.avitai.bio/artifex/user-guide/concepts/probabilistic-circuits-06-practice/",
+  "name": "Probabilistic Circuits 6 \u2014 Evaluation and Research",
+  "description": "This chapter provides selection guidance, evaluation and production contracts, research exercises, research directions, and a primary reading trail. For",
+  "identifier": "probabilistic-circuits-practice",
+  "inLanguage": "en",
+  "isAccessibleForFree": true,
+  "learningResourceType": "Canonical chapter",
+  "educationalLevel": "research",
+  "educationalUse": "specialization",
+  "audience": [
+    
+      {"@type": "EducationalAudience", "audienceType": "practitioner"},
+    
+      {"@type": "EducationalAudience", "audienceType": "researcher"}
+    
+  ],
+  "dateModified": "2026-07-12",
+  "keywords": ["Generative models", "Machine learning", "Probabilistic modeling", "research", "specialization", "canonical_chapter", "probabilistic-circuits-practice", "practitioner", "researcher"],
+  "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+  "author": [
+    
+      {"@type": "Person", "name": "Mahdi Shafiei"}
+    
+  ],
+  "isPartOf": {
+    "@type": "Book",
+    "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/#book",
+    "url": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/",
+    "name": "The Artifex Generative Models Book",
+    "bookEdition": "Living Web Edition",
+    "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+    "author": [
+      
+        {"@type": "Person", "name": "Mahdi Shafiei"}
+      
+    ]
+  }
+}
+</script>
+<script defer="" src="../../../javascripts/mathjax.js"></script>
+<script defer="" integrity="sha384-OrHfGTnIbkl0do3N76qW/uWr38o91N05sbSPuYBPLH+hG8X/dNSrjZf3AGjzrCwC" src="../../../assets/vendor/mathjax/tex-mml-chtml.js"></script>
+</head>
+<body data-md-color-accent="amber" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#probabilistic-circuits-6-evaluation-and-research">
+          Skip to content
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header md-header--shadow" data-md-component="header">
+<nav aria-label="Header" class="md-header__inner md-grid">
+<a aria-label="Artifex" class="md-header__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            Artifex
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+            
+              Probabilistic Circuits 6 — Evaluation and Research
+            
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-label="Switch to dark mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: light)" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_1" hidden="" title="Switch to dark mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+<input aria-label="Switch to light mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-primary="indigo" data-md-color-scheme="slate" id="__palette_1" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_0" hidden="" title="Switch to light mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+</form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div aria-label="Search" class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Search" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="Search" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="Search" class="md-search__options">
+<a aria-label="Share" class="md-search__icon md-icon" data-clipboard="" data-clipboard-text="" data-md-component="search-share" href="javascript:void(0)" tabindex="-1" title="Share">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"></path></svg>
+</a>
+<button aria-label="Clear" class="md-search__icon md-icon" tabindex="-1" title="Clear" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            Initializing search
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Navigation" class="md-nav md-nav--primary" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="Artifex" class="md-nav__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+    Artifex
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../..">
+<span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../getting-started/installation/">
+<span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Generative Models Book
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Generative Models Book
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    
+  
+    Start Here — The Landscape
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../first-course-01-generative-systems/">
+<span class="md-ellipsis">
+    
+  
+    First Course — New to Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../probability-01-objects/">
+<span class="md-ellipsis">
+    
+  
+    Foundations
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_4" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_4" id="__nav_3_4_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Model Families
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_4_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_4">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Model Families
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../autoregressive-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Autoregressive Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../vae-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Variational Autoencoders
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gan-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Generative Adversarial Networks
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../ebm-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Energy-Based Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../diffusion-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Diffusion Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../flow-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Normalizing Flows and Flow Matching
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_4_7" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_4_7" id="__nav_3_4_7_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Probabilistic Circuits
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_4_7_label" class="md-nav" data-md-level="3">
+<label class="md-nav__title" for="__nav_3_4_7">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Probabilistic Circuits
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../probabilistic-circuits-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    1. Semantics
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../probabilistic-circuits-02-properties/">
+<span class="md-ellipsis">
+    
+  
+    2. Structural Properties
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../probabilistic-circuits-03-inference/">
+<span class="md-ellipsis">
+    
+  
+    3. Exact Inference
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../probabilistic-circuits-04-learning/">
+<span class="md-ellipsis">
+    
+  
+    4. Parameter and Structure Learning
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../probabilistic-circuits-05-hybrids/">
+<span class="md-ellipsis">
+    
+  
+    5. Deep and Hybrid Circuits
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
+    
+  
+    6. Evaluation and Research
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
+<span class="md-ellipsis">
+    
+  
+    6. Evaluation and Research
+  
+
+    
+  </span>
+</a>
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#6-evaluation-deployment-and-research-directions">
+<span class="md-ellipsis">
+      
+        6. Evaluation, Deployment, and Research Directions
+      
+    </span>
+</a>
+<nav aria-label="6. Evaluation, Deployment, and Research Directions" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#capstone-objectives">
+<span class="md-ellipsis">
+      
+        Capstone objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#when-a-probabilistic-circuit-is-a-strong-choice">
+<span class="md-ellipsis">
+      
+        When a Probabilistic Circuit Is a Strong Choice
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#evaluation-matrix">
+<span class="md-ellipsis">
+      
+        Evaluation Matrix
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#production-checklist">
+<span class="md-ellipsis">
+      
+        Production Checklist
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#benchmark-the-compiled-artifact-not-the-family-name">
+<span class="md-ellipsis">
+      
+        Benchmark the compiled artifact, not the family name
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#a-query-first-selection-procedure">
+<span class="md-ellipsis">
+      
+        A query-first selection procedure
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#research-directions">
+<span class="md-ellipsis">
+      
+        Research Directions
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#peer-reviewed-research-checkpoints">
+<span class="md-ellipsis">
+      
+        Peer-Reviewed Research Checkpoints
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#research-exercises">
+<span class="md-ellipsis">
+      
+        Research Exercises
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#cumulative-worked-study-clinical-records-with-arbitrary-missingness">
+<span class="md-ellipsis">
+      
+        Cumulative worked study: clinical records with arbitrary missingness
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#independent-practice-and-assessment-map-circuit-evaluation-and-research">
+<span class="md-ellipsis">
+      
+        Independent practice and assessment map: circuit evaluation and research
+      
+    </span>
+</a>
+<nav aria-label="Independent practice and assessment map: circuit evaluation and research" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#p1-defend-an-end-to-end-probabilistic-circuit-system">
+<span class="md-ellipsis">
+      
+        P1 — Defend an end-to-end probabilistic-circuit system
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#primary-reading-trail">
+<span class="md-ellipsis">
+      
+        Primary Reading Trail
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#final-synthesis">
+<span class="md-ellipsis">
+      
+        Final Synthesis
+      
+    </span>
+</a>
+<nav aria-label="Final Synthesis" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#source-tracing-checklist">
+<span class="md-ellipsis">
+      
+        Source-tracing checklist
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../probabilistic-circuits-explained/">
+<span class="md-ellipsis">
+    
+  
+    Continuous View (All Chapters)
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../tensor-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Tensor-Network and Born Probability Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../implicit-generators-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Implicit Generators Beyond GANs
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../discrete-iterative-01-masked/">
+<span class="md-ellipsis">
+    
+  
+    Discrete Iterative Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../bayesian-flow-networks-01-story/">
+<span class="md-ellipsis">
+    
+  
+    Bayesian Flow Networks
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gflownets-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Generative Flow Networks
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../bnp-01-random-measures/">
+<span class="md-ellipsis">
+    
+  
+    Bayesian Nonparametric Random-Measure Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../stochastic-process-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Stochastic-Process and Function-Space Generators
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../point-processes-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Point Processes and Random Finite Sets
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../random-graphs-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Random Graphs and Relational Generators
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../copula-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Copula Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../grammar-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Probabilistic Grammars and Program Derivations
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../causal-generative-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Causal Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../new-families-frontier-evidence/">
+<span class="md-ellipsis">
+    
+  
+    Research Evidence Ledger
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gradients-01-taxonomy/">
+<span class="md-ellipsis">
+    
+  
+    Connections and Compositions
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../normalization-01-queries/">
+<span class="md-ellipsis">
+    
+  
+    Research Practice
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../models/vae-guide/">
+<span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/core/base/">
+<span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../examples/overview/">
+<span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../zoo/">
+<span class="md-ellipsis">
+    
+  
+    Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../training/overview/">
+<span class="md-ellipsis">
+    
+  
+    Training
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../data/overview/">
+<span class="md-ellipsis">
+    
+  
+    Data &amp; Modalities
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../inference/overview/">
+<span class="md-ellipsis">
+    
+  
+    Inference &amp; Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../benchmarks/">
+<span class="md-ellipsis">
+    
+  
+    Evaluation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../guides/extensions/">
+<span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../extensions/">
+<span class="md-ellipsis">
+    
+  
+    Advanced Topics
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../cli/">
+<span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../community/contributing/">
+<span class="md-ellipsis">
+    
+  
+    Community
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/configs/protein-extension/">
+<span class="md-ellipsis">
+    
+  
+    Reference Library
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#6-evaluation-deployment-and-research-directions">
+<span class="md-ellipsis">
+      
+        6. Evaluation, Deployment, and Research Directions
+      
+    </span>
+</a>
+<nav aria-label="6. Evaluation, Deployment, and Research Directions" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#capstone-objectives">
+<span class="md-ellipsis">
+      
+        Capstone objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#when-a-probabilistic-circuit-is-a-strong-choice">
+<span class="md-ellipsis">
+      
+        When a Probabilistic Circuit Is a Strong Choice
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#evaluation-matrix">
+<span class="md-ellipsis">
+      
+        Evaluation Matrix
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#production-checklist">
+<span class="md-ellipsis">
+      
+        Production Checklist
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#benchmark-the-compiled-artifact-not-the-family-name">
+<span class="md-ellipsis">
+      
+        Benchmark the compiled artifact, not the family name
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#a-query-first-selection-procedure">
+<span class="md-ellipsis">
+      
+        A query-first selection procedure
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#research-directions">
+<span class="md-ellipsis">
+      
+        Research Directions
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#peer-reviewed-research-checkpoints">
+<span class="md-ellipsis">
+      
+        Peer-Reviewed Research Checkpoints
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#research-exercises">
+<span class="md-ellipsis">
+      
+        Research Exercises
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#cumulative-worked-study-clinical-records-with-arbitrary-missingness">
+<span class="md-ellipsis">
+      
+        Cumulative worked study: clinical records with arbitrary missingness
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#independent-practice-and-assessment-map-circuit-evaluation-and-research">
+<span class="md-ellipsis">
+      
+        Independent practice and assessment map: circuit evaluation and research
+      
+    </span>
+</a>
+<nav aria-label="Independent practice and assessment map: circuit evaluation and research" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#p1-defend-an-end-to-end-probabilistic-circuit-system">
+<span class="md-ellipsis">
+      
+        P1 — Defend an end-to-end probabilistic-circuit system
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#primary-reading-trail">
+<span class="md-ellipsis">
+      
+        Primary Reading Trail
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#final-synthesis">
+<span class="md-ellipsis">
+      
+        Final Synthesis
+      
+    </span>
+</a>
+<nav aria-label="Final Synthesis" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#source-tracing-checklist">
+<span class="md-ellipsis">
+      
+        Source-tracing checklist
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<nav aria-label="Breadcrumb" class="md-path">
+<ol class="md-path__list">
+<li class="md-path__item">
+<a class="md-path__link" href="../../..">
+<span class="md-ellipsis">
+    Home
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    Generative Models Book
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../autoregressive-01-foundations/">
+<span class="md-ellipsis">
+    Model Families
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../probabilistic-circuits-01-semantics/">
+<span class="md-ellipsis">
+    Probabilistic Circuits
+  </span>
+</a>
+</li>
+</ol>
+</nav>
+<article class="md-content__inner md-typeset">
+<h1 id="probabilistic-circuits-6-evaluation-and-research">Probabilistic Circuits 6 — Evaluation and Research<a class="headerlink" href="#probabilistic-circuits-6-evaluation-and-research" title="Permanent link">¤</a></h1><aside aria-label="Learning path" class="admonition abstract artifex-learning-path"><p class="admonition-title">Learning path</p><p><strong>Required knowledge</strong></p><ul class="artifex-learning-path__links" data-learning-path-role="required"><li><a href="../probabilistic-circuits-05-hybrids/">Probabilistic Circuits 5 — Deep and Hybrid Circuits</a></li></ul><p><strong>Readiness check:</strong> can you explain the central object and reproduce one worked example from each required chapter? If not, follow its link before continuing.</p><p><strong>Newly unlocked in the default route</strong></p><p>No immediate successor names this page as its final required prerequisite. Continue through the book navigation or the chapter's cross-links.</p></aside>
+<p>This chapter provides selection guidance, evaluation and production contracts, research exercises, research directions, and a primary reading trail. For uninterrupted reading, use the <a href="../probabilistic-circuits-explained/#6-evaluation-deployment-and-research-directions">complete guide</a>.</p>
+<h2 id="6-evaluation-deployment-and-research-directions">6. Evaluation, Deployment, and Research Directions<a class="headerlink" href="#6-evaluation-deployment-and-research-directions" title="Permanent link">¤</a></h2>
+<h3 id="capstone-objectives">Capstone objectives<a class="headerlink" href="#capstone-objectives" title="Permanent link">¤</a></h3>
+<p>By the end, you should be able to:</p>
+<ol>
+<li>select a PC from a declared query workload;</li>
+<li>benchmark inference as a compiled system;</li>
+<li>distinguish exact arithmetic from calibration, robustness, causality, privacy, and correctness of the learned distribution;</li>
+<li>trace every research claim to its evidence maturity; and</li>
+<li>design an end-to-end study that tests both model quality and tractability.</li>
+</ol>
+<h3 id="when-a-probabilistic-circuit-is-a-strong-choice">When a Probabilistic Circuit Is a Strong Choice<a class="headerlink" href="#when-a-probabilistic-circuit-is-a-strong-choice" title="Permanent link">¤</a></h3>
+<p>Prefer a PC when the application repeatedly needs exact missing-data marginals, arbitrary evidence queries, conditionals, logical constraints, a tractable tabular density whose calibration is separately validated, or expectations that match a compatible circuit structure. They are especially compelling when query latency matters more than unconstrained perceptual sample quality.</p>
+<p>Do not choose a PC solely because “exact inference” sounds safer. A small misspecified circuit answers the wrong model exactly. High-dimensional raw perception may require large circuits, hybrid features, or a different family.</p>
+<p>Exactness also does not imply calibrated uncertainty or OOD robustness. <a href="https://openreview.net/forum?id=FMmjDoOsOG">Probabilistic Circuits That Know What They Don't Know</a> demonstrates overconfidence and distribution-shift failures in standard PCs, then studies tractable uncertainty estimation. The UAI 2023 result is evidence that uncertainty must be evaluated, not a guarantee that its proposed estimator repairs every shift.</p>
+<h3 id="evaluation-matrix">Evaluation Matrix<a class="headerlink" href="#evaluation-matrix" title="Permanent link">¤</a></h3>
+<div class="md-typeset__table book-table-container"><table id="tbl-probabilistic-circuits-explained-evaluation-matrix"><caption class="book-object-caption"><span class="book-object-number">Table PC.2.</span> Evaluation Matrix</caption>
+<thead>
+<tr>
+<th>Claim</th>
+<th>Evidence to report</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Exact likelihood</td>
+<td>normalization assumptions, base measure/units, data preprocessing, leaf densities, reduction and numerical precision</td>
+</tr>
+<tr>
+<td>Exact marginal/conditional</td>
+<td>structural properties, query type, numerical precision, evidence probability</td>
+</tr>
+<tr>
+<td>Fast inference</td>
+<td>circuit edges/nodes, query batch, hardware, compiled/tensorized implementation</td>
+</tr>
+<tr>
+<td>Good samples</td>
+<td>modality-specific metrics, human/task evaluation, memorization and coverage checks</td>
+</tr>
+<tr>
+<td>Missing-data robustness</td>
+<td>missingness mechanism, mask distribution, calibration, comparison with multiple imputation</td>
+</tr>
+<tr>
+<td>Compactness</td>
+<td>circuit size plus leaf/encoder parameters and peak memory</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="production-checklist">Production Checklist<a class="headerlink" href="#production-checklist" title="Permanent link">¤</a></h3>
+<ol>
+<li>Validate nonnegative normalized sum weights after serialization and quantization.</li>
+<li>Test smoothness, decomposability, determinism, and vtree conformity as executable contracts.</li>
+<li>Evaluate in log space or with scaling for deep circuits.</li>
+<li>Guard conditional queries when evidence probability is zero or extremely small.</li>
+<li>Version preprocessing, leaf support, variable ordering, and missing-value conventions.</li>
+<li>Benchmark the actual query mix; likelihood evaluation and conditional sampling have different costs.</li>
+<li>Trace hybrid feature transformations so “exact” is attached to the correct variable.</li>
+</ol>
+<h3 id="benchmark-the-compiled-artifact-not-the-family-name">Benchmark the compiled artifact, not the family name<a class="headerlink" href="#benchmark-the-compiled-artifact-not-the-family-name" title="Permanent link">¤</a></h3>
+<p>Circuit latency depends on more than node count. Record edges, active edges under determinism/evidence, leaf cost, tensor shapes, sparsity layout, batch size, dtype, compilation time, peak memory, device, and whether values are in probability or log space. Dense tensorization can execute nominally unused edges; sparse kernels can lose accelerator efficiency; a smaller irregular circuit can be slower than a larger regular one.</p>
+<p>Separate at least four workloads:</p>
+<div class="md-typeset__table book-table-container"><table id="tbl-probabilistic-circuits-explained-benchmark-the-compiled-artifact-not-the-family-name"><caption class="book-object-caption"><span class="book-object-number">Table PC.3.</span> Benchmark the compiled artifact, not the family name</caption>
+<thead>
+<tr>
+<th>Workload</th>
+<th>Dominant operations</th>
+<th>Additional report</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Complete likelihood</td>
+<td>one upward point-evaluation pass</td>
+<td>examples/second and per-example latency</td>
+</tr>
+<tr>
+<td>Arbitrary marginal batch</td>
+<td>upward passes with mask-dependent leaf values</td>
+<td>mask distribution, cache reuse, number of distinct masks</td>
+</tr>
+<tr>
+<td>Conditional sampling</td>
+<td>evidence pass plus repeated top-down traces</td>
+<td>samples per evidence case, leaf conditional cost</td>
+</tr>
+<tr>
+<td>Learning</td>
+<td>upward/downward passes and parameter synchronization</td>
+<td>examples/second, optimizer, structure-search and compile cost</td>
+</tr>
+</tbody>
+</table></div>
+<p>Amortized compilation may be appropriate for repeated queries but misleading for a one-off query. Report cold and warm paths when both matter.</p>
+<h3 id="a-query-first-selection-procedure">A query-first selection procedure<a class="headerlink" href="#a-query-first-selection-procedure" title="Permanent link">¤</a></h3>
+<ol>
+<li>Write the required queries and approximation tolerance.</li>
+<li>Choose the weakest structural properties that guarantee them.</li>
+<li>Select leaf interfaces and state-space semantics.</li>
+<li>estimate or measure circuit size under those restrictions;</li>
+<li>compare against AR, flow, VAE, graphical-model, or approximate-inference baselines on the same workload; and</li>
+<li>reject the circuit route if compilation/learning size overwhelms its query advantage.</li>
+</ol>
+<p>This avoids demanding determinism or structured compatibility “just in case,” which can pay an expressivity cost without serving a real query.</p>
+<h3 id="research-directions">Research Directions<a class="headerlink" href="#research-directions" title="Permanent link">¤</a></h3>
+<p>Research directions include structure restructuring, data partitioning at scale, soft structure induction, minibatch EM with distribution-aware regularization, flow/circuit hybrids, circuit distillation, causal compositions, and circuits over structured objects. Exactness claims remain property-specific. Scaling a model while preserving smoothness/decomposability is not the same as making MAP, arbitrary circuit products, or causal effects tractable.</p>
+<p>The primary-source audit covers peer-reviewed work on soft learning, restructuring, data-partition scaling, and anemone parameter learning. Search results without clear archival acceptance remain excluded or explicitly labeled; the page metadata records the audit date.</p>
+<p><a href="https://proceedings.mlr.press/v206/wang23o.html">Compositional probabilistic and causal inference</a> demonstrates how marginal determinism and structural formulations expand causal queries. Such results do not make observational PCs causal by default; the causal graph/mechanisms and identifiability assumptions remain necessary.</p>
+<h3 id="peer-reviewed-research-checkpoints">Peer-Reviewed Research Checkpoints<a class="headerlink" href="#peer-reviewed-research-checkpoints" title="Permanent link">¤</a></h3>
+<div class="md-typeset__table book-table-container"><table id="tbl-probabilistic-circuits-explained-peer-reviewed-research-checkpoints"><caption class="book-object-caption"><span class="book-object-number">Table PC.4.</span> Peer-Reviewed Research Checkpoints</caption>
+<thead>
+<tr>
+<th>Work</th>
+<th>Maturity</th>
+<th>What it changes</th>
+<th>What it does not establish</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://proceedings.mlr.press/v258/zhang25f.html">Restructuring Tractable Probabilistic Circuits</a></td>
+<td>Peer-reviewed research, AISTATS 2025</td>
+<td>Algorithms for conforming structured PCs to a target vtree</td>
+<td>Compatibility without circuit growth or universal efficient composition</td>
+</tr>
+<tr>
+<td><a href="https://proceedings.mlr.press/v286/seng25a.html">Scaling PCs via Data Partitioning</a></td>
+<td>Peer-reviewed research, UAI 2025</td>
+<td>Distributed/federated circuit learning across partition patterns</td>
+<td>Privacy without a threat model, or equal cost for every query</td>
+</tr>
+<tr>
+<td><a href="https://proceedings.neurips.cc/paper_files/paper/2025/hash/3d5b603d631d595f56bc36b373458b27-Abstract-Conference.html">Hardness of Approximating Distributions</a></td>
+<td>Peer-reviewed research, NeurIPS 2025</td>
+<td>Approximation hardness and deterministic/decomposable size separation</td>
+<td>That typical learned circuits always attain the worst case</td>
+</tr>
+<tr>
+<td><a href="https://openreview.net/forum?id=h8D75pVKja">Tractable Representation Learning with PCs</a></td>
+<td>Peer-reviewed research, TMLR 2025</td>
+<td>Autoencoding PC representation learning and missing-data experiments</td>
+<td>Exact neural-decoder likelihood or universal OOD robustness</td>
+</tr>
+<tr>
+<td><a href="https://openreview.net/forum?id=GP4CwozHGi">Rethinking PC Parameter Learning</a></td>
+<td>Peer-reviewed research, AISTATS 2026 Oral</td>
+<td>Distribution-aware view of EM and adaptive minibatch updates</td>
+<td>Structure learning, initialization, or universal optimizer dominance</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2605.12940">PC–LLM Expressivity Boundary</a></td>
+<td>Preprint, May 2026</td>
+<td>Probability/logit-output and fixed-routing expressivity analysis</td>
+<td>Archival consensus or a compute-matched large-scale family ranking</td>
+</tr>
+</tbody>
+</table></div>
+<p>Together, these results address circuit compatibility, effective capacity, distributed learning, representation learning, and parameter optimization. They do not support a narrative that PCs replaced unrestricted neural generators. The distinctive research target is a Pareto trade-off among circuit size, learned fit, query set, numerical/system cost, and evidence quality.</p>
+<h3 id="research-exercises">Research Exercises<a class="headerlink" href="#research-exercises" title="Permanent link">¤</a></h3>
+<ol>
+<li>Implement the Chapter 3 circuit and verify all four joint probabilities sum to one.</li>
+<li>Compute <span class="arithmatex">\(p(Y=1\mid X=0)\)</span> both by enumeration and circuit marginalization.</li>
+<li>Break decomposability by multiplying two children that both contain <span class="arithmatex">\(X\)</span>; show why setting <span class="arithmatex">\(X\)</span> leaves to one no longer performs correct marginalization.</li>
+<li>Compare hard and soft responsibilities for an overlapping two-component mixture.</li>
+<li>Design a circuit/flow hybrid and state precisely which likelihood and marginal queries remain exact.</li>
+</ol>
+<details class="success">
+<summary>Exercise sketches</summary>
+<ol>
+<li>Evaluate each assignment and sum; normalized leaves and mixture weights yield one.  </li>
+<li>Compute <span class="arithmatex">\(p(X=0,Y=1)/p(X=0)\)</span>; both procedures must agree.  </li>
+<li>The shared variable is integrated twice, so distributivity no longer represents one marginal integral.  </li>
+<li>Hard routing discards uncertainty; soft EM assigns fractional counts to both components.  </li>
+<li>Exactness requires normalized invertible flow components and circuit decomposability; cross-circuit operations need additional compatibility.</li>
+</ol>
+</details>
+<h3 id="cumulative-worked-study-clinical-records-with-arbitrary-missingness">Cumulative worked study: clinical records with arbitrary missingness<a class="headerlink" href="#cumulative-worked-study-clinical-records-with-arbitrary-missingness" title="Permanent link">¤</a></h3>
+<p>Suppose a hospital wants a joint model of demographics, laboratory values, diagnoses, and outcomes for imputation and cohort queries.</p>
+<ol>
+<li><strong>Semantics:</strong> declare categorical/counting and continuous/Lebesgue leaves, support transforms, units, and whether missingness indicators are modeled variables or query masks.</li>
+<li><strong>Query workload:</strong> list joint likelihood, <span class="arithmatex">\(p(\text{outcome}\mid e)\)</span>, arbitrary lab marginals, conditional sampling, and cohort expectations. Do not request MAP, entropy, or causal effects without checking their extra properties.</li>
+<li><strong>Structure:</strong> choose smooth/decomposable structure; require determinism only if its query benefit justifies size; choose a shared vtree when circuit products or policy/utility expectations are required.</li>
+<li><strong>Learning:</strong> split patients rather than rows to avoid leakage; compare EM/gradient/anemone under fixed structure; nest structure and hyperparameter selection inside validation; record zero-flow handling.</li>
+<li><strong>Evaluation:</strong> report held-out NLL in declared units, calibration, mask-pattern performance, multiple-imputation coverage, subgroup error, OOD shifts, circuit/leaf size, and query latency distributions.</li>
+<li><strong>Safety boundary:</strong> observational conditionals are not treatment effects. Privacy needs an explicit mechanism/threat model. Exact inference cannot compensate for selection bias, unmeasured confounding, or invalid missingness assumptions.</li>
+</ol>
+<p>This study demonstrates the book's central rule: first declare variables and queries, then choose properties and leaves, then learn and benchmark the complete compiled artifact.</p>
+<h3 id="independent-practice-and-assessment-map-circuit-evaluation-and-research">Independent practice and assessment map: circuit evaluation and research<a class="headerlink" href="#independent-practice-and-assessment-map-circuit-evaluation-and-research" title="Permanent link">¤</a></h3>
+<p>Choose a domain different from the worked clinical study. Bind the probability
+object, compiled representation, query workload, evidence claim, and deployment
+measurement in one falsifiable decision record.</p>
+<h4 id="p1-defend-an-end-to-end-probabilistic-circuit-system">P1 — Defend an end-to-end probabilistic-circuit system<a class="headerlink" href="#p1-defend-an-end-to-end-probabilistic-circuit-system" title="Permanent link">¤</a></h4>
+<ol>
+<li><strong>P1.1 — Predict before computing.</strong> Classify each statement as an algebraic guarantee, assumption-bounded guarantee, empirical claim, hybrid composition, or false inference: exact marginal arithmetic implies calibrated uncertainty; linear time in edges implies low latency; determinism is always worth its size cost; a compiled observational circuit identifies treatment effects; tensorization changes the modeled law; federated learning supplies privacy without a threat model; and a lower held-out NLL proves better arbitrary-missingness decisions. State the extra evidence required to strengthen each statement.</li>
+<li><strong>P1.2 — Query-first system design.</strong> For an industrial sensor fleet with irregular missing channels and repeated alarm queries, declare variables, supports, measures, missingness semantics, exact and approximate queries, tolerance, circuit properties, vtree or region structure, leaf interfaces, learning method, and zero-evidence policy. Compare the PC with at least two AR, flow, VAE, graphical-model, or imputation baselines on the same query workload and give a falsifiable selection rule.</li>
+<li><strong>P1.3 — Compiled-artifact benchmark.</strong> Design cold and warm benchmarks for complete likelihood, mask-dependent marginals, conditional sampling, and learning. Record nodes, edges, active edges, leaf cost, tensor shapes, sparsity, batch/mask distribution, dtype, compilation time, cache reuse, samples per evidence case, peak memory, device, latency quantiles, throughput, and energy or total compute. Include a finite enumerated circuit oracle and a matched dense/sparse implementation comparison.</li>
+<li><strong>P1.4 — Research evidence audit.</strong> Select three checkpoints from restructuring, data-partition scaling, approximation hardness, representation learning, parameter learning, or PC–LLM expressivity. Record exact theorem/claim, assumptions, circuit class, query, size measure, data/split, optimization/search budget, hardware, uncertainty, publication status/version, and independent reproduction. Rewrite each headline as the strongest protocol-bounded statement the record supports.</li>
+<li><strong>P1.5 — Transfer and safety boundary.</strong> Transfer the sensor system to either privacy-sensitive genomic cohorts or variable-size molecular configurations. Identify every change in support, measure, symmetry, missingness/selection mechanism, constraint logic, leaf interface, vtree, query, metric, baseline, privacy/causal assumption, and compiled-system cost. Route each unsupported exactness, calibration, privacy, fairness, or causal claim to a proof, executable oracle, controlled study, explicit limitation, or rejection.</li>
+</ol>
+<h5 id="outcome-to-task-alignment-circuit-evaluation-and-research">Outcome-to-task alignment: circuit evaluation and research<a class="headerlink" href="#outcome-to-task-alignment-circuit-evaluation-and-research" title="Permanent link">¤</a></h5>
+<div class="md-typeset__table book-table-container"><table id="tbl-probabilistic-circuits-explained-outcome-to-task-alignment-circuit-evaluation-and-research"><caption class="book-object-caption"><span class="book-object-number">Table PC.10.</span> Outcome-to-task alignment for circuit evaluation and research</caption>
+<thead>
+<tr>
+<th>Learning objective</th>
+<th>Independently assessed by</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>O1 — Select a PC from a declared query workload</td>
+<td>P1.1, P1.2, P1.5</td>
+</tr>
+<tr>
+<td>O2 — Benchmark inference as a compiled system</td>
+<td>P1.3, P1.5</td>
+</tr>
+<tr>
+<td>O3 — Distinguish exact arithmetic from calibration, robustness, causality, privacy, and correctness of the learned distribution</td>
+<td>P1.1, P1.2, P1.5</td>
+</tr>
+<tr>
+<td>O4 — Trace every research claim to its evidence maturity</td>
+<td>P1.1, P1.4</td>
+</tr>
+<tr>
+<td>O5 — Design an end-to-end study that tests both model quality and tractability</td>
+<td>P1.2, P1.3, P1.4, P1.5</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="primary-reading-trail">Primary Reading Trail<a class="headerlink" href="#primary-reading-trail" title="Permanent link">¤</a></h3>
+<ul>
+<li><a href="https://starai.cs.ucla.edu/papers/ProbCirc20.pdf">Choi, Vergari, and Van den Broeck, <em>Probabilistic Circuits: A Unifying Framework</em></a> — semantics, queries, and structural properties.</li>
+<li><a href="https://arxiv.org/abs/1202.3732">Poon and Domingos, <em>Sum-Product Networks</em></a> — foundational deep sum/product architecture.</li>
+<li><a href="https://arxiv.org/abs/2004.06231">Peharz et al., <em>Einsum Networks</em></a> — scalable tensorized circuits.</li>
+<li><a href="https://arxiv.org/abs/2102.06137">Vergari et al., <em>A Compositional Atlas of Tractable Circuit Operations</em></a> — property-driven closure and hardness for transformations and information-theoretic queries.</li>
+<li><a href="https://openreview.net/forum?id=GP4CwozHGi">Liu, Shao, and Van den Broeck, <em>Rethinking Probabilistic Circuit Parameter Learning</em></a> — AISTATS 2026 Oral; KL-regularized view of EM and adaptive minibatch updates.</li>
+<li><a href="https://proceedings.mlr.press/v138/dang20a.html">Dang, Vergari, and Van den Broeck, <em>Strudel</em></a> — structured-decomposable learning.</li>
+<li><a href="https://proceedings.mlr.press/v216/sidheekh23a.html">Sidheekh, Kersting, and Natarajan, <em>Probabilistic Flow Circuits</em></a> — flow/circuit composition.</li>
+<li><a href="https://proceedings.mlr.press/v258/zhang25f.html">Zhang et al., <em>Restructuring Tractable Probabilistic Circuits</em></a> — 2025 circuit compatibility and restructuring.</li>
+<li><a href="https://proceedings.mlr.press/v286/seng25a.html">Seng et al., <em>Scaling Probabilistic Circuits via Data Partitioning</em></a> — UAI 2025 distributed/federated learning construction.</li>
+<li><a href="https://proceedings.neurips.cc/paper_files/paper/2025/hash/3d5b603d631d595f56bc36b373458b27-Abstract-Conference.html">Leland and Choi, <em>On the Hardness of Approximating Distributions with Tractable Probabilistic Models</em></a> — approximation hardness and size separation.</li>
+<li><a href="https://openreview.net/forum?id=h8D75pVKja">Braun et al., <em>Tractable Representation Learning with Probabilistic Circuits</em></a> — TMLR 2025 autoencoding PCs.</li>
+<li><a href="https://arxiv.org/abs/2605.12940">Zhao et al., <em>The Expressivity Boundary of Probabilistic Circuits</em></a> — May 2026 preprint comparing autoregressive PCs and LLMs.</li>
+</ul>
+<h2 id="final-synthesis">Final Synthesis<a class="headerlink" href="#final-synthesis" title="Permanent link">¤</a></h2>
+<p>The <a href="../density-latent-energy-relationships/#2-normalized-constructions-autoregression-flows-and-circuits">density–latent–energy relationship guide</a> compares circuit normalization and exact marginalization with AR factorization, invertible flows, and monolithic energy networks.</p>
+<p>Probabilistic circuits trade unrestricted architecture for an algebra in which selected queries compile to exact dynamic programs. Leaves model local distributions, sums mix alternatives, products factor disjoint scopes, and graph sharing reuses computation. Smoothness, decomposability, determinism, and structured decomposability are separate tools with separate guarantees. Modern neural, flow, relational, and distilled circuits expand local capacity, but the central research discipline remains unchanged: <strong>name the query, state the structural properties, and measure the circuit size required to keep it tractable</strong>.</p>
+<details class="question">
+<summary>Cumulative retrieval practice: the complete circuit volume</summary>
+<ol>
+<li>Prove normalization of a smooth decomposable circuit by induction.</li>
+<li>Why is complexity linear in circuit size not the same as tractability in the original problem description?</li>
+<li>Which property justifies ordinary marginal recursion, and which additional property can justify max-product MPE?</li>
+<li>Derive a normalized sum-edge responsibility from an upward value and downward derivative.</li>
+<li>Give two ways a hybrid can retain complete density but lose arbitrary marginals.</li>
+<li>What does exact inference fail to guarantee about a deployed clinical model?</li>
+</ol>
+<p><strong>Solutions.</strong> (1) Leaves integrate to one; a decomposable product's integral factors into child integrals; a smooth normalized sum integrates to the weighted sum of ones. (2) compilation or structural restrictions may produce an exponentially large circuit. (3) Smoothness plus decomposability supports marginals; suitable determinism plus leaf maximization supports MPE. (4) Divide <span class="arithmatex">\((\partial C/\partial v_n)w_{nc}v_c\)</span> by the root value <span class="arithmatex">\(C(x)\)</span>. (5) A non-invertible neural encoder changes the modeled variable; a full-scope flow leaf may not expose subset marginals. (6) Calibration, causal validity, privacy, robustness, fairness, data representativeness, numerical safety, or that the learned distribution is correct.</p>
+</details>
+<h3 id="source-tracing-checklist">Source-tracing checklist<a class="headerlink" href="#source-tracing-checklist" title="Permanent link">¤</a></h3>
+<p>For every technical or research claim, record the circuit class; leaf family and base measure; smoothness, decomposability, determinism, and compatibility assumptions; query; complexity in nodes/edges and leaf cost; preprocessing; dataset/split/missingness; parameter and effective-edge counts; optimizer/structure search; hardware and compilation; metric and uncertainty; publication status/version; and independent reproduction. If a paper does not report an item, mark it unreported rather than inferring it.</p>
+<p>Next, continue to <a href="../implicit-generators-explained/">Implicit Generators Beyond GANs</a>, or compare exact circuit inference with the <a href="../latent-variables-and-inference/">latent-inference chapter</a> and <a href="../flow-explained/">normalizing-flow guide</a>.</p>
+<p>Return to <a href="../generative-models-unified/#coverage-matrix">The Generative Modeling Landscape</a>, and use the <a href="../new-families-frontier-evidence/#probabilistic-circuits">Generative-Family Research Evidence Ledger</a> for maturity boundaries.</p>
+<hr/>
+<p><strong>Navigate:</strong> <a href="../probabilistic-circuits-05-hybrids/">← Deep and Hybrid Circuits</a> · <a href="../generative-models-unified/">Return to curriculum map</a> · <a href="../probabilistic-circuits-explained/">Complete guide</a></p>
+</article>
+</div>
+<script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  Back to top
+</button>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+<div class="md-social">
+<a class="md-social__link" href="https://github.com/avitai/artifex" rel="noopener" target="_blank" title="github.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</a>
+<a class="md-social__link" href="https://pypi.org/project/avitai-artifex/" rel="noopener" target="_blank" title="pypi.org">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-66.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.3v101.8c0 29 25.2 46 53.4 54.3 33.8 9.9 66.3 11.7 106.8 0 26.9-7.8 53.4-23.5 53.4-54.3v-40.7H226.2v-13.6h160.2c31.1 0 42.6-21.7 53.4-54.2 11.2-33.5 10.7-65.7 0-108.6M286.2 444.7a20.4 20.4 0 1 1 0-40.7 20.4 20.4 0 1 1 0 40.7M167.8 248.1h106.8c29.7 0 53.4-24.5 53.4-54.3V91.9c0-29-24.4-50.7-53.4-55.6-35.8-5.9-74.7-5.6-106.8.1-45.2 8-53.4 24.7-53.4 55.6v40.7h106.9v13.6h-147c-31.1 0-58.3 18.7-66.8 54.2-9.8 40.7-10.2 66.1 0 108.6 7.6 31.6 25.7 54.2 56.8 54.2H101v-48.8c0-35.3 30.5-66.4 66.8-66.4m-6.6-183.4a20.4 20.4 0 1 1 0 40.8 20.4 20.4 0 1 1 0-40.8"></path></svg>
+</a>
+<a class="md-social__link" href="https://twitter.com/mahdi_shafiei" rel="noopener" target="_blank" title="twitter.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M459.4 151.7c.3 4.5.3 9.1.3 13.6 0 138.7-105.6 298.6-298.6 298.6-59.5 0-114.7-17.2-161.1-47.1 8.4 1 16.6 1.3 25.3 1.3 49.1 0 94.2-16.6 130.3-44.8-46.1-1-84.8-31.2-98.1-72.8 6.5 1 13 1.6 19.8 1.6 9.4 0 18.8-1.3 27.6-3.6-48.1-9.7-84.1-52-84.1-103v-1.3c14 7.8 30.2 12.7 47.4 13.3-28.3-18.8-46.8-51-46.8-87.4 0-19.5 5.2-37.4 14.3-53C87.4 130.8 165 172.4 252.1 176.9c-1.6-7.8-2.6-15.9-2.6-24C249.5 95.1 296.3 48 354.4 48c30.2 0 57.5 12.7 76.7 33.1 23.7-4.5 46.5-13.3 66.6-25.3-7.8 24.4-24.4 44.8-46.1 57.8 21.1-2.3 41.6-8.1 60.4-16.2-14.3 20.8-32.2 39.3-52.6 54.3"></path></svg>
+</a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.path", "navigation.top", "navigation.prune", "toc.follow", "search.highlight", "search.share", "search.suggest", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "content.mermaid"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+<script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+<script src="../../../javascripts/reading-layout.js"></script>
+</body>
+</html>

@@ -1,0 +1,2912 @@
+schema_version: 1
+captured_at: '2026-07-11'
+baseline_git_ref: 5fce040acb8e3089a999a1f5a63bf4c1503efbb1
+purpose: Immutable pre-redesign inventory. Every recorded public anchor and substantive section must remain
+  reachable after the curriculum redesign.
+baseline_totals:
+  word_count: 68345
+  headings_h2_h4: 551
+  raw_heading_like_lines_h2_h4: 551
+canonical_guides:
+  generative-models-unified.md:
+    baseline_sha256: 2fff0af606ca75a761eb33907074be789bf6914e7a9f95639efa96cd3307691b
+    word_count: 10800
+    line_count: 916
+    artifacts:
+      headings_h1_h4: 85
+      headings_h2_h4: 84
+      raw_heading_like_lines_h2_h4: 84
+      display_math_blocks: 1
+      fenced_code_blocks: 7
+      mermaid_diagrams: 7
+      markdown_tables: 13
+      admonitions: 0
+      markdown_links: 143
+      external_links: 88
+    headings:
+    - level: 1
+      text: 'Generative Models: A Unified View'
+      anchor: generative-models-a-unified-view
+      status: preserved
+      destination: generative-models-unified.md#the-generative-modeling-landscape
+    - level: 2
+      text: Why This Document Exists
+      anchor: why-this-document-exists
+      status: preserved
+      destination: generative-models-unified.md#why-this-map-exists
+    - level: 3
+      text: How to Read This Document
+      anchor: how-to-read-this-document
+      status: preserved
+      destination: generative-models-unified.md#how-to-read-this-volume
+    - level: 2
+      text: 'The Six Families: A One-Page Cheat Sheet'
+      anchor: the-six-families-a-one-page-cheat-sheet
+      status: preserved
+      destination: generative-models-unified.md#six-neural-entry-families-a-one-page-orientation
+    - level: 2
+      text: Three Lenses for Looking at Generative Models
+      anchor: three-lenses-for-looking-at-generative-models
+      status: preserved
+      destination: generative-models-unified.md#three-lenses-for-looking-at-generative-models
+    - level: 3
+      text: Lens 1 — What Divergence Are We Minimising?
+      anchor: lens-1-what-divergence-are-we-minimising
+      status: preserved
+      destination: generative-models-unified.md#lens-1-what-divergence-are-we-minimising
+    - level: 3
+      text: Lens 2 — What Forward Corruption Process Are We Inverting?
+      anchor: lens-2-what-forward-corruption-process-are-we-inverting
+      status: preserved
+      destination: generative-models-unified.md#lens-2-what-forward-corruption-process-are-we-inverting
+    - level: 3
+      text: Lens 3 — Where Is the Computational Bottleneck?
+      anchor: lens-3-where-is-the-computational-bottleneck
+      status: preserved
+      destination: generative-models-unified.md#lens-3-where-is-the-computational-bottleneck
+    - level: 2
+      text: A Common Mathematical Framework
+      anchor: a-common-mathematical-framework
+      status: preserved
+      destination: generative-models-unified.md#a-common-mathematical-framework
+    - level: 3
+      text: The Fundamental Trilemma
+      anchor: the-fundamental-trilemma
+      status: preserved
+      destination: generative-models-unified.md#the-fundamental-trilemma
+    - level: 3
+      text: Five Strategies to Avoid the Normaliser
+      anchor: five-strategies-to-avoid-the-normaliser
+      status: preserved
+      destination: generative-models-unified.md#strategies-for-constructing-or-avoiding-normalized-density
+    - level: 3
+      text: Why the Manifold Hypothesis Forces a Family Choice
+      anchor: why-the-manifold-hypothesis-forces-a-family-choice
+      status: preserved
+      destination: generative-models-unified.md#support-geometry-changes-the-objective-selection-problem
+    - level: 3
+      text: The Probabilistic Graphical Model View
+      anchor: the-probabilistic-graphical-model-view
+      status: preserved
+      destination: generative-models-unified.md#the-probabilistic-graphical-model-view
+    - level: 2
+      text: The Family Tree
+      anchor: the-family-tree
+      status: preserved
+      destination: generative-models-unified.md#the-family-tree
+    - level: 2
+      text: Training Objectives Compared
+      anchor: training-objectives-compared
+      status: preserved
+      destination: generative-models-unified.md#training-objectives-compared
+    - level: 2
+      text: Inference / Sampling Compared
+      anchor: inference-sampling-compared
+      status: preserved
+      destination: generative-models-unified.md#inference-sampling-compared
+    - level: 2
+      text: Modern Unifications (2022–2026)
+      anchor: modern-unifications-20222026
+      status: preserved
+      destination: generative-models-unified.md#cross-family-correspondences
+    - level: 3
+      text: 1. Score-based diffusion as time-indexed EBMs
+      anchor: 1-score-based-diffusion-as-time-indexed-ebms
+      status: preserved
+      destination: generative-models-unified.md#1-score-based-diffusion-as-time-indexed-ebms
+    - level: 3
+      text: 2. Diffusion and Gaussian-path Flow Matching share an algorithmic core
+      anchor: 2-diffusion-and-gaussian-path-flow-matching-share-an-algorithmic-core
+      status: preserved
+      destination: generative-models-unified.md#2-diffusion-and-gaussian-path-flow-matching-share-an-algorithmic-core
+    - level: 3
+      text: 3. Latent Diffusion = VAE codec + diffusion prior
+      anchor: 3-latent-diffusion-vae-codec-diffusion-prior
+      status: preserved
+      destination: generative-models-unified.md#3-latent-diffusion-vae-codec-diffusion-prior
+    - level: 3
+      text: 4. Adversarial Distillation = GAN + Diffusion
+      anchor: 4-adversarial-distillation-gan-diffusion
+      status: preserved
+      destination: generative-models-unified.md#4-adversarial-distillation-gan-diffusion
+    - level: 3
+      text: 5. Energy Matching = Flow Matching + EBM
+      anchor: 5-energy-matching-flow-matching-ebm
+      status: preserved
+      destination: generative-models-unified.md#5-energy-matching-constrains-transport-with-a-scalar-energy
+    - level: 3
+      text: 6. Autoregressive ↔ Energy-Based bijection (2026)
+      anchor: 6-autoregressive-energy-based-bijection-2026
+      status: preserved
+      destination: generative-models-unified.md#6-autoregressive-energy-based-function-space-correspondence
+    - level: 3
+      text: 7. Diffusion = Hierarchical VAE
+      anchor: 7-diffusion-hierarchical-vae
+      status: preserved
+      destination: generative-models-unified.md#7-discrete-time-diffusion-as-a-hierarchical-latent-model
+    - level: 3
+      text: 8. AR ↔ Diffusion (text and images)
+      anchor: 8-ar-diffusion-text-and-images
+      status: preserved
+      destination: generative-models-unified.md#8-ar-diffusion-text-and-images
+    - level: 2
+      text: 'Conditional Generation: How Each Family Handles Control'
+      anchor: conditional-generation-how-each-family-handles-control
+      status: preserved
+      destination: generative-models-unified.md#conditional-generation-how-each-family-handles-control
+    - level: 3
+      text: Three Universal Ideas
+      anchor: three-universal-ideas
+      status: preserved
+      destination: generative-models-unified.md#three-recurring-conditioning-patterns
+    - level: 3
+      text: 'CFG: A Cross-Family Technique'
+      anchor: cfg-a-cross-family-technique
+      status: preserved
+      destination: generative-models-unified.md#cfg-a-cross-family-technique
+    - level: 2
+      text: Failure Modes Across Families
+      anchor: failure-modes-across-families
+      status: preserved
+      destination: generative-models-unified.md#failure-modes-across-families
+    - level: 2
+      text: The Platonic Representation Hypothesis
+      anchor: the-platonic-representation-hypothesis
+      status: preserved
+      destination: generative-models-unified.md#the-platonic-representation-hypothesis
+    - level: 3
+      text: Why This Matters for Generative Modelling
+      anchor: why-this-matters-for-generative-modelling
+      status: preserved
+      destination: generative-models-unified.md#why-this-matters-for-generative-modelling
+    - level: 2
+      text: Scaling Laws Across Families
+      anchor: scaling-laws-across-families
+      status: preserved
+      destination: generative-models-unified.md#scaling-laws-across-families
+    - level: 3
+      text: 'Autoregressive: Chinchilla and Beyond'
+      anchor: autoregressive-chinchilla-and-beyond
+      status: preserved
+      destination: generative-models-unified.md#autoregressive-chinchilla-and-beyond
+    - level: 3
+      text: 'Diffusion: EDM and EDM2'
+      anchor: diffusion-edm-and-edm2
+      status: preserved
+      destination: generative-models-unified.md#diffusion-edm-and-edm2
+    - level: 3
+      text: Sparse / Mixture-of-Experts
+      anchor: sparse-mixture-of-experts
+      status: preserved
+      destination: generative-models-unified.md#sparse-mixture-of-experts
+    - level: 3
+      text: A Unified Scaling Picture
+      anchor: a-unified-scaling-picture
+      status: preserved
+      destination: generative-models-unified.md#scaling-across-model-families
+    - level: 2
+      text: The Evaluation Crisis
+      anchor: the-evaluation-crisis
+      status: preserved
+      destination: generative-models-unified.md#evaluation-is-multi-objective
+    - level: 3
+      text: FID Doesn't Match Human Perception
+      anchor: fid-doesnt-match-human-perception
+      status: preserved
+      destination: generative-models-unified.md#fid-doesnt-match-human-perception
+    - level: 3
+      text: Replacement Metrics in 2024–2026
+      anchor: replacement-metrics-in-20242026
+      status: preserved
+      destination: generative-models-unified.md#complementary-metrics-and-evaluation-protocols
+    - level: 3
+      text: The Same Crisis in Language
+      anchor: the-same-crisis-in-language
+      status: preserved
+      destination: generative-models-unified.md#the-same-crisis-in-language
+    - level: 3
+      text: What This Implies for Research
+      anchor: what-this-implies-for-research
+      status: preserved
+      destination: generative-models-unified.md#what-this-implies-for-research
+    - level: 2
+      text: Mechanistic Interpretability of Generative Models
+      anchor: mechanistic-interpretability-of-generative-models
+      status: preserved
+      destination: generative-models-unified.md#mechanistic-interpretability-of-generative-models
+    - level: 3
+      text: Key Findings
+      anchor: key-findings
+      status: preserved
+      destination: generative-models-unified.md#key-findings
+    - level: 3
+      text: Why It Matters for Generative Modelling
+      anchor: why-it-matters-for-generative-modelling
+      status: preserved
+      destination: generative-models-unified.md#why-it-matters-for-generative-modelling
+    - level: 2
+      text: Reasoning as Generation
+      anchor: reasoning-as-generation
+      status: preserved
+      destination: generative-models-unified.md#reasoning-as-generation
+    - level: 2
+      text: 'World Models: Generation as the Substrate of Cognition'
+      anchor: world-models-generation-as-the-substrate-of-cognition
+      status: preserved
+      destination: generative-models-unified.md#world-models-predictive-generators-for-decision-making
+    - level: 3
+      text: The Three-Level Taxonomy
+      anchor: the-three-level-taxonomy
+      status: preserved
+      destination: generative-models-unified.md#the-three-level-taxonomy
+    - level: 3
+      text: Sequential Decoupling vs Unified Coupling
+      anchor: sequential-decoupling-vs-unified-coupling
+      status: preserved
+      destination: generative-models-unified.md#sequential-decoupling-vs-joint-coupling
+    - level: 3
+      text: Why This Closes the Loop
+      anchor: why-this-closes-the-loop
+      status: preserved
+      destination: generative-models-unified.md#what-this-adds-to-the-map
+    - level: 2
+      text: 'Choosing a Family in 2026: Decision Guide'
+      anchor: choosing-a-family-in-2026-decision-guide
+      status: preserved
+      destination: generative-models-unified.md#choosing-a-family-query-first-decision-guide
+    - level: 2
+      text: Hybrid Pipelines in 2026
+      anchor: hybrid-pipelines-in-2026
+      status: preserved
+      destination: generative-models-unified.md#composed-generative-systems
+    - level: 3
+      text: 'Pattern 1: Image / Video Generation (SD3, FLUX, Sora, HunyuanVideo, Wan)'
+      anchor: pattern-1-image-video-generation-sd3-flux-sora-hunyuanvideo-wan
+      status: preserved
+      destination: generative-models-unified.md#pattern-1-latent-image-and-video-generation
+    - level: 3
+      text: 'Pattern 2: Text Generation (GPT-4, Llama-3, DeepSeek-V3, R1)'
+      anchor: pattern-2-text-generation-gpt-4-llama-3-deepseek-v3-r1
+      status: preserved
+      destination: generative-models-unified.md#pattern-2-autoregressive-text-generation-with-system-level-acceleration-and-post-training
+    - level: 3
+      text: 'Pattern 3: Scientific / Multimodal (Protein Design, Materials, Multimodal World Models)'
+      anchor: pattern-3-scientific-multimodal-protein-design-materials-multimodal-world-models
+      status: preserved
+      destination: generative-models-unified.md#pattern-3-scientific-multimodal-protein-design-materials-multimodal-world-models
+    - level: 2
+      text: Open Theoretical Problems
+      anchor: open-theoretical-problems
+      status: preserved
+      destination: generative-models-unified.md#open-theoretical-problems
+    - level: 3
+      text: 1. A principled choice of corruption process
+      anchor: 1-a-principled-choice-of-corruption-process
+      status: preserved
+      destination: generative-models-unified.md#1-a-principled-choice-of-corruption-process
+    - level: 3
+      text: 2. The exact rate of "diffusion = flow matching"
+      anchor: 2-the-exact-rate-of-diffusion-flow-matching
+      status: preserved
+      destination: generative-models-unified.md#2-finite-compute-gaps-between-related-diffusion-and-flow-constructions
+    - level: 3
+      text: 3. The partition function for high-dimensional images
+      anchor: 3-the-partition-function-for-high-dimensional-images
+      status: preserved
+      destination: generative-models-unified.md#3-the-partition-function-for-high-dimensional-images
+    - level: 3
+      text: 4. Why does CFG work?
+      anchor: 4-why-does-cfg-work
+      status: preserved
+      destination: generative-models-unified.md#4-why-does-cfg-work
+    - level: 3
+      text: 5. The relationship between scaling laws and emergence
+      anchor: 5-the-relationship-between-scaling-laws-and-emergence
+      status: preserved
+      destination: generative-models-unified.md#5-the-relationship-between-scaling-laws-and-emergence
+    - level: 3
+      text: 6. Sample efficiency on the data manifold
+      anchor: 6-sample-efficiency-on-the-data-manifold
+      status: preserved
+      destination: generative-models-unified.md#6-sample-efficiency-on-the-data-manifold
+    - level: 3
+      text: '7. The Platonic Representation Hypothesis: why does it converge?'
+      anchor: 7-the-platonic-representation-hypothesis-why-does-it-converge
+      status: preserved
+      destination: generative-models-unified.md#7-the-platonic-representation-hypothesis-why-does-it-converge
+    - level: 3
+      text: 8. Generation–reasoning unification
+      anchor: 8-generationreasoning-unification
+      status: preserved
+      destination: generative-models-unified.md#8-joint-generation-and-reasoning
+    - level: 2
+      text: 'Frontier Research Directions: Where to Contribute'
+      anchor: frontier-research-directions-where-to-contribute
+      status: preserved
+      destination: generative-models-unified.md#research-problems-and-experimental-programs
+    - level: 3
+      text: A. Under-Explored Hybrids
+      anchor: a-under-explored-hybrids
+      status: preserved
+      destination: generative-models-unified.md#a-under-explored-hybrids
+    - level: 3
+      text: B. Theoretical Gaps to Fill
+      anchor: b-theoretical-gaps-to-fill
+      status: preserved
+      destination: generative-models-unified.md#b-theoretical-gaps-to-fill
+    - level: 3
+      text: C. Evaluation
+      anchor: c-evaluation
+      status: preserved
+      destination: generative-models-unified.md#c-evaluation
+    - level: 3
+      text: D. World Models
+      anchor: d-world-models
+      status: preserved
+      destination: generative-models-unified.md#d-world-models
+    - level: 3
+      text: E. Applications Where No Family Yet Dominates
+      anchor: e-applications-where-no-family-yet-dominates
+      status: preserved
+      destination: generative-models-unified.md#e-applications-where-no-family-yet-dominates
+    - level: 3
+      text: F. Mechanistic Interpretability of Diffusion / Flow
+      anchor: f-mechanistic-interpretability-of-diffusion-flow
+      status: preserved
+      destination: generative-models-unified.md#f-mechanistic-interpretability-of-diffusion-and-flow-models
+    - level: 2
+      text: Common Confusions and Cross-Family Pitfalls
+      anchor: common-confusions-and-cross-family-pitfalls
+      status: preserved
+      destination: generative-models-unified.md#common-confusions-and-cross-family-pitfalls
+    - level: 3
+      text: '"Likelihood is the right metric for sample quality"'
+      anchor: likelihood-is-the-right-metric-for-sample-quality
+      status: preserved
+      destination: generative-models-unified.md#likelihood-is-the-right-metric-for-sample-quality
+    - level: 3
+      text: '"Diffusion is fundamentally slow because of MCMC"'
+      anchor: diffusion-is-fundamentally-slow-because-of-mcmc
+      status: preserved
+      destination: generative-models-unified.md#diffusion-is-fundamentally-slow-because-of-mcmc
+    - level: 3
+      text: '"GAN inputs are sampled from the same prior as VAE latents"'
+      anchor: gan-inputs-are-sampled-from-the-same-prior-as-vae-latents
+      status: preserved
+      destination: generative-models-unified.md#gan-inputs-are-sampled-from-the-same-prior-as-vae-latents
+    - level: 3
+      text: '"Flows have exact likelihood; that makes them better"'
+      anchor: flows-have-exact-likelihood-that-makes-them-better
+      status: preserved
+      destination: generative-models-unified.md#flows-have-exact-likelihood-that-makes-them-better
+    - level: 3
+      text: '"Score matching = denoising"'
+      anchor: score-matching-denoising
+      status: preserved
+      destination: generative-models-unified.md#score-matching-denoising
+    - level: 3
+      text: '"Flow matching is a different thing from diffusion"'
+      anchor: flow-matching-is-a-different-thing-from-diffusion
+      status: preserved
+      destination: generative-models-unified.md#flow-matching-is-a-different-thing-from-diffusion
+    - level: 3
+      text: '"GAN''s discriminator is just a classifier"'
+      anchor: gans-discriminator-is-just-a-classifier
+      status: preserved
+      destination: generative-models-unified.md#gans-discriminator-is-just-a-classifier
+    - level: 3
+      text: '"AR models can''t be trained in parallel"'
+      anchor: ar-models-cant-be-trained-in-parallel
+      status: preserved
+      destination: generative-models-unified.md#ar-models-cant-be-trained-in-parallel
+    - level: 3
+      text: '"EBMs are obsolete"'
+      anchor: ebms-are-obsolete
+      status: preserved
+      destination: generative-models-unified.md#ebms-are-obsolete
+    - level: 3
+      text: '"FID is the standard metric for image generation"'
+      anchor: fid-is-the-standard-metric-for-image-generation
+      status: preserved
+      destination: generative-models-unified.md#fid-is-the-standard-metric-for-image-generation
+    - level: 2
+      text: Glossary of Common Notation
+      anchor: glossary-of-common-notation
+      status: preserved
+      destination: generative-models-unified.md#glossary-of-common-notation
+    - level: 2
+      text: Where the Field Is Going (2026)
+      anchor: where-the-field-is-going-2026
+      status: preserved
+      destination: generative-models-unified.md#research-themes-that-organize-the-field
+    - level: 2
+      text: 'Further Reading: Cross-Family Surveys and Frontier Work'
+      anchor: further-reading-cross-family-surveys-and-frontier-work
+      status: preserved
+      destination: generative-models-unified.md#further-reading-cross-family-surveys-and-research
+    - level: 2
+      text: Next Steps
+      anchor: next-steps
+      status: preserved
+      destination: generative-models-unified.md#next-steps
+  autoregressive-explained.md:
+    baseline_sha256: 3e842493060de8199029bd5b9cd3d397b6fd7016ab4e0a2e73fbc5bf60637e2e
+    word_count: 8525
+    line_count: 1625
+    artifacts:
+      headings_h1_h4: 84
+      headings_h2_h4: 83
+      raw_heading_like_lines_h2_h4: 83
+      display_math_blocks: 26
+      fenced_code_blocks: 23
+      mermaid_diagrams: 5
+      markdown_tables: 10
+      admonitions: 1
+      markdown_links: 150
+      external_links: 133
+    headings:
+    - level: 1
+      text: Autoregressive Models Explained
+      anchor: autoregressive-models-explained
+      status: preserved
+      destination: autoregressive-explained.md#autoregressive-models-explained
+    - level: 2
+      text: Overview
+      anchor: overview
+      status: preserved
+      destination: autoregressive-explained.md#overview
+    - level: 3
+      text: 'The Intuition: Building Sequences Step-by-Step'
+      anchor: the-intuition-building-sequences-step-by-step
+      status: preserved
+      destination: autoregressive-explained.md#constructive-interpretation-building-an-ordered-object
+    - level: 2
+      text: Mathematical Foundation
+      anchor: mathematical-foundation
+      status: preserved
+      destination: autoregressive-explained.md#mathematical-foundation
+    - level: 3
+      text: The Chain Rule Factorization
+      anchor: the-chain-rule-factorization
+      status: preserved
+      destination: autoregressive-explained.md#the-chain-rule-factorization
+    - level: 3
+      text: Log-Likelihood and Training
+      anchor: log-likelihood-and-training
+      status: preserved
+      destination: autoregressive-explained.md#log-likelihood-and-training
+    - level: 3
+      text: Ordering and Masking
+      anchor: ordering-and-masking
+      status: preserved
+      destination: autoregressive-explained.md#ordering-and-masking
+    - level: 2
+      text: Autoregressive Architectures
+      anchor: autoregressive-architectures
+      status: preserved
+      destination: autoregressive-explained.md#autoregressive-architectures
+    - level: 3
+      text: 1. Recurrent Neural Networks (RNNs)
+      anchor: 1-recurrent-neural-networks-rnns
+      status: preserved
+      destination: autoregressive-explained.md#1-recurrent-neural-networks-rnns
+    - level: 3
+      text: 2. Masked Convolutional Networks (PixelCNN)
+      anchor: 2-masked-convolutional-networks-pixelcnn
+      status: preserved
+      destination: autoregressive-explained.md#2-masked-convolutional-networks-pixelcnn
+    - level: 3
+      text: 3. Transformer-Based Autoregressive Models
+      anchor: 3-transformer-based-autoregressive-models
+      status: preserved
+      destination: autoregressive-explained.md#3-transformer-based-autoregressive-models
+    - level: 3
+      text: '4. WaveNet: Autoregressive Audio Generation'
+      anchor: 4-wavenet-autoregressive-audio-generation
+      status: preserved
+      destination: autoregressive-explained.md#4-wavenet-autoregressive-audio-generation
+    - level: 3
+      text: '5. Modern Vision Transformers: Visual Autoregressive Modeling (VAR)'
+      anchor: 5-modern-vision-transformers-visual-autoregressive-modeling-var
+      status: preserved
+      destination: autoregressive-explained.md#5-multiscale-visual-autoregressive-modeling-var
+    - level: 2
+      text: Training Autoregressive Models
+      anchor: training-autoregressive-models
+      status: preserved
+      destination: autoregressive-explained.md#training-autoregressive-models
+    - level: 3
+      text: Maximum Likelihood Training
+      anchor: maximum-likelihood-training
+      status: preserved
+      destination: autoregressive-explained.md#maximum-likelihood-training
+    - level: 3
+      text: Loss Functions and Metrics
+      anchor: loss-functions-and-metrics
+      status: preserved
+      destination: autoregressive-explained.md#loss-functions-and-metrics
+    - level: 3
+      text: Numerical Stability and Best Practices
+      anchor: numerical-stability-and-best-practices
+      status: preserved
+      destination: autoregressive-explained.md#numerical-stability-and-best-practices
+    - level: 2
+      text: Generation and Sampling Strategies
+      anchor: generation-and-sampling-strategies
+      status: preserved
+      destination: autoregressive-explained.md#generation-and-sampling-strategies
+    - level: 3
+      text: Greedy Decoding
+      anchor: greedy-decoding
+      status: preserved
+      destination: autoregressive-explained.md#greedy-decoding
+    - level: 3
+      text: Sampling with Temperature
+      anchor: sampling-with-temperature
+      status: preserved
+      destination: autoregressive-explained.md#sampling-with-temperature
+    - level: 3
+      text: Top-k Sampling
+      anchor: top-k-sampling
+      status: preserved
+      destination: autoregressive-explained.md#top-k-sampling
+    - level: 3
+      text: Top-p (Nucleus) Sampling
+      anchor: top-p-nucleus-sampling
+      status: preserved
+      destination: autoregressive-explained.md#top-p-nucleus-sampling
+    - level: 3
+      text: Beam Search
+      anchor: beam-search
+      status: preserved
+      destination: autoregressive-explained.md#beam-search
+    - level: 2
+      text: Comparing Autoregressive Models with Other Approaches
+      anchor: comparing-autoregressive-models-with-other-approaches
+      status: preserved
+      destination: autoregressive-explained.md#comparing-autoregressive-models-with-other-approaches
+    - level: 3
+      text: 'Autoregressive vs VAEs: Exact Likelihood vs Latent Compression'
+      anchor: autoregressive-vs-vaes-exact-likelihood-vs-latent-compression
+      status: preserved
+      destination: autoregressive-explained.md#autoregressive-vs-vaes-exact-likelihood-vs-latent-compression
+    - level: 3
+      text: 'Autoregressive vs GANs: Training Stability vs Generation Speed'
+      anchor: autoregressive-vs-gans-training-stability-vs-generation-speed
+      status: preserved
+      destination: autoregressive-explained.md#autoregressive-vs-gans-training-stability-vs-generation-speed
+    - level: 3
+      text: 'Autoregressive vs Diffusion: Likelihood vs Iterative Refinement'
+      anchor: autoregressive-vs-diffusion-likelihood-vs-iterative-refinement
+      status: preserved
+      destination: autoregressive-explained.md#autoregressive-vs-diffusion-likelihood-vs-iterative-refinement
+    - level: 3
+      text: 'Autoregressive vs Flows: Sequential vs Invertible'
+      anchor: autoregressive-vs-flows-sequential-vs-invertible
+      status: preserved
+      destination: autoregressive-explained.md#autoregressive-vs-flows-sequential-vs-invertible
+    - level: 2
+      text: Advanced Topics
+      anchor: advanced-topics
+      status: preserved
+      destination: autoregressive-explained.md#advanced-topics
+    - level: 3
+      text: Masked Autoregressive Flows (MAF)
+      anchor: masked-autoregressive-flows-maf
+      status: preserved
+      destination: autoregressive-explained.md#masked-autoregressive-flows-maf
+    - level: 3
+      text: Autoregressive Energy-Based Models
+      anchor: autoregressive-energy-based-models
+      status: preserved
+      destination: autoregressive-explained.md#autoregressive-energy-based-models
+    - level: 3
+      text: Sparse Transformers and Efficient Attention
+      anchor: sparse-transformers-and-efficient-attention
+      status: preserved
+      destination: autoregressive-explained.md#sparse-transformers-and-efficient-attention
+    - level: 3
+      text: Autoregressive for Protein and Scientific Data
+      anchor: autoregressive-for-protein-and-scientific-data
+      status: preserved
+      destination: autoregressive-explained.md#autoregressive-for-protein-and-scientific-data
+    - level: 2
+      text: 'Recent Advances (2024–2026): Mixture-of-Experts, State-Space, and Test-Time Reasoning'
+      anchor: recent-advances-20242026-mixture-of-experts-state-space-and-test-time-reasoning
+      status: preserved
+      destination: autoregressive-explained.md#sparse-recurrent-state-and-deliberative-autoregressive-systems
+    - level: 3
+      text: Mixture-of-Experts at Production Scale
+      anchor: mixture-of-experts-at-production-scale
+      status: preserved
+      destination: autoregressive-explained.md#mixture-of-experts-at-production-scale
+    - level: 3
+      text: State-Space Models and Hybrid Backbones
+      anchor: state-space-models-and-hybrid-backbones
+      status: preserved
+      destination: autoregressive-explained.md#state-space-models-and-hybrid-backbones
+    - level: 3
+      text: Multi-Token Prediction (MTP)
+      anchor: multi-token-prediction-mtp
+      status: preserved
+      destination: autoregressive-explained.md#multi-token-prediction-mtp
+    - level: 3
+      text: Speculative Decoding
+      anchor: speculative-decoding
+      status: preserved
+      destination: autoregressive-explained.md#speculative-decoding
+    - level: 3
+      text: Test-Time Compute and Reasoning Models
+      anchor: test-time-compute-and-reasoning-models
+      status: preserved
+      destination: autoregressive-explained.md#test-time-compute-and-reasoning-models
+    - level: 3
+      text: Continuous-Token Autoregression (CALM, MAR)
+      anchor: continuous-token-autoregression-calm-mar
+      status: preserved
+      destination: autoregressive-explained.md#continuous-token-autoregression-calm-mar
+    - level: 3
+      text: Visual and Multimodal Autoregression
+      anchor: visual-and-multimodal-autoregression
+      status: preserved
+      destination: autoregressive-explained.md#visual-and-multimodal-autoregression
+    - level: 3
+      text: 'Diffusion Language Models: an AR Alternative'
+      anchor: diffusion-language-models-an-ar-alternative
+      status: preserved
+      destination: autoregressive-explained.md#diffusion-language-models-an-ar-alternative
+    - level: 3
+      text: 'Modern Building Blocks: RoPE, GQA, MLA, RMSNorm, SwiGLU'
+      anchor: modern-building-blocks-rope-gqa-mla-rmsnorm-swiglu
+      status: preserved
+      destination: autoregressive-explained.md#transformer-building-blocks-rope-gqa-mla-rmsnorm-and-swiglu
+    - level: 3
+      text: 'Post-Training: RLHF → DPO → RLVR'
+      anchor: post-training-rlhf-dpo-rlvr
+      status: preserved
+      destination: autoregressive-explained.md#sparse-recurrent-state-and-deliberative-autoregressive-systems-post-training-rlhf-dpo-rlvr
+    - level: 3
+      text: 'Long-Context: From 2k to 10M Tokens'
+      anchor: long-context-from-2k-to-10m-tokens
+      status: preserved
+      destination: autoregressive-explained.md#long-context-from-2k-to-10m-tokens
+    - level: 3
+      text: Recent Surveys
+      anchor: recent-surveys
+      status: preserved
+      destination: autoregressive-explained.md#further-reading-surveys
+    - level: 2
+      text: Practical Implementation in Artifex
+      anchor: practical-implementation-in-artifex
+      status: preserved
+      destination: autoregressive-explained.md#practical-implementation-in-artifex
+    - level: 3
+      text: Basic Autoregressive Model
+      anchor: basic-autoregressive-model
+      status: preserved
+      destination: autoregressive-explained.md#basic-autoregressive-model
+    - level: 3
+      text: PixelCNN for Images
+      anchor: pixelcnn-for-images
+      status: preserved
+      destination: autoregressive-explained.md#pixelcnn-for-images
+    - level: 3
+      text: WaveNet for Audio
+      anchor: wavenet-for-audio
+      status: preserved
+      destination: autoregressive-explained.md#wavenet-for-audio
+    - level: 2
+      text: Evaluation Metrics
+      anchor: evaluation-metrics
+      status: preserved
+      destination: autoregressive-explained.md#evaluation-metrics
+    - level: 3
+      text: Density-Estimation Metrics
+      anchor: density-estimation-metrics
+      status: preserved
+      destination: autoregressive-explained.md#density-estimation-metrics
+    - level: 3
+      text: Language-Model Benchmarks
+      anchor: language-model-benchmarks
+      status: preserved
+      destination: autoregressive-explained.md#language-model-benchmarks
+    - level: 3
+      text: Image / Video / Audio AR Metrics
+      anchor: image-video-audio-ar-metrics
+      status: preserved
+      destination: autoregressive-explained.md#image-video-audio-ar-metrics
+    - level: 3
+      text: Inference / Throughput Metrics
+      anchor: inference-throughput-metrics
+      status: preserved
+      destination: autoregressive-explained.md#inference-throughput-metrics
+    - level: 2
+      text: Production Considerations
+      anchor: production-considerations
+      status: preserved
+      destination: autoregressive-explained.md#production-considerations
+    - level: 3
+      text: Inference Cost
+      anchor: inference-cost
+      status: preserved
+      destination: autoregressive-explained.md#inference-cost
+    - level: 3
+      text: Quantisation
+      anchor: quantisation
+      status: preserved
+      destination: autoregressive-explained.md#quantisation
+    - level: 3
+      text: Inference Stacks
+      anchor: inference-stacks
+      status: preserved
+      destination: autoregressive-explained.md#inference-stacks
+    - level: 3
+      text: Common Production Pitfalls
+      anchor: common-production-pitfalls
+      status: preserved
+      destination: autoregressive-explained.md#common-production-pitfalls
+    - level: 3
+      text: Ethical / Safety Considerations
+      anchor: ethical-safety-considerations
+      status: preserved
+      destination: autoregressive-explained.md#ethical-safety-considerations
+    - level: 2
+      text: Summary and Key Takeaways
+      anchor: summary-and-key-takeaways
+      status: preserved
+      destination: autoregressive-explained.md#summary-and-key-takeaways
+    - level: 3
+      text: Core Principles
+      anchor: core-principles
+      status: preserved
+      destination: autoregressive-explained.md#core-principles
+    - level: 3
+      text: Architecture Selection
+      anchor: architecture-selection
+      status: preserved
+      destination: autoregressive-explained.md#architecture-selection
+    - level: 3
+      text: Sampling Strategies
+      anchor: sampling-strategies
+      status: preserved
+      destination: autoregressive-explained.md#sampling-strategies
+    - level: 3
+      text: When to Use Autoregressive Models
+      anchor: when-to-use-autoregressive-models
+      status: preserved
+      destination: autoregressive-explained.md#when-to-use-autoregressive-models
+    - level: 3
+      text: Future Directions (2026 and Beyond)
+      anchor: future-directions-2026-and-beyond
+      status: preserved
+      destination: autoregressive-explained.md#open-research-directions
+    - level: 2
+      text: Next Steps
+      anchor: next-steps
+      status: preserved
+      destination: autoregressive-explained.md#next-steps
+    - level: 2
+      text: Further Reading
+      anchor: further-reading
+      status: preserved
+      destination: autoregressive-explained.md#further-reading
+    - level: 3
+      text: Seminal Papers (Must Read)
+      anchor: seminal-papers-must-read
+      status: preserved
+      destination: autoregressive-explained.md#seminal-papers-must-read
+    - level: 3
+      text: Autoregressive Flows
+      anchor: autoregressive-flows
+      status: preserved
+      destination: autoregressive-explained.md#autoregressive-flows
+    - level: 3
+      text: Efficient Transformers
+      anchor: efficient-transformers
+      status: preserved
+      destination: autoregressive-explained.md#efficient-transformers
+    - level: 3
+      text: Recent Advances (2023–2026)
+      anchor: recent-advances-20232026
+      status: preserved
+      destination: autoregressive-explained.md#architecture-and-inference-literature
+    - level: 4
+      text: Visual Autoregression
+      anchor: visual-autoregression
+      status: preserved
+      destination: autoregressive-explained.md#visual-autoregression
+    - level: 4
+      text: Open-Weights Foundation Models
+      anchor: open-weights-foundation-models
+      status: preserved
+      destination: autoregressive-explained.md#open-weights-foundation-models
+    - level: 4
+      text: State-Space and Hybrid Backbones
+      anchor: state-space-and-hybrid-backbones
+      status: preserved
+      destination: autoregressive-explained.md#state-space-and-hybrid-backbones
+    - level: 4
+      text: Multi-Token Prediction and Speculative Decoding
+      anchor: multi-token-prediction-and-speculative-decoding
+      status: preserved
+      destination: autoregressive-explained.md#multi-token-prediction-and-speculative-decoding
+    - level: 4
+      text: Test-Time Compute and Reasoning
+      anchor: test-time-compute-and-reasoning
+      status: preserved
+      destination: autoregressive-explained.md#test-time-compute-and-reasoning
+    - level: 4
+      text: Modern Building Blocks
+      anchor: modern-building-blocks
+      status: preserved
+      destination: autoregressive-explained.md#transformer-building-blocks
+    - level: 4
+      text: Post-Training (RLHF / DPO / RLVR)
+      anchor: post-training-rlhf-dpo-rlvr
+      status: preserved
+      destination: autoregressive-explained.md#sparse-recurrent-state-and-deliberative-autoregressive-systems-post-training-rlhf-dpo-rlvr
+    - level: 4
+      text: Long-Context
+      anchor: long-context
+      status: preserved
+      destination: autoregressive-explained.md#long-context
+    - level: 4
+      text: Continuous-Token AR
+      anchor: continuous-token-ar
+      status: preserved
+      destination: autoregressive-explained.md#continuous-token-ar
+    - level: 3
+      text: Surveys
+      anchor: surveys
+      status: preserved
+      destination: autoregressive-explained.md#surveys
+    - level: 3
+      text: Tutorial Resources
+      anchor: tutorial-resources
+      status: preserved
+      destination: autoregressive-explained.md#tutorial-resources
+  vae-explained.md:
+    baseline_sha256: b289b8911774c308e1d671083a30f8ca490acbc8db956daf9e1a35d062331cb2
+    word_count: 8031
+    line_count: 1299
+    artifacts:
+      headings_h1_h4: 69
+      headings_h2_h4: 68
+      raw_heading_like_lines_h2_h4: 68
+      display_math_blocks: 22
+      fenced_code_blocks: 17
+      mermaid_diagrams: 10
+      markdown_tables: 4
+      admonitions: 1
+      markdown_links: 156
+      external_links: 143
+    headings:
+    - level: 1
+      text: Variational Autoencoders (VAEs) Explained
+      anchor: variational-autoencoders-vaes-explained
+      status: preserved
+      destination: vae-explained.md#variational-autoencoders-vaes-explained
+    - level: 2
+      text: Overview
+      anchor: overview
+      status: preserved
+      destination: vae-explained.md#overview
+    - level: 3
+      text: 'The Intuition: Compression and Blueprints'
+      anchor: the-intuition-compression-and-blueprints
+      status: preserved
+      destination: vae-explained.md#constructive-interpretation-generation-inference-and-reconstruction
+    - level: 2
+      text: Mathematical Foundation
+      anchor: mathematical-foundation
+      status: preserved
+      destination: vae-explained.md#mathematical-foundation
+    - level: 3
+      text: The Generative Story
+      anchor: the-generative-story
+      status: preserved
+      destination: vae-explained.md#the-generative-story
+    - level: 3
+      text: 'Variational Inference: Why We Need Approximation'
+      anchor: variational-inference-why-we-need-approximation
+      status: preserved
+      destination: vae-explained.md#variational-inference-why-we-need-approximation
+    - level: 2
+      text: 'The ELBO: Evidence Lower BOund'
+      anchor: the-elbo-evidence-lower-bound
+      status: preserved
+      destination: vae-explained.md#the-elbo-evidence-lower-bound
+    - level: 3
+      text: Derivation from First Principles
+      anchor: derivation-from-first-principles
+      status: preserved
+      destination: vae-explained.md#derivation-from-first-principles
+    - level: 3
+      text: Two Interpretable Terms
+      anchor: two-interpretable-terms
+      status: preserved
+      destination: vae-explained.md#two-interpretable-terms
+    - level: 2
+      text: Architecture Components
+      anchor: architecture-components
+      status: preserved
+      destination: vae-explained.md#architecture-components
+    - level: 3
+      text: 'Encoder: Variational Posterior $q_\phi(z|x)$'
+      anchor: encoder-variational-posterior-q_phizx
+      status: preserved
+      destination: vae-explained.md#encoder-variational-posterior-q_phizx
+    - level: 3
+      text: 'Decoder: Likelihood $p_\theta(x|z)$'
+      anchor: decoder-likelihood-p_thetaxz
+      status: preserved
+      destination: vae-explained.md#decoder-likelihood-p_thetaxz
+    - level: 2
+      text: The Reparameterization Trick
+      anchor: the-reparameterization-trick
+      status: preserved
+      destination: vae-explained.md#the-reparameterization-trick
+    - level: 3
+      text: 'The Problem: Backpropagation Through Sampling'
+      anchor: the-problem-backpropagation-through-sampling
+      status: preserved
+      destination: vae-explained.md#the-problem-backpropagation-through-sampling
+    - level: 3
+      text: 'The Solution: Separate Randomness from Parameters'
+      anchor: the-solution-separate-randomness-from-parameters
+      status: preserved
+      destination: vae-explained.md#the-solution-separate-randomness-from-parameters
+    - level: 2
+      text: Loss Function and Training
+      anchor: loss-function-and-training
+      status: preserved
+      destination: vae-explained.md#loss-function-and-training
+    - level: 3
+      text: Practical Implementation
+      anchor: practical-implementation
+      status: preserved
+      destination: vae-explained.md#practical-implementation
+    - level: 3
+      text: Training Algorithm
+      anchor: training-algorithm
+      status: preserved
+      destination: vae-explained.md#training-algorithm
+    - level: 3
+      text: Key Training Metrics to Monitor
+      anchor: key-training-metrics-to-monitor
+      status: preserved
+      destination: vae-explained.md#key-training-metrics-to-monitor
+    - level: 2
+      text: VAE Variants
+      anchor: vae-variants
+      status: preserved
+      destination: vae-explained.md#vae-variants
+    - level: 3
+      text: 'β-VAE: Disentangled Representations'
+      anchor: -vae-disentangled-representations
+      status: preserved
+      destination: vae-explained.md#-vae-disentangled-representations
+    - level: 3
+      text: 'β-TCVAE and FactorVAE: Targeting Total Correlation'
+      anchor: -tcvae-and-factorvae-targeting-total-correlation
+      status: preserved
+      destination: vae-explained.md#beta-tcvae-and-factorvae-targeting-total-correlation
+    - level: 3
+      text: Conditional VAE (CVAE)
+      anchor: conditional-vae-cvae
+      status: preserved
+      destination: vae-explained.md#conditional-vae-cvae
+    - level: 3
+      text: Vector Quantized VAE (VQ-VAE)
+      anchor: vector-quantized-vae-vq-vae
+      status: preserved
+      destination: vae-explained.md#vector-quantized-vae-vq-vae
+    - level: 2
+      text: Training Dynamics and Common Challenges
+      anchor: training-dynamics-and-common-challenges
+      status: preserved
+      destination: vae-explained.md#training-dynamics-and-common-challenges
+    - level: 3
+      text: Posterior Collapse
+      anchor: posterior-collapse
+      status: preserved
+      destination: vae-explained.md#posterior-collapse
+    - level: 3
+      text: Blurry Reconstructions
+      anchor: blurry-reconstructions
+      status: preserved
+      destination: vae-explained.md#blurry-reconstructions
+    - level: 3
+      text: Optimization Challenges
+      anchor: optimization-challenges
+      status: preserved
+      destination: vae-explained.md#optimization-challenges
+    - level: 2
+      text: Advanced Topics
+      anchor: advanced-topics
+      status: preserved
+      destination: vae-explained.md#advanced-topics
+    - level: 3
+      text: Hierarchical VAEs
+      anchor: hierarchical-vaes
+      status: preserved
+      destination: vae-explained.md#hierarchical-vaes
+    - level: 3
+      text: Importance Weighted VAE (IWAE)
+      anchor: importance-weighted-vae-iwae
+      status: preserved
+      destination: vae-explained.md#importance-weighted-vae-iwae
+    - level: 3
+      text: Normalizing Flow VAE
+      anchor: normalizing-flow-vae
+      status: preserved
+      destination: vae-explained.md#normalizing-flow-vae
+    - level: 3
+      text: VampPrior and Learned Priors
+      anchor: vampprior-and-learned-priors
+      status: preserved
+      destination: vae-explained.md#vampprior-and-learned-priors
+    - level: 2
+      text: VAEs Inside Modern Generative Pipelines
+      anchor: vaes-inside-modern-generative-pipelines
+      status: preserved
+      destination: vae-explained.md#vaes-as-codecs-and-latent-components
+    - level: 3
+      text: Latent Diffusion Models (LDMs)
+      anchor: latent-diffusion-models-ldms
+      status: preserved
+      destination: vae-explained.md#latent-diffusion-models-ldms
+    - level: 3
+      text: Recent Tokenizer-VAE Advances (2024–2026)
+      anchor: recent-tokenizer-vae-advances-20242026
+      status: preserved
+      destination: vae-explained.md#tokenizer-and-codec-research
+    - level: 3
+      text: Diffusion–VAE Hybrids
+      anchor: diffusionvae-hybrids
+      status: preserved
+      destination: vae-explained.md#diffusionvae-hybrids
+    - level: 3
+      text: Foundation-Model Tokenizers
+      anchor: foundation-model-tokenizers
+      status: preserved
+      destination: vae-explained.md#foundation-model-tokenizers
+    - level: 2
+      text: Latent Space Properties and Interpretation
+      anchor: latent-space-properties-and-interpretation
+      status: preserved
+      destination: vae-explained.md#latent-space-properties-and-interpretation
+    - level: 3
+      text: Continuity and Interpolation
+      anchor: continuity-and-interpolation
+      status: preserved
+      destination: vae-explained.md#continuity-and-interpolation
+    - level: 3
+      text: 'Disentanglement: Independent Factors of Variation'
+      anchor: disentanglement-independent-factors-of-variation
+      status: preserved
+      destination: vae-explained.md#disentanglement-independent-factors-of-variation
+    - level: 2
+      text: Comparing VAEs with Other Generative Models
+      anchor: comparing-vaes-with-other-generative-models
+      status: preserved
+      destination: vae-explained.md#comparing-vaes-with-other-generative-models
+    - level: 3
+      text: When to Use VAEs
+      anchor: when-to-use-vaes
+      status: preserved
+      destination: vae-explained.md#when-to-use-vaes
+    - level: 3
+      text: When to Use GANs
+      anchor: when-to-use-gans
+      status: preserved
+      destination: vae-explained.md#when-to-use-gans
+    - level: 3
+      text: When to Use Diffusion Models
+      anchor: when-to-use-diffusion-models
+      status: preserved
+      destination: vae-explained.md#when-to-use-diffusion-models
+    - level: 2
+      text: Practical Implementation Guide
+      anchor: practical-implementation-guide
+      status: preserved
+      destination: vae-explained.md#practical-implementation-guide
+    - level: 3
+      text: Architecture Recommendations
+      anchor: architecture-recommendations
+      status: preserved
+      destination: vae-explained.md#architecture-recommendations
+    - level: 3
+      text: Hyperparameter Recommendations
+      anchor: hyperparameter-recommendations
+      status: preserved
+      destination: vae-explained.md#historical-starting-points-not-transferable-prescriptions
+    - level: 3
+      text: Essential Training Techniques
+      anchor: essential-training-techniques
+      status: preserved
+      destination: vae-explained.md#training-interventions-to-ablate
+    - level: 2
+      text: Evaluation Metrics
+      anchor: evaluation-metrics
+      status: preserved
+      destination: vae-explained.md#evaluation-metrics
+    - level: 3
+      text: Density-Estimation Metrics
+      anchor: density-estimation-metrics
+      status: preserved
+      destination: vae-explained.md#density-estimation-metrics
+    - level: 3
+      text: Sample / Reconstruction Quality
+      anchor: sample-reconstruction-quality
+      status: preserved
+      destination: vae-explained.md#sample-reconstruction-quality
+    - level: 3
+      text: Representation / Latent-Space Quality
+      anchor: representation-latent-space-quality
+      status: preserved
+      destination: vae-explained.md#representation-latent-space-quality
+    - level: 3
+      text: What to Report When
+      anchor: what-to-report-when
+      status: preserved
+      destination: vae-explained.md#what-to-report-when
+    - level: 2
+      text: Production Considerations
+      anchor: production-considerations
+      status: preserved
+      destination: vae-explained.md#production-considerations
+    - level: 3
+      text: Inference Cost (the codec view)
+      anchor: inference-cost-the-codec-view
+      status: preserved
+      destination: vae-explained.md#inference-cost-the-codec-view
+    - level: 3
+      text: Quantisation, Distillation, and Edge Deployment
+      anchor: quantisation-distillation-and-edge-deployment
+      status: preserved
+      destination: vae-explained.md#quantisation-distillation-and-edge-deployment
+    - level: 3
+      text: Ethical and Safety Notes
+      anchor: ethical-and-safety-notes
+      status: preserved
+      destination: vae-explained.md#ethical-and-safety-notes
+    - level: 2
+      text: Summary and Key Takeaways
+      anchor: summary-and-key-takeaways
+      status: preserved
+      destination: vae-explained.md#summary-and-key-takeaways
+    - level: 2
+      text: Next Steps
+      anchor: next-steps
+      status: preserved
+      destination: vae-explained.md#next-steps
+    - level: 2
+      text: Additional Readings
+      anchor: additional-readings
+      status: preserved
+      destination: vae-explained.md#further-reading
+    - level: 3
+      text: Seminal Papers (Must Read)
+      anchor: seminal-papers-must-read
+      status: preserved
+      destination: vae-explained.md#seminal-papers-must-read
+    - level: 3
+      text: Tutorial Papers and Books
+      anchor: tutorial-papers-and-books
+      status: preserved
+      destination: vae-explained.md#tutorial-papers-and-books
+    - level: 3
+      text: Important VAE Variants
+      anchor: important-vae-variants
+      status: preserved
+      destination: vae-explained.md#important-vae-variants
+    - level: 3
+      text: VAEs in Modern Generative Pipelines (2022–2026)
+      anchor: vaes-in-modern-generative-pipelines-20222026
+      status: preserved
+      destination: vae-explained.md#vaes-as-components-in-generative-pipelines
+    - level: 3
+      text: Posterior Collapse, Annealing, and Identifiability
+      anchor: posterior-collapse-annealing-and-identifiability
+      status: preserved
+      destination: vae-explained.md#posterior-collapse-annealing-and-identifiability
+    - level: 3
+      text: Application Papers
+      anchor: application-papers
+      status: preserved
+      destination: vae-explained.md#application-papers
+    - level: 3
+      text: Online Resources and Code
+      anchor: online-resources-and-code
+      status: preserved
+      destination: vae-explained.md#online-resources-and-code
+    - level: 3
+      text: Books and Surveys
+      anchor: books-and-surveys
+      status: preserved
+      destination: vae-explained.md#books-and-surveys
+  gan-explained.md:
+    baseline_sha256: f256363aa541e992c63c21918e1168a5b18337791e212493bacd3cd7aa7e0d6b
+    word_count: 7352
+    line_count: 1254
+    artifacts:
+      headings_h1_h4: 70
+      headings_h2_h4: 69
+      raw_heading_like_lines_h2_h4: 69
+      display_math_blocks: 21
+      fenced_code_blocks: 10
+      mermaid_diagrams: 9
+      markdown_tables: 5
+      admonitions: 13
+      markdown_links: 114
+      external_links: 109
+    headings:
+    - level: 1
+      text: Understanding Generative Adversarial Networks (GANs)
+      anchor: understanding-generative-adversarial-networks-gans
+      status: preserved
+      destination: gan-explained.md#generative-adversarial-networks-gans-explained
+    - level: 2
+      text: Overview
+      anchor: overview
+      status: preserved
+      destination: gan-explained.md#overview
+    - level: 2
+      text: Mathematical Foundation
+      anchor: mathematical-foundation
+      status: preserved
+      destination: gan-explained.md#mathematical-foundation
+    - level: 3
+      text: The Adversarial Game
+      anchor: the-adversarial-game
+      status: preserved
+      destination: gan-explained.md#the-adversarial-game
+    - level: 3
+      text: Theoretical Analysis
+      anchor: theoretical-analysis
+      status: preserved
+      destination: gan-explained.md#mathematical-foundation-theoretical-analysis
+    - level: 3
+      text: Training Dynamics
+      anchor: training-dynamics
+      status: preserved
+      destination: gan-explained.md#training-dynamics
+    - level: 3
+      text: Nash Equilibrium
+      anchor: nash-equilibrium
+      status: preserved
+      destination: gan-explained.md#nash-equilibrium
+    - level: 2
+      text: Architecture Design
+      anchor: architecture-design
+      status: preserved
+      destination: gan-explained.md#architecture-design
+    - level: 3
+      text: Generator Network
+      anchor: generator-network
+      status: preserved
+      destination: gan-explained.md#generator-network
+    - level: 3
+      text: Discriminator Network
+      anchor: discriminator-network
+      status: preserved
+      destination: gan-explained.md#discriminator-or-critic-network
+    - level: 2
+      text: Building Intuition
+      anchor: building-intuition
+      status: preserved
+      destination: gan-explained.md#the-learned-comparison-signal
+    - level: 3
+      text: The Counterfeiter Analogy
+      anchor: the-counterfeiter-analogy
+      status: preserved
+      destination: gan-explained.md#alternating-witness-and-generator-updates
+    - level: 3
+      text: Key Insights
+      anchor: key-insights
+      status: preserved
+      destination: gan-explained.md#what-information-reaches-the-generator
+    - level: 3
+      text: Common Misconceptions
+      anchor: common-misconceptions
+      status: preserved
+      destination: gan-explained.md#common-misconceptions
+    - level: 3
+      text: The Discriminator's Role
+      anchor: the-discriminators-role
+      status: preserved
+      destination: gan-explained.md#the-discriminators-role
+    - level: 2
+      text: Training Challenges
+      anchor: training-challenges
+      status: preserved
+      destination: gan-explained.md#training-challenges
+    - level: 3
+      text: Mode Collapse
+      anchor: mode-collapse
+      status: preserved
+      destination: gan-explained.md#mode-collapse
+    - level: 3
+      text: Vanishing Gradients
+      anchor: vanishing-gradients
+      status: preserved
+      destination: gan-explained.md#vanishing-gradients
+    - level: 3
+      text: Training Instability
+      anchor: training-instability
+      status: preserved
+      destination: gan-explained.md#training-instability
+    - level: 2
+      text: GAN Variants
+      anchor: gan-variants
+      status: preserved
+      destination: gan-explained.md#gan-variants
+    - level: 3
+      text: 'DCGAN: Deep Convolutional GAN'
+      anchor: dcgan-deep-convolutional-gan
+      status: preserved
+      destination: gan-explained.md#dcgan-deep-convolutional-gan
+    - level: 3
+      text: 'WGAN: Wasserstein GAN'
+      anchor: wgan-wasserstein-gan
+      status: preserved
+      destination: gan-explained.md#wgan-wasserstein-gan
+    - level: 3
+      text: 'WGAN-GP: Gradient Penalty'
+      anchor: wgan-gp-gradient-penalty
+      status: preserved
+      destination: gan-explained.md#wgan-gp-gradient-penalty
+    - level: 3
+      text: Conditional GAN (cGAN)
+      anchor: conditional-gan-cgan
+      status: preserved
+      destination: gan-explained.md#conditional-gan-cgan
+    - level: 3
+      text: 'Pix2Pix: Image-to-Image Translation'
+      anchor: pix2pix-image-to-image-translation
+      status: preserved
+      destination: gan-explained.md#pix2pix-image-to-image-translation
+    - level: 3
+      text: 'CycleGAN: Unpaired Translation'
+      anchor: cyclegan-unpaired-translation
+      status: preserved
+      destination: gan-explained.md#cyclegan-unpaired-translation
+    - level: 3
+      text: 'StyleGAN: Style-Based Generator'
+      anchor: stylegan-style-based-generator
+      status: preserved
+      destination: gan-explained.md#stylegan-style-based-generator
+    - level: 2
+      text: Latent Space Properties
+      anchor: latent-space-properties
+      status: preserved
+      destination: gan-explained.md#latent-space-properties
+    - level: 3
+      text: Interpolation and Continuity
+      anchor: interpolation-and-continuity
+      status: preserved
+      destination: gan-explained.md#interpolation-and-continuity
+    - level: 3
+      text: Semantic Vector Arithmetic
+      anchor: semantic-vector-arithmetic
+      status: preserved
+      destination: gan-explained.md#semantic-vector-arithmetic
+    - level: 3
+      text: Latent Space Structure
+      anchor: latent-space-structure
+      status: preserved
+      destination: gan-explained.md#latent-space-structure
+    - level: 2
+      text: Evaluation Metrics
+      anchor: evaluation-metrics
+      status: preserved
+      destination: gan-explained.md#evaluation-metrics
+    - level: 3
+      text: Inception Score (IS)
+      anchor: inception-score-is
+      status: preserved
+      destination: gan-explained.md#inception-score-is
+    - level: 3
+      text: Fréchet Inception Distance (FID)
+      anchor: frchet-inception-distance-fid
+      status: preserved
+      destination: gan-explained.md#frechet-inception-distance-fid
+    - level: 3
+      text: Precision and Recall
+      anchor: precision-and-recall
+      status: preserved
+      destination: gan-explained.md#precision-and-recall
+    - level: 3
+      text: Human Evaluation
+      anchor: human-evaluation
+      status: preserved
+      destination: gan-explained.md#human-evaluation
+    - level: 2
+      text: Training Best Practices
+      anchor: training-best-practices
+      status: preserved
+      destination: gan-explained.md#training-best-practices
+    - level: 3
+      text: Development Workflow
+      anchor: development-workflow
+      status: preserved
+      destination: gan-explained.md#development-workflow
+    - level: 3
+      text: Hyperparameter Guidelines
+      anchor: hyperparameter-guidelines
+      status: preserved
+      destination: gan-explained.md#historical-starting-points-not-universal-ranges
+    - level: 3
+      text: Debugging Strategies
+      anchor: debugging-strategies
+      status: preserved
+      destination: gan-explained.md#debugging-strategies
+    - level: 3
+      text: Stability Techniques
+      anchor: stability-techniques
+      status: preserved
+      destination: gan-explained.md#stability-techniques
+    - level: 2
+      text: Comparison with Other Generative Models
+      anchor: comparison-with-other-generative-models
+      status: preserved
+      destination: gan-explained.md#comparison-with-other-generative-models
+    - level: 3
+      text: GANs vs. VAEs
+      anchor: gans-vs-vaes
+      status: preserved
+      destination: gan-explained.md#gans-vs-vaes
+    - level: 3
+      text: GANs vs. Diffusion Models
+      anchor: gans-vs-diffusion-models
+      status: preserved
+      destination: gan-explained.md#gans-vs-diffusion-models
+    - level: 2
+      text: Advanced Topics
+      anchor: advanced-topics
+      status: preserved
+      destination: gan-explained.md#research-and-production
+    - level: 3
+      text: Progressive Growing
+      anchor: progressive-growing
+      status: preserved
+      destination: gan-explained.md#progressive-growing
+    - level: 3
+      text: Self-Attention
+      anchor: self-attention
+      status: preserved
+      destination: gan-explained.md#self-attention
+    - level: 3
+      text: BigGAN
+      anchor: biggan
+      status: preserved
+      destination: gan-explained.md#biggan
+    - level: 3
+      text: 3D-Aware Generation
+      anchor: 3d-aware-generation
+      status: preserved
+      destination: gan-explained.md#3d-aware-generation
+    - level: 2
+      text: 'Adversarial Training in 2023–2026: Modern GANs and Diffusion Distillation'
+      anchor: adversarial-training-in-20232026-modern-gans-and-diffusion-distillation
+      status: preserved
+      destination: gan-explained.md#adversarial-training-pure-gans-and-diffusion-distillation
+    - level: 3
+      text: Modernised Pure GANs (2023–2024)
+      anchor: modernised-pure-gans-20232024
+      status: preserved
+      destination: gan-explained.md#pure-gan-architectures-and-training
+    - level: 3
+      text: GAN-Style Distillation of Diffusion Models (2023–2026)
+      anchor: gan-style-distillation-of-diffusion-models-20232026
+      status: preserved
+      destination: gan-explained.md#gan-style-distillation-of-diffusion-models
+    - level: 3
+      text: Diffusion–GAN Hybrids (Architecturally)
+      anchor: diffusiongan-hybrids-architecturally
+      status: preserved
+      destination: gan-explained.md#diffusiongan-hybrids-architecturally
+    - level: 2
+      text: Production Considerations
+      anchor: production-considerations
+      status: preserved
+      destination: gan-explained.md#production-considerations
+    - level: 3
+      text: Deployment Challenges
+      anchor: deployment-challenges
+      status: preserved
+      destination: gan-explained.md#deployment-challenges
+    - level: 3
+      text: Monitoring and Maintenance
+      anchor: monitoring-and-maintenance
+      status: preserved
+      destination: gan-explained.md#monitoring-and-maintenance
+    - level: 3
+      text: Ethical Considerations
+      anchor: ethical-considerations
+      status: preserved
+      destination: gan-explained.md#ethical-considerations
+    - level: 2
+      text: Future Directions (2026 and Beyond)
+      anchor: future-directions-2026-and-beyond
+      status: preserved
+      destination: gan-explained.md#open-research-directions
+    - level: 3
+      text: Open Research Problems
+      anchor: open-research-problems
+      status: preserved
+      destination: gan-explained.md#open-research-problems
+    - level: 3
+      text: Emerging Trends
+      anchor: emerging-trends
+      status: preserved
+      destination: gan-explained.md#research-directions-across-system-types
+    - level: 3
+      text: Hybrid Approaches
+      anchor: hybrid-approaches
+      status: preserved
+      destination: gan-explained.md#hybrid-approaches
+    - level: 2
+      text: Summary and Key Takeaways
+      anchor: summary-and-key-takeaways
+      status: preserved
+      destination: gan-explained.md#summary-and-key-takeaways
+    - level: 2
+      text: Next Steps
+      anchor: next-steps
+      status: preserved
+      destination: gan-explained.md#next-steps
+    - level: 2
+      text: Further Reading
+      anchor: further-reading
+      status: preserved
+      destination: gan-explained.md#further-reading
+    - level: 3
+      text: Seminal Papers (Must Read)
+      anchor: seminal-papers-must-read
+      status: preserved
+      destination: gan-explained.md#seminal-papers-must-read
+    - level: 3
+      text: Application Papers
+      anchor: application-papers
+      status: preserved
+      destination: gan-explained.md#application-papers
+    - level: 3
+      text: Theoretical Analysis
+      anchor: theoretical-analysis
+      status: preserved
+      destination: gan-explained.md#mathematical-foundation-theoretical-analysis
+    - level: 3
+      text: Stability and Architecture (the canon)
+      anchor: stability-and-architecture-the-canon
+      status: preserved
+      destination: gan-explained.md#stability-and-architecture
+    - level: 3
+      text: Recent Advances and Distillation (2022–2026)
+      anchor: recent-advances-and-distillation-20222026
+      status: preserved
+      destination: gan-explained.md#hybrid-objectives-and-distillation
+    - level: 3
+      text: Surveys
+      anchor: surveys
+      status: preserved
+      destination: gan-explained.md#surveys
+  ebm-explained.md:
+    baseline_sha256: c2216775f341a82ff8e8442224c68b48f4262915ac85417ef6f6107076eba6cf
+    word_count: 6732
+    line_count: 1239
+    artifacts:
+      headings_h1_h4: 60
+      headings_h2_h4: 59
+      raw_heading_like_lines_h2_h4: 59
+      display_math_blocks: 23
+      fenced_code_blocks: 12
+      mermaid_diagrams: 3
+      markdown_tables: 7
+      admonitions: 2
+      markdown_links: 92
+      external_links: 73
+    headings:
+    - level: 1
+      text: Energy-Based Models (EBMs) Explained
+      anchor: energy-based-models-ebms-explained
+      status: preserved
+      destination: ebm-explained.md#energy-based-models-ebms-explained
+    - level: 2
+      text: Overview
+      anchor: overview
+      status: preserved
+      destination: ebm-explained.md#overview
+    - level: 3
+      text: 'The Intuition: Probability Through Energy'
+      anchor: the-intuition-probability-through-energy
+      status: preserved
+      destination: ebm-explained.md#geometric-interpretation-level-sets-modes-and-stochastic-motion
+    - level: 2
+      text: Mathematical Foundation
+      anchor: mathematical-foundation
+      status: preserved
+      destination: ebm-explained.md#mathematical-foundation
+    - level: 3
+      text: The Boltzmann Distribution
+      anchor: the-boltzmann-distribution
+      status: preserved
+      destination: ebm-explained.md#the-boltzmann-distribution
+    - level: 3
+      text: The Intractable Partition Function
+      anchor: the-intractable-partition-function
+      status: preserved
+      destination: ebm-explained.md#the-intractable-partition-function
+    - level: 3
+      text: Energy Functions and Neural Networks
+      anchor: energy-functions-and-neural-networks
+      status: preserved
+      destination: ebm-explained.md#energy-functions-and-neural-networks
+    - level: 2
+      text: Training Energy-Based Models
+      anchor: training-energy-based-models
+      status: preserved
+      destination: ebm-explained.md#training-energy-based-models
+    - level: 3
+      text: 'Maximum Likelihood: The Ideal but Intractable Approach'
+      anchor: maximum-likelihood-the-ideal-but-intractable-approach
+      status: preserved
+      destination: ebm-explained.md#maximum-likelihood-the-ideal-but-intractable-approach
+    - level: 3
+      text: 'Contrastive Divergence: Practical Approximation'
+      anchor: contrastive-divergence-practical-approximation
+      status: preserved
+      destination: ebm-explained.md#contrastive-divergence-practical-approximation
+    - level: 3
+      text: Persistent Contrastive Divergence (PCD)
+      anchor: persistent-contrastive-divergence-pcd
+      status: preserved
+      destination: ebm-explained.md#persistent-contrastive-divergence-pcd
+    - level: 3
+      text: 'Langevin Dynamics: MCMC Sampling'
+      anchor: langevin-dynamics-mcmc-sampling
+      status: preserved
+      destination: ebm-explained.md#langevin-dynamics-mcmc-sampling
+    - level: 3
+      text: 'Score Matching: Avoiding Sampling'
+      anchor: score-matching-avoiding-sampling
+      status: preserved
+      destination: ebm-explained.md#score-matching-avoiding-sampling
+    - level: 3
+      text: Noise Contrastive Estimation (NCE)
+      anchor: noise-contrastive-estimation-nce
+      status: preserved
+      destination: ebm-explained.md#noise-contrastive-estimation-nce
+    - level: 2
+      text: Joint Energy-Based Models (JEM)
+      anchor: joint-energy-based-models-jem
+      status: preserved
+      destination: ebm-explained.md#joint-energy-based-models-jem
+    - level: 3
+      text: The Key Insight
+      anchor: the-key-insight
+      status: preserved
+      destination: ebm-explained.md#the-key-insight
+    - level: 3
+      text: Training JEM
+      anchor: training-jem
+      status: preserved
+      destination: ebm-explained.md#training-jem
+    - level: 2
+      text: Architecture Design
+      anchor: architecture-design
+      status: preserved
+      destination: ebm-explained.md#architecture-design
+    - level: 3
+      text: Energy Function Design Principles
+      anchor: energy-function-design-principles
+      status: preserved
+      destination: ebm-explained.md#energy-function-design-principles
+    - level: 3
+      text: MLP Energy Function (Tabular Data)
+      anchor: mlp-energy-function-tabular-data
+      status: preserved
+      destination: ebm-explained.md#mlp-energy-function-tabular-data
+    - level: 3
+      text: CNN Energy Function (Images)
+      anchor: cnn-energy-function-images
+      status: preserved
+      destination: ebm-explained.md#cnn-energy-function-images
+    - level: 3
+      text: Deep Energy Functions with Residual Blocks
+      anchor: deep-energy-functions-with-residual-blocks
+      status: preserved
+      destination: ebm-explained.md#deep-energy-functions-with-residual-blocks
+    - level: 2
+      text: Training Dynamics and Best Practices
+      anchor: training-dynamics-and-best-practices
+      status: preserved
+      destination: ebm-explained.md#training-dynamics-and-best-practices
+    - level: 3
+      text: Sample Buffer Management
+      anchor: sample-buffer-management
+      status: preserved
+      destination: ebm-explained.md#sample-buffer-management
+    - level: 3
+      text: Hyperparameter Guidelines
+      anchor: hyperparameter-guidelines
+      status: preserved
+      destination: ebm-explained.md#historical-settings-and-a-unit-consistent-tuning-protocol
+    - level: 3
+      text: Common Training Issues
+      anchor: common-training-issues
+      status: preserved
+      destination: ebm-explained.md#common-training-issues
+    - level: 3
+      text: Monitoring and Diagnostics
+      anchor: monitoring-and-diagnostics
+      status: preserved
+      destination: ebm-explained.md#monitoring-and-diagnostics
+    - level: 2
+      text: Comparing EBMs with Other Generative Models
+      anchor: comparing-ebms-with-other-generative-models
+      status: preserved
+      destination: ebm-explained.md#comparing-ebms-with-other-generative-models
+    - level: 3
+      text: 'EBMs vs GANs: Stable Training vs Sharp Samples'
+      anchor: ebms-vs-gans-stable-training-vs-sharp-samples
+      status: preserved
+      destination: ebm-explained.md#ebms-vs-gans-stable-training-vs-sharp-samples
+    - level: 3
+      text: 'EBMs vs VAEs: Flexibility vs Efficiency'
+      anchor: ebms-vs-vaes-flexibility-vs-efficiency
+      status: preserved
+      destination: ebm-explained.md#ebms-vs-vaes-flexibility-vs-efficiency
+    - level: 3
+      text: 'EBMs vs Diffusion Models: Principled Energy vs Iterative Denoising'
+      anchor: ebms-vs-diffusion-models-principled-energy-vs-iterative-denoising
+      status: preserved
+      destination: ebm-explained.md#ebms-vs-diffusion-models-principled-energy-vs-iterative-denoising
+    - level: 2
+      text: 'Recent Advances (2024–2026): Energy-Flow Methods and Implicit EBMs'
+      anchor: recent-advances-20242026-energy-flow-methods-and-implicit-ebms
+      status: preserved
+      destination: ebm-explained.md#energyflow-constructions-and-implicit-ebms
+    - level: 3
+      text: Foundational Refinements (2021–2023)
+      anchor: foundational-refinements-20212023
+      status: preserved
+      destination: ebm-explained.md#foundational-refinements
+    - level: 3
+      text: 'Energy Matching: Unifying Flows and EBMs'
+      anchor: energy-matching-unifying-flows-and-ebms
+      status: preserved
+      destination: ebm-explained.md#energy-matching-unifying-flows-and-ebms
+    - level: 3
+      text: 'Equilibrium Matching: Implicit Energy via Gradient Descent'
+      anchor: equilibrium-matching-implicit-energy-via-gradient-descent
+      status: preserved
+      destination: ebm-explained.md#equilibrium-matching-implicit-energy-via-gradient-descent
+    - level: 3
+      text: Energy-Based Diffusion Language Models (EDLM)
+      anchor: energy-based-diffusion-language-models-edlm
+      status: preserved
+      destination: ebm-explained.md#energy-based-diffusion-language-models-edlm
+    - level: 3
+      text: ARMs are Secretly EBMs (2026)
+      anchor: arms-are-secretly-ebms-2026
+      status: preserved
+      destination: ebm-explained.md#arms-are-secretly-ebms
+    - level: 3
+      text: Maximum-Entropy IRL for Diffusion Models
+      anchor: maximum-entropy-irl-for-diffusion-models
+      status: preserved
+      destination: ebm-explained.md#maximum-entropy-irl-for-diffusion-models
+    - level: 3
+      text: Practical Recipes for Modern EBMs
+      anchor: practical-recipes-for-modern-ebms
+      status: preserved
+      destination: ebm-explained.md#method-specific-implementation-patterns
+    - level: 2
+      text: Evaluation Metrics
+      anchor: evaluation-metrics
+      status: preserved
+      destination: ebm-explained.md#evaluation-metrics
+    - level: 3
+      text: Density-Estimation Metrics
+      anchor: density-estimation-metrics
+      status: preserved
+      destination: ebm-explained.md#density-estimation-metrics
+    - level: 3
+      text: Sample-Quality Metrics
+      anchor: sample-quality-metrics
+      status: preserved
+      destination: ebm-explained.md#sample-quality-metrics
+    - level: 3
+      text: Out-of-Distribution Detection
+      anchor: out-of-distribution-detection
+      status: preserved
+      destination: ebm-explained.md#out-of-distribution-detection
+    - level: 3
+      text: Representation Quality (JEM, conditional EBMs)
+      anchor: representation-quality-jem-conditional-ebms
+      status: preserved
+      destination: ebm-explained.md#representation-quality-jem-conditional-ebms
+    - level: 2
+      text: Production Considerations
+      anchor: production-considerations
+      status: preserved
+      destination: ebm-explained.md#production-considerations
+    - level: 3
+      text: Inference Cost
+      anchor: inference-cost
+      status: preserved
+      destination: ebm-explained.md#inference-cost
+    - level: 3
+      text: Quantisation and Deployment
+      anchor: quantisation-and-deployment
+      status: preserved
+      destination: ebm-explained.md#quantisation-and-deployment
+    - level: 3
+      text: Common Pitfalls in Production
+      anchor: common-pitfalls-in-production
+      status: preserved
+      destination: ebm-explained.md#common-pitfalls-in-production
+    - level: 2
+      text: Summary and Key Takeaways
+      anchor: summary-and-key-takeaways
+      status: preserved
+      destination: ebm-explained.md#summary-and-key-takeaways
+    - level: 3
+      text: Core Principles
+      anchor: core-principles
+      status: preserved
+      destination: ebm-explained.md#core-principles
+    - level: 3
+      text: Training Methods
+      anchor: training-methods
+      status: preserved
+      destination: ebm-explained.md#training-methods
+    - level: 3
+      text: When to Use EBMs
+      anchor: when-to-use-ebms
+      status: preserved
+      destination: ebm-explained.md#when-to-use-ebms
+    - level: 3
+      text: Future Directions (2026 and Beyond)
+      anchor: future-directions-2026-and-beyond
+      status: preserved
+      destination: ebm-explained.md#open-research-directions
+    - level: 2
+      text: Next Steps
+      anchor: next-steps
+      status: preserved
+      destination: ebm-explained.md#next-steps
+    - level: 2
+      text: Further Reading
+      anchor: further-reading
+      status: preserved
+      destination: ebm-explained.md#further-reading
+    - level: 3
+      text: Seminal Papers (Must Read)
+      anchor: seminal-papers-must-read
+      status: preserved
+      destination: ebm-explained.md#seminal-papers-must-read
+    - level: 3
+      text: Modern EBMs and Applications
+      anchor: modern-ebms-and-applications
+      status: preserved
+      destination: ebm-explained.md#ebm-applications-and-compositions
+    - level: 3
+      text: Recent Advances (2023–2026)
+      anchor: recent-advances-20232026
+      status: preserved
+      destination: ebm-explained.md#energy-and-score-literature
+    - level: 3
+      text: Surveys
+      anchor: surveys
+      status: preserved
+      destination: ebm-explained.md#surveys
+    - level: 3
+      text: Tutorial Resources
+      anchor: tutorial-resources
+      status: preserved
+      destination: ebm-explained.md#tutorial-resources
+  diffusion-explained.md:
+    baseline_sha256: e1bf731a8f364af153ec387e4df9c1871d34f6090461aa21eda7e63084948db5
+    word_count: 18211
+    line_count: 2434
+    artifacts:
+      headings_h1_h4: 118
+      headings_h2_h4: 117
+      raw_heading_like_lines_h2_h4: 117
+      display_math_blocks: 57
+      fenced_code_blocks: 12
+      mermaid_diagrams: 11
+      markdown_tables: 9
+      admonitions: 11
+      markdown_links: 338
+      external_links: 312
+    headings:
+    - level: 1
+      text: Diffusion Models Explained
+      anchor: diffusion-models-explained
+      status: preserved
+      destination: diffusion-explained.md#diffusion-models-explained
+    - level: 2
+      text: Overview
+      anchor: overview
+      status: preserved
+      destination: diffusion-explained.md#overview
+    - level: 3
+      text: 'The Intuition: From Ink to Water and Back'
+      anchor: the-intuition-from-ink-to-water-and-back
+      status: preserved
+      destination: diffusion-explained.md#constructive-interpretation-corrupt-estimate-and-reverse
+    - level: 2
+      text: Mathematical Foundation
+      anchor: mathematical-foundation
+      status: preserved
+      destination: diffusion-explained.md#mathematical-foundation
+    - level: 3
+      text: The Forward Diffusion Process
+      anchor: the-forward-diffusion-process
+      status: preserved
+      destination: diffusion-explained.md#the-forward-diffusion-process
+    - level: 3
+      text: The Reverse Diffusion Process
+      anchor: the-reverse-diffusion-process
+      status: preserved
+      destination: diffusion-explained.md#the-reverse-diffusion-process
+    - level: 3
+      text: The ELBO Derivation
+      anchor: the-elbo-derivation
+      status: preserved
+      destination: diffusion-explained.md#the-elbo-derivation
+    - level: 3
+      text: Variance Schedules
+      anchor: variance-schedules
+      status: preserved
+      destination: diffusion-explained.md#variance-schedules
+    - level: 3
+      text: Score-Based Perspective
+      anchor: score-based-perspective
+      status: preserved
+      destination: diffusion-explained.md#score-based-perspective
+    - level: 3
+      text: Stochastic Differential Equations
+      anchor: stochastic-differential-equations
+      status: preserved
+      destination: diffusion-explained.md#stochastic-differential-equations
+    - level: 2
+      text: Architecture Design
+      anchor: architecture-design
+      status: preserved
+      destination: diffusion-explained.md#architecture-design
+    - level: 3
+      text: U-Net Backbone with Skip Connections
+      anchor: u-net-backbone-with-skip-connections
+      status: preserved
+      destination: diffusion-explained.md#u-net-backbone-with-skip-connections
+    - level: 3
+      text: 'Beyond U-Net: Modern Architecture Alternatives (2023–2026)'
+      anchor: beyond-u-net-modern-architecture-alternatives-20232026
+      status: preserved
+      destination: diffusion-explained.md#beyond-u-net-transformer-state-space-and-hybrid-backbones
+    - level: 4
+      text: Diffusion Transformer (DiT)
+      anchor: diffusion-transformer-dit
+      status: preserved
+      destination: diffusion-explained.md#diffusion-transformer-dit
+    - level: 4
+      text: adaLN, adaLN-Zero, adaLN-single, adaLN-LoRA — Conditioning Variants
+      anchor: adaln-adaln-zero-adaln-single-adaln-lora-conditioning-variants
+      status: preserved
+      destination: diffusion-explained.md#adaln-adaln-zero-adaln-single-adaln-lora-conditioning-variants
+    - level: 4
+      text: U-ViT — Long Skip Connections in a Transformer
+      anchor: u-vit-long-skip-connections-in-a-transformer
+      status: preserved
+      destination: diffusion-explained.md#u-vit-long-skip-connections-in-a-transformer
+    - level: 4
+      text: PixArt-α, PixArt-Σ — Efficient Text-Conditional DiTs
+      anchor: pixart-pixart-efficient-text-conditional-dits
+      status: preserved
+      destination: diffusion-explained.md#pixart-pixart-efficient-text-conditional-dits
+    - level: 4
+      text: MMDiT (SD3) — Multimodal Dual-Stream Transformer
+      anchor: mmdit-sd3-multimodal-dual-stream-transformer
+      status: preserved
+      destination: diffusion-explained.md#mmdit-sd3-multimodal-dual-stream-transformer
+    - level: 4
+      text: Hourglass Diffusion Transformer (HDiT)
+      anchor: hourglass-diffusion-transformer-hdit
+      status: preserved
+      destination: diffusion-explained.md#hourglass-diffusion-transformer-hdit
+    - level: 4
+      text: SiT — Scalable Interpolant Transformers
+      anchor: sit-scalable-interpolant-transformers
+      status: preserved
+      destination: diffusion-explained.md#sit-scalable-interpolant-transformers
+    - level: 4
+      text: FiT / FiTv2 — Flexible-Resolution DiTs
+      anchor: fit-fitv2-flexible-resolution-dits
+      status: preserved
+      destination: diffusion-explained.md#fit-fitv2-flexible-resolution-dits
+    - level: 4
+      text: Hunyuan-DiT — Multi-Resolution Bilingual Text-to-Image
+      anchor: hunyuan-dit-multi-resolution-bilingual-text-to-image
+      status: preserved
+      destination: diffusion-explained.md#hunyuan-dit-multi-resolution-bilingual-text-to-image
+    - level: 4
+      text: Lumina-Next, DiT-Air — Parameter-Efficient Multi-Modal DiTs
+      anchor: lumina-next-dit-air-parameter-efficient-multi-modal-dits
+      status: preserved
+      destination: diffusion-explained.md#lumina-next-dit-air-parameter-efficient-multi-modal-dits
+    - level: 4
+      text: 'Mixture-of-Experts Diffusion: DiT-MoE, EC-DiT, Switch-DiT'
+      anchor: mixture-of-experts-diffusion-dit-moe-ec-dit-switch-dit
+      status: preserved
+      destination: diffusion-explained.md#mixture-of-experts-diffusion-dit-moe-ec-dit-switch-dit
+    - level: 4
+      text: State-Space and Linear-Attention Backbones (2024–2026)
+      anchor: state-space-and-linear-attention-backbones-20242026
+      status: preserved
+      destination: diffusion-explained.md#state-space-and-linear-attention-backbones
+    - level: 4
+      text: Dynamic / Sparse / Cached DiTs
+      anchor: dynamic-sparse-cached-dits
+      status: preserved
+      destination: diffusion-explained.md#dynamic-sparse-cached-dits
+    - level: 4
+      text: Autoregressive Challengers (2024) — VAR and MAR
+      anchor: autoregressive-challengers-2024-var-and-mar
+      status: preserved
+      destination: diffusion-explained.md#autoregressive-and-masked-image-alternatives-var-and-mar
+    - level: 4
+      text: 'Choosing a Backbone: a 2026 Cheat-Sheet'
+      anchor: choosing-a-backbone-a-2026-cheat-sheet
+      status: preserved
+      destination: diffusion-explained.md#backbone-decision-questions
+    - level: 3
+      text: Time / Noise-Level Conditioning
+      anchor: time-noise-level-conditioning
+      status: preserved
+      destination: diffusion-explained.md#architecture-design-time-noise-level-conditioning
+    - level: 4
+      text: 1. Encoding the Scalar
+      anchor: 1-encoding-the-scalar
+      status: preserved
+      destination: diffusion-explained.md#1-encoding-the-scalar
+    - level: 4
+      text: 2. Injecting the Embedding
+      anchor: 2-injecting-the-embedding
+      status: preserved
+      destination: diffusion-explained.md#2-injecting-the-embedding
+    - level: 4
+      text: 3. Practical Considerations
+      anchor: 3-practical-considerations
+      status: preserved
+      destination: diffusion-explained.md#3-practical-considerations
+    - level: 4
+      text: '4. A Recent Surprise: Is Noise Conditioning Even Necessary?'
+      anchor: 4-a-recent-surprise-is-noise-conditioning-even-necessary
+      status: preserved
+      destination: diffusion-explained.md#4-can-noise-conditioning-be-omitted
+    - level: 4
+      text: 5. A 2026 Practical Cheat-Sheet
+      anchor: 5-a-2026-practical-cheat-sheet
+      status: preserved
+      destination: diffusion-explained.md#5-practical-architecture-checklist
+    - level: 3
+      text: Attention Mechanisms
+      anchor: attention-mechanisms
+      status: preserved
+      destination: diffusion-explained.md#attention-mechanisms
+    - level: 4
+      text: Self-Attention
+      anchor: self-attention
+      status: preserved
+      destination: diffusion-explained.md#self-attention
+    - level: 4
+      text: Cross-Attention (for Text Conditioning)
+      anchor: cross-attention-for-text-conditioning
+      status: preserved
+      destination: diffusion-explained.md#cross-attention-for-text-conditioning
+    - level: 4
+      text: Joint Attention — MMDiT-Style Multimodal
+      anchor: joint-attention-mmdit-style-multimodal
+      status: preserved
+      destination: diffusion-explained.md#joint-attention-mmdit-style-multimodal
+    - level: 4
+      text: 'Position Encodings: Sinusoidal → Learned → RoPE → 2-D RoPE'
+      anchor: position-encodings-sinusoidal-learned-rope-2-d-rope
+      status: preserved
+      destination: diffusion-explained.md#position-encodings-sinusoidal-learned-rope-2-d-rope
+    - level: 4
+      text: Spatial, Temporal, and 3-D Attention in Video Diffusion
+      anchor: spatial-temporal-and-3-d-attention-in-video-diffusion
+      status: preserved
+      destination: diffusion-explained.md#spatial-temporal-and-3-d-attention-in-video-diffusion
+    - level: 4
+      text: Windowed and Neighborhood Attention (Sub-Quadratic, Sparse)
+      anchor: windowed-and-neighborhood-attention-sub-quadratic-sparse
+      status: preserved
+      destination: diffusion-explained.md#windowed-and-neighborhood-attention-sub-quadratic-sparse
+    - level: 4
+      text: Linear-Attention Variants (Beyond Softmax)
+      anchor: linear-attention-variants-beyond-softmax
+      status: preserved
+      destination: diffusion-explained.md#linear-attention-variants-beyond-softmax
+    - level: 4
+      text: Token Merging, Pruning, and Sparse Attention
+      anchor: token-merging-pruning-and-sparse-attention
+      status: preserved
+      destination: diffusion-explained.md#token-merging-pruning-and-sparse-attention
+    - level: 4
+      text: 'Implementation: FlashAttention and Friends'
+      anchor: implementation-flashattention-and-friends
+      status: preserved
+      destination: diffusion-explained.md#implementation-flashattention-and-friends
+    - level: 4
+      text: Feature and KV Caching at Inference
+      anchor: feature-and-kv-caching-at-inference
+      status: preserved
+      destination: diffusion-explained.md#feature-and-kv-caching-at-inference
+    - level: 4
+      text: 'Choosing an Attention Pattern: a 2026 Cheat-Sheet'
+      anchor: choosing-an-attention-pattern-a-2026-cheat-sheet
+      status: preserved
+      destination: diffusion-explained.md#attention-decision-questions
+    - level: 3
+      text: Model Parameterization Choices
+      anchor: model-parameterization-choices
+      status: preserved
+      destination: diffusion-explained.md#model-parameterization-choices
+    - level: 4
+      text: 'The Unifying Picture: A Linear Algebra of Targets'
+      anchor: the-unifying-picture-a-linear-algebra-of-targets
+      status: preserved
+      destination: diffusion-explained.md#conversion-boundaries-for-prediction-targets
+    - level: 4
+      text: ε-Prediction (Noise Prediction) — DDPM Default
+      anchor: -prediction-noise-prediction-ddpm-default
+      status: preserved
+      destination: diffusion-explained.md#-prediction-noise-prediction-ddpm-default
+    - level: 4
+      text: x₀-Prediction (Data Prediction)
+      anchor: x-prediction-data-prediction
+      status: preserved
+      destination: diffusion-explained.md#x0-prediction-data-prediction
+    - level: 4
+      text: v-Prediction (Velocity)
+      anchor: v-prediction-velocity
+      status: preserved
+      destination: diffusion-explained.md#v-prediction-velocity
+    - level: 4
+      text: Score Prediction (Score Matching)
+      anchor: score-prediction-score-matching
+      status: preserved
+      destination: diffusion-explained.md#score-prediction-score-matching
+    - level: 4
+      text: EDM "F-Prediction" with Preconditioning
+      anchor: edm-f-prediction-with-preconditioning
+      status: preserved
+      destination: diffusion-explained.md#edm-f-prediction-with-preconditioning
+    - level: 4
+      text: Flow-Matching Velocity (a different "v")
+      anchor: flow-matching-velocity-a-different-v
+      status: preserved
+      destination: diffusion-explained.md#flow-matching-velocity-a-different-v
+    - level: 4
+      text: How the Choice Interacts with Loss Weighting
+      anchor: how-the-choice-interacts-with-loss-weighting
+      status: preserved
+      destination: diffusion-explained.md#how-the-choice-interacts-with-loss-weighting
+    - level: 4
+      text: 'Loss Re-weighting in 2024–2026: Logit-Normal, EDM2, and P2-Weighting'
+      anchor: loss-re-weighting-in-20242026-logit-normal-edm2-and-p2-weighting
+      status: preserved
+      destination: diffusion-explained.md#loss-re-weighting-logit-normal-edm2-and-p2-weighting
+    - level: 4
+      text: 'Practical Guidance: a 2026 Cheat-Sheet'
+      anchor: practical-guidance-a-2026-cheat-sheet
+      status: preserved
+      destination: diffusion-explained.md#parameterization-decision-table
+    - level: 2
+      text: Training Process
+      anchor: training-process
+      status: preserved
+      destination: diffusion-explained.md#training-process
+    - level: 3
+      text: The Simplified Training Objective
+      anchor: the-simplified-training-objective
+      status: preserved
+      destination: diffusion-explained.md#the-simplified-training-objective
+    - level: 3
+      text: Loss Function Variants
+      anchor: loss-function-variants
+      status: preserved
+      destination: diffusion-explained.md#loss-function-variants
+    - level: 3
+      text: Training Stability and Best Practices
+      anchor: training-stability-and-best-practices
+      status: preserved
+      destination: diffusion-explained.md#training-stability-and-best-practices
+    - level: 3
+      text: Hyperparameter Selection
+      anchor: hyperparameter-selection
+      status: preserved
+      destination: diffusion-explained.md#hyperparameter-selection-as-a-named-protocol
+    - level: 3
+      text: Training Dynamics and Monitoring
+      anchor: training-dynamics-and-monitoring
+      status: preserved
+      destination: diffusion-explained.md#training-dynamics-and-monitoring
+    - level: 3
+      text: Computational Requirements
+      anchor: computational-requirements
+      status: preserved
+      destination: diffusion-explained.md#computational-requirements
+    - level: 2
+      text: Sampling Methods
+      anchor: sampling-methods
+      status: preserved
+      destination: diffusion-explained.md#sampling-methods
+    - level: 3
+      text: 'DDPM Sampling: The Iterative Reverse Process'
+      anchor: ddpm-sampling-the-iterative-reverse-process
+      status: preserved
+      destination: diffusion-explained.md#ddpm-sampling-the-iterative-reverse-process
+    - level: 3
+      text: 'DDIM: Fast Deterministic Sampling'
+      anchor: ddim-fast-deterministic-sampling
+      status: preserved
+      destination: diffusion-explained.md#ddim-fast-deterministic-sampling
+    - level: 3
+      text: Advanced ODE Solvers
+      anchor: advanced-ode-solvers
+      status: preserved
+      destination: diffusion-explained.md#advanced-ode-solvers
+    - level: 3
+      text: 'Consistency Models: One-Step Generation'
+      anchor: consistency-models-one-step-generation
+      status: preserved
+      destination: diffusion-explained.md#consistency-models-one-step-generation
+    - level: 3
+      text: Guidance Techniques
+      anchor: guidance-techniques
+      status: preserved
+      destination: diffusion-explained.md#guidance-techniques
+    - level: 2
+      text: Diffusion Model Variants
+      anchor: diffusion-model-variants
+      status: preserved
+      destination: diffusion-explained.md#diffusion-model-variants
+    - level: 3
+      text: Latent Diffusion Models (LDM / Stable Diffusion)
+      anchor: latent-diffusion-models-ldm-stable-diffusion
+      status: preserved
+      destination: diffusion-explained.md#latent-diffusion-models-ldm-stable-diffusion
+    - level: 3
+      text: Conditional Diffusion Models
+      anchor: conditional-diffusion-models
+      status: preserved
+      destination: diffusion-explained.md#conditional-diffusion-models
+    - level: 3
+      text: Cascade Diffusion Models
+      anchor: cascade-diffusion-models
+      status: preserved
+      destination: diffusion-explained.md#cascade-diffusion-models
+    - level: 3
+      text: Video Diffusion Models
+      anchor: video-diffusion-models
+      status: preserved
+      destination: diffusion-explained.md#video-diffusion-models
+    - level: 3
+      text: 3D Diffusion Models
+      anchor: 3d-diffusion-models
+      status: preserved
+      destination: diffusion-explained.md#3d-diffusion-models
+    - level: 2
+      text: Comparison with Other Generative Models
+      anchor: comparison-with-other-generative-models
+      status: preserved
+      destination: diffusion-explained.md#comparison-with-other-generative-models
+    - level: 3
+      text: Diffusion vs. GANs
+      anchor: diffusion-vs-gans
+      status: preserved
+      destination: diffusion-explained.md#diffusion-vs-gans
+    - level: 3
+      text: Diffusion vs. VAEs
+      anchor: diffusion-vs-vaes
+      status: preserved
+      destination: diffusion-explained.md#diffusion-vs-vaes
+    - level: 4
+      text: 'Hybrid Approach: Latent Diffusion'
+      anchor: hybrid-approach-latent-diffusion
+      status: preserved
+      destination: diffusion-explained.md#hybrid-approach-latent-diffusion
+    - level: 3
+      text: Diffusion vs. Autoregressive Models
+      anchor: diffusion-vs-autoregressive-models
+      status: preserved
+      destination: diffusion-explained.md#diffusion-vs-autoregressive-models
+    - level: 2
+      text: Theoretical Frameworks
+      anchor: theoretical-frameworks
+      status: preserved
+      destination: diffusion-explained.md#theoretical-frameworks
+    - level: 3
+      text: 'EDM: Elucidating the Design Space'
+      anchor: edm-elucidating-the-design-space
+      status: preserved
+      destination: diffusion-explained.md#edm-elucidating-the-design-space
+    - level: 2
+      text: 'Recent Advances (2024–2026): Distillation, Flow Matching, and Diffusion Language Models'
+      anchor: recent-advances-20242026-distillation-flow-matching-and-diffusion-language-models
+      status: preserved
+      destination: diffusion-explained.md#distillation-flow-matching-and-discrete-state-spaces
+    - level: 3
+      text: 'Few-Step Distillation: From 50 Steps to 1'
+      anchor: few-step-distillation-from-50-steps-to-1
+      status: preserved
+      destination: diffusion-explained.md#few-step-distillation-from-50-steps-to-1
+    - level: 3
+      text: Flow Matching and Rectified Flow at Scale
+      anchor: flow-matching-and-rectified-flow-at-scale
+      status: preserved
+      destination: diffusion-explained.md#flow-matching-and-rectified-flow-systems
+    - level: 3
+      text: 'Representation Alignment: Faster DiT Training (2024)'
+      anchor: representation-alignment-faster-dit-training-2024
+      status: preserved
+      destination: diffusion-explained.md#representation-alignment-for-dit-training
+    - level: 3
+      text: Diffusion Language Models (2024–2026)
+      anchor: diffusion-language-models-20242026
+      status: preserved
+      destination: diffusion-explained.md#further-reading-diffusion-language-models
+    - level: 3
+      text: Open-Source Video Diffusion (2024–2025)
+      anchor: open-source-video-diffusion-20242025
+      status: preserved
+      destination: diffusion-explained.md#open-source-video-diffusion
+    - level: 3
+      text: 'Post-Training: RLHF, DPO, Reward Models for Diffusion'
+      anchor: post-training-rlhf-dpo-reward-models-for-diffusion
+      status: preserved
+      destination: diffusion-explained.md#post-training-rlhf-dpo-reward-models-for-diffusion
+    - level: 3
+      text: 'A Brief Note on Anti-Diffusion: 2026 Critiques'
+      anchor: a-brief-note-on-anti-diffusion-2026-critiques
+      status: preserved
+      destination: diffusion-explained.md#a-brief-note-on-critiques-of-diffusion
+    - level: 2
+      text: Production Considerations
+      anchor: production-considerations
+      status: preserved
+      destination: diffusion-explained.md#production-considerations
+    - level: 3
+      text: Deployment Challenges
+      anchor: deployment-challenges
+      status: preserved
+      destination: diffusion-explained.md#deployment-challenges
+    - level: 3
+      text: Monitoring and Quality Control
+      anchor: monitoring-and-quality-control
+      status: preserved
+      destination: diffusion-explained.md#monitoring-and-quality-control
+    - level: 3
+      text: Ethical Considerations
+      anchor: ethical-considerations
+      status: preserved
+      destination: diffusion-explained.md#ethical-considerations
+    - level: 3
+      text: Safety Filters and Content Moderation
+      anchor: safety-filters-and-content-moderation
+      status: preserved
+      destination: diffusion-explained.md#safety-filters-and-content-moderation
+    - level: 2
+      text: Summary and Key Takeaways
+      anchor: summary-and-key-takeaways
+      status: preserved
+      destination: diffusion-explained.md#summary-and-key-takeaways
+    - level: 2
+      text: Next Steps
+      anchor: next-steps
+      status: preserved
+      destination: diffusion-explained.md#next-steps
+    - level: 2
+      text: Further Reading
+      anchor: further-reading
+      status: preserved
+      destination: diffusion-explained.md#further-reading
+    - level: 3
+      text: Seminal Papers (Must Read)
+      anchor: seminal-papers-must-read
+      status: preserved
+      destination: diffusion-explained.md#seminal-papers-must-read
+    - level: 3
+      text: Tutorial Papers and Surveys
+      anchor: tutorial-papers-and-surveys
+      status: preserved
+      destination: diffusion-explained.md#tutorial-papers-and-surveys
+    - level: 3
+      text: Important Variants and Extensions
+      anchor: important-variants-and-extensions
+      status: preserved
+      destination: diffusion-explained.md#important-variants-and-extensions
+    - level: 3
+      text: Sampling and Acceleration
+      anchor: sampling-and-acceleration
+      status: preserved
+      destination: diffusion-explained.md#sampling-and-acceleration
+    - level: 3
+      text: Architecture Innovations
+      anchor: architecture-innovations
+      status: preserved
+      destination: diffusion-explained.md#architecture-innovations
+    - level: 3
+      text: Attention Patterns and Position Encodings
+      anchor: attention-patterns-and-position-encodings
+      status: preserved
+      destination: diffusion-explained.md#attention-patterns-and-position-encodings
+    - level: 3
+      text: Attention Implementation and Inference Acceleration
+      anchor: attention-implementation-and-inference-acceleration
+      status: preserved
+      destination: diffusion-explained.md#attention-implementation-and-inference-acceleration
+    - level: 3
+      text: Flow Matching and Optimal Transport
+      anchor: flow-matching-and-optimal-transport
+      status: preserved
+      destination: diffusion-explained.md#flow-matching-and-optimal-transport
+    - level: 3
+      text: Distillation and Few-Step Generation (2023–2026)
+      anchor: distillation-and-few-step-generation-20232026
+      status: preserved
+      destination: diffusion-explained.md#distillation-and-few-step-generation
+    - level: 3
+      text: Training Acceleration and Representation Learning
+      anchor: training-acceleration-and-representation-learning
+      status: preserved
+      destination: diffusion-explained.md#training-acceleration-and-representation-learning
+    - level: 3
+      text: Time / Noise-Level Conditioning
+      anchor: time-noise-level-conditioning
+      status: preserved
+      destination: diffusion-explained.md#architecture-design-time-noise-level-conditioning
+    - level: 3
+      text: Diffusion Language Models (2024–2026)
+      anchor: diffusion-language-models-20242026
+      status: preserved
+      destination: diffusion-explained.md#further-reading-diffusion-language-models
+    - level: 3
+      text: Post-Training and Alignment
+      anchor: post-training-and-alignment
+      status: preserved
+      destination: diffusion-explained.md#post-training-and-alignment
+    - level: 3
+      text: Recent Surveys (last 6 months)
+      anchor: recent-surveys-last-6-months
+      status: preserved
+      destination: diffusion-explained.md#further-reading-surveys
+    - level: 3
+      text: Video and 3D Generation
+      anchor: video-and-3d-generation
+      status: preserved
+      destination: diffusion-explained.md#video-and-3d-generation
+    - level: 3
+      text: Scientific Applications
+      anchor: scientific-applications
+      status: preserved
+      destination: diffusion-explained.md#scientific-applications
+    - level: 3
+      text: Image Editing and Control
+      anchor: image-editing-and-control
+      status: preserved
+      destination: diffusion-explained.md#image-editing-and-control
+    - level: 3
+      text: Online Resources and Code
+      anchor: online-resources-and-code
+      status: preserved
+      destination: diffusion-explained.md#online-resources-and-code
+    - level: 3
+      text: Books and Complete Tutorials
+      anchor: books-and-complete-tutorials
+      status: preserved
+      destination: diffusion-explained.md#books-and-complete-tutorials
+  flow-explained.md:
+    baseline_sha256: 70f08047f832f9227009e5165d24ff533e1be48c130458d113622fc1620a993c
+    word_count: 8694
+    line_count: 1620
+    artifacts:
+      headings_h1_h4: 72
+      headings_h2_h4: 71
+      raw_heading_like_lines_h2_h4: 71
+      display_math_blocks: 27
+      fenced_code_blocks: 22
+      mermaid_diagrams: 7
+      markdown_tables: 9
+      admonitions: 2
+      markdown_links: 131
+      external_links: 118
+    headings:
+    - level: 1
+      text: Normalizing Flows Explained
+      anchor: normalizing-flows-explained
+      status: preserved
+      destination: flow-explained.md#normalizing-flows-and-flow-matching-explained
+    - level: 2
+      text: Overview
+      anchor: overview
+      status: preserved
+      destination: flow-explained.md#overview
+    - level: 3
+      text: 'The Intuition: Probability Transformations'
+      anchor: the-intuition-probability-transformations
+      status: preserved
+      destination: flow-explained.md#constructive-interpretation-transport-and-volume-change
+    - level: 2
+      text: Mathematical Foundation
+      anchor: mathematical-foundation
+      status: preserved
+      destination: flow-explained.md#mathematical-foundation
+    - level: 3
+      text: The Change of Variables Formula
+      anchor: the-change-of-variables-formula
+      status: preserved
+      destination: flow-explained.md#the-change-of-variables-formula
+    - level: 3
+      text: Composing Multiple Transformations
+      anchor: composing-multiple-transformations
+      status: preserved
+      destination: flow-explained.md#composing-multiple-transformations
+    - level: 3
+      text: Three Requirements for Flow Layers
+      anchor: three-requirements-for-flow-layers
+      status: preserved
+      destination: flow-explained.md#three-requirements-for-flow-layers
+    - level: 3
+      text: Base Distribution
+      anchor: base-distribution
+      status: preserved
+      destination: flow-explained.md#base-distribution
+    - level: 2
+      text: Flow Model Architectures
+      anchor: flow-model-architectures
+      status: preserved
+      destination: flow-explained.md#flow-model-architectures
+    - level: 3
+      text: '1. NICE: Pioneering Coupling Layers'
+      anchor: 1-nice-pioneering-coupling-layers
+      status: preserved
+      destination: flow-explained.md#1-nice-pioneering-coupling-layers
+    - level: 3
+      text: '2. RealNVP: Adding Scale for Expressiveness'
+      anchor: 2-realnvp-adding-scale-for-expressiveness
+      status: preserved
+      destination: flow-explained.md#2-realnvp-adding-scale-for-expressiveness
+    - level: 3
+      text: '3. Glow: Learnable Permutations'
+      anchor: 3-glow-learnable-permutations
+      status: preserved
+      destination: flow-explained.md#3-glow-learnable-permutations
+    - level: 3
+      text: '4. MAF: Masked Autoregressive Flow'
+      anchor: 4-maf-masked-autoregressive-flow
+      status: preserved
+      destination: flow-explained.md#4-maf-masked-autoregressive-flow
+    - level: 3
+      text: '5. IAF: Inverse Autoregressive Flow'
+      anchor: 5-iaf-inverse-autoregressive-flow
+      status: preserved
+      destination: flow-explained.md#5-iaf-inverse-autoregressive-flow
+    - level: 3
+      text: 6. Neural Spline Flows
+      anchor: 6-neural-spline-flows
+      status: preserved
+      destination: flow-explained.md#6-neural-spline-flows
+    - level: 2
+      text: Training Normalizing Flows
+      anchor: training-normalizing-flows
+      status: preserved
+      destination: flow-explained.md#training-normalizing-flows
+    - level: 3
+      text: Maximum Likelihood Objective
+      anchor: maximum-likelihood-objective
+      status: preserved
+      destination: flow-explained.md#maximum-likelihood-objective
+    - level: 3
+      text: Critical Preprocessing Steps
+      anchor: critical-preprocessing-steps
+      status: preserved
+      destination: flow-explained.md#critical-preprocessing-steps
+    - level: 3
+      text: Numerical Stability Techniques
+      anchor: numerical-stability-techniques
+      status: preserved
+      destination: flow-explained.md#numerical-stability-techniques
+    - level: 3
+      text: Monitoring Training
+      anchor: monitoring-training
+      status: preserved
+      destination: flow-explained.md#monitoring-training
+    - level: 3
+      text: Common Pitfalls and Solutions
+      anchor: common-pitfalls-and-solutions
+      status: preserved
+      destination: flow-explained.md#common-pitfalls-and-solutions
+    - level: 2
+      text: Continuous-Time Flows and Foundational Flow Matching
+      anchor: continuous-time-flows-and-foundational-flow-matching
+      status: preserved
+      destination: flow-explained.md#continuous-time-flows-and-foundational-flow-matching
+    - level: 3
+      text: Continuous Normalizing Flows (Neural ODEs)
+      anchor: continuous-normalizing-flows-neural-odes
+      status: preserved
+      destination: flow-explained.md#continuous-normalizing-flows-neural-odes
+    - level: 3
+      text: 'Residual Flows: Invertible ResNets'
+      anchor: residual-flows-invertible-resnets
+      status: preserved
+      destination: flow-explained.md#contractive-route-a-global-inverse-with-estimated-volume
+    - level: 3
+      text: 'Flow Matching: Simulation-Free Training'
+      anchor: flow-matching-simulation-free-training
+      status: preserved
+      destination: flow-explained.md#flow-matching-simulation-free-training
+    - level: 3
+      text: 'Rectified Flows: Learning Straight Trajectories'
+      anchor: rectified-flows-learning-straight-trajectories
+      status: preserved
+      destination: flow-explained.md#rectified-flows-learning-straight-trajectories
+    - level: 3
+      text: Discrete Flow Matching
+      anchor: discrete-flow-matching
+      status: preserved
+      destination: flow-explained.md#continuous-time-flows-and-foundational-flow-matching-discrete-flow-matching
+    - level: 3
+      text: 'Geometric Flows: Riemannian Manifolds'
+      anchor: geometric-flows-riemannian-manifolds
+      status: preserved
+      destination: flow-explained.md#geometric-flows-riemannian-manifolds
+    - level: 2
+      text: 'Recent Advances (2024–2026): Flow Matching, Mean Flows, and Modern Variants'
+      anchor: recent-advances-20242026-flow-matching-mean-flows-and-modern-variants
+      status: preserved
+      destination: flow-explained.md#conditional-rectified-and-average-velocity-flow-objectives
+    - level: 3
+      text: Conditional Flow Matching and Optimal-Transport Couplings
+      anchor: conditional-flow-matching-and-optimal-transport-couplings
+      status: preserved
+      destination: flow-explained.md#conditional-flow-matching-and-optimal-transport-couplings
+    - level: 3
+      text: 'Mean Flows: One-Step Generation Without Distillation'
+      anchor: mean-flows-one-step-generation-without-distillation
+      status: preserved
+      destination: flow-explained.md#mean-flows-one-step-generation-without-distillation
+    - level: 3
+      text: Classifier-Free Guidance for Flow Matching
+      anchor: classifier-free-guidance-for-flow-matching
+      status: preserved
+      destination: flow-explained.md#classifier-free-guidance-for-flow-matching
+    - level: 3
+      text: Discrete Flow Matching at Scale
+      anchor: discrete-flow-matching-at-scale
+      status: preserved
+      destination: flow-explained.md#discrete-flow-matching-at-scale
+    - level: 3
+      text: Variance-Reduced Training and Inference-Time Scaling
+      anchor: variance-reduced-training-and-inference-time-scaling
+      status: preserved
+      destination: flow-explained.md#variance-reduced-training-and-inference-time-scaling
+    - level: 3
+      text: Flow Map Matching and Consistency Bridges
+      anchor: flow-map-matching-and-consistency-bridges
+      status: preserved
+      destination: flow-explained.md#flow-map-matching-and-consistency-bridges
+    - level: 3
+      text: Production-Scale Flow Matching
+      anchor: production-scale-flow-matching
+      status: preserved
+      destination: flow-explained.md#production-scale-flow-matching
+    - level: 3
+      text: Surveys and Resources
+      anchor: surveys-and-resources
+      status: preserved
+      destination: flow-explained.md#surveys-and-resources
+    - level: 2
+      text: Comparing Flows with Other Generative Models
+      anchor: comparing-flows-with-other-generative-models
+      status: preserved
+      destination: flow-explained.md#comparing-flows-with-other-generative-models
+    - level: 3
+      text: 'Flows vs VAEs: Exact Likelihood vs Learned Compression'
+      anchor: flows-vs-vaes-exact-likelihood-vs-learned-compression
+      status: preserved
+      destination: flow-explained.md#flows-vs-vaes-exact-likelihood-vs-learned-compression
+    - level: 3
+      text: 'Flows vs GANs: Mode Coverage vs Sample Quality'
+      anchor: flows-vs-gans-mode-coverage-vs-sample-quality
+      status: preserved
+      destination: flow-explained.md#flows-vs-gans-mode-coverage-vs-sample-quality
+    - level: 3
+      text: 'Flows vs Diffusion: Speed vs Quality with Converging Trajectories'
+      anchor: flows-vs-diffusion-speed-vs-quality-with-converging-trajectories
+      status: preserved
+      destination: flow-explained.md#flows-vs-diffusion-speed-vs-quality-with-converging-trajectories
+    - level: 2
+      text: Practical Implementation Guidance
+      anchor: practical-implementation-guidance
+      status: preserved
+      destination: flow-explained.md#practical-implementation-guidance
+    - level: 3
+      text: Framework and Package Selection
+      anchor: framework-and-package-selection
+      status: preserved
+      destination: flow-explained.md#framework-and-package-selection
+    - level: 3
+      text: Architecture Selection Guide
+      anchor: architecture-selection-guide
+      status: preserved
+      destination: flow-explained.md#architecture-selection-guide
+    - level: 3
+      text: Recommended Hyperparameters by Task
+      anchor: recommended-hyperparameters-by-task
+      status: preserved
+      destination: flow-explained.md#illustrative-starting-configurations
+    - level: 3
+      text: Common Implementation Pitfalls
+      anchor: common-implementation-pitfalls
+      status: preserved
+      destination: flow-explained.md#common-implementation-pitfalls
+    - level: 2
+      text: Evaluation Metrics
+      anchor: evaluation-metrics
+      status: preserved
+      destination: flow-explained.md#evaluation-metrics
+    - level: 3
+      text: Density-Estimation Metrics (Classical Flows)
+      anchor: density-estimation-metrics-classical-flows
+      status: preserved
+      destination: flow-explained.md#density-estimation-metrics-classical-flows
+    - level: 3
+      text: Sample Quality (Flow Matching / TarFlow / Mean Flows)
+      anchor: sample-quality-flow-matching-tarflow-mean-flows
+      status: preserved
+      destination: flow-explained.md#sample-quality-flow-matching-tarflow-mean-flows
+    - level: 3
+      text: Test Quantities Specific to Flows
+      anchor: test-quantities-specific-to-flows
+      status: preserved
+      destination: flow-explained.md#test-quantities-specific-to-flows
+    - level: 2
+      text: Production Considerations
+      anchor: production-considerations
+      status: preserved
+      destination: flow-explained.md#production-considerations
+    - level: 3
+      text: Inference Cost
+      anchor: inference-cost
+      status: preserved
+      destination: flow-explained.md#inference-cost
+    - level: 3
+      text: Memory and Quantisation
+      anchor: memory-and-quantisation
+      status: preserved
+      destination: flow-explained.md#memory-and-quantisation
+    - level: 3
+      text: Common Production Issues
+      anchor: common-production-issues
+      status: preserved
+      destination: flow-explained.md#common-production-issues
+    - level: 2
+      text: Summary and Key Takeaways
+      anchor: summary-and-key-takeaways
+      status: preserved
+      destination: flow-explained.md#summary-and-key-takeaways
+    - level: 3
+      text: Core Principles
+      anchor: core-principles
+      status: preserved
+      destination: flow-explained.md#core-principles
+    - level: 3
+      text: Architecture Selection Matrix
+      anchor: architecture-selection-matrix
+      status: preserved
+      destination: flow-explained.md#architecture-selection-matrix
+    - level: 3
+      text: Recent Advances (2023–2026)
+      anchor: recent-advances-20232026
+      status: preserved
+      destination: flow-explained.md#flow-and-transport-literature
+    - level: 3
+      text: When to Use Normalizing Flows
+      anchor: when-to-use-normalizing-flows
+      status: preserved
+      destination: flow-explained.md#when-to-use-normalizing-flows
+    - level: 3
+      text: Future Directions
+      anchor: future-directions
+      status: preserved
+      destination: flow-explained.md#open-research-directions
+    - level: 2
+      text: Next Steps
+      anchor: next-steps
+      status: preserved
+      destination: flow-explained.md#next-steps
+    - level: 2
+      text: References and Further Reading
+      anchor: references-and-further-reading
+      status: preserved
+      destination: flow-explained.md#references-and-further-reading
+    - level: 3
+      text: Seminal Papers (Must Read)
+      anchor: seminal-papers-must-read
+      status: preserved
+      destination: flow-explained.md#seminal-papers-must-read
+    - level: 3
+      text: Continuous and Modern Flows
+      anchor: continuous-and-modern-flows
+      status: preserved
+      destination: flow-explained.md#continuous-and-conditional-flows
+    - level: 3
+      text: Conditional Flow Matching and Couplings (2023–2024)
+      anchor: conditional-flow-matching-and-couplings-20232024
+      status: preserved
+      destination: flow-explained.md#conditional-flow-matching-and-couplings
+    - level: 3
+      text: 'One-Step Generation: Mean Flows and TarFlow (2024–2026)'
+      anchor: one-step-generation-mean-flows-and-tarflow-20242026
+      status: preserved
+      destination: flow-explained.md#one-step-generation-mean-flows-and-tarflow
+    - level: 3
+      text: Production Flow Matching and Guidance (2024–2026)
+      anchor: production-flow-matching-and-guidance-20242026
+      status: preserved
+      destination: flow-explained.md#production-flow-matching-and-guidance
+    - level: 3
+      text: Theory and Analysis
+      anchor: theory-and-analysis
+      status: preserved
+      destination: flow-explained.md#theory-and-analysis
+    - level: 3
+      text: Discrete Flow Matching (2024–2026)
+      anchor: discrete-flow-matching-20242026
+      status: preserved
+      destination: flow-explained.md#references-and-further-reading-discrete-flow-matching
+    - level: 3
+      text: Riemannian / Geometric Flows
+      anchor: riemannian-geometric-flows
+      status: preserved
+      destination: flow-explained.md#riemannian-geometric-flows
+    - level: 3
+      text: Survey References
+      anchor: survey-references
+      status: preserved
+      destination: flow-explained.md#survey-references
+    - level: 3
+      text: Online Resources
+      anchor: online-resources
+      status: preserved
+      destination: flow-explained.md#online-resources

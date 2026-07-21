@@ -1,0 +1,1557 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="This chapter derives inside and outside probabilities, semiring queries, posterior sampling, length conditioning, product constraints, and chart-to-circuit" name="description"/>
+<meta content="Mahdi Shafiei" name="author"/>
+<link href="https://docs.avitai.bio/artifex/user-guide/concepts/grammar-02-inference/" rel="canonical"/>
+<link href="../grammar-01-semantics/" rel="prev"/>
+<link href="../grammar-03-learning/" rel="next"/>
+<link href="../../../assets/images/favicon.png" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.7.7" name="generator"/>
+<title>Probabilistic Grammars 2 — Dynamic Programming and Sampling - Artifex</title>
+<link href="../../../assets/stylesheets/main.ec1eaa64.min.css" rel="stylesheet"/>
+<link href="../../../assets/stylesheets/palette.ab4e12ef.min.css" rel="stylesheet"/>
+<script src="../../../assets/vendor/iframe-worker/index.js"></script>
+<link href="../../../assets/_mkdocstrings.css" rel="stylesheet"/>
+<link href="../../../_static/extra.css" rel="stylesheet"/>
+<script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+<meta content="article" property="og:type"/>
+<meta content="The Artifex Generative Models Book" property="og:site_name"/>
+<meta content="Probabilistic Grammars 2 — Dynamic Programming and Sampling" property="og:title"/>
+<meta content="This chapter derives inside and outside probabilities, semiring queries, posterior sampling, length conditioning, product constraints, and chart-to-circuit" property="og:description"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/grammar-02-inference/" property="og:url"/>
+<meta content="2026-07-19" property="article:modified_time"/>
+<meta content="summary" name="twitter:card"/>
+<meta content="Probabilistic Grammars 2 — Dynamic Programming and Sampling" name="twitter:title"/>
+<meta content="This chapter derives inside and outside probabilities, semiring queries, posterior sampling, length conditioning, product constraints, and chart-to-circuit" name="twitter:description"/>
+<meta content="Generative models, Machine learning, Probabilistic modeling, advanced, specialization, canonical_chapter, grammar-inference, practitioner, researcher" name="keywords"/>
+<meta content="Probabilistic Grammars 2 — Dynamic Programming and Sampling" name="citation_title"/>
+<meta content="Mahdi Shafiei" name="citation_author"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/grammar-02-inference/" name="citation_public_url"/>
+<meta content="en" name="citation_language"/>
+<meta content="Probabilistic Grammars 2 — Dynamic Programming and Sampling" name="DC.title"/>
+<meta content="Mahdi Shafiei" name="DC.creator"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/grammar-02-inference/" name="DC.identifier"/>
+<meta content="Text.LearningResource" name="DC.type"/>
+<meta content="2026-07-19" name="DCTERMS.modified"/>
+<meta content="https://github.com/avitai/artifex/blob/main/LICENSE" name="DCTERMS.license"/>
+<meta content="advanced" name="DCTERMS.educationLevel"/>
+<meta content="practitioner, researcher" name="DCTERMS.audience"/>
+<link href="https://github.com/avitai/artifex/blob/main/LICENSE" rel="license"/>
+<script id="artifex-book-metadata" type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Chapter",
+  "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/grammar-02-inference/",
+  "url": "https://docs.avitai.bio/artifex/user-guide/concepts/grammar-02-inference/",
+  "name": "Probabilistic Grammars 2 \u2014 Dynamic Programming and Sampling",
+  "description": "This chapter derives inside and outside probabilities, semiring queries, posterior sampling, length conditioning, product constraints, and chart-to-circuit",
+  "identifier": "grammar-inference",
+  "inLanguage": "en",
+  "isAccessibleForFree": true,
+  "learningResourceType": "Canonical chapter",
+  "educationalLevel": "advanced",
+  "educationalUse": "specialization",
+  "audience": [
+    
+      {"@type": "EducationalAudience", "audienceType": "practitioner"},
+    
+      {"@type": "EducationalAudience", "audienceType": "researcher"}
+    
+  ],
+  "dateModified": "2026-07-19",
+  "keywords": ["Generative models", "Machine learning", "Probabilistic modeling", "advanced", "specialization", "canonical_chapter", "grammar-inference", "practitioner", "researcher"],
+  "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+  "author": [
+    
+      {"@type": "Person", "name": "Mahdi Shafiei"}
+    
+  ],
+  "isPartOf": {
+    "@type": "Book",
+    "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/#book",
+    "url": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/",
+    "name": "The Artifex Generative Models Book",
+    "bookEdition": "Living Web Edition",
+    "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+    "author": [
+      
+        {"@type": "Person", "name": "Mahdi Shafiei"}
+      
+    ]
+  }
+}
+</script>
+<link href="../../../assets/vendor/katex/katex.min.css" id="artifex-katex-stylesheet" integrity="sha384-UA8juhPf75SzzAMA/4fo3yOU7sBJ0om7SCD2GHq0fZqZco6tr1UCV7nUbk9J90JM" rel="stylesheet"/>
+<script defer="" integrity="sha384-T/0lMUdJpd2S1ZHtRiofG3htU3xPCrFVeAQ1UUE2TJwlEJSV5NUwn30kP28n238E" src="../../../assets/vendor/mermaid/mermaid.min.js"></script>
+<script defer="" src="../../../assets/vendor/katex/katex-shadow.js"></script>
+<script defer="" src="../../../javascripts/mermaid-math.js"></script>
+<script defer="" src="../../../javascripts/mathjax.js"></script>
+<script defer="" integrity="sha384-OrHfGTnIbkl0do3N76qW/uWr38o91N05sbSPuYBPLH+hG8X/dNSrjZf3AGjzrCwC" src="../../../assets/vendor/mathjax/tex-mml-chtml.js"></script>
+</head>
+<body data-md-color-accent="amber" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#probabilistic-grammars-2-dynamic-programming-and-sampling">
+          Skip to content
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header md-header--shadow" data-md-component="header">
+<nav aria-label="Header" class="md-header__inner md-grid">
+<a aria-label="Artifex" class="md-header__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            Artifex
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+            
+              Probabilistic Grammars 2 — Dynamic Programming and Sampling
+            
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-label="Switch to dark mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: light)" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_1" hidden="" title="Switch to dark mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+<input aria-label="Switch to light mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-primary="indigo" data-md-color-scheme="slate" id="__palette_1" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_0" hidden="" title="Switch to light mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+</form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div aria-label="Search" class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Search" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="Search" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="Search" class="md-search__options">
+<a aria-label="Share" class="md-search__icon md-icon" data-clipboard="" data-clipboard-text="" data-md-component="search-share" href="javascript:void(0)" tabindex="-1" title="Share">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"></path></svg>
+</a>
+<button aria-label="Clear" class="md-search__icon md-icon" tabindex="-1" title="Clear" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            Initializing search
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Navigation" class="md-nav md-nav--primary" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="Artifex" class="md-nav__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+    Artifex
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../..">
+<span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../getting-started/installation/">
+<span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Generative Models Book
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Generative Models Book
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    
+  
+    Start Here — The Landscape
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../first-course-01-generative-systems/">
+<span class="md-ellipsis">
+    
+  
+    First Course — New to Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../probability-01-objects/">
+<span class="md-ellipsis">
+    
+  
+    Foundations
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_4" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_4" id="__nav_3_4_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Model Families
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_4_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_4">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Model Families
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../autoregressive-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Autoregressive Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../vae-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Variational Autoencoders
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gan-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Generative Adversarial Networks
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../ebm-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Energy-Based Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../diffusion-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Diffusion Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../flow-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Normalizing Flows and Flow Matching
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../probabilistic-circuits-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Probabilistic Circuits
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../tensor-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Tensor-Network and Born Probability Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../implicit-generators-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Implicit Generators Beyond GANs
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../discrete-iterative-01-masked/">
+<span class="md-ellipsis">
+    
+  
+    Discrete Iterative Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../bayesian-flow-networks-01-story/">
+<span class="md-ellipsis">
+    
+  
+    Bayesian Flow Networks
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gflownets-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Generative Flow Networks
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../bnp-01-random-measures/">
+<span class="md-ellipsis">
+    
+  
+    Bayesian Nonparametric Random-Measure Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../stochastic-process-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Stochastic-Process and Function-Space Generators
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../point-processes-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Point Processes and Random Finite Sets
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../random-graphs-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Random Graphs and Relational Generators
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../copula-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Copula Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_4_18" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_4_18" id="__nav_3_4_18_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Probabilistic Grammars and Program Derivations
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_4_18_label" class="md-nav" data-md-level="3">
+<label class="md-nav__title" for="__nav_3_4_18">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Probabilistic Grammars and Program Derivations
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../grammar-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    1. Derivations and Yields
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
+    
+  
+    2. Dynamic Programming and Sampling
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
+<span class="md-ellipsis">
+    
+  
+    2. Dynamic Programming and Sampling
+  
+
+    
+  </span>
+</a>
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#2-dynamic-programming-conditioning-and-sampling">
+<span class="md-ellipsis">
+      
+        2. Dynamic Programming, Conditioning, and Sampling
+      
+    </span>
+</a>
+<nav aria-label="2. Dynamic Programming, Conditioning, and Sampling" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-2-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 2 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#inside-probabilities">
+<span class="md-ellipsis">
+      
+        Inside probabilities
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#outside-probabilities-and-posterior-events">
+<span class="md-ellipsis">
+      
+        Outside probabilities and posterior events
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#one-recurrence-several-algebras">
+<span class="md-ellipsis">
+      
+        One recurrence, several algebras
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#complete-worked-example-inside-versus-viterbi">
+<span class="md-ellipsis">
+      
+        Complete worked example: inside versus Viterbi
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#sampling-trees-strings-and-posterior-parses">
+<span class="md-ellipsis">
+      
+        Sampling trees, strings, and posterior parses
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#constraints-by-product-construction">
+<span class="md-ellipsis">
+      
+        Constraints by product construction
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#packed-forests-and-circuit-compilation">
+<span class="md-ellipsis">
+      
+        Packed forests and circuit compilation
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#independent-practice-and-assessment-map-dynamic-programming">
+<span class="md-ellipsis">
+      
+        Independent practice and assessment map: dynamic programming
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-2-failure-cases-and-misconception-checks">
+<span class="md-ellipsis">
+      
+        Chapter 2 failure cases and misconception checks
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-2-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 2 synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../grammar-03-learning/">
+<span class="md-ellipsis">
+    
+  
+    3. Learning and Grammar Induction
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../grammar-04-programs/">
+<span class="md-ellipsis">
+    
+  
+    4. Program Distributions and Execution
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../grammar-05-hybrids/">
+<span class="md-ellipsis">
+    
+  
+    5. Neural and Constructive Hybrids
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../grammar-06-evaluation/">
+<span class="md-ellipsis">
+    
+  
+    6. Evaluation and Current Research
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../probabilistic-grammars-and-program-derivations/">
+<span class="md-ellipsis">
+    
+  
+    Continuous View (All Chapters)
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../causal-generative-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Causal Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../new-families-frontier-evidence/">
+<span class="md-ellipsis">
+    
+  
+    Research Evidence Ledger
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gradients-01-taxonomy/">
+<span class="md-ellipsis">
+    
+  
+    Connections and Compositions
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../normalization-01-queries/">
+<span class="md-ellipsis">
+    
+  
+    Research Practice
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../models/vae-guide/">
+<span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/core/base/">
+<span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../examples/overview/">
+<span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../zoo/">
+<span class="md-ellipsis">
+    
+  
+    Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../training/overview/">
+<span class="md-ellipsis">
+    
+  
+    Training
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../data/overview/">
+<span class="md-ellipsis">
+    
+  
+    Data &amp; Modalities
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../inference/overview/">
+<span class="md-ellipsis">
+    
+  
+    Inference &amp; Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../benchmarks/">
+<span class="md-ellipsis">
+    
+  
+    Evaluation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../guides/extensions/">
+<span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../extensions/">
+<span class="md-ellipsis">
+    
+  
+    Advanced Topics
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../cli/">
+<span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../community/contributing/">
+<span class="md-ellipsis">
+    
+  
+    Community
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/configs/protein-extension/">
+<span class="md-ellipsis">
+    
+  
+    Reference Library
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#2-dynamic-programming-conditioning-and-sampling">
+<span class="md-ellipsis">
+      
+        2. Dynamic Programming, Conditioning, and Sampling
+      
+    </span>
+</a>
+<nav aria-label="2. Dynamic Programming, Conditioning, and Sampling" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-2-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 2 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#inside-probabilities">
+<span class="md-ellipsis">
+      
+        Inside probabilities
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#outside-probabilities-and-posterior-events">
+<span class="md-ellipsis">
+      
+        Outside probabilities and posterior events
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#one-recurrence-several-algebras">
+<span class="md-ellipsis">
+      
+        One recurrence, several algebras
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#complete-worked-example-inside-versus-viterbi">
+<span class="md-ellipsis">
+      
+        Complete worked example: inside versus Viterbi
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#sampling-trees-strings-and-posterior-parses">
+<span class="md-ellipsis">
+      
+        Sampling trees, strings, and posterior parses
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#constraints-by-product-construction">
+<span class="md-ellipsis">
+      
+        Constraints by product construction
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#packed-forests-and-circuit-compilation">
+<span class="md-ellipsis">
+      
+        Packed forests and circuit compilation
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#independent-practice-and-assessment-map-dynamic-programming">
+<span class="md-ellipsis">
+      
+        Independent practice and assessment map: dynamic programming
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-2-failure-cases-and-misconception-checks">
+<span class="md-ellipsis">
+      
+        Chapter 2 failure cases and misconception checks
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-2-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 2 synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<nav aria-label="Breadcrumb" class="md-path">
+<ol class="md-path__list">
+<li class="md-path__item">
+<a class="md-path__link" href="../../..">
+<span class="md-ellipsis">
+    Home
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    Generative Models Book
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../autoregressive-01-foundations/">
+<span class="md-ellipsis">
+    Model Families
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../grammar-01-semantics/">
+<span class="md-ellipsis">
+    Probabilistic Grammars and Program Derivations
+  </span>
+</a>
+</li>
+</ol>
+</nav>
+<article class="md-content__inner md-typeset">
+<h1 id="probabilistic-grammars-2-dynamic-programming-and-sampling">Probabilistic Grammars 2 — Dynamic Programming and Sampling<a class="headerlink" href="#probabilistic-grammars-2-dynamic-programming-and-sampling" title="Permanent link">¤</a></h1><aside aria-label="Learning path" class="admonition abstract artifex-learning-path"><p class="admonition-title">Learning path</p><p><strong>Required knowledge</strong></p><ul class="artifex-learning-path__links" data-learning-path-role="required"><li><a href="../grammar-01-semantics/">Probabilistic Grammars 1 — Derivations and Yields</a></li></ul><p><strong>Readiness check:</strong> can you explain the central object and reproduce one worked example from each required chapter? If not, follow its link before continuing.</p><p><strong>Newly unlocked in the default route</strong></p><ul class="artifex-learning-path__links" data-learning-path-role="unlocks"><li><a href="../grammar-03-learning/">Probabilistic Grammars 3 — Learning and Grammar Induction</a></li></ul></aside>
+<p>This chapter derives inside and outside probabilities, semiring queries, posterior sampling, length conditioning, product constraints, and chart-to-circuit compilation. For uninterrupted reading, use the <a href="../probabilistic-grammars-and-program-derivations/#2-dynamic-programming-conditioning-and-sampling">complete guide</a>.</p>
+<h2 id="2-dynamic-programming-conditioning-and-sampling">2. Dynamic Programming, Conditioning, and Sampling<a class="headerlink" href="#2-dynamic-programming-conditioning-and-sampling" title="Permanent link">¤</a></h2>
+<h3 id="chapter-2-prerequisites-and-learning-objectives">Chapter 2 prerequisites and learning objectives<a class="headerlink" href="#chapter-2-prerequisites-and-learning-objectives" title="Permanent link">¤</a></h3>
+<p>This chapter assumes Chapter 1 and basic dynamic programming. By the end, you
+should be able to:</p>
+<ol>
+<li><strong>O1 — Derive inside inference:</strong> construct the lexical base cases and the
+   binary span recurrence for a finite PCFG chart.</li>
+<li><strong>O2 — Use outside mass:</strong> compute posterior span or rule events and explain
+   why their marginals are not independent tree decisions.</li>
+<li><strong>O3 — Select the query algebra:</strong> distinguish recognition, marginalization,
+   Viterbi decoding, stable log computation, and expectation calculations.</li>
+<li><strong>O4 — Sample the declared law:</strong> use chart masses to sample posterior trees
+   and distinguish that procedure from ancestral or best-tree generation.</li>
+<li><strong>O5 — Condition globally:</strong> augment states for length or formal constraints
+   and state when rejection, masking, and product construction are exact.</li>
+<li><strong>O6 — Connect charts to circuits:</strong> identify the finite compilation and
+   transfer the recurrence to a new structured query without erasing cycles or
+   complexity assumptions.</li>
+</ol>
+<h3 id="inside-probabilities">Inside probabilities<a class="headerlink" href="#inside-probabilities" title="Permanent link">¤</a></h3>
+<p>Let <span class="arithmatex">\(x=x_0\ldots x_{n-1}\)</span>. For a binary PCFG, define</p>
+<div class="arithmatex">\[
+\alpha[A,i,j]
+=p(A\Rightarrow^*x_i\ldots x_{j-1}).
+\]</div>
+<p>Lexical rules initialize spans of length one:</p>
+<div class="arithmatex">\[
+\alpha[A,i,i+1]=\theta_{A\to x_i}.
+\]</div>
+<p>For a longer span,</p>
+<div class="arithmatex">\[
+\boxed{
+\alpha[A,i,j]
+=\sum_{A\to BC}\theta_{A\to BC}
+\sum_{k=i+1}^{j-1}
+\alpha[B,i,k]\alpha[C,k,j].
+}
+\]</div>
+<p>The marginal likelihood is <span class="arithmatex">\(p(x)=\alpha[S,0,n]\)</span>. A dense implementation has
+cubic dependence on sequence length; its dependence on the number of symbols
+and rules depends on rule sparsity and factorization. Unary and nullable cycles
+require closure or fixed-point treatment rather than insertion into this
+acyclic recurrence.</p>
+<figure class="book-figure" id="fig-probabilistic-grammars-and-program-derivations-inside-probabilities"><pre class="mermaid"><code>%%{init: {'themeCSS': '.nodeLabel p { color: #111827 !important; } .flowchart-link { stroke: #78879a !important; stroke-width: 2px !important; } marker path { fill: #78879a !important; stroke: #78879a !important; }'}}%%
+flowchart BT
+    accTitle: One inside-chart update
+    accDescr: Left-child mass, right-child mass, and a binary-rule probability combine for one split, while the parent chart item sums over all compatible rules and split points.
+    L["Left child&lt;br/&gt;&amp;nbsp;$$\alpha[B,i,k]$$"] --&gt; P["Parent item&lt;br/&gt;&amp;nbsp;$$\alpha[A,i,j]$$"]
+    R["Right child&lt;br/&gt;&amp;nbsp;$$\alpha[C,k,j]$$"] --&gt; P
+    W["Rule mass&lt;br/&gt;&amp;nbsp;$$\theta_{A\to BC}$$"] --&gt; P
+    K["Sum over rules&lt;br/&gt;and split points"] --&gt; P</code></pre><figcaption class="book-object-caption"><span class="book-object-number">Figure GRAM.3.</span> One inside-chart update</figcaption></figure>
+<h3 id="outside-probabilities-and-posterior-events">Outside probabilities and posterior events<a class="headerlink" href="#outside-probabilities-and-posterior-events" title="Permanent link">¤</a></h3>
+<p>The outside value <span class="arithmatex">\(\beta[A,i,j]\)</span> collects the mass of every derivation context
+from the start symbol down to an occurrence of <span class="arithmatex">\(A\)</span> spanning <span class="arithmatex">\(i{:}j\)</span>, excluding
+the subtree below that occurrence. Inside and outside values give posterior
+span marginals:</p>
+<div class="arithmatex">\[
+p(A\text{ spans }i{:}j\mid x)
+=\frac{\alpha[A,i,j]\beta[A,i,j]}{p(x)}.
+\]</div>
+<p>Combining the parent outside value, a rule probability, and the sibling inside
+value gives expected rule-use counts. These expectations power EM, uncertainty
+visualization, and posterior sampling. They are not independent probabilities:
+one tree contains mutually constrained spans and rules.</p>
+<p>The classical <a href="https://doi.org/10.1016/0885-2308(90)90022-X">inside–outside estimator</a>
+is dynamic-programming EM for PCFGs, not a different model family.</p>
+<h3 id="one-recurrence-several-algebras">One recurrence, several algebras<a class="headerlink" href="#one-recurrence-several-algebras" title="Permanent link">¤</a></h3>
+<p>Replacing the chart's addition and multiplication operations changes the query:</p>
+<div class="md-typeset__table book-table-container"><table id="tbl-probabilistic-grammars-and-program-derivations-one-recurrence-several-algebras"><caption class="book-object-caption"><span class="book-object-number">Table GRAM.3.</span> One recurrence, several algebras</caption>
+<thead>
+<tr>
+<th>Algebra</th>
+<th>Chart result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Boolean OR/AND</td>
+<td>recognition</td>
+</tr>
+<tr>
+<td>sum/product</td>
+<td>marginal probability</td>
+</tr>
+<tr>
+<td>max/product with backpointers</td>
+<td>Viterbi derivation</td>
+</tr>
+<tr>
+<td>log-sum-exp/add</td>
+<td>stable log probability</td>
+</tr>
+<tr>
+<td>expectation semiring</td>
+<td>probability plus sufficient statistics</td>
+</tr>
+<tr>
+<td>k-best or forest algebra</td>
+<td>packed alternatives</td>
+</tr>
+</tbody>
+</table></div>
+<p><a href="https://aclanthology.org/J99-4004/">Semiring parsing</a> formalizes this reuse.
+It does not mean every algebra supports every optimization or that numerical
+properties are identical.</p>
+<figure class="book-figure" id="fig-probabilistic-grammars-and-program-derivations-one-recurrence-several-algebras"><pre class="mermaid"><code>%%{init: {'themeCSS': '.nodeLabel p { color: #111827 !important; } .flowchart-link { stroke: #78879a !important; stroke-width: 2px !important; } marker path { fill: #78879a !important; stroke: #78879a !important; }'}}%%
+flowchart LR
+    accTitle: One chart skeleton answers different queries
+    accDescr: The same grammar and span decomposition branch into Boolean recognition, sum-product likelihood, max-product decoding, expectation statistics, or posterior sampling, with each result carrying a different interpretation.
+    G["Grammar, observation,&lt;br/&gt;and chart states"] --&gt; Q{"Declared query?"}
+    Q --&gt;|"possible?"| B["Boolean&lt;br/&gt;recognition"]
+    Q --&gt;|"total mass?"| S["Sum-product&lt;br/&gt;marginal"]
+    Q --&gt;|"best tree?"| V["Max-product&lt;br/&gt;Viterbi"]
+    Q --&gt;|"expected counts?"| E["Expectation&lt;br/&gt;semiring"]
+    Q --&gt;|"random tree?"| P["Inside masses plus&lt;br/&gt;backward sampling"]
+    B --&gt; A["Interpret only the&lt;br/&gt;query requested"]
+    S --&gt; A
+    V --&gt; A
+    E --&gt; A
+    P --&gt; A</code></pre><figcaption class="book-object-caption"><span class="book-object-number">Figure GRAM.5.</span> One chart skeleton answers different queries</figcaption></figure>
+<h3 id="complete-worked-example-inside-versus-viterbi">Complete worked example: inside versus Viterbi<a class="headerlink" href="#complete-worked-example-inside-versus-viterbi" title="Permanent link">¤</a></h3>
+<p>Return to <span class="arithmatex">\(S\to SS\)</span> with probability <span class="arithmatex">\(1/3\)</span> and <span class="arithmatex">\(S\to a\)</span> with probability
+<span class="arithmatex">\(2/3\)</span>. For <code>aaa</code>, the lexical cells are <span class="arithmatex">\(2/3\)</span>. A length-two cell is</p>
+<div class="arithmatex">\[
+\alpha[S,0,2]=\frac13\frac23\frac23=\frac4{27}.
+\]</div>
+<p>The length-three cell has two split points:</p>
+<div class="arithmatex">\[
+\begin{aligned}
+\alpha[S,0,3]
+&amp;=\frac13\left[
+\alpha[S,0,1]\alpha[S,1,3]
++\alpha[S,0,2]\alpha[S,2,3]
+\right]\\
+&amp;=\frac13\left[
+\frac23\frac4{27}+\frac4{27}\frac23
+\right]
+=\frac{16}{243}.
+\end{aligned}
+\]</div>
+<p>A max-product chart returns one tree with mass <span class="arithmatex">\(8/243\)</span>. The sum-product chart
+returns the string probability <span class="arithmatex">\(16/243\)</span>. Both are correct answers to different
+queries.</p>
+<h3 id="sampling-trees-strings-and-posterior-parses">Sampling trees, strings, and posterior parses<a class="headerlink" href="#sampling-trees-strings-and-posterior-parses" title="Permanent link">¤</a></h3>
+<p>Unconditional ancestral sampling expands nonterminals according to rule
+probabilities. It is exact only when the grammar is consistent and the expansion
+policy does not alter rule probabilities. To sample a parse from <span class="arithmatex">\(p(t\mid x)\)</span>,
+start from the root chart item and recursively sample a rule and split with
+probability proportional to</p>
+<div class="arithmatex">\[
+\theta_{A\to BC}\alpha[B,i,k]\alpha[C,k,j].
+\]</div>
+<p>To condition on length <span class="arithmatex">\(n\)</span>, build an inside chart indexed by generated length
+and sample rule decompositions from the resulting conditional masses. Rejecting
+unwanted lengths is exact in principle but can be arbitrarily inefficient; hard
+truncation without renormalization is not exact conditioning.</p>
+<h3 id="constraints-by-product-construction">Constraints by product construction<a class="headerlink" href="#constraints-by-product-construction" title="Permanent link">¤</a></h3>
+<p>Suppose a grammar-generated string must also belong to a regular language
+recognized by a finite automaton. Chart states can be augmented with automaton
+start and end states. The resulting product dynamic program computes</p>
+<div class="arithmatex">\[
+P_G(X\in L)
+\]</div>
+<p>and can sample from <span class="arithmatex">\(p_G(x\mid x\in L)\)</span> when this probability is positive.
+This is global conditioning because the completion mass is retained. It differs
+from merely masking locally invalid next tokens. More general grammar
+intersections can be expensive or fall outside context-free closure.</p>
+<p><a href="https://arxiv.org/abs/1302.6411">Work on SCFG probabilities of regular languages</a>
+studies the numerical fixed-point problem and its assumptions.</p>
+<h3 id="packed-forests-and-circuit-compilation">Packed forests and circuit compilation<a class="headerlink" href="#packed-forests-and-circuit-compilation" title="Permanent link">¤</a></h3>
+<p>For a fixed observation, the chart is a directed acyclic sum-product graph:
+alternative rules and split points are sum nodes, while compatible child items
+are products. This is an algebraic equivalence to a probabilistic circuit for
+that instantiated parse forest. The grammar remains a recursive reusable
+specification across all observations; the chart is one finite compilation.</p>
+<h3 id="independent-practice-and-assessment-map-dynamic-programming">Independent practice and assessment map: dynamic programming<a class="headerlink" href="#independent-practice-and-assessment-map-dynamic-programming" title="Permanent link">¤</a></h3>
+<p>Attempt each task before opening its hints. The typical time is a planning aid,
+not a speed target. Use the success criterion to decide whether to revise before
+reading the complete solution.</p>
+<ol>
+<li><strong>P1.1 — Predict before computing.</strong> <em>Type: predict · Difficulty: foundation · Typical time: 8 min.</em> For <code>aaaa</code> under <span class="arithmatex">\(S\to SS\)</span> with probability <span class="arithmatex">\(1/3\)</span> and <span class="arithmatex">\(S\to a\)</span> with probability <span class="arithmatex">\(2/3\)</span>, predict whether the sum-product chart exceeds the Viterbi chart. Compute both root values.</li>
+<li><strong>P1.2 — Recover a posterior rule event.</strong> <em>Type: derive · Difficulty: core · Typical time: 10 min.</em> A string <code>ab</code> has two root derivations, <span class="arithmatex">\(S\to AB\)</span> with joint mass <span class="arithmatex">\(0.36\)</span> and <span class="arithmatex">\(S\to BA\)</span> with joint mass <span class="arithmatex">\(0.01\)</span>. Compute <span class="arithmatex">\(p(x)\)</span> and the posterior probability of each root rule. Explain what an outside computation contributes in a larger tree.</li>
+<li><strong>P1.3 — Stabilize a chart sum.</strong> <em>Type: derive · Difficulty: core · Typical time: 10 min.</em> Compute <span class="arithmatex">\(\log(0.36+0.01)\)</span> using <span class="arithmatex">\(m+\log[\exp(\log0.36-m)+\exp(\log0.01-m)]\)</span> with <span class="arithmatex">\(m=\log0.36\)</span>. Compare with <span class="arithmatex">\(\log0.37\)</span>.</li>
+<li><strong>P1.4 — Sample rather than decode.</strong> <em>Type: design · Difficulty: core · Typical time: 10 min.</em> The <code>aaa</code> chart has two root split alternatives, each with contribution <span class="arithmatex">\(8/243\)</span>. Give their posterior sampling probabilities and a correct recursive sampling procedure. Contrast it with a deterministic backpointer.</li>
+<li><strong>P1.5 — Condition on a formal event.</strong> <em>Type: derive · Difficulty: core · Typical time: 12 min.</em> A finite generator assigns masses <span class="arithmatex">\(0.45,0.05,0.25,0.25\)</span> to <code>aa</code>, <code>ab</code>, <code>ba</code>, <code>bb</code>. A product construction admits <span class="arithmatex">\(L=\{\texttt{aa},\texttt{ba},\texttt{bb}\}\)</span>. Compute <span class="arithmatex">\(P(X\in L)\)</span> and the exact conditional law.</li>
+<li><strong>P1.6 — Transfer.</strong> <em>Type: design · Difficulty: stretch · Typical time: 18 min.</em> Augment a PCFG chart with a two-state DFA that accepts strings containing an even number of <code>b</code> symbols. Specify the augmented item, lexical transition, binary composition, accepting root states, and the condition required for exact conditional sampling.</li>
+</ol>
+<h5 id="feedback-contract-dynamic-programming">Feedback contract: dynamic programming<a class="headerlink" href="#feedback-contract-dynamic-programming" title="Permanent link">¤</a></h5>
+<div class="md-typeset__table book-table-container"><table id="tbl-probabilistic-grammars-and-program-derivations-feedback-contract-dynamic-programming-1"><caption class="book-object-caption"><span class="book-object-number">Table GRAM.11.</span> Feedback contract: dynamic programming — table 1</caption>
+<thead>
+<tr>
+<th>Task</th>
+<th>Evidence of success</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>P1.1</td>
+<td>One-tree mass, Catalan multiplicity, max, and sum are computed without conflation.</td>
+</tr>
+<tr>
+<td>P1.2</td>
+<td>The yield likelihood and normalized root-rule posterior are correct; outside mass is described as context, not another independent parse.</td>
+</tr>
+<tr>
+<td>P1.3</td>
+<td>The max-shifted log-sum-exp equals the direct log likelihood to numerical precision.</td>
+</tr>
+<tr>
+<td>P1.4</td>
+<td>Contributions are normalized locally during backward sampling and recursively applied to child chart items.</td>
+</tr>
+<tr>
+<td>P1.5</td>
+<td>The event mass is retained as a normalizer and all admitted string probabilities sum to one.</td>
+</tr>
+<tr>
+<td>P1.6</td>
+<td>The product state carries both automaton endpoints and uses completion mass for the accepted conditional law.</td>
+</tr>
+</tbody>
+</table></div>
+<details class="tip">
+<summary>Graduated hints for P1</summary>
+<div class="md-typeset__table book-table-container"><table id="tbl-probabilistic-grammars-and-program-derivations-feedback-contract-dynamic-programming-2"><caption class="book-object-caption"><span class="book-object-number">Table GRAM.12.</span> Feedback contract: dynamic programming — table 2</caption>
+<thead>
+<tr>
+<th>Task</th>
+<th>Hint 1 — Direction</th>
+<th>Hint 2 — Setup</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>P1.1</td>
+<td>Four leaves have more than one binary bracketing.</td>
+<td>Use <span class="arithmatex">\(C_3=5\)</span> and one-tree mass <span class="arithmatex">\((1/3)^3(2/3)^4\)</span>.</td>
+</tr>
+<tr>
+<td>P1.2</td>
+<td>The root alternatives exhaust the observation.</td>
+<td>Normalize each joint mass by <span class="arithmatex">\(0.36+0.01\)</span>.</td>
+</tr>
+<tr>
+<td>P1.3</td>
+<td>Factoring out the largest term prevents exponentiating a very negative value unnecessarily.</td>
+<td>The correction ratio is <span class="arithmatex">\(0.01/0.36=1/36\)</span>.</td>
+</tr>
+<tr>
+<td>P1.4</td>
+<td>Backward sampling normalizes only alternatives compatible with the current chart item.</td>
+<td>Equal contributions imply equal split probabilities at the root.</td>
+</tr>
+<tr>
+<td>P1.5</td>
+<td>Global conditioning preserves original ratios inside the event.</td>
+<td>Divide each admitted base mass by <span class="arithmatex">\(0.45+0.25+0.25\)</span>.</td>
+</tr>
+<tr>
+<td>P1.6</td>
+<td>A constituent must record how its yield changes the automaton state.</td>
+<td>Use items <span class="arithmatex">\([A,i,j,s,t]\)</span> and compose through an intermediate state.</td>
+</tr>
+</tbody>
+</table></div>
+</details>
+<h5 id="outcome-to-task-alignment-dynamic-programming">Outcome-to-task alignment: dynamic programming<a class="headerlink" href="#outcome-to-task-alignment-dynamic-programming" title="Permanent link">¤</a></h5>
+<div class="md-typeset__table book-table-container"><table id="tbl-probabilistic-grammars-and-program-derivations-outcome-to-task-alignment-dynamic-programming"><caption class="book-object-caption"><span class="book-object-number">Table GRAM.13.</span> Outcome-to-task alignment: dynamic programming</caption>
+<thead>
+<tr>
+<th>Learning objective</th>
+<th>Independently assessed by</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>O1 — Derive inside inference</td>
+<td>P1.1, P1.6</td>
+</tr>
+<tr>
+<td>O2 — Use outside mass</td>
+<td>P1.2</td>
+</tr>
+<tr>
+<td>O3 — Select the query algebra</td>
+<td>P1.1, P1.3</td>
+</tr>
+<tr>
+<td>O4 — Sample the declared law</td>
+<td>P1.4, P1.5</td>
+</tr>
+<tr>
+<td>O5 — Condition globally</td>
+<td>P1.5, P1.6</td>
+</tr>
+<tr>
+<td>O6 — Connect charts to circuits</td>
+<td>P1.3, P1.6</td>
+</tr>
+</tbody>
+</table></div>
+<details class="success">
+<summary>Complete solutions to P1</summary>
+<ol>
+<li><strong>P1.1.</strong> One ordered binary tree has mass <span class="arithmatex">\((1/3)^3(2/3)^4=16/2187\)</span>. The Viterbi chart therefore returns <span class="arithmatex">\(16/2187\)</span>. The sum-product chart adds the <span class="arithmatex">\(C_3=5\)</span> bracketings and returns <span class="arithmatex">\(80/2187\approx0.03658\)</span>, which is strictly larger. <strong>Check.</strong> Both charts use the same local decompositions; only the aggregation algebra changes.</li>
+<li><strong>P1.2.</strong> The marginal is <span class="arithmatex">\(p(\texttt{ab})=0.37\)</span>. The posterior root probabilities are <span class="arithmatex">\(0.36/0.37=36/37\)</span> and <span class="arithmatex">\(0.01/0.37=1/37\)</span>. In a larger tree, outside mass supplies every compatible context above and beside the named item so that its inside mass can become a full-tree posterior event. <strong>Check.</strong> The two root events are mutually exclusive and sum to one here.</li>
+<li><strong>P1.3.</strong> With <span class="arithmatex">\(m=\log0.36\)</span>, the expression is <span class="arithmatex">\(\log0.36+\log(1+1/36)=\log0.37\approx-0.994252\)</span>. <strong>Check.</strong> Algebraic equality to the direct result is exact; the advantage is numerical stability for much smaller chart entries.</li>
+<li><strong>P1.4.</strong> Each root split has probability <span class="arithmatex">\((8/243)/(16/243)=1/2\)</span>. Sample one split from these normalized contributions, then recursively sample each selected child rule and split in the same way until reaching lexical items. A deterministic Viterbi backpointer chooses one maximum alternative and therefore does not sample <span class="arithmatex">\(p(t\mid x)\)</span>. <strong>Check.</strong> Repeated samples should approach a half-half root split frequency.</li>
+<li><strong>P1.5.</strong> The accepted event has mass <span class="arithmatex">\(0.45+0.25+0.25=0.95\)</span>. The conditional law is <span class="arithmatex">\(p(\texttt{aa}\mid L)=9/19\)</span> and <span class="arithmatex">\(p(\texttt{ba}\mid L)=p(\texttt{bb}\mid L)=5/19\)</span>. <strong>Check.</strong> The three values sum to one and retain the original <span class="arithmatex">\(0.45{:}0.25{:}0.25\)</span> ratio.</li>
+<li><strong>P1.6.</strong> Use <span class="arithmatex">\([A,i,j,s,t]\)</span> for mass of an <span class="arithmatex">\(A\)</span>-yield spanning <span class="arithmatex">\(i{:}j\)</span> that takes DFA state <span class="arithmatex">\(s\)</span> to <span class="arithmatex">\(t\)</span>. A lexical <code>a</code> keeps the parity state and <code>b</code> toggles it. For <span class="arithmatex">\(A\to BC\)</span>, sum over split <span class="arithmatex">\(k\)</span> and intermediate DFA state <span class="arithmatex">\(u\)</span> the product of <span class="arithmatex">\([B,i,k,s,u]\)</span> and <span class="arithmatex">\([C,k,j,u,t]\)</span>. Start and final parity must both be even. Exact conditional sampling requires positive accepted mass and backward choices proportional to these complete product-chart masses. <strong>Rubric.</strong> Full credit states all five structural pieces and does not replace completion mass with local viability alone.</li>
+</ol>
+</details>
+<h3 id="chapter-2-failure-cases-and-misconception-checks">Chapter 2 failure cases and misconception checks<a class="headerlink" href="#chapter-2-failure-cases-and-misconception-checks" title="Permanent link">¤</a></h3>
+<ul>
+<li><strong>Underflow:</strong> multiply many small probabilities in log space or use scaled
+  charts; a zero caused by floating-point underflow is not grammatical
+  impossibility.</li>
+<li><strong>Viterbi substitution:</strong> a best tree is not a likelihood or a posterior
+  sample.</li>
+<li><strong>Cycle blindness:</strong> nullable and unary cycles can create infinitely many
+  derivations for one yield and require explicit closure conditions.</li>
+<li><strong>Complexity shorthand:</strong> “CKY is cubic” describes sequence-length scaling for
+  a particular normal form; symbol, rule, batch, and hardware costs still matter.</li>
+</ul>
+<details class="question">
+<summary>Retrieval question: what do outside values add?</summary>
+<p>Inside values summarize possible subtrees. Outside values summarize the
+compatible contexts around a subtree. Their product, normalized by the
+sentence likelihood, gives posterior events and expected rule counts.</p>
+</details>
+<h3 id="chapter-2-synthesis">Chapter 2 synthesis<a class="headerlink" href="#chapter-2-synthesis" title="Permanent link">¤</a></h3>
+<p>Dynamic programming preserves the sum over ambiguous derivations while sharing
+repeated subproblems. Changing the algebra changes the query; adding product
+states changes the conditioning event. Chapter 3 uses posterior rule counts and
+neural parameterizations to learn grammar distributions from trees or yields.</p>
+<hr/>
+<p><strong>Previous:</strong> <a href="../grammar-01-semantics/">1. Derivations and Yields</a> · <strong>Continue:</strong> <a href="../grammar-03-learning/">3. Learning and Grammar Induction</a> · <a href="../probabilistic-grammars-and-program-derivations/">Complete guide</a></p>
+</article>
+</div>
+<script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  Back to top
+</button>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+<div class="md-social">
+<a class="md-social__link" href="https://github.com/avitai/artifex" rel="noopener" target="_blank" title="github.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</a>
+<a class="md-social__link" href="https://pypi.org/project/avitai-artifex/" rel="noopener" target="_blank" title="pypi.org">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-66.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.3v101.8c0 29 25.2 46 53.4 54.3 33.8 9.9 66.3 11.7 106.8 0 26.9-7.8 53.4-23.5 53.4-54.3v-40.7H226.2v-13.6h160.2c31.1 0 42.6-21.7 53.4-54.2 11.2-33.5 10.7-65.7 0-108.6M286.2 444.7a20.4 20.4 0 1 1 0-40.7 20.4 20.4 0 1 1 0 40.7M167.8 248.1h106.8c29.7 0 53.4-24.5 53.4-54.3V91.9c0-29-24.4-50.7-53.4-55.6-35.8-5.9-74.7-5.6-106.8.1-45.2 8-53.4 24.7-53.4 55.6v40.7h106.9v13.6h-147c-31.1 0-58.3 18.7-66.8 54.2-9.8 40.7-10.2 66.1 0 108.6 7.6 31.6 25.7 54.2 56.8 54.2H101v-48.8c0-35.3 30.5-66.4 66.8-66.4m-6.6-183.4a20.4 20.4 0 1 1 0 40.8 20.4 20.4 0 1 1 0-40.8"></path></svg>
+</a>
+<a class="md-social__link" href="https://twitter.com/mahdi_shafiei" rel="noopener" target="_blank" title="twitter.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M459.4 151.7c.3 4.5.3 9.1.3 13.6 0 138.7-105.6 298.6-298.6 298.6-59.5 0-114.7-17.2-161.1-47.1 8.4 1 16.6 1.3 25.3 1.3 49.1 0 94.2-16.6 130.3-44.8-46.1-1-84.8-31.2-98.1-72.8 6.5 1 13 1.6 19.8 1.6 9.4 0 18.8-1.3 27.6-3.6-48.1-9.7-84.1-52-84.1-103v-1.3c14 7.8 30.2 12.7 47.4 13.3-28.3-18.8-46.8-51-46.8-87.4 0-19.5 5.2-37.4 14.3-53C87.4 130.8 165 172.4 252.1 176.9c-1.6-7.8-2.6-15.9-2.6-24C249.5 95.1 296.3 48 354.4 48c30.2 0 57.5 12.7 76.7 33.1 23.7-4.5 46.5-13.3 66.6-25.3-7.8 24.4-24.4 44.8-46.1 57.8 21.1-2.3 41.6-8.1 60.4-16.2-14.3 20.8-32.2 39.3-52.6 54.3"></path></svg>
+</a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.path", "navigation.top", "navigation.prune", "toc.follow", "search.highlight", "search.share", "search.suggest", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "content.mermaid"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+<script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+<script src="../../../javascripts/reading-layout.js"></script>
+</body>
+</html>

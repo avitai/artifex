@@ -1,0 +1,1448 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="This chapter turns the objectives into training procedures and examines parameterization-dependent weighting, learned reverse variance, Min-SNR, schedule" name="description"/>
+<meta content="Mahdi Shafiei" name="author"/>
+<link href="https://docs.avitai.bio/artifex/user-guide/concepts/diffusion-03-training/" rel="canonical"/>
+<link href="../diffusion-02-architectures/" rel="prev"/>
+<link href="../diffusion-04-sampling/" rel="next"/>
+<link href="../../../assets/images/favicon.png" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.7.7" name="generator"/>
+<title>Diffusion 3 — Training, Weighting, and Diagnostics - Artifex</title>
+<link href="../../../assets/stylesheets/main.ec1eaa64.min.css" rel="stylesheet"/>
+<link href="../../../assets/stylesheets/palette.ab4e12ef.min.css" rel="stylesheet"/>
+<script src="../../../assets/vendor/iframe-worker/index.js"></script>
+<link href="../../../assets/_mkdocstrings.css" rel="stylesheet"/>
+<link href="../../../_static/extra.css" rel="stylesheet"/>
+<script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+<meta content="article" property="og:type"/>
+<meta content="The Artifex Generative Models Book" property="og:site_name"/>
+<meta content="Diffusion 3 — Training, Weighting, and Diagnostics" property="og:title"/>
+<meta content="This chapter turns the objectives into training procedures and examines parameterization-dependent weighting, learned reverse variance, Min-SNR, schedule" property="og:description"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/diffusion-03-training/" property="og:url"/>
+<meta content="2026-07-14" property="article:modified_time"/>
+<meta content="summary" name="twitter:card"/>
+<meta content="Diffusion 3 — Training, Weighting, and Diagnostics" name="twitter:title"/>
+<meta content="This chapter turns the objectives into training procedures and examines parameterization-dependent weighting, learned reverse variance, Min-SNR, schedule" name="twitter:description"/>
+<meta content="Generative models, Machine learning, Probabilistic modeling, advanced, specialization, canonical_chapter, diffusion-training, practitioner, researcher" name="keywords"/>
+<meta content="Diffusion 3 — Training, Weighting, and Diagnostics" name="citation_title"/>
+<meta content="Mahdi Shafiei" name="citation_author"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/diffusion-03-training/" name="citation_public_url"/>
+<meta content="en" name="citation_language"/>
+<meta content="Diffusion 3 — Training, Weighting, and Diagnostics" name="DC.title"/>
+<meta content="Mahdi Shafiei" name="DC.creator"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/diffusion-03-training/" name="DC.identifier"/>
+<meta content="Text.LearningResource" name="DC.type"/>
+<meta content="2026-07-14" name="DCTERMS.modified"/>
+<meta content="https://github.com/avitai/artifex/blob/main/LICENSE" name="DCTERMS.license"/>
+<meta content="advanced" name="DCTERMS.educationLevel"/>
+<meta content="practitioner, researcher" name="DCTERMS.audience"/>
+<link href="https://github.com/avitai/artifex/blob/main/LICENSE" rel="license"/>
+<script id="artifex-book-metadata" type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Chapter",
+  "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/diffusion-03-training/",
+  "url": "https://docs.avitai.bio/artifex/user-guide/concepts/diffusion-03-training/",
+  "name": "Diffusion 3 \u2014 Training, Weighting, and Diagnostics",
+  "description": "This chapter turns the objectives into training procedures and examines parameterization-dependent weighting, learned reverse variance, Min-SNR, schedule",
+  "identifier": "diffusion-training",
+  "inLanguage": "en",
+  "isAccessibleForFree": true,
+  "learningResourceType": "Canonical chapter",
+  "educationalLevel": "advanced",
+  "educationalUse": "specialization",
+  "audience": [
+    
+      {"@type": "EducationalAudience", "audienceType": "practitioner"},
+    
+      {"@type": "EducationalAudience", "audienceType": "researcher"}
+    
+  ],
+  "dateModified": "2026-07-14",
+  "keywords": ["Generative models", "Machine learning", "Probabilistic modeling", "advanced", "specialization", "canonical_chapter", "diffusion-training", "practitioner", "researcher"],
+  "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+  "author": [
+    
+      {"@type": "Person", "name": "Mahdi Shafiei"}
+    
+  ],
+  "isPartOf": {
+    "@type": "Book",
+    "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/#book",
+    "url": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/",
+    "name": "The Artifex Generative Models Book",
+    "bookEdition": "Living Web Edition",
+    "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+    "author": [
+      
+        {"@type": "Person", "name": "Mahdi Shafiei"}
+      
+    ]
+  }
+}
+</script>
+<script defer="" src="../../../javascripts/mathjax.js"></script>
+<script defer="" integrity="sha384-OrHfGTnIbkl0do3N76qW/uWr38o91N05sbSPuYBPLH+hG8X/dNSrjZf3AGjzrCwC" src="../../../assets/vendor/mathjax/tex-mml-chtml.js"></script>
+</head>
+<body data-md-color-accent="amber" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#diffusion-3-training-weighting-and-diagnostics">
+          Skip to content
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header md-header--shadow" data-md-component="header">
+<nav aria-label="Header" class="md-header__inner md-grid">
+<a aria-label="Artifex" class="md-header__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            Artifex
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+            
+              Diffusion 3 — Training, Weighting, and Diagnostics
+            
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-label="Switch to dark mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: light)" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_1" hidden="" title="Switch to dark mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+<input aria-label="Switch to light mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-primary="indigo" data-md-color-scheme="slate" id="__palette_1" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_0" hidden="" title="Switch to light mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+</form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div aria-label="Search" class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Search" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="Search" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="Search" class="md-search__options">
+<a aria-label="Share" class="md-search__icon md-icon" data-clipboard="" data-clipboard-text="" data-md-component="search-share" href="javascript:void(0)" tabindex="-1" title="Share">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"></path></svg>
+</a>
+<button aria-label="Clear" class="md-search__icon md-icon" tabindex="-1" title="Clear" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            Initializing search
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Navigation" class="md-nav md-nav--primary" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="Artifex" class="md-nav__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+    Artifex
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../..">
+<span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../getting-started/installation/">
+<span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Generative Models Book
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Generative Models Book
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    
+  
+    Start Here — The Landscape
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../first-course-01-generative-systems/">
+<span class="md-ellipsis">
+    
+  
+    First Course — New to Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../probability-01-objects/">
+<span class="md-ellipsis">
+    
+  
+    Foundations
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_4" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_4" id="__nav_3_4_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Model Families
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_4_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_4">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Model Families
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../autoregressive-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Autoregressive Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../vae-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Variational Autoencoders
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gan-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Generative Adversarial Networks
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../ebm-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Energy-Based Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_4_5" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_4_5" id="__nav_3_4_5_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Diffusion Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_4_5_label" class="md-nav" data-md-level="3">
+<label class="md-nav__title" for="__nav_3_4_5">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Diffusion Models
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../diffusion-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    1. Chains, Scores, and Continuous Time
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../diffusion-02-architectures/">
+<span class="md-ellipsis">
+    
+  
+    2. Architectures and Parameterizations
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
+    
+  
+    3. Training and Diagnostics
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
+<span class="md-ellipsis">
+    
+  
+    3. Training and Diagnostics
+  
+
+    
+  </span>
+</a>
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#training-process">
+<span class="md-ellipsis">
+      
+        Training Process
+      
+    </span>
+</a>
+<nav aria-label="Training Process" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#training-process-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Training Process: Prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#the-simplified-training-objective">
+<span class="md-ellipsis">
+      
+        The Simplified Training Objective
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#loss-function-variants">
+<span class="md-ellipsis">
+      
+        Loss Function Variants
+      
+    </span>
+</a>
+<nav aria-label="Loss Function Variants" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-example-what-a-learned-variance-can-and-cannot-repair">
+<span class="md-ellipsis">
+      
+        Worked example: what a learned variance can and cannot repair
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#training-stability-and-best-practices">
+<span class="md-ellipsis">
+      
+        Training Stability and Best Practices
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#hyperparameter-selection-as-a-named-protocol">
+<span class="md-ellipsis">
+      
+        Hyperparameter selection as a named protocol
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#training-dynamics-and-monitoring">
+<span class="md-ellipsis">
+      
+        Training Dynamics and Monitoring
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#computational-requirements">
+<span class="md-ellipsis">
+      
+        Computational Requirements
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-example-reduction-changes-the-optimizer-scale">
+<span class="md-ellipsis">
+      
+        Worked example: reduction changes the optimizer scale
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#independent-practice-and-assessment-map-training">
+<span class="md-ellipsis">
+      
+        Independent practice and assessment map: training
+      
+    </span>
+</a>
+<nav aria-label="Independent practice and assessment map: training" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#p1-specify-and-diagnose-one-reproducible-training-run">
+<span class="md-ellipsis">
+      
+        P1 — Specify and diagnose one reproducible training run
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#training-process-chapter-synthesis-and-retrieval-practice">
+<span class="md-ellipsis">
+      
+        Training Process: Chapter synthesis and retrieval practice
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../diffusion-04-sampling/">
+<span class="md-ellipsis">
+    
+  
+    4. Sampling and Guidance
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../diffusion-05-variants/">
+<span class="md-ellipsis">
+    
+  
+    5. Variants and Modalities
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../diffusion-06-theory-frontier/">
+<span class="md-ellipsis">
+    
+  
+    6. Transport, Distillation, and Research
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../diffusion-07-synthesis/">
+<span class="md-ellipsis">
+    
+  
+    7. Production and Synthesis
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../diffusion-explained/">
+<span class="md-ellipsis">
+    
+  
+    Continuous View (All Chapters)
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../flow-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Normalizing Flows and Flow Matching
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../probabilistic-circuits-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Probabilistic Circuits
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../tensor-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Tensor-Network and Born Probability Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../implicit-generators-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Implicit Generators Beyond GANs
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../discrete-iterative-01-masked/">
+<span class="md-ellipsis">
+    
+  
+    Discrete Iterative Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../bayesian-flow-networks-01-story/">
+<span class="md-ellipsis">
+    
+  
+    Bayesian Flow Networks
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gflownets-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Generative Flow Networks
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../bnp-01-random-measures/">
+<span class="md-ellipsis">
+    
+  
+    Bayesian Nonparametric Random-Measure Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../stochastic-process-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Stochastic-Process and Function-Space Generators
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../point-processes-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Point Processes and Random Finite Sets
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../random-graphs-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Random Graphs and Relational Generators
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../copula-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Copula Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../grammar-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Probabilistic Grammars and Program Derivations
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../causal-generative-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Causal Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../new-families-frontier-evidence/">
+<span class="md-ellipsis">
+    
+  
+    Research Evidence Ledger
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gradients-01-taxonomy/">
+<span class="md-ellipsis">
+    
+  
+    Connections and Compositions
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../normalization-01-queries/">
+<span class="md-ellipsis">
+    
+  
+    Research Practice
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../models/vae-guide/">
+<span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/core/base/">
+<span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../examples/overview/">
+<span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../zoo/">
+<span class="md-ellipsis">
+    
+  
+    Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../training/overview/">
+<span class="md-ellipsis">
+    
+  
+    Training
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../data/overview/">
+<span class="md-ellipsis">
+    
+  
+    Data &amp; Modalities
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../inference/overview/">
+<span class="md-ellipsis">
+    
+  
+    Inference &amp; Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../benchmarks/">
+<span class="md-ellipsis">
+    
+  
+    Evaluation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../guides/extensions/">
+<span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../extensions/">
+<span class="md-ellipsis">
+    
+  
+    Advanced Topics
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../cli/">
+<span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../community/contributing/">
+<span class="md-ellipsis">
+    
+  
+    Community
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/configs/protein-extension/">
+<span class="md-ellipsis">
+    
+  
+    Reference Library
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#training-process">
+<span class="md-ellipsis">
+      
+        Training Process
+      
+    </span>
+</a>
+<nav aria-label="Training Process" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#training-process-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Training Process: Prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#the-simplified-training-objective">
+<span class="md-ellipsis">
+      
+        The Simplified Training Objective
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#loss-function-variants">
+<span class="md-ellipsis">
+      
+        Loss Function Variants
+      
+    </span>
+</a>
+<nav aria-label="Loss Function Variants" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-example-what-a-learned-variance-can-and-cannot-repair">
+<span class="md-ellipsis">
+      
+        Worked example: what a learned variance can and cannot repair
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#training-stability-and-best-practices">
+<span class="md-ellipsis">
+      
+        Training Stability and Best Practices
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#hyperparameter-selection-as-a-named-protocol">
+<span class="md-ellipsis">
+      
+        Hyperparameter selection as a named protocol
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#training-dynamics-and-monitoring">
+<span class="md-ellipsis">
+      
+        Training Dynamics and Monitoring
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#computational-requirements">
+<span class="md-ellipsis">
+      
+        Computational Requirements
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-example-reduction-changes-the-optimizer-scale">
+<span class="md-ellipsis">
+      
+        Worked example: reduction changes the optimizer scale
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#independent-practice-and-assessment-map-training">
+<span class="md-ellipsis">
+      
+        Independent practice and assessment map: training
+      
+    </span>
+</a>
+<nav aria-label="Independent practice and assessment map: training" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#p1-specify-and-diagnose-one-reproducible-training-run">
+<span class="md-ellipsis">
+      
+        P1 — Specify and diagnose one reproducible training run
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#training-process-chapter-synthesis-and-retrieval-practice">
+<span class="md-ellipsis">
+      
+        Training Process: Chapter synthesis and retrieval practice
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<nav aria-label="Breadcrumb" class="md-path">
+<ol class="md-path__list">
+<li class="md-path__item">
+<a class="md-path__link" href="../../..">
+<span class="md-ellipsis">
+    Home
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    Generative Models Book
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../autoregressive-01-foundations/">
+<span class="md-ellipsis">
+    Model Families
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../diffusion-01-foundations/">
+<span class="md-ellipsis">
+    Diffusion Models
+  </span>
+</a>
+</li>
+</ol>
+</nav>
+<article class="md-content__inner md-typeset">
+<h1 id="diffusion-3-training-weighting-and-diagnostics">Diffusion 3 — Training, Weighting, and Diagnostics<a class="headerlink" href="#diffusion-3-training-weighting-and-diagnostics" title="Permanent link">¤</a></h1><aside aria-label="Learning path" class="admonition abstract artifex-learning-path"><p class="admonition-title">Learning path</p><p><strong>Required knowledge</strong></p><ul class="artifex-learning-path__links" data-learning-path-role="required"><li><a href="../diffusion-02-architectures/">Diffusion 2 — Architectures and Parameterizations</a></li></ul><p><strong>Readiness check:</strong> can you explain the central object and reproduce one worked example from each required chapter? If not, follow its link before continuing.</p><p><strong>Newly unlocked in the default route</strong></p><ul class="artifex-learning-path__links" data-learning-path-role="unlocks"><li><a href="../diffusion-04-sampling/">Diffusion 4 — Sampling, Guidance, and Inverse Problems</a></li></ul></aside>
+<p>This chapter turns the objectives into training procedures and examines parameterization-dependent weighting, learned reverse variance, Min-SNR, schedule sampling, stability, and diagnostics. For uninterrupted reading, use the <a href="../diffusion-explained/#training-process">complete guide</a>.</p>
+<h2 id="training-process">Training Process<a class="headerlink" href="#training-process" title="Permanent link">¤</a></h2>
+<h3 id="training-process-prerequisites-and-learning-objectives">Training Process: Prerequisites and learning objectives<a class="headerlink" href="#training-process-prerequisites-and-learning-objectives" title="Permanent link">¤</a></h3>
+<p>By the end of this chapter, you should be able to:</p>
+<ol>
+<li>implement one training step with explicit RNG, shapes, reduction, target, time distribution, and weight;</li>
+<li>convert Min-SNR weights between parameterizations;</li>
+<li>distinguish EMA decay per update from a wall-clock half-life; and</li>
+<li>design validation that separates denoising loss, likelihood bounds, sample metrics, conditioning, and numerical stability.</li>
+</ol>
+<h3 id="the-simplified-training-objective">The Simplified Training Objective<a class="headerlink" href="#the-simplified-training-objective" title="Permanent link">¤</a></h3>
+<p>The <strong>simplified loss</strong> ignores theoretical weightings from ELBO:</p>
+<div class="arithmatex">\[
+L_{\text{simple}} = \mathbb{E}_{t \sim U[1,T], \, x_0 \sim q(x_0), \, \epsilon \sim \mathcal{N}(0,\mathbf{I})}\left[\|\epsilon - \epsilon_\theta(x_t, t)\|^2\right]
+\]</div>
+<p><strong>Training Algorithm</strong>:</p>
+<ol>
+<li>Sample training image <span class="arithmatex">\(x_0 \sim q(x_0)\)</span></li>
+<li>Sample timestep <span class="arithmatex">\(t \sim \text{Uniform}(1, T)\)</span></li>
+<li>Sample noise <span class="arithmatex">\(\epsilon \sim \mathcal{N}(0, \mathbf{I})\)</span></li>
+<li>Compute noisy image <span class="arithmatex">\(x_t = \sqrt{\bar{\alpha}_t} \, x_0 + \sqrt{1-\bar{\alpha}_t} \, \epsilon\)</span></li>
+<li>Predict noise <span class="arithmatex">\(\hat{\epsilon} = \epsilon_\theta(x_t, t)\)</span></li>
+<li>Compute loss <span class="arithmatex">\(L = \|\epsilon - \hat{\epsilon}\|^2\)</span></li>
+<li>Update <span class="arithmatex">\(\theta\)</span> via gradient descent</li>
+</ol>
+<p>The code path can be compact, but the statistical objective still depends on time sampling, target convention, per-example/per-dimension reduction, weighting, data scaling, conditioning dropout, and precision.</p>
+<h3 id="loss-function-variants">Loss Function Variants<a class="headerlink" href="#loss-function-variants" title="Permanent link">¤</a></h3>
+<p><strong>Variational Lower Bound (VLB)</strong>:</p>
+<p>The full ELBO includes weighted terms for each timestep. While theoretically principled, optimizing full VLB is harder in practice.</p>
+<p><strong>Hybrid Objective</strong> (<a href="https://arxiv.org/abs/2102.09672">Nichol &amp; Dhariwal, 2021</a>):</p>
+<p>For intermediate steps with <span class="arithmatex">\(\tilde\beta_t&gt;0\)</span>, the Improved DDPM recipe predicts a reverse log-variance between the forward variance <span class="arithmatex">\(\beta_t\)</span> and posterior variance <span class="arithmatex">\(\tilde\beta_t\)</span>:</p>
+<div class="arithmatex">\[
+\Sigma_\theta(x_t,t)
+=\exp\!\left(v_\theta(x_t,t)\log\beta_t
++[1-v_\theta(x_t,t)]\log\tilde\beta_t\right).
+\]</div>
+<p>This is log-space interpolation when <span class="arithmatex">\(v_\theta\in[0,1]\)</span>; the paper reports that it did not constrain the network output to that interval. The <span class="arithmatex">\(t=1\)</span> decoder term retains its separate observation-model treatment. The recipe combines <span class="arithmatex">\(L_{\text{simple}}\)</span> for mean prediction with VLB terms for variance learning:</p>
+<div class="arithmatex">\[
+L_{\text{hybrid}} = L_{\text{simple}} + \lambda L_{\text{vlb}}
+\]</div>
+<p>In that paper's experiments, <span class="arithmatex">\(\lambda=0.001\)</span>, and the mean prediction is stop-gradiented inside <span class="arithmatex">\(L_{\mathrm{vlb}}\)</span> so the added term trains the variance head rather than perturbing the simplified mean objective. These are recipe-specific choices, not part of the definition of diffusion and not the Stable Diffusion v1 configuration.</p>
+<h4 id="worked-example-what-a-learned-variance-can-and-cannot-repair">Worked example: what a learned variance can and cannot repair<a class="headerlink" href="#worked-example-what-a-learned-variance-can-and-cannot-repair" title="Permanent link">¤</a></h4>
+<p>For a scalar true reverse conditional <span class="arithmatex">\(q=\mathcal N(\mu_q,s_q^2)\)</span> and model <span class="arithmatex">\(p=\mathcal N(\mu_p,s_p^2)\)</span>,</p>
+<div class="arithmatex">\[
+D_{\mathrm{KL}}(q\|p)
+=\frac12\left[
+\log\frac{s_p^2}{s_q^2}
++\frac{s_q^2+(\mu_q-\mu_p)^2}{s_p^2}-1
+\right].
+\]</div>
+<p>If <span class="arithmatex">\(\mu_p=\mu_q\)</span>, the optimum is <span class="arithmatex">\(s_p^2=s_q^2\)</span>. If the mean error is <span class="arithmatex">\(\delta=\mu_q-\mu_p\)</span>, differentiating with respect to <span class="arithmatex">\(s_p^2\)</span> gives the likelihood-optimal value <span class="arithmatex">\(s_p^2=s_q^2+\delta^2\)</span>. The model can therefore widen its conditional to account for unresolved mean error, but this does not correct the denoising mean. Reporting sample quality alone cannot tell whether the variance is calibrated.</p>
+<p><strong>Min-SNR-γ Weighting</strong> (<a href="https://arxiv.org/abs/2303.09556">Hang et al., 2023</a>):</p>
+<p>Min-SNR clamps a common <span class="arithmatex">\(x_0\)</span>-space signal-to-noise weighting, but the coefficient multiplying the implemented MSE depends on the prediction target. With <span class="arithmatex">\(\operatorname{SNR}(t)=\bar\alpha_t/(1-\bar\alpha_t)\)</span>, the equivalent weights are</p>
+<div class="arithmatex">\[
+w_{x_0}(t)=\min(\operatorname{SNR}(t),\gamma),\qquad
+w_{\epsilon}(t)=\frac{\min(\operatorname{SNR}(t),\gamma)}{\operatorname{SNR}(t)},
+\]</div>
+<p>and, under the standard VP rotation,</p>
+<div class="arithmatex">\[
+w_v(t)=\frac{\min(\operatorname{SNR}(t),\gamma)}{\operatorname{SNR}(t)+1}.
+\]</div>
+<p>Therefore an ε-prediction implementation must not multiply directly by <span class="arithmatex">\(\min(\operatorname{SNR},\gamma)\)</span> as though it were an <span class="arithmatex">\(x_0\)</span> loss. The paper reports up to <strong>3.4× faster convergence</strong> in its evaluated settings; <span class="arithmatex">\(\gamma=5\)</span> is a common starting point, not a universal optimum.</p>
+<h3 id="training-stability-and-best-practices">Training Stability and Best Practices<a class="headerlink" href="#training-stability-and-best-practices" title="Permanent link">¤</a></h3>
+<div class="admonition tip">
+<p class="admonition-title">Essential Training Practices</p>
+<p><strong>Exponential Moving Average (EMA)</strong>: Often improves evaluated checkpoints. Maintain a documented update rule:</p>
+<div class="arithmatex">\[
+\theta_{\text{ema}} = \beta \, \theta_{\text{ema}} + (1-\beta) \, \theta
+\]</div>
+<p>A value such as <span class="arithmatex">\(\beta=0.9999\)</span> has meaning only with update frequency and training horizon. Compare raw, online EMA, or post-hoc EMA checkpoints under the same sampler; do not assume one is always superior.</p>
+<p><strong>Gradient clipping</strong>: If used, clip the true global norm and report its threshold and frequency; 1.0 is a starting point, not a family constant.</p>
+<p><strong>Mixed precision</strong>: Speed and memory gains are hardware, kernel, shape, and dtype dependent. Track overflows, loss scaling, attention reductions, and a higher-precision reference.</p>
+</div>
+<p><strong>Normalization is architecture- and batch-semantics dependent</strong>:</p>
+<ul>
+<li><strong>Group normalization</strong> is common in DDPM-derived U-Nets because it avoids cross-example batch statistics.</li>
+<li><strong>Layer normalization and RMS-style variants</strong> are common in transformer backbones, often with adaptive conditioning.</li>
+<li><strong>Batch-dependent normalization</strong> is not prohibited by the probabilistic model, but its train/eval statistics, distributed aggregation, and interaction with mixed noise levels must be specified. It is uncommon in canonical DDPM U-Nets.</li>
+</ul>
+<p><strong>Regularization must follow a named baseline</strong>:</p>
+<ul>
+<li>Weight decay, dropout, augmentation, conditioning dropout, stochastic depth, and data filtering act on different objects.</li>
+<li>A numeric value has no portable meaning without architecture, optimizer, effective batch, update count, and loss reduction. Tune one axis at a time on held-out data.</li>
+</ul>
+<h3 id="hyperparameter-selection-as-a-named-protocol">Hyperparameter selection as a named protocol<a class="headerlink" href="#hyperparameter-selection-as-a-named-protocol" title="Permanent link">¤</a></h3>
+<p><strong>Timesteps</strong>: <span class="arithmatex">\(T=1000\)</span> is the original DDPM convention. Continuous-time or alternate discretizations decouple training-time levels from sampling NFE; more training levels do not require using all levels at inference.</p>
+<p><strong>Noise Schedules</strong>:</p>
+<ul>
+<li>The cosine schedule outperformed the original linear schedule in the IDDPM protocol; schedule, target, weighting, and solver must be evaluated jointly.</li>
+<li>Report the terminal signal level and terminal KL rather than calling finite <span class="arithmatex">\(x_T\)</span> “pure noise” without qualification.</li>
+</ul>
+<p>Learning rate, optimizer moments, weight decay, warm-up, effective batch, resolution, augmentation, and distributed reduction should reproduce a named baseline before tuning. A numeric interval detached from architecture, loss normalization, and total batch can be actively misleading.</p>
+<p><strong>Illustrative optimizer declaration</strong> (a record format, not a default):</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a href="#__codelineno-0-1" id="__codelineno-0-1" name="__codelineno-0-1"></a><span class="n">tx</span> <span class="o">=</span> <span class="n">optax</span><span class="o">.</span><span class="n">adamw</span><span class="p">(</span>
+</span><span id="__span-0-2"><a href="#__codelineno-0-2" id="__codelineno-0-2" name="__codelineno-0-2"></a>    <span class="n">learning_rate</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">,</span>
+</span><span id="__span-0-3"><a href="#__codelineno-0-3" id="__codelineno-0-3" name="__codelineno-0-3"></a>    <span class="n">b1</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span>
+</span><span id="__span-0-4"><a href="#__codelineno-0-4" id="__codelineno-0-4" name="__codelineno-0-4"></a>    <span class="n">b2</span><span class="o">=</span><span class="mf">0.999</span><span class="p">,</span>
+</span><span id="__span-0-5"><a href="#__codelineno-0-5" id="__codelineno-0-5" name="__codelineno-0-5"></a>    <span class="n">weight_decay</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">,</span>
+</span><span id="__span-0-6"><a href="#__codelineno-0-6" id="__codelineno-0-6" name="__codelineno-0-6"></a><span class="p">)</span>
+</span></code></pre></div>
+<h3 id="training-dynamics-and-monitoring">Training Dynamics and Monitoring<a class="headerlink" href="#training-dynamics-and-monitoring" title="Permanent link">¤</a></h3>
+<div class="admonition warning">
+<p class="admonition-title">Common Training Issues</p>
+<p><strong>Loss plateaus</strong>: inspect per-time losses and held-out denoising error; a plateau can reflect convergence, weighting imbalance, optimizer failure, or data issues.</p>
+<p><strong>NaN losses</strong>: locate the first nonfinite activation, target, reduction, gradient, or optimizer state; clipping can hide rather than solve the cause.</p>
+<p><strong>Poor sample quality</strong>: separate model, solver, guidance, decoder, data-scaling, and checkpoint errors with fixed seeds and controlled ablations.</p>
+</div>
+<p><strong>What to Monitor</strong>:</p>
+<ol>
+<li><strong>Training Loss</strong>: Should decrease initially, then plateau</li>
+<li><strong>Fixed-seed and fresh-seed samples</strong> at a declared cadence and sampler</li>
+<li><strong>Distributional metrics</strong> at a cadence justified by their estimator cost, with sample count and uncertainty</li>
+<li><strong>Gradient Norms</strong>: Should be stable, not exploding</li>
+<li><strong>Learning Rate</strong>: Track warmup and decay schedules</li>
+</ol>
+<p><strong>Checkpoint Management</strong>:</p>
+<ul>
+<li>Save raw and EMA weights when both are part of the experiment, together with optimizer, scheduler, scaler, RNG, and data-position state needed for a faithful resume.</li>
+<li>Choose checkpoint cadence from failure-recovery cost and evaluation budget; record examples or tokens seen as well as optimizer steps.</li>
+<li>Select checkpoints on a declared validation protocol. Do not select on the test split, and do not reduce a conditional generator to one FID value when alignment, coverage, calibration, and safety also matter.</li>
+<li>Retain enough intermediate states to diagnose divergence, EMA sensitivity, and overfitting rather than preserving only the winning evaluation.</li>
+</ul>
+<h3 id="computational-requirements">Computational Requirements<a class="headerlink" href="#computational-requirements" title="Permanent link">¤</a></h3>
+<p>Hardware feasibility depends on parameters and active parameters, optimizer/EMA state, activation shapes, attention implementation, codec resolution, dtype, sharding, checkpointing, and effective batch. Report peak allocated and reserved memory, accelerator and interconnect, compiler/kernel versions, throughput, training FLOPs, images/tokens seen, and wall-clock. Avoid portable-looking GPU-count or day estimates without a reproducible configuration.</p>
+<p><strong>Memory Optimizations</strong>:</p>
+<ul>
+<li><strong>Gradient checkpointing</strong> trades recomputation for activation memory; measure both on the target graph.</li>
+<li><strong>Mixed precision</strong> changes memory, throughput, and numerical error by hardware and kernel.</li>
+<li><strong>Smaller Batch Sizes</strong>: Use gradient accumulation to maintain effective batch size</li>
+</ul>
+<h3 id="worked-example-reduction-changes-the-optimizer-scale">Worked example: reduction changes the optimizer scale<a class="headerlink" href="#worked-example-reduction-changes-the-optimizer-scale" title="Permanent link">¤</a></h3>
+<p>For a batch of two scalar targets with squared errors <span class="arithmatex">\(1\)</span> and <span class="arithmatex">\(9\)</span>, <code>mean</code> gives loss <span class="arithmatex">\(5\)</span>, while <code>sum</code> gives <span class="arithmatex">\(10\)</span>. If each sample instead has 1,000 dimensions, summing dimensions and averaging batches scales gradients by roughly 1,000 relative to averaging all elements. Min-SNR weights derived for a per-example mean cannot be copied blindly into a differently reduced implementation. A reproducible training equation must state whether it averages over batch, channels/tokens, spatial dimensions, and time sampling.</p>
+<h3 id="independent-practice-and-assessment-map-training">Independent practice and assessment map: training<a class="headerlink" href="#independent-practice-and-assessment-map-training" title="Permanent link">¤</a></h3>
+<p>Write the sampled training estimator as precisely as the population objective.
+RNG, tensors, units, reductions, weighting, optimizer state, EMA, and validation
+are part of the experiment rather than implementation trivia.</p>
+<h4 id="p1-specify-and-diagnose-one-reproducible-training-run">P1 — Specify and diagnose one reproducible training run<a class="headerlink" href="#p1-specify-and-diagnose-one-reproducible-training-run" title="Permanent link">¤</a></h4>
+<ol>
+<li><strong>P1.1 — Predict before computing.</strong> Predict whether these changes preserve the same optimization problem: replacing an all-element mean by a spatial sum; applying the <span class="arithmatex">\(x_0\)</span> Min-SNR coefficient directly to an <span class="arithmatex">\(\epsilon\)</span> loss; doubling batch size while keeping EMA decay per update fixed; evaluating only fixed-seed samples; and clipping every nonfinite gradient. For each change, name the altered estimator, timescale, or hidden failure mode.</li>
+<li><strong>P1.2 — One-step estimator contract.</strong> Specify one complete <span class="arithmatex">\(\epsilon\)</span>- or VP-<span class="arithmatex">\(v\)</span> training step for a batch tensor with declared shape and data units. Give independent RNG streams for data order, augmentation, condition dropout, time, and noise; derive the target and weight; state reduction over every axis and device; and calculate the scalar loss for a two-example, two-coordinate toy batch. Record the gradient, optimizer, precision, and distributed-reduction semantics needed to reproduce the update.</li>
+<li><strong>P1.3 — Parameterization and Min-SNR conversion.</strong> Starting from <span class="arithmatex">\(w_{x_0}(t)=\min(\operatorname{SNR}(t),\gamma)\)</span>, derive the equivalent coefficients for <span class="arithmatex">\(\epsilon\)</span> and VP-<span class="arithmatex">\(v\)</span> prediction. Evaluate all three at <span class="arithmatex">\(\operatorname{SNR}\in\{0.1,1,10\}\)</span> with <span class="arithmatex">\(\gamma=5\)</span>, then explain why the numerical table does not establish that <span class="arithmatex">\(\gamma=5\)</span> is optimal for another path, architecture, reduction, or dataset.</li>
+<li><strong>P1.4 — EMA, checkpoint, and validation audit.</strong> Convert an EMA coefficient per optimizer update into an update-count half-life. Compare two runs with different accumulation or batch schedules at matched examples seen. Define a resume-complete checkpoint and a validation matrix separating per-time denoising error, ELBO or likelihood estimate, raw-versus-EMA samples, fidelity, coverage, conditioning, gradients, overflow, and solver sensitivity. Give one diagnostic that would reveal a failure hidden by the aggregate loss.</li>
+<li><strong>P1.5 — Transfer.</strong> Design the training and validation contract for an equivariant molecular or irregular-field diffusion model. Declare units, masks or graph sizes, corruption/time law, target, weight, per-structure reduction, condition dropout, optimizer/EMA timescale, precision checks, constraint metrics, held-out split, and a tractable synthetic case. Explain how the case separates a wrong target conversion from data, optimizer, or sampler failure.</li>
+</ol>
+<h5 id="outcome-to-task-alignment-training">Outcome-to-task alignment: training<a class="headerlink" href="#outcome-to-task-alignment-training" title="Permanent link">¤</a></h5>
+<div class="md-typeset__table book-table-container"><table id="tbl-diffusion-explained-outcome-to-task-alignment-training"><caption class="book-object-caption"><span class="book-object-number">Table DIFF.16.</span> Outcome-to-task alignment for diffusion training</caption>
+<thead>
+<tr>
+<th>Learning objective</th>
+<th>Independently assessed by</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>O1 — Implement one training step with explicit RNG, shapes, reduction, target, time distribution, and weight</td>
+<td>P1.1, P1.2, P1.5</td>
+</tr>
+<tr>
+<td>O2 — Convert Min-SNR weights between parameterizations</td>
+<td>P1.1, P1.3</td>
+</tr>
+<tr>
+<td>O3 — Distinguish EMA decay per update from a wall-clock half-life</td>
+<td>P1.1, P1.4</td>
+</tr>
+<tr>
+<td>O4 — Design validation separating denoising loss, likelihood bounds, sample metrics, conditioning, and numerical stability</td>
+<td>P1.4, P1.5</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="training-process-chapter-synthesis-and-retrieval-practice">Training Process: Chapter synthesis and retrieval practice<a class="headerlink" href="#training-process-chapter-synthesis-and-retrieval-practice" title="Permanent link">¤</a></h3>
+<p>“Simple MSE” hides the curriculum of noise levels presented to the network. Target, time distribution, weight, reduction, data units, conditioning dropout, optimizer, EMA, and distributed semantics jointly define training.</p>
+<details class="question">
+<summary>Retrieval practice: diffusion training</summary>
+<ol>
+<li>Why is <span class="arithmatex">\(\gamma=5\)</span> not a universal Min-SNR choice?</li>
+<li>What additional information gives EMA decay a portable meaning?</li>
+<li>Why can training with 1,000 diffusion levels still sample in 20 solver evaluations?</li>
+<li>What does gradient accumulation preserve, and what might it not preserve?</li>
+</ol>
+<p><strong>Solutions.</strong> (1) Its effect depends on target, SNR schedule, time sampling, reduction, architecture, and task. (2) Update frequency, total updates, warm-up and whether decay is adjusted for batch/time. (3) A trained continuous or discretized estimator can be evaluated on a subsampled or solver-selected time grid, with additional numerical error. (4) It can preserve an effective gradient batch under correct scaling, but not BatchNorm statistics, optimizer-update frequency, augmentation correlations, or exact distributed numerical behavior.</p>
+</details>
+<p><strong>Bridge to Chapter 4.</strong> Training estimates a field or denoiser; generation chooses a numerical path through it. The next chapter separates sampler order, stochasticity, NFE, guidance, inverse-problem likelihoods, and distillation.</p>
+<hr/>
+<hr/>
+<p><strong>Navigate:</strong> <a href="../diffusion-02-architectures/">← Architectures</a> · <a href="../diffusion-04-sampling/">4. Sampling and Guidance →</a> · <a href="../diffusion-explained/#training-process">Complete guide</a></p>
+</article>
+</div>
+<script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  Back to top
+</button>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+<div class="md-social">
+<a class="md-social__link" href="https://github.com/avitai/artifex" rel="noopener" target="_blank" title="github.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</a>
+<a class="md-social__link" href="https://pypi.org/project/avitai-artifex/" rel="noopener" target="_blank" title="pypi.org">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-66.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.3v101.8c0 29 25.2 46 53.4 54.3 33.8 9.9 66.3 11.7 106.8 0 26.9-7.8 53.4-23.5 53.4-54.3v-40.7H226.2v-13.6h160.2c31.1 0 42.6-21.7 53.4-54.2 11.2-33.5 10.7-65.7 0-108.6M286.2 444.7a20.4 20.4 0 1 1 0-40.7 20.4 20.4 0 1 1 0 40.7M167.8 248.1h106.8c29.7 0 53.4-24.5 53.4-54.3V91.9c0-29-24.4-50.7-53.4-55.6-35.8-5.9-74.7-5.6-106.8.1-45.2 8-53.4 24.7-53.4 55.6v40.7h106.9v13.6h-147c-31.1 0-58.3 18.7-66.8 54.2-9.8 40.7-10.2 66.1 0 108.6 7.6 31.6 25.7 54.2 56.8 54.2H101v-48.8c0-35.3 30.5-66.4 66.8-66.4m-6.6-183.4a20.4 20.4 0 1 1 0 40.8 20.4 20.4 0 1 1 0-40.8"></path></svg>
+</a>
+<a class="md-social__link" href="https://twitter.com/mahdi_shafiei" rel="noopener" target="_blank" title="twitter.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M459.4 151.7c.3 4.5.3 9.1.3 13.6 0 138.7-105.6 298.6-298.6 298.6-59.5 0-114.7-17.2-161.1-47.1 8.4 1 16.6 1.3 25.3 1.3 49.1 0 94.2-16.6 130.3-44.8-46.1-1-84.8-31.2-98.1-72.8 6.5 1 13 1.6 19.8 1.6 9.4 0 18.8-1.3 27.6-3.6-48.1-9.7-84.1-52-84.1-103v-1.3c14 7.8 30.2 12.7 47.4 13.3-28.3-18.8-46.8-51-46.8-87.4 0-19.5 5.2-37.4 14.3-53C87.4 130.8 165 172.4 252.1 176.9c-1.6-7.8-2.6-15.9-2.6-24C249.5 95.1 296.3 48 354.4 48c30.2 0 57.5 12.7 76.7 33.1 23.7-4.5 46.5-13.3 66.6-25.3-7.8 24.4-24.4 44.8-46.1 57.8 21.1-2.3 41.6-8.1 60.4-16.2-14.3 20.8-32.2 39.3-52.6 54.3"></path></svg>
+</a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.path", "navigation.top", "navigation.prune", "toc.follow", "search.highlight", "search.share", "search.suggest", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "content.mermaid"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+<script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+<script src="../../../javascripts/reading-layout.js"></script>
+</body>
+</html>

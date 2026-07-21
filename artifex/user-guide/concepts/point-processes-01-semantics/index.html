@@ -1,0 +1,1489 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="This chapter defines counting measures, simple configurations, cardinality laws, Janossy densities, finite-set integrals, and marks. For uninterrupted reading," name="description"/>
+<meta content="Mahdi Shafiei" name="author"/>
+<link href="https://docs.avitai.bio/artifex/user-guide/concepts/point-processes-01-semantics/" rel="canonical"/>
+<link href="../stochastic-process-generators-explained/" rel="prev"/>
+<link href="../point-processes-02-temporal/" rel="next"/>
+<link href="../../../assets/images/favicon.png" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.7.7" name="generator"/>
+<title>Point Processes 1 — Configuration Semantics - Artifex</title>
+<link href="../../../assets/stylesheets/main.ec1eaa64.min.css" rel="stylesheet"/>
+<link href="../../../assets/stylesheets/palette.ab4e12ef.min.css" rel="stylesheet"/>
+<script src="../../../assets/vendor/iframe-worker/index.js"></script>
+<link href="../../../assets/_mkdocstrings.css" rel="stylesheet"/>
+<link href="../../../_static/extra.css" rel="stylesheet"/>
+<script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+<meta content="article" property="og:type"/>
+<meta content="The Artifex Generative Models Book" property="og:site_name"/>
+<meta content="Point Processes 1 — Configuration Semantics" property="og:title"/>
+<meta content="This chapter defines counting measures, simple configurations, cardinality laws, Janossy densities, finite-set integrals, and marks. For uninterrupted reading," property="og:description"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/point-processes-01-semantics/" property="og:url"/>
+<meta content="2026-07-19" property="article:modified_time"/>
+<meta content="summary" name="twitter:card"/>
+<meta content="Point Processes 1 — Configuration Semantics" name="twitter:title"/>
+<meta content="This chapter defines counting measures, simple configurations, cardinality laws, Janossy densities, finite-set integrals, and marks. For uninterrupted reading," name="twitter:description"/>
+<meta content="Generative models, Machine learning, Probabilistic modeling, advanced, specialization, canonical_chapter, point-process-semantics, practitioner, researcher" name="keywords"/>
+<meta content="Point Processes 1 — Configuration Semantics" name="citation_title"/>
+<meta content="Mahdi Shafiei" name="citation_author"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/point-processes-01-semantics/" name="citation_public_url"/>
+<meta content="en" name="citation_language"/>
+<meta content="Point Processes 1 — Configuration Semantics" name="DC.title"/>
+<meta content="Mahdi Shafiei" name="DC.creator"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/point-processes-01-semantics/" name="DC.identifier"/>
+<meta content="Text.LearningResource" name="DC.type"/>
+<meta content="2026-07-19" name="DCTERMS.modified"/>
+<meta content="https://github.com/avitai/artifex/blob/main/LICENSE" name="DCTERMS.license"/>
+<meta content="advanced" name="DCTERMS.educationLevel"/>
+<meta content="practitioner, researcher" name="DCTERMS.audience"/>
+<link href="https://github.com/avitai/artifex/blob/main/LICENSE" rel="license"/>
+<script id="artifex-book-metadata" type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Chapter",
+  "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/point-processes-01-semantics/",
+  "url": "https://docs.avitai.bio/artifex/user-guide/concepts/point-processes-01-semantics/",
+  "name": "Point Processes 1 \u2014 Configuration Semantics",
+  "description": "This chapter defines counting measures, simple configurations, cardinality laws, Janossy densities, finite-set integrals, and marks. For uninterrupted reading,",
+  "identifier": "point-process-semantics",
+  "inLanguage": "en",
+  "isAccessibleForFree": true,
+  "learningResourceType": "Canonical chapter",
+  "educationalLevel": "advanced",
+  "educationalUse": "specialization",
+  "audience": [
+    
+      {"@type": "EducationalAudience", "audienceType": "practitioner"},
+    
+      {"@type": "EducationalAudience", "audienceType": "researcher"}
+    
+  ],
+  "dateModified": "2026-07-19",
+  "keywords": ["Generative models", "Machine learning", "Probabilistic modeling", "advanced", "specialization", "canonical_chapter", "point-process-semantics", "practitioner", "researcher"],
+  "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+  "author": [
+    
+      {"@type": "Person", "name": "Mahdi Shafiei"}
+    
+  ],
+  "isPartOf": {
+    "@type": "Book",
+    "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/#book",
+    "url": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/",
+    "name": "The Artifex Generative Models Book",
+    "bookEdition": "Living Web Edition",
+    "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+    "author": [
+      
+        {"@type": "Person", "name": "Mahdi Shafiei"}
+      
+    ]
+  }
+}
+</script>
+<link href="../../../assets/vendor/katex/katex.min.css" id="artifex-katex-stylesheet" integrity="sha384-UA8juhPf75SzzAMA/4fo3yOU7sBJ0om7SCD2GHq0fZqZco6tr1UCV7nUbk9J90JM" rel="stylesheet"/>
+<script defer="" integrity="sha384-T/0lMUdJpd2S1ZHtRiofG3htU3xPCrFVeAQ1UUE2TJwlEJSV5NUwn30kP28n238E" src="../../../assets/vendor/mermaid/mermaid.min.js"></script>
+<script defer="" src="../../../assets/vendor/katex/katex-shadow.js"></script>
+<script defer="" src="../../../javascripts/mermaid-math.js"></script>
+<script defer="" src="../../../javascripts/mathjax.js"></script>
+<script defer="" integrity="sha384-OrHfGTnIbkl0do3N76qW/uWr38o91N05sbSPuYBPLH+hG8X/dNSrjZf3AGjzrCwC" src="../../../assets/vendor/mathjax/tex-mml-chtml.js"></script>
+</head>
+<body data-md-color-accent="amber" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#point-processes-1-configuration-semantics">
+          Skip to content
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header md-header--shadow" data-md-component="header">
+<nav aria-label="Header" class="md-header__inner md-grid">
+<a aria-label="Artifex" class="md-header__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            Artifex
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+            
+              Point Processes 1 — Configuration Semantics
+            
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-label="Switch to dark mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: light)" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_1" hidden="" title="Switch to dark mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+<input aria-label="Switch to light mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-primary="indigo" data-md-color-scheme="slate" id="__palette_1" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_0" hidden="" title="Switch to light mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+</form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div aria-label="Search" class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Search" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="Search" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="Search" class="md-search__options">
+<a aria-label="Share" class="md-search__icon md-icon" data-clipboard="" data-clipboard-text="" data-md-component="search-share" href="javascript:void(0)" tabindex="-1" title="Share">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"></path></svg>
+</a>
+<button aria-label="Clear" class="md-search__icon md-icon" tabindex="-1" title="Clear" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            Initializing search
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Navigation" class="md-nav md-nav--primary" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="Artifex" class="md-nav__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+    Artifex
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../..">
+<span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../getting-started/installation/">
+<span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Generative Models Book
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Generative Models Book
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    
+  
+    Start Here — The Landscape
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../first-course-01-generative-systems/">
+<span class="md-ellipsis">
+    
+  
+    First Course — New to Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../probability-01-objects/">
+<span class="md-ellipsis">
+    
+  
+    Foundations
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_4" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_4" id="__nav_3_4_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Model Families
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_4_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_4">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Model Families
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../autoregressive-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Autoregressive Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../vae-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Variational Autoencoders
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gan-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Generative Adversarial Networks
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../ebm-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Energy-Based Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../diffusion-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Diffusion Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../flow-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Normalizing Flows and Flow Matching
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../probabilistic-circuits-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Probabilistic Circuits
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../tensor-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Tensor-Network and Born Probability Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../implicit-generators-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Implicit Generators Beyond GANs
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../discrete-iterative-01-masked/">
+<span class="md-ellipsis">
+    
+  
+    Discrete Iterative Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../bayesian-flow-networks-01-story/">
+<span class="md-ellipsis">
+    
+  
+    Bayesian Flow Networks
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gflownets-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Generative Flow Networks
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../bnp-01-random-measures/">
+<span class="md-ellipsis">
+    
+  
+    Bayesian Nonparametric Random-Measure Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../stochastic-process-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Stochastic-Process and Function-Space Generators
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_4_15" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_4_15" id="__nav_3_4_15_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Point Processes and Random Finite Sets
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_4_15_label" class="md-nav" data-md-level="3">
+<label class="md-nav__title" for="__nav_3_4_15">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Point Processes and Random Finite Sets
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
+    
+  
+    1. Configuration Semantics
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
+<span class="md-ellipsis">
+    
+  
+    1. Configuration Semantics
+  
+
+    
+  </span>
+</a>
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#1-configurations-counting-measures-and-set-densities">
+<span class="md-ellipsis">
+      
+        1. Configurations, Counting Measures, and Set Densities
+      
+    </span>
+</a>
+<nav aria-label="1. Configurations, Counting Measures, and Set Densities" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-1-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 1 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#the-generated-object">
+<span class="md-ellipsis">
+      
+        The generated object
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#janossy-densities-the-factorial-is-part-of-the-definition">
+<span class="md-ellipsis">
+      
+        Janossy densities: the factorial is part of the definition
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#complete-worked-example-a-homogeneous-poisson-configuration">
+<span class="md-ellipsis">
+      
+        Complete worked example: a homogeneous Poisson configuration
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#marks-and-projections">
+<span class="md-ellipsis">
+      
+        Marks and projections
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#what-this-family-is-not">
+<span class="md-ellipsis">
+      
+        What this family is not
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#representation-changes-what-survives">
+<span class="md-ellipsis">
+      
+        Representation changes: what survives?
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#independent-practice-and-assessment-map-configuration-semantics">
+<span class="md-ellipsis">
+      
+        Independent practice and assessment map: configuration semantics
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-1-misconception-checks">
+<span class="md-ellipsis">
+      
+        Chapter 1 misconception checks
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-1-retrieval-questions">
+<span class="md-ellipsis">
+      
+        Chapter 1 retrieval questions
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-1-synthesis-and-bridge">
+<span class="md-ellipsis">
+      
+        Chapter 1 synthesis and bridge
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../point-processes-02-temporal/">
+<span class="md-ellipsis">
+    
+  
+    2. Temporal Processes
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../point-processes-03-spatial-sets/">
+<span class="md-ellipsis">
+    
+  
+    3. Spatial Processes and Finite Sets
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../point-processes-04-inference/">
+<span class="md-ellipsis">
+    
+  
+    4. Learning and Inference
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../point-processes-05-simulation/">
+<span class="md-ellipsis">
+    
+  
+    5. Simulation and Generation
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../point-processes-06-neural-evaluation/">
+<span class="md-ellipsis">
+    
+  
+    6. Neural Models and Evaluation
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../point-processes-and-random-finite-sets/">
+<span class="md-ellipsis">
+    
+  
+    Continuous View (All Chapters)
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../random-graphs-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Random Graphs and Relational Generators
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../copula-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Copula Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../grammar-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Probabilistic Grammars and Program Derivations
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../causal-generative-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Causal Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../new-families-frontier-evidence/">
+<span class="md-ellipsis">
+    
+  
+    Research Evidence Ledger
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gradients-01-taxonomy/">
+<span class="md-ellipsis">
+    
+  
+    Connections and Compositions
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../normalization-01-queries/">
+<span class="md-ellipsis">
+    
+  
+    Research Practice
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../models/vae-guide/">
+<span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/core/base/">
+<span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../examples/overview/">
+<span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../zoo/">
+<span class="md-ellipsis">
+    
+  
+    Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../training/overview/">
+<span class="md-ellipsis">
+    
+  
+    Training
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../data/overview/">
+<span class="md-ellipsis">
+    
+  
+    Data &amp; Modalities
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../inference/overview/">
+<span class="md-ellipsis">
+    
+  
+    Inference &amp; Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../benchmarks/">
+<span class="md-ellipsis">
+    
+  
+    Evaluation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../guides/extensions/">
+<span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../extensions/">
+<span class="md-ellipsis">
+    
+  
+    Advanced Topics
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../cli/">
+<span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../community/contributing/">
+<span class="md-ellipsis">
+    
+  
+    Community
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/configs/protein-extension/">
+<span class="md-ellipsis">
+    
+  
+    Reference Library
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#1-configurations-counting-measures-and-set-densities">
+<span class="md-ellipsis">
+      
+        1. Configurations, Counting Measures, and Set Densities
+      
+    </span>
+</a>
+<nav aria-label="1. Configurations, Counting Measures, and Set Densities" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-1-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 1 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#the-generated-object">
+<span class="md-ellipsis">
+      
+        The generated object
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#janossy-densities-the-factorial-is-part-of-the-definition">
+<span class="md-ellipsis">
+      
+        Janossy densities: the factorial is part of the definition
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#complete-worked-example-a-homogeneous-poisson-configuration">
+<span class="md-ellipsis">
+      
+        Complete worked example: a homogeneous Poisson configuration
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#marks-and-projections">
+<span class="md-ellipsis">
+      
+        Marks and projections
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#what-this-family-is-not">
+<span class="md-ellipsis">
+      
+        What this family is not
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#representation-changes-what-survives">
+<span class="md-ellipsis">
+      
+        Representation changes: what survives?
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#independent-practice-and-assessment-map-configuration-semantics">
+<span class="md-ellipsis">
+      
+        Independent practice and assessment map: configuration semantics
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-1-misconception-checks">
+<span class="md-ellipsis">
+      
+        Chapter 1 misconception checks
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-1-retrieval-questions">
+<span class="md-ellipsis">
+      
+        Chapter 1 retrieval questions
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-1-synthesis-and-bridge">
+<span class="md-ellipsis">
+      
+        Chapter 1 synthesis and bridge
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<nav aria-label="Breadcrumb" class="md-path">
+<ol class="md-path__list">
+<li class="md-path__item">
+<a class="md-path__link" href="../../..">
+<span class="md-ellipsis">
+    Home
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    Generative Models Book
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../autoregressive-01-foundations/">
+<span class="md-ellipsis">
+    Model Families
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="./">
+<span class="md-ellipsis">
+    Point Processes and Random Finite Sets
+  </span>
+</a>
+</li>
+</ol>
+</nav>
+<article class="md-content__inner md-typeset">
+<h1 id="point-processes-1-configuration-semantics">Point Processes 1 — Configuration Semantics<a class="headerlink" href="#point-processes-1-configuration-semantics" title="Permanent link">¤</a></h1><aside aria-label="Learning path" class="admonition abstract artifex-learning-path"><p class="admonition-title">Learning path</p><p><strong>Required knowledge</strong></p><ul class="artifex-learning-path__links" data-learning-path-role="required"><li><a href="../probability-and-generative-modeling/">Probability and Generative Modeling</a></li></ul><p><strong>Readiness check:</strong> can you explain the central object and reproduce one worked example from each required chapter? If not, follow its link before continuing.</p><p><strong>Newly unlocked in the default route</strong></p><ul class="artifex-learning-path__links" data-learning-path-role="unlocks"><li><a href="../point-processes-02-temporal/">Point Processes 2 — Temporal Processes</a></li><li><a href="../point-processes-03-spatial-sets/">Point Processes 3 — Spatial Processes and Finite Sets</a></li></ul></aside>
+<p>This chapter defines counting measures, simple configurations, cardinality laws, Janossy densities, finite-set integrals, and marks. For uninterrupted reading, use the <a href="../point-processes-and-random-finite-sets/#1-configurations-counting-measures-and-set-densities">complete guide</a>.</p>
+<h2 id="1-configurations-counting-measures-and-set-densities">1. Configurations, Counting Measures, and Set Densities<a class="headerlink" href="#1-configurations-counting-measures-and-set-densities" title="Permanent link">¤</a></h2>
+<h3 id="chapter-1-prerequisites-and-learning-objectives">Chapter 1 prerequisites and learning objectives<a class="headerlink" href="#chapter-1-prerequisites-and-learning-objectives" title="Permanent link">¤</a></h3>
+<p>This chapter assumes probability measures, densities with respect to a base
+measure, and conditional probability.</p>
+<p><strong>Numbered learning outcomes.</strong> After completing the chapter, you can:</p>
+<ol>
+<li><strong>O1 — Name the generated object.</strong> Represent a point pattern as a locally finite counting measure and distinguish finite, simple, and non-simple configurations.</li>
+<li><strong>O2 — Separate the law's layers.</strong> Distinguish cardinality, locations conditional on cardinality, and marks conditional on locations.</li>
+<li><strong>O3 — Control the reference convention.</strong> Derive cardinality and conditional-location laws from Janossy densities and translate to the declared finite-set integral.</li>
+<li><strong>O4 — Audit representations.</strong> State when counting measures, finite sets, ordered tuples, padded arrays, and timestamp sequences preserve or erase information.</li>
+<li><strong>O5 — Compute a finite law.</strong> Normalize a small configuration model and check its empty-set and count probabilities.</li>
+<li><strong>O6 — Transfer the configuration contract.</strong> Specify the state space, window, reference measure, cardinality, geometry, marks, and stopping rule for a new application.</li>
+</ol>
+<h3 id="the-generated-object">The generated object<a class="headerlink" href="#the-generated-object" title="Permanent link">¤</a></h3>
+<p>A <strong>point process</strong> <span class="arithmatex">\(N\)</span> on <span class="arithmatex">\(\mathsf S\)</span> is a random locally finite counting measure. A realization may be written</p>
+<div class="arithmatex">\[
+N=\sum_i \delta_{x_i},
+\qquad
+N(A)=\sum_i \mathbf 1\{x_i\in A\}.
+\]</div>
+<p>Local finiteness means <span class="arithmatex">\(N(A)&lt;\infty\)</span> almost surely for every bounded measurable <span class="arithmatex">\(A\)</span>. A process is <strong>simple</strong> if <span class="arithmatex">\(N(\{x\})\le 1\)</span> almost surely for every location <span class="arithmatex">\(x\)</span>; otherwise coincident points can carry multiplicity. When the process is simple and the observation window is bounded, the same realization can be viewed as the finite set <span class="arithmatex">\(X=\{x_1,\ldots,x_n\}\)</span>.</p>
+<p>This representation separates three random quantities that padding can obscure:</p>
+<ol>
+<li>the cardinality <span class="arithmatex">\(|X|=N(W)\)</span>;</li>
+<li>the point locations conditional on that cardinality; and</li>
+<li>any marks or attributes conditional on the locations and history.</li>
+</ol>
+<figure class="book-figure" id="fig-point-processes-and-random-finite-sets-the-generated-object"><pre class="mermaid"><code>%%{init: {'themeCSS': '.nodeLabel p { color: #111827 !important; } .flowchart-link { stroke: #78879a !important; stroke-width: 2px !important; } marker path { fill: #78879a !important; stroke: #78879a !important; }'}}%%
+flowchart TD
+    A["Configuration law"] --&gt; B["Cardinality&lt;br/&gt;&amp;nbsp;$$p_n=\Pr(|X|=n)$$"]
+    A --&gt; C["Locations given count&lt;br/&gt;&amp;nbsp;$$f_n(x_{1:n})$$"]
+    A --&gt; D["Marks given locations&lt;br/&gt;&amp;nbsp;$$q(m_{1:n}\mid x_{1:n})$$"]
+    B --&gt; E["Empty-space and&lt;br/&gt;count queries"]
+    C --&gt; F["Clustering, inhibition,&lt;br/&gt;and geometry"]
+    D --&gt; G["Types, sizes, labels,&lt;br/&gt;and covariates"]</code></pre><figcaption class="book-object-caption"><span class="book-object-number">Figure POINT.2.</span> The generated object</figcaption></figure>
+<h3 id="janossy-densities-the-factorial-is-part-of-the-definition">Janossy densities: the factorial is part of the definition<a class="headerlink" href="#janossy-densities-the-factorial-is-part-of-the-definition" title="Permanent link">¤</a></h3>
+<p>Assume <span class="arithmatex">\(X\)</span> is finite in <span class="arithmatex">\(W\)</span> and its Janossy measures have symmetric densities <span class="arithmatex">\(j_n\)</span> with respect to <span class="arithmatex">\(\mu^n\)</span>. We use the convention</p>
+<div class="arithmatex">\[
+j_0+
+\sum_{n=1}^{\infty}\frac{1}{n!}
+\int_{W^n}j_n(x_{1:n})\,\mu^n(dx_{1:n})=1,
+\]</div>
+<p>and therefore</p>
+<div class="arithmatex">\[
+p_n=\Pr(|X|=n)
+=\frac{1}{n!}\int_{W^n}j_n(x_{1:n})\,\mu^n(dx_{1:n}).
+\]</div>
+<p>If <span class="arithmatex">\(f_n\)</span> is a symmetric density on an <strong>ordered</strong> <span class="arithmatex">\(n\)</span>-tuple conditional on <span class="arithmatex">\(|X|=n\)</span> and integrates to one on <span class="arithmatex">\(W^n\)</span>, then</p>
+<div class="arithmatex">\[
+\boxed{j_n(x_{1:n})=n!\,p_n\,f_n(x_{1:n}).}
+\]</div>
+<p>The factor <span class="arithmatex">\(n!\)</span> compensates for the <span class="arithmatex">\(n!\)</span> orderings of the same simple set. Some authors absorb this factor into the definition of a set density or choose a unit-rate Poisson process as the reference. Neither choice is wrong, but moving a formula between conventions without moving the reference measure changes its normalization.</p>
+<p>The finite-set integral convention used in finite-set statistics makes the same combinatorics explicit:</p>
+<div class="arithmatex">\[
+\int F(X)\,\delta X
+=F(\varnothing)+
+\sum_{n=1}^{\infty}\frac{1}{n!}
+\int_{W^n}F(\{x_1,\ldots,x_n\})\,\mu^n(dx_{1:n}).
+\]</div>
+<p>Under this convention, a symmetric set density <span class="arithmatex">\(F\)</span> normalizes when the displayed set integral equals one. If instead <span class="arithmatex">\(F\)</span> is a Radon–Nikodym derivative with respect to a unit-rate Poisson process on <span class="arithmatex">\(W\)</span>, an additional window-dependent factor appears. Always declare which object is called “the density.”</p>
+<h3 id="complete-worked-example-a-homogeneous-poisson-configuration">Complete worked example: a homogeneous Poisson configuration<a class="headerlink" href="#complete-worked-example-a-homogeneous-poisson-configuration" title="Permanent link">¤</a></h3>
+<p>Let <span class="arithmatex">\(W=[0,1]\)</span>, let <span class="arithmatex">\(\mu\)</span> be Lebesgue measure, and let the rate be <span class="arithmatex">\(\lambda=2\)</span>. The count is</p>
+<div class="arithmatex">\[
+p_n=e^{-2}\frac{2^n}{n!},
+\]</div>
+<p>and, conditional on <span class="arithmatex">\(N(W)=n\)</span>, the ordered locations are iid uniform, so <span class="arithmatex">\(f_n(x_{1:n})=1\)</span> on <span class="arithmatex">\([0,1]^n\)</span>. Hence</p>
+<div class="arithmatex">\[
+j_n(x_{1:n})=n!\,p_n f_n(x_{1:n})=e^{-2}2^n.
+\]</div>
+<p>Normalization now exposes the role of the factorial:</p>
+<div class="arithmatex">\[
+j_0+\sum_{n=1}^{\infty}\frac1{n!}\int_{[0,1]^n}j_n\,dx_{1:n}
+=e^{-2}\sum_{n=0}^{\infty}\frac{2^n}{n!}=1.
+\]</div>
+<p>The probability of exactly two points is <span class="arithmatex">\(p_2=2e^{-2}\)</span>, while the probability of no point is <span class="arithmatex">\(p_0=e^{-2}\)</span>. A model that predicts plausible locations but assigns the wrong empty-set or count probabilities has not learned this configuration law.</p>
+<h3 id="marks-and-projections">Marks and projections<a class="headerlink" href="#marks-and-projections" title="Permanent link">¤</a></h3>
+<p>A <strong>marked point process</strong> lives on a product space <span class="arithmatex">\(\mathsf S\times\mathsf M\)</span>. A mark may be a discrete type, a bounding-box shape, a molecular species, a severity, or a vector. One useful factorization is</p>
+<div class="arithmatex">\[
+p(x_{1:n},m_{1:n},n)
+=p_n\,f_n(x_{1:n})\,q(m_{1:n}\mid x_{1:n}),
+\]</div>
+<p>but conditional independence among marks is an additional assumption, not part of the definition. Removing marks maps a marked process to its ground process; conditioning on one mark class produces a thinned subprocess. These operations need not preserve the original family.</p>
+<h3 id="what-this-family-is-not">What this family is not<a class="headerlink" href="#what-this-family-is-not" title="Permanent link">¤</a></h3>
+<ul>
+<li>A fixed-length point cloud conditions on or fixes cardinality unless it supplies an explicit count law.</li>
+<li>A timestamp sequence model is a point-process model only if its stopping/no-event probability and continuous-time reference measure are defined.</li>
+<li>A random function <span class="arithmatex">\(f(t)\)</span> is not a random event configuration, although a random nonnegative function can parameterize an intensity.</li>
+<li>A set encoder is an architecture; it does not define a probability law on finite sets.</li>
+</ul>
+<h3 id="representation-changes-what-survives">Representation changes: what survives?<a class="headerlink" href="#representation-changes-what-survives" title="Permanent link">¤</a></h3>
+<p>The same realization can have several useful representations, but the arrows
+have conditions. Read each label as an obligation, not as an automatic type
+conversion.</p>
+<figure class="book-figure" id="fig-point-processes-and-random-finite-sets-representation-changes-what-survives"><pre class="mermaid"><code>%%{init: {'themeCSS': '.nodeLabel p { color: #111827 !important; } .flowchart-link { stroke: #78879a !important; stroke-width: 2px !important; } marker path { fill: #78879a !important; stroke: #78879a !important; }'}}%%
+flowchart LR
+    C["Counting measure&lt;br/&gt;keeps multiplicity"] --&gt;|"bounded window&lt;br/&gt;and simple"| S["Finite set&lt;br/&gt;order forgotten"]
+    S --&gt;|"choose an ordering&lt;br/&gt;and account for permutations"| T["Ordered tuple&lt;br/&gt;with symmetric density"]
+    T --&gt;|"add count or mask&lt;br/&gt;and forbid padding leakage"| P["Padded array&lt;br/&gt;for computation"]
+    C --&gt;|"attach mark kernel"| M["Marked configuration&lt;br/&gt;locations plus attributes"]
+    S -.-&gt;|"not invertible if&lt;br/&gt;coincidences existed"| L["Multiplicity lost"]
+    P -.-&gt;|"not a law without&lt;br/&gt;count and stopping semantics"| Q["Shape alone is insufficient"]</code></pre><figcaption class="book-object-caption"><span class="book-object-number">Figure POINT.4.</span> Representation changes: what survives?</figcaption></figure>
+<p>The upper route can preserve a declared law when its conditions are carried
+along. The dashed routes show the two common semantic losses: collapsing
+coincident points into a set and treating an array shape as a cardinality law.</p>
+<h3 id="independent-practice-and-assessment-map-configuration-semantics">Independent practice and assessment map: configuration semantics<a class="headerlink" href="#independent-practice-and-assessment-map-configuration-semantics" title="Permanent link">¤</a></h3>
+<p>Attempt each task before opening its hints. The typical time is a planning aid,
+not a speed target. Use the success criterion to decide whether to revise before
+reading the complete solution.</p>
+<ol>
+<li><strong>P1.1 — Predict before computing.</strong> <em>Type: predict · Difficulty: foundation · Typical time: 8 min.</em> A homogeneous Poisson process has rate <span class="arithmatex">\(1.5\)</span> on <span class="arithmatex">\(W=[0,2]\)</span>. Predict whether the empty-set probability is above or below <span class="arithmatex">\(0.1\)</span>, then compute <span class="arithmatex">\(p_0\)</span>, <span class="arithmatex">\(p_2\)</span>, and the constant Janossy density <span class="arithmatex">\(j_2(x_1,x_2)\)</span> under this chapter's convention.</li>
+<li><strong>P1.2 — Recover a cardinality mass.</strong> <em>Type: derive · Difficulty: core · Typical time: 10 min.</em> On <span class="arithmatex">\(W=[0,2]\)</span>, suppose <span class="arithmatex">\(p_2=0.3\)</span> and the symmetric ordered-pair density conditional on two points is uniform. Derive <span class="arithmatex">\(f_2\)</span>, <span class="arithmatex">\(j_2\)</span>, and verify the <span class="arithmatex">\(n=2\)</span> Janossy integral contributes exactly <span class="arithmatex">\(0.3\)</span>.</li>
+<li><strong>P1.3 — Diagnose a lossy representation.</strong> <em>Type: diagnose · Difficulty: foundation · Typical time: 8 min.</em> For <span class="arithmatex">\(N=\delta_0+2\delta_1\)</span>, compute <span class="arithmatex">\(N(\{0\})\)</span>, <span class="arithmatex">\(N(\{1\})\)</span>, and the cardinality on <span class="arithmatex">\(\{0,1\}\)</span>. Explain exactly what is lost by replacing <span class="arithmatex">\(N\)</span> with the ordinary set <span class="arithmatex">\(\{0,1\}\)</span>.</li>
+<li><strong>P1.4 — Compare equal geometry, different counts.</strong> <em>Type: compare · Difficulty: core · Typical time: 12 min.</em> Construct two configuration laws on <span class="arithmatex">\([0,1]\)</span> with iid-uniform locations conditional on count, but different count laws with the same mean count. Give an event whose probability distinguishes the laws.</li>
+<li><strong>P1.5 — Design a marked law.</strong> <em>Type: design · Difficulty: stretch · Typical time: 15 min.</em> Specify a normalized law for a Bernoulli RFS that is empty with probability <span class="arithmatex">\(0.4\)</span> and otherwise contains one uniform location on <span class="arithmatex">\([0,1]\)</span> with a binary mark whose success probability is the location. State the ground-process and mark factors.</li>
+<li><strong>P1.6 — Transfer.</strong> <em>Type: transfer · Difficulty: stretch · Typical time: 18 min.</em> Write a generated-object contract for an object detector that emits an unknown number of labeled bounding boxes. Cover collisions, labels, empty images, padding, the image boundary, and the probability reference convention.</li>
+</ol>
+<h5 id="feedback-contract-configuration-semantics">Feedback contract: configuration semantics<a class="headerlink" href="#feedback-contract-configuration-semantics" title="Permanent link">¤</a></h5>
+<div class="md-typeset__table book-table-container"><table id="tbl-point-processes-and-random-finite-sets-feedback-contract-configuration-semantics-1"><caption class="book-object-caption"><span class="book-object-number">Table POINT.8.</span> Feedback contract: configuration semantics — table 1</caption>
+<thead>
+<tr>
+<th>Task</th>
+<th>Evidence of success</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>P1.1</td>
+<td>The window mean, both count probabilities, and <span class="arithmatex">\(j_2\)</span> respect the declared factorial convention.</td>
+</tr>
+<tr>
+<td>P1.2</td>
+<td>The ordered-pair density integrates to one and the one-over-two-factorial integral recovers <span class="arithmatex">\(p_2\)</span>.</td>
+</tr>
+<tr>
+<td>P1.3</td>
+<td>Multiplicity, total cardinality, and the irreversible set collapse are all explicit.</td>
+</tr>
+<tr>
+<td>P1.4</td>
+<td>Both laws have the same conditional geometry and mean count, but a computed count event separates them.</td>
+</tr>
+<tr>
+<td>P1.5</td>
+<td>Empty mass, singleton location density, and normalized conditional mark law are separately visible.</td>
+</tr>
+<tr>
+<td>P1.6</td>
+<td>The contract names every semantic layer and distinguishes implementation padding from generated cardinality.</td>
+</tr>
+</tbody>
+</table></div>
+<details class="tip">
+<summary>Graduated hints for P1</summary>
+<div class="md-typeset__table book-table-container"><table id="tbl-point-processes-and-random-finite-sets-feedback-contract-configuration-semantics-2"><caption class="book-object-caption"><span class="book-object-number">Table POINT.9.</span> Feedback contract: configuration semantics — table 2</caption>
+<thead>
+<tr>
+<th>Task</th>
+<th>Hint 1 — Direction</th>
+<th>Hint 2 — Setup</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>P1.1</td>
+<td>Begin with the intensity measure of the whole window.</td>
+<td>The mean count is <span class="arithmatex">\(1.5\times2=3\)</span>, and <span class="arithmatex">\(j_n=e^{-3}(1.5)^n\)</span>.</td>
+</tr>
+<tr>
+<td>P1.2</td>
+<td>A uniform ordered pair on a square has density equal to the reciprocal area.</td>
+<td>Use <span class="arithmatex">\(j_2=2!p_2f_2\)</span> and then multiply its integral by <span class="arithmatex">\(1/2!\)</span>.</td>
+</tr>
+<tr>
+<td>P1.3</td>
+<td>A counting measure sums coefficients; a set records only membership.</td>
+<td>Evaluate the singleton counts before replacing the measure by its support.</td>
+</tr>
+<tr>
+<td>P1.4</td>
+<td>Match means without matching distributions.</td>
+<td>Compare a Poisson<span class="arithmatex">\((1)\)</span> count with a count that is zero or two with equal probability.</td>
+</tr>
+<tr>
+<td>P1.5</td>
+<td>Factor the singleton law into existence, location, and mark terms.</td>
+<td>For a singleton <span class="arithmatex">\((x,m)\)</span>, use <span class="arithmatex">\(0.6\,1_{[0,1]}(x)x^m(1-x)^{1-m}\)</span>.</td>
+</tr>
+<tr>
+<td>P1.6</td>
+<td>Start from the seven-item reading invariant at the volume opener.</td>
+<td>Treat a class label as a mark and a padding slot as neither a point nor a stopping law.</td>
+</tr>
+</tbody>
+</table></div>
+</details>
+<h5 id="outcome-to-task-alignment-configuration-semantics">Outcome-to-task alignment: configuration semantics<a class="headerlink" href="#outcome-to-task-alignment-configuration-semantics" title="Permanent link">¤</a></h5>
+<div class="md-typeset__table book-table-container"><table id="tbl-point-processes-and-random-finite-sets-outcome-to-task-alignment-configuration-semantics"><caption class="book-object-caption"><span class="book-object-number">Table POINT.10.</span> Outcome-to-task alignment: configuration semantics</caption>
+<thead>
+<tr>
+<th>Learning objective</th>
+<th>Independently assessed by</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>O1 — Name the generated object</td>
+<td>P1.3, P1.6</td>
+</tr>
+<tr>
+<td>O2 — Separate the law's layers</td>
+<td>P1.4, P1.5</td>
+</tr>
+<tr>
+<td>O3 — Control the reference convention</td>
+<td>P1.1, P1.2</td>
+</tr>
+<tr>
+<td>O4 — Audit representations</td>
+<td>P1.3, P1.6</td>
+</tr>
+<tr>
+<td>O5 — Compute a finite law</td>
+<td>P1.1, P1.2, P1.5</td>
+</tr>
+<tr>
+<td>O6 — Transfer the configuration contract</td>
+<td>P1.6</td>
+</tr>
+</tbody>
+</table></div>
+<details class="success">
+<summary>Complete solutions to P1</summary>
+<ol>
+<li><strong>P1.1.</strong> The window mean is <span class="arithmatex">\(\nu(W)=1.5(2)=3\)</span>, so <span class="arithmatex">\(p_0=e^{-3}\approx0.0498&lt;0.1\)</span> and <span class="arithmatex">\(p_2=e^{-3}3^2/2!=4.5e^{-3}\approx0.2240\)</span>. The Janossy density is <span class="arithmatex">\(j_2=e^{-3}(1.5)^2=2.25e^{-3}\approx0.1120\)</span> on <span class="arithmatex">\(W^2\)</span>. <strong>Check.</strong> <span class="arithmatex">\((1/2!)\int_{W^2}j_2=(1/2)(4)(2.25e^{-3})=4.5e^{-3}=p_2\)</span>.</li>
+<li><strong>P1.2.</strong> The square <span class="arithmatex">\(W^2\)</span> has area <span class="arithmatex">\(4\)</span>, hence <span class="arithmatex">\(f_2=1/4\)</span>. Therefore <span class="arithmatex">\(j_2=2!(0.3)(1/4)=0.15\)</span>. Its contribution is <span class="arithmatex">\((1/2!)\int_{W^2}0.15\,dx_1dx_2=(1/2)(0.15)(4)=0.3\)</span>. <strong>Check.</strong> Dropping the factorial would double the requested cardinality mass.</li>
+<li><strong>P1.3.</strong> <span class="arithmatex">\(N(\{0\})=1\)</span>, <span class="arithmatex">\(N(\{1\})=2\)</span>, and <span class="arithmatex">\(N(\{0,1\})=3\)</span>. The support set <span class="arithmatex">\(\{0,1\}\)</span> has cardinality two and cannot reveal that location <span class="arithmatex">\(1\)</span> occurred twice. <strong>Check.</strong> Reconstructing <span class="arithmatex">\(N\)</span> from the set would produce <span class="arithmatex">\(\delta_0+\delta_1\)</span>, not the original measure.</li>
+<li><strong>P1.4.</strong> Let law A use <span class="arithmatex">\(N\sim\operatorname{Poisson}(1)\)</span>. Let law B use <span class="arithmatex">\(\Pr(N=0)=\Pr(N=2)=1/2\)</span>. Both have mean one, and under both laws locations are iid uniform conditional on <span class="arithmatex">\(N\)</span>. Yet <span class="arithmatex">\(\Pr_A(N=1)=e^{-1}\)</span> whereas <span class="arithmatex">\(\Pr_B(N=1)=0\)</span>. <strong>Check.</strong> Equal mean count and conditional geometry do not determine the count distribution.</li>
+<li><strong>P1.5.</strong> Put mass <span class="arithmatex">\(0.4\)</span> on the empty set. Conditional on existence, take <span class="arithmatex">\(x\sim\operatorname{Uniform}[0,1]\)</span> and <span class="arithmatex">\(m\mid x\sim\operatorname{Bernoulli}(x)\)</span>. Thus the singleton density is <span class="arithmatex">\(0.6x\)</span> for <span class="arithmatex">\(m=1\)</span> and <span class="arithmatex">\(0.6(1-x)\)</span> for <span class="arithmatex">\(m=0\)</span>. Integrating both mark cases gives <span class="arithmatex">\(0.6\int_0^1[x+(1-x)]dx=0.6\)</span>, which plus <span class="arithmatex">\(0.4\)</span> normalizes. <strong>Check.</strong> The ground singleton density is <span class="arithmatex">\(0.6\)</span>; the mark probabilities sum to one at every <span class="arithmatex">\(x\)</span>.</li>
+<li><strong>P1.6.</strong> Use finite simple marked configurations of boxes inside a declared image rectangle; state whether identical boxes are forbidden or retained through labels, use unique object identities only if trajectories require them, include explicit empty-image and cardinality probabilities, define density relative to coordinates and counting measure on classes, and make the mask a deterministic encoding of sampled cardinality. State boundary clipping and stopping behavior. <strong>Rubric.</strong> Full credit requires object, window, reference, count, geometry, mark/identity, collision, padding, and stopping semantics.</li>
+</ol>
+</details>
+<h3 id="chapter-1-misconception-checks">Chapter 1 misconception checks<a class="headerlink" href="#chapter-1-misconception-checks" title="Permanent link">¤</a></h3>
+<details class="question">
+<summary>If two models have the same intensity function, do they have the same point-process law?</summary>
+<p>No in general. The ordinary first-order intensity describes expected local counts. Higher-order dependence can differ. A Poisson process is determined by its intensity measure because independent increments are also assumed; clustered, Cox, Gibbs, and determinantal processes can share a first-order intensity while having different joint laws.</p>
+</details>
+<details class="question">
+<summary>Can we omit the terminal no-event interval after the final observed event?</summary>
+<p>Not when the observation window end is known and informative. In a temporal likelihood, survival from the last event to the window boundary is part of the probability of observing no further event. Omitting it changes the target law and can bias rate estimates.</p>
+</details>
+<h3 id="chapter-1-retrieval-questions">Chapter 1 retrieval questions<a class="headerlink" href="#chapter-1-retrieval-questions" title="Permanent link">¤</a></h3>
+<ol>
+<li>What does local finiteness exclude?</li>
+<li>Under this volume's Janossy convention, how are <span class="arithmatex">\(j_n\)</span>, <span class="arithmatex">\(p_n\)</span>, and <span class="arithmatex">\(f_n\)</span> related?</li>
+<li>Which assumption lets a finite simple point process be represented as a random finite set?</li>
+</ol>
+<details class="success">
+<summary>Complete solutions</summary>
+<ol>
+<li>It excludes infinitely many points in a bounded observation region, almost surely.</li>
+<li><span class="arithmatex">\(j_n=n!p_nf_n\)</span>, where <span class="arithmatex">\(f_n\)</span> is a symmetric ordered-tuple density integrating to one.</li>
+<li>Finiteness in the observation window and simplicity, so coincident multiplicities do not need to be retained.</li>
+</ol>
+</details>
+<h3 id="chapter-1-synthesis-and-bridge">Chapter 1 synthesis and bridge<a class="headerlink" href="#chapter-1-synthesis-and-bridge" title="Permanent link">¤</a></h3>
+<p>A point process is a probability law on counting measures or configurations, not merely a predictor for the next coordinate. Cardinality, ordering conventions, reference measures, and empty-space probabilities are part of the object. Chapter 2 specializes these semantics to continuous time, where survival turns a conditional intensity into a normalized next-event law.</p>
+<p><a href="../point-processes-and-random-finite-sets/#2-temporal-point-processes-intensity-survival-and-history">Continue in the complete guide</a> · <a href="./">Read this as a chapter</a></p>
+<hr/>
+<p><strong>Continue:</strong> <a href="../point-processes-02-temporal/">2. Temporal Processes</a> · <a href="../point-processes-and-random-finite-sets/">Complete guide</a></p>
+</article>
+</div>
+<script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  Back to top
+</button>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+<div class="md-social">
+<a class="md-social__link" href="https://github.com/avitai/artifex" rel="noopener" target="_blank" title="github.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</a>
+<a class="md-social__link" href="https://pypi.org/project/avitai-artifex/" rel="noopener" target="_blank" title="pypi.org">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-66.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.3v101.8c0 29 25.2 46 53.4 54.3 33.8 9.9 66.3 11.7 106.8 0 26.9-7.8 53.4-23.5 53.4-54.3v-40.7H226.2v-13.6h160.2c31.1 0 42.6-21.7 53.4-54.2 11.2-33.5 10.7-65.7 0-108.6M286.2 444.7a20.4 20.4 0 1 1 0-40.7 20.4 20.4 0 1 1 0 40.7M167.8 248.1h106.8c29.7 0 53.4-24.5 53.4-54.3V91.9c0-29-24.4-50.7-53.4-55.6-35.8-5.9-74.7-5.6-106.8.1-45.2 8-53.4 24.7-53.4 55.6v40.7h106.9v13.6h-147c-31.1 0-58.3 18.7-66.8 54.2-9.8 40.7-10.2 66.1 0 108.6 7.6 31.6 25.7 54.2 56.8 54.2H101v-48.8c0-35.3 30.5-66.4 66.8-66.4m-6.6-183.4a20.4 20.4 0 1 1 0 40.8 20.4 20.4 0 1 1 0-40.8"></path></svg>
+</a>
+<a class="md-social__link" href="https://twitter.com/mahdi_shafiei" rel="noopener" target="_blank" title="twitter.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M459.4 151.7c.3 4.5.3 9.1.3 13.6 0 138.7-105.6 298.6-298.6 298.6-59.5 0-114.7-17.2-161.1-47.1 8.4 1 16.6 1.3 25.3 1.3 49.1 0 94.2-16.6 130.3-44.8-46.1-1-84.8-31.2-98.1-72.8 6.5 1 13 1.6 19.8 1.6 9.4 0 18.8-1.3 27.6-3.6-48.1-9.7-84.1-52-84.1-103v-1.3c14 7.8 30.2 12.7 47.4 13.3-28.3-18.8-46.8-51-46.8-87.4 0-19.5 5.2-37.4 14.3-53C87.4 130.8 165 172.4 252.1 176.9c-1.6-7.8-2.6-15.9-2.6-24C249.5 95.1 296.3 48 354.4 48c30.2 0 57.5 12.7 76.7 33.1 23.7-4.5 46.5-13.3 66.6-25.3-7.8 24.4-24.4 44.8-46.1 57.8 21.1-2.3 41.6-8.1 60.4-16.2-14.3 20.8-32.2 39.3-52.6 54.3"></path></svg>
+</a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.path", "navigation.top", "navigation.prune", "toc.follow", "search.highlight", "search.share", "search.suggest", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "content.mermaid"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+<script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+<script src="../../../javascripts/reading-layout.js"></script>
+</body>
+</html>

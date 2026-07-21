@@ -1,0 +1,2576 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="Probability laws are the main mathematical substrate of generative modeling, but they are not its outer boundary. A probabilistic generator defines a law over" name="description"/>
+<meta content="Mahdi Shafiei" name="author"/>
+<link href="https://docs.avitai.bio/artifex/user-guide/concepts/probability-and-generative-modeling/" rel="canonical"/>
+<link href="../probability-04-practice/" rel="prev"/>
+<link href="../classical-01-latent-foundations/" rel="next"/>
+<link href="../../../assets/images/favicon.png" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.7.7" name="generator"/>
+<title>Probability and Generative Modeling - Artifex</title>
+<link href="../../../assets/stylesheets/main.ec1eaa64.min.css" rel="stylesheet"/>
+<link href="../../../assets/stylesheets/palette.ab4e12ef.min.css" rel="stylesheet"/>
+<script src="../../../assets/vendor/iframe-worker/index.js"></script>
+<link href="../../../assets/_mkdocstrings.css" rel="stylesheet"/>
+<link href="../../../_static/extra.css" rel="stylesheet"/>
+<script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+<meta content="article" property="og:type"/>
+<meta content="The Artifex Generative Models Book" property="og:site_name"/>
+<meta content="Probability and Generative Modeling" property="og:title"/>
+<meta content="Probability laws are the main mathematical substrate of generative modeling, but they are not its outer boundary. A probabilistic generator defines a law over" property="og:description"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/probability-and-generative-modeling/" property="og:url"/>
+<meta content="2026-07-14" property="article:modified_time"/>
+<meta content="summary" name="twitter:card"/>
+<meta content="Probability and Generative Modeling" name="twitter:title"/>
+<meta content="Probability laws are the main mathematical substrate of generative modeling, but they are not its outer boundary. A probabilistic generator defines a law over" name="twitter:description"/>
+<meta content="Generative models, Machine learning, Probabilistic modeling, foundation, reference, continuous_view, probability-generative-modeling, newcomer, practitioner, researcher" name="keywords"/>
+<meta content="Probability and Generative Modeling" name="citation_title"/>
+<meta content="Mahdi Shafiei" name="citation_author"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/probability-and-generative-modeling/" name="citation_public_url"/>
+<meta content="en" name="citation_language"/>
+<meta content="Probability and Generative Modeling" name="DC.title"/>
+<meta content="Mahdi Shafiei" name="DC.creator"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/probability-and-generative-modeling/" name="DC.identifier"/>
+<meta content="Text.LearningResource" name="DC.type"/>
+<meta content="2026-07-14" name="DCTERMS.modified"/>
+<meta content="https://github.com/avitai/artifex/blob/main/LICENSE" name="DCTERMS.license"/>
+<meta content="foundation" name="DCTERMS.educationLevel"/>
+<meta content="newcomer, practitioner, researcher" name="DCTERMS.audience"/>
+<link href="https://github.com/avitai/artifex/blob/main/LICENSE" rel="license"/>
+<script id="artifex-book-metadata" type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Chapter",
+  "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/probability-and-generative-modeling/",
+  "url": "https://docs.avitai.bio/artifex/user-guide/concepts/probability-and-generative-modeling/",
+  "name": "Probability and Generative Modeling",
+  "description": "Probability laws are the main mathematical substrate of generative modeling, but they are not its outer boundary. A probabilistic generator defines a law over",
+  "identifier": "probability-generative-modeling",
+  "inLanguage": "en",
+  "isAccessibleForFree": true,
+  "learningResourceType": "Continuous volume",
+  "educationalLevel": "foundation",
+  "educationalUse": "reference",
+  "audience": [
+    
+      {"@type": "EducationalAudience", "audienceType": "newcomer"},
+    
+      {"@type": "EducationalAudience", "audienceType": "practitioner"},
+    
+      {"@type": "EducationalAudience", "audienceType": "researcher"}
+    
+  ],
+  "dateModified": "2026-07-14",
+  "keywords": ["Generative models", "Machine learning", "Probabilistic modeling", "foundation", "reference", "continuous_view", "probability-generative-modeling", "newcomer", "practitioner", "researcher"],
+  "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+  "author": [
+    
+      {"@type": "Person", "name": "Mahdi Shafiei"}
+    
+  ],
+  "isPartOf": {
+    "@type": "Book",
+    "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/#book",
+    "url": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/",
+    "name": "The Artifex Generative Models Book",
+    "bookEdition": "Living Web Edition",
+    "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+    "author": [
+      
+        {"@type": "Person", "name": "Mahdi Shafiei"}
+      
+    ]
+  }
+}
+</script>
+<link href="../../../assets/vendor/katex/katex.min.css" id="artifex-katex-stylesheet" integrity="sha384-UA8juhPf75SzzAMA/4fo3yOU7sBJ0om7SCD2GHq0fZqZco6tr1UCV7nUbk9J90JM" rel="stylesheet"/>
+<script defer="" integrity="sha384-T/0lMUdJpd2S1ZHtRiofG3htU3xPCrFVeAQ1UUE2TJwlEJSV5NUwn30kP28n238E" src="../../../assets/vendor/mermaid/mermaid.min.js"></script>
+<script defer="" src="../../../assets/vendor/katex/katex-shadow.js"></script>
+<script defer="" src="../../../javascripts/mermaid-math.js"></script>
+<script defer="" src="../../../javascripts/mathjax.js"></script>
+<script defer="" integrity="sha384-OrHfGTnIbkl0do3N76qW/uWr38o91N05sbSPuYBPLH+hG8X/dNSrjZf3AGjzrCwC" src="../../../assets/vendor/mathjax/tex-mml-chtml.js"></script>
+<meta content="noindex,follow" name="robots"/>
+</head>
+<body data-md-color-accent="amber" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#probability-and-generative-modeling">
+          Skip to content
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header md-header--shadow" data-md-component="header">
+<nav aria-label="Header" class="md-header__inner md-grid">
+<a aria-label="Artifex" class="md-header__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            Artifex
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+            
+              Probability and Generative Modeling
+            
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-label="Switch to dark mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: light)" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_1" hidden="" title="Switch to dark mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+<input aria-label="Switch to light mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-primary="indigo" data-md-color-scheme="slate" id="__palette_1" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_0" hidden="" title="Switch to light mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+</form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div aria-label="Search" class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Search" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="Search" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="Search" class="md-search__options">
+<a aria-label="Share" class="md-search__icon md-icon" data-clipboard="" data-clipboard-text="" data-md-component="search-share" href="javascript:void(0)" tabindex="-1" title="Share">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"></path></svg>
+</a>
+<button aria-label="Clear" class="md-search__icon md-icon" tabindex="-1" title="Clear" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            Initializing search
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Navigation" class="md-nav md-nav--primary" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="Artifex" class="md-nav__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+    Artifex
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../..">
+<span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../getting-started/installation/">
+<span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Generative Models Book
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Generative Models Book
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    
+  
+    Start Here — The Landscape
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../first-course-01-generative-systems/">
+<span class="md-ellipsis">
+    
+  
+    First Course — New to Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Foundations
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_3_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Foundations
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_3_1" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_3_1" id="__nav_3_3_1_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    1. Probability and Generative Modeling
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_3_1_label" class="md-nav" data-md-level="3">
+<label class="md-nav__title" for="__nav_3_3_1">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    1. Probability and Generative Modeling
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../probability-01-objects/">
+<span class="md-ellipsis">
+    
+  
+    1. Laws, Densities, and Conditioning
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../probability-02-factorization-queries/">
+<span class="md-ellipsis">
+    
+  
+    2. Factorizations and Generative Queries
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../probability-03-likelihood-examples/">
+<span class="md-ellipsis">
+    
+  
+    3. Likelihood and Worked Examples
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../probability-04-practice/">
+<span class="md-ellipsis">
+    
+  
+    4. Misconceptions, Retrieval, and Synthesis
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
+    
+  
+    Continuous View (All Chapters)
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
+<span class="md-ellipsis">
+    
+  
+    Continuous View (All Chapters)
+  
+
+    
+  </span>
+</a>
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#begin-with-four-questions">
+<span class="md-ellipsis">
+      
+        Begin with Four Questions
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#learning-objectives">
+<span class="md-ellipsis">
+      
+        Learning Objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#1-probability-laws-pmfs-and-densities">
+<span class="md-ellipsis">
+      
+        1. Probability Laws, PMFs, and Densities
+      
+    </span>
+</a>
+<nav aria-label="1. Probability Laws, PMFs, and Densities" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#not-every-law-is-discrete-or-continuously-densitized">
+<span class="md-ellipsis">
+      
+        Not Every Law Is Discrete or Continuously Densitized
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#reference-measures-matter">
+<span class="md-ellipsis">
+      
+        Reference Measures Matter
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#support">
+<span class="md-ellipsis">
+      
+        Support
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#a-distribution-atlas-organized-by-the-generated-object">
+<span class="md-ellipsis">
+      
+        A Distribution Atlas Organized by the Generated Object
+      
+    </span>
+</a>
+<nav aria-label="A Distribution Atlas Organized by the Generated Object" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#binary-labels-categories-and-counts">
+<span class="md-ellipsis">
+      
+        Binary labels, categories, and counts
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#real-valued-observations">
+<span class="md-ellipsis">
+      
+        Real-valued observations
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#positive-bounded-and-simplex-valued-quantities">
+<span class="md-ellipsis">
+      
+        Positive, bounded, and simplex-valued quantities
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#vectors-matrices-directions-and-manifolds">
+<span class="md-ellipsis">
+      
+        Vectors, matrices, directions, and manifolds
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#2-joint-marginal-and-conditional-distributions">
+<span class="md-ellipsis">
+      
+        2. Joint, Marginal, and Conditional Distributions
+      
+    </span>
+</a>
+<nav aria-label="2. Joint, Marginal, and Conditional Distributions" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#conditioning-on-an-event-and-conditioning-at-a-value">
+<span class="md-ellipsis">
+      
+        Conditioning on an Event and Conditioning at a Value
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#exchangeability-sequences-and-sets">
+<span class="md-ellipsis">
+      
+        Exchangeability, Sequences, and Sets
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#conditioning-is-not-intervention">
+<span class="md-ellipsis">
+      
+        Conditioning Is Not Intervention
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#probability-object-retrieval-practice">
+<span class="md-ellipsis">
+      
+        Probability-object retrieval practice
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#probability-object-synthesis">
+<span class="md-ellipsis">
+      
+        Probability-object synthesis
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#3-chain-rule-and-autoregressive-factorization">
+<span class="md-ellipsis">
+      
+        3. Chain Rule and Autoregressive Factorization
+      
+    </span>
+</a>
+<nav aria-label="3. Chain Rule and Autoregressive Factorization" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#factorization-information-and-query-learning-objectives">
+<span class="md-ellipsis">
+      
+        Factorization, information, and query learning objectives
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#4-entropy-cross-entropy-and-kl-divergence">
+<span class="md-ellipsis">
+      
+        4. Entropy, Cross-Entropy, and KL Divergence
+      
+    </span>
+</a>
+<nav aria-label="4. Entropy, Cross-Entropy, and KL Divergence" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#differential-entropy-is-coordinate-dependent">
+<span class="md-ellipsis">
+      
+        Differential Entropy Is Coordinate-Dependent
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#proper-scoring-rules">
+<span class="md-ellipsis">
+      
+        Proper Scoring Rules
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#from-probability-to-code-length">
+<span class="md-ellipsis">
+      
+        From probability to code length
+      
+    </span>
+</a>
+<nav aria-label="From probability to code length" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-prefix-code-four-directions">
+<span class="md-ellipsis">
+      
+        Worked prefix code: four directions
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#5-what-a-generative-model-may-be-asked-to-do">
+<span class="md-ellipsis">
+      
+        5. What a Generative Model May Be Asked to Do
+      
+    </span>
+</a>
+<nav aria-label="5. What a Generative Model May Be Asked to Do" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#generation-density-estimation-and-structured-prediction">
+<span class="md-ellipsis">
+      
+        Generation, Density Estimation, and Structured Prediction
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#a-conditional-law-is-not-a-decision-rule">
+<span class="md-ellipsis">
+      
+        A Conditional Law Is Not a Decision Rule
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#factorization-and-query-retrieval-practice">
+<span class="md-ellipsis">
+      
+        Factorization and query retrieval practice
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#factorization-and-query-synthesis">
+<span class="md-ellipsis">
+      
+        Factorization and query synthesis
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#6-likelihood-is-a-function-of-parameters">
+<span class="md-ellipsis">
+      
+        6. Likelihood Is a Function of Parameters
+      
+    </span>
+</a>
+<nav aria-label="6. Likelihood Is a Function of Parameters" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#likelihood-and-finite-example-learning-objectives">
+<span class="md-ellipsis">
+      
+        Likelihood and finite-example learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#empirical-and-population-risk">
+<span class="md-ellipsis">
+      
+        Empirical and Population Risk
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#dequantization">
+<span class="md-ellipsis">
+      
+        Dequantization
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-example-a-two-bit-distribution">
+<span class="md-ellipsis">
+      
+        Worked Example: A Two-Bit Distribution
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-example-change-of-variables-in-one-dimension">
+<span class="md-ellipsis">
+      
+        Worked Example: Change of Variables in One Dimension
+      
+    </span>
+</a>
+<nav aria-label="Worked Example: Change of Variables in One Dimension" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#a-many-to-one-map-must-sum-its-branches">
+<span class="md-ellipsis">
+      
+        A Many-to-One Map Must Sum Its Branches
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#probability-integral-transforms-need-an-atom-check">
+<span class="md-ellipsis">
+      
+        Probability Integral Transforms Need an Atom Check
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#likelihood-and-transformation-retrieval-practice">
+<span class="md-ellipsis">
+      
+        Likelihood and transformation retrieval practice
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#likelihood-and-transformation-synthesis">
+<span class="md-ellipsis">
+      
+        Likelihood and transformation synthesis
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#primary-and-archival-reading-trail">
+<span class="md-ellipsis">
+      
+        Primary and Archival Reading Trail
+      
+    </span>
+</a>
+<nav aria-label="Primary and Archival Reading Trail" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#probability-foundation-capstone-learning-objectives">
+<span class="md-ellipsis">
+      
+        Probability-foundation capstone learning objectives
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#common-misconceptions">
+<span class="md-ellipsis">
+      
+        Common Misconceptions
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#retrieval-check">
+<span class="md-ellipsis">
+      
+        Retrieval Check
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#summary-and-next-step">
+<span class="md-ellipsis">
+      
+        Summary and Next Step
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../classical-01-latent-foundations/">
+<span class="md-ellipsis">
+    
+  
+    2. Classical Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../bayesian-learning-01-object/">
+<span class="md-ellipsis">
+    
+  
+    3. Bayesian Learning and Model Assessment
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../inference-01-objects-and-queries/">
+<span class="md-ellipsis">
+    
+  
+    4. Latent Variables and Inference
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../objectives-01-discrepancies/">
+<span class="md-ellipsis">
+    
+  
+    5. Objectives and Statistical Distances
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../information-coding-01-measures/">
+<span class="md-ellipsis">
+    
+  
+    6. Information, Coding, and Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../graphical-models-01-directed/">
+<span class="md-ellipsis">
+    
+  
+    7. Graphical Models and Structured Probability
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../message-passing-01-factor-graphs/">
+<span class="md-ellipsis">
+    
+  
+    8. Graphical Inference and Message Passing
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../filtering-01-bayes-recursions/">
+<span class="md-ellipsis">
+    
+  
+    9. Filtering and Smoothing for State-Space Generators
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../sampling-01-monte-carlo/">
+<span class="md-ellipsis">
+    
+  
+    10. Sampling and Continuous Time
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../smc-01-targets/">
+<span class="md-ellipsis">
+    
+  
+    11. Sequential Monte Carlo and Particle Methods
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../optimization-01-differentiation/">
+<span class="md-ellipsis">
+    
+  
+    12. Optimization and Learning Dynamics
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../generative-models-notation/">
+<span class="md-ellipsis">
+    
+  
+    13. Canonical Notation
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../autoregressive-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Model Families
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gradients-01-taxonomy/">
+<span class="md-ellipsis">
+    
+  
+    Connections and Compositions
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../normalization-01-queries/">
+<span class="md-ellipsis">
+    
+  
+    Research Practice
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../models/vae-guide/">
+<span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/core/base/">
+<span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../examples/overview/">
+<span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../zoo/">
+<span class="md-ellipsis">
+    
+  
+    Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../training/overview/">
+<span class="md-ellipsis">
+    
+  
+    Training
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../data/overview/">
+<span class="md-ellipsis">
+    
+  
+    Data &amp; Modalities
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../inference/overview/">
+<span class="md-ellipsis">
+    
+  
+    Inference &amp; Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../benchmarks/">
+<span class="md-ellipsis">
+    
+  
+    Evaluation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../guides/extensions/">
+<span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../extensions/">
+<span class="md-ellipsis">
+    
+  
+    Advanced Topics
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../cli/">
+<span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../community/contributing/">
+<span class="md-ellipsis">
+    
+  
+    Community
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/configs/protein-extension/">
+<span class="md-ellipsis">
+    
+  
+    Reference Library
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#begin-with-four-questions">
+<span class="md-ellipsis">
+      
+        Begin with Four Questions
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#learning-objectives">
+<span class="md-ellipsis">
+      
+        Learning Objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#1-probability-laws-pmfs-and-densities">
+<span class="md-ellipsis">
+      
+        1. Probability Laws, PMFs, and Densities
+      
+    </span>
+</a>
+<nav aria-label="1. Probability Laws, PMFs, and Densities" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#not-every-law-is-discrete-or-continuously-densitized">
+<span class="md-ellipsis">
+      
+        Not Every Law Is Discrete or Continuously Densitized
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#reference-measures-matter">
+<span class="md-ellipsis">
+      
+        Reference Measures Matter
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#support">
+<span class="md-ellipsis">
+      
+        Support
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#a-distribution-atlas-organized-by-the-generated-object">
+<span class="md-ellipsis">
+      
+        A Distribution Atlas Organized by the Generated Object
+      
+    </span>
+</a>
+<nav aria-label="A Distribution Atlas Organized by the Generated Object" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#binary-labels-categories-and-counts">
+<span class="md-ellipsis">
+      
+        Binary labels, categories, and counts
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#real-valued-observations">
+<span class="md-ellipsis">
+      
+        Real-valued observations
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#positive-bounded-and-simplex-valued-quantities">
+<span class="md-ellipsis">
+      
+        Positive, bounded, and simplex-valued quantities
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#vectors-matrices-directions-and-manifolds">
+<span class="md-ellipsis">
+      
+        Vectors, matrices, directions, and manifolds
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#2-joint-marginal-and-conditional-distributions">
+<span class="md-ellipsis">
+      
+        2. Joint, Marginal, and Conditional Distributions
+      
+    </span>
+</a>
+<nav aria-label="2. Joint, Marginal, and Conditional Distributions" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#conditioning-on-an-event-and-conditioning-at-a-value">
+<span class="md-ellipsis">
+      
+        Conditioning on an Event and Conditioning at a Value
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#exchangeability-sequences-and-sets">
+<span class="md-ellipsis">
+      
+        Exchangeability, Sequences, and Sets
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#conditioning-is-not-intervention">
+<span class="md-ellipsis">
+      
+        Conditioning Is Not Intervention
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#probability-object-retrieval-practice">
+<span class="md-ellipsis">
+      
+        Probability-object retrieval practice
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#probability-object-synthesis">
+<span class="md-ellipsis">
+      
+        Probability-object synthesis
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#3-chain-rule-and-autoregressive-factorization">
+<span class="md-ellipsis">
+      
+        3. Chain Rule and Autoregressive Factorization
+      
+    </span>
+</a>
+<nav aria-label="3. Chain Rule and Autoregressive Factorization" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#factorization-information-and-query-learning-objectives">
+<span class="md-ellipsis">
+      
+        Factorization, information, and query learning objectives
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#4-entropy-cross-entropy-and-kl-divergence">
+<span class="md-ellipsis">
+      
+        4. Entropy, Cross-Entropy, and KL Divergence
+      
+    </span>
+</a>
+<nav aria-label="4. Entropy, Cross-Entropy, and KL Divergence" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#differential-entropy-is-coordinate-dependent">
+<span class="md-ellipsis">
+      
+        Differential Entropy Is Coordinate-Dependent
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#proper-scoring-rules">
+<span class="md-ellipsis">
+      
+        Proper Scoring Rules
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#from-probability-to-code-length">
+<span class="md-ellipsis">
+      
+        From probability to code length
+      
+    </span>
+</a>
+<nav aria-label="From probability to code length" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-prefix-code-four-directions">
+<span class="md-ellipsis">
+      
+        Worked prefix code: four directions
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#5-what-a-generative-model-may-be-asked-to-do">
+<span class="md-ellipsis">
+      
+        5. What a Generative Model May Be Asked to Do
+      
+    </span>
+</a>
+<nav aria-label="5. What a Generative Model May Be Asked to Do" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#generation-density-estimation-and-structured-prediction">
+<span class="md-ellipsis">
+      
+        Generation, Density Estimation, and Structured Prediction
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#a-conditional-law-is-not-a-decision-rule">
+<span class="md-ellipsis">
+      
+        A Conditional Law Is Not a Decision Rule
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#factorization-and-query-retrieval-practice">
+<span class="md-ellipsis">
+      
+        Factorization and query retrieval practice
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#factorization-and-query-synthesis">
+<span class="md-ellipsis">
+      
+        Factorization and query synthesis
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#6-likelihood-is-a-function-of-parameters">
+<span class="md-ellipsis">
+      
+        6. Likelihood Is a Function of Parameters
+      
+    </span>
+</a>
+<nav aria-label="6. Likelihood Is a Function of Parameters" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#likelihood-and-finite-example-learning-objectives">
+<span class="md-ellipsis">
+      
+        Likelihood and finite-example learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#empirical-and-population-risk">
+<span class="md-ellipsis">
+      
+        Empirical and Population Risk
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#dequantization">
+<span class="md-ellipsis">
+      
+        Dequantization
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-example-a-two-bit-distribution">
+<span class="md-ellipsis">
+      
+        Worked Example: A Two-Bit Distribution
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-example-change-of-variables-in-one-dimension">
+<span class="md-ellipsis">
+      
+        Worked Example: Change of Variables in One Dimension
+      
+    </span>
+</a>
+<nav aria-label="Worked Example: Change of Variables in One Dimension" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#a-many-to-one-map-must-sum-its-branches">
+<span class="md-ellipsis">
+      
+        A Many-to-One Map Must Sum Its Branches
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#probability-integral-transforms-need-an-atom-check">
+<span class="md-ellipsis">
+      
+        Probability Integral Transforms Need an Atom Check
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#likelihood-and-transformation-retrieval-practice">
+<span class="md-ellipsis">
+      
+        Likelihood and transformation retrieval practice
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#likelihood-and-transformation-synthesis">
+<span class="md-ellipsis">
+      
+        Likelihood and transformation synthesis
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#primary-and-archival-reading-trail">
+<span class="md-ellipsis">
+      
+        Primary and Archival Reading Trail
+      
+    </span>
+</a>
+<nav aria-label="Primary and Archival Reading Trail" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#probability-foundation-capstone-learning-objectives">
+<span class="md-ellipsis">
+      
+        Probability-foundation capstone learning objectives
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#common-misconceptions">
+<span class="md-ellipsis">
+      
+        Common Misconceptions
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#retrieval-check">
+<span class="md-ellipsis">
+      
+        Retrieval Check
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#summary-and-next-step">
+<span class="md-ellipsis">
+      
+        Summary and Next Step
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<nav aria-label="Breadcrumb" class="md-path">
+<ol class="md-path__list">
+<li class="md-path__item">
+<a class="md-path__link" href="../../..">
+<span class="md-ellipsis">
+    Home
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    Generative Models Book
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../probability-01-objects/">
+<span class="md-ellipsis">
+    Foundations
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../probability-01-objects/">
+<span class="md-ellipsis">
+    1. Probability and Generative Modeling
+  </span>
+</a>
+</li>
+</ol>
+</nav>
+<article class="md-content__inner md-typeset">
+<h1 id="probability-and-generative-modeling">Probability and Generative Modeling<a class="headerlink" href="#probability-and-generative-modeling" title="Permanent link">¤</a></h1><aside aria-label="Learning path" class="admonition abstract artifex-learning-path"><p class="admonition-title">Learning path</p><p><strong>Required knowledge:</strong> none. This page is a supported entry point.</p><p><strong>Newly unlocked in the default route</strong></p><ul class="artifex-learning-path__links" data-learning-path-role="unlocks"><li><a href="../classical-01-latent-foundations/">Classical Models 1 — Exponential and Latent-Variable Foundations</a></li><li><a href="../classical-generative-models/">Classical Generative Models and Graphical Structure</a></li><li><a href="../objectives-01-discrepancies/">Objectives 1 — Divergences, Ratios, IPMs, and MMD</a></li><li><a href="../objectives-and-statistical-distances/">Objectives and Statistical Distances</a></li><li><a href="../information-coding-01-measures/">Information and Coding 1 — Information Measures</a></li><li><a href="../generative-models-notation/">Canonical Notation and Transformation Conventions</a></li><li><a href="../point-processes-01-semantics/">Point Processes 1 — Configuration Semantics</a></li><li><a href="../random-graphs-01-semantics/">Random Graphs 1 — Graph Laws and Relabeling</a></li><li><a href="../copula-01-semantics/">Copula Models 1 — The Generative Object</a></li><li><a href="../grammar-01-semantics/">Probabilistic Grammars 1 — Derivations and Yields</a></li><li><a href="../landscape-01-copulas/">Extended Landscape 1 — Copulas</a></li></ul></aside>
+<p>Probability laws are the main mathematical substrate of generative modeling,
+but they are not its outer boundary. A probabilistic generator defines a law
+over observations, latents, trajectories, functions, or constructive choices.
+A deterministic program, grammar, decoder, or constraint solver can instead be
+a generative object without exposing a normalized output law. This chapter
+develops the probabilistic branch: it distinguishes a probability measure from
+a density, likelihood from probability, fitting from sampling, and a model of
+observations from a model of the process that produced them. It also develops
+the coding interpretation of probability, which later connects autoregressive
+likelihoods, VAE bounds, and learned codecs.</p>
+<div class="admonition info">
+<p class="admonition-title">Reading routes</p>
+<p><strong>Beginner:</strong> read continuously through the two-bit example.<br/>
+<strong>Practitioner:</strong> emphasize support, likelihood reductions, dequantization, and conditional queries.<br/>
+<strong>Research:</strong> also work through the change-of-variables example and state the reference measure for every density you use.</p>
+</div>
+<h2 id="begin-with-four-questions">Begin with Four Questions<a class="headerlink" href="#begin-with-four-questions" title="Permanent link">¤</a></h2>
+<p>Before introducing notation, imagine a table containing two binary attributes
+for each observation. A generative model of that table may be asked four
+different questions. The same probability law can answer all four, but each
+answer requires a different operation.</p>
+<div class="grid cards">
+<ul>
+<li>
+<p><span class="twemoji lg middle"><svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19.78 3h-8.56C10.55 3 10 3.55 10 4.22V8h6v6h3.78c.67 0 1.22-.55 1.22-1.22V4.22C21 3.55 20.45 3 19.78 3m-7.34 3.67a1.23 1.23 0 1 1 0-2.46 1.23 1.23 0 0 1 1.23 1.23c0 .68-.55 1.23-1.23 1.23m6.12 6.11a1.23 1.23 0 1 1-.02-2.46c.68-.01 1.23.54 1.24 1.24-.01.67-.55 1.21-1.22 1.22m0-6.11a1.23 1.23 0 1 1-.02-2.46 1.231 1.231 0 0 1 .02 2.46M4.22 10h8.56A1.22 1.22 0 0 1 14 11.22v8.56c0 .67-.55 1.22-1.22 1.22H4.22C3.55 21 3 20.45 3 19.78v-8.56c0-.67.55-1.22 1.22-1.22m4.28 4.28c-.67 0-1.22.55-1.22 1.22s.55 1.22 1.22 1.22 1.22-.55 1.22-1.22a1.22 1.22 0 0 0-1.22-1.22m-3.06-3.06c-.67 0-1.22.55-1.22 1.22a1.22 1.22 0 0 0 1.22 1.22c.67 0 1.22-.55 1.22-1.22s-.55-1.22-1.22-1.22m6.11 6.11c-.67 0-1.22.55-1.22 1.22s.55 1.22 1.22 1.22a1.22 1.22 0 0 0 1.22-1.22c0-.67-.54-1.21-1.21-1.22z"></path></svg></span> <strong>What could happen?</strong></p>
+<hr/>
+<p>Draw a new pair <span class="arithmatex">\(X=(X_1,X_2)\)</span> from the joint law.</p>
+</li>
+<li>
+<p><span class="twemoji lg middle"><svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2m-6 4.1L14.1 6l1.4 1.4L16.9 6 18 7.1l-1.4 1.4L18 9.9 16.9 11l-1.4-1.4-1.4 1.4L13 9.9l1.4-1.4zm-6.8.6h5v1.5h-5zm5.3 8.3h-2v2H8v-2H6v-1.5h2v-2h1.5v2h2zm6.5 1.2h-5v-1.5h5zm0-2.4h-5v-1.5h5z"></path></svg></span> <strong>How plausible is this pair?</strong></p>
+<hr/>
+<p>Evaluate its probability mass—or a density relative to a named measure.</p>
+</li>
+<li>
+<p><span class="twemoji lg middle"><svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M11 18h2v-2h-2zm1-16A10 10 0 0 0 2 12a10 10 0 0 0 10 10 10 10 0 0 0 10-10A10 10 0 0 0 12 2m0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8m0-14a4 4 0 0 0-4 4h2a2 2 0 0 1 2-2 2 2 0 0 1 2 2c0 2-3 1.75-3 5h2c0-2.25 3-2.5 3-5a4 4 0 0 0-4-4"></path></svg></span> <strong>What follows from what I saw?</strong></p>
+<hr/>
+<p>Condition on <span class="arithmatex">\(X_1\)</span> and compute or sample <span class="arithmatex">\(X_2\mid X_1\)</span>.</p>
+</li>
+<li>
+<p><span class="twemoji lg middle"><svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M2 5.27 3.28 4 20 20.72 18.73 22l-3.08-3.08c-1.15.38-2.37.58-3.65.58-5 0-9.27-3.11-11-7.5.69-1.76 1.79-3.31 3.19-4.54zM12 9a3 3 0 0 1 3 3 3 3 0 0 1-.17 1L11 9.17A3 3 0 0 1 12 9m0-4.5c5 0 9.27 3.11 11 7.5a11.8 11.8 0 0 1-4 5.19l-1.42-1.43A9.86 9.86 0 0 0 20.82 12 9.82 9.82 0 0 0 12 6.5c-1.09 0-2.16.18-3.16.5L7.3 5.47c1.44-.62 3.03-.97 4.7-.97M3.18 12A9.82 9.82 0 0 0 12 17.5c.69 0 1.37-.07 2-.21L11.72 15A3.064 3.064 0 0 1 9 12.28L5.6 8.87c-.99.85-1.82 1.91-2.42 3.13"></path></svg></span> <strong>What was hidden?</strong></p>
+<hr/>
+<p>Introduce a latent <span class="arithmatex">\(Z\)</span> and infer <span class="arithmatex">\(p(Z\mid X)\)</span> rather than following the
+generative direction.</p>
+</li>
+</ul>
+</div>
+<p>The chapter builds the vocabulary needed to state these questions without
+ambiguity. Keep the questions in view: a formula matters because it enables an
+operation, not because it adds another symbol to memorize. The complete numeric
+version appears in the <a href="./#worked-example-a-two-bit-distribution">two-bit worked example</a>.</p>
+<figure class="book-figure" id="fig-probability-and-generative-modeling-begin-with-four-questions"><pre class="mermaid"><code>flowchart LR
+    law["One probability law"]
+    sample["Sample&lt;br/&gt;draw a possible outcome"]
+    score["Score&lt;br/&gt;assign mass or density"]
+    condition["Condition&lt;br/&gt;update after observing"]
+    marginal["Marginalize&lt;br/&gt;hide a variable"]
+
+    law --&gt; sample
+    law --&gt; score
+    law --&gt; condition
+    law --&gt; marginal</code></pre><figcaption class="book-object-caption"><span class="book-object-number">Figure PROB.1.</span> Begin with Four Questions</figcaption></figure>
+<h2 id="learning-objectives">Learning Objectives<a class="headerlink" href="#learning-objectives" title="Permanent link">¤</a></h2>
+<p>After this chapter you should be able to:</p>
+<ol>
+<li>distinguish random variables, probability measures, PMFs, and densities;</li>
+<li>move between joint, marginal, and conditional distributions;</li>
+<li>derive the chain rule and Bayes' rule rather than memorize them;</li>
+<li>explain why a density value is not itself a probability for continuous data;</li>
+<li>distinguish likelihood evaluation, density estimation, sampling, conditional generation, representation learning, and structured prediction;</li>
+<li>convert discrete negative log probability into ideal code length and explain the cross-entropy penalty of a mismatched model;</li>
+<li>identify the reference measure and support assumptions behind a generative-model equation;</li>
+<li>separate a conditional predictive law from a loss-dependent point decision;</li>
+<li>identify when a constructive generator has no declared output probability law;</li>
+<li>recognize discrete, continuous, and mixed laws and choose a distribution whose support matches the generated object;</li>
+<li>distinguish event conditioning from a conditional law evaluated at a continuous value; and</li>
+<li>transform a law through bijective and many-to-one maps and repair the probability integral transform when the law has atoms.</li>
+</ol>
+<h2 id="1-probability-laws-pmfs-and-densities">1. Probability Laws, PMFs, and Densities<a class="headerlink" href="#1-probability-laws-pmfs-and-densities" title="Permanent link">¤</a></h2>
+<div class="admonition example">
+<p class="admonition-title">Picture first: probability is assigned to regions</p>
+<p>On a finite grid, a PMF places mass directly on cells. On a continuous
+line, a density specifies mass <em>per unit length</em>, so the probability of an
+interval is its area under the density. This is why the height of a density
+can exceed one while the probability of every region remains at most one.</p>
+</div>
+<p>A random variable <span class="arithmatex">\(X\)</span> is a measurable map from an underlying probability space
+<span class="arithmatex">\((\Omega,\mathcal F,P)\)</span> to a measurable state space
+<span class="arithmatex">\((\mathcal X,\mathcal A)\)</span>. Its law is the <strong>pushforward</strong> measure</p>
+<div class="arithmatex">\[
+P_X=P\circ X^{-1},
+\]</div>
+<p>so for every measurable region <span class="arithmatex">\(A\in\mathcal A\)</span>,</p>
+<div class="arithmatex">\[
+P_X(A)=P\!\left(X^{-1}(A)\right)=P(X\in A).
+\]</div>
+<p>Here <span class="arithmatex">\(X^{-1}(A)\)</span> means the set of outcomes mapped into <span class="arithmatex">\(A\)</span>; it does not require
+the function <span class="arithmatex">\(X\)</span> to have an inverse. This distinction matters for implicit and
+many-to-one generators: a measurable map always induces an output law once its
+input is random, even when no output density or inverse map exists.</p>
+<p>For a discrete state space, the probability mass function</p>
+<div class="arithmatex">\[
+p_X(x)=P(X=x)
+\]</div>
+<p>satisfies <span class="arithmatex">\(p_X(x)\ge 0\)</span> and <span class="arithmatex">\(\sum_x p_X(x)=1\)</span>. For a continuous variable, a density is defined relative to a reference measure—usually Lebesgue measure—and probabilities are integrals:</p>
+<div class="arithmatex">\[
+P_X(A)=\int_A p_X(x)\,dx,
+\qquad
+p_X(x)\ge0,
+\qquad
+\int_{\mathcal X}p_X(x)\,dx=1.
+\]</div>
+<p>A continuous density can exceed one; only its integral over a region must be at most one. Changing coordinates changes the density through a Jacobian even though the underlying probability law is unchanged. This distinction becomes central for normalizing flows, likelihood comparisons, and manifold-valued data.</p>
+<h3 id="not-every-law-is-discrete-or-continuously-densitized">Not Every Law Is Discrete or Continuously Densitized<a class="headerlink" href="#not-every-law-is-discrete-or-continuously-densitized" title="Permanent link">¤</a></h3>
+<p>The PMF-versus-PDF split is useful but incomplete. A law may contain atoms and
+continuous mass at the same time. Let <span class="arithmatex">\(B\sim\operatorname{Bernoulli}(0.3)\)</span> and
+<span class="arithmatex">\(U\sim\operatorname{Uniform}(0,1)\)</span> be independent, and define</p>
+<div class="arithmatex">\[
+X=
+\begin{cases}
+0,&amp;B=1,\\
+U,&amp;B=0.
+\end{cases}
+\]</div>
+<p>Then</p>
+<div class="arithmatex">\[
+P_X=0.3\,\delta_0+0.7\,\operatorname{Uniform}(0,1).
+\]</div>
+<p>Consequently, <span class="arithmatex">\(P(X=0)=0.3\)</span>, while
+<span class="arithmatex">\(P(a&lt;X&lt;b)=0.7(b-a)\)</span> for <span class="arithmatex">\(0\le a&lt;b\le1\)</span>. No ordinary Lebesgue
+density can represent the atom: the integral of any finite density over the
+single point <span class="arithmatex">\(\{0\}\)</span> is zero. There is also no PMF over the uncountable
+continuous component. The law itself is well defined; only the attempted
+single-density representation fails.</p>
+<p>A common dominating measure restores a density when one is useful. Relative to
+<span class="arithmatex">\(\mu=\delta_0+\lambda|_{(0,1)}\)</span>, where <span class="arithmatex">\(\lambda\)</span> is Lebesgue measure, the same
+law has Radon--Nikodym derivative <span class="arithmatex">\(dP_X/d\mu=0.3\)</span> at the atom and <span class="arithmatex">\(0.7\)</span> on the
+open interval. This is why measure-level definitions are safer than silently
+assuming that every model distribution has a PDF with respect to ambient
+volume.</p>
+<h3 id="reference-measures-matter">Reference Measures Matter<a class="headerlink" href="#reference-measures-matter" title="Permanent link">¤</a></h3>
+<p>Writing <span class="arithmatex">\(p(x)\)</span> suppresses the measure relative to which the density is defined. A Bernoulli PMF is a density relative to counting measure; a Gaussian PDF is a density relative to Lebesgue measure. On a sphere or another manifold, the natural volume measure differs from ambient Euclidean volume. Comparing log densities defined against different reference measures is meaningless unless the conversion is included.</p>
+<p>This is why a continuous density evaluated on raw discrete pixels is not yet a valid discrete-image likelihood. One must integrate density over each quantization bin or define a dequantization distribution and account for it in the objective.</p>
+<h3 id="support">Support<a class="headerlink" href="#support" title="Permanent link">¤</a></h3>
+<p>The support is the region to which a distribution assigns nonzero probability in the relevant measure-theoretic sense. Support mismatch explains several practical phenomena:</p>
+<ul>
+<li>maximum-likelihood objectives heavily penalize missing observed regions;</li>
+<li>the original GAN discriminator can become perfect when real and generated supports are separated;</li>
+<li>a continuous bijection cannot map a connected base support to a disconnected target support exactly;</li>
+<li>adding Gaussian noise gives a distribution full support in Euclidean space, making scores better behaved away from the data manifold.</li>
+</ul>
+<p>Support has topological as well as measure-theoretic consequences. A continuous bijection maps connected sets to connected sets, so an ordinary flow from a connected Gaussian base cannot exactly represent a target supported on two disconnected components without augmentation, discontinuity, or density in the space between. A decoder with observation noise can assign a full-dimensional density around a lower-dimensional manifold, but the choice of noise model changes the likelihood semantics.</p>
+<h3 id="a-distribution-atlas-organized-by-the-generated-object">A Distribution Atlas Organized by the Generated Object<a class="headerlink" href="#a-distribution-atlas-organized-by-the-generated-object" title="Permanent link">¤</a></h3>
+<p>Distribution names are shorthand for support, tail, dependence, and sampling
+assumptions. Choose them by asking what object is generated and which events
+must receive nonzero probability.</p>
+<h4 id="binary-labels-categories-and-counts">Binary labels, categories, and counts<a class="headerlink" href="#binary-labels-categories-and-counts" title="Permanent link">¤</a></h4>
+<ul>
+<li>A <strong>Bernoulli</strong> law generates one bit. A <strong>categorical</strong> law generates one
+  label from <span class="arithmatex">\(K\)</span> named alternatives. Their parameters are probabilities, not
+  unconstrained neural logits; a softmax or another normalization maps logits
+  to the simplex.</li>
+<li><strong>Binomial</strong> and <strong>multinomial</strong> laws generate aggregate counts from a fixed
+  number of conditionally IID trials. A multinomial count vector sums to the
+  declared trial count. It is not a model for an arbitrary nonnegative vector.</li>
+<li>A <strong>Poisson</strong> law generates a nonnegative count with equal mean and variance.
+  A negative-binomial construction can represent overdispersion, but its
+  probability, mean, and dispersion parameterizations differ across sources
+  and software. State which convention is used before comparing parameters.</li>
+</ul>
+<h4 id="real-valued-observations">Real-valued observations<a class="headerlink" href="#real-valued-observations" title="Permanent link">¤</a></h4>
+<ul>
+<li>A <strong>Gaussian</strong> law supplies a location and a positive scale, has thin tails,
+  and is closed under linear conditioning and marginalization. Those algebraic
+  advantages do not make Gaussian observation noise appropriate for every
+  modality.</li>
+<li>A <strong>Laplace</strong> law has a sharper central cusp and exponential tails. Its
+  negative log density produces an absolute-error term only when its scale is
+  fixed and the normalization is handled consistently.</li>
+<li>A <strong>Student-<span class="arithmatex">\(t\)</span></strong> law can be derived as a Gaussian scale mixture and provides
+  polynomial tails. Its degrees of freedom control more than appearance: the
+  mean is undefined for <span class="arithmatex">\(\nu\le1\)</span> and the variance is infinite for
+  <span class="arithmatex">\(\nu\le2\)</span>. The Cauchy law is the <span class="arithmatex">\(\nu=1\)</span> case, so reporting its sample mean as
+  an estimate of a population mean has no target.</li>
+</ul>
+<h4 id="positive-bounded-and-simplex-valued-quantities">Positive, bounded, and simplex-valued quantities<a class="headerlink" href="#positive-bounded-and-simplex-valued-quantities" title="Permanent link">¤</a></h4>
+<ul>
+<li><strong>Exponential</strong> and <strong>gamma</strong> laws live on the positive half-line. The
+  exponential law is memoryless; a gamma shape parameter permits increasing,
+  decreasing, or unimodal densities. Rate and scale are reciprocals and must
+  not be interchanged silently.</li>
+<li><strong>Log-normal</strong> and <strong>Pareto</strong> laws are also positive but encode different tail
+  behavior. A log-normal arises by exponentiating a Gaussian; a Pareto model
+  makes a power-law tail assumption. Finite samples rarely identify extreme
+  tails without substantial uncertainty.</li>
+<li>A <strong>beta</strong> law lives on <span class="arithmatex">\((0,1)\)</span> and a <strong>Dirichlet</strong> law lives on a
+  simplex. If <span class="arithmatex">\(\Pi\sim\operatorname{Dirichlet}(\alpha_1,\ldots,\alpha_K)\)</span> and
+  <span class="arithmatex">\(\alpha_0=\sum_j\alpha_j\)</span>, then
+  <span class="arithmatex">\(\mathbb E[\Pi_j]=\alpha_j/\alpha_0\)</span>. Holding these ratios fixed while
+  increasing <span class="arithmatex">\(\alpha_0\)</span> concentrates the law; it does not add more categories.</li>
+</ul>
+<p>For categorical counts <span class="arithmatex">\(n_1,\ldots,n_K\)</span>, a Dirichlet prior gives posterior
+<span class="arithmatex">\(\operatorname{Dirichlet}(\alpha_1+n_1,\ldots,\alpha_K+n_K)\)</span>. Three point
+summaries that are often confused are</p>
+<div class="arithmatex">\[
+\begin{aligned}
+\widehat\pi_j^{\mathrm{MLE}}
+&amp;=\frac{n_j}{N},\\
+\mathbb E[\Pi_j\mid n]
+&amp;=\frac{n_j+\alpha_j}{N+\alpha_0},\\
+\widehat\pi_j^{\mathrm{MAP}}
+&amp;=\frac{n_j+\alpha_j-1}{N+\alpha_0-K},
+\end{aligned}
+\]</div>
+<p>where the displayed interior MAP formula requires every
+<span class="arithmatex">\(n_j+\alpha_j&gt;1\)</span>. Otherwise a mode may lie on a simplex boundary and the
+interior formula is invalid. With a uniform <span class="arithmatex">\(\operatorname{Dirichlet}(1)\)</span>
+prior, adding one to each count gives the posterior mean and one-step posterior
+predictive probability—not the MAP estimate.</p>
+<h4 id="vectors-matrices-directions-and-manifolds">Vectors, matrices, directions, and manifolds<a class="headerlink" href="#vectors-matrices-directions-and-manifolds" title="Permanent link">¤</a></h4>
+<ul>
+<li>A <strong>multivariate Gaussian</strong> uses a positive-definite covariance, while a
+  multivariate Student law adds heavy-tailed radial behavior. Diagonal
+  covariance asserts conditional coordinate independence within that one
+  distribution; it does not identify semantic factors.</li>
+<li>A <strong>von Mises--Fisher</strong> law models directions on a sphere relative to its
+  surface measure. Its location parameter is a mean <em>direction</em>, whereas the
+  expectation vector also contains a concentration-dependent length.</li>
+<li><strong>Matrix-normal</strong>, <strong>Wishart</strong>, and inverse-Wishart laws model matrices or
+  positive-definite matrices under declared row/column and scale conventions.
+  Parameterizations vary, and convenient conjugacy does not make a covariance
+  prior weakly informative in high dimension.</li>
+<li>Sets, graphs, point configurations, functions, and manifold-valued objects
+  need laws on their actual state spaces. Flattening them into a Euclidean
+  vector may discard permutation, topology, or geometry that the model should
+  preserve.</li>
+</ul>
+<p>The atlas is a starting point, not a selection theorem. Mixtures, truncations,
+hierarchies, transformations, stochastic processes, and neural conditional
+parameters create richer laws, but every construction still owes the reader a
+support, reference measure when a density is used, and a valid sampling story.</p>
+<h2 id="2-joint-marginal-and-conditional-distributions">2. Joint, Marginal, and Conditional Distributions<a class="headerlink" href="#2-joint-marginal-and-conditional-distributions" title="Permanent link">¤</a></h2>
+<p>The joint distribution is the complete ledger. Marginalization folds that
+ledger along one axis; conditioning selects a slice and renormalizes it. These
+are two different operations even when both begin from the same table.</p>
+<figure class="book-figure" id="fig-probability-and-generative-modeling-2-joint-marginal-and-conditional-distributions"><pre class="mermaid"><code>flowchart LR
+    joint["Joint law&amp;nbsp;$$p(x,z)$$"]
+    marginal["Observed marginal&amp;nbsp;$$p(x)=\sum_z p(x,z)$$"]
+    posterior["Posterior&amp;nbsp;$$p(z\mid x)=p(x,z)/p(x)$$"]
+    generate["Generative route&lt;br/&gt;sample&amp;nbsp;$$z$$&amp;nbsp;then&amp;nbsp;$$x$$"]
+
+    joint --&gt;|"sum or integrate&amp;nbsp;$$z$$"| marginal
+    joint --&gt;|"fix&amp;nbsp;$$x$$&amp;nbsp;and normalize"| posterior
+    joint --&gt; generate</code></pre><figcaption class="book-object-caption"><span class="book-object-number">Figure PROB.2.</span> 2. Joint, Marginal, and Conditional Distributions</figcaption></figure>
+<p>For random variables <span class="arithmatex">\(X\)</span> and <span class="arithmatex">\(Y\)</span>, the product rule is</p>
+<div class="arithmatex">\[
+p(x,y)=p(x\mid y)p(y)=p(y\mid x)p(x).
+\]</div>
+<p>Marginalization removes an unobserved variable:</p>
+<div class="arithmatex">\[
+p(x)=\sum_y p(x,y)
+\quad\text{or}\quad
+p(x)=\int p(x,z)\,dz.
+\]</div>
+<p>Conditioning renormalizes the joint distribution on the event or value observed:</p>
+<div class="arithmatex">\[
+p(x\mid y)=\frac{p(x,y)}{p(y)},
+\qquad p(y)&gt;0.
+\]</div>
+<p>Combining the two product-rule factorizations yields Bayes' rule:</p>
+<div class="arithmatex">\[
+p(z\mid x)=\frac{p(x\mid z)p(z)}{p(x)},
+\qquad
+p(x)=\int p(x\mid z)p(z)\,dz.
+\]</div>
+<p>In a latent-variable model, <span class="arithmatex">\(p(z)\)</span> is a prior, <span class="arithmatex">\(p(x\mid z)\)</span> is a likelihood or decoder distribution, <span class="arithmatex">\(p(x)\)</span> is the marginal evidence, and <span class="arithmatex">\(p(z\mid x)\)</span> is the posterior. The evidence integral is often the first intractable quantity encountered in deep generative modeling.</p>
+<div class="admonition tip">
+<p class="admonition-title">Read Bayes' rule as a workflow</p>
+<p>Start with a prior belief about <span class="arithmatex">\(z\)</span>, score how each <span class="arithmatex">\(z\)</span> could have produced
+the observation, and normalize across all possibilities. The numerator
+ranks explanations; the evidence makes their total probability one.</p>
+</div>
+<h3 id="conditioning-on-an-event-and-conditioning-at-a-value">Conditioning on an Event and Conditioning at a Value<a class="headerlink" href="#conditioning-on-an-event-and-conditioning-at-a-value" title="Permanent link">¤</a></h3>
+<p>The elementary ratio <span class="arithmatex">\(P(A\mid B)=P(A\cap B)/P(B)\)</span> applies when <span class="arithmatex">\(P(B)&gt;0\)</span>.
+For a continuous observation, however, <span class="arithmatex">\(P(Y=y)=0\)</span> at every ordinary point, so
+the conditional density formula must not be read as a ratio of point
+probabilities. Where joint and marginal densities exist, it defines a density
+for almost every <span class="arithmatex">\(y\)</span> with <span class="arithmatex">\(p_Y(y)&gt;0\)</span>:</p>
+<div class="arithmatex">\[
+p_{X\mid Y}(x\mid y)=\frac{p_{X,Y}(x,y)}{p_Y(y)}.
+\]</div>
+<p>The measure-level object is a probability kernel
+<span class="arithmatex">\(K(y,A)=P(X\in A\mid Y=y)\)</span>. On standard Borel state spaces, regular
+conditional distributions exist, but two valid versions may disagree on a set
+of <span class="arithmatex">\(y\)</span> values having <span class="arithmatex">\(P_Y\)</span>-measure zero. A model can choose a continuous or
+otherwise structured version; the joint law alone determines it only almost
+everywhere.</p>
+<p>For example, if <span class="arithmatex">\(Y=X\)</span> and <span class="arithmatex">\(X\)</span> has a continuous law, the natural conditional
+kernel is</p>
+<div class="arithmatex">\[
+P(X\in A\mid Y=y)=\delta_y(A).
+\]</div>
+<p>It says that observing <span class="arithmatex">\(Y=y\)</span> reveals <span class="arithmatex">\(X=y\)</span>, even though the event
+<span class="arithmatex">\(\{Y=y\}\)</span> has probability zero. Writing <span class="arithmatex">\(P(X=x,Y=y)/P(Y=y)\)</span> would instead
+produce the meaningless ratio <span class="arithmatex">\(0/0\)</span>. In generative modeling this distinction
+appears whenever a conditional model accepts a real-valued context, a diffusion
+conditions on an exact measurement, or an inverse problem imposes a noiseless
+constraint.</p>
+<h3 id="exchangeability-sequences-and-sets">Exchangeability, Sequences, and Sets<a class="headerlink" href="#exchangeability-sequences-and-sets" title="Permanent link">¤</a></h3>
+<p>A joint distribution over a set is invariant to permutations; a joint distribution over a sequence generally is not. The chain rule can factor either distribution in any chosen order, but an architecture may inject ordering information that violates the intended symmetry. For exchangeable data, symmetrization or an invariant/equivariant architecture is part of the model specification, not a cosmetic implementation choice.</p>
+<h3 id="conditioning-is-not-intervention">Conditioning Is Not Intervention<a class="headerlink" href="#conditioning-is-not-intervention" title="Permanent link">¤</a></h3>
+<p>Observational conditioning uses <span class="arithmatex">\(p(y\mid x)\)</span>. A causal intervention <span class="arithmatex">\(p(y\mid\operatorname{do}(x))\)</span> replaces the structural mechanism that produced <span class="arithmatex">\(x\)</span>. Confounding can make the two disagree. Conditional text-to-image generation, class guidance, or attribute editing does not establish counterfactual validity without a causal model and identifiability assumptions.</p>
+<h2 id="probability-object-retrieval-practice">Probability-object retrieval practice<a class="headerlink" href="#probability-object-retrieval-practice" title="Permanent link">¤</a></h2>
+<details class="question">
+<summary>Retrieval practice: laws, densities, marginals, and conditionals</summary>
+<ol>
+<li>What must be named before writing a density <span class="arithmatex">\(p(x)\)</span>?</li>
+<li>How do a PMF, a density, and a probability law differ?</li>
+<li>What operation obtains a marginal from a joint law, and what extra event obtains a conditional law?</li>
+<li>Why is a model's sampled tensor representation not necessarily the semantic sample space?</li>
+</ol>
+<p><strong>Solutions.</strong> (1) The sample space/support and reference measure or coordinate convention. (2) A law assigns probability to events; a PMF is its mass function on a countable space; a density is a Radon–Nikodym derivative relative to a measure and can exceed one. (3) Sum/integrate out unwanted variables; conditioning additionally restricts and renormalizes on observed information. (4) Padding, ordering, tokenization, quotient symmetries, or a lossy codec can give several tensors one meaning or exclude semantic objects.</p>
+</details>
+<h2 id="probability-object-synthesis">Probability-object synthesis<a class="headerlink" href="#probability-object-synthesis" title="Permanent link">¤</a></h2>
+<p>Generative modeling begins with the object, sample space, law, observation
+mechanism, and query. PMFs and densities are representations relative to a
+measure; joint, marginal, and conditional distributions are different operations
+on one law. These distinctions determine what later likelihoods, samplers, and
+evaluations can mean.</p>
+<h2 id="3-chain-rule-and-autoregressive-factorization">3. Chain Rule and Autoregressive Factorization<a class="headerlink" href="#3-chain-rule-and-autoregressive-factorization" title="Permanent link">¤</a></h2>
+<h3 id="factorization-information-and-query-learning-objectives">Factorization, information, and query learning objectives<a class="headerlink" href="#factorization-information-and-query-learning-objectives" title="Permanent link">¤</a></h3>
+<p>This projection assumes joint and conditional probability. By the end, you
+should be able to derive the chain rule under an ordering, distinguish a
+probability identity from an autoregressive architecture, compute discrete
+entropy, cross-entropy, KL, and code length, explain coordinate dependence of
+differential entropy, and separate generation, density estimation, conditional
+prediction, representation, and decision queries.</p>
+<p>The chain rule turns one joint question into a sequence of conditional
+questions. For three variables, one possible reading order is</p>
+<figure class="book-figure" id="fig-probability-and-generative-modeling-3-chain-rule-and-autoregressive-factorization"><pre class="mermaid"><code>flowchart LR
+    x1(("$$X_1$$")) --&gt; x2(("$$X_2$$")) --&gt; x3(("$$X_3$$"))
+    x1 --&gt; x3</code></pre><figcaption class="book-object-caption"><span class="book-object-number">Figure PROB.3.</span> 3. Chain Rule and Autoregressive Factorization</figcaption></figure>
+<p>The arrows visualize the selected factorization, not a claim that <span class="arithmatex">\(X_1\)</span> causes
+<span class="arithmatex">\(X_2\)</span> or <span class="arithmatex">\(X_3\)</span>. Another order gives another exact factorization of the same
+joint law.</p>
+<p>Repeated application of the product rule gives, for any ordering <span class="arithmatex">\(\pi\)</span> of <span class="arithmatex">\(D\)</span> variables,</p>
+<div class="arithmatex">\[
+p(x_1,\ldots,x_D)
+=\prod_{i=1}^{D}p\!\left(x_{\pi(i)}\mid x_{\pi(&lt;i)}\right).
+\]</div>
+<p>This is an identity for every joint distribution, not an assumption that data are intrinsically sequential. An autoregressive model chooses an ordering and parameterizes those conditionals. The ordering affects architecture, inductive bias, sampling cost, and approximation error even though the exact chain rule is valid for all orderings.</p>
+<p>For a graph or set, one can factor a distribution over a construction sequence, but several trajectories may lead to the same terminal object. The object probability is the sum over those trajectories unless a canonical ordering makes the map one-to-one. This distinction becomes central in GFlowNets and order-agnostic generation.</p>
+<h2 id="4-entropy-cross-entropy-and-kl-divergence">4. Entropy, Cross-Entropy, and KL Divergence<a class="headerlink" href="#4-entropy-cross-entropy-and-kl-divergence" title="Permanent link">¤</a></h2>
+<div class="admonition example">
+<p class="admonition-title">The coding question</p>
+<p>If an outcome is surprising under <span class="arithmatex">\(q\)</span>, it needs a long ideal description;
+if it is common, it needs a short one. Entropy is the best expected length
+when the source law is known, cross-entropy is the expected length when a
+possibly wrong model supplies the code, and KL is the excess.</p>
+</div>
+<p>For a discrete distribution <span class="arithmatex">\(p\)</span>,</p>
+<div class="arithmatex">\[
+H(p)=-\mathbb E_{x\sim p}[\log p(x)].
+\]</div>
+<p>The cross-entropy of data distribution <span class="arithmatex">\(p\)</span> under model <span class="arithmatex">\(q\)</span> is</p>
+<div class="arithmatex">\[
+H(p,q)=-\mathbb E_{p}[\log q(x)],
+\]</div>
+<p>and decomposes as</p>
+<div class="arithmatex">\[
+H(p,q)=H(p)+D_{\mathrm{KL}}(p\|q).
+\]</div>
+<p>Because <span class="arithmatex">\(H(p)\)</span> does not depend on model parameters, minimizing expected negative log-likelihood is equivalent at the population level to minimizing forward KL. Finite data replace the expectation by an empirical average, introducing estimation and generalization questions that the identity alone does not resolve.</p>
+<h3 id="differential-entropy-is-coordinate-dependent">Differential Entropy Is Coordinate-Dependent<a class="headerlink" href="#differential-entropy-is-coordinate-dependent" title="Permanent link">¤</a></h3>
+<p>For continuous variables, <span class="arithmatex">\(h(X)=-\int p(x)\log p(x)dx\)</span> can be negative and changes under rescaling. If <span class="arithmatex">\(Y=aX\)</span>, then <span class="arithmatex">\(h(Y)=h(X)+\log|a|\)</span>. KL divergence remains invariant under a shared smooth bijection because the Jacobian terms cancel. Do not compare differential entropies across representations as if they were intrinsic uncertainty measures.</p>
+<h3 id="proper-scoring-rules">Proper Scoring Rules<a class="headerlink" href="#proper-scoring-rules" title="Permanent link">¤</a></h3>
+<p>Log loss is a strictly proper scoring rule: in the population limit, a forecaster minimizes expected score by reporting the true distribution. Other proper scores include the Brier score for categorical outcomes and the continuous ranked probability score for scalar distributions. A loss can be useful without being a proper score, but calibration claims then require separate evidence.</p>
+<h3 id="from-probability-to-code-length">From probability to code length<a class="headerlink" href="#from-probability-to-code-length" title="Permanent link">¤</a></h3>
+<p>Take logarithms in base two and suppose a binary <strong>prefix code</strong> represents each discrete symbol. No codeword may be the prefix of another, so a decoder can determine where one symbol ends without looking ahead. Its integer lengths <span class="arithmatex">\(\ell(x)\)</span> must satisfy the Kraft inequality</p>
+<div class="arithmatex">\[
+\sum_x 2^{-\ell(x)}\leq 1.
+\]</div>
+<p>A probability model <span class="arithmatex">\(q\)</span> suggests the ideal length</p>
+<div class="arithmatex">\[
+\ell_q(x)=-\log_2q(x).
+\]</div>
+<p>This length need not be an integer. Huffman coding finds an optimal integer prefix code for a known finite symbol distribution, while arithmetic, range, and asymmetric-numeral-system coders operate across sequences and can approach the sequence negative log-likelihood up to finite-precision, termination, and metadata overhead. Thus “<span class="arithmatex">\(-\log_2 q(x)\)</span> bits” is an ideal coding quantity, not a promise that every individual file has exactly that many bits. This coding connection originates in <a href="https://reach.ieee.org/primary-sources/a-mathematical-theory-of-communication/">Shannon's source-coding analysis</a>.</p>
+<h4 id="worked-prefix-code-four-directions">Worked prefix code: four directions<a class="headerlink" href="#worked-prefix-code-four-directions" title="Permanent link">¤</a></h4>
+<p>Let a source emit four symbols with a dyadic distribution:</p>
+<div class="md-typeset__table book-table-container"><table id="tbl-probability-and-generative-modeling-worked-prefix-code-four-directions"><caption class="book-object-caption"><span class="book-object-number">Table PROB.1.</span> Worked prefix code: four directions</caption>
+<thead>
+<tr>
+<th>Symbol</th>
+<th style="text-align: right;"><span class="arithmatex">\(p(x)\)</span></th>
+<th style="text-align: right;"><span class="arithmatex">\(-\log_2p(x)\)</span></th>
+<th>Codeword</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>north</td>
+<td style="text-align: right;"><span class="arithmatex">\(1/2\)</span></td>
+<td style="text-align: right;">1 bit</td>
+<td><code>0</code></td>
+</tr>
+<tr>
+<td>east</td>
+<td style="text-align: right;"><span class="arithmatex">\(1/4\)</span></td>
+<td style="text-align: right;">2 bits</td>
+<td><code>10</code></td>
+</tr>
+<tr>
+<td>south</td>
+<td style="text-align: right;"><span class="arithmatex">\(1/8\)</span></td>
+<td style="text-align: right;">3 bits</td>
+<td><code>110</code></td>
+</tr>
+<tr>
+<td>west</td>
+<td style="text-align: right;"><span class="arithmatex">\(1/8\)</span></td>
+<td style="text-align: right;">3 bits</td>
+<td><code>111</code></td>
+</tr>
+</tbody>
+</table></div>
+<p>The code is prefix-free and its expected length is</p>
+<div class="arithmatex">\[
+\mathbb E_p[\ell_p(X)]
+=\tfrac12(1)+\tfrac14(2)+\tfrac18(3)+\tfrac18(3)
+=1.75\ \text{bits}.
+\]</div>
+<p>Because the probabilities are powers of two, the code attains the entropy exactly. Now encode the same source with a uniform model <span class="arithmatex">\(q(x)=1/4\)</span>, which assigns a two-bit codeword to every symbol. The expected length becomes</p>
+<div class="arithmatex">\[
+\underbrace{H_2(p,q)}_{2.00\ \text{bits}}
+=\underbrace{H_2(p)}_{1.75\ \text{bits}}
++\underbrace{D_{\mathrm{KL},2}(p\|q)}_{0.25\ \text{bits}}.
+\]</div>
+<p>Here the subscript 2 declares base-two logarithms. The extra quarter-bit per symbol is the expected price of using the wrong probability model. Over a sequence, an autoregressive model supplies a different <span class="arithmatex">\(q(x_i\mid x_{&lt;i})\)</span> at each position, so its total ideal length is the sum of token NLLs in bits. If it assigns <span class="arithmatex">\(q(x)=0\)</span> to an event the source can emit, both log loss and ideal code length are infinite; practical codecs therefore require a support-safe probability table.</p>
+<div class="admonition warning">
+<p class="admonition-title">Coding language has a declared scope</p>
+<p>The direct code-length interpretation applies to discrete messages and a specified lossless coding construction. A continuous log density depends on its reference measure and units, so it is not a standalone file length. Quantization or another discrete observation model must be declared first. Lossy coding additionally requires a distortion criterion and is developed in <a href="../objectives-and-statistical-distances/#9-ratedistortion-and-information-bottlenecks">Rate–Distortion and Information Bottlenecks</a>.</p>
+</div>
+<p>The complete <a href="../information-coding-and-generative-modeling/">Information, Coding, and Generative Models</a> volume continues from this finite example to mutual-information estimation, source and channel coding, learned codecs, generative reconstruction, information bottlenecks, MDL, and algorithmic-information boundaries.</p>
+<h2 id="5-what-a-generative-model-may-be-asked-to-do">5. What a Generative Model May Be Asked to Do<a class="headerlink" href="#5-what-a-generative-model-may-be-asked-to-do" title="Permanent link">¤</a></h2>
+<p>Return to the four opening questions and add two more: <em>which internal
+representation is useful?</em> and <em>which structured answer obeys the constraints?</em>
+The resulting task list is broader than unconditional sample generation.</p>
+<div class="md-typeset__table book-table-container"><table id="tbl-probability-and-generative-modeling-5-what-a-generative-model-may-be-asked-to-do"><caption class="book-object-caption"><span class="book-object-number">Table PROB.2.</span> 5. What a Generative Model May Be Asked to Do</caption>
+<thead>
+<tr>
+<th>Task</th>
+<th>Query</th>
+<th>Examples</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Sampling</td>
+<td>Draw <span class="arithmatex">\(x\sim p_\theta\)</span></td>
+<td>ancestral decoding, flow inversion, reverse diffusion, MCMC</td>
+</tr>
+<tr>
+<td>Density evaluation</td>
+<td>Evaluate or estimate <span class="arithmatex">\(p_\theta(x)\)</span></td>
+<td>AR likelihood, flow change of variables, VAE ELBO, AIS for EBMs</td>
+</tr>
+<tr>
+<td>Conditional generation</td>
+<td>Draw <span class="arithmatex">\(x\sim p_\theta(x\mid c)\)</span></td>
+<td>class/text guidance, conditional decoders, constrained generation</td>
+</tr>
+<tr>
+<td>Inference</td>
+<td>Estimate <span class="arithmatex">\(p_\theta(z\mid x)\)</span></td>
+<td>VAE encoder, message passing, SMC</td>
+</tr>
+<tr>
+<td>Imputation</td>
+<td>Draw missing variables conditioned on observed ones</td>
+<td>masked models, Gibbs sampling, circuits</td>
+</tr>
+<tr>
+<td>Representation learning</td>
+<td>Map observations to useful latent variables</td>
+<td>VAE encoders, tokenizer models, self-supervised features</td>
+</tr>
+<tr>
+<td>Structured prediction</td>
+<td>Model coupled outputs under constraints</td>
+<td>CRFs/EBMs, graph generators, causal models</td>
+</tr>
+<tr>
+<td>Constructive generation</td>
+<td>Execute a map, program, grammar, policy, or solver</td>
+<td>deterministic decoders, program generators, constraint solvers</td>
+</tr>
+</tbody>
+</table></div>
+<p>No family dominates all queries. A GAN may sample quickly while lacking a tractable density; a probabilistic circuit may answer exact conditionals while sacrificing unconstrained expressivity; a diffusion model may support flexible conditioning but require iterative sampling.</p>
+<h3 id="generation-density-estimation-and-structured-prediction">Generation, Density Estimation, and Structured Prediction<a class="headerlink" href="#generation-density-estimation-and-structured-prediction" title="Permanent link">¤</a></h3>
+<ul>
+<li><strong>Density estimation</strong> asks for a normalized probability law or a justified approximation to it.</li>
+<li><strong>Generation</strong> asks for samples whose distribution satisfies a target criterion; the density may be unavailable.</li>
+<li><strong>Conditional generation</strong> samples missing or target variables given context.</li>
+<li><strong>Structured prediction</strong> may return a point estimate, ranking, or constrained object without modeling all uncertainty.</li>
+<li><strong>Representation learning</strong> asks whether internal variables support specified downstream queries.</li>
+<li><strong>Constructive generation</strong> produces an object through declared operations;
+  probability semantics exist only if the seeds, choices, or outputs have a
+  declared law.</li>
+</ul>
+<p>One system may perform several tasks, but success on one is not evidence for all. A deterministic segmentation network is a structured predictor, not a generative model merely because its output is structured. A diffusion posterior sampler for an inverse problem is conditional generation, but it is calibrated only relative to its prior, likelihood, and numerical approximation.</p>
+<h3 id="a-conditional-law-is-not-a-decision-rule">A Conditional Law Is Not a Decision Rule<a class="headerlink" href="#a-conditional-law-is-not-a-decision-rule" title="Permanent link">¤</a></h3>
+<p>The expression <span class="arithmatex">\(p(y\mid c)\)</span> describes uncertainty about an output after context
+<span class="arithmatex">\(c\)</span> is known. It does not say whether a deployed system should sample, return a
+mode, minimize a task loss, abstain, or present several alternatives. Those are
+decision rules layered on top of the predictive law.</p>
+<p>Consider the finite conditional distribution</p>
+<div class="md-typeset__table book-table-container"><table id="tbl-probability-and-generative-modeling-a-conditional-law-is-not-a-decision-rule"><caption class="book-object-caption"><span class="book-object-number">Table PROB.3.</span> A Conditional Law Is Not a Decision Rule</caption>
+<thead>
+<tr>
+<th style="text-align: right;">outcome <span class="arithmatex">\(y\)</span></th>
+<th style="text-align: right;">probability <span class="arithmatex">\(p(y\mid c)\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;"><span class="arithmatex">\(0\)</span></td>
+<td style="text-align: right;"><span class="arithmatex">\(0.50\)</span></td>
+</tr>
+<tr>
+<td style="text-align: right;"><span class="arithmatex">\(1\)</span></td>
+<td style="text-align: right;"><span class="arithmatex">\(0.30\)</span></td>
+</tr>
+<tr>
+<td style="text-align: right;"><span class="arithmatex">\(4\)</span></td>
+<td style="text-align: right;"><span class="arithmatex">\(0.20\)</span></td>
+</tr>
+</tbody>
+</table></div>
+<p>An ancestral conditional draw returns <span class="arithmatex">\(0\)</span>, <span class="arithmatex">\(1\)</span>, and <span class="arithmatex">\(4\)</span> with those frequencies.
+Under <span class="arithmatex">\(0\)</span>--<span class="arithmatex">\(1\)</span> loss, the Bayes action is the mode, <span class="arithmatex">\(a=0\)</span>. Under squared loss,
+the unrestricted Bayes action is instead the conditional mean,</p>
+<div class="arithmatex">\[
+\begin{aligned}
+a^*&amp;=\mathbb E[Y\mid c]\\
+&amp;=0(0.50)+1(0.30)\\
+&amp;\qquad+4(0.20)\\
+&amp;=1.10.
+\end{aligned}
+\]</div>
+<p>If actions must belong to the candidate set <span class="arithmatex">\(\{0,1,4\}\)</span>, their conditional
+squared risks are</p>
+<div class="arithmatex">\[
+\begin{aligned}
+R(0)&amp;=0.50(0-0)^2\\
+&amp;\quad+0.30(0-1)^2\\
+&amp;\quad+0.20(0-4)^2=3.50,\\[2pt]
+R(1)&amp;=0.50(1-0)^2\\
+&amp;\quad+0.30(1-1)^2\\
+&amp;\quad+0.20(1-4)^2=2.30,\\[2pt]
+R(4)&amp;=0.50(4-0)^2\\
+&amp;\quad+0.30(4-1)^2\\
+&amp;\quad+0.20(4-4)^2=10.70.
+\end{aligned}
+\]</div>
+<p>The best allowed point action is therefore <span class="arithmatex">\(1\)</span>, even though <span class="arithmatex">\(0\)</span> is the most
+probable individual outcome. Repeating either point action does not reproduce
+the conditional distribution. Conversely, a calibrated conditional law can be
+paired with the wrong task loss or a poor search procedure. Held-out proper
+scores assess the probabilistic forecast, while task losses assess decisions;
+they answer different questions (<a href="https://doi.org/10.1198/016214506000001437">Gneiting and Raftery,
+2007</a>). The full treatment of
+minimum Bayes risk, candidate sets, and search appears in <a href="../conditioning-steering-and-constraints/#minimum-bayes-risk-is-a-decision-rule">Conditioning,
+Steering, Constraints, and Selection</a>.</p>
+<p>Output dimension does not create this distinction. A scalar class label can
+have a non-degenerate conditional law, and an image or sequence system can
+return one deterministic decision. The formula <span class="arithmatex">\(p(y\mid x)\)</span> alone therefore
+does not determine a family label. State whether the system defines only that
+conditional law, a joint law, a constructive output mechanism, or merely a
+point decision—not how many reference answers a benchmark happens to provide.</p>
+<h2 id="factorization-and-query-retrieval-practice">Factorization and query retrieval practice<a class="headerlink" href="#factorization-and-query-retrieval-practice" title="Permanent link">¤</a></h2>
+<details class="question">
+<summary>Retrieval practice: chain rules, information, and queries</summary>
+<ol>
+<li>Does the chain rule make every joint distribution efficiently autoregressive?</li>
+<li>What identity relates cross-entropy, entropy, and KL for discrete laws?</li>
+<li>Why can differential entropy change under a smooth reparameterization while KL remains invariant?</li>
+<li>Why is a conditional probability law not yet a decision rule?</li>
+</ol>
+<p><strong>Solutions.</strong> (1) No; the identity exists for any ordering, but representing, evaluating, and sampling its conditionals can still be intractable. (2) <span class="arithmatex">\(H(p,q)=H(p)+D_{\mathrm{KL}}(p\|q)\)</span>. (3) Both densities acquire Jacobian terms that cancel in KL, while a single entropy retains the coordinate-volume change. (4) A decision rule also requires actions, utility/loss, constraints, and possibly uncertainty or abstention policy.</p>
+</details>
+<h2 id="factorization-and-query-synthesis">Factorization and query synthesis<a class="headerlink" href="#factorization-and-query-synthesis" title="Permanent link">¤</a></h2>
+<p>Factorization is a probability identity whose computational value depends on
+the chosen ordering and conditional family. Information measures connect
+prediction and coding but retain support and representation assumptions. A
+generator can be queried for samples, densities, conditionals, representations,
+or decisions; success on one is not success on all.</p>
+<h2 id="6-likelihood-is-a-function-of-parameters">6. Likelihood Is a Function of Parameters<a class="headerlink" href="#6-likelihood-is-a-function-of-parameters" title="Permanent link">¤</a></h2>
+<h3 id="likelihood-and-finite-example-learning-objectives">Likelihood and finite-example learning objectives<a class="headerlink" href="#likelihood-and-finite-example-learning-objectives" title="Permanent link">¤</a></h3>
+<p>This projection assumes densities, conditioning, and change of variables. By
+the end, you should be able to distinguish a sampling distribution from its
+likelihood function, relate empirical log loss to population cross-entropy,
+state why dequantization changes the continuous-density target, work the two-bit
+joint and conditional example, compute a one-dimensional Jacobian correction,
+and sum all inverse branches of a many-to-one transformation.</p>
+<div class="admonition example">
+<p class="admonition-title">Same expression, different argument</p>
+<p>With <span class="arithmatex">\(\theta\)</span> fixed, <span class="arithmatex">\(p_\theta(x)\)</span> is a law over possible <span class="arithmatex">\(x\)</span>. With the
+observed <span class="arithmatex">\(x\)</span> fixed, the same numeric expression is a likelihood over
+candidate <span class="arithmatex">\(\theta\)</span>. It does not become a probability distribution over
+<span class="arithmatex">\(\theta\)</span> until a parameter prior is supplied and the result is normalized.</p>
+</div>
+<p>For observed data <span class="arithmatex">\(x\)</span>, the expression <span class="arithmatex">\(p_\theta(x)\)</span> is a probability mass or density as a function of <span class="arithmatex">\(x\)</span>, but a <strong>likelihood</strong> as a function of <span class="arithmatex">\(\theta\)</span> with <span class="arithmatex">\(x\)</span> fixed:</p>
+<div class="arithmatex">\[
+\mathcal L(\theta;x)=p_\theta(x).
+\]</div>
+<p>Maximum likelihood chooses</p>
+<div class="arithmatex">\[
+\hat\theta=\arg\max_\theta\sum_{n=1}^{N}\log p_\theta(x^{(n)}).
+\]</div>
+<p>Likelihood is not a posterior over parameters unless a parameter prior is supplied and Bayes' rule is applied. It is also not automatically comparable across different data preprocessing, quantization, reference measures, or dimensionalities.</p>
+<h3 id="empirical-and-population-risk">Empirical and Population Risk<a class="headerlink" href="#empirical-and-population-risk" title="Permanent link">¤</a></h3>
+<p>Maximum likelihood uses the empirical objective</p>
+<div class="arithmatex">\[
+\hat\theta_N\in\arg\max_\theta\frac1N\sum_{n=1}^{N}\log p_\theta(x_n).
+\]</div>
+<p>Consistency requires assumptions: the data-generating law must be represented or suitably approximated, the parameterization must be identifiable enough for the target, optimization must find an appropriate solution, and regularity conditions must hold. Deep generative training violates simple textbook assumptions in multiple ways, so “MLE is consistent” should never substitute for held-out evaluation.</p>
+<p>Always state whether a loss is summed or averaged over batch, token, pixel, channel, and latent dimensions. A “typical” NLL, KL, or reconstruction-loss threshold does not transfer across different reductions.</p>
+<h3 id="dequantization">Dequantization<a class="headerlink" href="#dequantization" title="Permanent link">¤</a></h3>
+<p>For an integer pixel <span class="arithmatex">\(x\in\{0,\ldots,255\}^d\)</span>, define a continuous variable <span class="arithmatex">\(y=(x+u)/256\)</span> with <span class="arithmatex">\(u\sim q(u\mid x)\)</span> supported in <span class="arithmatex">\([0,1)^d\)</span>. Uniform dequantization gives a lower bound on the discrete mass assigned to each bin. Variational dequantization learns <span class="arithmatex">\(q\)</span> and includes its log density in the bound. Adding noise without normalization or without matching the likelihood calculation changes the modeled variable.</p>
+<h2 id="worked-example-a-two-bit-distribution">Worked Example: A Two-Bit Distribution<a class="headerlink" href="#worked-example-a-two-bit-distribution" title="Permanent link">¤</a></h2>
+<p>Suppose</p>
+<div class="md-typeset__table book-table-container"><table id="tbl-probability-and-generative-modeling-worked-example-a-two-bit-distribution"><caption class="book-object-caption"><span class="book-object-number">Table PROB.4.</span> Worked Example: A Two-Bit Distribution</caption>
+<thead>
+<tr>
+<th><span class="arithmatex">\((x_1,x_2)\)</span></th>
+<th style="text-align: right;">Probability</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="arithmatex">\((0,0)\)</span></td>
+<td style="text-align: right;">0.4</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\((0,1)\)</span></td>
+<td style="text-align: right;">0.1</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\((1,0)\)</span></td>
+<td style="text-align: right;">0.2</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\((1,1)\)</span></td>
+<td style="text-align: right;">0.3</td>
+</tr>
+</tbody>
+</table></div>
+<p>Then <span class="arithmatex">\(p(x_1=0)=0.5\)</span> and</p>
+<div class="arithmatex">\[
+p(x_2=1\mid x_1=0)=\frac{0.1}{0.5}=0.2,
+\qquad
+p(x_2=1\mid x_1=1)=\frac{0.3}{0.5}=0.6.
+\]</div>
+<p>The autoregressive factorization reconstructs, for example,</p>
+<div class="arithmatex">\[
+p(1,1)=p(x_1=1)p(x_2=1\mid x_1=1)=0.5\times0.6=0.3.
+\]</div>
+<p>Reversing the order gives a different set of conditionals but the same exact joint. A learned finite-capacity model may approximate one ordering more easily than the other.</p>
+<h2 id="worked-example-change-of-variables-in-one-dimension">Worked Example: Change of Variables in One Dimension<a class="headerlink" href="#worked-example-change-of-variables-in-one-dimension" title="Permanent link">¤</a></h2>
+<p>Let <span class="arithmatex">\(Z\sim\operatorname{Uniform}(0,1)\)</span> and <span class="arithmatex">\(X=Z^2\)</span>. The map is monotone on the support, with inverse <span class="arithmatex">\(z=\sqrt{x}\)</span> and derivative <span class="arithmatex">\(dz/dx=(2\sqrt{x})^{-1}\)</span>. Therefore</p>
+<div class="arithmatex">\[
+p_X(x)=p_Z(\sqrt{x})\left|\frac{d\sqrt{x}}{dx}\right|
+=\frac{1}{2\sqrt{x}},\qquad 0&lt;x&lt;1.
+\]</div>
+<p>The density diverges near zero but is valid because</p>
+<div class="arithmatex">\[
+\int_0^1\frac{1}{2\sqrt{x}}dx=1.
+\]</div>
+<p>This demonstrates three recurring facts: densities may exceed one, support must be transformed with the map, and the inverse Jacobian appears when the generative direction is <span class="arithmatex">\(z\mapsto x\)</span>. The <a href="../flow-explained/#mathematical-foundation">normalizing-flow guide</a> generalizes this calculation to learned multidimensional bijections.</p>
+<h3 id="a-many-to-one-map-must-sum-its-branches">A Many-to-One Map Must Sum Its Branches<a class="headerlink" href="#a-many-to-one-map-must-sum-its-branches" title="Permanent link">¤</a></h3>
+<p>Now let <span class="arithmatex">\(Z\sim\operatorname{Uniform}(-1,1)\)</span> and again set <span class="arithmatex">\(X=Z^2\)</span>. For
+<span class="arithmatex">\(0&lt;x&lt;1\)</span>, the output <span class="arithmatex">\(x\)</span> has two preimages, <span class="arithmatex">\(z_1=\sqrt{x}\)</span> and
+<span class="arithmatex">\(z_2=-\sqrt{x}\)</span>. For a differentiable scalar map <span class="arithmatex">\(g\)</span> with finitely many
+regular preimages,</p>
+<div class="arithmatex">\[
+p_X(x)=
+\sum_{z\in g^{-1}(x)}
+\frac{p_Z(z)}{|g'(z)|}.
+\]</div>
+<p>Here each branch contributes
+<span class="arithmatex">\((1/2)/(2\sqrt{x})\)</span>, so</p>
+<div class="arithmatex">\[
+p_X(x)=\frac{1}{2\sqrt{x}},
+\qquad 0&lt;x&lt;1.
+\]</div>
+<p>Keeping only the positive root would integrate to one half and lose the mass
+carried by the negative branch. If a map changes dimension or collapses a
+region to a point, an ordinary output density with respect to ambient Lebesgue
+measure may not exist at all; the pushforward law remains the correct object.
+Monte Carlo samples approximate that law by an empirical measure, not by an
+ordinary PDF unless an additional density estimator is introduced.</p>
+<h3 id="probability-integral-transforms-need-an-atom-check">Probability Integral Transforms Need an Atom Check<a class="headerlink" href="#probability-integral-transforms-need-an-atom-check" title="Permanent link">¤</a></h3>
+<p>If <span class="arithmatex">\(F\)</span> is a continuous CDF and <span class="arithmatex">\(X\sim F\)</span>, then <span class="arithmatex">\(F(X)\)</span> is uniform on <span class="arithmatex">\((0,1)\)</span>.
+With atoms, <span class="arithmatex">\(F(X)\)</span> contains atoms too and is not uniform. A randomized transform
+works for discrete, continuous, and mixed univariate laws:</p>
+<div class="arithmatex">\[
+\begin{aligned}
+\Delta F(X)&amp;=F(X)-F(X^-),\\
+U&amp;=F(X^-)+V\,\Delta F(X).
+\end{aligned}
+\]</div>
+<p>Here <span class="arithmatex">\(V\sim\operatorname{Uniform}(0,1)\)</span> is independent of <span class="arithmatex">\(X\)</span>. For
+<span class="arithmatex">\(X\sim\operatorname{Bernoulli}(p)\)</span>, samples
+with <span class="arithmatex">\(X=0\)</span> fill <span class="arithmatex">\([0,1-p]\)</span> and samples with <span class="arithmatex">\(X=1\)</span> fill <span class="arithmatex">\([1-p,1]\)</span>; the interval
+lengths and event probabilities match, so their mixture is uniform.</p>
+<p>The inverse direction uses the generalized quantile
+<span class="arithmatex">\(F^{-1}(u)=\inf\{x:F(x)\ge u\}\)</span> and can generate samples even when <span class="arithmatex">\(F\)</span> has
+jumps. These two directions should not be conflated: generalized-inverse
+sampling works for atomic laws, while the unrandomized diagnostic <span class="arithmatex">\(F(X)\)</span> is
+uniform only under the relevant continuity condition. A calibrated
+goodness-of-fit test additionally needs its own null distribution and treatment
+of fitted parameters; plotting transformed values is not by itself a test.</p>
+<h2 id="likelihood-and-transformation-retrieval-practice">Likelihood and transformation retrieval practice<a class="headerlink" href="#likelihood-and-transformation-retrieval-practice" title="Permanent link">¤</a></h2>
+<details class="question">
+<summary>Retrieval practice: likelihood and transformed variables</summary>
+<ol>
+<li>Over which argument must a likelihood normalize, and over which argument need it not normalize?</li>
+<li>What population quantity is minimized by expected negative log likelihood under a fixed representation?</li>
+<li>Which term appears in a one-to-one change-of-variables density?</li>
+<li>Why must a many-to-one map sum over inverse branches?</li>
+</ol>
+<p><strong>Solutions.</strong> (1) The sampling density normalizes over observations for each parameter; the likelihood need not normalize over parameters. (2) Cross-entropy to the data law, equivalently KL up to the data entropy when defined. (3) The absolute inverse-Jacobian determinant, or the negative log absolute forward determinant. (4) Every preimage is a mutually exclusive route to the same observed value and contributes probability mass/density.</p>
+</details>
+<h2 id="likelihood-and-transformation-synthesis">Likelihood and transformation synthesis<a class="headerlink" href="#likelihood-and-transformation-synthesis" title="Permanent link">¤</a></h2>
+<p>Likelihood is the observed-data law viewed as a function of parameters. Its
+empirical optimization, population target, dequantization convention, and base
+measure must remain aligned. Change of variables preserves probability through
+Jacobians and, for non-injective maps, an explicit sum over every valid branch.</p>
+<h2 id="primary-and-archival-reading-trail">Primary and Archival Reading Trail<a class="headerlink" href="#primary-and-archival-reading-trail" title="Permanent link">¤</a></h2>
+<h3 id="probability-foundation-capstone-learning-objectives">Probability-foundation capstone learning objectives<a class="headerlink" href="#probability-foundation-capstone-learning-objectives" title="Permanent link">¤</a></h3>
+<p>This capstone assumes the three preceding probability projections. By the end,
+you should be able to select primary references for laws, information,
+likelihood, and transformed variables; diagnose the listed misconceptions;
+answer the retrieval set without notes; and route a modeling question to its
+sample-space, factorization, objective, likelihood, inference, sampling, or
+decision layer.</p>
+<ul>
+<li><a href="https://doi.org/10.1214/aop/1176993081">Faden, <em>The Existence of Regular Conditional Probabilities: Necessary and Sufficient Conditions</em></a> — existence boundaries for regular conditional probabilities beyond the standard spaces used in most machine-learning models.</li>
+<li><a href="https://doi.org/10.1016/j.spl.2007.02.008">Brockwell, <em>Universal Residuals: A Multivariate Transformation</em></a> — randomized probability integral transforms for discrete, continuous, and mixed laws.</li>
+<li><a href="https://tminka.github.io/papers/dirichlet/">Minka, <em>Estimating a Dirichlet Distribution</em></a> — Dirichlet support, parameter semantics, sufficient statistics, and the separate problem of estimating its hyperparameters from proportion vectors.</li>
+</ul>
+<h2 id="common-misconceptions">Common Misconceptions<a class="headerlink" href="#common-misconceptions" title="Permanent link">¤</a></h2>
+<div class="admonition warning">
+<p class="admonition-title">A high continuous density is not a high point probability</p>
+<p>For a continuous variable, <span class="arithmatex">\(P(X=x)=0\)</span> for individual points under ordinary densities. Compare probability mass over regions or account for the reference measure.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Generative does not mean unconditional</p>
+<p>Conditional models, posterior models, structured predictors, and world models are generative when they describe a joint or conditional data-generating distribution.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Exact likelihood does not imply perceptually good samples</p>
+<p>Likelihood rewards probability assignment under a specified observation model. Perceptual quality depends on representation, likelihood semantics, model capacity, data, and evaluation protocol.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Any sample loss is not automatically maximum likelihood</p>
+<p>Adversarial, kernel, score, and transport objectives can identify useful distributions without being log-likelihood objectives. Name the population quantity actually optimized.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Exact densities are not automatically comparable</p>
+<p>Units, reference measures, quantization, dequantization, and change-of-variables terms must match before comparing log likelihoods.</p>
+</div>
+<h2 id="retrieval-check">Retrieval Check<a class="headerlink" href="#retrieval-check" title="Permanent link">¤</a></h2>
+<ol>
+<li>Why can a continuous density be greater than one?</li>
+<li>Which operation turns <span class="arithmatex">\(p(x,z)\)</span> into <span class="arithmatex">\(p(x)\)</span>?</li>
+<li>Does the chain rule assume a natural order in the data?</li>
+<li>Why is minimizing NLL equivalent to forward-KL minimization only after identifying what is constant with respect to <span class="arithmatex">\(\theta\)</span>?</li>
+<li>Why is differential entropy not invariant to a change of units?</li>
+<li>What extra information turns observational conditioning into a causal claim?</li>
+<li>Why can <span class="arithmatex">\(-\log_2q(x)\)</span> be non-integer even though a codeword has an integer number of bits?</li>
+<li>What does <span class="arithmatex">\(D_{\mathrm{KL},2}(p\|q)\)</span> measure in the four-direction coding example?</li>
+<li>Why can the mixed law <span class="arithmatex">\(0.3\delta_0+0.7\operatorname{Uniform}(0,1)\)</span> have neither an ordinary PMF nor a Lebesgue PDF?</li>
+<li>Why is a conditional law <span class="arithmatex">\(P(X\in A\mid Y=y)\)</span> meaningful for continuous <span class="arithmatex">\(Y\)</span> even though <span class="arithmatex">\(P(Y=y)=0\)</span>?</li>
+<li>Which categorical point estimate adds <span class="arithmatex">\(\alpha_j\)</span> to a count: the Dirichlet posterior mean or the interior MAP?</li>
+<li>What goes wrong if one inverse branch is omitted in a many-to-one change of variables?</li>
+<li>When must the probability integral transform be randomized?</li>
+</ol>
+<details class="success">
+<summary>Solutions</summary>
+<ol>
+<li>A density is probability per unit reference measure; only its integral over a set is a probability.</li>
+<li>Sum or integrate over <span class="arithmatex">\(z\)</span>.</li>
+<li>No. Any ordering gives an exact factorization; the ordering becomes an inductive and computational choice in a parameterized model.</li>
+<li>Cross-entropy equals data entropy plus forward KL, and the unknown data entropy is constant with respect to model parameters.</li>
+<li>Rescaling changes density values and adds a log-Jacobian term to differential entropy.</li>
+<li>A structural causal model plus assumptions or data sufficient to identify the intervention or counterfactual query.</li>
+<li>It is an ideal information length. A one-symbol prefix code needs integer lengths, whereas sequence coders can amortize fractional ideal lengths across a block, subject to implementation overhead.</li>
+<li>The expected excess ideal bits per source symbol caused by coding data from <span class="arithmatex">\(p\)</span> with model <span class="arithmatex">\(q\)</span> instead of <span class="arithmatex">\(p\)</span>.</li>
+<li>The atom requires positive mass on a singleton, while the continuous component spreads mass over uncountably many points. Neither counting nor Lebesgue measure alone gives the intended simple representation; a mixed dominating measure does.</li>
+<li>Conditioning at a value is represented by a regular conditional probability kernel, defined almost everywhere in the conditioning variable, rather than by the positive-event ratio.</li>
+<li>The posterior mean uses <span class="arithmatex">\(n_j+\alpha_j\)</span>. An interior MAP uses <span class="arithmatex">\(n_j+\alpha_j-1\)</span> and requires all posterior parameters to exceed one; boundary cases need separate treatment.</li>
+<li>The resulting density loses the probability mass carried by that branch and fails to normalize. One must sum the Jacobian contribution from every regular preimage.</li>
+<li>When the CDF has jumps. Randomization spreads each atom across the interval from its left limit to its attained CDF value.</li>
+</ol>
+</details>
+<h2 id="summary-and-next-step">Summary and Next Step<a class="headerlink" href="#summary-and-next-step" title="Permanent link">¤</a></h2>
+<p>The probabilistic branch of generative modeling begins with a law and a set of
+queries. That law may be discrete, continuous, mixed, singular, or defined only
+as a pushforward; a density is one representation relative to one measure, not
+the definition of probability. Conditioning at continuous values uses a
+probability kernel, many-to-one maps sum over inverse branches, and atomic laws
+need a randomized probability integral transform. Constructive branches must
+state their maps, choices, constraints, and any probability semantics
+separately. Densities depend on coordinates and
+reference measures; joints produce marginals and conditionals; predictive laws
+remain distinct from loss-dependent decisions; latent variables introduce
+posterior inference; the chain rule produces autoregressive factorizations; and
+discrete NLL connects estimation, forward KL, and ideal lossless code length.
+Continue with <a href="../classical-generative-models/">Classical Generative Models</a> to
+see how these operations were implemented before modern deep neural families.</p>
+</article>
+</div>
+<script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  Back to top
+</button>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+<div class="md-social">
+<a class="md-social__link" href="https://github.com/avitai/artifex" rel="noopener" target="_blank" title="github.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</a>
+<a class="md-social__link" href="https://pypi.org/project/avitai-artifex/" rel="noopener" target="_blank" title="pypi.org">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-66.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.3v101.8c0 29 25.2 46 53.4 54.3 33.8 9.9 66.3 11.7 106.8 0 26.9-7.8 53.4-23.5 53.4-54.3v-40.7H226.2v-13.6h160.2c31.1 0 42.6-21.7 53.4-54.2 11.2-33.5 10.7-65.7 0-108.6M286.2 444.7a20.4 20.4 0 1 1 0-40.7 20.4 20.4 0 1 1 0 40.7M167.8 248.1h106.8c29.7 0 53.4-24.5 53.4-54.3V91.9c0-29-24.4-50.7-53.4-55.6-35.8-5.9-74.7-5.6-106.8.1-45.2 8-53.4 24.7-53.4 55.6v40.7h106.9v13.6h-147c-31.1 0-58.3 18.7-66.8 54.2-9.8 40.7-10.2 66.1 0 108.6 7.6 31.6 25.7 54.2 56.8 54.2H101v-48.8c0-35.3 30.5-66.4 66.8-66.4m-6.6-183.4a20.4 20.4 0 1 1 0 40.8 20.4 20.4 0 1 1 0-40.8"></path></svg>
+</a>
+<a class="md-social__link" href="https://twitter.com/mahdi_shafiei" rel="noopener" target="_blank" title="twitter.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M459.4 151.7c.3 4.5.3 9.1.3 13.6 0 138.7-105.6 298.6-298.6 298.6-59.5 0-114.7-17.2-161.1-47.1 8.4 1 16.6 1.3 25.3 1.3 49.1 0 94.2-16.6 130.3-44.8-46.1-1-84.8-31.2-98.1-72.8 6.5 1 13 1.6 19.8 1.6 9.4 0 18.8-1.3 27.6-3.6-48.1-9.7-84.1-52-84.1-103v-1.3c14 7.8 30.2 12.7 47.4 13.3-28.3-18.8-46.8-51-46.8-87.4 0-19.5 5.2-37.4 14.3-53C87.4 130.8 165 172.4 252.1 176.9c-1.6-7.8-2.6-15.9-2.6-24C249.5 95.1 296.3 48 354.4 48c30.2 0 57.5 12.7 76.7 33.1 23.7-4.5 46.5-13.3 66.6-25.3-7.8 24.4-24.4 44.8-46.1 57.8 21.1-2.3 41.6-8.1 60.4-16.2-14.3 20.8-32.2 39.3-52.6 54.3"></path></svg>
+</a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.path", "navigation.top", "navigation.prune", "toc.follow", "search.highlight", "search.share", "search.suggest", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "content.mermaid"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+<script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+<script src="../../../javascripts/reading-layout.js"></script>
+</body>
+</html>

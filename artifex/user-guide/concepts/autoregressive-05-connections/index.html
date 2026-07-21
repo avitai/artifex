@@ -1,0 +1,2147 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="This chapter relates autoregression to VAEs, GANs, diffusion, flows, and EBMs before examining sparse, recurrent-state, deliberative, multimodal, and" name="description"/>
+<meta content="Mahdi Shafiei" name="author"/>
+<link href="https://docs.avitai.bio/artifex/user-guide/concepts/autoregressive-05-connections/" rel="canonical"/>
+<link href="../autoregressive-04-decoding/" rel="prev"/>
+<link href="../autoregressive-06-practice/" rel="next"/>
+<link href="../../../assets/images/favicon.png" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.7.7" name="generator"/>
+<title>Autoregressive Models 5 — Connections and Research - Artifex</title>
+<link href="../../../assets/stylesheets/main.ec1eaa64.min.css" rel="stylesheet"/>
+<link href="../../../assets/stylesheets/palette.ab4e12ef.min.css" rel="stylesheet"/>
+<script src="../../../assets/vendor/iframe-worker/index.js"></script>
+<link href="../../../assets/_mkdocstrings.css" rel="stylesheet"/>
+<link href="../../../_static/extra.css" rel="stylesheet"/>
+<script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+<meta content="article" property="og:type"/>
+<meta content="The Artifex Generative Models Book" property="og:site_name"/>
+<meta content="Autoregressive Models 5 — Connections and Research" property="og:title"/>
+<meta content="This chapter relates autoregression to VAEs, GANs, diffusion, flows, and EBMs before examining sparse, recurrent-state, deliberative, multimodal, and" property="og:description"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/autoregressive-05-connections/" property="og:url"/>
+<meta content="2026-07-14" property="article:modified_time"/>
+<meta content="summary" name="twitter:card"/>
+<meta content="Autoregressive Models 5 — Connections and Research" name="twitter:title"/>
+<meta content="This chapter relates autoregression to VAEs, GANs, diffusion, flows, and EBMs before examining sparse, recurrent-state, deliberative, multimodal, and" name="twitter:description"/>
+<meta content="Generative models, Machine learning, Probabilistic modeling, advanced, specialization, canonical_chapter, autoregressive-connections, practitioner, researcher" name="keywords"/>
+<meta content="Autoregressive Models 5 — Connections and Research" name="citation_title"/>
+<meta content="Mahdi Shafiei" name="citation_author"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/autoregressive-05-connections/" name="citation_public_url"/>
+<meta content="en" name="citation_language"/>
+<meta content="Autoregressive Models 5 — Connections and Research" name="DC.title"/>
+<meta content="Mahdi Shafiei" name="DC.creator"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/autoregressive-05-connections/" name="DC.identifier"/>
+<meta content="Text.LearningResource" name="DC.type"/>
+<meta content="2026-07-14" name="DCTERMS.modified"/>
+<meta content="https://github.com/avitai/artifex/blob/main/LICENSE" name="DCTERMS.license"/>
+<meta content="advanced" name="DCTERMS.educationLevel"/>
+<meta content="practitioner, researcher" name="DCTERMS.audience"/>
+<link href="https://github.com/avitai/artifex/blob/main/LICENSE" rel="license"/>
+<script id="artifex-book-metadata" type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Chapter",
+  "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/autoregressive-05-connections/",
+  "url": "https://docs.avitai.bio/artifex/user-guide/concepts/autoregressive-05-connections/",
+  "name": "Autoregressive Models 5 \u2014 Connections and Research",
+  "description": "This chapter relates autoregression to VAEs, GANs, diffusion, flows, and EBMs before examining sparse, recurrent-state, deliberative, multimodal, and",
+  "identifier": "autoregressive-connections",
+  "inLanguage": "en",
+  "isAccessibleForFree": true,
+  "learningResourceType": "Canonical chapter",
+  "educationalLevel": "advanced",
+  "educationalUse": "specialization",
+  "audience": [
+    
+      {"@type": "EducationalAudience", "audienceType": "practitioner"},
+    
+      {"@type": "EducationalAudience", "audienceType": "researcher"}
+    
+  ],
+  "dateModified": "2026-07-14",
+  "keywords": ["Generative models", "Machine learning", "Probabilistic modeling", "advanced", "specialization", "canonical_chapter", "autoregressive-connections", "practitioner", "researcher"],
+  "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+  "author": [
+    
+      {"@type": "Person", "name": "Mahdi Shafiei"}
+    
+  ],
+  "isPartOf": {
+    "@type": "Book",
+    "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/#book",
+    "url": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/",
+    "name": "The Artifex Generative Models Book",
+    "bookEdition": "Living Web Edition",
+    "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+    "author": [
+      
+        {"@type": "Person", "name": "Mahdi Shafiei"}
+      
+    ]
+  }
+}
+</script>
+<link href="../../../assets/vendor/katex/katex.min.css" id="artifex-katex-stylesheet" integrity="sha384-UA8juhPf75SzzAMA/4fo3yOU7sBJ0om7SCD2GHq0fZqZco6tr1UCV7nUbk9J90JM" rel="stylesheet"/>
+<script defer="" integrity="sha384-T/0lMUdJpd2S1ZHtRiofG3htU3xPCrFVeAQ1UUE2TJwlEJSV5NUwn30kP28n238E" src="../../../assets/vendor/mermaid/mermaid.min.js"></script>
+<script defer="" src="../../../assets/vendor/katex/katex-shadow.js"></script>
+<script defer="" src="../../../javascripts/mermaid-math.js"></script>
+<script defer="" src="../../../javascripts/mathjax.js"></script>
+<script defer="" integrity="sha384-OrHfGTnIbkl0do3N76qW/uWr38o91N05sbSPuYBPLH+hG8X/dNSrjZf3AGjzrCwC" src="../../../assets/vendor/mathjax/tex-mml-chtml.js"></script>
+</head>
+<body data-md-color-accent="amber" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#autoregressive-models-5-connections-and-research">
+          Skip to content
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header md-header--shadow" data-md-component="header">
+<nav aria-label="Header" class="md-header__inner md-grid">
+<a aria-label="Artifex" class="md-header__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            Artifex
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+            
+              Autoregressive Models 5 — Connections and Research
+            
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-label="Switch to dark mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: light)" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_1" hidden="" title="Switch to dark mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+<input aria-label="Switch to light mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-primary="indigo" data-md-color-scheme="slate" id="__palette_1" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_0" hidden="" title="Switch to light mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+</form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div aria-label="Search" class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Search" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="Search" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="Search" class="md-search__options">
+<a aria-label="Share" class="md-search__icon md-icon" data-clipboard="" data-clipboard-text="" data-md-component="search-share" href="javascript:void(0)" tabindex="-1" title="Share">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"></path></svg>
+</a>
+<button aria-label="Clear" class="md-search__icon md-icon" tabindex="-1" title="Clear" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            Initializing search
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Navigation" class="md-nav md-nav--primary" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="Artifex" class="md-nav__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+    Artifex
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../..">
+<span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../getting-started/installation/">
+<span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Generative Models Book
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Generative Models Book
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    
+  
+    Start Here — The Landscape
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../first-course-01-generative-systems/">
+<span class="md-ellipsis">
+    
+  
+    First Course — New to Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../probability-01-objects/">
+<span class="md-ellipsis">
+    
+  
+    Foundations
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_4" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_4" id="__nav_3_4_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Model Families
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_4_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_4">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Model Families
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_4_1" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_4_1" id="__nav_3_4_1_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Autoregressive Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_4_1_label" class="md-nav" data-md-level="3">
+<label class="md-nav__title" for="__nav_3_4_1">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Autoregressive Models
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../autoregressive-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    1. Foundations
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../autoregressive-02-architectures/">
+<span class="md-ellipsis">
+    
+  
+    2. Architectures
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../autoregressive-03-training/">
+<span class="md-ellipsis">
+    
+  
+    3. Training
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../autoregressive-04-decoding/">
+<span class="md-ellipsis">
+    
+  
+    4. Decoding
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
+    
+  
+    5. Connections and Research
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
+<span class="md-ellipsis">
+    
+  
+    5. Connections and Research
+  
+
+    
+  </span>
+</a>
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#comparing-autoregressive-models-with-other-approaches">
+<span class="md-ellipsis">
+      
+        Comparing Autoregressive Models with Other Approaches
+      
+    </span>
+</a>
+<nav aria-label="Comparing Autoregressive Models with Other Approaches" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#comparing-autoregressive-models-with-other-approaches-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Comparing Autoregressive Models with Other Approaches: Prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#autoregressive-vs-vaes-exact-likelihood-vs-latent-compression">
+<span class="md-ellipsis">
+      
+        Autoregressive vs VAEs: Exact Likelihood vs Latent Compression
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#autoregressive-vs-gans-training-stability-vs-generation-speed">
+<span class="md-ellipsis">
+      
+        Autoregressive vs GANs: Training Stability vs Generation Speed
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#autoregressive-vs-diffusion-likelihood-vs-iterative-refinement">
+<span class="md-ellipsis">
+      
+        Autoregressive vs Diffusion: Likelihood vs Iterative Refinement
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#autoregressive-vs-flows-sequential-vs-invertible">
+<span class="md-ellipsis">
+      
+        Autoregressive vs Flows: Sequential vs Invertible
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#autoregressive-factorization-versus-tensor-network-contraction">
+<span class="md-ellipsis">
+      
+        Autoregressive factorization versus tensor-network contraction
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#autoregressive-factorization-versus-point-process-semantics">
+<span class="md-ellipsis">
+      
+        Autoregressive factorization versus point-process semantics
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#advanced-topics">
+<span class="md-ellipsis">
+      
+        Advanced Topics
+      
+    </span>
+</a>
+<nav aria-label="Advanced Topics" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#masked-autoregressive-flows-maf">
+<span class="md-ellipsis">
+      
+        Masked Autoregressive Flows (MAF)
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#autoregressive-energy-based-models">
+<span class="md-ellipsis">
+      
+        Autoregressive Energy-Based Models
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#sparse-transformers-and-efficient-attention">
+<span class="md-ellipsis">
+      
+        Sparse Transformers and Efficient Attention
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#autoregressive-for-protein-and-scientific-data">
+<span class="md-ellipsis">
+      
+        Autoregressive for Protein and Scientific Data
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#sparse-recurrent-state-and-deliberative-autoregressive-systems">
+<span class="md-ellipsis">
+      
+        Sparse, Recurrent-State, and Deliberative Autoregressive Systems
+      
+    </span>
+</a>
+<nav aria-label="Sparse, Recurrent-State, and Deliberative Autoregressive Systems" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mixture-of-experts-at-production-scale">
+<span class="md-ellipsis">
+      
+        Mixture-of-Experts at Production Scale
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#state-space-models-and-hybrid-backbones">
+<span class="md-ellipsis">
+      
+        State-Space Models and Hybrid Backbones
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#multi-token-prediction-mtp">
+<span class="md-ellipsis">
+      
+        Multi-Token Prediction (MTP)
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#speculative-decoding">
+<span class="md-ellipsis">
+      
+        Speculative Decoding
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#test-time-compute-and-reasoning-models">
+<span class="md-ellipsis">
+      
+        Test-Time Compute and Reasoning Models
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#continuous-token-autoregression-calm-mar">
+<span class="md-ellipsis">
+      
+        Continuous-Token Autoregression (CALM, MAR)
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#visual-and-multimodal-autoregression">
+<span class="md-ellipsis">
+      
+        Visual and Multimodal Autoregression
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#diffusion-language-models-an-ar-alternative">
+<span class="md-ellipsis">
+      
+        Diffusion Language Models: an AR Alternative
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#transformer-building-blocks-rope-gqa-mla-rmsnorm-and-swiglu">
+<span class="md-ellipsis">
+      
+        Transformer Building Blocks: RoPE, GQA, MLA, RMSNorm, and SwiGLU
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#sparse-recurrent-state-and-deliberative-autoregressive-systems-post-training-rlhf-dpo-rlvr">
+<span class="md-ellipsis">
+      
+        Sparse, Recurrent-State, and Deliberative Autoregressive Systems: Post-Training: RLHF → DPO → RLVR
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#long-context-from-2k-to-10m-tokens">
+<span class="md-ellipsis">
+      
+        Long-Context: From 2k to 10M Tokens
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#further-reading-surveys">
+<span class="md-ellipsis">
+      
+        Further Reading: Surveys
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-relationship-audit">
+<span class="md-ellipsis">
+      
+        Worked relationship audit
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#independent-practice-and-assessment-map-connections">
+<span class="md-ellipsis">
+      
+        Independent practice and assessment map: connections
+      
+    </span>
+</a>
+<nav aria-label="Independent practice and assessment map: connections" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#p1-classify-and-compare-a-hybrid-visual-generator">
+<span class="md-ellipsis">
+      
+        P1 — Classify and compare a hybrid visual generator
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-5-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 5 synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../autoregressive-06-practice/">
+<span class="md-ellipsis">
+    
+  
+    6. Practice and Evaluation
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../autoregressive-07-synthesis/">
+<span class="md-ellipsis">
+    
+  
+    7. Synthesis and Reading
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../autoregressive-explained/">
+<span class="md-ellipsis">
+    
+  
+    Continuous View (All Chapters)
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../vae-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Variational Autoencoders
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gan-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Generative Adversarial Networks
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../ebm-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Energy-Based Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../diffusion-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Diffusion Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../flow-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Normalizing Flows and Flow Matching
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../probabilistic-circuits-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Probabilistic Circuits
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../tensor-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Tensor-Network and Born Probability Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../implicit-generators-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Implicit Generators Beyond GANs
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../discrete-iterative-01-masked/">
+<span class="md-ellipsis">
+    
+  
+    Discrete Iterative Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../bayesian-flow-networks-01-story/">
+<span class="md-ellipsis">
+    
+  
+    Bayesian Flow Networks
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gflownets-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Generative Flow Networks
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../bnp-01-random-measures/">
+<span class="md-ellipsis">
+    
+  
+    Bayesian Nonparametric Random-Measure Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../stochastic-process-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Stochastic-Process and Function-Space Generators
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../point-processes-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Point Processes and Random Finite Sets
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../random-graphs-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Random Graphs and Relational Generators
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../copula-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Copula Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../grammar-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Probabilistic Grammars and Program Derivations
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../causal-generative-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Causal Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../new-families-frontier-evidence/">
+<span class="md-ellipsis">
+    
+  
+    Research Evidence Ledger
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gradients-01-taxonomy/">
+<span class="md-ellipsis">
+    
+  
+    Connections and Compositions
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../normalization-01-queries/">
+<span class="md-ellipsis">
+    
+  
+    Research Practice
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../models/vae-guide/">
+<span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/core/base/">
+<span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../examples/overview/">
+<span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../zoo/">
+<span class="md-ellipsis">
+    
+  
+    Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../training/overview/">
+<span class="md-ellipsis">
+    
+  
+    Training
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../data/overview/">
+<span class="md-ellipsis">
+    
+  
+    Data &amp; Modalities
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../inference/overview/">
+<span class="md-ellipsis">
+    
+  
+    Inference &amp; Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../benchmarks/">
+<span class="md-ellipsis">
+    
+  
+    Evaluation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../guides/extensions/">
+<span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../extensions/">
+<span class="md-ellipsis">
+    
+  
+    Advanced Topics
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../cli/">
+<span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../community/contributing/">
+<span class="md-ellipsis">
+    
+  
+    Community
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/configs/protein-extension/">
+<span class="md-ellipsis">
+    
+  
+    Reference Library
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#comparing-autoregressive-models-with-other-approaches">
+<span class="md-ellipsis">
+      
+        Comparing Autoregressive Models with Other Approaches
+      
+    </span>
+</a>
+<nav aria-label="Comparing Autoregressive Models with Other Approaches" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#comparing-autoregressive-models-with-other-approaches-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Comparing Autoregressive Models with Other Approaches: Prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#autoregressive-vs-vaes-exact-likelihood-vs-latent-compression">
+<span class="md-ellipsis">
+      
+        Autoregressive vs VAEs: Exact Likelihood vs Latent Compression
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#autoregressive-vs-gans-training-stability-vs-generation-speed">
+<span class="md-ellipsis">
+      
+        Autoregressive vs GANs: Training Stability vs Generation Speed
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#autoregressive-vs-diffusion-likelihood-vs-iterative-refinement">
+<span class="md-ellipsis">
+      
+        Autoregressive vs Diffusion: Likelihood vs Iterative Refinement
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#autoregressive-vs-flows-sequential-vs-invertible">
+<span class="md-ellipsis">
+      
+        Autoregressive vs Flows: Sequential vs Invertible
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#autoregressive-factorization-versus-tensor-network-contraction">
+<span class="md-ellipsis">
+      
+        Autoregressive factorization versus tensor-network contraction
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#autoregressive-factorization-versus-point-process-semantics">
+<span class="md-ellipsis">
+      
+        Autoregressive factorization versus point-process semantics
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#advanced-topics">
+<span class="md-ellipsis">
+      
+        Advanced Topics
+      
+    </span>
+</a>
+<nav aria-label="Advanced Topics" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#masked-autoregressive-flows-maf">
+<span class="md-ellipsis">
+      
+        Masked Autoregressive Flows (MAF)
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#autoregressive-energy-based-models">
+<span class="md-ellipsis">
+      
+        Autoregressive Energy-Based Models
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#sparse-transformers-and-efficient-attention">
+<span class="md-ellipsis">
+      
+        Sparse Transformers and Efficient Attention
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#autoregressive-for-protein-and-scientific-data">
+<span class="md-ellipsis">
+      
+        Autoregressive for Protein and Scientific Data
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#sparse-recurrent-state-and-deliberative-autoregressive-systems">
+<span class="md-ellipsis">
+      
+        Sparse, Recurrent-State, and Deliberative Autoregressive Systems
+      
+    </span>
+</a>
+<nav aria-label="Sparse, Recurrent-State, and Deliberative Autoregressive Systems" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mixture-of-experts-at-production-scale">
+<span class="md-ellipsis">
+      
+        Mixture-of-Experts at Production Scale
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#state-space-models-and-hybrid-backbones">
+<span class="md-ellipsis">
+      
+        State-Space Models and Hybrid Backbones
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#multi-token-prediction-mtp">
+<span class="md-ellipsis">
+      
+        Multi-Token Prediction (MTP)
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#speculative-decoding">
+<span class="md-ellipsis">
+      
+        Speculative Decoding
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#test-time-compute-and-reasoning-models">
+<span class="md-ellipsis">
+      
+        Test-Time Compute and Reasoning Models
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#continuous-token-autoregression-calm-mar">
+<span class="md-ellipsis">
+      
+        Continuous-Token Autoregression (CALM, MAR)
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#visual-and-multimodal-autoregression">
+<span class="md-ellipsis">
+      
+        Visual and Multimodal Autoregression
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#diffusion-language-models-an-ar-alternative">
+<span class="md-ellipsis">
+      
+        Diffusion Language Models: an AR Alternative
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#transformer-building-blocks-rope-gqa-mla-rmsnorm-and-swiglu">
+<span class="md-ellipsis">
+      
+        Transformer Building Blocks: RoPE, GQA, MLA, RMSNorm, and SwiGLU
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#sparse-recurrent-state-and-deliberative-autoregressive-systems-post-training-rlhf-dpo-rlvr">
+<span class="md-ellipsis">
+      
+        Sparse, Recurrent-State, and Deliberative Autoregressive Systems: Post-Training: RLHF → DPO → RLVR
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#long-context-from-2k-to-10m-tokens">
+<span class="md-ellipsis">
+      
+        Long-Context: From 2k to 10M Tokens
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#further-reading-surveys">
+<span class="md-ellipsis">
+      
+        Further Reading: Surveys
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-relationship-audit">
+<span class="md-ellipsis">
+      
+        Worked relationship audit
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#independent-practice-and-assessment-map-connections">
+<span class="md-ellipsis">
+      
+        Independent practice and assessment map: connections
+      
+    </span>
+</a>
+<nav aria-label="Independent practice and assessment map: connections" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#p1-classify-and-compare-a-hybrid-visual-generator">
+<span class="md-ellipsis">
+      
+        P1 — Classify and compare a hybrid visual generator
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-5-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 5 synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<nav aria-label="Breadcrumb" class="md-path">
+<ol class="md-path__list">
+<li class="md-path__item">
+<a class="md-path__link" href="../../..">
+<span class="md-ellipsis">
+    Home
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    Generative Models Book
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../autoregressive-01-foundations/">
+<span class="md-ellipsis">
+    Model Families
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../autoregressive-01-foundations/">
+<span class="md-ellipsis">
+    Autoregressive Models
+  </span>
+</a>
+</li>
+</ol>
+</nav>
+<article class="md-content__inner md-typeset">
+<h1 id="autoregressive-models-5-connections-and-research">Autoregressive Models 5 — Connections and Research<a class="headerlink" href="#autoregressive-models-5-connections-and-research" title="Permanent link">¤</a></h1><aside aria-label="Learning path" class="admonition abstract artifex-learning-path"><p class="admonition-title">Learning path</p><p><strong>Required knowledge</strong></p><ul class="artifex-learning-path__links" data-learning-path-role="required"><li><a href="../autoregressive-04-decoding/">Autoregressive Models 4 — Decoding</a></li></ul><p><strong>Readiness check:</strong> can you explain the central object and reproduce one worked example from each required chapter? If not, follow its link before continuing.</p><p><strong>Newly unlocked in the default route</strong></p><p>No immediate successor names this page as its final required prerequisite. Continue through the book navigation or the chapter's cross-links.</p></aside>
+<p>This chapter relates autoregression to VAEs, GANs, diffusion, flows, and EBMs before examining sparse, recurrent-state, deliberative, multimodal, and alternative iterative systems. For uninterrupted reading, use the <a href="../autoregressive-explained/#comparing-autoregressive-models-with-other-approaches">complete guide</a>.</p>
+<h2 id="comparing-autoregressive-models-with-other-approaches">Comparing Autoregressive Models with Other Approaches<a class="headerlink" href="#comparing-autoregressive-models-with-other-approaches" title="Permanent link">¤</a></h2>
+<p>The <a href="../density-latent-energy-relationships/#2-normalized-constructions-autoregression-flows-and-circuits">density–latent–energy relationship guide</a> derives the exact normalized energy of an autoregressive model and explains why converting a generic EBM back to AR conditionals can require intractable suffix partition functions.</p>
+<h3 id="comparing-autoregressive-models-with-other-approaches-prerequisites-and-learning-objectives">Comparing Autoregressive Models with Other Approaches: Prerequisites and learning objectives<a class="headerlink" href="#comparing-autoregressive-models-with-other-approaches-prerequisites-and-learning-objectives" title="Permanent link">¤</a></h3>
+<p>You should now be able to keep a probabilistic model, neural architecture, training objective, representation, and sampler conceptually separate. By the end of this chapter, you should be able to:</p>
+<ol>
+<li>compare families without turning benchmark observations into family guarantees;</li>
+<li>classify AR–flow, AR–energy, AR–diffusion, and continuous-token constructions by the exact relationship they use;</li>
+<li>state which direction of a MAF or IAF is parallel in network evaluations;</li>
+<li>distinguish sparse capacity, active compute, KV-cache memory, and total parameters; and</li>
+<li>audit a research result by evidence maturity and experimental protocol.</li>
+</ol>
+<h3 id="autoregressive-vs-vaes-exact-likelihood-vs-latent-compression">Autoregressive vs VAEs: Exact Likelihood vs Latent Compression<a class="headerlink" href="#autoregressive-vs-vaes-exact-likelihood-vs-latent-compression" title="Permanent link">¤</a></h3>
+<div class="md-typeset__table book-table-container"><table id="tbl-autoregressive-explained-autoregressive-vs-vaes-exact-likelihood-vs-latent-compression"><caption class="book-object-caption"><span class="book-object-number">Table AR.13.</span> Autoregressive vs VAEs: Exact Likelihood vs Latent Compression</caption>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>Autoregressive Models</th>
+<th>VAEs</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Likelihood</strong></td>
+<td>Exact</td>
+<td>Lower bound (ELBO)</td>
+</tr>
+<tr>
+<td><strong>Training objective</strong></td>
+<td>Exact joint MLE when every conditional is normalized</td>
+<td>Usually an ELBO; tighter importance-weighted objectives also exist</td>
+</tr>
+<tr>
+<td><strong>Ancestral generation</strong></td>
+<td>Sequential in the chosen factorization</td>
+<td>Sample a latent, then run the decoder; the decoder itself may be autoregressive</td>
+</tr>
+<tr>
+<td><strong>Reconstruction / representation</strong></td>
+<td>Not intrinsic to the basic model</td>
+<td>Explicit encoder and latent representation</td>
+</tr>
+<tr>
+<td><strong>Latent geometry</strong></td>
+<td>No required global latent variable</td>
+<td>An explicit latent exists, but smoothness, disentanglement, and semantic interpolation are not guaranteed</td>
+</tr>
+<tr>
+<td><strong>Typical design question</strong></td>
+<td>What ordering and conditional family expose useful structure?</td>
+<td>What latent bottleneck, prior, posterior family, and decoder balance rate and distortion?</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>When to use AR over VAE</strong>:</p>
+<ul>
+<li>Exact likelihood essential (density estimation, compression)</li>
+<li>A normalized sequential model matches the representation and latency budget</li>
+<li>Sequential data (text, code)</li>
+<li>Willing to accept slower generation</li>
+</ul>
+<h3 id="autoregressive-vs-gans-training-stability-vs-generation-speed">Autoregressive vs GANs: Training Stability vs Generation Speed<a class="headerlink" href="#autoregressive-vs-gans-training-stability-vs-generation-speed" title="Permanent link">¤</a></h3>
+<div class="md-typeset__table book-table-container"><table id="tbl-autoregressive-explained-autoregressive-vs-gans-training-stability-vs-generation-speed"><caption class="book-object-caption"><span class="book-object-number">Table AR.14.</span> Autoregressive vs GANs: Training Stability vs Generation Speed</caption>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>Autoregressive Models</th>
+<th>GANs</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Optimization</strong></td>
+<td>Single-objective MLE is usually easier to diagnose, though large-scale training can still diverge</td>
+<td>A coupled game; stability depends strongly on loss, regularization, architecture, and data</td>
+</tr>
+<tr>
+<td><strong>Likelihood</strong></td>
+<td>Exact for the declared normalized conditionals</td>
+<td>No tractable likelihood in the ordinary implicit GAN formulation</td>
+</tr>
+<tr>
+<td><strong>Generation</strong></td>
+<td>Sequential in its factorization</td>
+<td>Usually one parallel generator pass</td>
+</tr>
+<tr>
+<td><strong>Coverage</strong></td>
+<td>MLE penalizes missing data probability, but finite models and decoding truncation can still omit modes</td>
+<td>Mode collapse and support mismatch are known risks, not inevitable outcomes</td>
+</tr>
+<tr>
+<td><strong>Evaluation</strong></td>
+<td>Likelihood plus sample/task metrics</td>
+<td>Sample, coverage, memorization, and task metrics</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>When to use AR over GAN</strong>:</p>
+<ul>
+<li>Training stability critical</li>
+<li>Exact likelihood needed</li>
+<li>A likelihood-based coverage objective and its assumptions fit the problem</li>
+<li>Avoid adversarial training</li>
+</ul>
+<h3 id="autoregressive-vs-diffusion-likelihood-vs-iterative-refinement">Autoregressive vs Diffusion: Likelihood vs Iterative Refinement<a class="headerlink" href="#autoregressive-vs-diffusion-likelihood-vs-iterative-refinement" title="Permanent link">¤</a></h3>
+<div class="md-typeset__table book-table-container"><table id="tbl-autoregressive-explained-autoregressive-vs-diffusion-likelihood-vs-iterative-refinement"><caption class="book-object-caption"><span class="book-object-number">Table AR.15.</span> Autoregressive vs Diffusion: Likelihood vs Iterative Refinement</caption>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>Autoregressive Models</th>
+<th>Diffusion Models</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Generation process</strong></td>
+<td>Sequential in the chosen units; exact speculative methods may reduce target-model serial calls</td>
+<td>Iterative denoising or transport; solver and distillation determine NFE</td>
+</tr>
+<tr>
+<td><strong>Training</strong></td>
+<td>Cross-entropy on next-token prediction</td>
+<td>Denoising / vector-field regression</td>
+</tr>
+<tr>
+<td><strong>Likelihood</strong></td>
+<td>Exact normalized joint for declared conditionals</td>
+<td>A variational bound for discrete diffusion; likelihood estimates through ODE/SDE formulations require assumptions and numerical integration</td>
+</tr>
+<tr>
+<td><strong>Serial structure</strong></td>
+<td>Number and granularity of ordered decisions</td>
+<td>Number of solver/refinement steps; several state coordinates may update per step</td>
+</tr>
+<tr>
+<td><strong>Image evidence</strong></td>
+<td>VAR reported FID 1.73 for class-conditional ImageNet 256² under its protocol</td>
+<td>Diffusion and flow systems span class-conditional and text-conditional protocols that are not interchangeable</td>
+</tr>
+<tr>
+<td><strong>Text evidence</strong></td>
+<td>Strong, mature text and code ecosystem</td>
+<td>Discrete diffusion language models report promising parallel-refinement results in selected settings; maturity and protocols remain heterogeneous</td>
+</tr>
+<tr>
+<td><strong>Architecture</strong></td>
+<td>Causal-masked Transformer / Mamba / hybrid</td>
+<td>DiT, MMDiT, U-Net</td>
+</tr>
+<tr>
+<td><strong>Parallelisation</strong></td>
+<td>Training: full parallel (teacher forcing). Generation: partial (MTP, speculative)</td>
+<td>Training: full parallel. Generation: partial (caching, distillation)</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Cross-family exchange</strong>: VAR applies coarse-to-fine autoregression to images, while discrete diffusion applies iterative refinement to language. These are distinct factorizations and samplers, not merely endpoints of one scalar spectrum. Hybrids can compose them—for example, an autoregressive outer sequence with a diffusion conditional head—so every comparison should identify which component owns the representation, conditional distribution, objective, and sampler.</p>
+<p>For the representation layer beneath visual and multimodal AR—including discrete versus continuous tokens, causal fusion masks, interleaving, and hybrid AR–diffusion objectives—continue to <a href="../representations-and-multimodal-systems/#4-shared-backbones-and-ardiffusion-hybrids">Representations and Multimodal Generative Systems</a>.</p>
+<p><strong>When to use AR over Diffusion</strong>:</p>
+<ul>
+<li>Exact likelihood computation required</li>
+<li>Natural sequential structure (text, code, music)</li>
+<li>Long-range coherence on text-heavy outputs</li>
+<li>Existing sequential post-training and serving tooling is a material advantage</li>
+</ul>
+<h3 id="autoregressive-vs-flows-sequential-vs-invertible">Autoregressive vs Flows: Sequential vs Invertible<a class="headerlink" href="#autoregressive-vs-flows-sequential-vs-invertible" title="Permanent link">¤</a></h3>
+<div class="md-typeset__table book-table-container"><table id="tbl-autoregressive-explained-autoregressive-vs-flows-sequential-vs-invertible"><caption class="book-object-caption"><span class="book-object-number">Table AR.16.</span> Autoregressive vs Flows: Sequential vs Invertible</caption>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>Autoregressive Models</th>
+<th>Classical Normalizing Flows</th>
+<th>Modern Flow Matching</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Likelihood</strong></td>
+<td>Exact from locally normalized conditionals</td>
+<td>Exact change-of-variables density when preprocessing, support, and Jacobian are declared</td>
+<td>Usually evaluated by numerically integrating a divergence along an ODE, when the learned field and solver permit it</td>
+</tr>
+<tr>
+<td><strong>Sampling structure</strong></td>
+<td>Sequential in ordered variables</td>
+<td>One transform direction may be parallel; autoregressive flow direction matters</td>
+<td>Numerical ODE solve with protocol-dependent NFE</td>
+</tr>
+<tr>
+<td><strong>Architecture constraint</strong></td>
+<td>Must respect the order</td>
+<td>Transform must be invertible with tractable Jacobian</td>
+<td>Vector-field network need not itself be invertible; the induced ODE flow is invertible under regularity conditions</td>
+</tr>
+<tr>
+<td><strong>Training</strong></td>
+<td>Conditional MLE or another declared sequential objective</td>
+<td>MLE via change of variables</td>
+<td>Regression to a conditional vector field</td>
+</tr>
+<tr>
+<td><strong>State spaces</strong></td>
+<td>Discrete or continuous conditionals</td>
+<td>Usually equal-dimensional continuous base and data coordinates, with extensions</td>
+<td>Usually a continuous path in a fixed-dimensional representation, possibly a learned latent</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>MAF/IAF</strong>: Masked Autoregressive Flow combines AR with classical flows — autoregressive structure providing a triangular Jacobian (see <a href="#masked-autoregressive-flows-maf">MAF subsection</a>).</p>
+<h3 id="autoregressive-factorization-versus-tensor-network-contraction">Autoregressive factorization versus tensor-network contraction<a class="headerlink" href="#autoregressive-factorization-versus-tensor-network-contraction" title="Permanent link">¤</a></h3>
+<p>An exactly contractible tensor-network law can be sampled sequentially by
+forming <span class="arithmatex">\(p(x_i\mid x_{&lt;i})\)</span> from prefix and suffix environments. The product of
+those conditionals equals the same joint law, so the relationship is algebraic
+at the distribution level. The parameterizations and systems remain different:
+MPS capacity depends on unfolding ranks and variable order, and its sampler
+caches contraction environments rather than neural attention states. The
+<a href="../tensor-network-and-born-probability-models/#5-relationships-to-other-generative-model-families">Tensor-Network and Born Probability Models</a>
+volume derives the correspondence and its HMM, circuit, and quantum boundaries.</p>
+<h3 id="autoregressive-factorization-versus-point-process-semantics">Autoregressive factorization versus point-process semantics<a class="headerlink" href="#autoregressive-factorization-versus-point-process-semantics" title="Permanent link">¤</a></h3>
+<p>A temporal point process can factorize sequentially into next-event densities,
+but its random cardinality, continuous-time reference measure, and terminal
+no-event survival remain part of the law. Treating timestamps as ordinary
+tokens is therefore an approximation or alternative representation unless
+those quantities are preserved explicitly. The complete derivation is in
+<a href="../point-processes-and-random-finite-sets/#2-temporal-point-processes-intensity-survival-and-history">Temporal Point Processes</a>.</p>
+<hr/>
+<h2 id="advanced-topics">Advanced Topics<a class="headerlink" href="#advanced-topics" title="Permanent link">¤</a></h2>
+<p>The variants in this section are extensions of the autoregressive framework—flow-based, energy-based, sparse-attention, and scientific applications. MoE, state-space, multi-token prediction, and test-time compute are developed in <a href="#sparse-recurrent-state-and-deliberative-autoregressive-systems">Sparse, Recurrent-State, and Deliberative Autoregressive Systems</a>.</p>
+<h3 id="masked-autoregressive-flows-maf">Masked Autoregressive Flows (MAF)<a class="headerlink" href="#masked-autoregressive-flows-maf" title="Permanent link">¤</a></h3>
+<p><strong>MAF</strong> uses autoregressive transformations as <strong>invertible flow layers</strong>:</p>
+<div class="arithmatex">\[
+z_i = (x_i - \mu_i(x_{&lt;i})) \cdot \exp(-\alpha_i(x_{&lt;i}))
+\]</div>
+<p>where <span class="arithmatex">\(\mu_i\)</span> and <span class="arithmatex">\(\alpha_i\)</span> are outputs of a MADE (Masked Autoencoder) network.</p>
+<p><strong>Jacobian</strong> is triangular:</p>
+<div class="arithmatex">\[
+\frac{\partial z_i}{\partial x_j}=0\quad\text{for }j&gt;i,
+\qquad
+\operatorname{diag}\!\left(\frac{\partial z}{\partial x}\right)
+=\left(\exp[-\alpha_i(x_{&lt;i})]\right)_{i=1}^{D}.
+\]</div>
+<p><strong>Log-determinant</strong>:</p>
+<div class="arithmatex">\[
+\log \left| \det \frac{\partial z}{\partial x} \right| = -\sum_i \alpha_i(x_{&lt;i})
+\]</div>
+<p><strong>Trade-offs</strong>:</p>
+<ul>
+<li><strong>Density estimation</strong>: one masked-network evaluation exposes all transformation parameters in parallel, although arithmetic still scales with dimension</li>
+<li><strong>Sampling</strong>: <span class="arithmatex">\(D\)</span> sequential inverse dependencies in the basic construction</li>
+</ul>
+<p><strong>IAF</strong> (Inverse Autoregressive Flow) reverses the dependency attachment: its conditioner reads the already available base prefix, so base-to-sample evaluation is parallel within a layer while scoring arbitrary external data requires sequential inversion. See the <a href="../flow-explained/#4-maf-masked-autoregressive-flow">full MAF/IAF direction audit</a>.</p>
+<h3 id="autoregressive-energy-based-models">Autoregressive Energy-Based Models<a class="headerlink" href="#autoregressive-energy-based-models" title="Permanent link">¤</a></h3>
+<p>Autoregressive and energy-based modelling can be combined by parameterising each conditional with an energy function:</p>
+<div class="arithmatex">\[
+p(x_1, \ldots, x_n) = \prod_{i=1}^{n} \frac{\exp(-E_i(x_i \mid x_{&lt;i}))}{Z_i(x_{&lt;i})}
+\]</div>
+<p>For a finite vocabulary, each prefix-dependent partition function <span class="arithmatex">\(Z_i(x_{&lt;i})=\sum_{v}\exp[-E_i(v\mid x_{&lt;i})]\)</span> is just a local softmax normalizer, so ordinary cross-entropy is available; contrastive divergence is neither required nor generally desirable. For continuous or enormous output spaces, local normalization can again become intractable and alternative estimators may be needed.</p>
+<p>The 2026 preprint <a href="https://arxiv.org/abs/2512.15605"><em>Autoregressive Language Models are Secretly Energy-Based Models</em></a> develops a function-space correspondence under its stated construction and connects it to a soft Bellman relation in maximum-entropy reinforcement learning. Treat this as a <strong>Preprint</strong> result, not the unrestricted statement that generic globally normalized EBMs admit tractable AR conditionals or that every preference objective is literally the same algorithm as energy shaping. See the <a href="../ebm-explained/#energyflow-constructions-and-implicit-ebms">EBM explainer</a> for the assumption boundary.</p>
+<h3 id="sparse-transformers-and-efficient-attention">Sparse Transformers and Efficient Attention<a class="headerlink" href="#sparse-transformers-and-efficient-attention" title="Permanent link">¤</a></h3>
+<p><strong>Problem</strong>: Standard self-attention is <span class="arithmatex">\(O(n^2)\)</span> in sequence length.</p>
+<p><strong>Sparse Transformers</strong> (<a href="https://arxiv.org/abs/1904.10509">Child et al., 2019</a>) use <strong>sparse attention patterns</strong>:</p>
+<ul>
+<li><strong>Strided attention</strong>: Attend to every <span class="arithmatex">\(k\)</span>-th position</li>
+<li><strong>Fixed attention</strong>: Attend to fixed positions (e.g., beginning of sequence)</li>
+<li><strong>Local + global</strong>: Combine local windows with global tokens</li>
+</ul>
+<p><strong>Complexity</strong>: <span class="arithmatex">\(O(n \sqrt{n})\)</span> or <span class="arithmatex">\(O(n \log n)\)</span> depending on pattern.</p>
+<p><strong>Linear Transformers</strong> (<a href="https://arxiv.org/abs/2006.16236">Katharopoulos et al., 2020 — ICML</a>; <a href="https://arxiv.org/abs/2009.14794">Performer — Choromanski et al., 2021</a>) approximate attention with kernels:</p>
+<div class="arithmatex">\[
+\text{Attention}(Q, K, V) \approx \phi(Q) (\phi(K)^T V)
+\]</div>
+<p>achieving <span class="arithmatex">\(O(n)\)</span> complexity.</p>
+<h3 id="autoregressive-for-protein-and-scientific-data">Autoregressive for Protein and Scientific Data<a class="headerlink" href="#autoregressive-for-protein-and-scientific-data" title="Permanent link">¤</a></h3>
+<p><strong>ProtGPT2</strong> (Ferruz et al., 2022): Autoregressive Transformer for protein sequences</p>
+<ul>
+<li>Generates novel, functional proteins</li>
+<li>50M parameters, trained on UniRef50</li>
+</ul>
+<p><strong>AlphaFold 2 is an important non-example.</strong> It predicts and refines all residue coordinates jointly through the Evoformer, structure module, and recycling; recycling is iterative refinement, not a chain-rule factorization or token-by-token structure decoder (<a href="https://www.nature.com/articles/s41586-021-03819-2">Jumper et al., 2021</a>). Keeping this distinction prevents the common mistake of calling every sequential computation “autoregressive.” Autoregressive protein <em>sequence</em> models such as ProtGPT2 do satisfy the factorization; joint structure predictors need not.</p>
+<p>Recent peer-reviewed scientific systems make the representation boundary more
+explicit:</p>
+<ul>
+<li><a href="https://openreview.net/forum?id=GUu3Bi41Fm">InertialAR</a> (ICML 2026) serializes
+  atom identities and continuous coordinates after an inertial-frame
+  canonicalization. The resulting generator is autoregressive; the claimed
+  geometric invariance depends on how axis degeneracies, signs, chirality, and
+  atom-order ties are resolved.</li>
+<li><a href="https://openreview.net/forum?id=75AYDsndHP">Autoregressive Boltzmann Generators</a>
+  (ICML 2026 Spotlight) use coordinatewise generation and tractable model
+  likelihood inside equilibrium-sampling and importance-correction procedures.
+  The correction and effective sample size belong to the full sampler, not to
+  autoregressive factorization alone.</li>
+<li><a href="https://openreview.net/forum?id=08tW615mgI">Protein Autoregressive Modeling</a>
+  (ICML 2026 Spotlight) combines coarse-to-fine next-scale prediction with a
+  flow-based backbone decoder. This is a hybrid composition: the outer scale
+  order and inner continuous conditional generator must both be reported.</li>
+</ul>
+<p><strong>Applications</strong>: Drug design, enzyme engineering, materials discovery.</p>
+<hr/>
+<h2 id="sparse-recurrent-state-and-deliberative-autoregressive-systems">Sparse, Recurrent-State, and Deliberative Autoregressive Systems<a class="headerlink" href="#sparse-recurrent-state-and-deliberative-autoregressive-systems" title="Permanent link">¤</a></h2>
+<p>The <a href="../transitions-and-few-step-generation/#4-transition-matching-and-continuous-autoregression">transitions and few-step guide</a> explains continuous autoregressive factorization, Transition Matching's internal generative heads, full-history variants, and why causal generation order does not imply causal-inference semantics.</p>
+<p>The <a href="../geometric-equivariant-generative-modeling/#4-diffusion-flows-autoregression-and-energies-on-structured-spaces">geometric and equivariant generation guide</a> analyzes order dependence for sets, graph edits, internal coordinates, torsions, and local-frame autoregression.</p>
+<p>Large-scale autoregressive modelling is best organized along five independent axes—<strong>architecture</strong> (MoE, state-space, hybrids), <strong>objective</strong> (multi-token prediction and post-training), <strong>inference</strong> (test-time compute and speculative decoding), <strong>modality</strong> (visual, audio, and multimodal generation), and <strong>alternatives or hybrids</strong> (continuous-token AR and diffusion language models). The Transformer and GPT-3 are historically important instances, not boundaries around the framework. Primary papers support the technical claims below; the survey table is a secondary map for broader reading.</p>
+<h3 id="mixture-of-experts-at-production-scale">Mixture-of-Experts at Production Scale<a class="headerlink" href="#mixture-of-experts-at-production-scale" title="Permanent link">¤</a></h3>
+<p><strong>Mixture-of-Experts (MoE)</strong> (<a href="https://arxiv.org/abs/1701.06538">Shazeer et al., 2017 — Outrageously Large MoE</a>; <a href="https://arxiv.org/abs/2101.03961">Switch Transformer — Fedus et al., 2022</a>) routes each token through only a small subset of expert subnetworks, partially decoupling total parameter capacity from per-token active compute. Sparse MoE appears in several open and closed model families alongside competitive dense models:</p>
+<ul>
+<li><strong>Mixtral 8×7B</strong> (<a href="https://arxiv.org/abs/2401.04088">Jiang et al., 2024</a>) — 46.7B total and 12.9B active parameters per token; its report compares favorably with Llama 2 70B on a declared benchmark suite. This is not a parameter-matched universal quality ordering.</li>
+<li><strong>DeepSeek-V3</strong> (<a href="https://arxiv.org/abs/2412.19437">DeepSeek-AI, 2024</a>) — 671B total / 37B active parameters and a reported 2.788M H800 GPU-hours for full training. A commonly repeated dollar conversion assumes an hourly rental price and excludes prior research, ablations, data, and staff, so it is not a complete reproducible training-cost figure. The report describes auxiliary-loss-free routing bias and <strong>Multi-head Latent Attention (MLA)</strong> for KV compression.</li>
+<li><strong>Qwen3</strong> (<a href="https://arxiv.org/abs/2505.09388">Technical report, 2025</a>), <strong>gpt-oss</strong> (<a href="https://openai.com/index/gpt-oss-model-card/">Model card, 2025</a>), and <strong>Granite 4.0</strong> (<a href="https://www.ibm.com/new/announcements/ibm-granite-4-0-hyper-efficient-high-performance-hybrid-models">Vendor technical announcement, 2025</a>) are documented sparse-MoE releases; Qwen3 includes both dense and MoE variants, while Granite combines Mamba-2, attention, and MoE. Their existence does not establish MoE as a universal flagship default. Report total/active parameters, routing, communication, and hardware, and preserve the evidence label of each source.</li>
+</ul>
+<p>No single stack is a universal default. A useful modern design vocabulary is “Transformer or hybrid backbone + dense or sparse feed-forward layers + MHA/GQA/MLA attention where present + a positional scheme + a normalization and gated MLP.” <a href="https://arxiv.org/abs/2407.21783">The Llama 3 report</a> documents one influential dense Transformer recipe; DeepSeek-V3 documents a different sparse recipe.</p>
+<h3 id="state-space-models-and-hybrid-backbones">State-Space Models and Hybrid Backbones<a class="headerlink" href="#state-space-models-and-hybrid-backbones" title="Permanent link">¤</a></h3>
+<p>For very long contexts, quadratic self-attention becomes the dominant cost. The 2024 wave of <strong>selective state-space models (SSMs)</strong> offers <span class="arithmatex">\(O(N)\)</span> alternatives:</p>
+<ul>
+<li><strong>Mamba</strong> (<a href="https://arxiv.org/abs/2312.00752">Gu &amp; Dao, 2024 — COLM</a>) — a selective SSM whose parameters depend on input; the paper reports up to 5× inference throughput over selected Transformer comparisons and linear sequence-length scaling for its recurrent computation. Hardware, kernels, quality, and comparison setup bound the number.</li>
+<li><strong>Mamba-2</strong> (<a href="https://arxiv.org/abs/2405.21060">Dao &amp; Gu, 2024 — ICML</a>) — derives state-space duality and reports faster core-layer execution than Mamba under its experiments. It is not an architecture-independent equivalence or quality guarantee.</li>
+<li><strong>Hybrid backbones</strong> — pure Mamba models (Codestral Mamba) coexist with hybrid stacks like <strong>Jamba</strong> (<a href="https://arxiv.org/abs/2403.19887">Lieber et al., 2024</a>), <strong>IBM Granite-4</strong>, and <strong>Samba</strong> (<a href="https://arxiv.org/abs/2406.07522">Microsoft, 2024</a>) that interleave Mamba blocks with sparse softmax-attention layers (typically 3:1 SSM:attention).</li>
+<li><strong>Large hybrid systems</strong> have also been described in technical reports and conference expo material. Such presentations are useful system evidence but do not substitute for an archival paper with reproducible training and evaluation details.</li>
+</ul>
+<p>There is no architecture-independent winner. Pure SSM, hybrid SSM-attention, sparse/local attention, and dense Transformer results depend on parameter and active-parameter count, training tokens, context-length distribution, recall versus reasoning task, kernel maturity, and hardware. Compare quality and wall-clock under a controlled protocol rather than inferring a consensus from model labels.</p>
+<h3 id="multi-token-prediction-mtp">Multi-Token Prediction (MTP)<a class="headerlink" href="#multi-token-prediction-mtp" title="Permanent link">¤</a></h3>
+<p>Instead of predicting only the next token, <strong>MTP</strong> trains the model to predict the next <span class="arithmatex">\(k\)</span> tokens at each position:</p>
+<ul>
+<li><strong>Better &amp; Faster Large Language Models via Multi-Token Prediction</strong> (<a href="https://arxiv.org/abs/2404.19737">Gloeckle et al., 2024</a>) reports benefits concentrated in parts of its model-size and task sweep and up to roughly 3× self-speculative speedup in its setup. The auxiliary heads, loss weights, and verification algorithm are part of the result.</li>
+<li><strong>DeepSeek-V3 MTP</strong> (<a href="https://arxiv.org/abs/2412.19437">DeepSeek-AI, 2024</a>) uses sequential prediction modules and reports acceptance and throughput improvements in its own serving configuration. It does not establish MTP as a universal training or serving optimum.</li>
+<li><strong>FastMTP</strong> (<a href="https://arxiv.org/abs/2509.18362">2025</a>) — aligns multi-step draft quality with inference patterns.</li>
+<li><strong>Parallel Token Prediction</strong> (<a href="https://openreview.net/forum?id=AGJomYSrUG">Draxler et al., ICLR 2026</a>) introduces random inputs so a single call can represent dependent token blocks and reports a 2.4× speedup on its speculative-decoding protocol. Representing a block proposal is not the same as drawing exact samples from another target AR model; target preservation still requires the declared training or verification relationship.</li>
+</ul>
+<h3 id="speculative-decoding">Speculative Decoding<a class="headerlink" href="#speculative-decoding" title="Permanent link">¤</a></h3>
+<p>Speculative decoding (<a href="https://arxiv.org/abs/2211.17192">Leviathan et al., 2023 — ICML</a>; <a href="https://arxiv.org/abs/2302.01318">Chen et al., 2023 — DeepMind</a>) decouples <em>proposing</em> tokens (cheap draft model) from <em>verifying</em> them (expensive target model), restoring batch parallelism to autoregressive inference:</p>
+<figure class="book-figure" id="fig-autoregressive-explained-speculative-decoding"><pre class="mermaid"><code>%%{init: {'themeCSS': '.nodeLabel p { color: #111827 !important; } .flowchart-link { stroke: #78879a !important; stroke-width: 2px !important; } marker path { fill: #78879a !important; stroke: #78879a !important; }'}}%%
+graph LR
+    P["Prompt"] --&gt; D["Draft model&lt;br/&gt;(small / fast)"]
+    D --&gt;|"propose k tokens"| V["Target model&lt;br/&gt;(large / slow)"]
+    V --&gt;|"single forward pass&lt;br/&gt;verifies all k"| A["Accept matching prefix,&lt;br/&gt;reject + resample tail"]
+    A --&gt; P
+
+    style D fill:#fff3cd,color:#111827
+    style V fill:#e1f5ff,color:#111827
+    style A fill:#c8e6c9,color:#111827</code></pre><figcaption class="book-object-caption"><span class="book-object-number">Figure AR.7.</span> Speculative Decoding</figcaption></figure>
+<p>Modern variants include <strong>EAGLE-3</strong> (<a href="https://arxiv.org/abs/2503.01840">Li et al., 2025</a>) and <strong>Medusa</strong> (<a href="https://arxiv.org/abs/2401.10774">Cai et al., 2024</a>). Reported speedups depend on model pair, hardware, batch size, proposal length, acceptance, and baseline. Correct rejection-corrected stochastic algorithms preserve the <strong>target distribution</strong>, which is not the same as bit-identical samples under arbitrary random-number coupling; deterministic greedy variants can reproduce the target's greedy sequence.</p>
+<h3 id="test-time-compute-and-reasoning-models">Test-Time Compute and Reasoning Models<a class="headerlink" href="#test-time-compute-and-reasoning-models" title="Permanent link">¤</a></h3>
+<p>One major direction is <strong>scaling inference compute</strong> rather than only parameters:</p>
+<ul>
+<li><strong>OpenAI o1</strong> (<a href="https://openai.com/index/learning-to-reason-with-llms/">2024 — technical report</a>) reports improvements with train-time RL and additional test-time computation. Its benchmark numbers are <strong>Vendor claims</strong> under the published protocol, not independent family-level evidence.</li>
+<li><strong>DeepSeek-R1</strong> (<a href="https://arxiv.org/abs/2501.12948">DeepSeek-AI, 2025</a>) reports reinforcement learning with automatically checked rewards on math and code. R1-Zero is evidence that the paper's RL setup elicited extended reasoning behavior without an SFT stage; “pure RL suffices” should not be generalized to all capabilities, data, or safety requirements.</li>
+</ul>
+<p>At least two compute axes matter: <strong>train-time compute</strong> and <strong>test-time compute</strong> such as generated reasoning tokens, parallel candidates, search, or verifier calls. The gains and costs of test-time scaling depend on task, base model, stopping policy, verifier quality, and accounting convention.</p>
+<h3 id="continuous-token-autoregression-calm-mar">Continuous-Token Autoregression (CALM, MAR)<a class="headerlink" href="#continuous-token-autoregression-calm-mar" title="Permanent link">¤</a></h3>
+<p>One research thread <em>decouples</em> autoregression from discrete tokens:</p>
+<ul>
+<li><strong>CALM — Continuous Autoregressive Language Models</strong> (<a href="https://arxiv.org/abs/2510.27688">Preprint, 2025</a>) compresses blocks of discrete tokens into continuous vectors and models those vectors autoregressively. This changes the conditional density and decoder problem; any throughput benefit must include codec cost and reconstruction error.</li>
+<li><strong>MAR — Autoregressive Image Generation without Vector Quantization</strong> (<a href="https://arxiv.org/abs/2406.11838">Li et al., 2024</a>) autoregresses over continuous image tokens with a diffusion loss for each next-token conditional. It is a concrete <strong>hybrid system composition</strong>, not proof that categorical AR and diffusion are the same family.</li>
+</ul>
+<h3 id="visual-and-multimodal-autoregression">Visual and Multimodal Autoregression<a class="headerlink" href="#visual-and-multimodal-autoregression" title="Permanent link">¤</a></h3>
+<p><strong>VAR</strong> (covered above) is one visual milestone. Follow-up work separates
+tokenization, auxiliary consistency, variable compute allocation, and shared
+multimodal context:</p>
+<ul>
+<li><strong>MAGVIT-v2</strong> (<a href="https://arxiv.org/abs/2310.05737">Yu et al., 2024</a>) — discrete-token AR over video VQ codes; competitive with diffusion on short-clip generation.</li>
+<li><a href="https://openreview.net/forum?id=9CpHEbtvA9">reAR</a> (ICLR 2026) adds
+  token-wise embedding-recovery and consistency regularization to reduce mismatch
+  between AR-generated codes and the visual tokenizer's decoder. It changes the
+  objective, not the chain-rule family or inference order.</li>
+<li><a href="https://openaccess.thecvf.com/content/CVPR2026/html/Srivastava_DPAR_Dynamic_Patchification_for_Efficient_Autoregressive_Visual_Generation_CVPR_2026_paper.html">DPAR</a>
+  (CVPR 2026) uses prediction entropy from a lightweight model to merge visual
+  tokens into variable-size patches. Its reported token, FLOP, convergence, and
+  FID changes belong to the paper's ImageNet resolutions and baselines; dynamic
+  patchification is a representation and compute-allocation method.</li>
+<li><a href="https://openreview.net/forum?id=jwRAIYoVJn">UniAR</a> (ICML 2026) studies one
+  discrete visual tokenizer shared by understanding and generation so generated
+  codes can re-enter the same context. A shared tokenizer is a system interface,
+  not proof that understanding and generation have identical sufficient
+  statistics or evaluation criteria.</li>
+<li>Multimodal AR systems may interleave modality tokens, use modality-specific
+  encoders and decoders, cross-attention, or combine several patterns.
+  Closed-system interfaces do not reveal enough architecture detail to infer a
+  single shared token stream.</li>
+</ul>
+<h3 id="diffusion-language-models-an-ar-alternative">Diffusion Language Models: an AR Alternative<a class="headerlink" href="#diffusion-language-models-an-ar-alternative" title="Permanent link">¤</a></h3>
+<p><strong>Discrete diffusion language modelling</strong> provides a non-autoregressive alternative whose parallel refinement, likelihood semantics, and quality–latency trade-offs differ from left-to-right decoding:</p>
+<ul>
+<li><strong>LLaDA</strong> (<a href="https://arxiv.org/abs/2502.09992">Nie et al., 2025</a>) is an 8B masked-diffusion model trained from scratch. Its paper reports selected comparisons with similarly sized AR systems; tokenizer, data, post-training, number of refinement steps, and benchmark protocol remain necessary qualifiers.</li>
+<li><strong>Mercury</strong> (<a href="https://arxiv.org/abs/2506.17298">Technical report, 2025</a>) reports low-latency parallel decoding. Latency numbers from the developer are <strong>Vendor claims</strong> unless hardware, batch, output length, quality matching, and independent reproduction are controlled.</li>
+</ul>
+<p>The <a href="https://arxiv.org/abs/2512.15605">AR–EBM preprint discussed above</a> supplies a specific function-space correspondence. Its assumptions and evidence label should travel with the result; it does not collapse all AR, EBM, RLHF, and DPO algorithms into one implementation.</p>
+<h3 id="transformer-building-blocks-rope-gqa-mla-rmsnorm-and-swiglu">Transformer Building Blocks: RoPE, GQA, MLA, RMSNorm, and SwiGLU<a class="headerlink" href="#transformer-building-blocks-rope-gqa-mla-rmsnorm-and-swiglu" title="Permanent link">¤</a></h3>
+<p>Many language-model blocks look substantially different from Vaswani's 2017 design:</p>
+<div class="md-typeset__table book-table-container"><table id="tbl-autoregressive-explained-transformer-building-blocks-rope-gqa-mla-rmsnorm-and-swiglu"><caption class="book-object-caption"><span class="book-object-number">Table AR.17.</span> Transformer Building Blocks: RoPE, GQA, MLA, RMSNorm, and SwiGLU</caption>
+<thead>
+<tr>
+<th>Component</th>
+<th>Old (Transformer 2017)</th>
+<th>Modern (Llama-3 / DeepSeek-V3 / Qwen3)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Position encoding</strong></td>
+<td>Absolute sinusoidal</td>
+<td><strong>RoPE</strong> (<a href="https://arxiv.org/abs/2104.09864">Su et al., 2024</a>) — relative rotary; sometimes ALiBi</td>
+</tr>
+<tr>
+<td><strong>Attention</strong></td>
+<td>Multi-Head</td>
+<td><strong>Grouped-Query Attention (GQA)</strong> (<a href="https://arxiv.org/abs/2305.13245">Ainslie et al., 2023</a>) or <strong>Multi-Head Latent Attention (MLA)</strong> (DeepSeek-V2/V3) for KV-cache compression</td>
+</tr>
+<tr>
+<td><strong>Normalisation</strong></td>
+<td>LayerNorm</td>
+<td><strong>RMSNorm</strong> (<a href="https://arxiv.org/abs/1910.07467">Zhang &amp; Sennrich, 2019</a>) removes mean-centering and can reduce normalization cost; quality and speed depend on the implementation</td>
+</tr>
+<tr>
+<td><strong>MLP activation</strong></td>
+<td>ReLU / GELU</td>
+<td><strong>SwiGLU</strong> (<a href="https://arxiv.org/abs/2002.05202">Shazeer, 2020</a>) — gated linear unit with Swish</td>
+</tr>
+<tr>
+<td><strong>Feed-forward</strong></td>
+<td>Dense MLP</td>
+<td>Dense gated MLP or <strong>sparse MoE</strong>; auxiliary-loss-free routing is one documented design, not a universal choice</td>
+</tr>
+<tr>
+<td><strong>Attention kernel</strong></td>
+<td>naive softmax</td>
+<td><strong>FlashAttention-⅔</strong> (<a href="https://arxiv.org/abs/2307.08691">Dao 2023</a>; <a href="https://arxiv.org/abs/2407.08608">Shah et al., 2024</a>)</td>
+</tr>
+<tr>
+<td><strong>Long-context</strong></td>
+<td>Fixed trained window</td>
+<td>RoPE variants, interpolation/scaling, retrieval, recurrence, or distributed attention; advertised windows do not establish effective use at every position</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="sparse-recurrent-state-and-deliberative-autoregressive-systems-post-training-rlhf-dpo-rlvr">Sparse, Recurrent-State, and Deliberative Autoregressive Systems: Post-Training: RLHF → DPO → RLVR<a class="headerlink" href="#sparse-recurrent-state-and-deliberative-autoregressive-systems-post-training-rlhf-dpo-rlvr" title="Permanent link">¤</a></h3>
+<ul>
+<li><strong>RLHF</strong> (<a href="https://arxiv.org/abs/2203.02155">Ouyang et al., 2022 — InstructGPT</a>) — supervised fine-tuning + reward model + PPO; a common recipe for instruction-following chat systems.</li>
+<li><strong>DPO</strong> (<a href="https://arxiv.org/abs/2305.18290">Rafailov et al., 2023 — NeurIPS</a>) — derives a closed-form reward from preferences; sidesteps the explicit reward model.</li>
+<li><strong>RLVR</strong> (reinforcement learning with verifiable rewards) uses programmatic or otherwise checkable signals such as unit tests or exact-answer checks. It is prominent for domains with reliable verification, but many tasks lack sound verifiers and public reports do not expose every proprietary post-training mixture.</li>
+</ul>
+<h3 id="long-context-from-2k-to-10m-tokens">Long-Context: From 2k to 10M Tokens<a class="headerlink" href="#long-context-from-2k-to-10m-tokens" title="Permanent link">¤</a></h3>
+<p>Some modern AR systems advertise 128k–1M-token input windows. Maximum accepted length, accuracy at distance, memory use, and useful task performance are different quantities:</p>
+<ul>
+<li><strong>YARN, NTK-aware RoPE</strong> — scale RoPE frequencies for context-length extrapolation.</li>
+<li><strong>Ring Attention</strong> (<a href="https://arxiv.org/abs/2310.01889">Liu et al., 2024</a>) distributes blockwise attention and communication across devices; feasible length remains bounded by aggregate memory, compute, topology, and runtime.</li>
+<li><strong>InfiniAttention, Compressive Memory</strong> — bounded-memory long-context attention.</li>
+<li><strong>Native long-context training</strong> uses long examples during training rather than only post-hoc position scaling; public disclosures vary, especially for closed models.</li>
+<li><strong>Needle-in-a-haystack and RULER</strong> (<a href="https://arxiv.org/abs/2404.06654">Hsieh et al., 2024</a>) — widely used long-context stress tests that should be complemented with natural tasks, contamination controls, position/length sweeps, and effective-context analysis.</li>
+</ul>
+<h3 id="further-reading-surveys">Further Reading: Surveys<a class="headerlink" href="#further-reading-surveys" title="Permanent link">¤</a></h3>
+<div class="md-typeset__table book-table-container"><table id="tbl-autoregressive-explained-further-reading-surveys"><caption class="book-object-caption"><span class="book-object-number">Table AR.18.</span> Further Reading: Surveys</caption>
+<thead>
+<tr>
+<th>Resource</th>
+<th>Year</th>
+<th>Scope</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://arxiv.org/abs/2402.06196"><em>Large Language Models: A Survey</em></a> (Minaee et al.)</td>
+<td>2024</td>
+<td>Comprehensive LLM survey</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2303.18223"><em>A Survey of Large Language Models</em></a> (Zhao et al., updated 2024)</td>
+<td>2024</td>
+<td>Continuously-updated review</td>
+</tr>
+<tr>
+<td><a href="https://magazine.sebastianraschka.com/p/state-of-llms-2025"><em>State of LLMs 2025</em></a> (Raschka)</td>
+<td>2025</td>
+<td>Year-end retrospective + 2026 predictions</td>
+</tr>
+<tr>
+<td><a href="https://www.mdpi.com/2079-9292/15/5/966"><em>Beyond Next-Token Prediction</em></a></td>
+<td>2025</td>
+<td>Failure modes, deployment, world models</td>
+</tr>
+<tr>
+<td><a href="https://www.mdpi.com/2079-9292/14/18/3580"><em>LLM Architectures, Training Paradigms, Alignment</em></a></td>
+<td>2025</td>
+<td>Architecture + post-training survey</td>
+</tr>
+<tr>
+<td><a href="https://link.springer.com/article/10.1007/s10462-025-11403-7"><em>Datasets for LLMs: A Comprehensive Survey</em></a></td>
+<td>2025</td>
+<td>303 datasets, 32 domains, 774.5 TB pre-training corpora</td>
+</tr>
+</tbody>
+</table></div>
+<p>The throughline is narrower and more precise: an autoregressive <strong>probabilistic model</strong> still factors an ordered joint into prefix conditionals. MoE, attention, SSMs, and hybrids are architectures; MTP and preference optimization are objectives; speculative decoding and search are inference procedures; discrete or continuous tokens are representations. A system may combine all of them without changing what each term means.</p>
+<h3 id="worked-relationship-audit">Worked relationship audit<a class="headerlink" href="#worked-relationship-audit" title="Permanent link">¤</a></h3>
+<p>Consider MAR's outer autoregressive factorization with a diffusion model for each continuous next-token conditional.</p>
+<ol>
+<li>The outer chain rule is an <strong>autoregressive probabilistic construction</strong>.</li>
+<li>The inner denoiser and iterative sampler form a <strong>diffusion conditional generator</strong>.</li>
+<li>Their relation is <strong>hybrid system composition</strong>, not algebraic equivalence.</li>
+<li>Exact outer likelihood is unavailable unless each diffusion conditional's normalized density is itself evaluated under a valid likelihood procedure.</li>
+</ol>
+<p>The same audit prevents a Transformer architecture from being mislabeled as an autoregressive model when it uses bidirectional masked refinement, and prevents an autoregressive factorization from being mislabeled as a Transformer when it uses an RNN or SSM.</p>
+<h3 id="independent-practice-and-assessment-map-connections">Independent practice and assessment map: connections<a class="headerlink" href="#independent-practice-and-assessment-map-connections" title="Permanent link">¤</a></h3>
+<p>Use the relationship taxonomy from this chapter. A family name earns no credit
+unless the response identifies the probability object, objective, estimator,
+architecture, and sampler that actually create the relationship.</p>
+<h4 id="p1-classify-and-compare-a-hybrid-visual-generator">P1 — Classify and compare a hybrid visual generator<a class="headerlink" href="#p1-classify-and-compare-a-hybrid-visual-generator" title="Permanent link">¤</a></h4>
+<p>A system encodes an image into continuous patch latents, orders the patches
+coarse-to-fine, models each next-patch conditional with a diffusion sampler,
+and reranks eight decoded images using a learned preference score. A sparse
+backbone has 40 billion total parameters but activates 8 billion per patch.</p>
+<ol>
+<li><strong>P1.1 — Predict before computing.</strong> Predict whether the outer chain rule makes the complete system's exact likelihood tractable. List the inner and outer quantities that would have to be evaluable before deciding.</li>
+<li><strong>P1.2 — Relationship audit.</strong> Classify the encoder, outer factorization, inner diffusion conditional, sparse backbone, decoder, and reranker by modeling layer. State which links are hybrid composition and which, if any, are algebraic equivalences.</li>
+<li><strong>P1.3 — Direction calculation.</strong> For a same-order autoregressive transform used once as MAF and once as IAF, trace which direction exposes all network parameters in parallel and which direction requires sequential inversion. Connect the result to scoring versus sampling.</li>
+<li><strong>P1.4 — Controlled comparison.</strong> Design a comparison against a dense AR model and a latent diffusion model. Specify data, codec, quality target, total and active parameters, FLOPs or wall-clock budgets, hardware, batch/concurrency, latency, memory, and uncertainty reporting. Label every anticipated result as an identity, prior peer-reviewed observation, vendor claim, or new empirical hypothesis.</li>
+<li><strong>P1.5 — Transfer.</strong> Replace image patches with unordered graph nodes. Identify the new symmetry problem, propose an equivariant or order-marginalized baseline, and state what evidence would falsify the claim that the imposed order is harmless.</li>
+</ol>
+<h5 id="outcome-to-task-alignment-connections">Outcome-to-task alignment: connections<a class="headerlink" href="#outcome-to-task-alignment-connections" title="Permanent link">¤</a></h5>
+<div class="md-typeset__table book-table-container"><table id="tbl-autoregressive-explained-p1-classify-and-compare-a-hybrid-visual-generator"><caption class="book-object-caption"><span class="book-object-number">Table AR.28.</span> Outcome-to-task alignment for autoregressive connections</caption>
+<thead>
+<tr>
+<th>Learning objective</th>
+<th>Independently assessed by</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>O1 — Compare families without promoting benchmarks to guarantees</td>
+<td>P1.4</td>
+</tr>
+<tr>
+<td>O2 — Classify AR cross-family relationships precisely</td>
+<td>P1.1, P1.2</td>
+</tr>
+<tr>
+<td>O3 — State the parallel directions of MAF and IAF</td>
+<td>P1.3</td>
+</tr>
+<tr>
+<td>O4 — Separate sparse capacity, active compute, cache, and parameters</td>
+<td>P1.4</td>
+</tr>
+<tr>
+<td>O5 — Audit evidence maturity and protocol</td>
+<td>P1.4, P1.5</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="chapter-5-synthesis">Chapter 5 synthesis<a class="headerlink" href="#chapter-5-synthesis" title="Permanent link">¤</a></h3>
+<p>Family comparisons become reliable when they compare the same layer of abstraction and state the protocol. Autoregression provides normalized factorization; it does not guarantee perceptual quality, coverage, stability, or speed. Modern work increasingly composes representations, conditional heads, objectives, architectures, and samplers from several traditions. These are productive hybrids precisely because the components remain distinguishable.</p>
+<details class="question">
+<summary>Retrieval practice: connections and research</summary>
+<ol>
+<li>Why is a finite-vocabulary energy parameterization of each AR conditional tractable to normalize?</li>
+<li>In basic MAF, which operation is sequential: density evaluation or sampling?</li>
+<li>Is MAR an algebraic equivalence between AR and diffusion?</li>
+<li>Why must total and active parameters both be reported for an MoE?</li>
+<li>What evidence label belongs on a developer's closed-system latency number without independent reproduction?</li>
+<li>Classify reAR, DPAR, and UniAR by modeling layer rather than calling each a new family.</li>
+<li>Why is Protein Autoregressive Modeling a hybrid system?</li>
+</ol>
+<p><strong>Solutions.</strong> (1) Its local partition function is a finite sum over the vocabulary, identical to a softmax normalizer. (2) Sampling requires the sequential inverse; density evaluation exposes all parameters in one masked-network evaluation. (3) No; it is hybrid composition with diffusion-generated continuous conditionals. (4) Total parameters describe capacity and storage, while active parameters more closely—but not completely—describe per-token arithmetic; routing communication also matters. (5) Vendor claim. (6) reAR adds auxiliary consistency objectives, DPAR changes tokenization and compute allocation, and UniAR defines a shared representation and system interface. Each retains an autoregressive probability construction. (7) It uses autoregressive next-scale planning outside a flow-based continuous backbone decoder; neither component alone describes the full generator.</p>
+</details>
+<p><strong>Bridge to Chapter 6.</strong> The abstractions now need contact with a live library and an evaluation protocol. The next chapter marks which snippets exercise current Artifex APIs, which are framework examples, and which remain explanatory pseudocode, then connects correctness to production measurements.</p>
+<hr/>
+<hr/>
+<p><strong>Navigate:</strong> <a href="../autoregressive-04-decoding/">← Decoding</a> · <a href="../autoregressive-06-practice/">Practice and Evaluation →</a> · <a href="../autoregressive-explained/#comparing-autoregressive-models-with-other-approaches">Complete guide</a></p>
+</article>
+</div>
+<script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  Back to top
+</button>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+<div class="md-social">
+<a class="md-social__link" href="https://github.com/avitai/artifex" rel="noopener" target="_blank" title="github.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</a>
+<a class="md-social__link" href="https://pypi.org/project/avitai-artifex/" rel="noopener" target="_blank" title="pypi.org">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-66.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.3v101.8c0 29 25.2 46 53.4 54.3 33.8 9.9 66.3 11.7 106.8 0 26.9-7.8 53.4-23.5 53.4-54.3v-40.7H226.2v-13.6h160.2c31.1 0 42.6-21.7 53.4-54.2 11.2-33.5 10.7-65.7 0-108.6M286.2 444.7a20.4 20.4 0 1 1 0-40.7 20.4 20.4 0 1 1 0 40.7M167.8 248.1h106.8c29.7 0 53.4-24.5 53.4-54.3V91.9c0-29-24.4-50.7-53.4-55.6-35.8-5.9-74.7-5.6-106.8.1-45.2 8-53.4 24.7-53.4 55.6v40.7h106.9v13.6h-147c-31.1 0-58.3 18.7-66.8 54.2-9.8 40.7-10.2 66.1 0 108.6 7.6 31.6 25.7 54.2 56.8 54.2H101v-48.8c0-35.3 30.5-66.4 66.8-66.4m-6.6-183.4a20.4 20.4 0 1 1 0 40.8 20.4 20.4 0 1 1 0-40.8"></path></svg>
+</a>
+<a class="md-social__link" href="https://twitter.com/mahdi_shafiei" rel="noopener" target="_blank" title="twitter.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M459.4 151.7c.3 4.5.3 9.1.3 13.6 0 138.7-105.6 298.6-298.6 298.6-59.5 0-114.7-17.2-161.1-47.1 8.4 1 16.6 1.3 25.3 1.3 49.1 0 94.2-16.6 130.3-44.8-46.1-1-84.8-31.2-98.1-72.8 6.5 1 13 1.6 19.8 1.6 9.4 0 18.8-1.3 27.6-3.6-48.1-9.7-84.1-52-84.1-103v-1.3c14 7.8 30.2 12.7 47.4 13.3-28.3-18.8-46.8-51-46.8-87.4 0-19.5 5.2-37.4 14.3-53C87.4 130.8 165 172.4 252.1 176.9c-1.6-7.8-2.6-15.9-2.6-24C249.5 95.1 296.3 48 354.4 48c30.2 0 57.5 12.7 76.7 33.1 23.7-4.5 46.5-13.3 66.6-25.3-7.8 24.4-24.4 44.8-46.1 57.8 21.1-2.3 41.6-8.1 60.4-16.2-14.3 20.8-32.2 39.3-52.6 54.3"></path></svg>
+</a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.path", "navigation.top", "navigation.prune", "toc.follow", "search.highlight", "search.share", "search.suggest", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "content.mermaid"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+<script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+<script src="../../../javascripts/reading-layout.js"></script>
+</body>
+</html>

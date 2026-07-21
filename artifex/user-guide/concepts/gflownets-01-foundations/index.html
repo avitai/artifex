@@ -1,0 +1,1405 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="This chapter derives state, edge, trajectory, and terminal flow and reward-proportional sampling on constructive DAGs. For uninterrupted reading, use the" name="description"/>
+<meta content="Mahdi Shafiei" name="author"/>
+<link href="https://docs.avitai.bio/artifex/user-guide/concepts/gflownets-01-foundations/" rel="canonical"/>
+<link href="../bayesian-flow-networks-explained/" rel="prev"/>
+<link href="../gflownets-02-local-balance/" rel="next"/>
+<link href="../../../assets/images/favicon.png" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.7.7" name="generator"/>
+<title>GFlowNets 1 — Constructive Flow - Artifex</title>
+<link href="../../../assets/stylesheets/main.ec1eaa64.min.css" rel="stylesheet"/>
+<link href="../../../assets/stylesheets/palette.ab4e12ef.min.css" rel="stylesheet"/>
+<script src="../../../assets/vendor/iframe-worker/index.js"></script>
+<link href="../../../assets/_mkdocstrings.css" rel="stylesheet"/>
+<link href="../../../_static/extra.css" rel="stylesheet"/>
+<script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+<meta content="article" property="og:type"/>
+<meta content="The Artifex Generative Models Book" property="og:site_name"/>
+<meta content="GFlowNets 1 — Constructive Flow" property="og:title"/>
+<meta content="This chapter derives state, edge, trajectory, and terminal flow and reward-proportional sampling on constructive DAGs. For uninterrupted reading, use the" property="og:description"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/gflownets-01-foundations/" property="og:url"/>
+<meta content="2026-07-18" property="article:modified_time"/>
+<meta content="summary" name="twitter:card"/>
+<meta content="GFlowNets 1 — Constructive Flow" name="twitter:title"/>
+<meta content="This chapter derives state, edge, trajectory, and terminal flow and reward-proportional sampling on constructive DAGs. For uninterrupted reading, use the" name="twitter:description"/>
+<meta content="Generative models, Machine learning, Probabilistic modeling, advanced, specialization, canonical_chapter, gflownets-foundations, practitioner, researcher" name="keywords"/>
+<meta content="GFlowNets 1 — Constructive Flow" name="citation_title"/>
+<meta content="Mahdi Shafiei" name="citation_author"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/gflownets-01-foundations/" name="citation_public_url"/>
+<meta content="en" name="citation_language"/>
+<meta content="GFlowNets 1 — Constructive Flow" name="DC.title"/>
+<meta content="Mahdi Shafiei" name="DC.creator"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/gflownets-01-foundations/" name="DC.identifier"/>
+<meta content="Text.LearningResource" name="DC.type"/>
+<meta content="2026-07-18" name="DCTERMS.modified"/>
+<meta content="https://github.com/avitai/artifex/blob/main/LICENSE" name="DCTERMS.license"/>
+<meta content="advanced" name="DCTERMS.educationLevel"/>
+<meta content="practitioner, researcher" name="DCTERMS.audience"/>
+<link href="https://github.com/avitai/artifex/blob/main/LICENSE" rel="license"/>
+<script id="artifex-book-metadata" type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Chapter",
+  "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/gflownets-01-foundations/",
+  "url": "https://docs.avitai.bio/artifex/user-guide/concepts/gflownets-01-foundations/",
+  "name": "GFlowNets 1 \u2014 Constructive Flow",
+  "description": "This chapter derives state, edge, trajectory, and terminal flow and reward-proportional sampling on constructive DAGs. For uninterrupted reading, use the",
+  "identifier": "gflownets-foundations",
+  "inLanguage": "en",
+  "isAccessibleForFree": true,
+  "learningResourceType": "Canonical chapter",
+  "educationalLevel": "advanced",
+  "educationalUse": "specialization",
+  "audience": [
+    
+      {"@type": "EducationalAudience", "audienceType": "practitioner"},
+    
+      {"@type": "EducationalAudience", "audienceType": "researcher"}
+    
+  ],
+  "dateModified": "2026-07-18",
+  "keywords": ["Generative models", "Machine learning", "Probabilistic modeling", "advanced", "specialization", "canonical_chapter", "gflownets-foundations", "practitioner", "researcher"],
+  "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+  "author": [
+    
+      {"@type": "Person", "name": "Mahdi Shafiei"}
+    
+  ],
+  "isPartOf": {
+    "@type": "Book",
+    "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/#book",
+    "url": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/",
+    "name": "The Artifex Generative Models Book",
+    "bookEdition": "Living Web Edition",
+    "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+    "author": [
+      
+        {"@type": "Person", "name": "Mahdi Shafiei"}
+      
+    ]
+  }
+}
+</script>
+<link href="../../../assets/vendor/katex/katex.min.css" id="artifex-katex-stylesheet" integrity="sha384-UA8juhPf75SzzAMA/4fo3yOU7sBJ0om7SCD2GHq0fZqZco6tr1UCV7nUbk9J90JM" rel="stylesheet"/>
+<script defer="" integrity="sha384-T/0lMUdJpd2S1ZHtRiofG3htU3xPCrFVeAQ1UUE2TJwlEJSV5NUwn30kP28n238E" src="../../../assets/vendor/mermaid/mermaid.min.js"></script>
+<script defer="" src="../../../assets/vendor/katex/katex-shadow.js"></script>
+<script defer="" src="../../../javascripts/mermaid-math.js"></script>
+<script defer="" src="../../../javascripts/mathjax.js"></script>
+<script defer="" integrity="sha384-OrHfGTnIbkl0do3N76qW/uWr38o91N05sbSPuYBPLH+hG8X/dNSrjZf3AGjzrCwC" src="../../../assets/vendor/mathjax/tex-mml-chtml.js"></script>
+</head>
+<body data-md-color-accent="amber" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#gflownets-1-constructive-flow">
+          Skip to content
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header md-header--shadow" data-md-component="header">
+<nav aria-label="Header" class="md-header__inner md-grid">
+<a aria-label="Artifex" class="md-header__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            Artifex
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+            
+              GFlowNets 1 — Constructive Flow
+            
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-label="Switch to dark mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: light)" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_1" hidden="" title="Switch to dark mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+<input aria-label="Switch to light mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-primary="indigo" data-md-color-scheme="slate" id="__palette_1" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_0" hidden="" title="Switch to light mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+</form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div aria-label="Search" class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Search" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="Search" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="Search" class="md-search__options">
+<a aria-label="Share" class="md-search__icon md-icon" data-clipboard="" data-clipboard-text="" data-md-component="search-share" href="javascript:void(0)" tabindex="-1" title="Share">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"></path></svg>
+</a>
+<button aria-label="Clear" class="md-search__icon md-icon" tabindex="-1" title="Clear" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            Initializing search
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Navigation" class="md-nav md-nav--primary" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="Artifex" class="md-nav__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+    Artifex
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../..">
+<span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../getting-started/installation/">
+<span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Generative Models Book
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Generative Models Book
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    
+  
+    Start Here — The Landscape
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../first-course-01-generative-systems/">
+<span class="md-ellipsis">
+    
+  
+    First Course — New to Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../probability-01-objects/">
+<span class="md-ellipsis">
+    
+  
+    Foundations
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_4" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_4" id="__nav_3_4_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Model Families
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_4_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_4">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Model Families
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../autoregressive-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Autoregressive Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../vae-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Variational Autoencoders
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gan-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Generative Adversarial Networks
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../ebm-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Energy-Based Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../diffusion-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Diffusion Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../flow-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Normalizing Flows and Flow Matching
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../probabilistic-circuits-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Probabilistic Circuits
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../tensor-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Tensor-Network and Born Probability Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../implicit-generators-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Implicit Generators Beyond GANs
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../discrete-iterative-01-masked/">
+<span class="md-ellipsis">
+    
+  
+    Discrete Iterative Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../bayesian-flow-networks-01-story/">
+<span class="md-ellipsis">
+    
+  
+    Bayesian Flow Networks
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_4_12" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_4_12" id="__nav_3_4_12_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Generative Flow Networks
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_4_12_label" class="md-nav" data-md-level="3">
+<label class="md-nav__title" for="__nav_3_4_12">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Generative Flow Networks
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
+    
+  
+    1. Constructive Flow
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
+<span class="md-ellipsis">
+    
+  
+    1. Constructive Flow
+  
+
+    
+  </span>
+</a>
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#1-constructive-state-graphs-and-reward-proportional-sampling">
+<span class="md-ellipsis">
+      
+        1. Constructive State Graphs and Reward-Proportional Sampling
+      
+    </span>
+</a>
+<nav aria-label="1. Constructive State Graphs and Reward-Proportional Sampling" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-1-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 1 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#stops-terminals-and-complete-objects">
+<span class="md-ellipsis">
+      
+        Stops, Terminals, and Complete Objects
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#trajectory-edge-and-state-flow">
+<span class="md-ellipsis">
+      
+        Trajectory, Edge, and State Flow
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#forward-and-backward-policies">
+<span class="md-ellipsis">
+      
+        Forward and Backward Policies
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-diamond-graph">
+<span class="md-ellipsis">
+      
+        Worked Diamond Graph
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#counterexample-path-multiplicity-is-not-reward">
+<span class="md-ellipsis">
+      
+        Counterexample: Path Multiplicity Is Not Reward
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#reward-is-an-unnormalized-density">
+<span class="md-ellipsis">
+      
+        Reward Is an Unnormalized Density
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#what-the-population-result-doesand-does-notsay">
+<span class="md-ellipsis">
+      
+        What the Population Result Does—and Does Not—Say
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-1-retrieval-questions">
+<span class="md-ellipsis">
+      
+        Chapter 1 retrieval Questions
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-1-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 1 Synthesis
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#independent-practice-and-assessment-map-constructive-flow">
+<span class="md-ellipsis">
+      
+        Independent practice and assessment map: constructive flow
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../gflownets-02-local-balance/">
+<span class="md-ellipsis">
+    
+  
+    2. Local Balance
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../gflownets-03-trajectory-balance/">
+<span class="md-ellipsis">
+    
+  
+    3. Trajectory Balance
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../gflownets-04-inference/">
+<span class="md-ellipsis">
+    
+  
+    4. Partition Functions and Inference
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../gflownets-05-relations/">
+<span class="md-ellipsis">
+    
+  
+    5. Relations to Other Families
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../gflownets-06-practice/">
+<span class="md-ellipsis">
+    
+  
+    6. Practice and Research
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../gflownets-explained/">
+<span class="md-ellipsis">
+    
+  
+    Continuous View (All Chapters)
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../bnp-01-random-measures/">
+<span class="md-ellipsis">
+    
+  
+    Bayesian Nonparametric Random-Measure Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../stochastic-process-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Stochastic-Process and Function-Space Generators
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../point-processes-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Point Processes and Random Finite Sets
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../random-graphs-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Random Graphs and Relational Generators
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../copula-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Copula Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../grammar-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Probabilistic Grammars and Program Derivations
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../causal-generative-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Causal Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../new-families-frontier-evidence/">
+<span class="md-ellipsis">
+    
+  
+    Research Evidence Ledger
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gradients-01-taxonomy/">
+<span class="md-ellipsis">
+    
+  
+    Connections and Compositions
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../normalization-01-queries/">
+<span class="md-ellipsis">
+    
+  
+    Research Practice
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../models/vae-guide/">
+<span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/core/base/">
+<span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../examples/overview/">
+<span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../zoo/">
+<span class="md-ellipsis">
+    
+  
+    Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../training/overview/">
+<span class="md-ellipsis">
+    
+  
+    Training
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../data/overview/">
+<span class="md-ellipsis">
+    
+  
+    Data &amp; Modalities
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../inference/overview/">
+<span class="md-ellipsis">
+    
+  
+    Inference &amp; Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../benchmarks/">
+<span class="md-ellipsis">
+    
+  
+    Evaluation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../guides/extensions/">
+<span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../extensions/">
+<span class="md-ellipsis">
+    
+  
+    Advanced Topics
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../cli/">
+<span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../community/contributing/">
+<span class="md-ellipsis">
+    
+  
+    Community
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/configs/protein-extension/">
+<span class="md-ellipsis">
+    
+  
+    Reference Library
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#1-constructive-state-graphs-and-reward-proportional-sampling">
+<span class="md-ellipsis">
+      
+        1. Constructive State Graphs and Reward-Proportional Sampling
+      
+    </span>
+</a>
+<nav aria-label="1. Constructive State Graphs and Reward-Proportional Sampling" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-1-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 1 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#stops-terminals-and-complete-objects">
+<span class="md-ellipsis">
+      
+        Stops, Terminals, and Complete Objects
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#trajectory-edge-and-state-flow">
+<span class="md-ellipsis">
+      
+        Trajectory, Edge, and State Flow
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#forward-and-backward-policies">
+<span class="md-ellipsis">
+      
+        Forward and Backward Policies
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-diamond-graph">
+<span class="md-ellipsis">
+      
+        Worked Diamond Graph
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#counterexample-path-multiplicity-is-not-reward">
+<span class="md-ellipsis">
+      
+        Counterexample: Path Multiplicity Is Not Reward
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#reward-is-an-unnormalized-density">
+<span class="md-ellipsis">
+      
+        Reward Is an Unnormalized Density
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#what-the-population-result-doesand-does-notsay">
+<span class="md-ellipsis">
+      
+        What the Population Result Does—and Does Not—Say
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-1-retrieval-questions">
+<span class="md-ellipsis">
+      
+        Chapter 1 retrieval Questions
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-1-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 1 Synthesis
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#independent-practice-and-assessment-map-constructive-flow">
+<span class="md-ellipsis">
+      
+        Independent practice and assessment map: constructive flow
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<nav aria-label="Breadcrumb" class="md-path">
+<ol class="md-path__list">
+<li class="md-path__item">
+<a class="md-path__link" href="../../..">
+<span class="md-ellipsis">
+    Home
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    Generative Models Book
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../autoregressive-01-foundations/">
+<span class="md-ellipsis">
+    Model Families
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="./">
+<span class="md-ellipsis">
+    Generative Flow Networks
+  </span>
+</a>
+</li>
+</ol>
+</nav>
+<article class="md-content__inner md-typeset">
+<h1 id="gflownets-1-constructive-flow">GFlowNets 1 — Constructive Flow<a class="headerlink" href="#gflownets-1-constructive-flow" title="Permanent link">¤</a></h1><aside aria-label="Learning path" class="admonition abstract artifex-learning-path"><p class="admonition-title">Learning path</p><p><strong>Required knowledge</strong></p><ul class="artifex-learning-path__links" data-learning-path-role="required"><li><a href="../autoregressive-01-foundations/">Autoregressive Models 1 — Foundations</a></li><li><a href="../ebm-01-foundations/">EBMs 1 — Energy and Normalization</a></li></ul><p><strong>Readiness check:</strong> can you explain the central object and reproduce one worked example from each required chapter? If not, follow its link before continuing.</p><p><strong>Newly unlocked in the default route</strong></p><ul class="artifex-learning-path__links" data-learning-path-role="unlocks"><li><a href="../gflownets-02-local-balance/">GFlowNets 2 — Flow Matching and Detailed Balance</a></li></ul></aside>
+<p>This chapter derives state, edge, trajectory, and terminal flow and reward-proportional sampling on constructive DAGs. For uninterrupted reading, use the <a href="../gflownets-explained/#1-constructive-state-graphs-and-reward-proportional-sampling">complete guide</a>.</p>
+<h2 id="1-constructive-state-graphs-and-reward-proportional-sampling">1. Constructive State Graphs and Reward-Proportional Sampling<a class="headerlink" href="#1-constructive-state-graphs-and-reward-proportional-sampling" title="Permanent link">¤</a></h2>
+<h3 id="chapter-1-prerequisites-and-learning-objectives">Chapter 1 prerequisites and learning objectives<a class="headerlink" href="#chapter-1-prerequisites-and-learning-objectives" title="Permanent link">¤</a></h3>
+<p>This chapter assumes conditional probability, finite directed graphs, and ancestral sampling. After completing it, you should be able to:</p>
+<ol>
+<li>distinguish semantic terminal objects from states, actions, and their possibly many construction trajectories;</li>
+<li>derive state and edge flow from trajectory flow and prove source-to-terminal conservation on a finite constructive DAG;</li>
+<li>derive forward and backward kernels and the reward-proportional terminal law, including the Markovian-flow assumption or Markovianization step that justifies a product policy;</li>
+<li>audit explicit-stop, dead-end, reachability, and duplicate-terminal conventions before treating the graph as a probabilistic model;</li>
+<li>predict how scaling, tempering, clipping, shifting, or noisily estimating reward changes the target or its estimator; and</li>
+<li>transfer the construction to a new combinatorial object while separating path multiplicity, semantic identity, reward validity, and optimization evidence.</li>
+</ol>
+<p>Let <span class="arithmatex">\(\mathcal G=(\mathcal S,\mathcal E)\)</span> be a directed acyclic graph with initial state <span class="arithmatex">\(s_0\)</span>. A state is a partially constructed object; an edge <span class="arithmatex">\(s\to s'\)</span> is a valid action; a terminal state <span class="arithmatex">\(x\in\mathcal X\)</span> is a completed object. A trajectory is</p>
+<div class="arithmatex">\[
+\tau=(s_0\to s_1\to\cdots\to s_n=x).
+\]</div>
+<p>Different trajectories may end at the same <span class="arithmatex">\(x\)</span>. Adding atoms in different orders can yield the same molecule; adding edges in different orders can yield the same graph. A correct object probability must sum over all such trajectories.</p>
+<p>The graph is part of the probabilistic model. It specifies which partial objects exist, which actions are valid, when construction stops, and which histories count as alternative routes to the same terminal. Two implementations with the same reward function but different state graphs need not induce the same optimization problem or even the same terminal sample space.</p>
+<p><a href="../probabilistic-grammars-and-program-derivations/#grammars-and-gflownets">Probabilistic Grammars and Program Derivations</a> applies this distinction to partial derivations, expansion-order multiplicity, executable programs, and the difference between terminal reward, grammar probability, and observation likelihood.</p>
+<p>This construction graph is not necessarily the relational graph being generated. When terminal objects are themselves graphs, <a href="../random-graphs-and-relational-generators/">Random Graphs and Relational Generators</a> supplies the additional invariance, automorphism, sparsity, and graph-evaluation contracts; the GFlowNet supplies a reward-proportional constructive sampler.</p>
+<h3 id="stops-terminals-and-complete-objects">Stops, Terminals, and Complete Objects<a class="headerlink" href="#stops-terminals-and-complete-objects" title="Permanent link">¤</a></h3>
+<p>There are two clean conventions:</p>
+<ol>
+<li>a state <span class="arithmatex">\(x\)</span> is terminal and has no outgoing action; or</li>
+<li>a completed-but-not-yet-terminal state takes an explicit <code>STOP</code> edge to a terminal sink representing the object.</li>
+</ol>
+<p>Either convention works, but mixing them can count one object twice or let probability leak past completion. If variable-length strings may stop at every prefix, <code>STOP</code> is a genuine action whose probability affects length. A dead end that is not a valid terminal is not an implicit stop: it is a graph-construction bug unless an explicit failure terminal receives the flow.</p>
+<h3 id="trajectory-edge-and-state-flow">Trajectory, Edge, and State Flow<a class="headerlink" href="#trajectory-edge-and-state-flow" title="Permanent link">¤</a></h3>
+<p>Assign nonnegative flow <span class="arithmatex">\(F(\tau)\)</span> to complete trajectories. Derived quantities are</p>
+<div class="arithmatex">\[
+F(s\to s')=\sum_{\tau\ni(s\to s')}F(\tau),
+\]</div>
+<div class="arithmatex">\[
+F(s)=\sum_{\tau\ni s}F(\tau).
+\]</div>
+<p>Because the graph is acyclic, a trajectory visits a state or edge at most once. In cyclic constructions, the notation <span class="arithmatex">\(\tau\ni s\)</span> must count visits or the state must be augmented with construction time; the simple equations below otherwise lose information.</p>
+<p>For a nonterminal state, conservation requires</p>
+<div class="arithmatex">\[
+\sum_{p\in\operatorname{Pa}(s)}F(p\to s)
+=F(s)
+=\sum_{c\in\operatorname{Ch}(s)}F(s\to c).
+\]</div>
+<p>At a terminal state, incoming flow is matched to reward:</p>
+<div class="arithmatex">\[
+F(x)=R(x).
+\]</div>
+<p>The source flow is the partition function:</p>
+<div class="arithmatex">\[
+F(s_0)=Z=\sum_xR(x).
+\]</div>
+<p>To see why, sum conservation over every internal state. Each internal edge appears once as outgoing and once as incoming and cancels. Only source outflow and terminal inflow remain. Anchoring terminal flow to <span class="arithmatex">\(R(x)\)</span> therefore forces source flow to equal the total reward.</p>
+<h3 id="forward-and-backward-policies">Forward and Backward Policies<a class="headerlink" href="#forward-and-backward-policies" title="Permanent link">¤</a></h3>
+<p>Normalize outgoing and incoming edge flows:</p>
+<div class="arithmatex">\[
+P_F(s'\mid s)=\frac{F(s\to s')}{F(s)},
+\qquad
+P_B(s\mid s')=\frac{F(s\to s')}{F(s')}.
+\]</div>
+<p>Sampling <span class="arithmatex">\(P_F\)</span> from <span class="arithmatex">\(s_0\)</span> to termination gives terminal probability <span class="arithmatex">\(R(x)/Z\)</span> when the balance constraints hold. <span class="arithmatex">\(P_B\)</span> is a training factorization over construction histories; it need not be the physical reverse of an environment.</p>
+<p>There is a precise factorization boundary here. An arbitrary trajectory flow can remember its earlier path, so its normalized trajectory measure need not equal a product of state-only transition kernels. A <strong>Markovian flow</strong> is one for which the next-action distribution depends only on the current state; then both the forward and backward products below reproduce the same trajectory law. If one starts only from compatible conserved edge flows on a DAG, normalizing them constructs a Markovian flow with those state and edge marginals. This is a Markovianization step, not a proof that every history-dependent trajectory flow was already Markovian.</p>
+<p>Formally, the probability of a complete trajectory is</p>
+<div class="arithmatex">\[
+P_F(\tau)=\prod_{t=0}^{n-1}P_F(s_{t+1}\mid s_t),
+\]</div>
+<p>whereas the probability of the terminal object is the many-to-one pushforward</p>
+<div class="arithmatex">\[
+P_F(X=x)=\sum_{\tau:s_n=x}P_F(\tau).
+\]</div>
+<p>Using <span class="arithmatex">\(P_F(s'\mid s)=F(s\to s')/F(s)\)</span> and summing the induced trajectory flows gives</p>
+<div class="arithmatex">\[
+P_F(X=x)=\frac{F(x)}{F(s_0)}=\frac{R(x)}{Z}.
+\]</div>
+<p>This short derivation contains the central idea of the family: distribute a terminal mass across paths, conserve it through partial states, then normalize only once at the source.</p>
+<h3 id="worked-diamond-graph">Worked Diamond Graph<a class="headerlink" href="#worked-diamond-graph" title="Permanent link">¤</a></h3>
+<p>Suppose <span class="arithmatex">\(s_0\)</span> branches to <span class="arithmatex">\(a\)</span> and <span class="arithmatex">\(b\)</span>, both lead to terminal <span class="arithmatex">\(x\)</span>, and a separate branch leads to terminal <span class="arithmatex">\(y\)</span>. Let <span class="arithmatex">\(R(x)=3\)</span>, <span class="arithmatex">\(R(y)=1\)</span>. Total source flow is <span class="arithmatex">\(Z=4\)</span>, so terminal probabilities must be <span class="arithmatex">\(P(x)=3/4\)</span>, <span class="arithmatex">\(P(y)=1/4\)</span>.</p>
+<p>The flow of 3 into <span class="arithmatex">\(x\)</span> may be split between paths through <span class="arithmatex">\(a\)</span> and <span class="arithmatex">\(b\)</span> in many ways. Object probability is fixed while trajectory probability is not. This degree of freedom lets a backward policy select how credit is allocated among construction orders.</p>
+<p>Make the numbers explicit. Give the two <span class="arithmatex">\(x\)</span> paths flows 1 and 2 and the <span class="arithmatex">\(y\)</span> path flow 1. Then</p>
+<div class="arithmatex">\[
+P_F(a\mid s_0)=\tfrac14,
+\quad P_F(b\mid s_0)=\tfrac24,
+\quad P_F(y\mid s_0)=\tfrac14,
+\]</div>
+<p>and both <span class="arithmatex">\(a\)</span> and <span class="arithmatex">\(b\)</span> deterministically finish at <span class="arithmatex">\(x\)</span>. Hence <span class="arithmatex">\(P_F(x)=1/4+2/4=3/4\)</span>. At <span class="arithmatex">\(x\)</span>, the backward policy is <span class="arithmatex">\(P_B(a\mid x)=1/3\)</span> and <span class="arithmatex">\(P_B(b\mid x)=2/3\)</span>. Changing the split to <span class="arithmatex">\(3/2\)</span> and <span class="arithmatex">\(3/2\)</span> changes the trajectory law and backward policy but leaves the object law unchanged.</p>
+<figure class="book-figure" id="fig-gflownets-explained-worked-diamond-graph"><pre class="mermaid"><code>%%{init: {'themeCSS': '.nodeLabel p { color: #111827 !important; } .flowchart-link { stroke: #78879a !important; stroke-width: 2px !important; } marker path { fill: #78879a !important; stroke: #78879a !important; }'}}%%
+flowchart LR
+    S["source s0&lt;br/&gt;flow Z = 4"] --&gt;|"flow 1"| A["partial state a"]
+    S --&gt;|"flow 2"| B["partial state b"]
+    S --&gt;|"flow 1"| Y["semantic terminal y&lt;br/&gt;R(y) = 1"]
+    A --&gt;|"path allocation 1"| X["one semantic terminal x&lt;br/&gt;R(x) = 3"]
+    B --&gt;|"path allocation 2"| X
+    X --&gt; OX["object probability 3/4"]
+    Y --&gt; OY["object probability 1/4"]</code></pre><figcaption class="book-object-caption"><span class="book-object-number">Figure GFN.2.</span> Worked Diamond Graph</figcaption></figure>
+<p>Read the converging arrows as a sum, not as duplicate objects. The two routes
+carry different trajectory probabilities, but the terminal receives one total
+flow of 3. This is the visual invariant to retain when a graph, molecule, set,
+or program admits several construction orders.</p>
+<h3 id="counterexample-path-multiplicity-is-not-reward">Counterexample: Path Multiplicity Is Not Reward<a class="headerlink" href="#counterexample-path-multiplicity-is-not-reward" title="Permanent link">¤</a></h3>
+<p>Suppose objects <span class="arithmatex">\(x\)</span> and <span class="arithmatex">\(y\)</span> both have reward 1, but the implementation represents two orderings for <span class="arithmatex">\(x\)</span> as two distinct terminals while <span class="arithmatex">\(y\)</span> has one. If it assigns reward 1 to each encoding, the represented terminal space has total mass 3 and the semantic object probability becomes <span class="arithmatex">\(P(x)=2/3\)</span>, not the intended <span class="arithmatex">\(1/2\)</span>. The repair is to canonicalize terminal objects, aggregate all paths into one terminal, or divide/aggregate rewards according to a rigorously declared quotient representation. “The network will learn to ignore duplicates” is not a valid repair.</p>
+<h3 id="reward-is-an-unnormalized-density">Reward Is an Unnormalized Density<a class="headerlink" href="#reward-is-an-unnormalized-density" title="Permanent link">¤</a></h3>
+<p>If <span class="arithmatex">\(R(x)=e^{-E(x)/T}\)</span>, a GFlowNet amortizes sampling from an energy-based target. If <span class="arithmatex">\(R(x)\)</span> is an acquisition function, it samples candidates in proportion to acquisition value. Raising reward to power <span class="arithmatex">\(\beta\)</span> changes the target:</p>
+<div class="arithmatex">\[
+P_\beta(x)\propto R(x)^\beta.
+\]</div>
+<p>Reward clipping, adding <span class="arithmatex">\(\epsilon\)</span>, or rank transforms also change the target and must not be described as mere numerical stabilization.</p>
+<p>Rewards need not be normalized, differentiable, or available for partial states. They must, however, be evaluable on sampled terminals for the basic objectives. Negative utility cannot be used directly as flow: choose a nonnegative mapping and acknowledge the resulting distribution. If only an unbiased noisy reward estimate is available, putting that estimate inside a logarithm generally introduces bias; the noise model becomes part of the estimator design.</p>
+<h3 id="what-the-population-result-doesand-does-notsay">What the Population Result Does—and Does Not—Say<a class="headerlink" href="#what-the-population-result-doesand-does-notsay" title="Permanent link">¤</a></h3>
+<p><strong>Established.</strong> On the specified graph, exact nonnegative conserved flow with terminal boundary <span class="arithmatex">\(F(x)=R(x)\)</span> produces <span class="arithmatex">\(P_F(x)=R(x)/Z\)</span>.</p>
+<p>It does not say that stochastic gradient descent finds that flow, that a finite neural network represents it, that unvisited modes are corrected, that the reward is scientifically valid, or that a sampled object is novel. Those are approximation, exploration, and external-validity questions developed in Chapter 6.</p>
+<h3 id="chapter-1-retrieval-questions">Chapter 1 retrieval Questions<a class="headerlink" href="#chapter-1-retrieval-questions" title="Permanent link">¤</a></h3>
+<ol>
+<li>Why can two correct GFlowNets have different trajectory probabilities but the same object distribution?</li>
+<li>What changes if a reward is replaced by <span class="arithmatex">\(R^2\)</span>?</li>
+<li>Why must a variable-length stop decision be represented explicitly?</li>
+</ol>
+<details class="success">
+<summary>Complete solutions</summary>
+<ol>
+<li>Conservation fixes total flow reaching each terminal, but that total may be split among multiple construction histories in many ways.</li>
+<li>The target becomes <span class="arithmatex">\(P(x)\propto R(x)^2\)</span>; it is more concentrated and is not a stabilization-equivalent target.</li>
+<li>Stop determines which prefix is a terminal and therefore contributes to both the trajectory probability and the length distribution.</li>
+</ol>
+</details>
+<h3 id="chapter-1-synthesis">Chapter 1 Synthesis<a class="headerlink" href="#chapter-1-synthesis" title="Permanent link">¤</a></h3>
+<p>GFlowNets conserve flow through a constructive DAG and terminate with flow equal to reward. The induced object law is reward-proportional even when many paths reach one object. Chapter 2 derives local training constraints.</p>
+<details class="question">
+<summary>Why not multiply the probabilities of one chosen construction path and call that the object probability?</summary>
+<p>Because the object probability is the sum over every path that constructs it. Ignoring multiplicity biases objects with many or few construction orders.</p>
+</details>
+<h3 id="independent-practice-and-assessment-map-constructive-flow">Independent practice and assessment map: constructive flow<a class="headerlink" href="#independent-practice-and-assessment-map-constructive-flow" title="Permanent link">¤</a></h3>
+<ol>
+<li><strong>P1.1 — Predict before computing.</strong> In the diamond, keep <span class="arithmatex">\(R(x)=3\)</span> and <span class="arithmatex">\(R(y)=1\)</span> but move all of <span class="arithmatex">\(x\)</span>'s flow to the path through <span class="arithmatex">\(a\)</span>. Predict which of the object law, trajectory law, forward policy, and backward policy change; then calculate them.</li>
+<li><strong>P1.2 — Conservation derivation.</strong> A source sends flows 2 and 5 into two partial states that merge at terminal <span class="arithmatex">\(u\)</span>, and flow 3 directly to terminal <span class="arithmatex">\(v\)</span>. Enumerate state, edge, terminal, and source flows; normalize <span class="arithmatex">\(P_F\)</span>; and prove the two terminal probabilities both by path summation and by <span class="arithmatex">\(R/Z\)</span>.</li>
+<li><strong>P1.3 — Markovianity audit.</strong> Two histories merge at state <span class="arithmatex">\(s\)</span>. A history-dependent controller chooses left with probability <span class="arithmatex">\(0.9\)</span> after the first history and <span class="arithmatex">\(0.1\)</span> after the second. Explain why one state-only <span class="arithmatex">\(P_F(\cdot\mid s)\)</span> cannot reproduce both conditional trajectory laws, and give two valid repairs.</li>
+<li><strong>P1.4 — Stop and quotient counterexample.</strong> Variable-length sets may stop after one or two insertions, and insertion order is retained in terminal IDs. Construct the smallest example in which one semantic set receives too much mass. Repair both the stop semantics and the semantic quotient.</li>
+<li><strong>P1.5 — Reward intervention.</strong> For rewards <span class="arithmatex">\((1,4,9)\)</span>, compute the target before and after multiplying all rewards by 10, squaring them, and adding 1. State which interventions preserve terminal probabilities and how <span class="arithmatex">\(Z\)</span> changes. Then explain why an unbiased random reward cannot generally be inserted unbiasedly into <span class="arithmatex">\(log R\)</span>.</li>
+<li><strong>P1.6 — Transfer.</strong> Design a constructive graph for unlabeled three-node graphs. Specify state identity, valid action, stop rule, terminal canonicalization, nonnegative reward, and a toy exact-enumeration test that distinguishes path coverage from semantic-object coverage.</li>
+</ol>
+<h5 id="outcome-to-task-alignment-objects-paths-and-conserved-flow">Outcome-to-task alignment: objects, paths, and conserved flow<a class="headerlink" href="#outcome-to-task-alignment-objects-paths-and-conserved-flow" title="Permanent link">¤</a></h5>
+<div class="md-typeset__table book-table-container"><table id="tbl-gflownets-explained-outcome-to-task-alignment-objects-paths-and-conserved-flow"><caption class="book-object-caption"><span class="book-object-number">Table GFN.7.</span> Outcome-to-task alignment: objects, paths, and conserved flow</caption>
+<thead>
+<tr>
+<th>Learning objective</th>
+<th>Independently assessed by</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>O1 — Separate objects, states, actions, and trajectories; evidence is a correct semantic/path ledger</td>
+<td>P1.1, P1.4</td>
+</tr>
+<tr>
+<td>O2 — Derive state, edge, source, and terminal conservation; evidence is the exact merged-path calculation</td>
+<td>P1.2</td>
+</tr>
+<tr>
+<td>O3 — Derive product kernels with the correct factorization boundary; evidence is the Markovianity counterexample and repair</td>
+<td>P1.2, P1.3</td>
+</tr>
+<tr>
+<td>O4 — Audit stop, reachability, and duplicate identity; evidence is the variable-length quotient repair</td>
+<td>P1.4, P1.6</td>
+</tr>
+<tr>
+<td>O5 — Predict reward-transform semantics; evidence is the normalized three-reward calculation and noisy-log boundary</td>
+<td>P1.5</td>
+</tr>
+<tr>
+<td>O6 — Transfer constructive flow safely; evidence is a canonical unlabeled-graph design plus exact test</td>
+<td>P1.6</td>
+</tr>
+</tbody>
+</table></div>
+<details class="success">
+<summary>Complete solutions to P1</summary>
+<ol>
+<li>The object law remains <span class="arithmatex">\((P(x),P(y))=(3/4,1/4)\)</span> because terminal flows remain <span class="arithmatex">\((3,1)\)</span>. The <span class="arithmatex">\(x\)</span> path law changes from a positive split across <span class="arithmatex">\(a,b\)</span> to probability one through <span class="arithmatex">\(a\)</span> conditional on reaching <span class="arithmatex">\(x\)</span>. At the source, <span class="arithmatex">\(P_F(a\mid s_0)=3/4\)</span>, <span class="arithmatex">\(P_F(b\mid s_0)=0\)</span>, and <span class="arithmatex">\(P_F(y\mid s_0)=1/4\)</span>. At <span class="arithmatex">\(x\)</span>, <span class="arithmatex">\(P_B(a\mid x)=1\)</span> and <span class="arithmatex">\(P_B(b\mid x)=0\)</span>. Thus object probability is invariant to a valid reallocation of terminal flow, but both path kernels change.</li>
+<li>The two incoming edge flows to <span class="arithmatex">\(u\)</span> are 2 and 5, so <span class="arithmatex">\(F(u)=R(u)=7\)</span>; <span class="arithmatex">\(F(v)=R(v)=3\)</span>; and <span class="arithmatex">\(F(s_0)=Z=10\)</span>. Source action probabilities are <span class="arithmatex">\(2/10,5/10,3/10\)</span>. Summing the first two complete-path probabilities gives <span class="arithmatex">\(P_F(u)=7/10\)</span>, while the direct path gives <span class="arithmatex">\(P_F(v)=3/10\)</span>. The boundary calculation gives the same values: <span class="arithmatex">\(R(u)/Z=7/10\)</span> and <span class="arithmatex">\(R(v)/Z=3/10\)</span>.</li>
+<li>Conditioning on the visible state <span class="arithmatex">\(s\)</span> loses which incoming history occurred, yet the stipulated next-action laws differ. One state-only kernel would have to be both <span class="arithmatex">\((0.9,0.1)\)</span> and <span class="arithmatex">\((0.1,0.9)\)</span>. Either augment the state with the relevant history so the two cases no longer merge, or replace the history-dependent trajectory flow by a declared Markovianized flow that preserves chosen state/edge marginals while accepting a different full trajectory law.</li>
+<li>Let elements be <span class="arithmatex">\(a,b\)</span>. If ordered terminals <code>[a,b]</code> and <code>[b,a]</code> each receive reward 1 while singleton <code>[a]</code> receives reward 1, semantic set <span class="arithmatex">\(\{a,b\}\)</span> gets mass <span class="arithmatex">\(2/3\)</span> rather than <span class="arithmatex">\(1/2\)</span>. Use one explicit <code>STOP</code> decision at each valid set size and map both insertion orders to the same canonical terminal <span class="arithmatex">\(\{a,b\}\)</span>, with total terminal reward assigned once. Alternatively, a formally declared quotient can divide and aggregate encoding rewards, but its induced object law must be proved.</li>
+<li>Initially <span class="arithmatex">\(Z=14\)</span> and <span class="arithmatex">\(p=(1,4,9)/14\)</span>. Multiplication by 10 gives <span class="arithmatex">\(Z'=140\)</span> and the same <span class="arithmatex">\(p\)</span>. Squaring gives <span class="arithmatex">\(Z'=98\)</span> and <span class="arithmatex">\(p'=(1,16,81)/98\)</span>; adding 1 gives <span class="arithmatex">\(Z'=17\)</span> and <span class="arithmatex">\(p'=(2,5,10)/17\)</span>. Only common positive scaling preserves normalized probabilities. For a positive unbiased estimate <span class="arithmatex">\(\widehat R\)</span>, Jensen's inequality generally gives <span class="arithmatex">\(\mathbb E[\log\widehat R]\ne\log R\)</span>; zeros can make the log undefined as well.</li>
+<li>Use isomorphism classes of partial simple graphs as semantic states, add one missing edge as an action, and allow one explicit stop after the declared minimum size. Canonical graph labeling supplies state and terminal IDs; invalid duplicate edges are masked. Assign reward once per terminal isomorphism class. For three vertices, enumerate every labeled action path, map paths to canonical graph IDs, and compare both path visitation and aggregated terminal frequencies with exact <span class="arithmatex">\(R/Z\)</span>. The first diagnoses exploration; the second diagnoses semantic proportionality.</li>
+</ol>
+</details>
+<p><a href="../gflownets-explained/#2-flow-matching-and-detailed-balance">Continue continuously</a>, or use the <a href="./">Chapter 1 stopping-point view</a>.</p>
+<hr/>
+<p><strong>Continue:</strong> <a href="../gflownets-02-local-balance/">2. Local Balance</a> · <a href="../gflownets-explained/">Complete guide</a></p>
+</article>
+</div>
+<script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  Back to top
+</button>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+<div class="md-social">
+<a class="md-social__link" href="https://github.com/avitai/artifex" rel="noopener" target="_blank" title="github.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</a>
+<a class="md-social__link" href="https://pypi.org/project/avitai-artifex/" rel="noopener" target="_blank" title="pypi.org">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-66.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.3v101.8c0 29 25.2 46 53.4 54.3 33.8 9.9 66.3 11.7 106.8 0 26.9-7.8 53.4-23.5 53.4-54.3v-40.7H226.2v-13.6h160.2c31.1 0 42.6-21.7 53.4-54.2 11.2-33.5 10.7-65.7 0-108.6M286.2 444.7a20.4 20.4 0 1 1 0-40.7 20.4 20.4 0 1 1 0 40.7M167.8 248.1h106.8c29.7 0 53.4-24.5 53.4-54.3V91.9c0-29-24.4-50.7-53.4-55.6-35.8-5.9-74.7-5.6-106.8.1-45.2 8-53.4 24.7-53.4 55.6v40.7h106.9v13.6h-147c-31.1 0-58.3 18.7-66.8 54.2-9.8 40.7-10.2 66.1 0 108.6 7.6 31.6 25.7 54.2 56.8 54.2H101v-48.8c0-35.3 30.5-66.4 66.8-66.4m-6.6-183.4a20.4 20.4 0 1 1 0 40.8 20.4 20.4 0 1 1 0-40.8"></path></svg>
+</a>
+<a class="md-social__link" href="https://twitter.com/mahdi_shafiei" rel="noopener" target="_blank" title="twitter.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M459.4 151.7c.3 4.5.3 9.1.3 13.6 0 138.7-105.6 298.6-298.6 298.6-59.5 0-114.7-17.2-161.1-47.1 8.4 1 16.6 1.3 25.3 1.3 49.1 0 94.2-16.6 130.3-44.8-46.1-1-84.8-31.2-98.1-72.8 6.5 1 13 1.6 19.8 1.6 9.4 0 18.8-1.3 27.6-3.6-48.1-9.7-84.1-52-84.1-103v-1.3c14 7.8 30.2 12.7 47.4 13.3-28.3-18.8-46.8-51-46.8-87.4 0-19.5 5.2-37.4 14.3-53C87.4 130.8 165 172.4 252.1 176.9c-1.6-7.8-2.6-15.9-2.6-24C249.5 95.1 296.3 48 354.4 48c30.2 0 57.5 12.7 76.7 33.1 23.7-4.5 46.5-13.3 66.6-25.3-7.8 24.4-24.4 44.8-46.1 57.8 21.1-2.3 41.6-8.1 60.4-16.2-14.3 20.8-32.2 39.3-52.6 54.3"></path></svg>
+</a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.path", "navigation.top", "navigation.prune", "toc.follow", "search.highlight", "search.share", "search.suggest", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "content.mermaid"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+<script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+<script src="../../../javascripts/reading-layout.js"></script>
+</body>
+</html>

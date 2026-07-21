@@ -1,0 +1,1777 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="This chapter makes evaluation query-specific, develops predictive and simulation checks, reviews current dependent and neural compositions, and ends with" name="description"/>
+<meta content="Mahdi Shafiei" name="author"/>
+<link href="https://docs.avitai.bio/artifex/user-guide/concepts/bnp-06-evaluation/" rel="canonical"/>
+<link href="../bnp-05-inference/" rel="prev"/>
+<link href="../bayesian-nonparametric-models-explained/" rel="next"/>
+<link href="../../../assets/images/favicon.png" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.7.7" name="generator"/>
+<title>Bayesian Nonparametrics 6 — Evaluation and Research - Artifex</title>
+<link href="../../../assets/stylesheets/main.ec1eaa64.min.css" rel="stylesheet"/>
+<link href="../../../assets/stylesheets/palette.ab4e12ef.min.css" rel="stylesheet"/>
+<script src="../../../assets/vendor/iframe-worker/index.js"></script>
+<link href="../../../assets/_mkdocstrings.css" rel="stylesheet"/>
+<link href="../../../_static/extra.css" rel="stylesheet"/>
+<script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+<meta content="article" property="og:type"/>
+<meta content="The Artifex Generative Models Book" property="og:site_name"/>
+<meta content="Bayesian Nonparametrics 6 — Evaluation and Research" property="og:title"/>
+<meta content="This chapter makes evaluation query-specific, develops predictive and simulation checks, reviews current dependent and neural compositions, and ends with" property="og:description"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/bnp-06-evaluation/" property="og:url"/>
+<meta content="2026-07-18" property="article:modified_time"/>
+<meta content="summary" name="twitter:card"/>
+<meta content="Bayesian Nonparametrics 6 — Evaluation and Research" name="twitter:title"/>
+<meta content="This chapter makes evaluation query-specific, develops predictive and simulation checks, reviews current dependent and neural compositions, and ends with" name="twitter:description"/>
+<meta content="Generative models, Machine learning, Probabilistic modeling, research, specialization, canonical_chapter, bnp-evaluation, practitioner, researcher" name="keywords"/>
+<meta content="Bayesian Nonparametrics 6 — Evaluation and Research" name="citation_title"/>
+<meta content="Mahdi Shafiei" name="citation_author"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/bnp-06-evaluation/" name="citation_public_url"/>
+<meta content="en" name="citation_language"/>
+<meta content="Bayesian Nonparametrics 6 — Evaluation and Research" name="DC.title"/>
+<meta content="Mahdi Shafiei" name="DC.creator"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/bnp-06-evaluation/" name="DC.identifier"/>
+<meta content="Text.LearningResource" name="DC.type"/>
+<meta content="2026-07-18" name="DCTERMS.modified"/>
+<meta content="https://github.com/avitai/artifex/blob/main/LICENSE" name="DCTERMS.license"/>
+<meta content="research" name="DCTERMS.educationLevel"/>
+<meta content="practitioner, researcher" name="DCTERMS.audience"/>
+<link href="https://github.com/avitai/artifex/blob/main/LICENSE" rel="license"/>
+<script id="artifex-book-metadata" type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Chapter",
+  "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/bnp-06-evaluation/",
+  "url": "https://docs.avitai.bio/artifex/user-guide/concepts/bnp-06-evaluation/",
+  "name": "Bayesian Nonparametrics 6 \u2014 Evaluation and Research",
+  "description": "This chapter makes evaluation query-specific, develops predictive and simulation checks, reviews current dependent and neural compositions, and ends with",
+  "identifier": "bnp-evaluation",
+  "inLanguage": "en",
+  "isAccessibleForFree": true,
+  "learningResourceType": "Canonical chapter",
+  "educationalLevel": "research",
+  "educationalUse": "specialization",
+  "audience": [
+    
+      {"@type": "EducationalAudience", "audienceType": "practitioner"},
+    
+      {"@type": "EducationalAudience", "audienceType": "researcher"}
+    
+  ],
+  "dateModified": "2026-07-18",
+  "keywords": ["Generative models", "Machine learning", "Probabilistic modeling", "research", "specialization", "canonical_chapter", "bnp-evaluation", "practitioner", "researcher"],
+  "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+  "author": [
+    
+      {"@type": "Person", "name": "Mahdi Shafiei"}
+    
+  ],
+  "isPartOf": {
+    "@type": "Book",
+    "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/#book",
+    "url": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/",
+    "name": "The Artifex Generative Models Book",
+    "bookEdition": "Living Web Edition",
+    "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+    "author": [
+      
+        {"@type": "Person", "name": "Mahdi Shafiei"}
+      
+    ]
+  }
+}
+</script>
+<link href="../../../assets/vendor/katex/katex.min.css" id="artifex-katex-stylesheet" integrity="sha384-UA8juhPf75SzzAMA/4fo3yOU7sBJ0om7SCD2GHq0fZqZco6tr1UCV7nUbk9J90JM" rel="stylesheet"/>
+<script defer="" integrity="sha384-T/0lMUdJpd2S1ZHtRiofG3htU3xPCrFVeAQ1UUE2TJwlEJSV5NUwn30kP28n238E" src="../../../assets/vendor/mermaid/mermaid.min.js"></script>
+<script defer="" src="../../../assets/vendor/katex/katex-shadow.js"></script>
+<script defer="" src="../../../javascripts/mermaid-math.js"></script>
+<script defer="" src="../../../javascripts/mathjax.js"></script>
+<script defer="" integrity="sha384-OrHfGTnIbkl0do3N76qW/uWr38o91N05sbSPuYBPLH+hG8X/dNSrjZf3AGjzrCwC" src="../../../assets/vendor/mathjax/tex-mml-chtml.js"></script>
+</head>
+<body data-md-color-accent="amber" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#bayesian-nonparametrics-6-evaluation-and-research">
+          Skip to content
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header md-header--shadow" data-md-component="header">
+<nav aria-label="Header" class="md-header__inner md-grid">
+<a aria-label="Artifex" class="md-header__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            Artifex
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+            
+              Bayesian Nonparametrics 6 — Evaluation and Research
+            
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-label="Switch to dark mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: light)" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_1" hidden="" title="Switch to dark mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+<input aria-label="Switch to light mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-primary="indigo" data-md-color-scheme="slate" id="__palette_1" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_0" hidden="" title="Switch to light mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+</form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div aria-label="Search" class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Search" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="Search" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="Search" class="md-search__options">
+<a aria-label="Share" class="md-search__icon md-icon" data-clipboard="" data-clipboard-text="" data-md-component="search-share" href="javascript:void(0)" tabindex="-1" title="Share">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"></path></svg>
+</a>
+<button aria-label="Clear" class="md-search__icon md-icon" tabindex="-1" title="Clear" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            Initializing search
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Navigation" class="md-nav md-nav--primary" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="Artifex" class="md-nav__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+    Artifex
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../..">
+<span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../getting-started/installation/">
+<span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Generative Models Book
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Generative Models Book
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    
+  
+    Start Here — The Landscape
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../first-course-01-generative-systems/">
+<span class="md-ellipsis">
+    
+  
+    First Course — New to Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../probability-01-objects/">
+<span class="md-ellipsis">
+    
+  
+    Foundations
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_4" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_4" id="__nav_3_4_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Model Families
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_4_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_4">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Model Families
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../autoregressive-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Autoregressive Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../vae-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Variational Autoencoders
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gan-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Generative Adversarial Networks
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../ebm-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Energy-Based Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../diffusion-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Diffusion Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../flow-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Normalizing Flows and Flow Matching
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../probabilistic-circuits-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Probabilistic Circuits
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../tensor-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Tensor-Network and Born Probability Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../implicit-generators-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Implicit Generators Beyond GANs
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../discrete-iterative-01-masked/">
+<span class="md-ellipsis">
+    
+  
+    Discrete Iterative Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../bayesian-flow-networks-01-story/">
+<span class="md-ellipsis">
+    
+  
+    Bayesian Flow Networks
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gflownets-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Generative Flow Networks
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_4_13" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_4_13" id="__nav_3_4_13_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Bayesian Nonparametric Random-Measure Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_4_13_label" class="md-nav" data-md-level="3">
+<label class="md-nav__title" for="__nav_3_4_13">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Bayesian Nonparametric Random-Measure Models
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../bnp-01-random-measures/">
+<span class="md-ellipsis">
+    
+  
+    1. Random Measures
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../bnp-02-partitions-mixtures/">
+<span class="md-ellipsis">
+    
+  
+    2. Partitions and Mixtures
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../bnp-03-feature-allocations/">
+<span class="md-ellipsis">
+    
+  
+    3. Features and Traits
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../bnp-04-hierarchies/">
+<span class="md-ellipsis">
+    
+  
+    4. Hierarchies and Dependence
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../bnp-05-inference/">
+<span class="md-ellipsis">
+    
+  
+    5. Posterior Computation
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
+    
+  
+    6. Evaluation and Research
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
+<span class="md-ellipsis">
+    
+  
+    6. Evaluation and Research
+  
+
+    
+  </span>
+</a>
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#6-evaluation-applications-and-open-research">
+<span class="md-ellipsis">
+      
+        6. Evaluation, Applications, and Open Research
+      
+    </span>
+</a>
+<nav aria-label="6. Evaluation, Applications, and Open Research" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-6-definition-and-scope">
+<span class="md-ellipsis">
+      
+        Chapter 6 definition and scope
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-6-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 6 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#start-from-the-query">
+<span class="md-ellipsis">
+      
+        Start from the query
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#prior-predictive-checking">
+<span class="md-ellipsis">
+      
+        Prior predictive checking
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#posterior-predictive-checking">
+<span class="md-ellipsis">
+      
+        Posterior predictive checking
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#partition-and-feature-decisions">
+<span class="md-ellipsis">
+      
+        Partition and feature decisions
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#computational-calibration">
+<span class="md-ellipsis">
+      
+        Computational calibration
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#evidence-map-for-applications-and-compositions">
+<span class="md-ellipsis">
+      
+        Evidence map for applications and compositions
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#cumulative-worked-study-subpopulations-across-two-laboratories">
+<span class="md-ellipsis">
+      
+        Cumulative worked study: subpopulations across two laboratories
+      
+    </span>
+</a>
+<nav aria-label="Cumulative worked study: subpopulations across two laboratories" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#1-declare-the-object-and-likelihood">
+<span class="md-ellipsis">
+      
+        1. Declare the object and likelihood
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#2-inspect-the-prior">
+<span class="md-ellipsis">
+      
+        2. Inspect the prior
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#3-fit-with-two-independent-algorithms-or-budgets">
+<span class="md-ellipsis">
+      
+        3. Fit with two independent algorithms or budgets
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#4-diagnose-computation">
+<span class="md-ellipsis">
+      
+        4. Diagnose computation
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#5-match-evaluation-to-the-claims">
+<span class="md-ellipsis">
+      
+        5. Match evaluation to the claims
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#6-state-the-failure-boundary">
+<span class="md-ellipsis">
+      
+        6. State the failure boundary
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#model-selection-guide">
+<span class="md-ellipsis">
+      
+        Model-selection guide
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#open-research-questions">
+<span class="md-ellipsis">
+      
+        Open research questions
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#independent-practice-and-assessment-map-evaluation-and-research">
+<span class="md-ellipsis">
+      
+        Independent practice and assessment map: evaluation and research
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#research-exercises">
+<span class="md-ellipsis">
+      
+        Research exercises
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#primary-reading-trail">
+<span class="md-ellipsis">
+      
+        Primary reading trail
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#source-tracing-checklist">
+<span class="md-ellipsis">
+      
+        Source-tracing checklist
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-6-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 6 synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#final-synthesis">
+<span class="md-ellipsis">
+      
+        Final synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../bayesian-nonparametric-models-explained/">
+<span class="md-ellipsis">
+    
+  
+    Continuous View (All Chapters)
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../stochastic-process-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Stochastic-Process and Function-Space Generators
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../point-processes-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Point Processes and Random Finite Sets
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../random-graphs-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Random Graphs and Relational Generators
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../copula-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Copula Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../grammar-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Probabilistic Grammars and Program Derivations
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../causal-generative-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Causal Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../new-families-frontier-evidence/">
+<span class="md-ellipsis">
+    
+  
+    Research Evidence Ledger
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gradients-01-taxonomy/">
+<span class="md-ellipsis">
+    
+  
+    Connections and Compositions
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../normalization-01-queries/">
+<span class="md-ellipsis">
+    
+  
+    Research Practice
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../models/vae-guide/">
+<span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/core/base/">
+<span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../examples/overview/">
+<span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../zoo/">
+<span class="md-ellipsis">
+    
+  
+    Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../training/overview/">
+<span class="md-ellipsis">
+    
+  
+    Training
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../data/overview/">
+<span class="md-ellipsis">
+    
+  
+    Data &amp; Modalities
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../inference/overview/">
+<span class="md-ellipsis">
+    
+  
+    Inference &amp; Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../benchmarks/">
+<span class="md-ellipsis">
+    
+  
+    Evaluation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../guides/extensions/">
+<span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../extensions/">
+<span class="md-ellipsis">
+    
+  
+    Advanced Topics
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../cli/">
+<span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../community/contributing/">
+<span class="md-ellipsis">
+    
+  
+    Community
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/configs/protein-extension/">
+<span class="md-ellipsis">
+    
+  
+    Reference Library
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#6-evaluation-applications-and-open-research">
+<span class="md-ellipsis">
+      
+        6. Evaluation, Applications, and Open Research
+      
+    </span>
+</a>
+<nav aria-label="6. Evaluation, Applications, and Open Research" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-6-definition-and-scope">
+<span class="md-ellipsis">
+      
+        Chapter 6 definition and scope
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-6-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 6 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#start-from-the-query">
+<span class="md-ellipsis">
+      
+        Start from the query
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#prior-predictive-checking">
+<span class="md-ellipsis">
+      
+        Prior predictive checking
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#posterior-predictive-checking">
+<span class="md-ellipsis">
+      
+        Posterior predictive checking
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#partition-and-feature-decisions">
+<span class="md-ellipsis">
+      
+        Partition and feature decisions
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#computational-calibration">
+<span class="md-ellipsis">
+      
+        Computational calibration
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#evidence-map-for-applications-and-compositions">
+<span class="md-ellipsis">
+      
+        Evidence map for applications and compositions
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#cumulative-worked-study-subpopulations-across-two-laboratories">
+<span class="md-ellipsis">
+      
+        Cumulative worked study: subpopulations across two laboratories
+      
+    </span>
+</a>
+<nav aria-label="Cumulative worked study: subpopulations across two laboratories" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#1-declare-the-object-and-likelihood">
+<span class="md-ellipsis">
+      
+        1. Declare the object and likelihood
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#2-inspect-the-prior">
+<span class="md-ellipsis">
+      
+        2. Inspect the prior
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#3-fit-with-two-independent-algorithms-or-budgets">
+<span class="md-ellipsis">
+      
+        3. Fit with two independent algorithms or budgets
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#4-diagnose-computation">
+<span class="md-ellipsis">
+      
+        4. Diagnose computation
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#5-match-evaluation-to-the-claims">
+<span class="md-ellipsis">
+      
+        5. Match evaluation to the claims
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#6-state-the-failure-boundary">
+<span class="md-ellipsis">
+      
+        6. State the failure boundary
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#model-selection-guide">
+<span class="md-ellipsis">
+      
+        Model-selection guide
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#open-research-questions">
+<span class="md-ellipsis">
+      
+        Open research questions
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#independent-practice-and-assessment-map-evaluation-and-research">
+<span class="md-ellipsis">
+      
+        Independent practice and assessment map: evaluation and research
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#research-exercises">
+<span class="md-ellipsis">
+      
+        Research exercises
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#primary-reading-trail">
+<span class="md-ellipsis">
+      
+        Primary reading trail
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#source-tracing-checklist">
+<span class="md-ellipsis">
+      
+        Source-tracing checklist
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-6-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 6 synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#final-synthesis">
+<span class="md-ellipsis">
+      
+        Final synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<nav aria-label="Breadcrumb" class="md-path">
+<ol class="md-path__list">
+<li class="md-path__item">
+<a class="md-path__link" href="../../..">
+<span class="md-ellipsis">
+    Home
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    Generative Models Book
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../autoregressive-01-foundations/">
+<span class="md-ellipsis">
+    Model Families
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../bnp-01-random-measures/">
+<span class="md-ellipsis">
+    Bayesian Nonparametric Random-Measure Models
+  </span>
+</a>
+</li>
+</ol>
+</nav>
+<article class="md-content__inner md-typeset">
+<h1 id="bayesian-nonparametrics-6-evaluation-and-research">Bayesian Nonparametrics 6 — Evaluation and Research<a class="headerlink" href="#bayesian-nonparametrics-6-evaluation-and-research" title="Permanent link">¤</a></h1><aside aria-label="Learning path" class="admonition abstract artifex-learning-path"><p class="admonition-title">Learning path</p><p><strong>Required knowledge</strong></p><ul class="artifex-learning-path__links" data-learning-path-role="required"><li><a href="../bnp-05-inference/">Bayesian Nonparametrics 5 — Posterior Computation</a></li></ul><p><strong>Readiness check:</strong> can you explain the central object and reproduce one worked example from each required chapter? If not, follow its link before continuing.</p><p><strong>Newly unlocked in the default route</strong></p><p>No immediate successor names this page as its final required prerequisite. Continue through the book navigation or the chapter's cross-links.</p></aside>
+<p>This chapter makes evaluation query-specific, develops predictive and simulation checks, reviews current dependent and neural compositions, and ends with research exercises. Read it continuously in the <a href="../bayesian-nonparametric-models-explained/#6-evaluation-applications-and-open-research">complete guide</a>.</p>
+<h2 id="6-evaluation-applications-and-open-research">6. Evaluation, Applications, and Open Research<a class="headerlink" href="#6-evaluation-applications-and-open-research" title="Permanent link">¤</a></h2>
+<h3 id="chapter-6-definition-and-scope">Chapter 6 definition and scope<a class="headerlink" href="#chapter-6-definition-and-scope" title="Permanent link">¤</a></h3>
+<p>Evaluation must follow the estimand. A random-measure model can be used for density estimation, sample partitioning, unseen-species prediction, latent feature discovery, grouped sharing, or uncertainty about a functional. No single cluster score or held-out likelihood validates all of these claims.</p>
+<h3 id="chapter-6-prerequisites-and-learning-objectives">Chapter 6 prerequisites and learning objectives<a class="headerlink" href="#chapter-6-prerequisites-and-learning-objectives" title="Permanent link">¤</a></h3>
+<p>This chapter assumes the complete volume and the research-practice guides. By the end, you should be able to:</p>
+<ol>
+<li><strong>O1 — Map</strong> a scientific query to its posterior object, decision, and proper evaluation.</li>
+<li><strong>O2 — Separate</strong> prior-predictive, likelihood, posterior-computation, and deployment failures.</li>
+<li><strong>O3 — Evaluate</strong> partitions and features with label- or permutation-invariant summaries and declared losses.</li>
+<li><strong>O4 — Calibrate</strong> identifiable functionals through simulation while keeping model adequacy separate.</li>
+<li><strong>O5 — Audit</strong> empirical application claims by evidence maturity, scope, and missing validity guarantees.</li>
+<li><strong>O6 — Design</strong> a reproducible BNP study whose predictive, latent-structure, computational, and external-validity claims are separately tested.</li>
+</ol>
+<figure class="book-figure" id="fig-bayesian-nonparametric-models-explained-chapter-6-prerequisites-and-learning-objectives"><pre class="mermaid"><code>%%{init: {'themeCSS': '.nodeLabel p { color: #111827 !important; } .flowchart-link { stroke: #78879a !important; stroke-width: 2px !important; } marker path { fill: #78879a !important; stroke: #78879a !important; }'}}%%
+flowchart TB
+    Q["Scientific query"] --&gt; O["Posterior object"]
+    O --&gt; D["Decision / summary&lt;br/&gt;with declared loss"]
+    D --&gt; E["Matched external or&lt;br/&gt;held-out evidence"]
+    Q --&gt; PP["Prior-predictive&lt;br/&gt;plausibility"]
+    O --&gt; CAL["Algorithm calibration&lt;br/&gt;on identifiable functionals"]
+    PP --&gt; CLAIM{"Claim survives all&lt;br/&gt;required checks?"}
+    CAL --&gt; CLAIM
+    E --&gt; CLAIM
+    CLAIM --&gt;|"yes, within scope"| REPORT["Bounded conclusion +&lt;br/&gt;uncertainty + compute"]
+    CLAIM --&gt;|"no"| LOCATE["Locate model, algorithm,&lt;br/&gt;or deployment failure"]</code></pre><figcaption class="book-object-caption"><span class="book-object-number">Figure BNP.16.</span> Chapter 6 prerequisites and learning objectives</figcaption></figure>
+<h3 id="start-from-the-query">Start from the query<a class="headerlink" href="#start-from-the-query" title="Permanent link">¤</a></h3>
+<div class="md-typeset__table book-table-container"><table id="tbl-bayesian-nonparametric-models-explained-start-from-the-query"><caption class="book-object-caption"><span class="book-object-number">Table BNP.8.</span> Start from the query</caption>
+<thead>
+<tr>
+<th>Scientific or operational query</th>
+<th>Posterior object</th>
+<th>Minimum evaluation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>estimate a density</td>
+<td>posterior predictive <span class="arithmatex">\(p(x_{new}\mid x)\)</span></td>
+<td>held-out log score/proper score; calibration and tail checks; matched parametric and flexible baselines</td>
+</tr>
+<tr>
+<td>partition these observations</td>
+<td><span class="arithmatex">\(p(\Pi_n\mid x)\)</span></td>
+<td>posterior co-clustering/decision loss; stability and uncertainty; external truth only when independently defined</td>
+</tr>
+<tr>
+<td>infer a finite population count</td>
+<td>posterior over a model-defined <span class="arithmatex">\(K\)</span></td>
+<td>an identifiable count model; simulation calibration; sensitivity and consistency evidence</td>
+</tr>
+<tr>
+<td>predict unseen categories</td>
+<td>discovery probabilities and frequency functionals</td>
+<td>held-out new-type counts, rare-frequency calibration, sampling-design fidelity</td>
+</tr>
+<tr>
+<td>discover latent features</td>
+<td><span class="arithmatex">\(p(Z,A\mid x)\)</span> up to column equivalence</td>
+<td>predictive checks plus permutation-invariant recovery or external measurements</td>
+</tr>
+<tr>
+<td>share structure across groups</td>
+<td>posterior over global and local measures</td>
+<td>within/new-group prediction, shrinkage calibration, group-shift and negative-transfer checks</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="prior-predictive-checking">Prior predictive checking<a class="headerlink" href="#prior-predictive-checking" title="Permanent link">¤</a></h3>
+<p>Before fitting, sample complete datasets from the prior. Inspect:</p>
+<ul>
+<li><span class="arithmatex">\(K_n\)</span> and block-size profiles over the intended sample-size range;</li>
+<li>per-row and total active features;</li>
+<li>component scales, overlap, and tail behavior under <span class="arithmatex">\(H\)</span> and the likelihood;</li>
+<li>group-sharing, temporal persistence, and covariate smoothness;</li>
+<li>replicated observables, not only latent allocations.</li>
+</ul>
+<p>For a DP, a gamma hyperprior on <span class="arithmatex">\(\alpha\)</span> creates a distribution over growth curves rather than one curve. It does not remove sensitivity; it moves the choice to hyperprior shape/rate and posterior identifiability. Report those choices and prior-posterior movement.</p>
+<h3 id="posterior-predictive-checking">Posterior predictive checking<a class="headerlink" href="#posterior-predictive-checking" title="Permanent link">¤</a></h3>
+<p>Draw model parameters/allocations from the posterior and replicate observations under the full likelihood. Compare statistics relevant to the task: density tails, multimodality, within-block dispersion, unseen-type rate, feature co-occurrence, group differences, or transition durations. Posterior predictive agreement is a model check, not a proof that the latent partition is true; flexible mixtures can reproduce observables through several latent decompositions.</p>
+<p>Held-out log predictive density is a proper distributional score when computed accurately. It should state whether the value is conditional on a fitted truncation, estimated by Monte Carlo, averaged over posterior draws, or evaluated through a variational approximation. Training likelihood and ELBO are not substitutes.</p>
+<h3 id="partition-and-feature-decisions">Partition and feature decisions<a class="headerlink" href="#partition-and-feature-decisions" title="Permanent link">¤</a></h3>
+<p>A posterior on partitions is not one partition. If an action needs a point estimate, declare a loss. Variation of information, Binder-type pairwise losses, or application-specific costs lead to different summaries. Report credible uncertainty in co-clustering or block membership rather than only a colored heat map.</p>
+<p>For features, match columns using a permutation-invariant assignment in simulations. In real data, test whether feature-based predictions replicate across cohorts or align with measurements not used to fit the model. Semantic names inferred from the same observations are interpretations, not independent validation.</p>
+<h3 id="computational-calibration">Computational calibration<a class="headerlink" href="#computational-calibration" title="Permanent link">¤</a></h3>
+<p>Simulation-based calibration can test an inference implementation by drawing parameters and data from the model, fitting repeatedly, and checking rank/uniformity diagnostics for identifiable functionals. For partitions, use label-invariant summaries. Passing simulation calibration under the assumed model does not establish model adequacy for real data; failing it reveals an algorithm, implementation, or finite-budget problem.</p>
+<p>Record:</p>
+<ul>
+<li>chains/particles/seeds and warmup;</li>
+<li>effective sample size or repeated-run variation;</li>
+<li>truncation and residual-mass checks;</li>
+<li>likelihood and gradient evaluations;</li>
+<li>total training/inference wall-clock, hardware, and peak memory;</li>
+<li>amortized training simulations and reuse count;</li>
+<li>source code, random seeds, preprocessing, and data splits.</li>
+</ul>
+<h3 id="evidence-map-for-applications-and-compositions">Evidence map for applications and compositions<a class="headerlink" href="#evidence-map-for-applications-and-compositions" title="Permanent link">¤</a></h3>
+<div class="md-typeset__table book-table-container"><table id="tbl-bayesian-nonparametric-models-explained-evidence-map-for-applications-and-compositions"><caption class="book-object-caption"><span class="book-object-number">Table BNP.17.</span> Evidence map for applications and compositions</caption>
+<thead>
+<tr>
+<th>Result</th>
+<th>Maturity</th>
+<th>What it establishes</th>
+<th>What it does not establish</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>DP finite-partition, predictive, and stick constructions</td>
+<td><strong>Established</strong></td>
+<td>coherent random probability measure and exchangeable sampling views</td>
+<td>suitability of a particular likelihood or cluster interpretation</td>
+</tr>
+<tr>
+<td>DP normal-mixture density consistency</td>
+<td><strong>Established under assumptions</strong></td>
+<td>posterior density consistency for stated priors/truth conditions</td>
+<td>finite-sample superiority or component-count consistency</td>
+</tr>
+<tr>
+<td>IBP and beta–Bernoulli construction</td>
+<td><strong>Established</strong></td>
+<td>exchangeable unbounded binary feature allocations</td>
+<td>identifiable semantic factors under arbitrary decoders</td>
+</tr>
+<tr>
+<td>Neural Clustering Processes</td>
+<td><strong>Peer-reviewed research (ICML 2020)</strong></td>
+<td>amortized approximate partition-posterior sampling for trained model classes</td>
+<td>exactness or deployment calibration outside the simulation distribution</td>
+</tr>
+<tr>
+<td><a href="https://jmlr.org/papers/v25/23-1058.html">Random-measure recovery from sketches</a></td>
+<td><strong>Peer-reviewed research (JMLR 2024)</strong></td>
+<td>posterior frequency/cardinality queries for declared Poisson–Kingman and trait settings</td>
+<td>lossless recovery from arbitrary sketches or streams</td>
+</tr>
+<tr>
+<td>HDP-Flow</td>
+<td><strong>Peer-reviewed research (UAI 2025)</strong></td>
+<td>one HDP/flow/variational state-discovery composition on declared wearable datasets</td>
+<td>family-wide state identifiability or universally calibrated uncertainty</td>
+</tr>
+<tr>
+<td>Covariate-dependent HDP</td>
+<td><strong>Peer-reviewed research (JMLR 2026)</strong></td>
+<td>a valid covariate-indexed hierarchical construction, augmented MCMC, and two applications</td>
+<td>a universal dependent-measure solution or causal cell dynamics</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="cumulative-worked-study-subpopulations-across-two-laboratories">Cumulative worked study: subpopulations across two laboratories<a class="headerlink" href="#cumulative-worked-study-subpopulations-across-two-laboratories" title="Permanent link">¤</a></h3>
+<p>Suppose two laboratories measure the same biological assay, and the goals are to predict new measurements and learn whether some latent response patterns are shared.</p>
+<h4 id="1-declare-the-object-and-likelihood">1. Declare the object and likelihood<a class="headerlink" href="#1-declare-the-object-and-likelihood" title="Permanent link">¤</a></h4>
+<p>Use an HDP mixture only if shared component parameters are scientifically meaningful. Specify <span class="arithmatex">\(G_0\)</span>, laboratory measures <span class="arithmatex">\(G_1,G_2\)</span>, and an observation likelihood that includes batch-specific measurement noise. Do not let a shared atom silently mean “the same causal cell type.”</p>
+<h4 id="2-inspect-the-prior">2. Inspect the prior<a class="headerlink" href="#2-inspect-the-prior" title="Permanent link">¤</a></h4>
+<p>Simulate the number and sizes of global/local components at each laboratory's actual sample size. Check how often one laboratory receives components absent from the other and whether the likelihood produces realistic within-component variation.</p>
+<h4 id="3-fit-with-two-independent-algorithms-or-budgets">3. Fit with two independent algorithms or budgets<a class="headerlink" href="#3-fit-with-two-independent-algorithms-or-budgets" title="Permanent link">¤</a></h4>
+<p>For example, compare a collapsed/auxiliary MCMC scheme with a substantially enlarged variational truncation. Agreement in held-out prediction with disagreement in partitions is scientifically informative: the density query may be stable while latent interpretation is not.</p>
+<h4 id="4-diagnose-computation">4. Diagnose computation<a class="headerlink" href="#4-diagnose-computation" title="Permanent link">¤</a></h4>
+<p>Run overdispersed chains, inspect label-invariant co-clustering, global atom usage, <span class="arithmatex">\(\alpha,\gamma\)</span>, residual/truncation mass, and ESS per wall-clock. Hold out complete groups as well as random observations to test transfer.</p>
+<h4 id="5-match-evaluation-to-the-claims">5. Match evaluation to the claims<a class="headerlink" href="#5-match-evaluation-to-the-claims" title="Permanent link">¤</a></h4>
+<ul>
+<li>For prediction: new-observation and new-laboratory proper scores.</li>
+<li>For sharing: posterior probabilities that measurements co-cluster across laboratories, with sensitivity to batch likelihoods.</li>
+<li>For biological identity: external markers or interventions not used in fitting.</li>
+<li>For component count: do not use the HDP occupied count as an estimator of a finite truth without an explicit count model.</li>
+</ul>
+<h4 id="6-state-the-failure-boundary">6. State the failure boundary<a class="headerlink" href="#6-state-the-failure-boundary" title="Permanent link">¤</a></h4>
+<p>If a batch shift is absorbed by new mixture components, the model may predict well while inventing laboratory-specific “subtypes.” If the likelihood underestimates heavy tails, it may split one population. If aggressive sharing is imposed, rare genuine group-specific structure may disappear. These are model and query failures, not merely sampler bugs.</p>
+<h3 id="model-selection-guide">Model-selection guide<a class="headerlink" href="#model-selection-guide" title="Permanent link">¤</a></h3>
+<div class="md-typeset__table book-table-container"><table id="tbl-bayesian-nonparametric-models-explained-model-selection-guide"><caption class="book-object-caption"><span class="book-object-number">Table BNP.10.</span> Model-selection guide</caption>
+<thead>
+<tr>
+<th>Need</th>
+<th>Prefer</th>
+<th>Reconsider BNP random measures when</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>flexible small/moderate-data density with posterior uncertainty</td>
+<td>DP/PY/normalized-CRM mixture with a defensible kernel</td>
+<td>a modern flow/AR model has enough data and density throughput dominates latent interpretation</td>
+</tr>
+<tr>
+<td>a finite scientific component count</td>
+<td>finite mixture with a prior on <span class="arithmatex">\(K\)</span> and identifiable components</td>
+<td>density approximation rather than count is the real goal</td>
+</tr>
+<tr>
+<td>multiple simultaneous latent causes</td>
+<td>beta–Bernoulli or trait allocation with a mechanistic likelihood</td>
+<td>a fixed sparse factor model is adequate and easier to identify</td>
+</tr>
+<tr>
+<td>shared catalogs across groups</td>
+<td>HDP or hierarchical CRM</td>
+<td>components should vary continuously rather than share exact atoms</td>
+</tr>
+<tr>
+<td>smooth distributional change with context</td>
+<td>a valid dependent random-measure construction</td>
+<td>a conditional density model answers the query without latent-atom semantics</td>
+</tr>
+<tr>
+<td>repeated low-latency posterior inference</td>
+<td>validated amortized inference</td>
+<td>simulation shift or one-off small datasets make training cost/error unjustified</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="open-research-questions">Open research questions<a class="headerlink" href="#open-research-questions" title="Permanent link">¤</a></h3>
+<ol>
+<li><strong>Query-specific consistency under misspecification.</strong> Which density, partition, rare-type, and decision functionals remain calibrated when the component likelihood is wrong?</li>
+<li><strong>Scalable posterior uncertainty.</strong> Can amortized, variational, SMC, and distributed methods retain calibrated tail and partition uncertainty at modern data scale?</li>
+<li><strong>Dependent-measure validity and interpretation.</strong> How should flexible covariate-dependent measures trade marginal semantics, atom sharing, smoothness, and identifiable change?</li>
+<li><strong>Neural/random-measure composition.</strong> Which neural likelihoods preserve useful random-measure inductive bias rather than making allocations arbitrary explanations of a universal decoder?</li>
+<li><strong>Robust rare-event and unseen-type prediction.</strong> How should power-law, sampling-bias, censoring, and privacy constraints enter species and trait models?</li>
+<li><strong>Reproducible latent-structure evaluation.</strong> Which benchmark designs separate predictive fit, algorithmic calibration, latent recovery, and scientific validity?</li>
+</ol>
+<h3 id="independent-practice-and-assessment-map-evaluation-and-research">Independent practice and assessment map: evaluation and research<a class="headerlink" href="#independent-practice-and-assessment-map-evaluation-and-research" title="Permanent link">¤</a></h3>
+<ol>
+<li><strong>P1.1 — Predict before computing.</strong> A model passes simulation-based calibration for <span class="arithmatex">\(K_n\)</span> under its own simulator but underpredicts held-out tail events in real data. Predict which conclusion is justified: implementation correctness, model adequacy, both, or neither. Explain the evidence boundary.</li>
+<li><strong>P1.2 — Query-to-evidence map.</strong> For density estimation, unseen-category prediction, and scientific feature discovery, name the posterior object, one proper or label-invariant evaluation, one matched baseline, and one tempting invalid shortcut.</li>
+<li><strong>P1.3 — Partition decision.</strong> Explain why posterior co-clustering, an action selected under variation-of-information loss, and independently measured class labels answer three different questions. Specify how all three can be reported without turning one into ground truth for the others.</li>
+<li><strong>P1.4 — Computational calibration.</strong> Design a simulation-calibration experiment for the measurable event <span class="arithmatex">\(G(A)\)</span> and one label-invariant partition functional. State what is drawn, refit, ranked, and varied, plus one real-data conclusion that passing ranks cannot support.</li>
+<li><strong>P1.5 — Evidence-map audit.</strong> Select the sketches, HDP-Flow, or covariate-dependent-HDP result. Trace its source, model, algorithm, data/protocol, supported query, and explicit nonclaim; then propose the smallest replication that would test the stated claim rather than a stronger one.</li>
+<li><strong>P1.6 — Transfer.</strong> Write a preregistration for the two-laboratory worked study. Include prior predictive checks, random-observation and held-out-laboratory splits, two inference methods or budgets, external-marker validation, negative-transfer and batch-shift tests, compute, uncertainty, and criteria for revising the biological interpretation.</li>
+</ol>
+<h5 id="outcome-to-task-alignment-claims-matched-to-evidence">Outcome-to-task alignment: claims matched to evidence<a class="headerlink" href="#outcome-to-task-alignment-claims-matched-to-evidence" title="Permanent link">¤</a></h5>
+<div class="md-typeset__table book-table-container"><table id="tbl-bayesian-nonparametric-models-explained-outcome-to-task-alignment-claims-matched-to-evidence"><caption class="book-object-caption"><span class="book-object-number">Table BNP.18.</span> Outcome-to-task alignment: claims matched to evidence</caption>
+<thead>
+<tr>
+<th>Learning objective</th>
+<th>Independently assessed by</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>O1 — Map query to posterior object and evaluation; evidence is a three-query evidence table</td>
+<td>P1.2</td>
+</tr>
+<tr>
+<td>O2 — Separate model and computational failures; evidence is the calibration/tail diagnosis</td>
+<td>P1.1, P1.4</td>
+</tr>
+<tr>
+<td>O3 — Evaluate latent structure invariantly; evidence is the three-level partition report</td>
+<td>P1.3</td>
+</tr>
+<tr>
+<td>O4 — Calibrate identifiable functionals; evidence is a complete repeated-simulation design</td>
+<td>P1.4</td>
+</tr>
+<tr>
+<td>O5 — Audit empirical claims by maturity and scope; evidence is a source-to-nonclaim trace</td>
+<td>P1.5</td>
+</tr>
+<tr>
+<td>O6 — Design a reproducible study; evidence is the laboratory preregistration</td>
+<td>P1.6</td>
+</tr>
+</tbody>
+</table></div>
+<details class="success">
+<summary>Complete solutions to P1</summary>
+<ol>
+<li>The result supports the narrower claim that the implementation can be calibrated for <span class="arithmatex">\(K_n\)</span> when data truly come from the tested simulator and budgets. It does not establish real-data model adequacy; tail underprediction is direct evidence of a model, preprocessing, inference-at-deployment, or shift failure that must be localized. Thus “both” is unjustified, while “neither” throws away the simulator-scoped computational evidence.</li>
+<li>Density estimation targets the posterior predictive and uses held-out proper scores against matched finite/flexible density baselines; training likelihood is invalid. Unseen-category prediction targets discovery/frequency functionals and uses held-out new-type calibration against species-sampling or finite-count baselines; posterior mean <span class="arithmatex">\(K_n\)</span> alone is invalid. Scientific feature discovery targets <span class="arithmatex">\(p(Z,A\mid x)\)</span> up to column equivalence and needs permutation-invariant recovery in simulation plus external measurements/interventions in reality, against finite sparse-factor baselines; naming a visualized decoder feature is invalid evidence.</li>
+<li>Co-clustering reports pairwise posterior uncertainty, the variation-of-information action is one loss-optimal summary of that posterior, and external labels are measurements defined outside the fitted allocation. Report the matrix with uncertainty, the declared loss and chosen partition, and agreement/disagreement with independently justified labels; do not retroactively define components by those labels or call the action the posterior itself.</li>
+<li>Repeatedly draw <span class="arithmatex">\(G\)</span>, latent structure, and observations from the declared prior/likelihood, refit with the full algorithm, and rank the true <span class="arithmatex">\(G(A)\)</span> among posterior draws. For partitions use a label-invariant scalar such as number of co-clustered pairs or <span class="arithmatex">\(K_n\)</span> under conditions where it is identifiable, and check rank uniformity across sample sizes, hyperparameters, truncations, and budgets. Passing under this simulator cannot prove the likelihood or latent semantics fit real data.</li>
+<li>For sketches, the source defines Poisson–Kingman/trait random-measure priors and posterior frequency/cardinality recovery from declared sketch summaries. The replication should implement one published model and sketch protocol, reproduce its posterior query and uncertainty on the stated synthetic or benchmark setting, and compare with the declared baseline. It must not claim lossless recovery for arbitrary sketches, streams, priors, or misspecified populations.</li>
+<li>Preregister realistic prior simulations for component counts, sharing, noise, and tails; hold out both observations and an entire laboratory; compare overdispersed MCMC with a substantially enlarged variational budget; and record predictive scores, co-clustering uncertainty, residual mass, convergence, hardware, wall-clock, and seeds. Test batch-shift and no-sharing alternatives, use markers/interventions withheld from fitting for identity claims, and revise or withdraw subtype language when prediction is stable but partitions, external evidence, or batch sensitivity are not.</li>
+</ol>
+</details>
+<h3 id="research-exercises">Research exercises<a class="headerlink" href="#research-exercises" title="Permanent link">¤</a></h3>
+<ol>
+<li>Derive the DP EPPF for <span class="arithmatex">\(n=4\)</span>, <span class="arithmatex">\(\alpha=1\)</span>, and verify that summing over all 15 set partitions gives one.</li>
+<li>Compare <span class="arithmatex">\(\mathbb E[K_n]\)</span> under a DP and the asymptotic order under a Pitman–Yor prior. Design two priors with similar <span class="arithmatex">\(K_{100}\)</span> but different rare-block behavior.</li>
+<li>Implement the beta–Bernoulli worked model with a finite approximation and show how column-label matching changes apparent feature recovery.</li>
+<li>Construct a posterior predictive diagnostic that distinguishes a heavy-tailed single component from a narrow-kernel mixture using tail replicates rather than component count.</li>
+<li>Compare a fixed truncation and slice sampler on the same DPM. Report predictive estimates, <span class="arithmatex">\(K_n\)</span>, residual diagnostics, ESS/second, and sensitivity to initialization.</li>
+</ol>
+<details class="success">
+<summary>Exercise 1 checkpoint</summary>
+<p>For <span class="arithmatex">\(\alpha=1\)</span>, the EPPF of a particular partition is <span class="arithmatex">\(\prod_k(|B_k|-1)!/4!\)</span>. Grouping the 15 partitions by block sizes gives probabilities <span class="arithmatex">\(1/4\)</span> for <span class="arithmatex">\((4)\)</span>, <span class="arithmatex">\(11/24\)</span> for the seven two-block partitions, <span class="arithmatex">\(1/4\)</span> for the six three-block partitions, and <span class="arithmatex">\(1/24\)</span> for <span class="arithmatex">\((1,1,1,1)\)</span>; these sum to one. The combinatorial multiplicities are essential.</p>
+</details>
+<h3 id="primary-reading-trail">Primary reading trail<a class="headerlink" href="#primary-reading-trail" title="Permanent link">¤</a></h3>
+<ul>
+<li><a href="https://doi.org/10.1214/aos/1176342360">Ferguson, <em>A Bayesian Analysis of Some Nonparametric Problems</em></a> — finite-partition definition and conjugacy.</li>
+<li><a href="https://doi.org/10.1214/aos/1176342372">Blackwell and MacQueen, <em>Ferguson Distributions via Pólya Urn Schemes</em></a> — predictive construction and discrete directing measure.</li>
+<li><a href="https://www.jstor.org/stable/24305538">Sethuraman, <em>A Constructive Definition of Dirichlet Priors</em></a> — stick breaking.</li>
+<li><a href="https://doi.org/10.1214/aop/1024404422">Pitman and Yor, <em>The Two-Parameter Poisson–Dirichlet Distribution</em></a> — ranked masses and two-parameter structure.</li>
+<li><a href="https://proceedings.neurips.cc/paper/2005/hash/2ef35a8b78b572a47f56846acbeef5d3-Abstract.html">Griffiths and Ghahramani, <em>Infinite Latent Feature Models and the Indian Buffet Process</em></a> — exchangeable feature allocation.</li>
+<li><a href="https://doi.org/10.1214/13-BA823">Broderick, Pitman, and Jordan, <em>Feature Allocations, Probability Functions, and Paintboxes</em></a> — feature-allocation equivalence classes, exchangeable feature probability functions, and representation boundaries.</li>
+<li><a href="https://proceedings.mlr.press/v2/thibaux07a.html">Thibaux and Jordan, <em>Hierarchical Beta Processes and the Indian Buffet Process</em></a> — beta-process de Finetti representation and hierarchy.</li>
+<li><a href="https://doi.org/10.1198/016214506000000302">Teh et al., <em>Hierarchical Dirichlet Processes</em></a> — shared random measures across groups.</li>
+<li><a href="https://doi.org/10.1080/10618600.2000.10474879">Neal, <em>Markov Chain Sampling Methods for Dirichlet Process Mixture Models</em></a> — posterior sampling constructions.</li>
+<li><a href="https://doi.org/10.1214/06-BA104">Blei and Jordan, <em>Variational Inference for Dirichlet Process Mixtures</em></a> — truncated variational inference.</li>
+<li><a href="https://jmlr.org/papers/v15/miller14a.html">Miller and Harrison, <em>Inconsistency of Pitman–Yor Process Mixtures for the Number of Components</em></a> — density/count boundary.</li>
+<li><a href="https://proceedings.mlr.press/v119/pakman20a.html">Pakman et al., <em>Neural Clustering Processes</em></a> — amortized partition-posterior sampling and its trained-model boundary.</li>
+<li><a href="https://proceedings.neurips.cc/paper_files/paper/2024/hash/693189d9b2d1949a28a9b2abf9fe7aec-Abstract-Conference.html">Snell, Bencomo, and Griffiths, <em>A Metalearned Neural Circuit for Nonparametric Bayesian Inference</em></a> — sequential amortized inference over simulated open-class tasks.</li>
+<li><a href="https://jmlr.org/papers/v25/23-1058.html">Beraha, Favaro, and Sesia, <em>Random Measure Priors in Bayesian Recovery from Sketches</em></a> — posterior frequency and cardinality recovery for declared sketch and random-measure models.</li>
+<li><a href="https://proceedings.mlr.press/v124/zhu20a.html">Zhu and Bouchard-Côté, <em>Slice Sampling for General Completely Random Measures</em></a> — adaptive finite computation without a fixed global truncation.</li>
+<li><a href="https://www.jmlr.org/papers/v27/25-0668.html">Zhang, Wade, and Bochkina, <em>Covariate-dependent Hierarchical Dirichlet Processes</em></a> — peer-reviewed 2026 dependent-measure construction.</li>
+</ul>
+<h3 id="source-tracing-checklist">Source-tracing checklist<a class="headerlink" href="#source-tracing-checklist" title="Permanent link">¤</a></h3>
+<p>For every technical or empirical claim, record the random-measure parameterization, likelihood, inferential target, algorithm and approximation, dataset/split, hyperparameters, compute budget, diagnostic, metric, uncertainty, evidence maturity, and verification date. “Bayesian nonparametric” alone specifies none of these.</p>
+<details class="question">
+<summary>Cumulative retrieval: Bayesian nonparametric models</summary>
+<ol>
+<li>What finite-dimensional consistency property must a random measure or partition model satisfy?</li>
+<li>Why does “nonparametric” not mean assumption-free or computation-free?</li>
+<li>Which diagnostics distinguish truncation error from posterior mixing failure?</li>
+<li>What must be held fixed when comparing a BNP mixture with a finite neural latent model?</li>
+</ol>
+<p><strong>Solutions.</strong> (1) Restrictions to overlapping finite sets must agree with the declared random-measure/partition law. (2) The model still fixes a prior, base measure, concentration, exchangeability/dependence structure, likelihood, and inference scheme. (3) Increase truncation or use an exact representation while monitoring target summaries, and separately assess chains/particles/variational optimization across initializations and queries. (4) Observation model, data and preprocessing, predictive query, compute/tuning budget, component expressivity, uncertainty metric, and evaluation protocol.</p>
+</details>
+<h3 id="chapter-6-synthesis">Chapter 6 synthesis<a class="headerlink" href="#chapter-6-synthesis" title="Permanent link">¤</a></h3>
+<p>Bayesian nonparametric random-measure models make distributions and latent structure uncertain without fixing one finite catalog. Their value depends on a complete likelihood, a query-matched prior, a calibrated posterior algorithm, and evaluation that does not turn density components into scientific facts. The family remains current through hierarchical, dependent, compressed-data, and neural compositions, while its classical consistency and identifiability warnings remain fully active.</p>
+<p><a href="../generative-models-unified/#coverage-matrix">Return to the family landscape</a>, continue to <a href="../stochastic-process-generators-explained/">Stochastic-Process and Function-Space Generators</a>, or use the <a href="./">Chapter 6 stopping-point view</a>.</p>
+<h2 id="final-synthesis">Final synthesis<a class="headerlink" href="#final-synthesis" title="Permanent link">¤</a></h2>
+<p>The family can be read as one generative grammar:</p>
+<ol>
+<li>draw a random measure or allocation law;</li>
+<li>instantiate a finite subset through observations;</li>
+<li>generate data through an explicit likelihood;</li>
+<li>condition on data using a declared finite algorithm;</li>
+<li>evaluate the posterior functional that matches the real question.</li>
+</ol>
+<p>Dirichlet processes, Pitman–Yor processes, normalized CRMs, beta processes, IBPs, HDPs, and dependent random measures change different parts of this grammar. Neural networks can extend likelihoods and inference, but they do not erase the need to state the random object, exchangeability/dependence assumptions, approximation, or evidence boundary.</p>
+<hr/>
+<p><strong>Previous:</strong> <a href="../bnp-05-inference/">5. Posterior Computation</a> · <strong>Next family:</strong> <a href="../stochastic-process-generators-explained/">Stochastic-Process Generators</a> · <a href="../bayesian-nonparametric-models-explained/">Complete guide</a></p>
+</article>
+</div>
+<script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  Back to top
+</button>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+<div class="md-social">
+<a class="md-social__link" href="https://github.com/avitai/artifex" rel="noopener" target="_blank" title="github.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</a>
+<a class="md-social__link" href="https://pypi.org/project/avitai-artifex/" rel="noopener" target="_blank" title="pypi.org">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-66.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.3v101.8c0 29 25.2 46 53.4 54.3 33.8 9.9 66.3 11.7 106.8 0 26.9-7.8 53.4-23.5 53.4-54.3v-40.7H226.2v-13.6h160.2c31.1 0 42.6-21.7 53.4-54.2 11.2-33.5 10.7-65.7 0-108.6M286.2 444.7a20.4 20.4 0 1 1 0-40.7 20.4 20.4 0 1 1 0 40.7M167.8 248.1h106.8c29.7 0 53.4-24.5 53.4-54.3V91.9c0-29-24.4-50.7-53.4-55.6-35.8-5.9-74.7-5.6-106.8.1-45.2 8-53.4 24.7-53.4 55.6v40.7h106.9v13.6h-147c-31.1 0-58.3 18.7-66.8 54.2-9.8 40.7-10.2 66.1 0 108.6 7.6 31.6 25.7 54.2 56.8 54.2H101v-48.8c0-35.3 30.5-66.4 66.8-66.4m-6.6-183.4a20.4 20.4 0 1 1 0 40.8 20.4 20.4 0 1 1 0-40.8"></path></svg>
+</a>
+<a class="md-social__link" href="https://twitter.com/mahdi_shafiei" rel="noopener" target="_blank" title="twitter.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M459.4 151.7c.3 4.5.3 9.1.3 13.6 0 138.7-105.6 298.6-298.6 298.6-59.5 0-114.7-17.2-161.1-47.1 8.4 1 16.6 1.3 25.3 1.3 49.1 0 94.2-16.6 130.3-44.8-46.1-1-84.8-31.2-98.1-72.8 6.5 1 13 1.6 19.8 1.6 9.4 0 18.8-1.3 27.6-3.6-48.1-9.7-84.1-52-84.1-103v-1.3c14 7.8 30.2 12.7 47.4 13.3-28.3-18.8-46.8-51-46.8-87.4 0-19.5 5.2-37.4 14.3-53C87.4 130.8 165 172.4 252.1 176.9c-1.6-7.8-2.6-15.9-2.6-24C249.5 95.1 296.3 48 354.4 48c30.2 0 57.5 12.7 76.7 33.1 23.7-4.5 46.5-13.3 66.6-25.3-7.8 24.4-24.4 44.8-46.1 57.8 21.1-2.3 41.6-8.1 60.4-16.2-14.3 20.8-32.2 39.3-52.6 54.3"></path></svg>
+</a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.path", "navigation.top", "navigation.prune", "toc.follow", "search.highlight", "search.share", "search.suggest", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "content.mermaid"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+<script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+<script src="../../../javascripts/reading-layout.js"></script>
+</body>
+</html>

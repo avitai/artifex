@@ -1,0 +1,1864 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="Generative-model papers often reuse the same symbol for different objects or reverse the direction of a map without warning. This chapter fixes the conventions" name="description"/>
+<meta content="Mahdi Shafiei" name="author"/>
+<link href="https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-notation/" rel="canonical"/>
+<link href="../optimization-and-learning-dynamics/" rel="prev"/>
+<link href="../autoregressive-01-foundations/" rel="next"/>
+<link href="../../../assets/images/favicon.png" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.7.7" name="generator"/>
+<title>Canonical Notation and Transformation Conventions - Artifex</title>
+<link href="../../../assets/stylesheets/main.ec1eaa64.min.css" rel="stylesheet"/>
+<link href="../../../assets/stylesheets/palette.ab4e12ef.min.css" rel="stylesheet"/>
+<script src="../../../assets/vendor/iframe-worker/index.js"></script>
+<link href="../../../assets/_mkdocstrings.css" rel="stylesheet"/>
+<link href="../../../_static/extra.css" rel="stylesheet"/>
+<script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+<meta content="article" property="og:type"/>
+<meta content="The Artifex Generative Models Book" property="og:site_name"/>
+<meta content="Canonical Notation and Transformation Conventions" property="og:title"/>
+<meta content="Generative-model papers often reuse the same symbol for different objects or reverse the direction of a map without warning. This chapter fixes the conventions" property="og:description"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-notation/" property="og:url"/>
+<meta content="2026-07-14" property="article:modified_time"/>
+<meta content="summary" name="twitter:card"/>
+<meta content="Canonical Notation and Transformation Conventions" name="twitter:title"/>
+<meta content="Generative-model papers often reuse the same symbol for different objects or reverse the direction of a map without warning. This chapter fixes the conventions" name="twitter:description"/>
+<meta content="Generative models, Machine learning, Probabilistic modeling, foundation, reference, standalone, generative-models-notation, newcomer, practitioner, researcher" name="keywords"/>
+<meta content="Canonical Notation and Transformation Conventions" name="citation_title"/>
+<meta content="Mahdi Shafiei" name="citation_author"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-notation/" name="citation_public_url"/>
+<meta content="en" name="citation_language"/>
+<meta content="Canonical Notation and Transformation Conventions" name="DC.title"/>
+<meta content="Mahdi Shafiei" name="DC.creator"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-notation/" name="DC.identifier"/>
+<meta content="Text.LearningResource" name="DC.type"/>
+<meta content="2026-07-14" name="DCTERMS.modified"/>
+<meta content="https://github.com/avitai/artifex/blob/main/LICENSE" name="DCTERMS.license"/>
+<meta content="foundation" name="DCTERMS.educationLevel"/>
+<meta content="newcomer, practitioner, researcher" name="DCTERMS.audience"/>
+<link href="https://github.com/avitai/artifex/blob/main/LICENSE" rel="license"/>
+<script id="artifex-book-metadata" type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Chapter",
+  "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-notation/",
+  "url": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-notation/",
+  "name": "Canonical Notation and Transformation Conventions",
+  "description": "Generative-model papers often reuse the same symbol for different objects or reverse the direction of a map without warning. This chapter fixes the conventions",
+  "identifier": "generative-models-notation",
+  "inLanguage": "en",
+  "isAccessibleForFree": true,
+  "learningResourceType": "Standalone synthesis",
+  "educationalLevel": "foundation",
+  "educationalUse": "reference",
+  "audience": [
+    
+      {"@type": "EducationalAudience", "audienceType": "newcomer"},
+    
+      {"@type": "EducationalAudience", "audienceType": "practitioner"},
+    
+      {"@type": "EducationalAudience", "audienceType": "researcher"}
+    
+  ],
+  "dateModified": "2026-07-14",
+  "keywords": ["Generative models", "Machine learning", "Probabilistic modeling", "foundation", "reference", "standalone", "generative-models-notation", "newcomer", "practitioner", "researcher"],
+  "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+  "author": [
+    
+      {"@type": "Person", "name": "Mahdi Shafiei"}
+    
+  ],
+  "isPartOf": {
+    "@type": "Book",
+    "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/#book",
+    "url": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/",
+    "name": "The Artifex Generative Models Book",
+    "bookEdition": "Living Web Edition",
+    "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+    "author": [
+      
+        {"@type": "Person", "name": "Mahdi Shafiei"}
+      
+    ]
+  }
+}
+</script>
+<link href="../../../assets/vendor/katex/katex.min.css" id="artifex-katex-stylesheet" integrity="sha384-UA8juhPf75SzzAMA/4fo3yOU7sBJ0om7SCD2GHq0fZqZco6tr1UCV7nUbk9J90JM" rel="stylesheet"/>
+<script defer="" integrity="sha384-T/0lMUdJpd2S1ZHtRiofG3htU3xPCrFVeAQ1UUE2TJwlEJSV5NUwn30kP28n238E" src="../../../assets/vendor/mermaid/mermaid.min.js"></script>
+<script defer="" src="../../../assets/vendor/katex/katex-shadow.js"></script>
+<script defer="" src="../../../javascripts/mermaid-math.js"></script>
+<script defer="" src="../../../javascripts/mathjax.js"></script>
+<script defer="" integrity="sha384-OrHfGTnIbkl0do3N76qW/uWr38o91N05sbSPuYBPLH+hG8X/dNSrjZf3AGjzrCwC" src="../../../assets/vendor/mathjax/tex-mml-chtml.js"></script>
+</head>
+<body data-md-color-accent="amber" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#canonical-notation-and-transformation-conventions">
+          Skip to content
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header md-header--shadow" data-md-component="header">
+<nav aria-label="Header" class="md-header__inner md-grid">
+<a aria-label="Artifex" class="md-header__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            Artifex
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+            
+              Canonical Notation and Transformation Conventions
+            
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-label="Switch to dark mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: light)" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_1" hidden="" title="Switch to dark mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+<input aria-label="Switch to light mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-primary="indigo" data-md-color-scheme="slate" id="__palette_1" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_0" hidden="" title="Switch to light mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+</form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div aria-label="Search" class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Search" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="Search" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="Search" class="md-search__options">
+<a aria-label="Share" class="md-search__icon md-icon" data-clipboard="" data-clipboard-text="" data-md-component="search-share" href="javascript:void(0)" tabindex="-1" title="Share">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"></path></svg>
+</a>
+<button aria-label="Clear" class="md-search__icon md-icon" tabindex="-1" title="Clear" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            Initializing search
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Navigation" class="md-nav md-nav--primary" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="Artifex" class="md-nav__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+    Artifex
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../..">
+<span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../getting-started/installation/">
+<span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Generative Models Book
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Generative Models Book
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    
+  
+    Start Here — The Landscape
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../first-course-01-generative-systems/">
+<span class="md-ellipsis">
+    
+  
+    First Course — New to Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Foundations
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_3_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Foundations
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../probability-01-objects/">
+<span class="md-ellipsis">
+    
+  
+    1. Probability and Generative Modeling
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../classical-01-latent-foundations/">
+<span class="md-ellipsis">
+    
+  
+    2. Classical Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../bayesian-learning-01-object/">
+<span class="md-ellipsis">
+    
+  
+    3. Bayesian Learning and Model Assessment
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../inference-01-objects-and-queries/">
+<span class="md-ellipsis">
+    
+  
+    4. Latent Variables and Inference
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../objectives-01-discrepancies/">
+<span class="md-ellipsis">
+    
+  
+    5. Objectives and Statistical Distances
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../information-coding-01-measures/">
+<span class="md-ellipsis">
+    
+  
+    6. Information, Coding, and Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../graphical-models-01-directed/">
+<span class="md-ellipsis">
+    
+  
+    7. Graphical Models and Structured Probability
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../message-passing-01-factor-graphs/">
+<span class="md-ellipsis">
+    
+  
+    8. Graphical Inference and Message Passing
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../filtering-01-bayes-recursions/">
+<span class="md-ellipsis">
+    
+  
+    9. Filtering and Smoothing for State-Space Generators
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../sampling-01-monte-carlo/">
+<span class="md-ellipsis">
+    
+  
+    10. Sampling and Continuous Time
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../smc-01-targets/">
+<span class="md-ellipsis">
+    
+  
+    11. Sequential Monte Carlo and Particle Methods
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../optimization-01-differentiation/">
+<span class="md-ellipsis">
+    
+  
+    12. Optimization and Learning Dynamics
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
+    
+  
+    13. Canonical Notation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
+<span class="md-ellipsis">
+    
+  
+    13. Canonical Notation
+  
+
+    
+  </span>
+</a>
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#use-notation-as-a-translation-layer">
+<span class="md-ellipsis">
+      
+        Use Notation as a Translation Layer
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#learning-objectives-and-reading-routes">
+<span class="md-ellipsis">
+      
+        Learning Objectives and Reading Routes
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#1-probability-and-data">
+<span class="md-ellipsis">
+      
+        1. Probability and Data
+      
+    </span>
+</a>
+<nav aria-label="1. Probability and Data" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#samples-batches-and-dimensions">
+<span class="md-ellipsis">
+      
+        Samples, Batches, and Dimensions
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#2-losses-and-information-quantities">
+<span class="md-ellipsis">
+      
+        2. Losses and Information Quantities
+      
+    </span>
+</a>
+<nav aria-label="2. Losses and Information Quantities" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#reduction-convention">
+<span class="md-ellipsis">
+      
+        Reduction Convention
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#3-autoregressive-conventions">
+<span class="md-ellipsis">
+      
+        3. Autoregressive Conventions
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#4-vae-conventions">
+<span class="md-ellipsis">
+      
+        4. VAE Conventions
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#5-classical-flow-direction">
+<span class="md-ellipsis">
+      
+        5. Classical Flow Direction
+      
+    </span>
+</a>
+<nav aria-label="5. Classical Flow Direction" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#direction-table">
+<span class="md-ellipsis">
+      
+        Direction Table
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#6-energy-and-score">
+<span class="md-ellipsis">
+      
+        6. Energy and Score
+      
+    </span>
+</a>
+<nav aria-label="6. Energy and Score" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#energy-sign-and-gaps">
+<span class="md-ellipsis">
+      
+        Energy Sign and Gaps
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#7-diffusion-and-noise-direction">
+<span class="md-ellipsis">
+      
+        7. Diffusion and Noise Direction
+      
+    </span>
+</a>
+<nav aria-label="7. Diffusion and Noise Direction" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#diffusion-target-conversion-table">
+<span class="md-ellipsis">
+      
+        Diffusion Target Conversion Table
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#edm-noise-level-convention">
+<span class="md-ellipsis">
+      
+        EDM Noise-Level Convention
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#8-flow-matching-and-odes">
+<span class="md-ellipsis">
+      
+        8. Flow Matching and ODEs
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#9-guidance-convention">
+<span class="md-ellipsis">
+      
+        9. Guidance Convention
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#10-network-evaluations-and-wall-clock">
+<span class="md-ellipsis">
+      
+        10. Network Evaluations and Wall-Clock
+      
+    </span>
+</a>
+<nav aria-label="10. Network Evaluations and Wall-Clock" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#compute-reporting-vocabulary">
+<span class="md-ellipsis">
+      
+        Compute Reporting Vocabulary
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#11-discrete-time-and-continuous-time-indexing">
+<span class="md-ellipsis">
+      
+        11. Discrete-Time and Continuous-Time Indexing
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-conversion-check">
+<span class="md-ellipsis">
+      
+        Worked Conversion Check
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-convention-translation-guidance-scale">
+<span class="md-ellipsis">
+      
+        Worked Convention Translation: Guidance Scale
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#convention-audit-checklist">
+<span class="md-ellipsis">
+      
+        Convention Audit Checklist
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#misconception-checks">
+<span class="md-ellipsis">
+      
+        Misconception Checks
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#retrieval-check">
+<span class="md-ellipsis">
+      
+        Retrieval Check
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#summary">
+<span class="md-ellipsis">
+      
+        Summary
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../autoregressive-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Model Families
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gradients-01-taxonomy/">
+<span class="md-ellipsis">
+    
+  
+    Connections and Compositions
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../normalization-01-queries/">
+<span class="md-ellipsis">
+    
+  
+    Research Practice
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../models/vae-guide/">
+<span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/core/base/">
+<span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../examples/overview/">
+<span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../zoo/">
+<span class="md-ellipsis">
+    
+  
+    Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../training/overview/">
+<span class="md-ellipsis">
+    
+  
+    Training
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../data/overview/">
+<span class="md-ellipsis">
+    
+  
+    Data &amp; Modalities
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../inference/overview/">
+<span class="md-ellipsis">
+    
+  
+    Inference &amp; Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../benchmarks/">
+<span class="md-ellipsis">
+    
+  
+    Evaluation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../guides/extensions/">
+<span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../extensions/">
+<span class="md-ellipsis">
+    
+  
+    Advanced Topics
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../cli/">
+<span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../community/contributing/">
+<span class="md-ellipsis">
+    
+  
+    Community
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/configs/protein-extension/">
+<span class="md-ellipsis">
+    
+  
+    Reference Library
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#use-notation-as-a-translation-layer">
+<span class="md-ellipsis">
+      
+        Use Notation as a Translation Layer
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#learning-objectives-and-reading-routes">
+<span class="md-ellipsis">
+      
+        Learning Objectives and Reading Routes
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#1-probability-and-data">
+<span class="md-ellipsis">
+      
+        1. Probability and Data
+      
+    </span>
+</a>
+<nav aria-label="1. Probability and Data" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#samples-batches-and-dimensions">
+<span class="md-ellipsis">
+      
+        Samples, Batches, and Dimensions
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#2-losses-and-information-quantities">
+<span class="md-ellipsis">
+      
+        2. Losses and Information Quantities
+      
+    </span>
+</a>
+<nav aria-label="2. Losses and Information Quantities" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#reduction-convention">
+<span class="md-ellipsis">
+      
+        Reduction Convention
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#3-autoregressive-conventions">
+<span class="md-ellipsis">
+      
+        3. Autoregressive Conventions
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#4-vae-conventions">
+<span class="md-ellipsis">
+      
+        4. VAE Conventions
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#5-classical-flow-direction">
+<span class="md-ellipsis">
+      
+        5. Classical Flow Direction
+      
+    </span>
+</a>
+<nav aria-label="5. Classical Flow Direction" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#direction-table">
+<span class="md-ellipsis">
+      
+        Direction Table
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#6-energy-and-score">
+<span class="md-ellipsis">
+      
+        6. Energy and Score
+      
+    </span>
+</a>
+<nav aria-label="6. Energy and Score" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#energy-sign-and-gaps">
+<span class="md-ellipsis">
+      
+        Energy Sign and Gaps
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#7-diffusion-and-noise-direction">
+<span class="md-ellipsis">
+      
+        7. Diffusion and Noise Direction
+      
+    </span>
+</a>
+<nav aria-label="7. Diffusion and Noise Direction" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#diffusion-target-conversion-table">
+<span class="md-ellipsis">
+      
+        Diffusion Target Conversion Table
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#edm-noise-level-convention">
+<span class="md-ellipsis">
+      
+        EDM Noise-Level Convention
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#8-flow-matching-and-odes">
+<span class="md-ellipsis">
+      
+        8. Flow Matching and ODEs
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#9-guidance-convention">
+<span class="md-ellipsis">
+      
+        9. Guidance Convention
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#10-network-evaluations-and-wall-clock">
+<span class="md-ellipsis">
+      
+        10. Network Evaluations and Wall-Clock
+      
+    </span>
+</a>
+<nav aria-label="10. Network Evaluations and Wall-Clock" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#compute-reporting-vocabulary">
+<span class="md-ellipsis">
+      
+        Compute Reporting Vocabulary
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#11-discrete-time-and-continuous-time-indexing">
+<span class="md-ellipsis">
+      
+        11. Discrete-Time and Continuous-Time Indexing
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-conversion-check">
+<span class="md-ellipsis">
+      
+        Worked Conversion Check
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-convention-translation-guidance-scale">
+<span class="md-ellipsis">
+      
+        Worked Convention Translation: Guidance Scale
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#convention-audit-checklist">
+<span class="md-ellipsis">
+      
+        Convention Audit Checklist
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#misconception-checks">
+<span class="md-ellipsis">
+      
+        Misconception Checks
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#retrieval-check">
+<span class="md-ellipsis">
+      
+        Retrieval Check
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#summary">
+<span class="md-ellipsis">
+      
+        Summary
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<nav aria-label="Breadcrumb" class="md-path">
+<ol class="md-path__list">
+<li class="md-path__item">
+<a class="md-path__link" href="../../..">
+<span class="md-ellipsis">
+    Home
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    Generative Models Book
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../probability-01-objects/">
+<span class="md-ellipsis">
+    Foundations
+  </span>
+</a>
+</li>
+</ol>
+</nav>
+<article class="md-content__inner md-typeset">
+<h1 id="canonical-notation-and-transformation-conventions">Canonical Notation and Transformation Conventions<a class="headerlink" href="#canonical-notation-and-transformation-conventions" title="Permanent link">¤</a></h1><aside aria-label="Learning path" class="admonition abstract artifex-learning-path"><p class="admonition-title">Learning path</p><p><strong>Required knowledge</strong></p><ul class="artifex-learning-path__links" data-learning-path-role="required"><li><a href="../probability-and-generative-modeling/">Probability and Generative Modeling</a></li></ul><p><strong>Readiness check:</strong> can you explain the central object and reproduce one worked example from each required chapter? If not, follow its link before continuing.</p><p><strong>Newly unlocked in the default route</strong></p><ul class="artifex-learning-path__links" data-learning-path-role="unlocks"><li><a href="../autoregressive-01-foundations/">Autoregressive Models 1 — Foundations</a></li><li><a href="../autoregressive-explained/">Autoregressive Models Explained</a></li><li><a href="../vae-01-foundations/">VAEs 1 — Foundations and the ELBO</a></li><li><a href="../vae-explained/">Variational Autoencoders (VAEs) Explained</a></li><li><a href="../gan-01-foundations/">GANs 1 — Density Ratios and Games</a></li><li><a href="../gan-explained/">Generative Adversarial Networks (GANs) Explained</a></li><li><a href="../ebm-01-foundations/">EBMs 1 — Energy and Normalization</a></li><li><a href="../ebm-explained/">Energy-Based Models (EBMs) Explained</a></li><li><a href="../diffusion-01-foundations/">Diffusion 1 — Chains, Scores, and Continuous Time</a></li><li><a href="../diffusion-explained/">Diffusion Models Explained</a></li><li><a href="../flow-01-foundations/">Flows 1 — Change of Variables and Invertibility</a></li><li><a href="../flow-explained/">Normalizing Flows and Flow Matching Explained</a></li><li><a href="../probabilistic-circuits-explained/">Probabilistic Circuits Explained</a></li><li><a href="../tensor-01-semantics/">Tensor and Born Models 1 — Probability Semantics</a></li><li><a href="../bayesian-nonparametric-models-explained/">Bayesian Nonparametric Random-Measure Models Explained</a></li><li><a href="../random-graphs-and-relational-generators/">Random Graphs and Relational Generators</a></li><li><a href="../copula-models-explained/">Copula Models</a></li><li><a href="../probabilistic-grammars-and-program-derivations/">Probabilistic Grammars and Program Derivations</a></li></ul></aside>
+<p>Generative-model papers often reuse the same symbol for different objects or reverse the direction of a map without warning. This chapter fixes the conventions used throughout the Artifex curriculum and records alternate conventions explicitly.</p>
+<p>This is a reference chapter, but it should still be read once from beginning to end. Most silent implementation errors in this field are direction, reduction, endpoint, or parameterization errors rather than failures of the high-level theory.</p>
+<div class="admonition info">
+<p class="admonition-title">Why this reference remains one page</p>
+<p>This compact registry keeps notation, direction, reduction, and endpoint
+conventions searchable together. It is intentionally a single reference
+surface, not an unprojected instructional volume.</p>
+</div>
+<h2 id="use-notation-as-a-translation-layer">Use Notation as a Translation Layer<a class="headerlink" href="#use-notation-as-a-translation-layer" title="Permanent link">¤</a></h2>
+<p>Do not begin by matching symbol names across two papers. Begin by naming what
+each symbol <em>does</em>. The same <span class="arithmatex">\(x_0\)</span> can mean data in one source and noise in
+another; the same word <em>forward</em> can mean data-to-base likelihood evaluation or
+base-to-data generation.</p>
+<figure class="book-figure" id="fig-generative-models-notation-use-notation-as-a-translation-layer"><pre class="mermaid"><code>flowchart LR
+    source["Source equation"]
+    object["1. Name the probabilistic object&lt;br/&gt;state, density, score, energy, or field"]
+    direction["2. Declare direction and endpoints&lt;br/&gt;data&amp;nbsp;$$\leftrightarrow$$&amp;nbsp;base; clean&amp;nbsp;$$\leftrightarrow$$&amp;nbsp;noise"]
+    reduction["3. Declare shapes and reductions&lt;br/&gt;event, token, batch, and time"]
+    convert["4. Convert algebraically&lt;br/&gt;then test dimensions and endpoints"]
+    implementation["Local convention and implementation"]
+
+    source --&gt; object --&gt; direction --&gt; reduction --&gt; convert --&gt; implementation</code></pre><figcaption class="book-object-caption"><span class="book-object-number">Figure NOT.1.</span> Use Notation as a Translation Layer</figcaption></figure>
+<div class="grid cards">
+<ul>
+<li>
+<p><span class="twemoji lg middle"><svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M11 13.5v8H3v-8zm-2 2H5v4h4zM12 2l5.5 9h-11zm0 3.86L10.08 9h3.84zM17.5 13c2.5 0 4.5 2 4.5 4.5S20 22 17.5 22 13 20 13 17.5s2-4.5 4.5-4.5m0 2a2.5 2.5 0 0 0-2.5 2.5 2.5 2.5 0 0 0 2.5 2.5 2.5 2.5 0 0 0 2.5-2.5 2.5 2.5 0 0 0-2.5-2.5"></path></svg></span> <strong>Object</strong></p>
+<hr/>
+<p>What random variable, measure, vector field, or parameter does the symbol
+denote?</p>
+</li>
+<li>
+<p><span class="twemoji lg middle"><svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m21 9-4-4v3h-7v2h7v3M7 11l-4 4 4 4v-3h7v-2H7z"></path></svg></span> <strong>Direction</strong></p>
+<hr/>
+<p>Which endpoint is input, which is output, and which way does time run?</p>
+</li>
+<li>
+<p><span class="twemoji lg middle"><svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 8h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V10a2 2 0 0 1 2-2m0 4v3h6v-3zm8 0v3h6v-3zm-8 5v3h6v-3zm8 0v3h6v-3zM11 2h10v4h-2V4h-6v2h-2z"></path></svg></span> <strong>Shape and reduction</strong></p>
+<hr/>
+<p>Which dimensions are event axes, and which are averaged or summed?</p>
+</li>
+<li>
+<p><span class="twemoji lg middle"><svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m23 12-2.4-2.8.3-3.7-3.6-.8-1.9-3.2L12 3 8.6 1.5 6.7 4.7l-3.6.8.3 3.7L1 12l2.4 2.8-.3 3.7 3.6.8 1.9 3.2L12 21l3.4 1.5 1.9-3.2 3.6-.8-.3-3.7zm-4.3 4.9-2.7.6-1.4 2.4-2.6-1.1-2.6 1.1L8 17.5l-2.7-.6.2-2.8L3.7 12l1.8-2.1-.2-2.8L8 6.5l1.4-2.4L12 5.2l2.6-1.1L16 6.5l2.7.6-.2 2.8 1.8 2.1-1.8 2.1zm-2.1-9.3L18 9l-8 8-4-4 1.4-1.4 2.6 2.6z"></path></svg></span> <strong>Boundary check</strong></p>
+<hr/>
+<p>Do units, support, signs, endpoints, and inverse operations reproduce known
+special cases?</p>
+</li>
+</ul>
+</div>
+<p>The tables below are therefore not a vocabulary list to memorize. They are the
+book's common coordinate system for translating claims and implementations.</p>
+<h2 id="learning-objectives-and-reading-routes">Learning Objectives and Reading Routes<a class="headerlink" href="#learning-objectives-and-reading-routes" title="Permanent link">¤</a></h2>
+<p>After this chapter you should be able to translate between laws and densities,
+pushforwards and inverse maps, Markov invariance and stationarity, common flow
+directions, diffusion targets, score/energy signs, guidance scales, and NFE
+reports.</p>
+<div class="admonition info">
+<p class="admonition-title">Routes</p>
+<p><strong>Beginner:</strong> read Sections 1–7 and perform the conversion check.<br/>
+<strong>Practitioner:</strong> also use the shape/reduction and reporting conventions as an implementation checklist.<br/>
+<strong>Research:</strong> state every alternate convention before reproducing a paper and verify conversions at both endpoints.</p>
+</div>
+<h2 id="1-probability-and-data">1. Probability and Data<a class="headerlink" href="#1-probability-and-data" title="Permanent link">¤</a></h2>
+<div class="admonition tip">
+<p class="admonition-title">Read a symbol in a complete sentence</p>
+<p>Instead of saying “<span class="arithmatex">\(x\)</span> is data,” say “<span class="arithmatex">\(x\)</span> is one observed event in
+<span class="arithmatex">\(\mathcal X\)</span>, distributed according to the law currently named.” The longer
+sentence forces support, conditioning, and batch-versus-event distinctions
+into view.</p>
+</div>
+<div class="md-typeset__table book-table-container"><table id="tbl-generative-models-notation-1-probability-and-data"><caption class="book-object-caption"><span class="book-object-number">Table NOT.1.</span> 1. Probability and Data</caption>
+<thead>
+<tr>
+<th>Symbol</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="arithmatex">\(x\in\mathcal X\)</span></td>
+<td>Observed data point</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(P_X\)</span></td>
+<td>Probability law of <span class="arithmatex">\(X\)</span> on measurable subsets of <span class="arithmatex">\(\mathcal X\)</span></td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(\mu\)</span> or <span class="arithmatex">\(\nu\)</span></td>
+<td>Reference or base measure, stated locally</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(p_X=dP_X/d\mu\)</span></td>
+<td>Density of <span class="arithmatex">\(P_X\)</span> relative to <span class="arithmatex">\(\mu\)</span> when it exists</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(\delta_x\)</span></td>
+<td>Unit point mass at <span class="arithmatex">\(x\)</span></td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(f_\#P\)</span></td>
+<td>Pushforward law: <span class="arithmatex">\((f_\#P)(A)=P(f^{-1}(A))\)</span></td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(p_{\mathrm{data}}\)</span></td>
+<td>Unknown population data distribution</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(\hat p_{\mathrm{data}}\)</span></td>
+<td>Empirical distribution of a finite dataset</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(p_\theta(x)\)</span></td>
+<td>Model mass or density with parameters <span class="arithmatex">\(\theta\)</span></td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(z\in\mathcal Z\)</span></td>
+<td>Latent/base variable</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(p(z)\)</span></td>
+<td>Prior or base distribution</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(c\)</span></td>
+<td>Observed condition, context, label, text, or control</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(q_\phi(z\mid x)\)</span></td>
+<td>Variational or amortized inference distribution</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(\mathbb E_p[f]\)</span></td>
+<td>Expectation of <span class="arithmatex">\(f\)</span> under <span class="arithmatex">\(p\)</span></td>
+</tr>
+</tbody>
+</table></div>
+<p>Uppercase <span class="arithmatex">\(P,Q\)</span> usually denote probability measures and lowercase <span class="arithmatex">\(p,q\)</span> their
+densities or masses under the stated reference measure. Subscripts name
+distributions; hats indicate estimators or predictions. The curriculum never
+uses <span class="arithmatex">\(p(x)\)</span> for a point probability when <span class="arithmatex">\(x\)</span> is continuous without stating the
+reference density. The notation <span class="arithmatex">\(f^{-1}(A)\)</span> denotes a preimage and does not
+assert that <span class="arithmatex">\(f\)</span> is invertible; an actual inverse function is stated explicitly.</p>
+<h3 id="samples-batches-and-dimensions">Samples, Batches, and Dimensions<a class="headerlink" href="#samples-batches-and-dimensions" title="Permanent link">¤</a></h3>
+<div class="md-typeset__table book-table-container"><table id="tbl-generative-models-notation-samples-batches-and-dimensions"><caption class="book-object-caption"><span class="book-object-number">Table NOT.2.</span> Samples, Batches, and Dimensions</caption>
+<thead>
+<tr>
+<th>Symbol</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="arithmatex">\(N\)</span></td>
+<td>Dataset or sample count, stated locally</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(B\)</span></td>
+<td>Minibatch size</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(D\)</span> or <span class="arithmatex">\(d\)</span></td>
+<td>Event/latent dimension</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(T\)</span></td>
+<td>Sequence length or terminal time; never both in one derivation</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(K\)</span></td>
+<td>Number of classes, mixture components, particles, or importance samples; stated locally</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(x^{(n)}\)</span></td>
+<td>The <span class="arithmatex">\(n\)</span>th independent observation</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(x_t\)</span></td>
+<td>State at sequence index or continuous/discrete time <span class="arithmatex">\(t\)</span></td>
+</tr>
+</tbody>
+</table></div>
+<p>The event dimension is not the batch dimension. A log density <span class="arithmatex">\(\log p(x^{(n)})\)</span> usually sums over event dimensions and is then averaged over <span class="arithmatex">\(n\)</span>. Broadcasting a time coefficient over image or sequence axes must be written with its shape in implementation examples.</p>
+<h2 id="2-losses-and-information-quantities">2. Losses and Information Quantities<a class="headerlink" href="#2-losses-and-information-quantities" title="Permanent link">¤</a></h2>
+<div class="md-typeset__table book-table-container"><table id="tbl-generative-models-notation-2-losses-and-information-quantities"><caption class="book-object-caption"><span class="book-object-number">Table NOT.3.</span> 2. Losses and Information Quantities</caption>
+<thead>
+<tr>
+<th>Symbol</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="arithmatex">\(\mathcal L\)</span></td>
+<td>Objective being minimized unless explicitly stated otherwise</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(\mathrm{NLL}\)</span></td>
+<td>Negative log-likelihood</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(\mathrm{ELBO}\)</span></td>
+<td>Evidence lower bound, maximized; implementations often minimize its negative</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(H(p)\)</span></td>
+<td>Entropy</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(H(p,q)\)</span></td>
+<td>Cross-entropy</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(D_{\mathrm{KL}}(p\|q)\)</span></td>
+<td>KL divergence, expectation under the first argument</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(W_p\)</span></td>
+<td><span class="arithmatex">\(p\)</span>-Wasserstein distance</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(\operatorname{MMD}\)</span></td>
+<td>Maximum mean discrepancy</td>
+</tr>
+</tbody>
+</table></div>
+<p>Every equation states whether it is minimized or maximized. A loss named “ELBO loss” must specify whether it means the ELBO or negative ELBO.</p>
+<h3 id="reduction-convention">Reduction Convention<a class="headerlink" href="#reduction-convention" title="Permanent link">¤</a></h3>
+<p>Unless a chapter says otherwise:</p>
+<ul>
+<li>log probabilities sum over event dimensions;</li>
+<li>reported training losses average over the minibatch;</li>
+<li>token NLL may additionally divide by the number of non-padding tokens;</li>
+<li>bits per dimension divides total negative log likelihood by <span class="arithmatex">\(D\log2\)</span>;</li>
+<li>KL terms state whether they are per latent dimension, per example, or batch averages.</li>
+</ul>
+<p>This convention prevents meaningless universal thresholds. A KL of 20 can be tiny for a 4,096-dimensional code and large for a scalar latent; a per-token NLL cannot be compared with a per-sequence sum.</p>
+<h2 id="3-autoregressive-conventions">3. Autoregressive Conventions<a class="headerlink" href="#3-autoregressive-conventions" title="Permanent link">¤</a></h2>
+<p>For an ordered sequence <span class="arithmatex">\(x_{1:T}\)</span>,</p>
+<div class="arithmatex">\[
+x_{&lt;t}=(x_1,\ldots,x_{t-1}),
+\qquad
+p_\theta(x_{1:T})=\prod_{t=1}^{T}p_\theta(x_t\mid x_{&lt;t}).
+\]</div>
+<p><span class="arithmatex">\(T\)</span> denotes sequence length in AR chapters. Because <span class="arithmatex">\(T\)</span> also denotes a terminal diffusion time elsewhere, the local meaning is stated at the beginning of each derivation.</p>
+<h2 id="4-vae-conventions">4. VAE Conventions<a class="headerlink" href="#4-vae-conventions" title="Permanent link">¤</a></h2>
+<div class="arithmatex">\[
+p_\theta(x,z)=p(z)p_\theta(x\mid z),
+\qquad
+q_\phi(z\mid x)\approx p_\theta(z\mid x).
+\]</div>
+<p>Encoder outputs are <span class="arithmatex">\(\mu_\phi(x)\)</span> and <span class="arithmatex">\(\log\sigma_\phi^2(x)\)</span>. The reparameterized sample is</p>
+<div class="arithmatex">\[
+z=\mu_\phi(x)+\sigma_\phi(x)\odot\epsilon,
+\qquad \epsilon\sim\mathcal N(0,I).
+\]</div>
+<p><code>log_var</code> always means <span class="arithmatex">\(\log\sigma^2\)</span>, never a positive variance parameter. If a network emits a positive scale through softplus, the logarithmic variance is recovered as <span class="arithmatex">\(2\log\sigma\)</span>.</p>
+<h2 id="5-classical-flow-direction">5. Classical Flow Direction<a class="headerlink" href="#5-classical-flow-direction" title="Permanent link">¤</a></h2>
+<p>The direction table is easiest to remember as a round trip: generation pushes a
+base draw into data space; likelihood evaluation pulls an observation back to
+base space and accounts for the inverse change in volume.</p>
+<figure class="book-figure" id="fig-generative-models-notation-5-classical-flow-direction"><pre class="mermaid"><code>flowchart LR
+    z["Base&amp;nbsp;$$z\sim p_Z$$"] --&gt;|"generate&amp;nbsp;$$x=f_\theta(z)$$"| x["Data-space&amp;nbsp;$$x$$"]
+    x --&gt;|"evaluate&amp;nbsp;$$z=f_\theta^{-1}(x)$$"| z</code></pre><figcaption class="book-object-caption"><span class="book-object-number">Figure NOT.2.</span> 5. Classical Flow Direction</figcaption></figure>
+<p>The canonical generative map is</p>
+<div class="arithmatex">\[
+x=f_\theta(z),
+\qquad z=f_\theta^{-1}(x).
+\]</div>
+<p>Therefore</p>
+<div class="arithmatex">\[
+\log p_X(x)
+=\log p_Z(z)-\log\left|\det\frac{\partial f_\theta(z)}{\partial z}\right|
+=\log p_Z(f_\theta^{-1}(x))
++\log\left|\det\frac{\partial f_\theta^{-1}(x)}{\partial x}\right|.
+\]</div>
+<p>Some libraries call data-to-base the “forward” direction because it is used for training likelihood; others call base-to-data forward because it is the mathematical map <span class="arithmatex">\(f\)</span>. Every implementation table must name the actual input and output rather than rely on “forward” or “inverse” alone.</p>
+<h3 id="direction-table">Direction Table<a class="headerlink" href="#direction-table" title="Permanent link">¤</a></h3>
+<div class="md-typeset__table book-table-container"><table id="tbl-generative-models-notation-direction-table"><caption class="book-object-caption"><span class="book-object-number">Table NOT.4.</span> Direction Table</caption>
+<thead>
+<tr>
+<th>Operation</th>
+<th>Input → output</th>
+<th>Jacobian term</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Generative map</td>
+<td><span class="arithmatex">\(z\to x=f(z)\)</span></td>
+<td>subtract $\log</td>
+</tr>
+<tr>
+<td>Density/evaluation map</td>
+<td><span class="arithmatex">\(x\to z=f^{-1}(x)\)</span></td>
+<td>add $\log</td>
+</tr>
+<tr>
+<td>MAF density direction</td>
+<td>data coordinates can be transformed in parallel</td>
+<td>sampling inverse is sequential</td>
+</tr>
+<tr>
+<td>IAF sampling direction</td>
+<td>base coordinates can be transformed in parallel</td>
+<td>density inverse is sequential</td>
+</tr>
+</tbody>
+</table></div>
+<p>“Parallel” refers to dependency structure, not guaranteed hardware speed. Coupling layers are parallel in both directions but transform only part of the state per layer.</p>
+<h2 id="6-energy-and-score">6. Energy and Score<a class="headerlink" href="#6-energy-and-score" title="Permanent link">¤</a></h2>
+<div class="arithmatex">\[
+p_\theta(x)=\frac{e^{-E_\theta(x)}}{Z_\theta},
+\qquad
+Z_\theta=\int e^{-E_\theta(x)}dx.
+\]</div>
+<p>The score is a gradient with respect to the state, not parameters:</p>
+<div class="arithmatex">\[
+s_\theta(x)=\nabla_x\log p_\theta(x).
+\]</div>
+<p>For a differentiable normalized EBM,</p>
+<div class="arithmatex">\[
+s_\theta(x)=-\nabla_xE_\theta(x),
+\]</div>
+<p>because <span class="arithmatex">\(Z_\theta\)</span> does not depend on <span class="arithmatex">\(x\)</span>. An arbitrary learned vector field is not necessarily a score: it must be conservative/integrable under the relevant domain and boundary conditions.</p>
+<h3 id="energy-sign-and-gaps">Energy Sign and Gaps<a class="headerlink" href="#energy-sign-and-gaps" title="Permanent link">¤</a></h3>
+<p>Lower energy means higher unnormalized probability under the convention <span class="arithmatex">\(p\propto e^{-E}\)</span>. Therefore a data-versus-negative energy gap is declared explicitly. This curriculum uses</p>
+<div class="arithmatex">\[
+\Delta_E=\mathbb E_{\mathrm{negative}}E(x^-)
+-\mathbb E_{\mathrm{data}}E(x^+),
+\]</div>
+<p>so a positive gap means data have lower average energy. If a source defines the reverse order, the sign is converted before comparison.</p>
+<h2 id="7-diffusion-and-noise-direction">7. Diffusion and Noise Direction<a class="headerlink" href="#7-diffusion-and-noise-direction" title="Permanent link">¤</a></h2>
+<figure class="book-figure" id="fig-generative-models-notation-7-diffusion-and-noise-direction"><pre class="mermaid"><code>flowchart LR
+    clean["$$x_0\;\text{(clean)}$$"] --&gt;|"add noise&lt;br/&gt;forward process"| noisy["$$x_t=a_tx_0+b_t\epsilon$$"]
+    noisy --&gt;|"learned reverse dynamics&lt;br/&gt;or probability flow"| recovered["Generated clean sample"]
+    noise["$$x_T\;\text{or}\;x_1\;\text{(high noise)}$$"] --&gt; noisy</code></pre><figcaption class="book-object-caption"><span class="book-object-number">Figure NOT.3.</span> 7. Diffusion and Noise Direction</figcaption></figure>
+<p>This picture fixes roles, not a numerical schedule. A source may index the
+reverse path from zero, swap endpoint names, or use an unbounded noise level
+<span class="arithmatex">\(\sigma\)</span>; translate those choices before importing a sign or coefficient.</p>
+<p>The clean endpoint is <span class="arithmatex">\(t=0\)</span> and the high-noise endpoint is <span class="arithmatex">\(t=T\)</span> or <span class="arithmatex">\(t=1\)</span>. For a variance-preserving parameterization,</p>
+<div class="arithmatex">\[
+x_t=a_t x_0+b_t\epsilon,
+\qquad
+a_t^2+b_t^2=1,
+\qquad
+\epsilon\sim\mathcal N(0,I).
+\]</div>
+<p>The individual conditional-kernel score and marginal score are distinct:</p>
+<div class="arithmatex">\[
+\nabla_{x_t}\log q(x_t\mid x_0)=-\frac{\epsilon}{b_t},
+\qquad
+\nabla_{x_t}\log q_t(x_t)=-\frac{\mathbb E[\epsilon\mid x_t]}{b_t}.
+\]</div>
+<p>Velocity prediction uses</p>
+<div class="arithmatex">\[
+v_t=a_t\epsilon-b_t x_0,
+\]</div>
+<p>so <span class="arithmatex">\(v_t\to\epsilon\)</span> at the clean endpoint and <span class="arithmatex">\(v_t\to-x_0\)</span> at the high-noise endpoint. Flow-matching velocity is a path derivative and must not be assumed identical to this VP rotation without deriving the chosen path.</p>
+<h3 id="diffusion-target-conversion-table">Diffusion Target Conversion Table<a class="headerlink" href="#diffusion-target-conversion-table" title="Permanent link">¤</a></h3>
+<p>For <span class="arithmatex">\(x_t=a_tx_0+b_t\epsilon\)</span> with <span class="arithmatex">\(a_t^2+b_t^2=1\)</span> and <span class="arithmatex">\(a_t,b_t&gt;0\)</span>:</p>
+<div class="md-typeset__table book-table-container"><table id="tbl-generative-models-notation-diffusion-target-conversion-table"><caption class="book-object-caption"><span class="book-object-number">Table NOT.5.</span> Diffusion Target Conversion Table</caption>
+<thead>
+<tr>
+<th>Predicted target</th>
+<th>Recover <span class="arithmatex">\(x_0\)</span></th>
+<th>Recover <span class="arithmatex">\(\epsilon\)</span></th>
+<th>Relation to score</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="arithmatex">\(\hat x_0\)</span></td>
+<td><span class="arithmatex">\(\hat x_0\)</span></td>
+<td><span class="arithmatex">\((x_t-a_t\hat x_0)/b_t\)</span></td>
+<td><span class="arithmatex">\(\hat s=(a_t\hat x_0-x_t)/b_t^2\)</span></td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(\hat\epsilon\)</span></td>
+<td><span class="arithmatex">\((x_t-b_t\hat\epsilon)/a_t\)</span></td>
+<td><span class="arithmatex">\(\hat\epsilon\)</span></td>
+<td><span class="arithmatex">\(\hat s=-\hat\epsilon/b_t\)</span></td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(\hat v\)</span></td>
+<td><span class="arithmatex">\(a_tx_t-b_t\hat v\)</span></td>
+<td><span class="arithmatex">\(b_tx_t+a_t\hat v\)</span></td>
+<td>substitute <span class="arithmatex">\(\hat\epsilon\)</span> above</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(\hat s\)</span></td>
+<td><span class="arithmatex">\((x_t+b_t^2\hat s)/a_t\)</span></td>
+<td><span class="arithmatex">\(-b_t\hat s\)</span></td>
+<td><span class="arithmatex">\(\hat s\)</span></td>
+</tr>
+</tbody>
+</table></div>
+<p>These are algebraic conversions of outputs for one parameterization. Their training errors receive different time-dependent amplification. For example, an <span class="arithmatex">\(\epsilon\)</span> error <span class="arithmatex">\(\delta_\epsilon\)</span> becomes <span class="arithmatex">\(-(b_t/a_t)\delta_\epsilon\)</span> in reconstructed <span class="arithmatex">\(x_0\)</span>, which is ill-conditioned when <span class="arithmatex">\(a_t\)</span> is small at high noise.</p>
+<h3 id="edm-noise-level-convention">EDM Noise-Level Convention<a class="headerlink" href="#edm-noise-level-convention" title="Permanent link">¤</a></h3>
+<p>EDM-style presentations often use an unbounded noise scale <span class="arithmatex">\(\sigma\)</span> with <span class="arithmatex">\(x=x_0+\sigma\epsilon\)</span> rather than a VP pair <span class="arithmatex">\((a_t,b_t)\)</span>. Dividing by <span class="arithmatex">\(\sqrt{1+\sigma^2}\)</span> maps it to VP-like coefficients</p>
+<div class="arithmatex">\[
+a=\frac{1}{\sqrt{1+\sigma^2}},
+\qquad
+b=\frac{\sigma}{\sqrt{1+\sigma^2}}.
+\]</div>
+<p>Schedules, preconditioning coefficients, and loss weights must be translated together; converting only the time coordinate is incomplete.</p>
+<h2 id="8-flow-matching-and-odes">8. Flow Matching and ODEs<a class="headerlink" href="#8-flow-matching-and-odes" title="Permanent link">¤</a></h2>
+<p>For a probability path <span class="arithmatex">\(p_t\)</span> and velocity field <span class="arithmatex">\(u_t\)</span>,</p>
+<div class="arithmatex">\[
+\frac{dX_t}{dt}=u_t(X_t),
+\qquad
+\partial_t p_t(x)+\nabla\cdot(p_t(x)u_t(x))=0.
+\]</div>
+<p><span class="arithmatex">\(x_0\)</span> and <span class="arithmatex">\(x_1\)</span> may denote data/noise in either order across papers. This curriculum states the endpoints for every path rather than inferring them from the subscripts.</p>
+<p>A path sample may be written <span class="arithmatex">\(x_t=I_t(x_0,x_1,\epsilon)\)</span> and its conditional velocity as <span class="arithmatex">\(\partial_t I_t\)</span>. The marginal velocity is a conditional expectation given <span class="arithmatex">\(x_t\)</span>. A stochastic interpolant can also induce a score and forward/backward drifts. Equality between these objects requires the path identities; it is not inferred from reusing <span class="arithmatex">\(t\)</span>.</p>
+<h2 id="9-guidance-convention">9. Guidance Convention<a class="headerlink" href="#9-guidance-convention" title="Permanent link">¤</a></h2>
+<p>For unconditional prediction <span class="arithmatex">\(o_u\)</span> and conditional prediction <span class="arithmatex">\(o_c\)</span>, the default scale is</p>
+<div class="arithmatex">\[
+o_{\mathrm{cfg}}=o_u+s(o_c-o_u).
+\]</div>
+<p>Thus <span class="arithmatex">\(s=0\)</span> is unconditional, <span class="arithmatex">\(s=1\)</span> is the ordinary conditional prediction, and <span class="arithmatex">\(s&gt;1\)</span> extrapolates. The alternate expression <span class="arithmatex">\((1+w)o_c-wo_u\)</span> uses <span class="arithmatex">\(w=s-1\)</span>. The target <span class="arithmatex">\(o\)</span>—score, noise, velocity, or logits—must be stated because linear combination in different parameter spaces need not induce the same generated distribution.</p>
+<p>For autoregressive logits, guidance often combines conditional and unconditional log probabilities, possibly with temperature and renormalization. For diffusion targets, algebraic target conversions may make linear combinations coincide at one time step under exact models, but nonlinear clipping, thresholding, approximate networks, and solver dynamics can break system-level equivalence.</p>
+<h2 id="10-network-evaluations-and-wall-clock">10. Network Evaluations and Wall-Clock<a class="headerlink" href="#10-network-evaluations-and-wall-clock" title="Permanent link">¤</a></h2>
+<p>NFE means the number of sequential neural-network evaluations used by a sampler. It is not comparable unless the network, input resolution, conditional branches, batching, caching, and auxiliary decoders are specified. An autoregressive inverse requiring one masked-network call per generated patch is not “one NFE” in the same operational sense as a single direct map.</p>
+<h3 id="compute-reporting-vocabulary">Compute Reporting Vocabulary<a class="headerlink" href="#compute-reporting-vocabulary" title="Permanent link">¤</a></h3>
+<div class="md-typeset__table book-table-container"><table id="tbl-generative-models-notation-compute-reporting-vocabulary"><caption class="book-object-caption"><span class="book-object-number">Table NOT.6.</span> Compute Reporting Vocabulary</caption>
+<thead>
+<tr>
+<th>Quantity</th>
+<th>Report</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Parameters</td>
+<td>total and active parameters per token/sample</td>
+</tr>
+<tr>
+<td>Training compute</td>
+<td>FLOPs convention, tokens/examples, resolution, hardware, precision</td>
+</tr>
+<tr>
+<td>Sampling NFE</td>
+<td>sequential calls plus conditional/unconditional multiplicity</td>
+</tr>
+<tr>
+<td>Latency</td>
+<td>batch, hardware, compilation/warm-up, codec and post-processing</td>
+</tr>
+<tr>
+<td>Memory</td>
+<td>peak device memory and cache policy</td>
+</tr>
+<tr>
+<td>Solver work</td>
+<td>accepted/rejected adaptive steps and function evaluations</td>
+</tr>
+</tbody>
+</table></div>
+<p>One “step” may contain two model evaluations, multiple corrector evaluations, or a conditional/unconditional pair. Prefer exact call counts over method nicknames.</p>
+<h2 id="11-discrete-time-and-continuous-time-indexing">11. Discrete-Time and Continuous-Time Indexing<a class="headerlink" href="#11-discrete-time-and-continuous-time-indexing" title="Permanent link">¤</a></h2>
+<p>For a Markov kernel <span class="arithmatex">\(K(x,A)\)</span> and row-law convention,</p>
+<div class="arithmatex">\[
+\mu_{t+1}=\mu_tK,
+\qquad
+\pi K=\pi
+\]</div>
+<p>defines law propagation and invariance. Reusing <span class="arithmatex">\(K\)</span> at every step is <strong>time
+homogeneity</strong>. Calling the process stationary additionally means it is
+initialized with an invariant law (or otherwise has shift-invariant
+finite-dimensional distributions). Irreducibility, aperiodicity, recurrence,
+and quantitative mixing assumptions are stated with each theorem rather than
+hidden inside the word “ergodic.”</p>
+<p>Discrete diffusion commonly uses <span class="arithmatex">\(t\in\{1,\ldots,T\}\)</span> with cumulative <span class="arithmatex">\(\bar\alpha_t=\prod_{s=1}^t\alpha_s\)</span>. Continuous formulations use <span class="arithmatex">\(t\in[0,1]\)</span> and coefficients <span class="arithmatex">\(a(t),b(t)\)</span>. A Riemann discretization of an SDE is not automatically the same as a particular DDPM transition schedule.</p>
+<p>For sequences, <span class="arithmatex">\(x_t\)</span> may mean the <span class="arithmatex">\(t\)</span>th token rather than a noisy state. Chapters use <span class="arithmatex">\(x_{1:T}\)</span> for sequences and <span class="arithmatex">\(x(t)\)</span> or an explicit “noise time” label when ambiguity is possible.</p>
+<h2 id="worked-conversion-check">Worked Conversion Check<a class="headerlink" href="#worked-conversion-check" title="Permanent link">¤</a></h2>
+<p>Given <span class="arithmatex">\(x_t=a_tx_0+b_t\epsilon\)</span> and <span class="arithmatex">\(v_t=a_t\epsilon-b_tx_0\)</span>, the pair is a rotation:</p>
+<div class="arithmatex">\[
+\begin{bmatrix}x_t\\v_t\end{bmatrix}
+=
+\begin{bmatrix}a_t&amp;b_t\\-b_t&amp;a_t\end{bmatrix}
+\begin{bmatrix}x_0\\\epsilon\end{bmatrix}.
+\]</div>
+<p>Since the inverse is the transpose,</p>
+<div class="arithmatex">\[
+x_0=a_tx_t-b_tv_t,
+\qquad
+\epsilon=b_tx_t+a_tv_t.
+\]</div>
+<p>Substituting <span class="arithmatex">\(a_t=1,b_t=0\)</span> recovers <span class="arithmatex">\(x_t=x_0\)</span> and <span class="arithmatex">\(v_t=\epsilon\)</span>; substituting <span class="arithmatex">\(a_t=0,b_t=1\)</span> gives <span class="arithmatex">\(x_t=\epsilon\)</span> and <span class="arithmatex">\(v_t=-x_0\)</span>. Endpoint substitution is an effective defense against sign errors.</p>
+<h2 id="worked-convention-translation-guidance-scale">Worked Convention Translation: Guidance Scale<a class="headerlink" href="#worked-convention-translation-guidance-scale" title="Permanent link">¤</a></h2>
+<p>Suppose one paper uses</p>
+<div class="arithmatex">\[
+o=o_u+s(o_c-o_u)
+\]</div>
+<p>with <span class="arithmatex">\(s=7.5\)</span>, while another uses</p>
+<div class="arithmatex">\[
+o=(1+w)o_c-wo_u.
+\]</div>
+<p>Expanding the first expression gives <span class="arithmatex">\(o=so_c+(1-s)o_u\)</span>, so <span class="arithmatex">\(w=s-1=6.5\)</span>. Copying the numeric value <span class="arithmatex">\(7.5\)</span> into the second convention would produce an effective first-convention scale of <span class="arithmatex">\(8.5\)</span>.</p>
+<p>The conversion aligns the linear formula only. To reproduce a result one must also match the prediction target, conditioning dropout, negative prompt/unconditional input, rescaling or thresholding, sampler, and precision.</p>
+<h2 id="convention-audit-checklist">Convention Audit Checklist<a class="headerlink" href="#convention-audit-checklist" title="Permanent link">¤</a></h2>
+<p>Before implementing an equation from a paper, record:</p>
+<ol>
+<li>the random variable and its support/reference measure;</li>
+<li>whether the map runs data→base or base→data;</li>
+<li>whether time runs data→noise or noise→data;</li>
+<li>the predicted target and exact conversion equations;</li>
+<li>whether expectations and losses sum or average each dimension;</li>
+<li>the energy and guidance sign conventions;</li>
+<li>what one “step” or NFE counts;</li>
+<li>tensor shapes, dtypes, broadcasting, and boundary values.</li>
+</ol>
+<h2 id="misconception-checks">Misconception Checks<a class="headerlink" href="#misconception-checks" title="Permanent link">¤</a></h2>
+<details class="question">
+<summary>The same symbol <span class="arithmatex">\(v\)</span> means the same velocity in diffusion and flow matching.</summary>
+<p>No. VP <span class="arithmatex">\(v=a\epsilon-bx_0\)</span> is a rotated prediction target. A flow-matching velocity is the time derivative/marginal field of a specified probability path. They can be related for particular paths, but the relation must be derived.</p>
+</details>
+<details class="question">
+<summary>If two target parameterizations are algebraically convertible, training them is identical.</summary>
+<p>No. Finite-network errors, time weighting, preconditioning, clipping, and numerical conditioning differ even when ideal outputs can be converted.</p>
+</details>
+<details class="question">
+<summary>One NFE means one unit of comparable compute.</summary>
+<p>No. Architecture size, active parameters, conditional branches, sequence dependencies, resolution, codec work, and hardware determine actual cost.</p>
+</details>
+<h2 id="retrieval-check">Retrieval Check<a class="headerlink" href="#retrieval-check" title="Permanent link">¤</a></h2>
+<ol>
+<li>Why do forward-map and inverse-map Jacobian formulas have opposite signs?</li>
+<li>Why is <span class="arithmatex">\(-\epsilon/b_t\)</span> not automatically the marginal score for one sampled training pair?</li>
+<li>Under the curriculum guidance convention, what do <span class="arithmatex">\(s=0\)</span> and <span class="arithmatex">\(s=1\)</span> mean?</li>
+<li>Why is NFE insufficient for comparing TarFlow and a one-step MeanFlow model?</li>
+<li>If one guidance convention uses <span class="arithmatex">\(s=1\)</span>, what does that mean? What is the equivalent <span class="arithmatex">\(w\)</span> in <span class="arithmatex">\((1+w)o_c-wo_u\)</span>?</li>
+<li>Why should diffusion target conversions be checked at both endpoints?</li>
+</ol>
+<details class="success">
+<summary>Solutions</summary>
+<ol>
+<li>The determinants of a bijection and its inverse are reciprocals, so their log absolute determinants differ by a sign.</li>
+<li>It is the conditional perturbation-kernel score. The marginal score averages it over the posterior uncertainty in <span class="arithmatex">\(x_0\)</span> or <span class="arithmatex">\(\epsilon\)</span> given <span class="arithmatex">\(x_t\)</span>.</li>
+<li><span class="arithmatex">\(s=0\)</span> selects the unconditional output; <span class="arithmatex">\(s=1\)</span> selects the ordinary conditional output without extrapolation.</li>
+<li>TarFlow's inverse is autoregressive and requires sequential conditional generation, while MeanFlow's headline sampler is one direct network evaluation.</li>
+<li>It is the ordinary conditional output, and the equivalent alternate scale is <span class="arithmatex">\(w=0\)</span>.</li>
+<li>Endpoint substitution exposes swapped signs, reversed time direction, and incorrect coefficient placement immediately.</li>
+</ol>
+</details>
+<h2 id="summary">Summary<a class="headerlink" href="#summary" title="Permanent link">¤</a></h2>
+<p>Notation is part of the model specification. Direction, endpoint, conditioning, and parameterization conventions must be declared before equations are compared. All later chapters link back here when a paper uses a different convention.</p>
+</article>
+</div>
+<script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  Back to top
+</button>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+<div class="md-social">
+<a class="md-social__link" href="https://github.com/avitai/artifex" rel="noopener" target="_blank" title="github.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</a>
+<a class="md-social__link" href="https://pypi.org/project/avitai-artifex/" rel="noopener" target="_blank" title="pypi.org">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-66.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.3v101.8c0 29 25.2 46 53.4 54.3 33.8 9.9 66.3 11.7 106.8 0 26.9-7.8 53.4-23.5 53.4-54.3v-40.7H226.2v-13.6h160.2c31.1 0 42.6-21.7 53.4-54.2 11.2-33.5 10.7-65.7 0-108.6M286.2 444.7a20.4 20.4 0 1 1 0-40.7 20.4 20.4 0 1 1 0 40.7M167.8 248.1h106.8c29.7 0 53.4-24.5 53.4-54.3V91.9c0-29-24.4-50.7-53.4-55.6-35.8-5.9-74.7-5.6-106.8.1-45.2 8-53.4 24.7-53.4 55.6v40.7h106.9v13.6h-147c-31.1 0-58.3 18.7-66.8 54.2-9.8 40.7-10.2 66.1 0 108.6 7.6 31.6 25.7 54.2 56.8 54.2H101v-48.8c0-35.3 30.5-66.4 66.8-66.4m-6.6-183.4a20.4 20.4 0 1 1 0 40.8 20.4 20.4 0 1 1 0-40.8"></path></svg>
+</a>
+<a class="md-social__link" href="https://twitter.com/mahdi_shafiei" rel="noopener" target="_blank" title="twitter.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M459.4 151.7c.3 4.5.3 9.1.3 13.6 0 138.7-105.6 298.6-298.6 298.6-59.5 0-114.7-17.2-161.1-47.1 8.4 1 16.6 1.3 25.3 1.3 49.1 0 94.2-16.6 130.3-44.8-46.1-1-84.8-31.2-98.1-72.8 6.5 1 13 1.6 19.8 1.6 9.4 0 18.8-1.3 27.6-3.6-48.1-9.7-84.1-52-84.1-103v-1.3c14 7.8 30.2 12.7 47.4 13.3-28.3-18.8-46.8-51-46.8-87.4 0-19.5 5.2-37.4 14.3-53C87.4 130.8 165 172.4 252.1 176.9c-1.6-7.8-2.6-15.9-2.6-24C249.5 95.1 296.3 48 354.4 48c30.2 0 57.5 12.7 76.7 33.1 23.7-4.5 46.5-13.3 66.6-25.3-7.8 24.4-24.4 44.8-46.1 57.8 21.1-2.3 41.6-8.1 60.4-16.2-14.3 20.8-32.2 39.3-52.6 54.3"></path></svg>
+</a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.path", "navigation.top", "navigation.prune", "toc.follow", "search.highlight", "search.share", "search.suggest", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "content.mermaid"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+<script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+<script src="../../../javascripts/reading-layout.js"></script>
+</body>
+</html>

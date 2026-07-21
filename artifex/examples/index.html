@@ -1,0 +1,3459 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="ARTIFEX - Architectures + Generative + JAX. A production-ready modular generative modeling library built on JAX/Flax, providing implementations of state-of-the-art generative models (VAEs, GANs, Diffusion Models, Flow Models, etc.) with multi-modal support">
+      
+      
+        <meta name="author" content="Mahdi Shafiei">
+      
+      
+        <link rel="canonical" href="https://docs.avitai.bio/artifex/examples/">
+      
+      
+        <link rel="prev" href="sampling/blackjax-integration-examples/">
+      
+      
+        <link rel="next" href="../zoo/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>All Examples - Artifex</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+        <script src="../assets/vendor/iframe-worker/index.js"></script>
+      
+    
+    
+      
+    
+    
+      <link rel="stylesheet" href="../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../_static/extra.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+  
+  
+  
+  <script defer src="../javascripts/mathjax.js"></script>
+  <script
+    defer
+    src="../assets/vendor/mathjax/tex-mml-chtml.js"
+    
+      integrity="sha384-OrHfGTnIbkl0do3N76qW/uWr38o91N05sbSPuYBPLH+hG8X/dNSrjZf3AGjzrCwC"
+    
+  ></script>
+  
+
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="amber">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#all-examples" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Artifex" class="md-header__button md-logo" aria-label="Artifex" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Artifex
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              All Examples
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="amber"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="amber"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog" aria-label="Search">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+          <a href="javascript:void(0)" class="md-search__icon md-icon" title="Share" aria-label="Share" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"/></svg>
+          </a>
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        
+<a
+  href="https://github.com/avitai/artifex"
+  title="Go to repository"
+  class="md-source"
+  data-md-component="source"
+>
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Artifex" class="md-nav__button md-logo" aria-label="Artifex" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"/></svg>
+
+    </a>
+    Artifex
+  </label>
+  
+    <div class="md-nav__source">
+      
+<a
+  href="https://github.com/avitai/artifex"
+  title="Go to repository"
+  class="md-source"
+  data-md-component="source"
+>
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../getting-started/installation/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../user-guide/concepts/generative-models-unified/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Generative Models Book
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    
+  
+  
+  
+    <a href="../user-guide/models/vae-guide/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    
+  
+  
+  
+    <a href="../api/core/base/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Examples
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="diffusion/simple-diffusion/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Diffusion Models
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="energy/simple-ebm/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Energy-Based Models
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="basic/vae-mnist/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Basic Tutorials
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="advanced/advanced-training/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Advanced Tutorials
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="vae/multi-beta-vae-benchmark-demo/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    VAE Models
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="protein/protein-extensions-example/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Protein Modeling
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="advanced/advanced-gan/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exploratory Workflows
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="protein/protein-diffusion-tech-validation/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation Utilities
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="geometric/geometric-models-demo/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Geometric Models
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="audio/simple-audio-generation/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Audio Generation
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="text/simple-text-generation/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Text Generation
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="multimodal/simple-image-text/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Multimodal Models
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="framework/framework-features-demo/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework Features
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="losses/loss-examples/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Loss Functions
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="sampling/blackjax-example/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Sampling Methods
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    All Examples
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    All Examples
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+  
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#quick-start" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quick Start
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#diffusion-models" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diffusion Models
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#advanced-tutorials" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Advanced Tutorials
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#specialized-models" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Specialized Models
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#geometric-models" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Geometric Models
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#protein-modeling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Protein Modeling
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#framework-techniques" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Framework &amp; Techniques
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exploratory-workflows" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exploratory Workflows
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#validation-utilities" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Validation Utilities
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#standalone-concept-walkthroughs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Standalone Concept Walkthroughs
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reference-tables" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reference Tables
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Reference Tables">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#by-model-type" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        By Model Type
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#by-dataset" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        By Dataset
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#by-topic" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        By Topic
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../zoo/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Generative Models
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../user-guide/training/overview/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Training
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../user-guide/data/overview/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Data & Modalities
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../user-guide/inference/overview/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Inference & Generation
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../benchmarks/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Evaluation
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../guides/extensions/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../extensions/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Advanced Topics
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../cli/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../community/contributing/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Community
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    
+  
+  
+  
+    <a href="../api/configs/protein-extension/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference Library
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+  
+
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+  
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#quick-start" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quick Start
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#diffusion-models" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diffusion Models
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#advanced-tutorials" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Advanced Tutorials
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#specialized-models" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Specialized Models
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#geometric-models" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Geometric Models
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#protein-modeling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Protein Modeling
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#framework-techniques" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Framework &amp; Techniques
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exploratory-workflows" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exploratory Workflows
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#validation-utilities" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Validation Utilities
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#standalone-concept-walkthroughs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Standalone Concept Walkthroughs
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reference-tables" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reference Tables
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Reference Tables">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#by-model-type" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        By Model Type
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#by-dataset" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        By Dataset
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#by-topic" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        By Topic
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+                
+
+
+
+  
+
+
+  <nav class="md-path" aria-label="Breadcrumb" >
+    <ol class="md-path__list">
+      
+        
+  
+  
+    <li class="md-path__item">
+      <a href=".." class="md-path__link">
+        
+  <span class="md-ellipsis">
+    Home
+  </span>
+
+      </a>
+    </li>
+  
+
+      
+      
+        
+  
+  
+    
+    
+      <li class="md-path__item">
+        <a href="overview/" class="md-path__link">
+          
+  <span class="md-ellipsis">
+    Examples
+  </span>
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ol>
+  </nav>
+
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="all-examples">All Examples<a class="headerlink" href="#all-examples" title="Permanent link">¤</a></h1>
+<div class="search-header">
+<input type="text" id="example-search" placeholder="🔍 Search examples..." />
+<div id="search-stats"></div>
+</div>
+
+<h2 id="quick-start">Quick Start<a class="headerlink" href="#quick-start" title="Permanent link">¤</a></h2>
+<p>This catalog includes four published example buckets: runtime-backed Artifex
+tutorials, standalone concept walkthroughs, exploratory workflows, and
+validation utilities. Runtime-backed tutorials instantiate shipped Artifex
+owners end to end. Standalone concept walkthroughs are clearly labeled raw
+JAX/Flax NNX pedagogy that do not instantiate shipped Artifex runtime owners.
+Exploratory workflows keep useful lower-level or partially retained material
+visible without presenting it as canonical. Validation utilities are quick
+environment or technology-stack checks rather than model tutorials.
+Still-relevant topics without runnable pairs live in <a href="../roadmap/planned-examples/">Planned Example
+Topics</a>.</p>
+<div class="admonition tip">
+<p class="admonition-title">Read, then run</p>
+<p>Use the <a href="../user-guide/concepts/generative-models-unified/">complete curriculum</a> for derivations and research context, then choose a status-labeled example here. An example demonstrates a checked-in workflow; it is not evidence that every method discussed by the book has a shipped Artifex owner.</p>
+</div>
+<div class="example-cards">
+
+<div class="example-card" data-tags="vae,mnist,beginner,image">
+<div class="card-header">
+<h3><a href="basic/vae-mnist.md">VAE on MNIST</a></h3>
+<span class="difficulty beginner">Beginner</span>
+</div>
+<p>Train a Variational Autoencoder on MNIST digits</p>
+<div class="tags">
+<span class="tag">VAE</span>
+<span class="tag">Image</span>
+<span class="tag">MNIST</span>
+</div>
+<div class="card-footer">
+<span class="time">⏱ 10 min</span>
+</div>
+</div>
+
+<div class="example-card" data-tags="gan,dcgan,mnist,beginner,image">
+<div class="card-header">
+<h3><a href="basic/simple-gan.md">GAN on MNIST</a></h3>
+<span class="difficulty beginner">Beginner</span>
+</div>
+<p>Train a Generative Adversarial Network on MNIST</p>
+<div class="tags">
+<span class="tag">GAN</span>
+<span class="tag">DCGAN</span>
+<span class="tag">MNIST</span>
+</div>
+<div class="card-footer">
+<span class="time">⏱ 15 min</span>
+</div>
+</div>
+
+<div class="example-card" data-tags="diffusion,ddpm,mnist,beginner,image">
+<div class="card-header">
+<h3><a href="basic/diffusion-mnist.md">Diffusion on MNIST</a></h3>
+<span class="difficulty beginner">Beginner</span>
+</div>
+<p>Train a DDPM diffusion model on MNIST digits</p>
+<div class="tags">
+<span class="tag">Diffusion</span>
+<span class="tag">DDPM</span>
+<span class="tag">MNIST</span>
+</div>
+<div class="card-footer">
+<span class="time">⏱ 15 min</span>
+</div>
+</div>
+
+<div class="example-card" data-tags="diffusion,ddpm,training,mnist,beginner,image">
+<div class="card-header">
+<h3><a href="basic/diffusion-mnist-demo.md">Diffusion MNIST Training</a></h3>
+<span class="difficulty beginner">Beginner</span>
+</div>
+<p>Complete training workflow for diffusion models on MNIST</p>
+<div class="tags">
+<span class="tag">Diffusion</span>
+<span class="tag">Training</span>
+<span class="tag">MNIST</span>
+</div>
+<div class="card-footer">
+<span class="time">⏱ 20 min</span>
+</div>
+</div>
+
+<div class="example-card" data-tags="flow,realnvp,mnist,beginner,image">
+<div class="card-header">
+<h3><a href="basic/flow-mnist.md">Flow on MNIST</a></h3>
+<span class="difficulty beginner">Beginner</span>
+</div>
+<p>Train a normalizing flow model on MNIST</p>
+<div class="tags">
+<span class="tag">Flow</span>
+<span class="tag">RealNVP</span>
+<span class="tag">MNIST</span>
+</div>
+<div class="card-footer">
+<span class="time">⏱ 10 min</span>
+</div>
+</div>
+
+</div>
+
+<h2 id="diffusion-models">Diffusion Models<a class="headerlink" href="#diffusion-models" title="Permanent link">¤</a></h2>
+<div class="example-cards">
+
+<div class="example-card" data-tags="diffusion,dit,transformer,advanced,scalable">
+<div class="card-header">
+<h3><a href="diffusion/dit-demo.md">DiT Demo</a></h3>
+<span class="difficulty advanced">Advanced</span>
+</div>
+<p>Scalable diffusion with Diffusion Transformers</p>
+<div class="tags">
+<span class="tag">DiT</span>
+<span class="tag">Transformer</span>
+<span class="tag">Scalable</span>
+</div>
+<div class="card-footer">
+<span class="time">⏱ 30 min</span>
+</div>
+</div>
+
+</div>
+
+<h2 id="advanced-tutorials">Advanced Tutorials<a class="headerlink" href="#advanced-tutorials" title="Permanent link">¤</a></h2>
+<div class="example-cards">
+
+<div class="example-card" data-tags="training,optimizer,scheduler,checkpointing,intermediate">
+<div class="card-header">
+<h3><a href="advanced/advanced-training.md">Advanced Training Pipeline</a></h3>
+<span class="difficulty intermediate">Intermediate</span>
+</div>
+<p>Production-ready training with optimizers, schedulers, and checkpointing</p>
+<div class="tags">
+<span class="tag">Training</span>
+<span class="tag">Optimizer</span>
+<span class="tag">Scheduler</span>
+<span class="tag">Checkpointing</span>
+</div>
+<div class="card-footer">
+<span class="time">⏱ 2 min</span>
+</div>
+</div>
+
+<div class="example-card" data-tags="vae,beta-vae,vq-vae,disentanglement,advanced">
+<div class="card-header">
+<h3><a href="advanced/advanced-vae.md">Advanced VAE</a></h3>
+<span class="difficulty advanced">Advanced</span>
+</div>
+<p>β-VAE, VQ-VAE, and disentanglement techniques</p>
+<div class="tags">
+<span class="tag">β-VAE</span>
+<span class="tag">VQ-VAE</span>
+<span class="tag">Disentanglement</span>
+</div>
+<div class="card-footer">
+<span class="time">⏱ 45 min</span>
+</div>
+</div>
+
+</div>
+
+<h2 id="specialized-models">Specialized Models<a class="headerlink" href="#specialized-models" title="Permanent link">¤</a></h2>
+<div class="example-cards">
+
+<div class="example-card" data-tags="ebm,mcmc,langevin,blackjax,advanced">
+<div class="card-header">
+<h3><a href="energy/simple-ebm.md">Energy-Based Model</a></h3>
+<span class="difficulty advanced">Advanced</span>
+</div>
+<p>EBM training with MCMC and Langevin sampling</p>
+<div class="tags">
+<span class="tag">EBM</span>
+<span class="tag">MCMC</span>
+<span class="tag">Langevin</span>
+</div>
+<div class="card-footer">
+<span class="time">⏱ 25 min</span>
+</div>
+</div>
+
+<div class="example-card" data-tags="geometric,3d,pointcloud,mesh,advanced">
+<div class="card-header">
+<h3><a href="geometric/geometric-benchmark-demo.md">Geometric Benchmark</a></h3>
+<span class="difficulty advanced">Advanced</span>
+</div>
+<p>Geometric generative model benchmarking</p>
+<div class="tags">
+<span class="tag">3D</span>
+<span class="tag">Point Cloud</span>
+<span class="tag">Mesh</span>
+</div>
+<div class="card-footer">
+<span class="time">⏱ 45 min</span>
+</div>
+</div>
+
+</div>
+
+<h2 id="geometric-models">Geometric Models<a class="headerlink" href="#geometric-models" title="Permanent link">¤</a></h2>
+<div class="example-cards">
+
+<div class="example-card" data-tags="geometric,pointcloud,mesh,voxel,beginner">
+<div class="card-header">
+<h3><a href="geometric/geometric-models-demo.md">Geometric Models Demo</a></h3>
+<span class="difficulty beginner">Beginner</span>
+</div>
+<p>Quick reference for point clouds, meshes, and voxels</p>
+<div class="tags">
+<span class="tag">Point Cloud</span>
+<span class="tag">Mesh</span>
+<span class="tag">Voxel</span>
+</div>
+<div class="card-footer">
+<span class="time">⏱ 5 min</span>
+</div>
+</div>
+
+<div class="example-card" data-tags="geometric,loss,chamfer,emd,focal,dice,intermediate">
+<div class="card-header">
+<h3><a href="geometric/geometric-losses-demo.md">Geometric Losses Demo</a></h3>
+<span class="difficulty intermediate">Intermediate</span>
+</div>
+<p>Loss functions for point clouds, meshes, and voxels</p>
+<div class="tags">
+<span class="tag">Loss Functions</span>
+<span class="tag">Point Cloud</span>
+<span class="tag">Mesh</span>
+<span class="tag">Voxel</span>
+</div>
+<div class="card-footer">
+<span class="time">⏱ 15 min</span>
+</div>
+</div>
+
+<div class="example-card" data-tags="geometric,pointcloud,transformer,beginner,generation">
+<div class="card-header">
+<h3><a href="geometric/simple-point-cloud-example.md">Simple Point Cloud</a></h3>
+<span class="difficulty beginner">Beginner</span>
+</div>
+<p>Generate and visualize 3D point clouds with transformers</p>
+<div class="tags">
+<span class="tag">Point Cloud</span>
+<span class="tag">Transformer</span>
+<span class="tag">3D</span>
+</div>
+<div class="card-footer">
+<span class="time">⏱ 10 min</span>
+</div>
+</div>
+
+<div class="example-card" data-tags="geometric,benchmark,shapenet,advanced">
+<div class="card-header">
+<h3><a href="geometric/geometric-benchmark-demo.md">Geometric Benchmark</a></h3>
+<span class="difficulty advanced">Advanced</span>
+</div>
+<p>Complete evaluation on geometric tasks</p>
+<div class="tags">
+<span class="tag">Benchmark</span>
+<span class="tag">ShapeNet</span>
+<span class="tag">Metrics</span>
+</div>
+<div class="card-footer">
+<span class="time">⏱ 45 min</span>
+</div>
+</div>
+
+</div>
+
+<h2 id="protein-modeling">Protein Modeling<a class="headerlink" href="#protein-modeling" title="Permanent link">¤</a></h2>
+<div class="example-cards">
+
+<div class="example-card" data-tags="protein,extensions,constraints,intermediate">
+<div class="card-header">
+<h3><a href="protein/protein-extensions-example.md">Protein Extensions</a></h3>
+<span class="difficulty intermediate">Intermediate</span>
+</div>
+<p>Add domain-specific constraints with protein extensions</p>
+<div class="tags">
+<span class="tag">Extensions</span>
+<span class="tag">Constraints</span>
+<span class="tag">Bonds</span>
+</div>
+<div class="card-footer">
+<span class="time">⏱ 10 min</span>
+</div>
+</div>
+
+<div class="example-card" data-tags="protein,extensions,pointcloud,intermediate">
+<div class="card-header">
+<h3><a href="protein/protein-model-extension.md">Protein Model Extension</a></h3>
+<span class="difficulty intermediate">Intermediate</span>
+</div>
+<p>Combine point cloud models with protein extensions</p>
+<div class="tags">
+<span class="tag">Protein</span>
+<span class="tag">Extensions</span>
+<span class="tag">Point Cloud</span>
+</div>
+<div class="card-footer">
+<span class="time">⏱ 10 min</span>
+</div>
+</div>
+
+<div class="example-card" data-tags="protein,modality,factory,intermediate">
+<div class="card-header">
+<h3><a href="protein/protein-model-with-modality.md">Protein Model with Modality</a></h3>
+<span class="difficulty intermediate">Intermediate</span>
+</div>
+<p>Using the modality architecture for protein models</p>
+<div class="tags">
+<span class="tag">Protein</span>
+<span class="tag">Modality</span>
+<span class="tag">Factory</span>
+</div>
+<div class="card-footer">
+<span class="time">⏱ 10 min</span>
+</div>
+</div>
+
+<div class="example-card" data-tags="protein,pointcloud,constraints,intermediate">
+<div class="card-header">
+<h3><a href="protein/protein-point-cloud-example.md">Protein Point Cloud</a></h3>
+<span class="difficulty intermediate">Intermediate</span>
+</div>
+<p>Point cloud modeling with geometric constraints</p>
+<div class="tags">
+<span class="tag">Protein</span>
+<span class="tag">Point Cloud</span>
+<span class="tag">Constraints</span>
+</div>
+<div class="card-footer">
+<span class="time">⏱ 15 min</span>
+</div>
+</div>
+
+<div class="example-card" data-tags="protein,extensions,configuration,intermediate">
+<div class="card-header">
+<h3><a href="protein/protein-extensions-with-config.md">Protein Extensions</a></h3>
+<span class="difficulty intermediate">Intermediate</span>
+</div>
+<p>Using protein extensions with configuration system</p>
+<div class="tags">
+<span class="tag">Extensions</span>
+<span class="tag">Config</span>
+<span class="tag">Protein</span>
+</div>
+<div class="card-footer">
+<span class="time">⏱ 10 min</span>
+</div>
+</div>
+
+<div class="example-card" data-tags="protein,ligand,se3,equivariance,advanced">
+<div class="card-header">
+<h3><a href="protein/protein-ligand-benchmark-demo.md">Protein-Ligand Benchmark</a></h3>
+<span class="difficulty advanced">Advanced</span>
+</div>
+<p>Protein-ligand binding site generation</p>
+<div class="tags">
+<span class="tag">Protein</span>
+<span class="tag">SE(3)</span>
+<span class="tag">Equivariant</span>
+</div>
+<div class="card-footer">
+<span class="time">⏱ 60 min</span>
+</div>
+</div>
+
+</div>
+
+<h2 id="framework-techniques">Framework &amp; Techniques<a class="headerlink" href="#framework-techniques" title="Permanent link">¤</a></h2>
+<div class="example-cards">
+
+<div class="example-card" data-tags="mcmc,blackjax,hmc,nuts,mala,sampling,intermediate">
+<div class="card-header">
+<h3><a href="sampling/blackjax-example.md">BlackJAX Integration</a></h3>
+<span class="difficulty intermediate">Intermediate</span>
+</div>
+<p>MCMC sampling with BlackJAX: HMC, NUTS, and MALA algorithms</p>
+<div class="tags">
+<span class="tag">MCMC</span>
+<span class="tag">HMC</span>
+<span class="tag">NUTS</span>
+<span class="tag">BlackJAX</span>
+</div>
+<div class="card-footer">
+<span class="time">⏱ 15 min</span>
+</div>
+</div>
+
+<div class="example-card" data-tags="mcmc,blackjax,hmc,mala,nuts,comparison,advanced">
+<div class="card-header">
+<h3><a href="sampling/blackjax-sampling-examples.md">BlackJAX Sampling Examples</a></h3>
+<span class="difficulty advanced">Advanced</span>
+</div>
+<p>Compare HMC, MALA, NUTS samplers and direct BlackJAX API usage</p>
+<div class="tags">
+<span class="tag">MCMC</span>
+<span class="tag">Comparison</span>
+<span class="tag">Performance</span>
+</div>
+<div class="card-footer">
+<span class="time">⏱ 20 min</span>
+</div>
+</div>
+
+<div class="example-card" data-tags="mcmc,blackjax,integration,api,performance,advanced">
+<div class="card-header">
+<h3><a href="sampling/blackjax-integration-examples.md">BlackJAX Integration Examples</a></h3>
+<span class="difficulty advanced">Advanced</span>
+</div>
+<p>Direct API vs functional API: progress bars, JIT compilation, and performance</p>
+<div class="tags">
+<span class="tag">Integration</span>
+<span class="tag">Performance</span>
+<span class="tag">JIT</span>
+</div>
+<div class="card-footer">
+<span class="time">⏱ 25 min</span>
+</div>
+</div>
+
+<div class="example-card" data-tags="loss,reconstruction,kl,adversarial,intermediate">
+<div class="card-header">
+<h3><a href="losses/loss-examples.md">Loss Functions</a></h3>
+<span class="difficulty intermediate">Intermediate</span>
+</div>
+<p>Complete guide to Artifex loss functions</p>
+<div class="tags">
+<span class="tag">Losses</span>
+<span class="tag">KL</span>
+<span class="tag">Adversarial</span>
+</div>
+<div class="card-footer">
+<span class="time">⏱ 20 min</span>
+</div>
+</div>
+
+<div class="example-card" data-tags="framework,architecture,patterns,intermediate">
+<div class="card-header">
+<h3><a href="framework/framework-features-demo.md">Framework Features</a></h3>
+<span class="difficulty intermediate">Intermediate</span>
+</div>
+<p>Explore Artifex's architectural patterns</p>
+<div class="tags">
+<span class="tag">Architecture</span>
+<span class="tag">Patterns</span>
+<span class="tag">Framework</span>
+</div>
+<div class="card-footer">
+<span class="time">⏱ 30 min</span>
+</div>
+</div>
+
+<div class="example-card" data-tags="vae,beta-vae,benchmark,disentanglement,advanced">
+<div class="card-header">
+<h3><a href="vae/multi-beta-vae-benchmark-demo.md">β-VAE Benchmark</a></h3>
+<span class="difficulty advanced">Advanced</span>
+</div>
+<p>Compare β-VAE configurations and disentanglement</p>
+<div class="tags">
+<span class="tag">β-VAE</span>
+<span class="tag">Benchmark</span>
+<span class="tag">Tuning</span>
+</div>
+<div class="card-footer">
+<span class="time">⏱ 40 min</span>
+</div>
+</div>
+
+</div>
+
+<h2 id="exploratory-workflows">Exploratory Workflows<a class="headerlink" href="#exploratory-workflows" title="Permanent link">¤</a></h2>
+<div class="example-cards">
+
+<div class="example-card" data-tags="exploratory,gan,wgan,dcgan,lsgan,conditional">
+<div class="card-header">
+<h3><a href="advanced/advanced-gan.md">Advanced GAN</a></h3>
+<span class="difficulty advanced">Advanced</span>
+</div>
+<p>Exploratory comparison of lower-level GAN building blocks and custom training loops</p>
+<div class="tags">
+<span class="tag">Exploratory</span>
+<span class="tag">GAN</span>
+<span class="tag">Lower-Level</span>
+</div>
+<div class="card-footer">
+<span class="time">⏱ 45 min</span>
+</div>
+</div>
+
+<div class="example-card" data-tags="exploratory,protein,structure,pointcloud,graph">
+<div class="card-header">
+<h3><a href="protein/protein-diffusion-example.md">Protein Diffusion</a></h3>
+<span class="difficulty advanced">Advanced</span>
+</div>
+<p>Exploratory direct-owner workflow for protein point-cloud and graph model surfaces</p>
+<div class="tags">
+<span class="tag">Exploratory</span>
+<span class="tag">Protein</span>
+<span class="tag">Direct Owners</span>
+</div>
+<div class="card-footer">
+<span class="time">⏱ 15 min</span>
+</div>
+</div>
+
+</div>
+
+<h2 id="validation-utilities">Validation Utilities<a class="headerlink" href="#validation-utilities" title="Permanent link">¤</a></h2>
+<div class="example-cards">
+
+<div class="example-card" data-tags="validation,protein,setup,jax,nnx">
+<div class="card-header">
+<h3><a href="protein/protein-diffusion-tech-validation.md">Protein Tech Validation</a></h3>
+<span class="difficulty beginner">Beginner</span>
+</div>
+<p>Validation utility for JAX/Flax NNX environment checks around protein experimentation</p>
+<div class="tags">
+<span class="tag">Validation</span>
+<span class="tag">Protein</span>
+<span class="tag">Setup</span>
+</div>
+<div class="card-footer">
+<span class="time">⏱ 5 min</span>
+</div>
+</div>
+
+</div>
+
+<h2 id="standalone-concept-walkthroughs">Standalone Concept Walkthroughs<a class="headerlink" href="#standalone-concept-walkthroughs" title="Permanent link">¤</a></h2>
+<div class="example-cards">
+
+<div class="example-card" data-tags="standalone,diffusion,ddpm,nnx,image">
+<div class="card-header">
+<h3><a href="diffusion/simple-diffusion.md">Simple Diffusion</a></h3>
+<span class="difficulty intermediate">Intermediate</span>
+</div>
+<p>Standalone JAX/Flax NNX walkthrough of diffusion denoising concepts</p>
+<div class="tags">
+<span class="tag">Standalone</span>
+<span class="tag">Diffusion</span>
+<span class="tag">Image</span>
+</div>
+<div class="card-footer">
+<span class="time">⏱ 20 min</span>
+</div>
+</div>
+
+<div class="example-card" data-tags="standalone,audio,waveform,nnx">
+<div class="card-header">
+<h3><a href="audio/simple-audio-generation.md">Audio Generation</a></h3>
+<span class="difficulty intermediate">Intermediate</span>
+</div>
+<p>Standalone waveform-generation walkthrough with raw NNX layers</p>
+<div class="tags">
+<span class="tag">Standalone</span>
+<span class="tag">Audio</span>
+<span class="tag">Waveform</span>
+</div>
+<div class="card-footer">
+<span class="time">⏱ 30 min</span>
+</div>
+</div>
+
+<div class="example-card" data-tags="standalone,text,character,rnn,temperature">
+<div class="card-header">
+<h3><a href="text/simple-text-generation.md">Simple Text Generation</a></h3>
+<span class="difficulty beginner">Beginner</span>
+</div>
+<p>Standalone character-level text generation walkthrough</p>
+<div class="tags">
+<span class="tag">Standalone</span>
+<span class="tag">Text</span>
+<span class="tag">Character-Level</span>
+</div>
+<div class="card-footer">
+<span class="time">⏱ 5 min</span>
+</div>
+</div>
+
+<div class="example-card" data-tags="standalone,multimodal,image,text,retrieval">
+<div class="card-header">
+<h3><a href="multimodal/simple-image-text.md">Simple Image-Text Multimodal</a></h3>
+<span class="difficulty intermediate">Intermediate</span>
+</div>
+<p>Standalone image-text retrieval walkthrough with local encoders</p>
+<div class="tags">
+<span class="tag">Standalone</span>
+<span class="tag">Multimodal</span>
+<span class="tag">Retrieval</span>
+</div>
+<div class="card-footer">
+<span class="time">⏱ 10 min</span>
+</div>
+</div>
+
+</div>
+
+<h2 id="reference-tables">Reference Tables<a class="headerlink" href="#reference-tables" title="Permanent link">¤</a></h2>
+<details>
+<summary><strong>📊 Browse by Category</strong></summary>
+<h3 id="by-model-type">By Model Type<a class="headerlink" href="#by-model-type" title="Permanent link">¤</a></h3>
+<table>
+<thead>
+<tr>
+<th>Model</th>
+<th>Examples</th>
+<th>Level</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>VAE</strong></td>
+<td><a href="basic/vae-mnist/">Basic</a>, <a href="advanced/advanced-vae/">Advanced</a>, <a href="vae/multi-beta-vae-benchmark-demo/">β-VAE Benchmark</a></td>
+<td>⭐ - ⭐⭐⭐</td>
+</tr>
+<tr>
+<td><strong>GAN</strong></td>
+<td><a href="basic/simple-gan/">Basic</a>, Exploratory <a href="advanced/advanced-gan/">Advanced Workflow</a></td>
+<td>⭐ - ⭐⭐⭐</td>
+</tr>
+<tr>
+<td><strong>Diffusion</strong></td>
+<td><a href="basic/diffusion-mnist/">Basic</a>, <a href="basic/diffusion-mnist-demo/">Training</a>, Standalone <a href="diffusion/simple-diffusion/">Simple</a>, <a href="diffusion/dit-demo/">DiT</a></td>
+<td>⭐ - ⭐⭐⭐</td>
+</tr>
+<tr>
+<td><strong>Flow</strong></td>
+<td><a href="basic/flow-mnist/">Basic</a></td>
+<td>⭐ - ⭐⭐</td>
+</tr>
+<tr>
+<td><strong>EBM</strong></td>
+<td><a href="energy/simple-ebm/">Simple EBM</a></td>
+<td>⭐⭐⭐</td>
+</tr>
+<tr>
+<td><strong>Text</strong></td>
+<td>Standalone <a href="text/simple-text-generation/">Simple Text Generation</a></td>
+<td>⭐</td>
+</tr>
+<tr>
+<td><strong>Multimodal</strong></td>
+<td>Standalone <a href="multimodal/simple-image-text/">Image-Text</a></td>
+<td>⭐⭐</td>
+</tr>
+<tr>
+<td><strong>Protein</strong></td>
+<td><a href="protein/protein-model-with-modality/">Modality</a>, <a href="protein/protein-point-cloud-example/">Point Cloud</a>, <a href="protein/protein-extensions-with-config/">Extensions</a>, <a href="protein/protein-ligand-benchmark-demo/">Ligand</a>, Exploratory <a href="protein/protein-diffusion-example/">Protein Diffusion</a>, Validation <a href="protein/protein-diffusion-tech-validation/">Tech Check</a></td>
+<td>⭐⭐ - ⭐⭐⭐</td>
+</tr>
+<tr>
+<td><strong>Geometric</strong></td>
+<td><a href="geometric/geometric-benchmark-demo/">Benchmark</a></td>
+<td>⭐⭐⭐</td>
+</tr>
+</tbody>
+</table>
+<h3 id="by-dataset">By Dataset<a class="headerlink" href="#by-dataset" title="Permanent link">¤</a></h3>
+<table>
+<thead>
+<tr>
+<th>Dataset</th>
+<th>Examples</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>MNIST</strong></td>
+<td><a href="basic/vae-mnist/">VAE</a> · <a href="basic/simple-gan/">GAN</a> · <a href="basic/diffusion-mnist/">Diffusion</a> · <a href="basic/diffusion-mnist-demo/">Diffusion Training</a> · <a href="basic/flow-mnist/">Flow</a></td>
+</tr>
+<tr>
+<td><strong>Text</strong></td>
+<td>Standalone <a href="text/simple-text-generation/">Simple Text Generation</a></td>
+</tr>
+<tr>
+<td><strong>Multimodal</strong></td>
+<td>Standalone <a href="multimodal/simple-image-text/">Image-Text</a></td>
+</tr>
+<tr>
+<td><strong>Audio</strong></td>
+<td>Standalone <a href="audio/simple-audio-generation/">Audio Generation</a></td>
+</tr>
+<tr>
+<td><strong>Protein/3D</strong></td>
+<td><a href="protein/protein-model-with-modality/">Modality</a> · <a href="protein/protein-point-cloud-example/">Point Cloud</a> · <a href="protein/protein-extensions-with-config/">Extensions</a> · <a href="protein/protein-ligand-benchmark-demo/">Ligand</a> · Exploratory <a href="protein/protein-diffusion-example/">Protein Diffusion</a> · Validation <a href="protein/protein-diffusion-tech-validation/">Tech Check</a> · <a href="geometric/geometric-benchmark-demo/">Geometric</a></td>
+</tr>
+</tbody>
+</table>
+<h3 id="by-topic">By Topic<a class="headerlink" href="#by-topic" title="Permanent link">¤</a></h3>
+<p><strong>Disentanglement</strong> · <a href="advanced/advanced-vae/">Advanced VAE</a> · <a href="vae/multi-beta-vae-benchmark-demo/">β-VAE Benchmark</a></p>
+<p><strong>MCMC/Sampling</strong> · <a href="sampling/blackjax-example/">BlackJAX Integration</a> · <a href="sampling/blackjax-sampling-examples/">BlackJAX Sampling Examples</a> · <a href="sampling/blackjax-integration-examples/">BlackJAX Integration Examples</a> · <a href="energy/simple-ebm/">EBM</a></p>
+<p><strong>Transformers</strong> · <a href="diffusion/dit-demo/">DiT Demo</a></p>
+<p><strong>Equivariance</strong> · <a href="protein/protein-ligand-benchmark-demo/">Protein-Ligand</a> · <a href="geometric/geometric-benchmark-demo/">Geometric</a></p>
+<p><strong>Benchmarking</strong> · <a href="vae/multi-beta-vae-benchmark-demo/">β-VAE</a> · <a href="protein/protein-ligand-benchmark-demo/">Protein-Ligand</a> · <a href="geometric/geometric-benchmark-demo/">Geometric</a></p>
+<p><strong>Configuration</strong> · <a href="protein/protein-extensions-with-config/">Protein Extensions</a> · <a href="framework/framework-features-demo/">Framework Features</a></p>
+<p><strong>Point Clouds</strong> · <a href="protein/protein-point-cloud-example/">Protein Point Cloud</a> · <a href="geometric/geometric-benchmark-demo/">Geometric</a></p>
+<p><strong>Loss Functions</strong> · <a href="losses/loss-examples/">Loss Examples</a></p>
+<p><strong>Text Generation</strong> · Standalone <a href="text/simple-text-generation/">Simple Text Generation</a></p>
+<p><strong>Multimodal Learning</strong> · Standalone <a href="multimodal/simple-image-text/">Image-Text</a></p>
+<p><strong>Exploratory Workflows</strong> · <a href="advanced/advanced-gan/">Advanced GAN</a> · <a href="protein/protein-diffusion-example/">Protein Diffusion</a></p>
+<p><strong>Validation Utilities</strong> · <a href="protein/protein-diffusion-tech-validation/">Protein Tech Validation</a></p>
+</details>
+<hr />
+<div class="info-grid">
+
+<div class="info-card">
+<h3>🚀 Getting Started</h3>
+<p>New to Artifex? Start with the <a href="basic/vae-mnist.md">beginner examples</a> on MNIST.</p>
+</div>
+
+<div class="info-card">
+<h3>📖 Learn More</h3>
+<p>Check the <a href="overview.md">Examples Overview</a> for detailed guidance.</p>
+</div>
+
+<div class="info-card">
+<h3>🤝 Contribute</h3>
+<p>Share your examples! See the <a href="../community/contributing.md">Contributing Guide</a>.</p>
+</div>
+
+</div>
+
+<script>
+(function() {
+    const searchInput = document.getElementById('example-search');
+    const searchStats = document.getElementById('search-stats');
+    const cards = document.querySelectorAll('.example-card');
+    const sections = document.querySelectorAll('h2');
+
+    if (!searchInput) return;
+
+    let allCards = Array.from(cards);
+    let visibleCount = allCards.length;
+
+    function debounce(func, wait) {
+        let timeout;
+        return function(...args) {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => func(...args), wait);
+        };
+    }
+
+    function performSearch(query) {
+        const lowerQuery = query.toLowerCase().trim();
+
+        if (!lowerQuery) {
+            // Show all
+            allCards.forEach(card => card.style.display = '');
+            sections.forEach(section => section.style.display = '');
+            searchStats.textContent = '';
+            return;
+        }
+
+        visibleCount = 0;
+
+        allCards.forEach(card => {
+            const tags = card.dataset.tags || '';
+            const title = card.querySelector('h3').textContent.toLowerCase();
+            const desc = card.querySelector('p').textContent.toLowerCase();
+
+            const matches = tags.includes(lowerQuery) ||
+                          title.includes(lowerQuery) ||
+                          desc.includes(lowerQuery);
+
+            card.style.display = matches ? '' : 'none';
+            if (matches) visibleCount++;
+        });
+
+        // Hide empty sections
+        sections.forEach(section => {
+            const nextElement = section.nextElementSibling;
+            if (nextElement && nextElement.classList.contains('example-cards')) {
+                const visibleCards = Array.from(nextElement.children)
+                    .filter(card => card.style.display !== 'none');
+                section.style.display = visibleCards.length > 0 ? '' : 'none';
+            }
+        });
+
+        searchStats.textContent = visibleCount > 0
+            ? `${visibleCount} example${visibleCount !== 1 ? 's' : ''} found`
+            : 'No examples found';
+    }
+
+    searchInput.addEventListener('input', debounce(e => {
+        performSearch(e.target.value);
+    }, 200));
+
+    searchInput.addEventListener('keypress', e => {
+        if (e.key === 'Enter') {
+            performSearch(e.target.value);
+        }
+    });
+})();
+</script>
+
+<style>
+/* Search Header */
+.search-header {
+    position: sticky;
+    top: 3.6rem;  /* Below MkDocs header */
+    background: var(--md-default-bg-color);
+    padding: 1rem 0;
+    margin-bottom: 2rem;
+    z-index: 5;  /* Below top nav but above content */
+    border-bottom: 1px solid var(--md-default-fg-color--lightest);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+#example-search {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    font-size: 0.95rem;
+    border: 2px solid var(--md-default-fg-color--lighter);
+    border-radius: 6px;
+    background: var(--md-code-bg-color);
+    transition: all 0.2s;
+}
+
+#example-search:focus {
+    outline: none;
+    border-color: var(--md-accent-fg-color);
+    box-shadow: 0 0 0 3px rgba(var(--md-accent-fg-color-rgb), 0.1);
+}
+
+#search-stats {
+    margin-top: 0.5rem;
+    font-size: 0.85rem;
+    color: var(--md-default-fg-color--light);
+}
+
+/* Example Cards Grid */
+.example-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.25rem;
+    margin: 1.5rem 0;
+}
+
+.example-card {
+    border: 1px solid var(--md-default-fg-color--lightest);
+    border-radius: 8px;
+    padding: 1.25rem;
+    background: var(--md-code-bg-color);
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.example-card:hover {
+    border-color: var(--md-accent-fg-color);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    transform: translateY(-2px);
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 0.75rem;
+}
+
+.card-header h3 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.3;
+}
+
+.card-header h3 a {
+    color: var(--md-default-fg-color);
+    text-decoration: none;
+}
+
+.card-header h3 a:hover {
+    color: var(--md-accent-fg-color);
+}
+
+.example-card p {
+    margin: 0;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    color: var(--md-default-fg-color--light);
+    flex: 1;
+}
+
+/* Difficulty Badge */
+.difficulty {
+    font-size: 0.7rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-weight: 600;
+    text-transform: uppercase;
+    white-space: nowrap;
+    letter-spacing: 0.5px;
+}
+
+.difficulty.beginner {
+    background: #e8f5e9;
+    color: #2e7d32;
+}
+
+.difficulty.intermediate {
+    background: #fff3e0;
+    color: #ef6c00;
+}
+
+.difficulty.advanced {
+    background: #fce4ec;
+    color: #c2185b;
+}
+
+/* Dark mode support */
+[data-md-color-scheme="slate"] .difficulty.beginner {
+    background: #1b5e20;
+    color: #a5d6a7;
+}
+
+[data-md-color-scheme="slate"] .difficulty.intermediate {
+    background: #e65100;
+    color: #ffcc80;
+}
+
+[data-md-color-scheme="slate"] .difficulty.advanced {
+    background: #880e4f;
+    color: #f48fb1;
+}
+
+/* Tags */
+.tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+}
+
+.tag {
+    font-size: 0.7rem;
+    padding: 0.25rem 0.5rem;
+    background: var(--md-default-fg-color--lightest);
+    color: var(--md-default-fg-color);
+    border-radius: 4px;
+    font-weight: 500;
+}
+
+/* Card Footer */
+.card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--md-default-fg-color--lightest);
+    font-size: 0.8rem;
+    color: var(--md-default-fg-color--light);
+}
+
+/* Info Grid */
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+    margin: 2rem 0;
+}
+
+.info-card {
+    padding: 1.25rem;
+    border: 1px solid var(--md-default-fg-color--lighter);
+    border-radius: 8px;
+    background: var(--md-code-bg-color);
+}
+
+.info-card h3 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1rem;
+}
+
+.info-card p {
+    margin: 0;
+    font-size: 0.875rem;
+    color: var(--md-default-fg-color--light);
+}
+
+/* Collapsible Details */
+details {
+    margin: 1.5rem 0;
+    padding: 1rem;
+    border: 1px solid var(--md-default-fg-color--lighter);
+    border-radius: 8px;
+    background: var(--md-code-bg-color);
+}
+
+details summary {
+    cursor: pointer;
+    font-weight: 600;
+    user-select: none;
+}
+
+details summary:hover {
+    color: var(--md-accent-fg-color);
+}
+
+details[open] {
+    padding-bottom: 1rem;
+}
+
+details table {
+    margin-top: 1rem;
+}
+
+/* Section Headers */
+h2 {
+    margin-top: 2.5rem;
+    margin-bottom: 1rem;
+    font-size: 1.5rem;
+    font-weight: 600;
+    border-bottom: 2px solid var(--md-default-fg-color--lightest);
+    padding-bottom: 0.5rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .example-cards {
+        grid-template-columns: 1fr;
+    }
+
+    .info-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/avitai/artifex" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://pypi.org/project/avitai-artifex/" target="_blank" rel="noopener" title="pypi.org" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-66.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.3v101.8c0 29 25.2 46 53.4 54.3 33.8 9.9 66.3 11.7 106.8 0 26.9-7.8 53.4-23.5 53.4-54.3v-40.7H226.2v-13.6h160.2c31.1 0 42.6-21.7 53.4-54.2 11.2-33.5 10.7-65.7 0-108.6M286.2 444.7a20.4 20.4 0 1 1 0-40.7 20.4 20.4 0 1 1 0 40.7M167.8 248.1h106.8c29.7 0 53.4-24.5 53.4-54.3V91.9c0-29-24.4-50.7-53.4-55.6-35.8-5.9-74.7-5.6-106.8.1-45.2 8-53.4 24.7-53.4 55.6v40.7h106.9v13.6h-147c-31.1 0-58.3 18.7-66.8 54.2-9.8 40.7-10.2 66.1 0 108.6 7.6 31.6 25.7 54.2 56.8 54.2H101v-48.8c0-35.3 30.5-66.4 66.8-66.4m-6.6-183.4a20.4 20.4 0 1 1 0 40.8 20.4 20.4 0 1 1 0-40.8"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://twitter.com/mahdi_shafiei" target="_blank" rel="noopener" title="twitter.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M459.4 151.7c.3 4.5.3 9.1.3 13.6 0 138.7-105.6 298.6-298.6 298.6-59.5 0-114.7-17.2-161.1-47.1 8.4 1 16.6 1.3 25.3 1.3 49.1 0 94.2-16.6 130.3-44.8-46.1-1-84.8-31.2-98.1-72.8 6.5 1 13 1.6 19.8 1.6 9.4 0 18.8-1.3 27.6-3.6-48.1-9.7-84.1-52-84.1-103v-1.3c14 7.8 30.2 12.7 47.4 13.3-28.3-18.8-46.8-51-46.8-87.4 0-19.5 5.2-37.4 14.3-53C87.4 130.8 165 172.4 252.1 176.9c-1.6-7.8-2.6-15.9-2.6-24C249.5 95.1 296.3 48 354.4 48c30.2 0 57.5 12.7 76.7 33.1 23.7-4.5 46.5-13.3 66.6-25.3-7.8 24.4-24.4 44.8-46.1 57.8 21.1-2.3 41.6-8.1 60.4-16.2-14.3 20.8-32.2 39.3-52.6 54.3"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.path", "navigation.top", "navigation.prune", "toc.follow", "search.highlight", "search.share", "search.suggest", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "content.mermaid"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+        <script src="../javascripts/reading-layout.js"></script>
+      
+    
+  </body>
+</html>

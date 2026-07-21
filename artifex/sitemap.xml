@@ -1,0 +1,3875 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/api/configuration/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/api/extensions/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/api/factory/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/api/sampling/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/api/configs/protein-extension/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/api/core/base/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/api/core/configuration/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/api/core/device-manager/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/api/core/losses/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/api/data/loaders/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/api/data/protein-dataset/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/api/datasets/crossdocked/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/api/extensions/protein/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/api/models/autoregressive/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/api/models/diffusion/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/api/models/ebm/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/api/models/flow/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/api/models/gan/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/api/models/protein-point-cloud/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/api/models/vae/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/api/training/trainer/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/architecture/extensions/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/benchmarks/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/benchmarks/audio/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/benchmarks/audio_benchmarks/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/benchmarks/audio_protocols/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/benchmarks/audio_suite/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/benchmarks/base/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/benchmarks/benchmark_runner/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/benchmarks/caching/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/benchmarks/celeba/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/benchmarks/comparison/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/benchmarks/core/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/benchmarks/crossdocked/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/benchmarks/dashboard/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/benchmarks/dataset_loaders/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/benchmarks/disentanglement/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/benchmarks/diversity/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/benchmarks/ffhq/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/benchmarks/geometric/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/benchmarks/geometric_suite/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/benchmarks/image/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/benchmarks/image_benchmarks/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/benchmarks/image_grid/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/benchmarks/image_protocols/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/benchmarks/image_suite/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/benchmarks/image_unified/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/benchmarks/inception_metrics/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/benchmarks/latency/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/benchmarks/likelihood/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/benchmarks/memory/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/benchmarks/model_adapters/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/benchmarks/molecular_flows/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/benchmarks/multi_beta_vae_suite/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/benchmarks/multimodal_benchmarks/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/benchmarks/multimodal_protocols/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/benchmarks/multimodal_suite/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/benchmarks/optimization/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/benchmarks/optimization_benchmark/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/benchmarks/optimization_plots/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/benchmarks/perplexity/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/benchmarks/plots/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/benchmarks/precision_recall/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/benchmarks/protein_adapters/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/benchmarks/protein_benchmarks/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/benchmarks/protein_dataset/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/benchmarks/protein_ligand/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/benchmarks/protein_ligand_suite/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/benchmarks/protein_model_adapters/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/benchmarks/qm9/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/benchmarks/registry/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/benchmarks/reporting/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/benchmarks/sample_quality/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/benchmarks/scaling/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/benchmarks/se3_molecular_flows_suite/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/benchmarks/standard/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/benchmarks/statistical/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/benchmarks/style_metrics/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/benchmarks/stylegan3_suite/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/benchmarks/synthetic_datasets/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/benchmarks/text/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/benchmarks/text_benchmarks/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/benchmarks/text_protocols/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/benchmarks/text_suite/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/benchmarks/throughput/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/cli/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/cli/__main__/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/cli/benchmark/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/cli/config/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/cli/convert/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/cli/evaluate/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/cli/generate/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/cli/serve/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/cli/train/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/community/contributing/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/community/faq/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/configs/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/configs/base/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/configs/config_loader/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/configs/data/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/configs/distributed/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/configs/error_handling/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/configs/extensions/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/configs/hyperparam/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/configs/inference/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/configs/templates/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/configs/training/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/core/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/core/adversarial/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/core/ancestral/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/core/architecture/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/core/base/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/core/benchmarks/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/core/blackjax_samplers/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/core/causal/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/core/checkpointing/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/core/config_commands/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/core/configuration/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/core/continuous/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/core/device_manager/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/core/device_testing/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/core/diffusion/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/core/discrete/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/core/distance/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/core/distribution_base/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/core/divergence/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/core/evaluation/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/core/fid/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/core/flash_attention/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/core/gan/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/core/geometric/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/core/inception_score/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/core/information/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/core/jax_config/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/core/logging/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/core/mcmc/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/core/metric_ops/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/core/metrics/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/core/migrate_configs/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/core/mixture/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/core/ode/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/core/perceptual/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/core/performance/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/core/perplexity/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/core/pipeline/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/core/positional/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/core/precision_recall/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/core/quality/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/core/reconstruction/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/core/registry/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/core/regularization/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/core/residual/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/core/resnet/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/core/runner/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/core/sde/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/core/statistical/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/core/templates/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/core/transformations/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/core/transformers/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/core/unified/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/core/validation/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/core/versioning/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/data/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/data/audio/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/data/base/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/data/bookcorpus/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/data/bpe/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/data/character/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/data/cifar/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/data/coco/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/data/collators/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/data/custom_audio/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/data/custom_image/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/data/custom_multimodal/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/data/custom_text/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/data/custom_video/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/data/dataset/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/data/ffhq/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/data/image/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/data/imagenet/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/data/librispeech/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/data/pipeline/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/data/protein_dataset/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/data/registry/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/data/remote/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/data/samplers/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/data/sentencepiece/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/data/structured/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/data/text/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/data/tfrecord/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/data/ucf101/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/data/vctk/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/data/video/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/data/webdataset/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/data/wikipedia/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/data/word/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/development/blackjax-testing/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/development/example-documentation-design/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/development/philosophy/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/development/roadmap/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/development/testing/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/examples/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/examples/overview/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/examples/advanced/advanced-gan/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/examples/advanced/advanced-training/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/examples/advanced/advanced-vae/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/examples/audio/simple-audio-generation/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/examples/basic/diffusion-mnist-demo/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/examples/basic/diffusion-mnist/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/examples/basic/flow-mnist/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/examples/basic/simple-gan/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/examples/basic/vae-mnist/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/examples/diffusion/dit-demo/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/examples/diffusion/simple-diffusion/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/examples/energy/simple-ebm/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/examples/framework/framework-features-demo/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/examples/geometric/geometric-benchmark-demo/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/examples/geometric/geometric-losses-demo/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/examples/geometric/geometric-models-demo/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/examples/geometric/simple-point-cloud-example/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/examples/losses/loss-examples/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/examples/multimodal/simple-image-text/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/examples/protein/protein-diffusion-example/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/examples/protein/protein-diffusion-tech-validation/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/examples/protein/protein-extensions-example/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/examples/protein/protein-extensions-with-config/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/examples/protein/protein-ligand-benchmark-demo/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/examples/protein/protein-model-extension/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/examples/protein/protein-model-with-modality/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/examples/protein/protein-point-cloud-example/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/examples/sampling/blackjax-example/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/examples/sampling/blackjax-integration-examples/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/examples/sampling/blackjax-sampling-examples/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/examples/text/simple-text-generation/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/examples/vae/multi-beta-vae-benchmark-demo/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/extensions/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/extensions/augmentation/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/extensions/backbone/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/extensions/constraints/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/extensions/embeddings/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/extensions/extensions/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/extensions/features/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/extensions/mixin/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/extensions/registry/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/extensions/spectral/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/extensions/temporal/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/extensions/tokenization/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/extensions/utils/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/factory/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/factory/autoregressive/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/factory/core/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/factory/diffusion/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/factory/ebm/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/factory/flow/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/factory/gan/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/factory/geometric/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/factory/vae/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/fine_tuning/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/generative_models/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/getting-started/core-concepts/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/getting-started/hardware-setup-guide/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/getting-started/installation/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/getting-started/quickstart/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/guides/configuration/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/guides/custom-extensions/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/guides/extensions/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/guides/factory/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/guides/geometric-models/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/guides/modalities/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/guides/point-clouds/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/guides/protein-extensions/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/guides/protein-modeling/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/guides/benchmarks/protein-ligand/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/guides/modalities/molecular/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/inference/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/inference/adapter/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/inference/ancestral/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/inference/autoregressive_generator/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/inference/base/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/inference/beam_search/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/inference/caching/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/inference/classifier_free/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/inference/compilation/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/inference/diffusion_generator/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/inference/distillation/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/inference/dynamic/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/inference/energy_generator/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/inference/flow_generator/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/inference/gan_generator/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/inference/grpc/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/inference/latency/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/inference/lora/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/inference/memory/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/inference/middleware/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/inference/nucleus/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/inference/onnx/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/inference/padding/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/inference/pipeline/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/inference/prefix_tuning/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/inference/production/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/inference/prompt_tuning/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/inference/pruning/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/inference/quantization/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/inference/rest/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/inference/stateless/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/inference/streaming/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/inference/temperature/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/inference/tensorrt/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/inference/tfjs/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/inference/throughput/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/inference/top_k/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/inference/vae_generator/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/modalities/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/modalities/adapters/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/modalities/base/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/modalities/config/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/modalities/datasets/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/modalities/evaluation/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/modalities/losses/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/modalities/modality/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/modalities/registry/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/modalities/representations/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/modalities/utils/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/models/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/models/base/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/models/beta_vae/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/models/conditional/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/models/conditioning/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/models/cyclegan/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/models/dcgan/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/models/ddim/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/models/ddpm/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/models/decoders/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/models/diffusion/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/models/dit/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/models/ebm/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/models/encoders/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/models/glow/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/models/graph/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/models/guidance/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/models/iaf/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/models/latent/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/models/lsgan/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/models/made/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/models/maf/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/models/mcmc/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/models/mesh/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/models/neural_spline/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/models/patchgan/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/models/pixel_cnn/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/models/point_cloud/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/models/protein_graph/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/models/protein_point_cloud/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/models/real_nvp/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/models/score/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/models/se3_molecular/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/models/stable_diffusion/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/models/stylegan/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/models/stylegan3/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/models/transformer/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/models/unet/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/models/voxel/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/models/vq_vae/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/models/wavenet/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/models/wgan/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/notebooks/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/papers/artifex_arxiv_preprint/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/roadmap/planned-examples/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/roadmap/planned-modules/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/scaling/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/scaling/mesh_utils/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/scaling/sharding/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/theory/molecular-constraints/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/training/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/training/adafactor/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/training/adamw/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/training/autoregressive_trainer/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/training/base/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/training/checkpoint/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/training/cosine/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/training/data_parallel/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/training/device_placement/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/training/diffusion_trainer/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/training/distributed_metrics/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/training/dpo/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/training/early_stopping/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/training/energy_trainer/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/training/exponential/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/training/factory/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/training/flow_trainer/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/training/gan_trainer/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/training/gradient_accumulation/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/training/grpo/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/training/linear/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/training/lion/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/training/logging/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/training/mesh/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/training/mixed_precision/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/training/model_parallel/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/training/optax_wrappers/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/training/ppo/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/training/profiling/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/training/reinforce/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/training/scheduler/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/training/tracking/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/training/utils/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/training/vae_trainer/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/training/visualization/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/tutorials/protein-modeling/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/advanced/architectures/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/advanced/checkpointing/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/advanced/distributed/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/advanced/parallelism/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/autoregressive-01-foundations/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/autoregressive-02-architectures/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/autoregressive-03-training/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/autoregressive-04-decoding/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/autoregressive-05-connections/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/autoregressive-06-practice/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/autoregressive-07-synthesis/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/bayesian-flow-networks-01-story/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/bayesian-flow-networks-02-continuous/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/bayesian-flow-networks-03-discrete/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/bayesian-flow-networks-04-algorithms/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/bayesian-flow-networks-05-relations/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/bayesian-flow-networks-06-practice/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/bayesian-learning-01-object/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/bayesian-learning-02-priors/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/bayesian-learning-03-assessment/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/bayesian-learning-04-practice/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/bnp-01-random-measures/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/bnp-02-partitions-mixtures/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/bnp-03-feature-allocations/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/bnp-04-hierarchies/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/bnp-05-inference/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/bnp-06-evaluation/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/causal-generative-01-semantics/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/causal-generative-02-identifiability/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/causal-generative-03-families/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/causal-generative-04-counterfactuals/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/causal-generative-05-discovery/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/causal-generative-06-practice/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/classical-01-latent-foundations/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/classical-02-factor-analysis/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/classical-03-directed-graphs/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/classical-04-undirected-structure/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/classical-05-sequences-functions/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/classical-06-practice/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/compute-01-training/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/compute-02-systems/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/compute-03-inference/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/compute-04-controls/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/compute-05-pareto/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/compute-06-frontier/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/copula-01-semantics/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/copula-02-classical/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/copula-03-inference/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/copula-04-vines/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/copula-05-neural/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/copula-06-evaluation/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/density-latent-energy-01-objects/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/density-latent-energy-02-normalized/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/density-latent-energy-03-latent/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/density-latent-energy-04-score/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/density-latent-energy-05-correspondences/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/density-latent-energy-06-composition/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/diffusion-01-foundations/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/diffusion-02-architectures/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/diffusion-03-training/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/diffusion-04-sampling/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/diffusion-05-variants/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/diffusion-06-theory-frontier/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/diffusion-07-synthesis/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/discrete-iterative-01-masked/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/discrete-iterative-02-diffusion/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/discrete-iterative-03-ctmc/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/discrete-iterative-04-flow/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/discrete-iterative-05-modalities/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/discrete-iterative-06-practice/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/ebm-01-foundations/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/ebm-02-training-sampling/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/ebm-03-architectures/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/ebm-04-practice/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/ebm-05-relations-frontier/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/ebm-06-synthesis/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/evaluation-01-likelihood/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/evaluation-02-distribution/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/evaluation-03-conditional/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/evaluation-04-human/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/evaluation-05-protocol/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/evaluation-06-frontier/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/few-step-01-foundations/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/few-step-02-consistency/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/few-step-03-meanflow/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/few-step-04-transition/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/few-step-05-distillation/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/few-step-06-practice/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/filtering-01-bayes-recursions/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/filtering-02-kalman/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/filtering-03-smoothing/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/filtering-04-nonlinear-gaussian/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/filtering-05-projection-ensemble/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/filtering-06-practice-research/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/first-course-01-generative-systems/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/first-course-02-probability/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/first-course-03-math-neural-networks/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/first-course-04-learning-inference-sampling/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/first-course-05-six-families/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/first-course-06-code-and-equations/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/first-course-07-diagnostic/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/flow-01-foundations/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/flow-02-architectures/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/flow-03-training/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/flow-04-continuous/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/flow-05-practice/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/flow-06-synthesis/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/gan-01-foundations/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/gan-02-architectures/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/gan-03-training/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/gan-04-representations/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/gan-05-frontier/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/gan-06-synthesis/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/general-markov-01-operators/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/general-markov-02-families/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/general-markov-03-matching/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/general-markov-04-superposition/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/general-markov-05-simulation/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/general-markov-06-practice/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    
+    
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-notation/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/geometric-01-symmetry/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/geometric-02-structures/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/geometric-03-manifolds/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/geometric-04-families/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/geometric-05-constraints/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/geometric-06-practice/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/gflownets-01-foundations/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/gflownets-02-local-balance/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/gflownets-03-trajectory-balance/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/gflownets-04-inference/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/gflownets-05-relations/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/gflownets-06-practice/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/governance-01-lineage/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/governance-02-contamination/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/governance-03-privacy/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/governance-04-provenance/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/governance-05-rights/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/governance-06-practice/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/gradients-01-taxonomy/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/gradients-02-natural-geometry/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/gradients-03-variational/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/gradients-04-estimators/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/gradients-05-computation/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/gradients-06-model-applications/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/gradients-07-implicit-games/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/gradients-08-processes/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/gradients-09-functional/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/gradients-10-practice/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/grammar-01-semantics/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/grammar-02-inference/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/grammar-03-learning/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/grammar-04-programs/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/grammar-05-hybrids/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/grammar-06-evaluation/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/graphical-models-01-directed/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/graphical-models-02-separation/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/graphical-models-03-undirected/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/graphical-models-04-learning/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/graphical-models-05-representations/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/graphical-models-06-workflow/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/implicit-generators-01-foundations/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/implicit-generators-02-mmd/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/implicit-generators-03-kernels/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/implicit-generators-04-imle/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/implicit-generators-05-sliced/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/implicit-generators-06-practice/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/inference-01-objects-and-queries/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/inference-02-variational/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/inference-03-estimators/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/inference-04-weighted-sequential/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/inference-05-amortized-simulation/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/inference-06-validation/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/information-coding-01-measures/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/information-coding-02-dependence/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/information-coding-03-lossless/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/information-coding-04-lossy/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/information-coding-05-channels/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/information-coding-06-bottlenecks/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/landscape-01-copulas/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/landscape-02-gsn/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/landscape-03-ppl/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/landscape-04-tensors/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/landscape-05-quantum/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/landscape-06-constructive/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/landscape-07-bnp/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/landscape-08-point-processes/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/landscape-09-random-graphs/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/message-passing-01-factor-graphs/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/message-passing-02-elimination/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/message-passing-03-sum-product/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/message-passing-04-junction-trees/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/message-passing-05-loopy/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/message-passing-06-compilation-learning/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/new-families-frontier-evidence/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/normalization-01-queries/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/normalization-02-importance/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/normalization-03-annealing/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/normalization-04-bridges/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/normalization-05-diagnostics/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/normalization-06-reporting/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/objectives-01-discrepancies/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/objectives-02-support-score-ratios/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/objectives-03-transport-information/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/objectives-04-practice/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/optimization-01-differentiation/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/optimization-02-stochastic-gradients/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/optimization-03-dynamics/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/optimization-04-latent-learning/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/optimization-05-search/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/optimization-06-transport/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/point-processes-01-semantics/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/point-processes-02-temporal/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/point-processes-03-spatial-sets/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/point-processes-04-inference/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/point-processes-05-simulation/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/point-processes-06-neural-evaluation/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/probabilistic-circuits-01-semantics/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/probabilistic-circuits-02-properties/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/probabilistic-circuits-03-inference/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/probabilistic-circuits-04-learning/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/probabilistic-circuits-05-hybrids/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/probabilistic-circuits-06-practice/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/probability-01-objects/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/probability-02-factorization-queries/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/probability-03-likelihood-examples/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/probability-04-practice/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/probability-paths-01-foundations/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/probability-paths-02-diffusion/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/probability-paths-03-flow/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/probability-paths-04-bridges/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/probability-paths-05-generalizations/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/probability-paths-06-practice/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/random-graphs-01-semantics/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/random-graphs-02-classical/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/random-graphs-03-inference/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/random-graphs-04-neural/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/random-graphs-05-iterative/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/random-graphs-06-evaluation/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/representations-01-semantics/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/representations-02-codecs/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/representations-03-fusion/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/representations-04-unified/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/representations-05-training/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/representations-06-practice/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/research-01-questions/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/research-02-statistics/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/research-03-ablations/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/research-04-artifacts/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/research-05-evidence/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/research-06-maintenance/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/sampling-01-monte-carlo/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/sampling-02-markov-kernels/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/sampling-03-gradient-hamiltonian/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/sampling-04-tempering-transport/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/sampling-05-practice/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/smc-01-targets/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/smc-02-filtering-resampling/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/smc-03-proposals/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/smc-04-smoothing-hybrids/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/smc-05-static-targets/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/smc-06-learning-practice/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/steering-01-targets/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/steering-02-conditioning/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/steering-03-guidance/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/steering-04-constraints/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/steering-05-selection/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/steering-06-composition/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/stochastic-process-01-foundations/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/stochastic-process-02-gaussian-processes/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/stochastic-process-03-neural-processes/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/stochastic-process-04-dynamics/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/stochastic-process-05-diffusion/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/stochastic-process-06-practice/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/tensor-01-semantics/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/tensor-02-mps/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/tensor-03-inference/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/tensor-04-learning/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/tensor-05-connections/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/tensor-06-evaluation/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/vae-01-foundations/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/vae-02-training/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/vae-03-variants/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/vae-04-modern-latents/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/vae-05-practice/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/vae-06-synthesis/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/world-models-01-semantics/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/world-models-02-dynamics/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/world-models-03-objectives/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/world-models-04-planning/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/world-models-05-causal/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/concepts/world-models-06-practice/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/data/data-guide/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/data/overview/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/inference/optimization/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/inference/overview/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/inference/sampling/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/integrations/deployment/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/integrations/huggingface/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/integrations/tensorboard/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/integrations/wandb/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/modalities/audio/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/modalities/image/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/modalities/multimodal/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/modalities/text/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/models/autoregressive-guide/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/models/diffusion-guide/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/models/ebm-guide/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/models/flow-guide/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/models/gan-guide/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/models/vae-guide/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/training/advanced-features/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/training/configuration/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/training/logging/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/training/overview/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/training/profiling/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/training/rl-training/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/user-guide/training/training-guide/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/utils/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/utils/attention_vis/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/utils/color/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/utils/dependency_analyzer/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/utils/device/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/utils/dtype/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/utils/env/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/utils/file/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/utils/file_utils/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/utils/flax_utils/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/utils/formats/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/utils/image_grid/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/utils/latent_space/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/utils/logger/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/utils/math/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/utils/memory/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/utils/metrics/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/utils/mlflow/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/utils/performance/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/utils/plotting/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/utils/postprocessing/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/utils/prng/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/utils/processing/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/utils/protein/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/utils/registry/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/utils/serialization/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/utils/shapes/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/utils/stability/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/utils/stats/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/utils/timer/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/utils/transforms/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/utils/types/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/utils/wandb/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/utils/xprof/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/visualization/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/visualization/protein_viz/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+    
+    <url>
+         <loc>https://docs.avitai.bio/artifex/zoo/</loc>
+         <lastmod>2026-07-21</lastmod>
+    </url>
+</urlset>

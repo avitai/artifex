@@ -1,0 +1,858 @@
+/* Artifex Generative Models Documentation Custom Styles */
+/* Scientific/ML documentation enhancements for generative modeling */
+
+/*
+ * Global color contract
+ * ---------------------
+ * Normal text targets WCAG 2.2 AA contrast (>= 4.5:1), while boundaries,
+ * controls, and focus indicators target >= 3:1. Components consume semantic
+ * roles so light and dark modes remain coherent instead of accumulating
+ * one-off color overrides.
+ */
+:root {
+  color-scheme: light dark;
+  --artifex-radius-sm: 0.3rem;
+  --artifex-radius-md: 0.6rem;
+  --artifex-shadow-raised: 0 0.2rem 0.8rem rgb(15 23 42 / 8%);
+  --artifex-badge-indigo: #4338ca;
+  --artifex-badge-red: #b91c1c;
+  --artifex-badge-cyan: #0e7490;
+  --artifex-badge-green: #047857;
+  --artifex-badge-amber: #92400e;
+  --artifex-badge-purple: #6d28d9;
+}
+
+[data-md-color-scheme="default"] {
+  color-scheme: light;
+  --artifex-surface: #ffffff;
+  --artifex-surface-subtle: #f6f7fb;
+  --artifex-text: #1f2328;
+  --artifex-text-muted: #4b5563;
+  --artifex-heading: #2f3e9e;
+  --artifex-accent: #3343a5;
+  --artifex-accent-hover: #27358a;
+  --artifex-border: #d0d7de;
+  --artifex-focus: #b45309;
+  --artifex-positive: #166534;
+  --artifex-caution: #92400e;
+  --artifex-danger: #b91c1c;
+  --artifex-info: #1d4ed8;
+  /* Material maps comments and word operators to its light foreground role,
+   * which measures only 4.47:1 on the light code surface. Keep those syntax
+   * roles distinct while clearing the WCAG-AA text threshold with margin. */
+  --md-code-hl-comment-color: #656565;
+  --md-code-hl-operator-color: #656565;
+  --md-typeset-a-color: var(--artifex-accent);
+}
+
+[data-md-color-scheme="slate"] {
+  color-scheme: dark;
+  --artifex-surface: #252a34;
+  --artifex-surface-subtle: #2d333f;
+  --artifex-text: #f2f4f8;
+  --artifex-text-muted: #c4cad4;
+  --artifex-heading: #c7d2fe;
+  --artifex-accent: #b7c1ff;
+  --artifex-accent-hover: #d7dcff;
+  --artifex-border: #4b5563;
+  --artifex-focus: #fbbf24;
+  --artifex-positive: #86efac;
+  --artifex-caution: #fcd34d;
+  --artifex-danger: #fca5a5;
+  --artifex-info: #93c5fd;
+  --artifex-shadow-raised: 0 0.25rem 1rem rgb(0 0 0 / 24%);
+  /* Material's default #e6695b number token measures 4.44:1 on its dark code
+   * surface. Preserve the syntax role and hue with a WCAG-AA-safe lightness. */
+  --md-code-hl-number-color: #ec7466;
+  --md-typeset-a-color: var(--artifex-accent);
+}
+
+::selection {
+  background: color-mix(in srgb, var(--artifex-accent) 28%, transparent);
+}
+
+/* Material defines this token again on `.md-typeset`, below the color-scheme
+ * element in the DOM. Rebind it at the same scope so the audited light/dark
+ * accent roles actually reach article links. */
+.md-typeset {
+  --md-typeset-a-color: var(--artifex-accent);
+}
+
+:where(a, button, input, summary, select, textarea, [tabindex]):focus-visible {
+  outline: 3px solid var(--artifex-focus);
+  outline-offset: 3px;
+  border-radius: var(--artifex-radius-sm);
+}
+
+.md-typeset :is(h1, h2, h3, h4)[id] {
+  scroll-margin-top: 4.5rem;
+}
+
+.md-typeset a:hover {
+  color: var(--artifex-accent-hover);
+}
+
+/* Prose links must remain identifiable without relying on color perception.
+ * Navigation, permalinks, and button-styled actions keep their component
+ * treatment; links embedded in reading text receive a durable underline. */
+.md-typeset :where(p, li, dd, blockquote, td, th) a:not(:where(.headerlink, .md-button)) {
+  text-decoration-line: underline;
+  text-decoration-thickness: 0.08em;
+  text-underline-offset: 0.16em;
+}
+
+/* Material's default copyright foreground composites to 4.47:1 against the
+ * dark footer. Its existing `--light` role clears the WCAG AA text threshold. */
+.md-copyright {
+  color: var(--md-footer-fg-color--light);
+}
+
+.md-typeset .grid.cards > ul > li {
+  background: var(--artifex-surface);
+  border-color: var(--artifex-border);
+  border-radius: var(--artifex-radius-md);
+  box-shadow: var(--artifex-shadow-raised);
+}
+
+.md-typeset .md-typeset__table {
+  max-width: 100%;
+  overflow-x: auto;
+  scrollbar-gutter: stable;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Material normally makes the table itself scroll. Keep table semantics and
+ * styling stable when the focus-visible polyfill adds a class by assigning the
+ * single horizontal scroll surface to its wrapper instead. */
+.md-typeset .md-typeset__table > table:not([class]),
+.md-typeset .md-typeset__table.book-table-container > table:not([class]) {
+  display: table;
+  max-width: none;
+  overflow: visible;
+}
+
+.md-typeset table:not([class]),
+.md-typeset .book-table-container > table:not([class]) {
+  border: 1px solid var(--artifex-border);
+}
+
+.md-typeset table:not([class]) th,
+.md-typeset .book-table-container > table:not([class]) th {
+  background: var(--artifex-surface-subtle);
+}
+
+.md-typeset .book-figure {
+  margin: 1.8rem 0;
+}
+
+.md-typeset .book-object-caption {
+  color: var(--md-default-fg-color--light);
+  font-size: 0.86rem;
+  line-height: 1.45;
+}
+
+.md-typeset figcaption.book-object-caption {
+  margin: 0.65rem auto 0;
+  max-width: 72ch;
+  text-align: center;
+}
+
+.md-typeset caption.book-object-caption {
+  padding: 0 0 0.6rem;
+  text-align: left;
+}
+
+.md-typeset .book-object-number {
+  color: var(--md-default-fg-color);
+  font-weight: 700;
+}
+
+/* Reader-controlled desktop layout. Material has page-level sidebar hiding,
+ * while these controls add a persistent per-reader choice. */
+.artifex-layout-toolbar {
+  display: none;
+}
+
+.artifex-reading-progress {
+  position: sticky;
+  top: 2.4rem;
+  z-index: 4;
+  width: 100%;
+  height: 0.24rem;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--artifex-border) 70%, transparent);
+}
+
+.artifex-reading-progress progress {
+  display: block;
+  width: 100%;
+  height: 0.24rem;
+  appearance: none;
+  color: var(--artifex-accent);
+  background: transparent;
+  border: 0;
+}
+
+.artifex-reading-progress progress::-webkit-progress-bar {
+  background: transparent;
+}
+
+.artifex-reading-progress progress::-webkit-progress-value {
+  background: var(--artifex-accent);
+}
+
+.artifex-reading-progress progress::-moz-progress-bar {
+  background: var(--artifex-accent);
+}
+
+@media screen and (min-width: 76.25em) {
+  .md-grid {
+    max-width: 1440px;
+  }
+
+  .artifex-layout-toolbar {
+    position: sticky;
+    top: 3rem;
+    z-index: 3;
+    display: flex;
+    gap: 0.45rem;
+    width: max-content;
+    max-width: calc(100% - 3.2rem);
+    min-height: 2rem;
+    margin: 0.7rem 1.6rem -0.5rem auto;
+    padding: 0.2rem;
+    background: color-mix(in srgb, var(--artifex-surface) 90%, transparent);
+    border: 1px solid color-mix(in srgb, var(--artifex-border) 75%, transparent);
+    border-radius: 999px;
+    box-shadow: var(--artifex-shadow-raised);
+    backdrop-filter: blur(0.5rem);
+  }
+
+  .artifex-layout-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    min-height: 2rem;
+    padding: 0.25rem 0.65rem;
+    color: var(--artifex-text-muted);
+    font: inherit;
+    font-size: 0.72rem;
+    font-weight: 600;
+    line-height: 1;
+    background: var(--artifex-surface-subtle);
+    border: 1px solid var(--artifex-border);
+    border-radius: 999px;
+    cursor: pointer;
+  }
+
+  .artifex-layout-button:hover {
+    color: var(--artifex-accent-hover);
+    background: var(--artifex-surface);
+    box-shadow: var(--artifex-shadow-raised);
+  }
+
+  .artifex-layout-button.is-collapsed {
+    color: var(--artifex-accent);
+    border-color: var(--artifex-accent);
+  }
+
+  .artifex-layout-button__icon {
+    font-size: 0.9rem;
+    line-height: 1;
+  }
+
+  body.artifex-navigation-collapsed .md-sidebar--primary,
+  body.artifex-contents-collapsed .md-sidebar--secondary {
+    display: none;
+  }
+
+  body.artifex-navigation-collapsed .md-content__inner,
+  body.artifex-contents-collapsed .md-content__inner {
+    max-width: 1180px;
+    margin-right: auto;
+    margin-left: auto;
+  }
+
+  body.artifex-navigation-collapsed.artifex-contents-collapsed .md-content__inner {
+    max-width: 1320px;
+  }
+}
+
+/* Scientific equation styling */
+.arithmatex {
+  margin: 1em 0;
+}
+
+/* Keep long display equations inside the reading column on narrow screens. */
+.md-typeset div.arithmatex {
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0.2rem 0 0.4rem;
+  scrollbar-width: thin;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Inline MathJax is an indivisible inline box. Constrain unusually long
+ * expressions to the reading column so they wrap onto their own line and gain
+ * a local scroll surface instead of widening the whole document. */
+.md-typeset .arithmatex > mjx-container:not([display="true"]) {
+  display: inline-block;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  vertical-align: middle;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.md-typeset .arithmatex > mjx-container:not([display="true"])::-webkit-scrollbar {
+  display: none;
+}
+
+/* Diagrams should scale down when possible and scroll only when necessary. */
+.md-typeset .mermaid {
+  max-width: 100%;
+  overflow-x: auto;
+  text-align: center;
+  overscroll-behavior-inline: contain;
+  scrollbar-width: thin;
+  -webkit-overflow-scrolling: touch;
+}
+
+.md-typeset .mermaid svg {
+  display: inline-block;
+  max-width: 100%;
+  height: auto;
+}
+
+.md-typeset .mermaid.artifex-mermaid-scrollable {
+  padding-bottom: 0.35rem;
+  text-align: left;
+}
+
+.artifex-visually-hidden {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+/* Large diagrams remain one coherent SVG. The local navigator exposes a
+ * whole-diagram overview, a readable default, and progressive magnification
+ * without widening the document or relying on a pinch/drag gesture. */
+.md-typeset .artifex-diagram-shell {
+  position: relative;
+  max-width: 100%;
+  margin: 1em 0;
+  border: 1px solid var(--artifex-border);
+  border-radius: var(--artifex-radius-md);
+  background: var(--artifex-surface);
+  box-shadow: var(--artifex-shadow-raised);
+}
+
+.md-typeset .artifex-diagram-toolbar {
+  position: sticky;
+  top: 3.15rem;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.35rem;
+  min-height: 2.4rem;
+  padding: 0.3rem 0.45rem;
+  color: var(--artifex-text-muted);
+  background: color-mix(in srgb, var(--artifex-surface) 92%, transparent);
+  border-bottom: 1px solid var(--artifex-border);
+  border-radius: var(--artifex-radius-md) var(--artifex-radius-md) 0 0;
+  backdrop-filter: blur(0.5rem);
+}
+
+.md-typeset .artifex-diagram-button {
+  display: inline-grid;
+  place-items: center;
+  min-width: 2rem;
+  min-height: 2rem;
+  padding: 0.25rem 0.5rem;
+  color: var(--artifex-text);
+  font: inherit;
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1;
+  background: var(--artifex-surface-subtle);
+  border: 1px solid var(--artifex-border);
+  border-radius: var(--artifex-radius-sm);
+  cursor: pointer;
+}
+
+.md-typeset .artifex-diagram-button:hover:not(:disabled) {
+  color: var(--artifex-accent-hover);
+  border-color: var(--artifex-accent);
+}
+
+.md-typeset .artifex-diagram-button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.md-typeset .artifex-diagram-zoom {
+  min-width: 3.2rem;
+  color: var(--artifex-text-muted);
+  font-variant-numeric: tabular-nums;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.md-typeset .artifex-diagram-shell > .mermaid {
+  max-height: min(72vh, 52rem);
+  margin: 0;
+  padding: 0.6rem 0 0.45rem;
+  overflow: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+  touch-action: pan-x pan-y;
+  cursor: grab;
+  border-radius: 0 0 var(--artifex-radius-md) var(--artifex-radius-md);
+}
+
+.md-typeset .artifex-diagram-shell > .mermaid.artifex-diagram-panning {
+  cursor: grabbing;
+  user-select: none;
+}
+
+/* Linked SVG nodes remain available visually, while this ordinary HTML list
+ * exposes the same destinations to crawlers, keyboard users, and readers who
+ * do not navigate an interactive diagram. */
+.md-typeset .artifex-diagram-links {
+  margin: -0.35rem 0 1rem;
+  padding: 0.55rem 0.75rem;
+  color: var(--artifex-text-muted);
+  background: var(--artifex-surface-subtle);
+  border: 1px solid var(--artifex-border);
+  border-radius: var(--artifex-radius-sm);
+  font-size: 0.82rem;
+}
+
+.md-typeset .artifex-diagram-links summary {
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.md-typeset .artifex-diagram-links ul {
+  margin-bottom: 0;
+}
+
+@media print {
+  .artifex-diagram-toolbar {
+    display: none !important;
+  }
+
+  .md-typeset .artifex-diagram-shell > .mermaid svg {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+}
+
+/* Material's syntax tokens are contrast-balanced for both color schemes. */
+
+/* Mathematical symbols and ML notation */
+.math {
+  font-family: 'Computer Modern', 'Latin Modern Math', serif;
+}
+
+/* Enhanced admonition styling for ML/scientific content */
+.md-typeset .admonition.note {
+  border-left: 4px solid var(--artifex-info);
+}
+
+.md-typeset .admonition.tip {
+  border-left: 4px solid var(--artifex-positive);
+}
+
+.md-typeset .admonition.warning {
+  border-left: 4px solid var(--artifex-caution);
+}
+
+.md-typeset .admonition.danger {
+  border-left: 4px solid var(--artifex-danger);
+}
+
+.md-typeset .artifex-learning-path {
+  border-left: 4px solid var(--artifex-info);
+}
+
+.md-typeset .artifex-learning-path > p,
+.md-typeset .artifex-learning-path > ul {
+  margin-block: 0.45rem;
+}
+
+.md-typeset .artifex-learning-path__links {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+  column-gap: 1.5rem;
+  padding-inline-start: 1.25rem;
+}
+
+.md-typeset .artifex-learning-path__links > li {
+  break-inside: avoid;
+}
+
+/* Generative Model specific styling */
+.model-info,
+.performance-warning,
+.training-note {
+  color: #ffffff;
+  padding: 1em;
+  border-radius: var(--artifex-radius-md);
+  margin: 1em 0;
+}
+
+.model-info {
+  background: linear-gradient(135deg, var(--artifex-badge-indigo), var(--artifex-badge-purple));
+}
+
+.performance-warning {
+  background: var(--artifex-badge-red);
+}
+
+.training-note {
+  background: var(--artifex-badge-green);
+}
+
+/* Model type badges for generative models */
+.model-vae,
+.model-gan,
+.model-diffusion,
+.model-flow,
+.model-ebm,
+.model-autoregressive {
+  color: #ffffff;
+  padding: 0.5em 1em;
+  border-radius: var(--artifex-radius-sm);
+  font-weight: bold;
+  display: inline-block;
+  margin: 0.25em;
+}
+
+.model-vae { background: var(--artifex-badge-indigo); }
+.model-gan { background: var(--artifex-badge-red); }
+.model-diffusion { background: var(--artifex-badge-cyan); }
+.model-flow { background: var(--artifex-badge-green); }
+.model-ebm { background: var(--artifex-badge-amber); }
+.model-autoregressive { background: var(--artifex-badge-purple); }
+
+/* Pipeline/architecture diagrams */
+.pipeline-diagram {
+  text-align: center;
+  margin: 2em 0;
+}
+
+.pipeline-diagram svg {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Performance metrics styling */
+.performance-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1em;
+  margin: 1em 0;
+}
+
+.metric-card {
+  background: var(--artifex-surface);
+  border: 1px solid var(--artifex-border);
+  border-radius: var(--artifex-radius-md);
+  box-shadow: var(--artifex-shadow-raised);
+  padding: 1em;
+  text-align: center;
+}
+
+.metric-value {
+  font-size: 2em;
+  font-weight: bold;
+  color: var(--artifex-heading);
+}
+
+.metric-label {
+  font-size: 0.9em;
+  color: var(--artifex-text-muted);
+  margin-top: 0.5em;
+}
+
+/* Training quality indicators */
+.quality-high {
+  color: var(--artifex-positive);
+  font-weight: bold;
+}
+
+.quality-medium {
+  color: var(--artifex-caution);
+  font-weight: bold;
+}
+
+.quality-low {
+  color: var(--artifex-danger);
+  font-weight: bold;
+}
+
+/* Training results table styling */
+.results-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1em 0;
+}
+
+.results-table th,
+.results-table td {
+  padding: 0.75em;
+  text-align: left;
+  border-bottom: 1px solid var(--artifex-border);
+}
+
+.results-table th {
+  background: var(--artifex-surface-subtle);
+  font-weight: bold;
+}
+
+.results-table .metric-name {
+  font-family: 'Roboto Mono', monospace;
+  font-weight: bold;
+  color: var(--artifex-heading);
+}
+
+.results-table .value {
+  font-family: 'Roboto Mono', monospace;
+}
+
+/* Model architecture styling */
+.architecture-block {
+  background: var(--artifex-surface-subtle);
+  border: 1px solid var(--artifex-border);
+  border-radius: var(--artifex-radius-md);
+  padding: 1em;
+  margin: 0.5em 0;
+}
+
+.architecture-block .block-title {
+  font-weight: bold;
+  color: var(--artifex-heading);
+  margin-bottom: 0.5em;
+}
+
+.architecture-block .block-description {
+  font-size: 0.9em;
+  color: var(--artifex-text-muted);
+}
+
+/* Framework badges */
+.framework-jax,
+.framework-flax,
+.framework-nnx,
+.sampling-ancestral,
+.sampling-diffusion,
+.sampling-mcmc,
+.loss-reconstruction,
+.loss-adversarial,
+.loss-kldiv,
+.loss-perceptual,
+.modality-image,
+.modality-text,
+.modality-audio,
+.modality-multimodal,
+.modality-protein {
+  color: #ffffff;
+  padding: 0.25em 0.5em;
+  border-radius: var(--artifex-radius-sm);
+  font-size: 0.8em;
+  font-weight: bold;
+}
+
+.framework-jax { background: var(--artifex-badge-amber); }
+.framework-flax { background: var(--artifex-badge-indigo); }
+.framework-nnx { background: var(--artifex-badge-purple); }
+
+/* Code annotation enhancements */
+.md-typeset .md-annotation {
+  font-size: 0.8em;
+  line-height: 1.4;
+}
+
+/* ML/DL badge styling */
+.ml-badge {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0.125rem;
+}
+
+/* Configuration YAML highlighting */
+.config-structure {
+  background: var(--md-code-bg-color);
+  border-left: 4px solid var(--artifex-accent);
+  padding: 1em;
+  margin: 1em 0;
+  font-family: 'Roboto Mono', monospace;
+}
+
+/* Improve code block readability */
+.md-typeset code {
+  font-size: 0.85em;
+}
+
+/* Better spacing for API documentation */
+.md-typeset .doc-contents {
+  padding-left: 1rem;
+}
+
+/* Improve table of contents */
+.md-nav__link {
+  font-size: 0.9em;
+}
+
+/* Material animates repository facts in after its source request resolves.
+ * Accessibility audits and keyboard users can encounter the text mid-fade,
+ * when compositing no longer clears normal-text contrast. Keep the facts
+ * fully opaque and stable once inserted. */
+.md-header .md-source__facts {
+  opacity: 1;
+}
+
+.md-header .md-source__repository--active :is(.md-source__facts, .md-source__fact) {
+  animation: none;
+}
+
+/* Desktop primary navigation otherwise exposes text-only targets around
+ * 16 px high. The mobile drawer already supplies larger component padding. */
+@media screen and (min-width: 76.25em) {
+  .md-sidebar--primary .md-nav__link {
+    min-height: 1.2rem;
+  }
+}
+
+/* Better heading hierarchy */
+.md-typeset h1 {
+  color: var(--artifex-heading);
+  font-weight: 400;
+  letter-spacing: -0.015em;
+}
+
+.md-typeset h2 {
+  border-bottom: 1px solid var(--artifex-border);
+  padding-bottom: 0.3rem;
+}
+
+/* Sampling method badges */
+.sampling-ancestral { background: var(--artifex-badge-indigo); }
+.sampling-diffusion { background: var(--artifex-badge-cyan); }
+.sampling-mcmc { background: var(--artifex-badge-red); }
+
+/* Loss function styling */
+.loss-reconstruction { background: var(--artifex-badge-green); }
+.loss-adversarial { background: var(--artifex-badge-red); }
+.loss-kldiv { background: var(--artifex-badge-cyan); }
+.loss-perceptual { background: var(--artifex-badge-purple); }
+
+/* Responsive design for mobile */
+@media screen and (max-width: 768px) {
+  .performance-metrics {
+    grid-template-columns: 1fr;
+  }
+
+  .pipeline-diagram {
+    overflow-x: auto;
+  }
+
+  .results-table {
+    font-size: 0.9em;
+  }
+
+  .ml-badge {
+    font-size: 0.7em;
+    padding: 0.2rem 0.4rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
+
+@media (forced-colors: active) {
+  :where(a, button, input, summary, select, textarea, [tabindex]):focus-visible {
+    outline-color: Highlight;
+  }
+
+  .artifex-layout-button {
+    forced-color-adjust: auto;
+  }
+}
+
+/* Print styles for documentation */
+@media print {
+
+  .md-header,
+  .md-tabs,
+  .md-footer {
+    display: none;
+  }
+
+  .md-content {
+    margin: 0;
+  }
+
+  .pipeline-diagram {
+    page-break-inside: avoid;
+  }
+
+  .results-table {
+    page-break-inside: avoid;
+  }
+
+  .architecture-block {
+    page-break-inside: avoid;
+  }
+}
+
+/* Modality badges */
+.modality-image { background: var(--artifex-badge-indigo); }
+.modality-text { background: var(--artifex-badge-green); }
+.modality-audio { background: var(--artifex-badge-amber); }
+.modality-multimodal { background: var(--artifex-badge-purple); }
+.modality-protein { background: var(--artifex-badge-cyan); }
+
+/* Benchmark result styling */
+.benchmark-results {
+  margin: 1em 0;
+  padding: 1em;
+  background: var(--md-code-bg-color);
+  border-radius: var(--artifex-radius-md);
+  border-left: 4px solid var(--artifex-accent);
+}
+
+.benchmark-title {
+  font-weight: bold;
+  color: var(--artifex-heading);
+  margin-bottom: 0.5em;
+}

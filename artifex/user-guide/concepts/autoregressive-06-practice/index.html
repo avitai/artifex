@@ -1,0 +1,1751 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="This chapter connects theory to Artifex usage, density and capability evaluation, throughput, deployment, quantization, and safety. For uninterrupted reading," name="description"/>
+<meta content="Mahdi Shafiei" name="author"/>
+<link href="https://docs.avitai.bio/artifex/user-guide/concepts/autoregressive-06-practice/" rel="canonical"/>
+<link href="../autoregressive-05-connections/" rel="prev"/>
+<link href="../autoregressive-07-synthesis/" rel="next"/>
+<link href="../../../assets/images/favicon.png" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.7.7" name="generator"/>
+<title>Autoregressive Models 6 — Practice and Evaluation - Artifex</title>
+<link href="../../../assets/stylesheets/main.ec1eaa64.min.css" rel="stylesheet"/>
+<link href="../../../assets/stylesheets/palette.ab4e12ef.min.css" rel="stylesheet"/>
+<script src="../../../assets/vendor/iframe-worker/index.js"></script>
+<link href="../../../assets/_mkdocstrings.css" rel="stylesheet"/>
+<link href="../../../_static/extra.css" rel="stylesheet"/>
+<script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+<meta content="article" property="og:type"/>
+<meta content="The Artifex Generative Models Book" property="og:site_name"/>
+<meta content="Autoregressive Models 6 — Practice and Evaluation" property="og:title"/>
+<meta content="This chapter connects theory to Artifex usage, density and capability evaluation, throughput, deployment, quantization, and safety. For uninterrupted reading," property="og:description"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/autoregressive-06-practice/" property="og:url"/>
+<meta content="2026-07-14" property="article:modified_time"/>
+<meta content="summary" name="twitter:card"/>
+<meta content="Autoregressive Models 6 — Practice and Evaluation" name="twitter:title"/>
+<meta content="This chapter connects theory to Artifex usage, density and capability evaluation, throughput, deployment, quantization, and safety. For uninterrupted reading," name="twitter:description"/>
+<meta content="Generative models, Machine learning, Probabilistic modeling, advanced, specialization, canonical_chapter, autoregressive-practice, practitioner, researcher" name="keywords"/>
+<meta content="Autoregressive Models 6 — Practice and Evaluation" name="citation_title"/>
+<meta content="Mahdi Shafiei" name="citation_author"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/autoregressive-06-practice/" name="citation_public_url"/>
+<meta content="en" name="citation_language"/>
+<meta content="Autoregressive Models 6 — Practice and Evaluation" name="DC.title"/>
+<meta content="Mahdi Shafiei" name="DC.creator"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/autoregressive-06-practice/" name="DC.identifier"/>
+<meta content="Text.LearningResource" name="DC.type"/>
+<meta content="2026-07-14" name="DCTERMS.modified"/>
+<meta content="https://github.com/avitai/artifex/blob/main/LICENSE" name="DCTERMS.license"/>
+<meta content="advanced" name="DCTERMS.educationLevel"/>
+<meta content="practitioner, researcher" name="DCTERMS.audience"/>
+<link href="https://github.com/avitai/artifex/blob/main/LICENSE" rel="license"/>
+<script id="artifex-book-metadata" type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Chapter",
+  "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/autoregressive-06-practice/",
+  "url": "https://docs.avitai.bio/artifex/user-guide/concepts/autoregressive-06-practice/",
+  "name": "Autoregressive Models 6 \u2014 Practice and Evaluation",
+  "description": "This chapter connects theory to Artifex usage, density and capability evaluation, throughput, deployment, quantization, and safety. For uninterrupted reading,",
+  "identifier": "autoregressive-practice",
+  "inLanguage": "en",
+  "isAccessibleForFree": true,
+  "learningResourceType": "Canonical chapter",
+  "educationalLevel": "advanced",
+  "educationalUse": "specialization",
+  "audience": [
+    
+      {"@type": "EducationalAudience", "audienceType": "practitioner"},
+    
+      {"@type": "EducationalAudience", "audienceType": "researcher"}
+    
+  ],
+  "dateModified": "2026-07-14",
+  "keywords": ["Generative models", "Machine learning", "Probabilistic modeling", "advanced", "specialization", "canonical_chapter", "autoregressive-practice", "practitioner", "researcher"],
+  "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+  "author": [
+    
+      {"@type": "Person", "name": "Mahdi Shafiei"}
+    
+  ],
+  "isPartOf": {
+    "@type": "Book",
+    "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/#book",
+    "url": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/",
+    "name": "The Artifex Generative Models Book",
+    "bookEdition": "Living Web Edition",
+    "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+    "author": [
+      
+        {"@type": "Person", "name": "Mahdi Shafiei"}
+      
+    ]
+  }
+}
+</script>
+<script defer="" src="../../../javascripts/mathjax.js"></script>
+<script defer="" integrity="sha384-OrHfGTnIbkl0do3N76qW/uWr38o91N05sbSPuYBPLH+hG8X/dNSrjZf3AGjzrCwC" src="../../../assets/vendor/mathjax/tex-mml-chtml.js"></script>
+</head>
+<body data-md-color-accent="amber" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#autoregressive-models-6-practice-and-evaluation">
+          Skip to content
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header md-header--shadow" data-md-component="header">
+<nav aria-label="Header" class="md-header__inner md-grid">
+<a aria-label="Artifex" class="md-header__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            Artifex
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+            
+              Autoregressive Models 6 — Practice and Evaluation
+            
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-label="Switch to dark mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: light)" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_1" hidden="" title="Switch to dark mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+<input aria-label="Switch to light mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-primary="indigo" data-md-color-scheme="slate" id="__palette_1" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_0" hidden="" title="Switch to light mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+</form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div aria-label="Search" class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Search" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="Search" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="Search" class="md-search__options">
+<a aria-label="Share" class="md-search__icon md-icon" data-clipboard="" data-clipboard-text="" data-md-component="search-share" href="javascript:void(0)" tabindex="-1" title="Share">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"></path></svg>
+</a>
+<button aria-label="Clear" class="md-search__icon md-icon" tabindex="-1" title="Clear" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            Initializing search
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Navigation" class="md-nav md-nav--primary" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="Artifex" class="md-nav__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+    Artifex
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../..">
+<span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../getting-started/installation/">
+<span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Generative Models Book
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Generative Models Book
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    
+  
+    Start Here — The Landscape
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../first-course-01-generative-systems/">
+<span class="md-ellipsis">
+    
+  
+    First Course — New to Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../probability-01-objects/">
+<span class="md-ellipsis">
+    
+  
+    Foundations
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_4" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_4" id="__nav_3_4_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Model Families
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_4_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_4">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Model Families
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_4_1" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_4_1" id="__nav_3_4_1_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Autoregressive Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_4_1_label" class="md-nav" data-md-level="3">
+<label class="md-nav__title" for="__nav_3_4_1">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Autoregressive Models
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../autoregressive-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    1. Foundations
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../autoregressive-02-architectures/">
+<span class="md-ellipsis">
+    
+  
+    2. Architectures
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../autoregressive-03-training/">
+<span class="md-ellipsis">
+    
+  
+    3. Training
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../autoregressive-04-decoding/">
+<span class="md-ellipsis">
+    
+  
+    4. Decoding
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../autoregressive-05-connections/">
+<span class="md-ellipsis">
+    
+  
+    5. Connections and Research
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
+    
+  
+    6. Practice and Evaluation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
+<span class="md-ellipsis">
+    
+  
+    6. Practice and Evaluation
+  
+
+    
+  </span>
+</a>
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#practical-implementation-in-artifex">
+<span class="md-ellipsis">
+      
+        Practical Implementation in Artifex
+      
+    </span>
+</a>
+<nav aria-label="Practical Implementation in Artifex" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#practical-implementation-in-artifex-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Practical Implementation in Artifex: Prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#basic-autoregressive-model">
+<span class="md-ellipsis">
+      
+        Basic Autoregressive Model
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#pixelcnn-for-images">
+<span class="md-ellipsis">
+      
+        PixelCNN for Images
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#wavenet-for-audio">
+<span class="md-ellipsis">
+      
+        WaveNet for Audio
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#evaluation-metrics">
+<span class="md-ellipsis">
+      
+        Evaluation Metrics
+      
+    </span>
+</a>
+<nav aria-label="Evaluation Metrics" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#density-estimation-metrics">
+<span class="md-ellipsis">
+      
+        Density-Estimation Metrics
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#language-model-benchmarks">
+<span class="md-ellipsis">
+      
+        Language-Model Benchmarks
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#image-video-audio-ar-metrics">
+<span class="md-ellipsis">
+      
+        Image / Video / Audio AR Metrics
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#inference-throughput-metrics">
+<span class="md-ellipsis">
+      
+        Inference / Throughput Metrics
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#production-considerations">
+<span class="md-ellipsis">
+      
+        Production Considerations
+      
+    </span>
+</a>
+<nav aria-label="Production Considerations" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#inference-cost">
+<span class="md-ellipsis">
+      
+        Inference Cost
+      
+    </span>
+</a>
+<nav aria-label="Inference Cost" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-accounting-example-speculative-throughput-is-a-ratio-of-complete-costs">
+<span class="md-ellipsis">
+      
+        Worked accounting example: speculative throughput is a ratio of complete costs
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#quantisation">
+<span class="md-ellipsis">
+      
+        Quantisation
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#inference-stacks">
+<span class="md-ellipsis">
+      
+        Inference Stacks
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#common-production-pitfalls">
+<span class="md-ellipsis">
+      
+        Common Production Pitfalls
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#ethical-safety-considerations">
+<span class="md-ellipsis">
+      
+        Ethical / Safety Considerations
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#independent-practice-and-assessment-map-practice-and-evaluation">
+<span class="md-ellipsis">
+      
+        Independent practice and assessment map: practice and evaluation
+      
+    </span>
+</a>
+<nav aria-label="Independent practice and assessment map: practice and evaluation" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#p1-bring-an-autoregressive-service-from-constructor-to-evidence">
+<span class="md-ellipsis">
+      
+        P1 — Bring an autoregressive service from constructor to evidence
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-6-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 6 synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../autoregressive-07-synthesis/">
+<span class="md-ellipsis">
+    
+  
+    7. Synthesis and Reading
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../autoregressive-explained/">
+<span class="md-ellipsis">
+    
+  
+    Continuous View (All Chapters)
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../vae-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Variational Autoencoders
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gan-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Generative Adversarial Networks
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../ebm-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Energy-Based Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../diffusion-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Diffusion Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../flow-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Normalizing Flows and Flow Matching
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../probabilistic-circuits-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Probabilistic Circuits
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../tensor-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Tensor-Network and Born Probability Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../implicit-generators-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Implicit Generators Beyond GANs
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../discrete-iterative-01-masked/">
+<span class="md-ellipsis">
+    
+  
+    Discrete Iterative Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../bayesian-flow-networks-01-story/">
+<span class="md-ellipsis">
+    
+  
+    Bayesian Flow Networks
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gflownets-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Generative Flow Networks
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../bnp-01-random-measures/">
+<span class="md-ellipsis">
+    
+  
+    Bayesian Nonparametric Random-Measure Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../stochastic-process-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Stochastic-Process and Function-Space Generators
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../point-processes-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Point Processes and Random Finite Sets
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../random-graphs-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Random Graphs and Relational Generators
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../copula-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Copula Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../grammar-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Probabilistic Grammars and Program Derivations
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../causal-generative-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Causal Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../new-families-frontier-evidence/">
+<span class="md-ellipsis">
+    
+  
+    Research Evidence Ledger
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gradients-01-taxonomy/">
+<span class="md-ellipsis">
+    
+  
+    Connections and Compositions
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../normalization-01-queries/">
+<span class="md-ellipsis">
+    
+  
+    Research Practice
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../models/vae-guide/">
+<span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/core/base/">
+<span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../examples/overview/">
+<span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../zoo/">
+<span class="md-ellipsis">
+    
+  
+    Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../training/overview/">
+<span class="md-ellipsis">
+    
+  
+    Training
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../data/overview/">
+<span class="md-ellipsis">
+    
+  
+    Data &amp; Modalities
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../inference/overview/">
+<span class="md-ellipsis">
+    
+  
+    Inference &amp; Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../benchmarks/">
+<span class="md-ellipsis">
+    
+  
+    Evaluation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../guides/extensions/">
+<span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../extensions/">
+<span class="md-ellipsis">
+    
+  
+    Advanced Topics
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../cli/">
+<span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../community/contributing/">
+<span class="md-ellipsis">
+    
+  
+    Community
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/configs/protein-extension/">
+<span class="md-ellipsis">
+    
+  
+    Reference Library
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#practical-implementation-in-artifex">
+<span class="md-ellipsis">
+      
+        Practical Implementation in Artifex
+      
+    </span>
+</a>
+<nav aria-label="Practical Implementation in Artifex" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#practical-implementation-in-artifex-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Practical Implementation in Artifex: Prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#basic-autoregressive-model">
+<span class="md-ellipsis">
+      
+        Basic Autoregressive Model
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#pixelcnn-for-images">
+<span class="md-ellipsis">
+      
+        PixelCNN for Images
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#wavenet-for-audio">
+<span class="md-ellipsis">
+      
+        WaveNet for Audio
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#evaluation-metrics">
+<span class="md-ellipsis">
+      
+        Evaluation Metrics
+      
+    </span>
+</a>
+<nav aria-label="Evaluation Metrics" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#density-estimation-metrics">
+<span class="md-ellipsis">
+      
+        Density-Estimation Metrics
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#language-model-benchmarks">
+<span class="md-ellipsis">
+      
+        Language-Model Benchmarks
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#image-video-audio-ar-metrics">
+<span class="md-ellipsis">
+      
+        Image / Video / Audio AR Metrics
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#inference-throughput-metrics">
+<span class="md-ellipsis">
+      
+        Inference / Throughput Metrics
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#production-considerations">
+<span class="md-ellipsis">
+      
+        Production Considerations
+      
+    </span>
+</a>
+<nav aria-label="Production Considerations" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#inference-cost">
+<span class="md-ellipsis">
+      
+        Inference Cost
+      
+    </span>
+</a>
+<nav aria-label="Inference Cost" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-accounting-example-speculative-throughput-is-a-ratio-of-complete-costs">
+<span class="md-ellipsis">
+      
+        Worked accounting example: speculative throughput is a ratio of complete costs
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#quantisation">
+<span class="md-ellipsis">
+      
+        Quantisation
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#inference-stacks">
+<span class="md-ellipsis">
+      
+        Inference Stacks
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#common-production-pitfalls">
+<span class="md-ellipsis">
+      
+        Common Production Pitfalls
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#ethical-safety-considerations">
+<span class="md-ellipsis">
+      
+        Ethical / Safety Considerations
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#independent-practice-and-assessment-map-practice-and-evaluation">
+<span class="md-ellipsis">
+      
+        Independent practice and assessment map: practice and evaluation
+      
+    </span>
+</a>
+<nav aria-label="Independent practice and assessment map: practice and evaluation" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#p1-bring-an-autoregressive-service-from-constructor-to-evidence">
+<span class="md-ellipsis">
+      
+        P1 — Bring an autoregressive service from constructor to evidence
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-6-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 6 synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<nav aria-label="Breadcrumb" class="md-path">
+<ol class="md-path__list">
+<li class="md-path__item">
+<a class="md-path__link" href="../../..">
+<span class="md-ellipsis">
+    Home
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    Generative Models Book
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../autoregressive-01-foundations/">
+<span class="md-ellipsis">
+    Model Families
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../autoregressive-01-foundations/">
+<span class="md-ellipsis">
+    Autoregressive Models
+  </span>
+</a>
+</li>
+</ol>
+</nav>
+<article class="md-content__inner md-typeset">
+<h1 id="autoregressive-models-6-practice-and-evaluation">Autoregressive Models 6 — Practice and Evaluation<a class="headerlink" href="#autoregressive-models-6-practice-and-evaluation" title="Permanent link">¤</a></h1><aside aria-label="Learning path" class="admonition abstract artifex-learning-path"><p class="admonition-title">Learning path</p><p><strong>Required knowledge</strong></p><ul class="artifex-learning-path__links" data-learning-path-role="required"><li><a href="../autoregressive-04-decoding/">Autoregressive Models 4 — Decoding</a></li></ul><p><strong>Readiness check:</strong> can you explain the central object and reproduce one worked example from each required chapter? If not, follow its link before continuing.</p><p><strong>Newly unlocked in the default route</strong></p><ul class="artifex-learning-path__links" data-learning-path-role="unlocks"><li><a href="../autoregressive-07-synthesis/">Autoregressive Models 7 — Synthesis and Reading</a></li></ul></aside>
+<p>This chapter connects theory to Artifex usage, density and capability evaluation, throughput, deployment, quantization, and safety. For uninterrupted reading, use the <a href="../autoregressive-explained/#practical-implementation-in-artifex">complete guide</a>.</p>
+<h2 id="practical-implementation-in-artifex">Practical Implementation in Artifex<a class="headerlink" href="#practical-implementation-in-artifex" title="Permanent link">¤</a></h2>
+<h3 id="practical-implementation-in-artifex-prerequisites-and-learning-objectives">Practical Implementation in Artifex: Prerequisites and learning objectives<a class="headerlink" href="#practical-implementation-in-artifex-prerequisites-and-learning-objectives" title="Permanent link">¤</a></h3>
+<p>This chapter assumes basic JAX array semantics and the Flax NNX object model. Examples explicitly distinguish current Artifex APIs, executable NNX reference implementations, and shape-oriented pseudocode. By the end, you should be able to:</p>
+<ol>
+<li>construct the three documented Artifex autoregressive model classes;</li>
+<li>distinguish live Artifex API examples, executable NNX reference code, and shape-oriented pseudocode;</li>
+<li>design shift, mask, and nucleus-boundary tests for a generation implementation;</li>
+<li>report likelihood, quality, and systems metrics with their denominators and protocols; and</li>
+<li>produce a hardware-aware inference accounting table without invented throughput constants.</li>
+</ol>
+<div class="admonition warning">
+<p class="admonition-title">API surface versus algorithmic contract</p>
+<p>The following blocks document current public constructors and method signatures. The executable curriculum contracts separately run the NNX recurrent example, target gathering, and a shifted mock decoder. Before relying on a production sampler, test that logit <span class="arithmatex">\(t-1\)</span> produces token <span class="arithmatex">\(t\)</span>, suffix changes cannot alter earlier logits, top-<span class="arithmatex">\(p\)</span> retains its boundary token, and prompt/EOS behavior is correct. These semantic invariants are stronger than “the method returned an array.”</p>
+</div>
+<h3 id="basic-autoregressive-model">Basic Autoregressive Model<a class="headerlink" href="#basic-autoregressive-model" title="Permanent link">¤</a></h3>
+<p><strong>Live Artifex API example.</strong> Variables such as <code>sequences</code> are supplied by the surrounding training pipeline.</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a href="#__codelineno-0-1" id="__codelineno-0-1" name="__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">flax</span><span class="w"> </span><span class="kn">import</span> <span class="n">nnx</span>
+</span><span id="__span-0-2"><a href="#__codelineno-0-2" id="__codelineno-0-2" name="__codelineno-0-2"></a>
+</span><span id="__span-0-3"><a href="#__codelineno-0-3" id="__codelineno-0-3" name="__codelineno-0-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">artifex.generative_models.core.configuration</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+</span><span id="__span-0-4"><a href="#__codelineno-0-4" id="__codelineno-0-4" name="__codelineno-0-4"></a>    <span class="n">TransformerConfig</span><span class="p">,</span>
+</span><span id="__span-0-5"><a href="#__codelineno-0-5" id="__codelineno-0-5" name="__codelineno-0-5"></a>    <span class="n">TransformerNetworkConfig</span><span class="p">,</span>
+</span><span id="__span-0-6"><a href="#__codelineno-0-6" id="__codelineno-0-6" name="__codelineno-0-6"></a><span class="p">)</span>
+</span><span id="__span-0-7"><a href="#__codelineno-0-7" id="__codelineno-0-7" name="__codelineno-0-7"></a><span class="kn">from</span><span class="w"> </span><span class="nn">artifex.generative_models.models.autoregressive</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+</span><span id="__span-0-8"><a href="#__codelineno-0-8" id="__codelineno-0-8" name="__codelineno-0-8"></a>    <span class="n">TransformerAutoregressiveModel</span><span class="p">,</span>
+</span><span id="__span-0-9"><a href="#__codelineno-0-9" id="__codelineno-0-9" name="__codelineno-0-9"></a><span class="p">)</span>
+</span><span id="__span-0-10"><a href="#__codelineno-0-10" id="__codelineno-0-10" name="__codelineno-0-10"></a>
+</span><span id="__span-0-11"><a href="#__codelineno-0-11" id="__codelineno-0-11" name="__codelineno-0-11"></a><span class="n">rngs</span> <span class="o">=</span> <span class="n">nnx</span><span class="o">.</span><span class="n">Rngs</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</span><span id="__span-0-12"><a href="#__codelineno-0-12" id="__codelineno-0-12" name="__codelineno-0-12"></a>
+</span><span id="__span-0-13"><a href="#__codelineno-0-13" id="__codelineno-0-13" name="__codelineno-0-13"></a><span class="n">config</span> <span class="o">=</span> <span class="n">TransformerConfig</span><span class="p">(</span>
+</span><span id="__span-0-14"><a href="#__codelineno-0-14" id="__codelineno-0-14" name="__codelineno-0-14"></a>    <span class="n">name</span><span class="o">=</span><span class="s2">"text-transformer-ar"</span><span class="p">,</span>
+</span><span id="__span-0-15"><a href="#__codelineno-0-15" id="__codelineno-0-15" name="__codelineno-0-15"></a>    <span class="n">vocab_size</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span>
+</span><span id="__span-0-16"><a href="#__codelineno-0-16" id="__codelineno-0-16" name="__codelineno-0-16"></a>    <span class="n">sequence_length</span><span class="o">=</span><span class="mi">512</span><span class="p">,</span>
+</span><span id="__span-0-17"><a href="#__codelineno-0-17" id="__codelineno-0-17" name="__codelineno-0-17"></a>    <span class="n">num_layers</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span>
+</span><span id="__span-0-18"><a href="#__codelineno-0-18" id="__codelineno-0-18" name="__codelineno-0-18"></a>    <span class="n">dropout_rate</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+</span><span id="__span-0-19"><a href="#__codelineno-0-19" id="__codelineno-0-19" name="__codelineno-0-19"></a>    <span class="n">network</span><span class="o">=</span><span class="n">TransformerNetworkConfig</span><span class="p">(</span>
+</span><span id="__span-0-20"><a href="#__codelineno-0-20" id="__codelineno-0-20" name="__codelineno-0-20"></a>        <span class="n">name</span><span class="o">=</span><span class="s2">"text-transformer-network"</span><span class="p">,</span>
+</span><span id="__span-0-21"><a href="#__codelineno-0-21" id="__codelineno-0-21" name="__codelineno-0-21"></a>        <span class="n">hidden_dims</span><span class="o">=</span><span class="p">(</span><span class="mi">512</span><span class="p">,),</span>
+</span><span id="__span-0-22"><a href="#__codelineno-0-22" id="__codelineno-0-22" name="__codelineno-0-22"></a>        <span class="n">activation</span><span class="o">=</span><span class="s2">"gelu"</span><span class="p">,</span>
+</span><span id="__span-0-23"><a href="#__codelineno-0-23" id="__codelineno-0-23" name="__codelineno-0-23"></a>        <span class="n">embed_dim</span><span class="o">=</span><span class="mi">512</span><span class="p">,</span>
+</span><span id="__span-0-24"><a href="#__codelineno-0-24" id="__codelineno-0-24" name="__codelineno-0-24"></a>        <span class="n">num_heads</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
+</span><span id="__span-0-25"><a href="#__codelineno-0-25" id="__codelineno-0-25" name="__codelineno-0-25"></a>        <span class="n">mlp_ratio</span><span class="o">=</span><span class="mf">4.0</span><span class="p">,</span>
+</span><span id="__span-0-26"><a href="#__codelineno-0-26" id="__codelineno-0-26" name="__codelineno-0-26"></a>    <span class="p">),</span>
+</span><span id="__span-0-27"><a href="#__codelineno-0-27" id="__codelineno-0-27" name="__codelineno-0-27"></a><span class="p">)</span>
+</span><span id="__span-0-28"><a href="#__codelineno-0-28" id="__codelineno-0-28" name="__codelineno-0-28"></a>
+</span><span id="__span-0-29"><a href="#__codelineno-0-29" id="__codelineno-0-29" name="__codelineno-0-29"></a><span class="c1"># Create Transformer autoregressive model</span>
+</span><span id="__span-0-30"><a href="#__codelineno-0-30" id="__codelineno-0-30" name="__codelineno-0-30"></a><span class="n">model</span> <span class="o">=</span> <span class="n">TransformerAutoregressiveModel</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">rngs</span><span class="o">=</span><span class="n">rngs</span><span class="p">)</span>
+</span><span id="__span-0-31"><a href="#__codelineno-0-31" id="__codelineno-0-31" name="__codelineno-0-31"></a>
+</span><span id="__span-0-32"><a href="#__codelineno-0-32" id="__codelineno-0-32" name="__codelineno-0-32"></a><span class="c1"># Training</span>
+</span><span id="__span-0-33"><a href="#__codelineno-0-33" id="__codelineno-0-33" name="__codelineno-0-33"></a><span class="n">batch</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"sequences"</span><span class="p">:</span> <span class="n">sequences</span><span class="p">}</span>  <span class="c1"># [batch_size, seq_len]</span>
+</span><span id="__span-0-34"><a href="#__codelineno-0-34" id="__codelineno-0-34" name="__codelineno-0-34"></a><span class="n">outputs</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">batch</span><span class="p">[</span><span class="s2">"sequences"</span><span class="p">],</span> <span class="n">rngs</span><span class="o">=</span><span class="n">rngs</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span><span id="__span-0-35"><a href="#__codelineno-0-35" id="__codelineno-0-35" name="__codelineno-0-35"></a><span class="n">loss_dict</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">loss_fn</span><span class="p">(</span><span class="n">batch</span><span class="p">,</span> <span class="n">outputs</span><span class="p">,</span> <span class="n">rngs</span><span class="o">=</span><span class="n">rngs</span><span class="p">)</span>
+</span><span id="__span-0-36"><a href="#__codelineno-0-36" id="__codelineno-0-36" name="__codelineno-0-36"></a>
+</span><span id="__span-0-37"><a href="#__codelineno-0-37" id="__codelineno-0-37" name="__codelineno-0-37"></a><span class="c1"># Generation</span>
+</span><span id="__span-0-38"><a href="#__codelineno-0-38" id="__codelineno-0-38" name="__codelineno-0-38"></a><span class="n">samples</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span>
+</span><span id="__span-0-39"><a href="#__codelineno-0-39" id="__codelineno-0-39" name="__codelineno-0-39"></a>    <span class="n">n_samples</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+</span><span id="__span-0-40"><a href="#__codelineno-0-40" id="__codelineno-0-40" name="__codelineno-0-40"></a>    <span class="n">max_length</span><span class="o">=</span><span class="mi">256</span><span class="p">,</span>
+</span><span id="__span-0-41"><a href="#__codelineno-0-41" id="__codelineno-0-41" name="__codelineno-0-41"></a>    <span class="n">temperature</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span>
+</span><span id="__span-0-42"><a href="#__codelineno-0-42" id="__codelineno-0-42" name="__codelineno-0-42"></a>    <span class="n">top_p</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span>
+</span><span id="__span-0-43"><a href="#__codelineno-0-43" id="__codelineno-0-43" name="__codelineno-0-43"></a>    <span class="n">rngs</span><span class="o">=</span><span class="n">rngs</span>
+</span><span id="__span-0-44"><a href="#__codelineno-0-44" id="__codelineno-0-44" name="__codelineno-0-44"></a><span class="p">)</span>
+</span></code></pre></div>
+<h3 id="pixelcnn-for-images">PixelCNN for Images<a class="headerlink" href="#pixelcnn-for-images" title="Permanent link">¤</a></h3>
+<p><strong>Live Artifex API example.</strong> Confirm the dataset's integer range, channel ordering, and any quantization or dequantization convention before comparing BPD.</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a href="#__codelineno-1-1" id="__codelineno-1-1" name="__codelineno-1-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">flax</span><span class="w"> </span><span class="kn">import</span> <span class="n">nnx</span>
+</span><span id="__span-1-2"><a href="#__codelineno-1-2" id="__codelineno-1-2" name="__codelineno-1-2"></a>
+</span><span id="__span-1-3"><a href="#__codelineno-1-3" id="__codelineno-1-3" name="__codelineno-1-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">artifex.generative_models.core.configuration</span><span class="w"> </span><span class="kn">import</span> <span class="n">PixelCNNConfig</span>
+</span><span id="__span-1-4"><a href="#__codelineno-1-4" id="__codelineno-1-4" name="__codelineno-1-4"></a><span class="kn">from</span><span class="w"> </span><span class="nn">artifex.generative_models.models.autoregressive</span><span class="w"> </span><span class="kn">import</span> <span class="n">PixelCNN</span>
+</span><span id="__span-1-5"><a href="#__codelineno-1-5" id="__codelineno-1-5" name="__codelineno-1-5"></a>
+</span><span id="__span-1-6"><a href="#__codelineno-1-6" id="__codelineno-1-6" name="__codelineno-1-6"></a><span class="n">rngs</span> <span class="o">=</span> <span class="n">nnx</span><span class="o">.</span><span class="n">Rngs</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</span><span id="__span-1-7"><a href="#__codelineno-1-7" id="__codelineno-1-7" name="__codelineno-1-7"></a>
+</span><span id="__span-1-8"><a href="#__codelineno-1-8" id="__codelineno-1-8" name="__codelineno-1-8"></a><span class="n">config</span> <span class="o">=</span> <span class="n">PixelCNNConfig</span><span class="p">(</span>
+</span><span id="__span-1-9"><a href="#__codelineno-1-9" id="__codelineno-1-9" name="__codelineno-1-9"></a>    <span class="n">name</span><span class="o">=</span><span class="s2">"mnist-pixelcnn"</span><span class="p">,</span>
+</span><span id="__span-1-10"><a href="#__codelineno-1-10" id="__codelineno-1-10" name="__codelineno-1-10"></a>    <span class="n">image_shape</span><span class="o">=</span><span class="p">(</span><span class="mi">28</span><span class="p">,</span> <span class="mi">28</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+</span><span id="__span-1-11"><a href="#__codelineno-1-11" id="__codelineno-1-11" name="__codelineno-1-11"></a>    <span class="n">num_layers</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span>
+</span><span id="__span-1-12"><a href="#__codelineno-1-12" id="__codelineno-1-12" name="__codelineno-1-12"></a>    <span class="n">hidden_channels</span><span class="o">=</span><span class="mi">128</span><span class="p">,</span>
+</span><span id="__span-1-13"><a href="#__codelineno-1-13" id="__codelineno-1-13" name="__codelineno-1-13"></a>    <span class="n">num_residual_blocks</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+</span><span id="__span-1-14"><a href="#__codelineno-1-14" id="__codelineno-1-14" name="__codelineno-1-14"></a><span class="p">)</span>
+</span><span id="__span-1-15"><a href="#__codelineno-1-15" id="__codelineno-1-15" name="__codelineno-1-15"></a>
+</span><span id="__span-1-16"><a href="#__codelineno-1-16" id="__codelineno-1-16" name="__codelineno-1-16"></a><span class="c1"># Create PixelCNN for MNIST (28×28 grayscale)</span>
+</span><span id="__span-1-17"><a href="#__codelineno-1-17" id="__codelineno-1-17" name="__codelineno-1-17"></a><span class="n">model</span> <span class="o">=</span> <span class="n">PixelCNN</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">rngs</span><span class="o">=</span><span class="n">rngs</span><span class="p">)</span>
+</span><span id="__span-1-18"><a href="#__codelineno-1-18" id="__codelineno-1-18" name="__codelineno-1-18"></a>
+</span><span id="__span-1-19"><a href="#__codelineno-1-19" id="__codelineno-1-19" name="__codelineno-1-19"></a><span class="c1"># Training</span>
+</span><span id="__span-1-20"><a href="#__codelineno-1-20" id="__codelineno-1-20" name="__codelineno-1-20"></a><span class="n">batch</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"images"</span><span class="p">:</span> <span class="n">images</span><span class="p">}</span>  <span class="c1"># [batch_size, 28, 28, 1], values in [0, 255]</span>
+</span><span id="__span-1-21"><a href="#__codelineno-1-21" id="__codelineno-1-21" name="__codelineno-1-21"></a><span class="n">outputs</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">batch</span><span class="p">[</span><span class="s2">"images"</span><span class="p">],</span> <span class="n">rngs</span><span class="o">=</span><span class="n">rngs</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span><span id="__span-1-22"><a href="#__codelineno-1-22" id="__codelineno-1-22" name="__codelineno-1-22"></a><span class="n">loss_dict</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">loss_fn</span><span class="p">(</span><span class="n">batch</span><span class="p">,</span> <span class="n">outputs</span><span class="p">,</span> <span class="n">rngs</span><span class="o">=</span><span class="n">rngs</span><span class="p">)</span>
+</span><span id="__span-1-23"><a href="#__codelineno-1-23" id="__codelineno-1-23" name="__codelineno-1-23"></a>
+</span><span id="__span-1-24"><a href="#__codelineno-1-24" id="__codelineno-1-24" name="__codelineno-1-24"></a><span class="c1"># Generation</span>
+</span><span id="__span-1-25"><a href="#__codelineno-1-25" id="__codelineno-1-25" name="__codelineno-1-25"></a><span class="n">generated_images</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span>
+</span><span id="__span-1-26"><a href="#__codelineno-1-26" id="__codelineno-1-26" name="__codelineno-1-26"></a>    <span class="n">n_samples</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span>
+</span><span id="__span-1-27"><a href="#__codelineno-1-27" id="__codelineno-1-27" name="__codelineno-1-27"></a>    <span class="n">temperature</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+</span><span id="__span-1-28"><a href="#__codelineno-1-28" id="__codelineno-1-28" name="__codelineno-1-28"></a>    <span class="n">rngs</span><span class="o">=</span><span class="n">rngs</span>
+</span><span id="__span-1-29"><a href="#__codelineno-1-29" id="__codelineno-1-29" name="__codelineno-1-29"></a><span class="p">)</span>
+</span></code></pre></div>
+<h3 id="wavenet-for-audio">WaveNet for Audio<a class="headerlink" href="#wavenet-for-audio" title="Permanent link">¤</a></h3>
+<p><strong>Live Artifex API example.</strong> The waveform must use the discrete symbolization declared by <code>vocab_size</code>; raw floating-point PCM is not interchangeable with 8-bit categorical targets.</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a href="#__codelineno-2-1" id="__codelineno-2-1" name="__codelineno-2-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">flax</span><span class="w"> </span><span class="kn">import</span> <span class="n">nnx</span>
+</span><span id="__span-2-2"><a href="#__codelineno-2-2" id="__codelineno-2-2" name="__codelineno-2-2"></a>
+</span><span id="__span-2-3"><a href="#__codelineno-2-3" id="__codelineno-2-3" name="__codelineno-2-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">artifex.generative_models.core.configuration</span><span class="w"> </span><span class="kn">import</span> <span class="n">WaveNetConfig</span>
+</span><span id="__span-2-4"><a href="#__codelineno-2-4" id="__codelineno-2-4" name="__codelineno-2-4"></a><span class="kn">from</span><span class="w"> </span><span class="nn">artifex.generative_models.models.autoregressive</span><span class="w"> </span><span class="kn">import</span> <span class="n">WaveNet</span>
+</span><span id="__span-2-5"><a href="#__codelineno-2-5" id="__codelineno-2-5" name="__codelineno-2-5"></a>
+</span><span id="__span-2-6"><a href="#__codelineno-2-6" id="__codelineno-2-6" name="__codelineno-2-6"></a><span class="n">rngs</span> <span class="o">=</span> <span class="n">nnx</span><span class="o">.</span><span class="n">Rngs</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</span><span id="__span-2-7"><a href="#__codelineno-2-7" id="__codelineno-2-7" name="__codelineno-2-7"></a>
+</span><span id="__span-2-8"><a href="#__codelineno-2-8" id="__codelineno-2-8" name="__codelineno-2-8"></a><span class="n">config</span> <span class="o">=</span> <span class="n">WaveNetConfig</span><span class="p">(</span>
+</span><span id="__span-2-9"><a href="#__codelineno-2-9" id="__codelineno-2-9" name="__codelineno-2-9"></a>    <span class="n">name</span><span class="o">=</span><span class="s2">"audio-wavenet"</span><span class="p">,</span>
+</span><span id="__span-2-10"><a href="#__codelineno-2-10" id="__codelineno-2-10" name="__codelineno-2-10"></a>    <span class="n">vocab_size</span><span class="o">=</span><span class="mi">256</span><span class="p">,</span>
+</span><span id="__span-2-11"><a href="#__codelineno-2-11" id="__codelineno-2-11" name="__codelineno-2-11"></a>    <span class="n">sequence_length</span><span class="o">=</span><span class="mi">16000</span><span class="p">,</span>
+</span><span id="__span-2-12"><a href="#__codelineno-2-12" id="__codelineno-2-12" name="__codelineno-2-12"></a>    <span class="n">residual_channels</span><span class="o">=</span><span class="mi">128</span><span class="p">,</span>
+</span><span id="__span-2-13"><a href="#__codelineno-2-13" id="__codelineno-2-13" name="__codelineno-2-13"></a>    <span class="n">skip_channels</span><span class="o">=</span><span class="mi">512</span><span class="p">,</span>
+</span><span id="__span-2-14"><a href="#__codelineno-2-14" id="__codelineno-2-14" name="__codelineno-2-14"></a>    <span class="n">num_blocks</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+</span><span id="__span-2-15"><a href="#__codelineno-2-15" id="__codelineno-2-15" name="__codelineno-2-15"></a>    <span class="n">layers_per_block</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+</span><span id="__span-2-16"><a href="#__codelineno-2-16" id="__codelineno-2-16" name="__codelineno-2-16"></a><span class="p">)</span>
+</span><span id="__span-2-17"><a href="#__codelineno-2-17" id="__codelineno-2-17" name="__codelineno-2-17"></a>
+</span><span id="__span-2-18"><a href="#__codelineno-2-18" id="__codelineno-2-18" name="__codelineno-2-18"></a><span class="c1"># Create WaveNet for audio</span>
+</span><span id="__span-2-19"><a href="#__codelineno-2-19" id="__codelineno-2-19" name="__codelineno-2-19"></a><span class="n">model</span> <span class="o">=</span> <span class="n">WaveNet</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">rngs</span><span class="o">=</span><span class="n">rngs</span><span class="p">)</span>
+</span><span id="__span-2-20"><a href="#__codelineno-2-20" id="__codelineno-2-20" name="__codelineno-2-20"></a>
+</span><span id="__span-2-21"><a href="#__codelineno-2-21" id="__codelineno-2-21" name="__codelineno-2-21"></a><span class="c1"># Training</span>
+</span><span id="__span-2-22"><a href="#__codelineno-2-22" id="__codelineno-2-22" name="__codelineno-2-22"></a><span class="n">batch</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"waveform"</span><span class="p">:</span> <span class="n">waveform</span><span class="p">}</span>  <span class="c1"># [batch_size, time_steps]</span>
+</span><span id="__span-2-23"><a href="#__codelineno-2-23" id="__codelineno-2-23" name="__codelineno-2-23"></a><span class="n">outputs</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">batch</span><span class="p">[</span><span class="s2">"waveform"</span><span class="p">],</span> <span class="n">rngs</span><span class="o">=</span><span class="n">rngs</span><span class="p">)</span>
+</span><span id="__span-2-24"><a href="#__codelineno-2-24" id="__codelineno-2-24" name="__codelineno-2-24"></a><span class="n">loss_dict</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">loss_fn</span><span class="p">(</span><span class="n">batch</span><span class="p">,</span> <span class="n">outputs</span><span class="p">,</span> <span class="n">rngs</span><span class="o">=</span><span class="n">rngs</span><span class="p">)</span>
+</span><span id="__span-2-25"><a href="#__codelineno-2-25" id="__codelineno-2-25" name="__codelineno-2-25"></a>
+</span><span id="__span-2-26"><a href="#__codelineno-2-26" id="__codelineno-2-26" name="__codelineno-2-26"></a><span class="c1"># Generation</span>
+</span><span id="__span-2-27"><a href="#__codelineno-2-27" id="__codelineno-2-27" name="__codelineno-2-27"></a><span class="n">generated_audio</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span>
+</span><span id="__span-2-28"><a href="#__codelineno-2-28" id="__codelineno-2-28" name="__codelineno-2-28"></a>    <span class="n">n_samples</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+</span><span id="__span-2-29"><a href="#__codelineno-2-29" id="__codelineno-2-29" name="__codelineno-2-29"></a>    <span class="n">max_length</span><span class="o">=</span><span class="mi">16000</span><span class="p">,</span>  <span class="c1"># 1 second at 16kHz</span>
+</span><span id="__span-2-30"><a href="#__codelineno-2-30" id="__codelineno-2-30" name="__codelineno-2-30"></a>    <span class="n">temperature</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span>
+</span><span id="__span-2-31"><a href="#__codelineno-2-31" id="__codelineno-2-31" name="__codelineno-2-31"></a>    <span class="n">rngs</span><span class="o">=</span><span class="n">rngs</span>
+</span><span id="__span-2-32"><a href="#__codelineno-2-32" id="__codelineno-2-32" name="__codelineno-2-32"></a><span class="p">)</span>
+</span></code></pre></div>
+<hr/>
+<h2 id="evaluation-metrics">Evaluation Metrics<a class="headerlink" href="#evaluation-metrics" title="Permanent link">¤</a></h2>
+<h3 id="density-estimation-metrics">Density-Estimation Metrics<a class="headerlink" href="#density-estimation-metrics" title="Permanent link">¤</a></h3>
+<ul>
+<li><strong>Cross-entropy loss / NLL</strong> — the training objective. Reported per-token for text, per-pixel for images.</li>
+<li><strong>Perplexity</strong> <span class="arithmatex">\(\mathrm{PPL} = \exp(\mathrm{NLL})\)</span> — the standard text metric.</li>
+<li><strong>Bits per dimension (BPD)</strong> is total NLL in nats divided by <span class="arithmatex">\(D\log2\)</span>. If NLL is already a mean over dimensions, divide only by <span class="arithmatex">\(\log2\)</span>.</li>
+<li><strong>Coding interpretation</strong> — an ideal code matched to <span class="arithmatex">\(p_\theta\)</span> assigns information content <span class="arithmatex">\(-\log_2p_\theta(x)\)</span> bits to an event. Real arithmetic or range coders add finite-precision, termination, blocking, and metadata overhead; report measured compressed size rather than assuming a universal percentage gap. The <a href="../information-coding-and-generative-modeling/#3-lossless-coding-likelihood-and-generative-prediction">lossless-coding chapter</a> supplies the Kraft, source-coding, tokenizer, and full-file accounting needed to make this operational.</li>
+</ul>
+<h3 id="language-model-benchmarks">Language-Model Benchmarks<a class="headerlink" href="#language-model-benchmarks" title="Permanent link">¤</a></h3>
+<p>Language-model evaluation uses specialized benchmarks with distinct estimands:</p>
+<div class="md-typeset__table book-table-container"><table id="tbl-autoregressive-explained-language-model-benchmarks"><caption class="book-object-caption"><span class="book-object-number">Table AR.19.</span> Language-Model Benchmarks</caption>
+<thead>
+<tr>
+<th>Benchmark</th>
+<th>Tests</th>
+<th>Reference</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>MMLU / MMLU-Pro</strong></td>
+<td>Multi-task knowledge</td>
+<td><a href="https://arxiv.org/abs/2009.03300">Hendrycks et al., 2021</a></td>
+</tr>
+<tr>
+<td><strong>GSM8K, MATH</strong></td>
+<td>Math reasoning</td>
+<td><a href="https://arxiv.org/abs/2110.14168">Cobbe et al., 2021</a></td>
+</tr>
+<tr>
+<td><strong>HumanEval, MBPP, LiveCodeBench</strong></td>
+<td>Code generation</td>
+<td><a href="https://arxiv.org/abs/2107.03374">Chen et al., 2021</a></td>
+</tr>
+<tr>
+<td><strong>GPQA Diamond</strong></td>
+<td>Graduate-level science</td>
+<td><a href="https://arxiv.org/abs/2311.12022">Rein et al., 2024</a></td>
+</tr>
+<tr>
+<td><strong>AIME 2024 / 2025</strong></td>
+<td>Olympiad math (used heavily by reasoning models)</td>
+<td>—</td>
+</tr>
+<tr>
+<td><strong>FrontierMath</strong></td>
+<td>Research-level math</td>
+<td><a href="https://arxiv.org/abs/2411.04872">Glazer et al., 2024</a></td>
+</tr>
+<tr>
+<td><strong>ARC-AGI</strong></td>
+<td>Abstraction / reasoning corpus</td>
+<td><a href="https://arxiv.org/abs/1911.01547">Chollet, 2019</a></td>
+</tr>
+<tr>
+<td><strong>RULER</strong></td>
+<td>Synthetic configurable long-context stress tests</td>
+<td><a href="https://arxiv.org/abs/2404.06654">Hsieh et al., 2024</a></td>
+</tr>
+<tr>
+<td><strong>Chatbot Arena</strong></td>
+<td>Pairwise user preferences with population, position, style, and sampling biases</td>
+<td><a href="https://arxiv.org/abs/2403.04132">Chiang et al., 2024</a></td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="image-video-audio-ar-metrics">Image / Video / Audio AR Metrics<a class="headerlink" href="#image-video-audio-ar-metrics" title="Permanent link">¤</a></h3>
+<p>For VAR, MAGVIT-v2, and audio AR (WaveNet, Mamba audio):</p>
+<ul>
+<li><strong>FID</strong> (<a href="https://proceedings.neurips.cc/paper_files/paper/2017/hash/8a1d694707eb0fefe65871369074926d-Abstract.html">Heusel et al., 2017</a>) compares the first two moments of chosen feature embeddings under a Gaussian approximation. VAR reports ImageNet 256² FID 1.73; sample count, feature implementation, split, conditioning, and reference statistics belong with the number.</li>
+<li><strong>CMMD</strong> is a kernel distance in a contrastive embedding space. State the encoder, estimator, sample count, and preprocessing.</li>
+<li><strong>FAD</strong> applies a Fréchet-style comparison to chosen audio embeddings. Results depend on embedding model, windowing, sample rate, and reference corpus.</li>
+<li>None of these metrics alone establishes prompt adherence, temporal coherence, memorization safety, or human preference.</li>
+</ul>
+<h3 id="inference-throughput-metrics">Inference / Throughput Metrics<a class="headerlink" href="#inference-throughput-metrics" title="Permanent link">¤</a></h3>
+<ul>
+<li><strong>Tokens per second and time to first token</strong> — useful serving metrics only when hardware, precision, batch size, prompt/output lengths, speculative setup, and concurrency are reported.</li>
+<li><strong>Time-to-first-token (TTFT)</strong> vs <strong>time-per-output-token (TPOT)</strong> — separates prefill from decode.</li>
+<li><strong>Acceptance rate</strong> for speculative decoding — fraction of draft tokens accepted by the verifier.</li>
+</ul>
+<hr/>
+<h2 id="production-considerations">Production Considerations<a class="headerlink" href="#production-considerations" title="Permanent link">¤</a></h2>
+<h3 id="inference-cost">Inference Cost<a class="headerlink" href="#inference-cost" title="Permanent link">¤</a></h3>
+<p>There is no hardware-independent tokens-per-second table. Report a measurement vector instead:</p>
+<div class="md-typeset__table book-table-container"><table id="tbl-autoregressive-explained-inference-cost"><caption class="book-object-caption"><span class="book-object-number">Table AR.20.</span> Inference Cost</caption>
+<thead>
+<tr>
+<th>Quantity</th>
+<th>Why it matters</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Target and draft model/version</td>
+<td>Fixes architecture, parameter count, and kernels</td>
+</tr>
+<tr>
+<td>Total and active parameters</td>
+<td>Separates storage/capacity from sparse per-token compute</td>
+</tr>
+<tr>
+<td>Hardware, device count, interconnect, precision</td>
+<td>Determines arithmetic, communication, and memory ceilings</td>
+</tr>
+<tr>
+<td>Batch size, concurrency, prompt/output length</td>
+<td>Separates online latency from throughput-oriented serving</td>
+</tr>
+<tr>
+<td>TTFT, TPOT, end-to-end latency, tokens/s</td>
+<td>Distinguishes prefill, decode, and aggregate throughput</td>
+</tr>
+<tr>
+<td>KV-cache bytes/token/layer and maximum resident tokens</td>
+<td>Makes memory scaling explicit</td>
+</tr>
+<tr>
+<td>Proposal length, accepted tokens, verifier calls</td>
+<td>Explains speculative-decoding gains or regressions</td>
+</tr>
+<tr>
+<td>Sampling and stop policy</td>
+<td>Prevents faster outputs caused only by shorter or different decoding</td>
+</tr>
+</tbody>
+</table></div>
+<h4 id="worked-accounting-example-speculative-throughput-is-a-ratio-of-complete-costs">Worked accounting example: speculative throughput is a ratio of complete costs<a class="headerlink" href="#worked-accounting-example-speculative-throughput-is-a-ratio-of-complete-costs" title="Permanent link">¤</a></h4>
+<p>If an exact speculative run proposes four tokens per target verification but accepts 2.5 draft tokens on average, its gross accepted output per verification is not automatically a 2.5× speedup. If the draft costs 0.3 target-pass equivalents and verification costs 1.0, an idealized compute-only ratio is approximately <span class="arithmatex">\(2.5/(1.0+0.3)=1.92\)</span>. Synchronization, memory traffic, rejected-tail resampling, and batching reduce or sometimes improve the realized wall-clock ratio. Measure it.</p>
+<h3 id="quantisation">Quantisation<a class="headerlink" href="#quantisation" title="Permanent link">¤</a></h3>
+<ul>
+<li><strong>BF16 / FP16</strong> are standard deployment formats, but not universally safe. Validate normalization, softmax, reductions, logits, and long-context attention in higher precision when overflow, underflow, or accumulated error appears; quantization and mixed-precision choices are model- and hardware-dependent.</li>
+<li><strong>INT8 / FP8</strong> can improve throughput or capacity on supporting hardware, but quality loss depends on calibration data, kernel, scaling granularity, outliers, and which tensors remain high precision.</li>
+<li><strong>GPTQ / AWQ and related weight-only methods</strong> enable lower-bit deployment in selected settings. Report perplexity and task regressions for the exact checkpoint and quantizer; no fixed “less than 2%” rule transfers across models.</li>
+<li><strong>MoE quantisation</strong> adds expert-frequency and routing-distribution concerns. Per-expert or grouped calibration is a design option, not an architecture-independent requirement or guarantee.</li>
+</ul>
+<h3 id="inference-stacks">Inference Stacks<a class="headerlink" href="#inference-stacks" title="Permanent link">¤</a></h3>
+<p>Representative inference stacks include:</p>
+<ul>
+<li><strong>vLLM</strong> (<a href="https://arxiv.org/abs/2309.06180">Kwon et al., 2023</a>) — introduced PagedAttention and continuous-batching-oriented serving.</li>
+<li><strong>SGLang</strong> (<a href="https://arxiv.org/abs/2312.07104">Zheng et al., 2024</a>) — provides structured generation and prefix/KV reuse mechanisms.</li>
+<li><strong>TensorRT-LLM</strong> — an NVIDIA-optimized stack with hardware-specific quantization and parallel execution options.</li>
+<li><strong>llama.cpp and MLX</strong> — representative local and device-oriented ecosystems. Suitability depends on model format, hardware, kernels, and operational requirements.</li>
+</ul>
+<h3 id="common-production-pitfalls">Common Production Pitfalls<a class="headerlink" href="#common-production-pitfalls" title="Permanent link">¤</a></h3>
+<ul>
+<li><strong>KV-cache growth</strong> at long contexts — GQA, MQA, MLA, sliding windows, recurrence, compression, paging, and eviction trade memory against quality, compatibility, or compute in different ways.</li>
+<li><strong>Unsupported factual output</strong> is not diagnosed by temperature alone. Data, objective, prompt, retrieval, context use, calibration, and verification all matter; low temperature can make a wrong high-probability answer more repeatable.</li>
+<li><strong>Repetition loops</strong> may respond to truncation, repetition penalties, contrastive objectives, or better training, but each intervention changes behavior and can damage legitimate repetition. Evaluate by domain.</li>
+<li><strong>Speculative-decoding mis-acceptance</strong> changes the target distribution. Exactness tests should compare empirical output laws on small categorical models, not merely compare a few strings.</li>
+</ul>
+<h3 id="ethical-safety-considerations">Ethical / Safety Considerations<a class="headerlink" href="#ethical-safety-considerations" title="Permanent link">¤</a></h3>
+<ul>
+<li>Risk assessment follows deployment and affected people, not the model-family label. Analyze misuse, representation harms, privacy leakage, memorization, automation bias, access controls, incident response, and domain-specific regulation.</li>
+<li><strong>Statistical watermarking</strong> (<a href="https://arxiv.org/abs/2301.10226">Kirchenbauer et al., 2023</a>) biases a compatible sampling procedure and can be added without retraining in some deployments. Detectability, text quality, secret-key management, edits, translation, paraphrase, short samples, and incompatible decoding limit any “works on every AR model” claim.</li>
+<li><strong>Provenance metadata</strong> such as C2PA can record signed origin and edit information when the generation and publishing pipeline preserves it. Metadata is not proof that unmarked content is synthetic or that marked content is truthful.</li>
+</ul>
+<p>For the broader cross-family picture and how AR fits alongside diffusion / VAE / GAN / EBM / Flow systems, see <a href="../generative-models-unified/">The Generative Modeling Landscape</a>.</p>
+<h3 id="independent-practice-and-assessment-map-practice-and-evaluation">Independent practice and assessment map: practice and evaluation<a class="headerlink" href="#independent-practice-and-assessment-map-practice-and-evaluation" title="Permanent link">¤</a></h3>
+<p>Assume the public constructors shown above exist, but do not assume that a
+successful constructor call validates generation. Your deliverable is a test
+and measurement plan that another team could reproduce.</p>
+<h4 id="p1-bring-an-autoregressive-service-from-constructor-to-evidence">P1 — Bring an autoregressive service from constructor to evidence<a class="headerlink" href="#p1-bring-an-autoregressive-service-from-constructor-to-evidence" title="Permanent link">¤</a></h4>
+<p>Choose one of the Transformer, PixelCNN, or WaveNet examples and declare its
+observation representation, target shift, output law, and generation unit.</p>
+<ol>
+<li><strong>P1.1 — Predict before computing.</strong> Predict which correctness test is most likely to fail if a training loss looks excellent but free-running samples collapse immediately: shape compatibility, suffix invariance, target shift, or throughput. Justify the diagnostic order rather than asserting one universal cause.</li>
+<li><strong>P1.2 — Debugging task.</strong> Specify executable tests for logit/target alignment, suffix invariance, nucleus-boundary retention, prompt preservation, EOS stopping, and RNG reproducibility. Give the smallest finite input and expected invariant for each test.</li>
+<li><strong>P1.3 — Interface audit.</strong> Classify every block in this chapter as a live Artifex API example, executable framework reference, or shape-oriented pseudocode. Instantiate the chosen documented class in a minimal local test, record the constructor fields and dummy-input shape, and list which behavioral claims still require execution rather than inspection.</li>
+<li><strong>P1.4 — Systems calculation.</strong> Given 3.0 accepted draft tokens per verification, draft cost <span class="arithmatex">\(0.25\)</span> target-pass equivalents, and verifier cost <span class="arithmatex">\(1.0\)</span>, calculate the idealized ratio. Then design a table that measures TTFT, TPOT, end-to-end latency, throughput, KV-cache memory, precision, batch, concurrency, and proposal acceptance on named hardware.</li>
+<li><strong>P1.5 — Transfer.</strong> Move the protocol from text to 8-bit audio. State what changes in the observation law, likelihood unit, stopping convention, perceptual evaluation, and safety analysis, and what remains an autoregressive invariant.</li>
+</ol>
+<h5 id="outcome-to-task-alignment-practice-and-evaluation">Outcome-to-task alignment: practice and evaluation<a class="headerlink" href="#outcome-to-task-alignment-practice-and-evaluation" title="Permanent link">¤</a></h5>
+<div class="md-typeset__table book-table-container"><table id="tbl-autoregressive-explained-p1-bring-an-autoregressive-service-from-constructor-to-evidence"><caption class="book-object-caption"><span class="book-object-number">Table AR.29.</span> Outcome-to-task alignment for autoregressive practice and evaluation</caption>
+<thead>
+<tr>
+<th>Learning objective</th>
+<th>Independently assessed by</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>O1 — Construct the documented Artifex model classes</td>
+<td>P1.3</td>
+</tr>
+<tr>
+<td>O2 — Distinguish live APIs, executable references, and pseudocode</td>
+<td>P1.3</td>
+</tr>
+<tr>
+<td>O3 — Design shift, mask, and nucleus-boundary tests</td>
+<td>P1.1, P1.2</td>
+</tr>
+<tr>
+<td>O4 — Report likelihood, quality, and systems metrics with protocols</td>
+<td>P1.4, P1.5</td>
+</tr>
+<tr>
+<td>O5 — Produce hardware-aware inference accounting</td>
+<td>P1.4</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="chapter-6-synthesis">Chapter 6 synthesis<a class="headerlink" href="#chapter-6-synthesis" title="Permanent link">¤</a></h3>
+<p>Correct practice connects three contracts: the probabilistic contract (shift, mask, normalization), the software contract (current array shapes, RNG ownership, NNX containers, and public methods), and the evidence contract (protocol-qualified metrics). A constructor that runs does not validate a sampler; a high tokens/s value without workload details is not reproducible; a favorable benchmark without contamination and uncertainty controls is not a research conclusion.</p>
+<details class="question">
+<summary>Retrieval practice: practice and evaluation</summary>
+<ol>
+<li>What four causality or decoding invariants should be tested before trusting <code>generate</code>?</li>
+<li>Why is “tokens per second on an H100” incomplete?</li>
+<li>Which extra details make an FID result traceable?</li>
+<li>Does a decoding-time watermark prove provenance?</li>
+</ol>
+<p><strong>Solutions.</strong> (1) Correct logit/target shift, suffix-invariance of earlier logits, inclusion of the top-<span class="arithmatex">\(p\)</span> boundary token, and correct prompt/EOS behavior. (2) Model, precision, batch/concurrency, lengths, hardware count, sampler, and latency/throughput regime are missing. (3) Dataset/split, resolution, conditioning, sample count, feature implementation, preprocessing, and reference statistics. (4) No. It is a statistical signal with robustness and false-positive/negative limits; signed provenance metadata addresses a different question.</p>
+</details>
+<p><strong>Bridge to Chapter 7.</strong> The final chapter consolidates the decision process, cumulative misconceptions, exercises, and reading path so the guide can function both as a reference and as a launch point for research.</p>
+<hr/>
+<hr/>
+<p><strong>Navigate:</strong> <a href="../autoregressive-05-connections/">← Connections and Research</a> · <a href="../autoregressive-07-synthesis/">Synthesis and Reading →</a> · <a href="../autoregressive-explained/#practical-implementation-in-artifex">Complete guide</a></p>
+</article>
+</div>
+<script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  Back to top
+</button>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+<div class="md-social">
+<a class="md-social__link" href="https://github.com/avitai/artifex" rel="noopener" target="_blank" title="github.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</a>
+<a class="md-social__link" href="https://pypi.org/project/avitai-artifex/" rel="noopener" target="_blank" title="pypi.org">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-66.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.3v101.8c0 29 25.2 46 53.4 54.3 33.8 9.9 66.3 11.7 106.8 0 26.9-7.8 53.4-23.5 53.4-54.3v-40.7H226.2v-13.6h160.2c31.1 0 42.6-21.7 53.4-54.2 11.2-33.5 10.7-65.7 0-108.6M286.2 444.7a20.4 20.4 0 1 1 0-40.7 20.4 20.4 0 1 1 0 40.7M167.8 248.1h106.8c29.7 0 53.4-24.5 53.4-54.3V91.9c0-29-24.4-50.7-53.4-55.6-35.8-5.9-74.7-5.6-106.8.1-45.2 8-53.4 24.7-53.4 55.6v40.7h106.9v13.6h-147c-31.1 0-58.3 18.7-66.8 54.2-9.8 40.7-10.2 66.1 0 108.6 7.6 31.6 25.7 54.2 56.8 54.2H101v-48.8c0-35.3 30.5-66.4 66.8-66.4m-6.6-183.4a20.4 20.4 0 1 1 0 40.8 20.4 20.4 0 1 1 0-40.8"></path></svg>
+</a>
+<a class="md-social__link" href="https://twitter.com/mahdi_shafiei" rel="noopener" target="_blank" title="twitter.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M459.4 151.7c.3 4.5.3 9.1.3 13.6 0 138.7-105.6 298.6-298.6 298.6-59.5 0-114.7-17.2-161.1-47.1 8.4 1 16.6 1.3 25.3 1.3 49.1 0 94.2-16.6 130.3-44.8-46.1-1-84.8-31.2-98.1-72.8 6.5 1 13 1.6 19.8 1.6 9.4 0 18.8-1.3 27.6-3.6-48.1-9.7-84.1-52-84.1-103v-1.3c14 7.8 30.2 12.7 47.4 13.3-28.3-18.8-46.8-51-46.8-87.4 0-19.5 5.2-37.4 14.3-53C87.4 130.8 165 172.4 252.1 176.9c-1.6-7.8-2.6-15.9-2.6-24C249.5 95.1 296.3 48 354.4 48c30.2 0 57.5 12.7 76.7 33.1 23.7-4.5 46.5-13.3 66.6-25.3-7.8 24.4-24.4 44.8-46.1 57.8 21.1-2.3 41.6-8.1 60.4-16.2-14.3 20.8-32.2 39.3-52.6 54.3"></path></svg>
+</a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.path", "navigation.top", "navigation.prune", "toc.follow", "search.highlight", "search.share", "search.suggest", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "content.mermaid"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+<script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+<script src="../../../javascripts/reading-layout.js"></script>
+</body>
+</html>

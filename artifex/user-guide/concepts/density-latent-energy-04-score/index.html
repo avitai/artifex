@@ -1,0 +1,1433 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="This chapter derives score identities, integrability conditions, score matching, Langevin limitations, and exponential tilting. Read it in the complete guide" name="description"/>
+<meta content="Mahdi Shafiei" name="author"/>
+<link href="https://docs.avitai.bio/artifex/user-guide/concepts/density-latent-energy-04-score/" rel="canonical"/>
+<link href="../density-latent-energy-03-latent/" rel="prev"/>
+<link href="../density-latent-energy-05-correspondences/" rel="next"/>
+<link href="../../../assets/images/favicon.png" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.7.7" name="generator"/>
+<title>Density, Latent, and Energy 4 — Energy–Score Duality - Artifex</title>
+<link href="../../../assets/stylesheets/main.ec1eaa64.min.css" rel="stylesheet"/>
+<link href="../../../assets/stylesheets/palette.ab4e12ef.min.css" rel="stylesheet"/>
+<script src="../../../assets/vendor/iframe-worker/index.js"></script>
+<link href="../../../assets/_mkdocstrings.css" rel="stylesheet"/>
+<link href="../../../_static/extra.css" rel="stylesheet"/>
+<script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+<meta content="article" property="og:type"/>
+<meta content="The Artifex Generative Models Book" property="og:site_name"/>
+<meta content="Density, Latent, and Energy 4 — Energy–Score Duality" property="og:title"/>
+<meta content="This chapter derives score identities, integrability conditions, score matching, Langevin limitations, and exponential tilting. Read it in the complete guide" property="og:description"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/density-latent-energy-04-score/" property="og:url"/>
+<meta content="2026-07-20" property="article:modified_time"/>
+<meta content="summary" name="twitter:card"/>
+<meta content="Density, Latent, and Energy 4 — Energy–Score Duality" name="twitter:title"/>
+<meta content="This chapter derives score identities, integrability conditions, score matching, Langevin limitations, and exponential tilting. Read it in the complete guide" name="twitter:description"/>
+<meta content="Generative models, Machine learning, Probabilistic modeling, advanced, specialization, canonical_chapter, density-latent-energy-score, practitioner, researcher" name="keywords"/>
+<meta content="Density, Latent, and Energy 4 — Energy–Score Duality" name="citation_title"/>
+<meta content="Mahdi Shafiei" name="citation_author"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/density-latent-energy-04-score/" name="citation_public_url"/>
+<meta content="en" name="citation_language"/>
+<meta content="Density, Latent, and Energy 4 — Energy–Score Duality" name="DC.title"/>
+<meta content="Mahdi Shafiei" name="DC.creator"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/density-latent-energy-04-score/" name="DC.identifier"/>
+<meta content="Text.LearningResource" name="DC.type"/>
+<meta content="2026-07-20" name="DCTERMS.modified"/>
+<meta content="https://github.com/avitai/artifex/blob/main/LICENSE" name="DCTERMS.license"/>
+<meta content="advanced" name="DCTERMS.educationLevel"/>
+<meta content="practitioner, researcher" name="DCTERMS.audience"/>
+<link href="https://github.com/avitai/artifex/blob/main/LICENSE" rel="license"/>
+<script id="artifex-book-metadata" type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Chapter",
+  "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/density-latent-energy-04-score/",
+  "url": "https://docs.avitai.bio/artifex/user-guide/concepts/density-latent-energy-04-score/",
+  "name": "Density, Latent, and Energy 4 \u2014 Energy\u2013Score Duality",
+  "description": "This chapter derives score identities, integrability conditions, score matching, Langevin limitations, and exponential tilting. Read it in the complete guide",
+  "identifier": "density-latent-energy-score",
+  "inLanguage": "en",
+  "isAccessibleForFree": true,
+  "learningResourceType": "Canonical chapter",
+  "educationalLevel": "advanced",
+  "educationalUse": "specialization",
+  "audience": [
+    
+      {"@type": "EducationalAudience", "audienceType": "practitioner"},
+    
+      {"@type": "EducationalAudience", "audienceType": "researcher"}
+    
+  ],
+  "dateModified": "2026-07-20",
+  "keywords": ["Generative models", "Machine learning", "Probabilistic modeling", "advanced", "specialization", "canonical_chapter", "density-latent-energy-score", "practitioner", "researcher"],
+  "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+  "author": [
+    
+      {"@type": "Person", "name": "Mahdi Shafiei"}
+    
+  ],
+  "isPartOf": {
+    "@type": "Book",
+    "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/#book",
+    "url": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/",
+    "name": "The Artifex Generative Models Book",
+    "bookEdition": "Living Web Edition",
+    "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+    "author": [
+      
+        {"@type": "Person", "name": "Mahdi Shafiei"}
+      
+    ]
+  }
+}
+</script>
+<link href="../../../assets/vendor/katex/katex.min.css" id="artifex-katex-stylesheet" integrity="sha384-UA8juhPf75SzzAMA/4fo3yOU7sBJ0om7SCD2GHq0fZqZco6tr1UCV7nUbk9J90JM" rel="stylesheet"/>
+<script defer="" integrity="sha384-T/0lMUdJpd2S1ZHtRiofG3htU3xPCrFVeAQ1UUE2TJwlEJSV5NUwn30kP28n238E" src="../../../assets/vendor/mermaid/mermaid.min.js"></script>
+<script defer="" src="../../../assets/vendor/katex/katex-shadow.js"></script>
+<script defer="" src="../../../javascripts/mermaid-math.js"></script>
+<script defer="" src="../../../javascripts/mathjax.js"></script>
+<script defer="" integrity="sha384-OrHfGTnIbkl0do3N76qW/uWr38o91N05sbSPuYBPLH+hG8X/dNSrjZf3AGjzrCwC" src="../../../assets/vendor/mathjax/tex-mml-chtml.js"></script>
+</head>
+<body data-md-color-accent="amber" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#density-latent-and-energy-4-energyscore-duality">
+          Skip to content
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header md-header--shadow" data-md-component="header">
+<nav aria-label="Header" class="md-header__inner md-grid">
+<a aria-label="Artifex" class="md-header__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            Artifex
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+            
+              Density, Latent, and Energy 4 — Energy–Score Duality
+            
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-label="Switch to dark mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: light)" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_1" hidden="" title="Switch to dark mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+<input aria-label="Switch to light mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-primary="indigo" data-md-color-scheme="slate" id="__palette_1" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_0" hidden="" title="Switch to light mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+</form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div aria-label="Search" class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Search" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="Search" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="Search" class="md-search__options">
+<a aria-label="Share" class="md-search__icon md-icon" data-clipboard="" data-clipboard-text="" data-md-component="search-share" href="javascript:void(0)" tabindex="-1" title="Share">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"></path></svg>
+</a>
+<button aria-label="Clear" class="md-search__icon md-icon" tabindex="-1" title="Clear" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            Initializing search
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Navigation" class="md-nav md-nav--primary" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="Artifex" class="md-nav__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+    Artifex
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../..">
+<span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../getting-started/installation/">
+<span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Generative Models Book
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Generative Models Book
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    
+  
+    Start Here — The Landscape
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../first-course-01-generative-systems/">
+<span class="md-ellipsis">
+    
+  
+    First Course — New to Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../probability-01-objects/">
+<span class="md-ellipsis">
+    
+  
+    Foundations
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../autoregressive-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Model Families
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_5" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_5" id="__nav_3_5_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Connections and Compositions
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_5_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_5">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Connections and Compositions
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gradients-01-taxonomy/">
+<span class="md-ellipsis">
+    
+  
+    Gradients and Geometry in Generative Modeling
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_5_2" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_5_2" id="__nav_3_5_2_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Density, Latent, Energy, and Score
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_5_2_label" class="md-nav" data-md-level="3">
+<label class="md-nav__title" for="__nav_3_5_2">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Density, Latent, Energy, and Score
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../density-latent-energy-01-objects/">
+<span class="md-ellipsis">
+    
+  
+    1. Probabilistic Interfaces
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../density-latent-energy-02-normalized/">
+<span class="md-ellipsis">
+    
+  
+    2. Normalized Constructions
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../density-latent-energy-03-latent/">
+<span class="md-ellipsis">
+    
+  
+    3. Latent Marginals
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
+    
+  
+    4. Energy-Score Duality
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
+<span class="md-ellipsis">
+    
+  
+    4. Energy-Score Duality
+  
+
+    
+  </span>
+</a>
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#4-energyscore-duality-and-integrability">
+<span class="md-ellipsis">
+      
+        4. Energy–Score Duality and Integrability
+      
+    </span>
+</a>
+<nav aria-label="4. Energy–Score Duality and Integrability" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-4-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 4 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#scores-determine-density-only-under-conditions">
+<span class="md-ellipsis">
+      
+        Scores determine density only under conditions
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-non-integrable-field">
+<span class="md-ellipsis">
+      
+        Worked non-integrable field
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#coordinates-reference-measures-manifolds-and-discrete-states">
+<span class="md-ellipsis">
+      
+        Coordinates, reference measures, manifolds, and discrete states
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#score-matching">
+<span class="md-ellipsis">
+      
+        Score matching
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#langevin-sampling">
+<span class="md-ellipsis">
+      
+        Langevin sampling
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#conditional-scores-and-exponential-tilting">
+<span class="md-ellipsis">
+      
+        Conditional scores and exponential tilting
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#independent-practice-and-assessment-map-score-validity-and-sampling">
+<span class="md-ellipsis">
+      
+        Independent practice and assessment map: score validity and sampling
+      
+    </span>
+</a>
+<nav aria-label="Independent practice and assessment map: score validity and sampling" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#feedback-contract-score-validity-and-sampling">
+<span class="md-ellipsis">
+      
+        Feedback contract: score validity and sampling
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#outcome-to-task-alignment-score-validity-and-sampling">
+<span class="md-ellipsis">
+      
+        Outcome-to-task alignment: score validity and sampling
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-4-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 4 synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../density-latent-energy-05-correspondences/">
+<span class="md-ellipsis">
+    
+  
+    5. Cross-Family Correspondences
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../density-latent-energy-06-composition/">
+<span class="md-ellipsis">
+    
+  
+    6. Composition and Research
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../density-latent-energy-relationships/">
+<span class="md-ellipsis">
+    
+  
+    Continuous View (All Chapters)
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../probability-paths-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Probability Paths and Stochastic Transport
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../general-markov-01-operators/">
+<span class="md-ellipsis">
+    
+  
+    General Markov Generators
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../few-step-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Transitions and Few-Step Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../geometric-01-symmetry/">
+<span class="md-ellipsis">
+    
+  
+    Geometric and Equivariant Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../representations-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Representations and Multimodal Systems
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../steering-01-targets/">
+<span class="md-ellipsis">
+    
+  
+    Conditioning, Steering, Constraints, and Selection
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../world-models-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    World Models and Causal Simulators
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../landscape-01-copulas/">
+<span class="md-ellipsis">
+    
+  
+    Extended Generative Landscape
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../normalization-01-queries/">
+<span class="md-ellipsis">
+    
+  
+    Research Practice
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../models/vae-guide/">
+<span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/core/base/">
+<span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../examples/overview/">
+<span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../zoo/">
+<span class="md-ellipsis">
+    
+  
+    Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../training/overview/">
+<span class="md-ellipsis">
+    
+  
+    Training
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../data/overview/">
+<span class="md-ellipsis">
+    
+  
+    Data &amp; Modalities
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../inference/overview/">
+<span class="md-ellipsis">
+    
+  
+    Inference &amp; Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../benchmarks/">
+<span class="md-ellipsis">
+    
+  
+    Evaluation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../guides/extensions/">
+<span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../extensions/">
+<span class="md-ellipsis">
+    
+  
+    Advanced Topics
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../cli/">
+<span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../community/contributing/">
+<span class="md-ellipsis">
+    
+  
+    Community
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/configs/protein-extension/">
+<span class="md-ellipsis">
+    
+  
+    Reference Library
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#4-energyscore-duality-and-integrability">
+<span class="md-ellipsis">
+      
+        4. Energy–Score Duality and Integrability
+      
+    </span>
+</a>
+<nav aria-label="4. Energy–Score Duality and Integrability" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-4-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 4 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#scores-determine-density-only-under-conditions">
+<span class="md-ellipsis">
+      
+        Scores determine density only under conditions
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-non-integrable-field">
+<span class="md-ellipsis">
+      
+        Worked non-integrable field
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#coordinates-reference-measures-manifolds-and-discrete-states">
+<span class="md-ellipsis">
+      
+        Coordinates, reference measures, manifolds, and discrete states
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#score-matching">
+<span class="md-ellipsis">
+      
+        Score matching
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#langevin-sampling">
+<span class="md-ellipsis">
+      
+        Langevin sampling
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#conditional-scores-and-exponential-tilting">
+<span class="md-ellipsis">
+      
+        Conditional scores and exponential tilting
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#independent-practice-and-assessment-map-score-validity-and-sampling">
+<span class="md-ellipsis">
+      
+        Independent practice and assessment map: score validity and sampling
+      
+    </span>
+</a>
+<nav aria-label="Independent practice and assessment map: score validity and sampling" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#feedback-contract-score-validity-and-sampling">
+<span class="md-ellipsis">
+      
+        Feedback contract: score validity and sampling
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#outcome-to-task-alignment-score-validity-and-sampling">
+<span class="md-ellipsis">
+      
+        Outcome-to-task alignment: score validity and sampling
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-4-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 4 synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<nav aria-label="Breadcrumb" class="md-path">
+<ol class="md-path__list">
+<li class="md-path__item">
+<a class="md-path__link" href="../../..">
+<span class="md-ellipsis">
+    Home
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    Generative Models Book
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../gradients-01-taxonomy/">
+<span class="md-ellipsis">
+    Connections and Compositions
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../density-latent-energy-01-objects/">
+<span class="md-ellipsis">
+    Density, Latent, Energy, and Score
+  </span>
+</a>
+</li>
+</ol>
+</nav>
+<article class="md-content__inner md-typeset">
+<h1 id="density-latent-and-energy-4-energyscore-duality">Density, Latent, and Energy 4 — Energy–Score Duality<a class="headerlink" href="#density-latent-and-energy-4-energyscore-duality" title="Permanent link">¤</a></h1><aside aria-label="Learning path" class="admonition abstract artifex-learning-path"><p class="admonition-title">Learning path</p><p><strong>Required knowledge</strong></p><ul class="artifex-learning-path__links" data-learning-path-role="required"><li><a href="../density-latent-energy-03-latent/">Density, Latent, and Energy 3 — Latent Marginals</a></li><li><a href="../sampling-and-continuous-time/">Sampling and Continuous-Time Generative Mathematics</a></li></ul><p><strong>Readiness check:</strong> can you explain the central object and reproduce one worked example from each required chapter? If not, follow its link before continuing.</p><p><strong>Newly unlocked in the default route</strong></p><ul class="artifex-learning-path__links" data-learning-path-role="unlocks"><li><a href="../density-latent-energy-05-correspondences/">Density, Latent, and Energy 5 — Cross-Family Correspondences</a></li></ul></aside>
+<p>This chapter derives score identities, integrability conditions, score matching, Langevin limitations, and exponential tilting. Read it in the <a href="../density-latent-energy-relationships/#4-energyscore-duality-and-integrability">complete guide</a> for uninterrupted flow.</p>
+<h2 id="4-energyscore-duality-and-integrability">4. Energy–Score Duality and Integrability<a class="headerlink" href="#4-energyscore-duality-and-integrability" title="Permanent link">¤</a></h2>
+<h3 id="chapter-4-prerequisites-and-learning-objectives">Chapter 4 prerequisites and learning objectives<a class="headerlink" href="#chapter-4-prerequisites-and-learning-objectives" title="Permanent link">¤</a></h3>
+<p>This chapter assumes multivariable gradients and elementary line integrals;
+score-matching objectives are introduced rather than assumed. By the end, you
+should be able to:</p>
+<ol>
+<li><strong>O1 — Derive energy–score duality:</strong> obtain <span class="arithmatex">\(s=-\nabla E\)</span> on the interior
+   of positive support under a fixed coordinate system and base measure.</li>
+<li><strong>O2 — Test score validity:</strong> separate local cross-partial, global topology,
+   boundary, disconnected-support, and normalizability conditions.</li>
+<li><strong>O3 — Transform score objects:</strong> account for coordinate Jacobians,
+   reference measures, manifolds, and discrete neighbor ratios.</li>
+<li><strong>O4 — Compare score estimators:</strong> distinguish explicit, denoising, sliced,
+   ratio-based, and noise-contrastive objectives and their population targets.</li>
+<li><strong>O5 — Audit finite samplers:</strong> separate invariant-law results from
+   discretization bias, burn-in, autocorrelation, and multimodal mixing.</li>
+<li><strong>O6 — Transfer conditional composition:</strong> decide when guidance or a sum of
+   learned fields corresponds to a normalizable target.</li>
+</ol>
+<figure class="book-figure" id="fig-density-latent-energy-relationships-chapter-4-prerequisites-and-learning-objectives"><pre class="mermaid"><code>%%{init: {'themeCSS': '.nodeLabel p { color: #111827 !important; } .flowchart-link { stroke: #78879a !important; stroke-width: 2px !important; } marker path { fill: #78879a !important; stroke: #78879a !important; }'}}%%
+flowchart TB
+    accTitle: Decide whether a learned field can be a probability score
+    accDescr: A validity sequence checks the domain and measure, local conservativity, topology and component constants, boundary behavior and normalizability, then finite sampling quality.
+    V[Candidate field v]
+    V --&gt; D{Continuous Euclidean interior?}
+    D --&gt;|no| R[Declare manifold gradient or discrete ratios]
+    D --&gt;|yes| C{Cross-partials symmetric?}
+    C --&gt;|no| X[Not a scalar log-density gradient]
+    C --&gt;|yes| T{Global periods zero on each component?}
+    T --&gt;|no| X
+    T --&gt;|yes| B{Boundary compatible and exponential integrable?}
+    B --&gt;|no| X
+    B --&gt;|yes| P[Density on each connected component]
+    P --&gt; M[Specify relative component masses]
+    M --&gt; S[Validate the finite sampler separately]</code></pre><figcaption class="book-object-caption"><span class="book-object-number">Figure DLE.5.</span> Decide whether a learned field can be a probability score</figcaption></figure>
+<p>For a differentiable positive density</p>
+<div class="arithmatex">\[
+p(x)=\frac{e^{-E(x)}}{Z},
+\]</div>
+<p>the score is</p>
+<div class="arithmatex">\[
+s(x)=\nabla_x\log p(x)=-\nabla_xE(x),
+\]</div>
+<p>because <span class="arithmatex">\(Z\)</span> is constant with respect to <span class="arithmatex">\(x\)</span>. This is <strong>algebraic equivalence</strong>. The score discards the additive energy constant and the partition function.</p>
+<p>The equation is an interior statement. At a hard support boundary, where the
+density vanishes, <span class="arithmatex">\(\log p\)</span> may diverge and a classical score may not exist.
+Distributional derivatives, reflecting diffusions, or manifold gradients can
+be appropriate, but each defines a different mathematical contract.</p>
+<h3 id="scores-determine-density-only-under-conditions">Scores determine density only under conditions<a class="headerlink" href="#scores-determine-density-only-under-conditions" title="Permanent link">¤</a></h3>
+<p>On a connected domain, an exact score determines log density up to a constant. But an arbitrary learned vector field <span class="arithmatex">\(v(x)\)</span> is a score only if it is integrable. On a simply connected domain with sufficient smoothness, a necessary and sufficient local condition is symmetry of cross-partials:</p>
+<div class="arithmatex">\[
+\frac{\partial v_i}{\partial x_j}
+=\frac{\partial v_j}{\partial x_i}.
+\]</div>
+<p>Topology and boundary behavior also matter. Neural score estimators need not be exactly conservative at finite capacity, even if their population target is a true score.</p>
+<p>Three further checks prevent false reconstruction claims:</p>
+<ul>
+<li><strong>Disconnected support:</strong> integration recovers one additive log-density
+  constant per connected component. The field alone cannot determine relative
+  component masses.</li>
+<li><strong>Nontrivial topology:</strong> zero local curl does not guarantee zero circulation
+  around holes; all closed-loop periods must be compatible.</li>
+<li><strong>Normalizability:</strong> even an exact gradient such as <span class="arithmatex">\(v(x)=2x\)</span> integrates to
+  <span class="arithmatex">\(\log\tilde p(x)=x^2+C\)</span>, whose exponential is not integrable on
+  <span class="arithmatex">\(\mathbb R\)</span>. Conservativity is necessary but not sufficient for a probability
+  density on an unbounded domain.</li>
+</ul>
+<h3 id="worked-non-integrable-field">Worked non-integrable field<a class="headerlink" href="#worked-non-integrable-field" title="Permanent link">¤</a></h3>
+<p>Consider <span class="arithmatex">\(v(x,y)=(-y,x)\)</span>. Its cross-partials are</p>
+<div class="arithmatex">\[
+\frac{\partial v_1}{\partial y}=-1,
+\qquad
+\frac{\partial v_2}{\partial x}=1.
+\]</div>
+<p>They disagree, so no scalar log density on <span class="arithmatex">\(\mathbb R^2\)</span> has this score. Integrating around the unit circle gives nonzero circulation. A sampler driven by this field may rotate probability mass rather than ascend any log density.</p>
+<h3 id="coordinates-reference-measures-manifolds-and-discrete-states">Coordinates, reference measures, manifolds, and discrete states<a class="headerlink" href="#coordinates-reference-measures-manifolds-and-discrete-states" title="Permanent link">¤</a></h3>
+<p>For a differentiable coordinate change <span class="arithmatex">\(y=f(x)\)</span> with inverse <span class="arithmatex">\(g\)</span>, the score of
+the transformed density relative to Euclidean volume is</p>
+<div class="arithmatex">\[
+s_Y(y)=J_g(y)^\top s_X(g(y))
++\nabla_y\log|\det J_g(y)|.
+\]</div>
+<p>Thus score vectors do not transform by the first term alone. Changing the base
+measure similarly adds the derivative of the log Radon–Nikodym factor. On a
+Riemannian manifold, the intrinsic score is a Riemannian gradient relative to
+a declared volume measure; embedding-space gradients can contain irrelevant
+normal components. <a href="https://proceedings.neurips.cc/paper_files/paper/2022/hash/105112d52254f86d5854f3da734a52b4-Abstract-Conference.html">Riemannian score-based generative
+modeling</a>
+is a primary example of making this geometry explicit.</p>
+<p>For discrete <span class="arithmatex">\(x\)</span>, <span class="arithmatex">\(\nabla_x\log p(x)\)</span> is not canonically defined. A graph of
+allowed moves can instead carry ratios</p>
+<div class="arithmatex">\[
+r(x,y)=\frac{p(y)}{p(x)}=e^{-[E(y)-E(x)]}.
+\]</div>
+<p>Reciprocity and cycle consistency replace continuous zero-curl checks. Recent
+<a href="https://proceedings.mlr.press/v235/lou24a.html">discrete diffusion modeling by data-ratio
+estimation</a> develops a
+ratio-based objective for discrete state spaces; it should not be described as
+an ordinary Euclidean score without this translation.</p>
+<h3 id="score-matching">Score matching<a class="headerlink" href="#score-matching" title="Permanent link">¤</a></h3>
+<p>Explicit score matching minimizes</p>
+<div class="arithmatex">\[
+\mathbb E_{p_{\mathrm{data}}}
+\left[\frac12\|s_\theta(x)\|^2+
+\nabla\cdot s_\theta(x)\right]
+\]</div>
+<p>under boundary assumptions, avoiding the model partition function. Denoising score matching perturbs data and regresses a noisy conditional score; after expectation, its population minimizer is the noisy marginal score.</p>
+<p>This is a <strong>population-optimum correspondence</strong>. Finite noise schedules, weighting, parameterization, architecture, and optimization alter estimator behavior.</p>
+<p>The objectives solve related but nonidentical estimation problems:</p>
+<div class="md-typeset__table book-table-container"><table id="tbl-density-latent-energy-relationships-score-matching"><caption class="book-object-caption"><span class="book-object-number">Table DLE.13.</span> Score matching</caption>
+<thead>
+<tr>
+<th>Method</th>
+<th>Training signal</th>
+<th>Population object under assumptions</th>
+<th>Main computational boundary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>explicit score matching</td>
+<td>data score eliminated by integration by parts</td>
+<td>clean-data score</td>
+<td>divergence or Hessian trace; boundary conditions</td>
+</tr>
+<tr>
+<td>denoising score matching</td>
+<td>analytic corruption score</td>
+<td>noisy-marginal score</td>
+<td>noise-level coverage and weighting</td>
+</tr>
+<tr>
+<td>sliced score matching</td>
+<td>random directional projections</td>
+<td>score through projected trace estimates</td>
+<td>projection variance and regularity</td>
+</tr>
+<tr>
+<td>noise-contrastive estimation</td>
+<td>data versus known-noise classification</td>
+<td>density ratio and normalized parameter estimate</td>
+<td>reference coverage and class-prior calibration</td>
+</tr>
+<tr>
+<td>discrete ratio objectives</td>
+<td>neighbor transitions or ratios</td>
+<td>declared discrete ratio field</td>
+<td>graph connectivity and cycle consistency</td>
+</tr>
+</tbody>
+</table></div>
+<p><a href="https://jmlr.org/papers/v6/hyvarinen05a.html">Hyv\u00e4rinen's original score-matching
+paper</a> derives the integration-by-
+parts objective. <a href="https://proceedings.mlr.press/v115/song20a.html">Sliced score
+matching</a> replaces full trace
+computation with projections, while <a href="https://proceedings.mlr.press/v9/gutmann10a.html">noise-contrastive
+estimation</a> estimates a
+density relative to a declared noise law. Calling all three “the same loss”
+would erase their targets and estimators.</p>
+<h3 id="langevin-sampling">Langevin sampling<a class="headerlink" href="#langevin-sampling" title="Permanent link">¤</a></h3>
+<p>Using the score in unadjusted Langevin dynamics,</p>
+<div class="arithmatex">\[
+x_{k+1}=x_k+\frac{\eta}{2}s(x_k)+\sqrt{\eta}\,\epsilon_k,
+\qquad \epsilon_k\sim\mathcal N(0,I),
+\]</div>
+<p>targets <span class="arithmatex">\(p\)</span> only in an ideal limiting sense under regularity and ergodicity; finite step size causes bias unless corrected, and multimodal mixing can be slow. Knowing a score locally is not the same as having an efficient global sampler.</p>
+<p>Even the one-dimensional standard Gaussian exposes the finite-step boundary.
+With <span class="arithmatex">\(s(x)=-x\)</span>, unadjusted Langevin becomes</p>
+<div class="arithmatex">\[
+x_{k+1}=(1-\eta/2)x_k+\sqrt\eta\,\epsilon_k.
+\]</div>
+<p>For <span class="arithmatex">\(0&lt;\eta&lt;4\)</span>, its stationary variance is
+<span class="arithmatex">\(1/(1-\eta/4)\)</span> rather than one. The bias vanishes only as <span class="arithmatex">\(\eta\to0\)</span>; a
+Metropolis correction can restore the target invariant law but changes cost
+and rejection behavior.</p>
+<h3 id="conditional-scores-and-exponential-tilting">Conditional scores and exponential tilting<a class="headerlink" href="#conditional-scores-and-exponential-tilting" title="Permanent link">¤</a></h3>
+<p>Bayes' rule gives</p>
+<div class="arithmatex">\[
+\nabla_x\log p(x\mid y)
+=\nabla_x\log p(x)+\nabla_x\log p(y\mid x),
+\]</div>
+<p>because the evidence is constant in <span class="arithmatex">\(x\)</span>. Thus classifier guidance adds a likelihood score. More generally, tilting a base density by reward <span class="arithmatex">\(r(x)\)</span>,</p>
+<div class="arithmatex">\[
+p_\beta(x)\propto p_0(x)e^{\beta r(x)},
+\]</div>
+<p>adds <span class="arithmatex">\(\beta\nabla r(x)\)</span> to the score where differentiable. Approximate guidance fields, guidance scaling, and time-dependent noisy classifiers introduce modeling error; the identity alone does not validate arbitrary guidance.</p>
+<p>The identity also inherits support. A tilt of <span class="arithmatex">\(p_0\)</span> cannot create probability
+where <span class="arithmatex">\(p_0=0\)</span>, and a conditional score is meaningful only where <span class="arithmatex">\(p(x,y)&gt;0\)</span> and
+the required derivatives exist. Adding two approximate fields can violate
+conservativity even when each was trained toward a valid population score.</p>
+<h3 id="independent-practice-and-assessment-map-score-validity-and-sampling">Independent practice and assessment map: score validity and sampling<a class="headerlink" href="#independent-practice-and-assessment-map-score-validity-and-sampling" title="Permanent link">¤</a></h3>
+<p>Work from field to potential to normalizer to sampler. Stopping after a local
+derivative check is not a complete probability argument.</p>
+<ol>
+<li><strong>P1.1 — Predict before computing: circulation.</strong> <em>Type: predict · Difficulty: foundation · Typical time: 9 min.</em> For <span class="arithmatex">\(v(x,y)=(-y,x)\)</span>, predict whether it is a score, compute the two cross-partials, and evaluate its line integral around the counterclockwise unit circle.</li>
+<li><strong>P1.2 — Diagnose missing component masses.</strong> <em>Type: explain · Difficulty: core · Typical time: 10 min.</em> Let <span class="arithmatex">\(q_1\)</span> and <span class="arithmatex">\(q_2\)</span> be translated copies of the same smooth density on two disjoint open intervals. Show why every mixture <span class="arithmatex">\(p_\alpha=\alpha q_1+(1-\alpha)q_2\)</span>, <span class="arithmatex">\(0&lt;\alpha&lt;1\)</span>, has the same within-component score for all <span class="arithmatex">\(\alpha\)</span>, and identify the missing information.</li>
+<li><strong>P1.3 — Transform a score nonlinearly.</strong> <em>Type: derive · Difficulty: stretch · Typical time: 14 min.</em> Let <span class="arithmatex">\(X\sim\mathcal N(0,1)\)</span> and <span class="arithmatex">\(Y=e^X\)</span>. Derive <span class="arithmatex">\(p_Y(y)\)</span> and <span class="arithmatex">\(s_Y(y)\)</span> for <span class="arithmatex">\(y&gt;0\)</span>, then reproduce the score with the inverse-Jacobian transformation rule.</li>
+<li><strong>P1.4 — Compare estimation contracts.</strong> <em>Type: compare · Difficulty: core · Typical time: 12 min.</em> For explicit score matching, denoising score matching, sliced score matching, NCE, and a discrete ratio objective, state the training signal, population object, and one assumption or computational bottleneck for each.</li>
+<li><strong>P1.5 — Quantify finite Langevin bias.</strong> <em>Type: evaluate · Difficulty: core · Typical time: 12 min.</em> For the standard-normal score and step size <span class="arithmatex">\(\eta=0.4\)</span>, derive the stationary variance of unadjusted Langevin. Compare it with the target variance and state what a Metropolis correction changes.</li>
+<li><strong>P1.6 — Transfer to a discrete cycle.</strong> <em>Type: transfer · Difficulty: stretch · Typical time: 16 min.</em> A four-node directed cycle reports clockwise ratios <span class="arithmatex">\((2,3,1/2,1/4)\)</span>. Test cycle consistency, decide whether these can be exact ratios of one positive mass function, and design a projection or diagnostic for noisy learned ratios on a larger graph.</li>
+</ol>
+<h4 id="feedback-contract-score-validity-and-sampling">Feedback contract: score validity and sampling<a class="headerlink" href="#feedback-contract-score-validity-and-sampling" title="Permanent link">¤</a></h4>
+<div class="md-typeset__table book-table-container"><table id="tbl-density-latent-energy-relationships-feedback-contract-score-validity-and-sampling-1"><caption class="book-object-caption"><span class="book-object-number">Table DLE.14.</span> Feedback contract: score validity and sampling — table 1</caption>
+<thead>
+<tr>
+<th>Task</th>
+<th>Evidence of success</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>P1.1</td>
+<td>Local cross-partials and global circulation reject the field for the same sign-consistent reason.</td>
+</tr>
+<tr>
+<td>P1.2</td>
+<td>Within-component derivatives are separated from the unobserved relative normalization constants.</td>
+</tr>
+<tr>
+<td>P1.3</td>
+<td>The log-Jacobian derivative appears explicitly in the transformed score.</td>
+</tr>
+<tr>
+<td>P1.4</td>
+<td>Methods are compared by target and estimator rather than grouped by the word “score.”</td>
+</tr>
+<tr>
+<td>P1.5</td>
+<td>The exact AR(1) stationary variance exposes a nonzero discretization bias.</td>
+</tr>
+<tr>
+<td>P1.6</td>
+<td>The cycle product is checked and the proposed repair respects graph-wide consistency.</td>
+</tr>
+</tbody>
+</table></div>
+<details class="tip">
+<summary>Graduated hints for P1</summary>
+<div class="md-typeset__table book-table-container"><table id="tbl-density-latent-energy-relationships-feedback-contract-score-validity-and-sampling-2"><caption class="book-object-caption"><span class="book-object-number">Table DLE.15.</span> Feedback contract: score validity and sampling — table 2</caption>
+<thead>
+<tr>
+<th>Task</th>
+<th>Hint 1 — Direction</th>
+<th>Hint 2 — Setup</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>P1.1</td>
+<td>The field is tangent to circles.</td>
+<td>Parameterize <span class="arithmatex">\((x,y)=(\cos t,\sin t)\)</span> and compute <span class="arithmatex">\(v\cdot d(x,y)\)</span>.</td>
+</tr>
+<tr>
+<td>P1.2</td>
+<td>Multiplicative component weights become additive constants in log density.</td>
+<td>On component one, <span class="arithmatex">\(\log p_\alpha=\log\alpha+\log q_1\)</span>.</td>
+</tr>
+<tr>
+<td>P1.3</td>
+<td>The inverse is <span class="arithmatex">\(g(y)=\log y\)</span> with derivative <span class="arithmatex">\(1/y\)</span>.</td>
+<td>Write <span class="arithmatex">\(\log p_Y=-\tfrac12(\log y)^2-\log y+C\)</span>.</td>
+</tr>
+<tr>
+<td>P1.4</td>
+<td>Use the comparison table, but justify each cell.</td>
+<td>Ask whether the method estimates a clean score, noisy score, projected trace, density ratio, or neighbor ratio.</td>
+</tr>
+<tr>
+<td>P1.5</td>
+<td>The chain is an AR(1) process.</td>
+<td>If <span class="arithmatex">\(X'=aX+\sqrt\eta\epsilon\)</span>, stationary variance solves <span class="arithmatex">\(v=a^2v+\eta\)</span>.</td>
+</tr>
+<tr>
+<td>P1.6</td>
+<td>Exact ratios telescope around a closed path.</td>
+<td>Multiply the four reported ratios; a valid cycle must give one.</td>
+</tr>
+</tbody>
+</table></div>
+</details>
+<h4 id="outcome-to-task-alignment-score-validity-and-sampling">Outcome-to-task alignment: score validity and sampling<a class="headerlink" href="#outcome-to-task-alignment-score-validity-and-sampling" title="Permanent link">¤</a></h4>
+<div class="md-typeset__table book-table-container"><table id="tbl-density-latent-energy-relationships-outcome-to-task-alignment-score-validity-and-sampling"><caption class="book-object-caption"><span class="book-object-number">Table DLE.16.</span> Outcome-to-task alignment: score validity and sampling</caption>
+<thead>
+<tr>
+<th>Learning objective</th>
+<th>Independently assessed by</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>O1 — Derive energy–score duality</td>
+<td>P1.1, P1.3</td>
+</tr>
+<tr>
+<td>O2 — Test score validity</td>
+<td>P1.1, P1.2, P1.6</td>
+</tr>
+<tr>
+<td>O3 — Transform score objects</td>
+<td>P1.3, P1.6</td>
+</tr>
+<tr>
+<td>O4 — Compare score estimators</td>
+<td>P1.4</td>
+</tr>
+<tr>
+<td>O5 — Audit finite samplers</td>
+<td>P1.5</td>
+</tr>
+<tr>
+<td>O6 — Transfer conditional composition</td>
+<td>P1.2, P1.4, P1.6</td>
+</tr>
+</tbody>
+</table></div>
+<details class="success">
+<summary>Complete solutions to P1</summary>
+<ol>
+<li><strong>P1.1.</strong> <span class="arithmatex">\(\partial v_1/\partial y=-1\)</span> while <span class="arithmatex">\(\partial v_2/\partial x=1\)</span>, so the field is not conservative. On the unit circle, <span class="arithmatex">\(v=(-\sin t,\cos t)\)</span> and <span class="arithmatex">\(d(x,y)=(-\sin t,\cos t)dt\)</span>, hence <span class="arithmatex">\(\oint v\cdot d\ell=\int_0^{2\pi}1\,dt=2\pi\)</span>. <strong>Check.</strong> A gradient field would have zero integral around this closed loop.</li>
+<li><strong>P1.2.</strong> On the first interval, <span class="arithmatex">\(\log p_\alpha=\log\alpha+\log q_1\)</span>, so differentiation removes <span class="arithmatex">\(\log\alpha\)</span> and yields <span class="arithmatex">\(\nabla\log q_1\)</span>; on the second, it similarly removes <span class="arithmatex">\(\log(1-\alpha)\)</span>. Thus every <span class="arithmatex">\(\alpha\)</span> has the same within-component field. The field lacks the relative component mass <span class="arithmatex">\(\alpha/(1-\alpha)\)</span>. <strong>Check.</strong> One integration constant is needed per connected component.</li>
+<li><strong>P1.3.</strong> For <span class="arithmatex">\(y&gt;0\)</span>, <span class="arithmatex">\(p_Y(y)=(y\sqrt{2\pi})^{-1}\exp[-(\log y)^2/2]\)</span> and <span class="arithmatex">\(s_Y(y)=-(\log y+1)/y\)</span>. The transformation rule gives <span class="arithmatex">\((1/y)s_X(\log y)+d[-\log y]/dy=(1/y)(-\log y)-1/y\)</span>, the same answer. <strong>Check.</strong> Omitting the Jacobian term loses <span class="arithmatex">\(-1/y\)</span>.</li>
+<li><strong>P1.4.</strong> Explicit score matching uses data with integration by parts to target the clean score but needs divergence traces and boundary conditions. Denoising uses analytic corruption scores to target a noisy marginal but depends on corruption and weighting. Sliced matching uses random projections to estimate the same trace-based target with projection variance. NCE classifies data against known noise to estimate a density ratio and normalized model parameter under reference coverage and class-prior calibration. A discrete objective estimates declared neighbor ratios and needs connected moves plus cycle consistency. <strong>Rubric.</strong> Full credit names five distinct signals and targets.</li>
+<li><strong>P1.5.</strong> Here <span class="arithmatex">\(a=1-0.4/2=0.8\)</span>, so stationary variance is <span class="arithmatex">\(0.4/(1-0.8^2)=0.4/0.36=10/9\)</span>, larger than the target one by <span class="arithmatex">\(1/9\)</span>. A Metropolis acceptance step can restore the target invariant distribution under its conditions, but adds proposal rejection and evaluation cost. <strong>Check.</strong> An exact score did not remove finite-step bias.</li>
+<li><strong>P1.6.</strong> The cycle product is <span class="arithmatex">\(2\cdot3\cdot(1/2)\cdot(1/4)=3/4\ne1\)</span>, so no positive mass function has exactly these four ratios. For noisy ratios, fit node log masses by least squares to edge log-ratio differences, fix one gauge constant per component, and report residual cycle errors on a cycle basis or held-out edges. <strong>Rubric.</strong> Full credit detects inconsistency and proposes a global, not edgewise-only, diagnostic.</li>
+</ol>
+</details>
+<h3 id="chapter-4-synthesis">Chapter 4 synthesis<a class="headerlink" href="#chapter-4-synthesis" title="Permanent link">¤</a></h3>
+<p>Energy gradients are scores, but scores erase normalization and require integrability to correspond to a density. Score matching and denoising recover true scores at population optima under assumptions; finite samplers add another approximation layer. Chapter 5 uses these facts to classify exact and inexact cross-family statements.</p>
+<details class="question">
+<summary>Can the score recover log likelihood?</summary>
+<p>It can recover log-density differences by path integration when the field is exact and the domain is connected. Absolute normalization still requires a constant, and non-conservative estimation error makes the integral path-dependent.</p>
+</details>
+<hr/>
+<p><strong>Previous:</strong> <a href="../density-latent-energy-03-latent/">3. Latent Marginals</a> · <strong>Continue:</strong> <a href="../density-latent-energy-05-correspondences/">5. Correspondences</a> · <a href="../density-latent-energy-relationships/">Complete guide</a></p>
+</article>
+</div>
+<script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  Back to top
+</button>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+<div class="md-social">
+<a class="md-social__link" href="https://github.com/avitai/artifex" rel="noopener" target="_blank" title="github.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</a>
+<a class="md-social__link" href="https://pypi.org/project/avitai-artifex/" rel="noopener" target="_blank" title="pypi.org">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-66.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.3v101.8c0 29 25.2 46 53.4 54.3 33.8 9.9 66.3 11.7 106.8 0 26.9-7.8 53.4-23.5 53.4-54.3v-40.7H226.2v-13.6h160.2c31.1 0 42.6-21.7 53.4-54.2 11.2-33.5 10.7-65.7 0-108.6M286.2 444.7a20.4 20.4 0 1 1 0-40.7 20.4 20.4 0 1 1 0 40.7M167.8 248.1h106.8c29.7 0 53.4-24.5 53.4-54.3V91.9c0-29-24.4-50.7-53.4-55.6-35.8-5.9-74.7-5.6-106.8.1-45.2 8-53.4 24.7-53.4 55.6v40.7h106.9v13.6h-147c-31.1 0-58.3 18.7-66.8 54.2-9.8 40.7-10.2 66.1 0 108.6 7.6 31.6 25.7 54.2 56.8 54.2H101v-48.8c0-35.3 30.5-66.4 66.8-66.4m-6.6-183.4a20.4 20.4 0 1 1 0 40.8 20.4 20.4 0 1 1 0-40.8"></path></svg>
+</a>
+<a class="md-social__link" href="https://twitter.com/mahdi_shafiei" rel="noopener" target="_blank" title="twitter.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M459.4 151.7c.3 4.5.3 9.1.3 13.6 0 138.7-105.6 298.6-298.6 298.6-59.5 0-114.7-17.2-161.1-47.1 8.4 1 16.6 1.3 25.3 1.3 49.1 0 94.2-16.6 130.3-44.8-46.1-1-84.8-31.2-98.1-72.8 6.5 1 13 1.6 19.8 1.6 9.4 0 18.8-1.3 27.6-3.6-48.1-9.7-84.1-52-84.1-103v-1.3c14 7.8 30.2 12.7 47.4 13.3-28.3-18.8-46.8-51-46.8-87.4 0-19.5 5.2-37.4 14.3-53C87.4 130.8 165 172.4 252.1 176.9c-1.6-7.8-2.6-15.9-2.6-24C249.5 95.1 296.3 48 354.4 48c30.2 0 57.5 12.7 76.7 33.1 23.7-4.5 46.5-13.3 66.6-25.3-7.8 24.4-24.4 44.8-46.1 57.8 21.1-2.3 41.6-8.1 60.4-16.2-14.3 20.8-32.2 39.3-52.6 54.3"></path></svg>
+</a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.path", "navigation.top", "navigation.prune", "toc.follow", "search.highlight", "search.share", "search.suggest", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "content.mermaid"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+<script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+<script src="../../../javascripts/reading-layout.js"></script>
+</body>
+</html>

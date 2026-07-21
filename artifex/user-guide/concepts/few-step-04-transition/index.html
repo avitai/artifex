@@ -1,0 +1,1434 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="This chapter covers expressive stochastic transition heads, Difference Transition Matching, continuous autoregressive factorizations, full-history causality," name="description"/>
+<meta content="Mahdi Shafiei" name="author"/>
+<link href="https://docs.avitai.bio/artifex/user-guide/concepts/few-step-04-transition/" rel="canonical"/>
+<link href="../few-step-03-meanflow/" rel="prev"/>
+<link href="../few-step-05-distillation/" rel="next"/>
+<link href="../../../assets/images/favicon.png" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.7.7" name="generator"/>
+<title>Few-Step Generation 4 — Transition Matching and Continuous AR - Artifex</title>
+<link href="../../../assets/stylesheets/main.ec1eaa64.min.css" rel="stylesheet"/>
+<link href="../../../assets/stylesheets/palette.ab4e12ef.min.css" rel="stylesheet"/>
+<script src="../../../assets/vendor/iframe-worker/index.js"></script>
+<link href="../../../assets/_mkdocstrings.css" rel="stylesheet"/>
+<link href="../../../_static/extra.css" rel="stylesheet"/>
+<script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+<meta content="article" property="og:type"/>
+<meta content="The Artifex Generative Models Book" property="og:site_name"/>
+<meta content="Few-Step Generation 4 — Transition Matching and Continuous AR" property="og:title"/>
+<meta content="This chapter covers expressive stochastic transition heads, Difference Transition Matching, continuous autoregressive factorizations, full-history causality," property="og:description"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/few-step-04-transition/" property="og:url"/>
+<meta content="2026-07-21" property="article:modified_time"/>
+<meta content="summary" name="twitter:card"/>
+<meta content="Few-Step Generation 4 — Transition Matching and Continuous AR" name="twitter:title"/>
+<meta content="This chapter covers expressive stochastic transition heads, Difference Transition Matching, continuous autoregressive factorizations, full-history causality," name="twitter:description"/>
+<meta content="Generative models, Machine learning, Probabilistic modeling, research, specialization, canonical_chapter, few-step-transition, practitioner, researcher" name="keywords"/>
+<meta content="Few-Step Generation 4 — Transition Matching and Continuous AR" name="citation_title"/>
+<meta content="Mahdi Shafiei" name="citation_author"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/few-step-04-transition/" name="citation_public_url"/>
+<meta content="en" name="citation_language"/>
+<meta content="Few-Step Generation 4 — Transition Matching and Continuous AR" name="DC.title"/>
+<meta content="Mahdi Shafiei" name="DC.creator"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/few-step-04-transition/" name="DC.identifier"/>
+<meta content="Text.LearningResource" name="DC.type"/>
+<meta content="2026-07-21" name="DCTERMS.modified"/>
+<meta content="https://github.com/avitai/artifex/blob/main/LICENSE" name="DCTERMS.license"/>
+<meta content="research" name="DCTERMS.educationLevel"/>
+<meta content="practitioner, researcher" name="DCTERMS.audience"/>
+<link href="https://github.com/avitai/artifex/blob/main/LICENSE" rel="license"/>
+<script id="artifex-book-metadata" type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Chapter",
+  "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/few-step-04-transition/",
+  "url": "https://docs.avitai.bio/artifex/user-guide/concepts/few-step-04-transition/",
+  "name": "Few-Step Generation 4 \u2014 Transition Matching and Continuous AR",
+  "description": "This chapter covers expressive stochastic transition heads, Difference Transition Matching, continuous autoregressive factorizations, full-history causality,",
+  "identifier": "few-step-transition",
+  "inLanguage": "en",
+  "isAccessibleForFree": true,
+  "learningResourceType": "Canonical chapter",
+  "educationalLevel": "research",
+  "educationalUse": "specialization",
+  "audience": [
+    
+      {"@type": "EducationalAudience", "audienceType": "practitioner"},
+    
+      {"@type": "EducationalAudience", "audienceType": "researcher"}
+    
+  ],
+  "dateModified": "2026-07-21",
+  "keywords": ["Generative models", "Machine learning", "Probabilistic modeling", "research", "specialization", "canonical_chapter", "few-step-transition", "practitioner", "researcher"],
+  "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+  "author": [
+    
+      {"@type": "Person", "name": "Mahdi Shafiei"}
+    
+  ],
+  "isPartOf": {
+    "@type": "Book",
+    "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/#book",
+    "url": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/",
+    "name": "The Artifex Generative Models Book",
+    "bookEdition": "Living Web Edition",
+    "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+    "author": [
+      
+        {"@type": "Person", "name": "Mahdi Shafiei"}
+      
+    ]
+  }
+}
+</script>
+<link href="../../../assets/vendor/katex/katex.min.css" id="artifex-katex-stylesheet" integrity="sha384-UA8juhPf75SzzAMA/4fo3yOU7sBJ0om7SCD2GHq0fZqZco6tr1UCV7nUbk9J90JM" rel="stylesheet"/>
+<script defer="" integrity="sha384-T/0lMUdJpd2S1ZHtRiofG3htU3xPCrFVeAQ1UUE2TJwlEJSV5NUwn30kP28n238E" src="../../../assets/vendor/mermaid/mermaid.min.js"></script>
+<script defer="" src="../../../assets/vendor/katex/katex-shadow.js"></script>
+<script defer="" src="../../../javascripts/mermaid-math.js"></script>
+<script defer="" src="../../../javascripts/mathjax.js"></script>
+<script defer="" integrity="sha384-OrHfGTnIbkl0do3N76qW/uWr38o91N05sbSPuYBPLH+hG8X/dNSrjZf3AGjzrCwC" src="../../../assets/vendor/mathjax/tex-mml-chtml.js"></script>
+</head>
+<body data-md-color-accent="amber" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#few-step-generation-4-transition-matching-and-continuous-ar">
+          Skip to content
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header md-header--shadow" data-md-component="header">
+<nav aria-label="Header" class="md-header__inner md-grid">
+<a aria-label="Artifex" class="md-header__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            Artifex
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+            
+              Few-Step Generation 4 — Transition Matching and Continuous AR
+            
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-label="Switch to dark mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: light)" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_1" hidden="" title="Switch to dark mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+<input aria-label="Switch to light mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-primary="indigo" data-md-color-scheme="slate" id="__palette_1" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_0" hidden="" title="Switch to light mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+</form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div aria-label="Search" class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Search" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="Search" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="Search" class="md-search__options">
+<a aria-label="Share" class="md-search__icon md-icon" data-clipboard="" data-clipboard-text="" data-md-component="search-share" href="javascript:void(0)" tabindex="-1" title="Share">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"></path></svg>
+</a>
+<button aria-label="Clear" class="md-search__icon md-icon" tabindex="-1" title="Clear" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            Initializing search
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Navigation" class="md-nav md-nav--primary" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="Artifex" class="md-nav__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+    Artifex
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../..">
+<span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../getting-started/installation/">
+<span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Generative Models Book
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Generative Models Book
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    
+  
+    Start Here — The Landscape
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../first-course-01-generative-systems/">
+<span class="md-ellipsis">
+    
+  
+    First Course — New to Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../probability-01-objects/">
+<span class="md-ellipsis">
+    
+  
+    Foundations
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../autoregressive-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Model Families
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_5" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_5" id="__nav_3_5_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Connections and Compositions
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_5_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_5">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Connections and Compositions
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gradients-01-taxonomy/">
+<span class="md-ellipsis">
+    
+  
+    Gradients and Geometry in Generative Modeling
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../density-latent-energy-01-objects/">
+<span class="md-ellipsis">
+    
+  
+    Density, Latent, Energy, and Score
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../probability-paths-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Probability Paths and Stochastic Transport
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../general-markov-01-operators/">
+<span class="md-ellipsis">
+    
+  
+    General Markov Generators
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_5_5" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_5_5" id="__nav_3_5_5_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Transitions and Few-Step Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_5_5_label" class="md-nav" data-md-level="3">
+<label class="md-nav__title" for="__nav_3_5_5">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Transitions and Few-Step Generation
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../few-step-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    1. Finite Transitions
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../few-step-02-consistency/">
+<span class="md-ellipsis">
+    
+  
+    2. Consistency and Flow Maps
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../few-step-03-meanflow/">
+<span class="md-ellipsis">
+    
+  
+    3. MeanFlow and Shortcuts
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
+    
+  
+    4. Transition Matching and Continuous AR
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
+<span class="md-ellipsis">
+    
+  
+    4. Transition Matching and Continuous AR
+  
+
+    
+  </span>
+</a>
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#4-transition-matching-and-continuous-autoregression">
+<span class="md-ellipsis">
+      
+        4. Transition Matching and Continuous Autoregression
+      
+    </span>
+</a>
+<nav aria-label="4. Transition Matching and Continuous Autoregression" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-4-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 4 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#difference-transition-matching">
+<span class="md-ellipsis">
+      
+        Difference Transition Matching
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#continuous-autoregression">
+<span class="md-ellipsis">
+      
+        Continuous autoregression
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#three-histories-that-must-not-be-conflated">
+<span class="md-ellipsis">
+      
+        Three histories that must not be conflated
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-block-model">
+<span class="md-ellipsis">
+      
+        Worked block model
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#exposure-and-error-propagation">
+<span class="md-ellipsis">
+      
+        Exposure and error propagation
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#kernel-error-propagation-in-total-variation">
+<span class="md-ellipsis">
+      
+        Kernel error propagation in total variation
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-binary-two-block-propagation">
+<span class="md-ellipsis">
+      
+        Worked binary two-block propagation
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#misconception-checks-transition-models">
+<span class="md-ellipsis">
+      
+        Misconception checks: transition models
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#independent-practice-and-assessment-map-transition-kernels-and-order">
+<span class="md-ellipsis">
+      
+        Independent practice and assessment map: transition kernels and order
+      
+    </span>
+</a>
+<nav aria-label="Independent practice and assessment map: transition kernels and order" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#feedback-contract-transition-kernels-and-order">
+<span class="md-ellipsis">
+      
+        Feedback contract: transition kernels and order
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#outcome-to-task-alignment-transition-kernels-and-order">
+<span class="md-ellipsis">
+      
+        Outcome-to-task alignment: transition kernels and order
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-4-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 4 synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../few-step-05-distillation/">
+<span class="md-ellipsis">
+    
+  
+    5. Distillation Families
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../few-step-06-practice/">
+<span class="md-ellipsis">
+    
+  
+    6. Evaluation and Research
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../transitions-and-few-step-generation/">
+<span class="md-ellipsis">
+    
+  
+    Continuous View (All Chapters)
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../geometric-01-symmetry/">
+<span class="md-ellipsis">
+    
+  
+    Geometric and Equivariant Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../representations-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Representations and Multimodal Systems
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../steering-01-targets/">
+<span class="md-ellipsis">
+    
+  
+    Conditioning, Steering, Constraints, and Selection
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../world-models-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    World Models and Causal Simulators
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../landscape-01-copulas/">
+<span class="md-ellipsis">
+    
+  
+    Extended Generative Landscape
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../normalization-01-queries/">
+<span class="md-ellipsis">
+    
+  
+    Research Practice
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../models/vae-guide/">
+<span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/core/base/">
+<span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../examples/overview/">
+<span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../zoo/">
+<span class="md-ellipsis">
+    
+  
+    Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../training/overview/">
+<span class="md-ellipsis">
+    
+  
+    Training
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../data/overview/">
+<span class="md-ellipsis">
+    
+  
+    Data &amp; Modalities
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../inference/overview/">
+<span class="md-ellipsis">
+    
+  
+    Inference &amp; Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../benchmarks/">
+<span class="md-ellipsis">
+    
+  
+    Evaluation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../guides/extensions/">
+<span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../extensions/">
+<span class="md-ellipsis">
+    
+  
+    Advanced Topics
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../cli/">
+<span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../community/contributing/">
+<span class="md-ellipsis">
+    
+  
+    Community
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/configs/protein-extension/">
+<span class="md-ellipsis">
+    
+  
+    Reference Library
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#4-transition-matching-and-continuous-autoregression">
+<span class="md-ellipsis">
+      
+        4. Transition Matching and Continuous Autoregression
+      
+    </span>
+</a>
+<nav aria-label="4. Transition Matching and Continuous Autoregression" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-4-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 4 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#difference-transition-matching">
+<span class="md-ellipsis">
+      
+        Difference Transition Matching
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#continuous-autoregression">
+<span class="md-ellipsis">
+      
+        Continuous autoregression
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#three-histories-that-must-not-be-conflated">
+<span class="md-ellipsis">
+      
+        Three histories that must not be conflated
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-block-model">
+<span class="md-ellipsis">
+      
+        Worked block model
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#exposure-and-error-propagation">
+<span class="md-ellipsis">
+      
+        Exposure and error propagation
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#kernel-error-propagation-in-total-variation">
+<span class="md-ellipsis">
+      
+        Kernel error propagation in total variation
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-binary-two-block-propagation">
+<span class="md-ellipsis">
+      
+        Worked binary two-block propagation
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#misconception-checks-transition-models">
+<span class="md-ellipsis">
+      
+        Misconception checks: transition models
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#independent-practice-and-assessment-map-transition-kernels-and-order">
+<span class="md-ellipsis">
+      
+        Independent practice and assessment map: transition kernels and order
+      
+    </span>
+</a>
+<nav aria-label="Independent practice and assessment map: transition kernels and order" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#feedback-contract-transition-kernels-and-order">
+<span class="md-ellipsis">
+      
+        Feedback contract: transition kernels and order
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#outcome-to-task-alignment-transition-kernels-and-order">
+<span class="md-ellipsis">
+      
+        Outcome-to-task alignment: transition kernels and order
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-4-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 4 synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<nav aria-label="Breadcrumb" class="md-path">
+<ol class="md-path__list">
+<li class="md-path__item">
+<a class="md-path__link" href="../../..">
+<span class="md-ellipsis">
+    Home
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    Generative Models Book
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../gradients-01-taxonomy/">
+<span class="md-ellipsis">
+    Connections and Compositions
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../few-step-01-foundations/">
+<span class="md-ellipsis">
+    Transitions and Few-Step Generation
+  </span>
+</a>
+</li>
+</ol>
+</nav>
+<article class="md-content__inner md-typeset">
+<h1 id="few-step-generation-4-transition-matching-and-continuous-ar">Few-Step Generation 4 — Transition Matching and Continuous AR<a class="headerlink" href="#few-step-generation-4-transition-matching-and-continuous-ar" title="Permanent link">¤</a></h1><aside aria-label="Learning path" class="admonition abstract artifex-learning-path"><p class="admonition-title">Learning path</p><p><strong>Required knowledge</strong></p><ul class="artifex-learning-path__links" data-learning-path-role="required"><li><a href="../few-step-03-meanflow/">Few-Step Generation 3 — MeanFlow and Shortcuts</a></li><li><a href="../autoregressive-explained/">Autoregressive Models Explained</a></li></ul><p><strong>Readiness check:</strong> can you explain the central object and reproduce one worked example from each required chapter? If not, follow its link before continuing.</p><p><strong>Newly unlocked in the default route</strong></p><ul class="artifex-learning-path__links" data-learning-path-role="unlocks"><li><a href="../few-step-05-distillation/">Few-Step Generation 5 — Distillation Families</a></li></ul></aside>
+<p>This chapter covers expressive stochastic transition heads, Difference Transition Matching, continuous autoregressive factorizations, full-history causality, and nested compute. Read it continuously in the <a href="../transitions-and-few-step-generation/#4-transition-matching-and-continuous-autoregression">complete guide</a>.</p>
+<h2 id="4-transition-matching-and-continuous-autoregression">4. Transition Matching and Continuous Autoregression<a class="headerlink" href="#4-transition-matching-and-continuous-autoregression" title="Permanent link">¤</a></h2>
+<h3 id="chapter-4-prerequisites-and-learning-objectives">Chapter 4 prerequisites and learning objectives<a class="headerlink" href="#chapter-4-prerequisites-and-learning-objectives" title="Permanent link">¤</a></h3>
+<p>This chapter assumes conditional generation, transition kernels, and exposure
+bias in autoregressive systems. By the end, you should be able to:</p>
+<ol>
+<li><strong>O1 — Specify a transition model:</strong> declare the outer state, context,
+   conditional kernel, supervision process, and internal sampler.</li>
+<li><strong>O2 — Separate deterministic and stochastic transitions:</strong> identify when
+   a Dirac map cannot represent the required coarse conditional law.</li>
+<li><strong>O3 — Audit continuous autoregression:</strong> factorize blocks while keeping
+   causal generation order distinct from causal inference.</li>
+<li><strong>O4 — Bound kernel error:</strong> propagate uniform total-variation errors through
+   a finite chain and state the conditioning assumptions.</li>
+<li><strong>O5 — Diagnose exposure and history shift:</strong> separate teacher-forced,
+   partial-history, full-history, and free-running distributions.</li>
+<li><strong>O6 — Audit nested compute:</strong> count backbone, head, internal-solver, codec,
+   and end-to-end costs for a new transition architecture.</li>
+</ol>
+<figure class="book-figure" id="fig-transitions-and-few-step-generation-chapter-4-prerequisites-and-learning-objectives"><pre class="mermaid"><code>%%{init: {'themeCSS': '.nodeLabel p { color: #111827 !important; } .flowchart-link { stroke: #78879a !important; stroke-width: 2px !important; } marker path { fill: #78879a !important; stroke: #78879a !important; }'}}%%
+flowchart TB
+    accTitle: One transition can contain a complete conditional generative model
+    accDescr: An expensive outer backbone encodes the current state and history. A conditional head then represents a stochastic kernel and may run several internal flow or diffusion updates before emitting the next state. Repeating outer transitions propagates both conditional modeling error and history shift.
+    X[Current state and generated history] --&gt; B[Outer backbone representation]
+    B --&gt; H[Conditional generative head]
+    Z[Fresh internal randomness] --&gt; H
+    H --&gt; I[Internal flow diffusion or direct sampling]
+    I --&gt; Y[Next outer state]
+    Y --&gt; X
+    B -. backbone calls .-&gt; C[Compute ledger]
+    I -. head NFEs .-&gt; C</code></pre><figcaption class="book-object-caption"><span class="book-object-number">Figure FEW.5.</span> One transition can contain a complete conditional generative model</figcaption></figure>
+<p><a href="https://openreview.net/forum?id=An0ePypuOJ">Transition Matching</a>, NeurIPS 2025, models a finite sequence of continuous-state transitions rather than an infinitesimal ODE/SDE. An outer backbone represents the current state and schedule; an internal generative head samples an expressive transition kernel.</p>
+<p>Schematically,</p>
+<div class="arithmatex">\[
+X_{k+1}\sim K_{\theta,k}(\cdot\mid X_k,C_k).
+\]</div>
+<p>The transition can be stochastic and can use supervision paths that are not continuous. Flow/diffusion-like refinement and continuous autoregressive generation become choices of state, context, and transition order.</p>
+<p>A complete specification must say whether <span class="arithmatex">\(X_k\)</span> is the current canvas, only the
+new block, a latent plus mask, or an augmented history. If the head samples from</p>
+<div class="arithmatex">\[
+X_{k+1}=G_{\theta,k}(X_k,C_k,Z_k),
+\qquad Z_k\sim p_Z,
+\]</div>
+<p>then <span class="arithmatex">\(G\)</span> induces <span class="arithmatex">\(K\)</span> by pushing forward <span class="arithmatex">\(p_Z\)</span>. The map <span class="arithmatex">\(G\)</span> and kernel <span class="arithmatex">\(K\)</span> are
+not interchangeable: different latent parameterizations can induce the same
+kernel, and fixing <span class="arithmatex">\(Z_k\)</span> turns a stochastic transition into one coupled sample,
+not its distribution.</p>
+<p>The supervision process can be discontinuous or non-Markov in the visible
+state. A learned transition is Markov only relative to the state supplied to
+it. Full history can be made Markov by augmenting the state with that history,
+at the cost of a growing context and a different transition space.</p>
+<h3 id="difference-transition-matching">Difference Transition Matching<a class="headerlink" href="#difference-transition-matching" title="Permanent link">¤</a></h3>
+<p>Difference Transition Matching learns coarse refinements between states. Unlike one Euler step, its kernel can model residual uncertainty after conditioning on the current state. More expressive transitions can reduce outer steps, but the head has its own NFE, sampling randomness, and compute.</p>
+<p>The official NeurIPS record describes DTM, partially causal ARTM, and fully
+causal FHTM under controlled architecture/data settings. Treat the reported
+quality as evidence for those implementations and protocols. “TM generalizes
+flow matching” is an architectural/probabilistic containment statement: a
+deterministic or narrow head can recover special cases. It is not a theorem that
+every trained TM dominates a flow model in likelihood, latency, or quality.</p>
+<h3 id="continuous-autoregression">Continuous autoregression<a class="headerlink" href="#continuous-autoregression" title="Permanent link">¤</a></h3>
+<p>A continuous autoregressive model factorizes generation by blocks or positions but models each conditional continuous value with a generator or transition distribution:</p>
+<div class="arithmatex">\[
+p(x)=\prod_{i=1}^mp(x_{B_i}\mid x_{B_{&lt;i}}).
+\]</div>
+<p>The outer factorization is causally ordered; each conditional may be flow-, diffusion-, or transition-based. It should not be confused with causal inference—the word causal here refers to the attention/generation order.</p>
+<p>Transition Matching studies partially causal ARTM and full-history FHTM variants. Full history exposes all earlier generated states; partial variants trade context and parallelism. Exact likelihood is not automatic merely because the outer order is autoregressive: the continuous conditional kernel may remain implicit.</p>
+<p>Likewise, “fully causal” refers to the information available to each generated
+block or state. It does not establish an intervention semantics. The factor
+<span class="arithmatex">\(p(x_{B_i}\mid x_{B_{&lt;i}})\)</span> is observational unless the model and data include
+a structural causal interpretation.</p>
+<h3 id="three-histories-that-must-not-be-conflated">Three histories that must not be conflated<a class="headerlink" href="#three-histories-that-must-not-be-conflated" title="Permanent link">¤</a></h3>
+<div class="md-typeset__table book-table-container"><table id="tbl-transitions-and-few-step-generation-three-histories-that-must-not-be-conflated"><caption class="book-object-caption"><span class="book-object-number">Table FEW.15.</span> Three histories that must not be conflated</caption>
+<thead>
+<tr>
+<th>History</th>
+<th>Used when</th>
+<th>Primary risk</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>clean teacher prefix</td>
+<td>conventional teacher-forced training</td>
+<td>exposure shift at deployment</td>
+</tr>
+<tr>
+<td>corrupted/scheduled prefix</td>
+<td>robustness training</td>
+<td>objective bias and schedule dependence</td>
+</tr>
+<tr>
+<td>generated full history</td>
+<td>free-running training or deployment</td>
+<td>compounding errors and high compute</td>
+</tr>
+</tbody>
+</table></div>
+<p>A partial-history model can be faster or more parallel but loses conditional
+information. A full-history model can represent richer dependencies but makes
+the transition conditional on an expanding object. Compare both at matched
+backbone/head compute and with identical block order.</p>
+<h3 id="worked-block-model">Worked block model<a class="headerlink" href="#worked-block-model" title="Permanent link">¤</a></h3>
+<p>Generate an image latent in four blocks. A pure block AR model samples each <span class="arithmatex">\(p(x_{B_i}\mid x_{B_{&lt;i}})\)</span> once. A transition model may maintain a full canvas and update the next block through several internal stochastic refinements. Outer steps equal four; total neural calls can exceed four. Quality comparisons must separate block count, head calls, and backbone calls.</p>
+<p>If each of four outer steps uses one expensive backbone evaluation and three
+cheap head evaluations, the system uses four backbone calls and twelve head
+calls, not “four NFEs” without qualification. If a codec runs once at the end,
+there are seventeen named model calls. FLOPs and latency still depend on tensor
+shapes, caching, branch fusion, and hardware.</p>
+<h3 id="exposure-and-error-propagation">Exposure and error propagation<a class="headerlink" href="#exposure-and-error-propagation" title="Permanent link">¤</a></h3>
+<p>Teacher-forced continuous conditionals see clean histories during training, while generation supplies model histories. Full-history architectures can exploit richer context but also propagate earlier errors. Scheduled sampling does not generally provide a consistent fix and can bias the learned conditional objective.</p>
+<h3 id="kernel-error-propagation-in-total-variation">Kernel error propagation in total variation<a class="headerlink" href="#kernel-error-propagation-in-total-variation" title="Permanent link">¤</a></h3>
+<p>Let <span class="arithmatex">\(P_i\)</span> be reference kernels and <span class="arithmatex">\(Q_i\)</span> learned kernels. If</p>
+<div class="arithmatex">\[
+\sup_x\operatorname{TV}(P_i(x,\cdot),Q_i(x,\cdot))\leq\varepsilon_i,
+\]</div>
+<p>then Markov-kernel contraction and a telescoping replacement give</p>
+<div class="arithmatex">\[
+\operatorname{TV}(\mu P_1\cdots P_m,
+\mu Q_1\cdots Q_m)
+\leq\sum_{i=1}^m\varepsilon_i.
+\]</div>
+<p>The uniform supremum matters: an average error measured only under clean
+teacher prefixes does not control states reached by <span class="arithmatex">\(Q_1\cdots Q_{i-1}\)</span>.
+Tighter bounds can exploit contraction/mixing, while adversarial history shift
+can make the simple sum loose or unattainable from available measurements.</p>
+<h3 id="worked-binary-two-block-propagation">Worked binary two-block propagation<a class="headerlink" href="#worked-binary-two-block-propagation" title="Permanent link">¤</a></h3>
+<p>The reference emits <span class="arithmatex">\(X_1\sim\operatorname{Bernoulli}(1/2)\)</span> and sets
+<span class="arithmatex">\(X_2=X_1\)</span>. A learned model emits <span class="arithmatex">\(Q(X_1=1)=0.6\)</span> and then copies its generated
+<span class="arithmatex">\(X_1\)</span> correctly. The conditional second kernel has zero error for every prefix,
+yet the final joint law differs:</p>
+<div class="arithmatex">\[
+P(0,0)=P(1,1)=0.5,
+\qquad
+Q(0,0)=0.4,\quad Q(1,1)=0.6.
+\]</div>
+<p>Their joint TV distance is <span class="arithmatex">\(0.1\)</span>, exactly the first-step error. Now suppose the
+second learned kernel flips its input with probability <span class="arithmatex">\(0.05\)</span>. Its uniform
+conditional error is <span class="arithmatex">\(0.05\)</span>, so the two-step bound is <span class="arithmatex">\(0.15\)</span>. Direct calculation
+gives masses <span class="arithmatex">\((0,0),(0,1),(1,0),(1,1)=(0.38,0.02,0.03,0.57)\)</span> and TV <span class="arithmatex">\(0.12\)</span>.
+The bound is valid but not necessarily tight because some errors redistribute
+rather than align.</p>
+<details class="question">
+<summary>Retrieval practice: transition matching</summary>
+<ol>
+<li>What is matched by a finite-transition objective that is not matched by an infinitesimal velocity loss alone?</li>
+<li>Why is continuous autoregression still autoregressive?</li>
+<li>How can a small per-block error become a large sequence error?</li>
+<li>Which distribution shift separates teacher-forced training from free-running generation?</li>
+</ol>
+<p><strong>Solutions.</strong> (1) The conditional map or kernel over a nonzero time interval. (2) Blocks are generated conditionally in an ordered factorization even if each block uses continuous dynamics. (3) Later conditionals consume earlier generated rather than true blocks, so errors alter subsequent input distributions and compound. (4) Training conditions on ground-truth prefixes while deployment conditions on model-generated prefixes.</p>
+</details>
+<h3 id="misconception-checks-transition-models">Misconception checks: transition models<a class="headerlink" href="#misconception-checks-transition-models" title="Permanent link">¤</a></h3>
+<ul>
+<li><strong>“A stochastic head is free because the backbone is reused.”</strong> Its internal
+  calls, memory traffic, and random sampling still contribute to cost.</li>
+<li><strong>“Autoregressive factorization gives tractable likelihood.”</strong> Each
+  continuous conditional must itself have a tractable normalized density.</li>
+<li><strong>“Full history is non-Markov.”</strong> It is non-Markov only relative to a state
+  that omits history; augmentation restores Markov form.</li>
+<li><strong>“Causal generation order discovers causal effects.”</strong> Ordering is not an
+  intervention model.</li>
+</ul>
+<h3 id="independent-practice-and-assessment-map-transition-kernels-and-order">Independent practice and assessment map: transition kernels and order<a class="headerlink" href="#independent-practice-and-assessment-map-transition-kernels-and-order" title="Permanent link">¤</a></h3>
+<ol>
+<li><strong>P1.1 — Predict before computing: error persistence.</strong> <em>Type: predict · Difficulty: foundation · Typical time: 8 min.</em> In the binary two-block example with a perfect copying second kernel and biased first marginal, predict whether the second stage removes, preserves, or amplifies the joint TV error, then compute it.</li>
+<li><strong>P1.2 — Derive the kernel bound.</strong> <em>Type: derive · Difficulty: core · Typical time: 14 min.</em> Prove the two-kernel TV bound by inserting <span class="arithmatex">\(\mu Q_1P_2\)</span> and using contraction; state how induction gives the <span class="arithmatex">\(m\)</span>-step result.</li>
+<li><strong>P1.3 — Audit nested compute.</strong> <em>Type: evaluate · Difficulty: core · Typical time: 10 min.</em> For four backbone calls, three head calls per backbone, and one codec, report all named calls and explain why neither four nor sixteen alone is a complete cost report.</li>
+<li><strong>P1.4 — Diagnose exposure shift.</strong> <em>Type: design · Difficulty: core · Typical time: 14 min.</em> Specify a <span class="arithmatex">\(2\times2\)</span> evaluation crossing clean/generated prefixes with one-step/full-rollout metrics.</li>
+<li><strong>P1.5 — Classify a full-history model.</strong> <em>Type: explain · Difficulty: stretch · Typical time: 14 min.</em> Define an augmented state that makes an ordered full-history generator Markov, and state the memory and transition-space costs.</li>
+<li><strong>P1.6 — Transfer to multimodal generation.</strong> <em>Type: transfer · Difficulty: stretch · Typical time: 18 min.</em> Design a transition that generates image regions conditioned on text and prior regions; declare its stochastic head, causal order, likelihood status, and a dependence diagnostic.</li>
+</ol>
+<h4 id="feedback-contract-transition-kernels-and-order">Feedback contract: transition kernels and order<a class="headerlink" href="#feedback-contract-transition-kernels-and-order" title="Permanent link">¤</a></h4>
+<div class="md-typeset__table book-table-container"><table id="tbl-transitions-and-few-step-generation-feedback-contract-transition-kernels-and-order-1"><caption class="book-object-caption"><span class="book-object-number">Table FEW.16.</span> Feedback contract: transition kernels and order — table 1</caption>
+<thead>
+<tr>
+<th>Task</th>
+<th>Evidence of success</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>P1.1</td>
+<td>The perfect copy preserves the <span class="arithmatex">\(0.1\)</span> first-stage error in the joint law.</td>
+</tr>
+<tr>
+<td>P1.2</td>
+<td>A telescoping intermediate and kernel contraction yield <span class="arithmatex">\(\varepsilon_1+\varepsilon_2\)</span> under uniform conditional bounds.</td>
+</tr>
+<tr>
+<td>P1.3</td>
+<td>Four backbone, twelve head, and one codec call are reported with separate FLOPs/latency qualifiers.</td>
+</tr>
+<tr>
+<td>P1.4</td>
+<td>The matrix exposes teacher-prefix performance, generated-state conditional performance, and final sequence error separately.</td>
+</tr>
+<tr>
+<td>P1.5</td>
+<td>State augmentation is correct and the growing history/context cost is not hidden.</td>
+</tr>
+<tr>
+<td>P1.6</td>
+<td>Text is conditioning rather than an intervention; region dependence and head randomness are explicitly tested.</td>
+</tr>
+</tbody>
+</table></div>
+<details class="tip">
+<summary>Graduated hints for P1</summary>
+<div class="md-typeset__table book-table-container"><table id="tbl-transitions-and-few-step-generation-feedback-contract-transition-kernels-and-order-2"><caption class="book-object-caption"><span class="book-object-number">Table FEW.17.</span> Feedback contract: transition kernels and order — table 2</caption>
+<thead>
+<tr>
+<th>Task</th>
+<th>Hint 1 — Direction</th>
+<th>Hint 2 — Setup</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>P1.1</td>
+<td>A deterministic copy cannot repair a biased parent distribution.</td>
+<td>Compare the two diagonal joint masses.</td>
+</tr>
+<tr>
+<td>P1.2</td>
+<td>Add and subtract a hybrid chain.</td>
+<td><span class="arithmatex">\(\operatorname{TV}(\mu P_1P_2,\mu Q_1Q_2)\leq\operatorname{TV}(\mu P_1P_2,\mu Q_1P_2)+\operatorname{TV}(\mu Q_1P_2,\mu Q_1Q_2)\)</span>.</td>
+</tr>
+<tr>
+<td>P1.3</td>
+<td>Count network families separately.</td>
+<td><span class="arithmatex">\(4+4\cdot3+1=17\)</span> named calls, but their costs are unequal.</td>
+</tr>
+<tr>
+<td>P1.4</td>
+<td>Conditional quality and rollout quality answer different questions.</td>
+<td>Rows: clean/generated prefix; columns: next-step/full sequence.</td>
+</tr>
+<tr>
+<td>P1.5</td>
+<td>Store the complete prefix in the state.</td>
+<td>The state at step <span class="arithmatex">\(i\)</span> can be <span class="arithmatex">\((i,x_{B_{&lt;i}})\)</span>.</td>
+</tr>
+<tr>
+<td>P1.6</td>
+<td>Test a relationship between two regions that text alone does not determine.</td>
+<td>Compare joint/co-occurrence statistics with independent-region marginals.</td>
+</tr>
+</tbody>
+</table></div>
+</details>
+<h4 id="outcome-to-task-alignment-transition-kernels-and-order">Outcome-to-task alignment: transition kernels and order<a class="headerlink" href="#outcome-to-task-alignment-transition-kernels-and-order" title="Permanent link">¤</a></h4>
+<div class="md-typeset__table book-table-container"><table id="tbl-transitions-and-few-step-generation-outcome-to-task-alignment-transition-kernels-and-order"><caption class="book-object-caption"><span class="book-object-number">Table FEW.18.</span> Outcome-to-task alignment: transition kernels and order</caption>
+<thead>
+<tr>
+<th>Learning objective</th>
+<th>Independently assessed by</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>O1 — Specify a transition model</td>
+<td>P1.3, P1.6</td>
+</tr>
+<tr>
+<td>O2 — Separate deterministic and stochastic transitions</td>
+<td>P1.6</td>
+</tr>
+<tr>
+<td>O3 — Audit continuous autoregression</td>
+<td>P1.5, P1.6</td>
+</tr>
+<tr>
+<td>O4 — Bound kernel error</td>
+<td>P1.1, P1.2</td>
+</tr>
+<tr>
+<td>O5 — Diagnose exposure and history shift</td>
+<td>P1.4, P1.5</td>
+</tr>
+<tr>
+<td>O6 — Audit nested compute</td>
+<td>P1.3</td>
+</tr>
+</tbody>
+</table></div>
+<details class="success">
+<summary>Complete solutions to P1</summary>
+<ol>
+<li><strong>P1.1.</strong> The second transition copies without error, so <span class="arithmatex">\(Q\)</span> places masses <span class="arithmatex">\(0.4\)</span> and <span class="arithmatex">\(0.6\)</span> on <span class="arithmatex">\((0,0)\)</span> and <span class="arithmatex">\((1,1)\)</span> instead of <span class="arithmatex">\(0.5\)</span> each. TV is <span class="arithmatex">\(\tfrac12(|0.4-0.5|+|0.6-0.5|)=0.1\)</span>. The error is preserved. <strong>Check.</strong> A perfect conditional kernel cannot correct a wrong input marginal unless it is deliberately mixing or corrective.</li>
+<li><strong>P1.2.</strong> Insert <span class="arithmatex">\(\mu Q_1P_2\)</span>. Applying the same kernel <span class="arithmatex">\(P_2\)</span> contracts TV, so the first term is at most <span class="arithmatex">\(\varepsilon_1\)</span>. Integrating the uniform <span class="arithmatex">\(P_2\)</span> versus <span class="arithmatex">\(Q_2\)</span> bound under <span class="arithmatex">\(\mu Q_1\)</span> makes the second at most <span class="arithmatex">\(\varepsilon_2\)</span>. Replacing one kernel at a time proves the sum by induction. <strong>Check.</strong> An average teacher-state conditional error cannot replace the supremum without a state-shift argument.</li>
+<li><strong>P1.3.</strong> The program makes four expensive backbone calls, twelve head calls, and one codec call: seventeen named calls. “Four” hides the head and codec; “sixteen neural calls” treats expensive and cheap networks as equal. Report calls by component, FLOPs, shapes, memory, and wall time. <strong>Check.</strong> Cache reuse belongs in the measured systems record.</li>
+<li><strong>P1.4.</strong> Evaluate next-step conditional error on clean prefixes and on prefixes sampled from the model. Then evaluate complete rollouts initialized from a clean prefix and fully free-running from the start. The clean/one-step cell measures teacher-forced fit; the generated/full cell measures deployed compounding. <strong>Rubric.</strong> One aggregate sequence metric cannot localize exposure shift.</li>
+<li><strong>P1.5.</strong> Use <span class="arithmatex">\(S_i=(i,X_{B_1},\ldots,X_{B_{i-1}})\)</span>. Then <span class="arithmatex">\(S_{i+1}\)</span> depends only on <span class="arithmatex">\(S_i\)</span> and a new block sample, so the augmented process is Markov. Its state dimension/context length grows, attention and storage cost increase, and kernels live on step-dependent prefix spaces. <strong>Check.</strong> Markovization changes representation cost, not the observable factorization.</li>
+<li><strong>P1.6.</strong> Let the outer order select image regions and let an internal flow head sample each new latent region from text, position, and the generated prefix. The conditionals may be implicit, so exact likelihood is not promised. Evaluate a cross-region attribute or boundary-continuity statistic under full rollouts and compare it with a model that conditions only on text. <strong>Check.</strong> Text control is observational conditioning unless an intervention model is supplied.</li>
+</ol>
+</details>
+<h3 id="chapter-4-synthesis">Chapter 4 synthesis<a class="headerlink" href="#chapter-4-synthesis" title="Permanent link">¤</a></h3>
+<p>Transition Matching expands finite steps into learned stochastic kernels and connects global refinement with continuous autoregressive orders. Its expressivity makes “step count” especially ambiguous. Chapter 5 classifies methods that compress a pretrained teacher rather than learn long transitions from scratch.</p>
+<hr/>
+<p><strong>Previous:</strong> <a href="../few-step-03-meanflow/">3. MeanFlow</a> · <strong>Continue:</strong> <a href="../few-step-05-distillation/">5. Distillation</a> · <a href="../transitions-and-few-step-generation/">Complete guide</a></p>
+</article>
+</div>
+<script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  Back to top
+</button>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+<div class="md-social">
+<a class="md-social__link" href="https://github.com/avitai/artifex" rel="noopener" target="_blank" title="github.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</a>
+<a class="md-social__link" href="https://pypi.org/project/avitai-artifex/" rel="noopener" target="_blank" title="pypi.org">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-66.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.3v101.8c0 29 25.2 46 53.4 54.3 33.8 9.9 66.3 11.7 106.8 0 26.9-7.8 53.4-23.5 53.4-54.3v-40.7H226.2v-13.6h160.2c31.1 0 42.6-21.7 53.4-54.2 11.2-33.5 10.7-65.7 0-108.6M286.2 444.7a20.4 20.4 0 1 1 0-40.7 20.4 20.4 0 1 1 0 40.7M167.8 248.1h106.8c29.7 0 53.4-24.5 53.4-54.3V91.9c0-29-24.4-50.7-53.4-55.6-35.8-5.9-74.7-5.6-106.8.1-45.2 8-53.4 24.7-53.4 55.6v40.7h106.9v13.6h-147c-31.1 0-58.3 18.7-66.8 54.2-9.8 40.7-10.2 66.1 0 108.6 7.6 31.6 25.7 54.2 56.8 54.2H101v-48.8c0-35.3 30.5-66.4 66.8-66.4m-6.6-183.4a20.4 20.4 0 1 1 0 40.8 20.4 20.4 0 1 1 0-40.8"></path></svg>
+</a>
+<a class="md-social__link" href="https://twitter.com/mahdi_shafiei" rel="noopener" target="_blank" title="twitter.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M459.4 151.7c.3 4.5.3 9.1.3 13.6 0 138.7-105.6 298.6-298.6 298.6-59.5 0-114.7-17.2-161.1-47.1 8.4 1 16.6 1.3 25.3 1.3 49.1 0 94.2-16.6 130.3-44.8-46.1-1-84.8-31.2-98.1-72.8 6.5 1 13 1.6 19.8 1.6 9.4 0 18.8-1.3 27.6-3.6-48.1-9.7-84.1-52-84.1-103v-1.3c14 7.8 30.2 12.7 47.4 13.3-28.3-18.8-46.8-51-46.8-87.4 0-19.5 5.2-37.4 14.3-53C87.4 130.8 165 172.4 252.1 176.9c-1.6-7.8-2.6-15.9-2.6-24C249.5 95.1 296.3 48 354.4 48c30.2 0 57.5 12.7 76.7 33.1 23.7-4.5 46.5-13.3 66.6-25.3-7.8 24.4-24.4 44.8-46.1 57.8 21.1-2.3 41.6-8.1 60.4-16.2-14.3 20.8-32.2 39.3-52.6 54.3"></path></svg>
+</a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.path", "navigation.top", "navigation.prune", "toc.follow", "search.highlight", "search.share", "search.suggest", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "content.mermaid"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+<script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+<script src="../../../javascripts/reading-layout.js"></script>
+</body>
+</html>

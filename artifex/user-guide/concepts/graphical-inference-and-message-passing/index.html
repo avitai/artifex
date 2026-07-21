@@ -1,0 +1,3518 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="A factorized generative model describes a global law through local functions. Graphical Models and Structured Probability establishes the directed, undirected," name="description"/>
+<meta content="Mahdi Shafiei" name="author"/>
+<link href="https://docs.avitai.bio/artifex/user-guide/concepts/graphical-inference-and-message-passing/" rel="canonical"/>
+<link href="../message-passing-06-compilation-learning/" rel="prev"/>
+<link href="../filtering-01-bayes-recursions/" rel="next"/>
+<link href="../../../assets/images/favicon.png" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.7.7" name="generator"/>
+<title>Graphical Inference and Message Passing - Artifex</title>
+<link href="../../../assets/stylesheets/main.ec1eaa64.min.css" rel="stylesheet"/>
+<link href="../../../assets/stylesheets/palette.ab4e12ef.min.css" rel="stylesheet"/>
+<script src="../../../assets/vendor/iframe-worker/index.js"></script>
+<link href="../../../assets/_mkdocstrings.css" rel="stylesheet"/>
+<link href="../../../_static/extra.css" rel="stylesheet"/>
+<script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+<meta content="article" property="og:type"/>
+<meta content="The Artifex Generative Models Book" property="og:site_name"/>
+<meta content="Graphical Inference and Message Passing" property="og:title"/>
+<meta content="A factorized generative model describes a global law through local functions. Graphical Models and Structured Probability establishes the directed, undirected," property="og:description"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/graphical-inference-and-message-passing/" property="og:url"/>
+<meta content="2026-07-15" property="article:modified_time"/>
+<meta content="summary" name="twitter:card"/>
+<meta content="Graphical Inference and Message Passing" name="twitter:title"/>
+<meta content="A factorized generative model describes a global law through local functions. Graphical Models and Structured Probability establishes the directed, undirected," name="twitter:description"/>
+<meta content="Generative models, Machine learning, Probabilistic modeling, advanced, reference, continuous_view, graphical-inference-message-passing-complete, practitioner, researcher" name="keywords"/>
+<meta content="Graphical Inference and Message Passing" name="citation_title"/>
+<meta content="Mahdi Shafiei" name="citation_author"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/graphical-inference-and-message-passing/" name="citation_public_url"/>
+<meta content="en" name="citation_language"/>
+<meta content="Graphical Inference and Message Passing" name="DC.title"/>
+<meta content="Mahdi Shafiei" name="DC.creator"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/graphical-inference-and-message-passing/" name="DC.identifier"/>
+<meta content="Text.LearningResource" name="DC.type"/>
+<meta content="2026-07-15" name="DCTERMS.modified"/>
+<meta content="https://github.com/avitai/artifex/blob/main/LICENSE" name="DCTERMS.license"/>
+<meta content="advanced" name="DCTERMS.educationLevel"/>
+<meta content="practitioner, researcher" name="DCTERMS.audience"/>
+<link href="https://github.com/avitai/artifex/blob/main/LICENSE" rel="license"/>
+<script id="artifex-book-metadata" type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Chapter",
+  "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/graphical-inference-and-message-passing/",
+  "url": "https://docs.avitai.bio/artifex/user-guide/concepts/graphical-inference-and-message-passing/",
+  "name": "Graphical Inference and Message Passing",
+  "description": "A factorized generative model describes a global law through local functions. Graphical Models and Structured Probability establishes the directed, undirected,",
+  "identifier": "graphical-inference-message-passing-complete",
+  "inLanguage": "en",
+  "isAccessibleForFree": true,
+  "learningResourceType": "Continuous volume",
+  "educationalLevel": "advanced",
+  "educationalUse": "reference",
+  "audience": [
+    
+      {"@type": "EducationalAudience", "audienceType": "practitioner"},
+    
+      {"@type": "EducationalAudience", "audienceType": "researcher"}
+    
+  ],
+  "dateModified": "2026-07-15",
+  "keywords": ["Generative models", "Machine learning", "Probabilistic modeling", "advanced", "reference", "continuous_view", "graphical-inference-message-passing-complete", "practitioner", "researcher"],
+  "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+  "author": [
+    
+      {"@type": "Person", "name": "Mahdi Shafiei"}
+    
+  ],
+  "isPartOf": {
+    "@type": "Book",
+    "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/#book",
+    "url": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/",
+    "name": "The Artifex Generative Models Book",
+    "bookEdition": "Living Web Edition",
+    "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+    "author": [
+      
+        {"@type": "Person", "name": "Mahdi Shafiei"}
+      
+    ]
+  }
+}
+</script>
+<link href="../../../assets/vendor/katex/katex.min.css" id="artifex-katex-stylesheet" integrity="sha384-UA8juhPf75SzzAMA/4fo3yOU7sBJ0om7SCD2GHq0fZqZco6tr1UCV7nUbk9J90JM" rel="stylesheet"/>
+<script defer="" integrity="sha384-T/0lMUdJpd2S1ZHtRiofG3htU3xPCrFVeAQ1UUE2TJwlEJSV5NUwn30kP28n238E" src="../../../assets/vendor/mermaid/mermaid.min.js"></script>
+<script defer="" src="../../../assets/vendor/katex/katex-shadow.js"></script>
+<script defer="" src="../../../javascripts/mermaid-math.js"></script>
+<script defer="" src="../../../javascripts/mathjax.js"></script>
+<script defer="" integrity="sha384-OrHfGTnIbkl0do3N76qW/uWr38o91N05sbSPuYBPLH+hG8X/dNSrjZf3AGjzrCwC" src="../../../assets/vendor/mathjax/tex-mml-chtml.js"></script>
+<meta content="noindex,follow" name="robots"/>
+</head>
+<body data-md-color-accent="amber" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#graphical-inference-and-message-passing">
+          Skip to content
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header md-header--shadow" data-md-component="header">
+<nav aria-label="Header" class="md-header__inner md-grid">
+<a aria-label="Artifex" class="md-header__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            Artifex
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+            
+              Graphical Inference and Message Passing
+            
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-label="Switch to dark mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: light)" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_1" hidden="" title="Switch to dark mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+<input aria-label="Switch to light mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-primary="indigo" data-md-color-scheme="slate" id="__palette_1" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_0" hidden="" title="Switch to light mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+</form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div aria-label="Search" class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Search" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="Search" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="Search" class="md-search__options">
+<a aria-label="Share" class="md-search__icon md-icon" data-clipboard="" data-clipboard-text="" data-md-component="search-share" href="javascript:void(0)" tabindex="-1" title="Share">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"></path></svg>
+</a>
+<button aria-label="Clear" class="md-search__icon md-icon" tabindex="-1" title="Clear" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            Initializing search
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Navigation" class="md-nav md-nav--primary" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="Artifex" class="md-nav__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+    Artifex
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../..">
+<span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../getting-started/installation/">
+<span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Generative Models Book
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Generative Models Book
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    
+  
+    Start Here — The Landscape
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../first-course-01-generative-systems/">
+<span class="md-ellipsis">
+    
+  
+    First Course — New to Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Foundations
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_3_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Foundations
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../probability-01-objects/">
+<span class="md-ellipsis">
+    
+  
+    1. Probability and Generative Modeling
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../classical-01-latent-foundations/">
+<span class="md-ellipsis">
+    
+  
+    2. Classical Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../bayesian-learning-01-object/">
+<span class="md-ellipsis">
+    
+  
+    3. Bayesian Learning and Model Assessment
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../inference-01-objects-and-queries/">
+<span class="md-ellipsis">
+    
+  
+    4. Latent Variables and Inference
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../objectives-01-discrepancies/">
+<span class="md-ellipsis">
+    
+  
+    5. Objectives and Statistical Distances
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../information-coding-01-measures/">
+<span class="md-ellipsis">
+    
+  
+    6. Information, Coding, and Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../graphical-models-01-directed/">
+<span class="md-ellipsis">
+    
+  
+    7. Graphical Models and Structured Probability
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_3_8" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_3_8" id="__nav_3_3_8_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    8. Graphical Inference and Message Passing
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_3_8_label" class="md-nav" data-md-level="3">
+<label class="md-nav__title" for="__nav_3_3_8">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    8. Graphical Inference and Message Passing
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../message-passing-01-factor-graphs/">
+<span class="md-ellipsis">
+    
+  
+    1. Factors, Graphs, and Queries
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../message-passing-02-elimination/">
+<span class="md-ellipsis">
+    
+  
+    2. Variable Elimination and Treewidth
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../message-passing-03-sum-product/">
+<span class="md-ellipsis">
+    
+  
+    3. Sum-Product on Trees
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../message-passing-04-junction-trees/">
+<span class="md-ellipsis">
+    
+  
+    4. Junction Trees and Compilation
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../message-passing-05-loopy/">
+<span class="md-ellipsis">
+    
+  
+    5. Loopy and Variational Messages
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../message-passing-06-compilation-learning/">
+<span class="md-ellipsis">
+    
+  
+    6. Compiled and Learned Inference
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
+    
+  
+    Continuous View (All Chapters)
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
+<span class="md-ellipsis">
+    
+  
+    Continuous View (All Chapters)
+  
+
+    
+  </span>
+</a>
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#reader-orientation">
+<span class="md-ellipsis">
+      
+        Reader orientation
+      
+    </span>
+</a>
+<nav aria-label="Reader orientation" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#recurring-notation">
+<span class="md-ellipsis">
+      
+        Recurring notation
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#1-from-a-generative-factorization-to-an-inference-query">
+<span class="md-ellipsis">
+      
+        1. From a Generative Factorization to an Inference Query
+      
+    </span>
+</a>
+<nav aria-label="1. From a Generative Factorization to an Inference Query" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-1-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 1 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#the-probabilistic-object-comes-before-the-graph">
+<span class="md-ellipsis">
+      
+        The probabilistic object comes before the graph
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#the-running-three-variable-model">
+<span class="md-ellipsis">
+      
+        The running three-variable model
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-example-exact-enumeration">
+<span class="md-ellipsis">
+      
+        Worked example: exact enumeration
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#one-model-several-queries">
+<span class="md-ellipsis">
+      
+        One model, several queries
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#plate-notation-shows-repetition-not-computation">
+<span class="md-ellipsis">
+      
+        Plate notation shows repetition, not computation
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#five-graphs-that-answer-different-questions">
+<span class="md-ellipsis">
+      
+        Five graphs that answer different questions
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-1-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 1 synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#2-variable-elimination-and-the-cost-of-intermediate-factors">
+<span class="md-ellipsis">
+      
+        2. Variable Elimination and the Cost of Intermediate Factors
+      
+    </span>
+</a>
+<nav aria-label="2. Variable Elimination and the Cost of Intermediate Factors" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-2-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 2 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#distributivity-is-the-algorithm">
+<span class="md-ellipsis">
+      
+        Distributivity is the algorithm
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-example-eliminate-the-leaves-retain-b">
+<span class="md-ellipsis">
+      
+        Worked example: eliminate the leaves, retain \(B\)
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#scope-growth-fill-in-and-induced-width">
+<span class="md-ellipsis">
+      
+        Scope growth, fill-in, and induced width
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#ordering-is-a-combinatorial-problem">
+<span class="md-ellipsis">
+      
+        Ordering is a combinatorial problem
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#exact-does-not-mean-cheap-and-neural-does-not-mean-approximate">
+<span class="md-ellipsis">
+      
+        Exact does not mean cheap, and neural does not mean approximate
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-2-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 2 synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#3-sum-product-on-trees">
+<span class="md-ellipsis">
+      
+        3. Sum-Product on Trees
+      
+    </span>
+</a>
+<nav aria-label="3. Sum-Product on Trees" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-3-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 3 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#two-local-update-rules">
+<span class="md-ellipsis">
+      
+        Two local update rules
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#why-two-passes-are-enough">
+<span class="md-ellipsis">
+      
+        Why two passes are enough
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-example-recover-all-three-marginals">
+<span class="md-ellipsis">
+      
+        Worked example: recover all three marginals
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#message-scale-and-the-normalizer">
+<span class="md-ellipsis">
+      
+        Message scale and the normalizer
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chains-hidden-markov-models-and-state-space-inference">
+<span class="md-ellipsis">
+      
+        Chains, hidden Markov models, and state-space inference
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#posterior-modes-answer-different-decision-problems">
+<span class="md-ellipsis">
+      
+        Posterior modes answer different decision problems
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#exactness-contract-for-tree-messages">
+<span class="md-ellipsis">
+      
+        Exactness contract for tree messages
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-3-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 3 synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#4-junction-trees-and-reusable-exact-inference">
+<span class="md-ellipsis">
+      
+        4. Junction Trees and Reusable Exact Inference
+      
+    </span>
+</a>
+<nav aria-label="4. Junction Trees and Reusable Exact Inference" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-4-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 4 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#turn-a-loopy-graph-into-a-tree-of-clusters">
+<span class="md-ellipsis">
+      
+        Turn a loopy graph into a tree of clusters
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-example-triangulate-a-four-cycle">
+<span class="md-ellipsis">
+      
+        Worked example: triangulate a four-cycle
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#variable-elimination-versus-a-junction-tree">
+<span class="md-ellipsis">
+      
+        Variable elimination versus a junction tree
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#elimination-is-compilation">
+<span class="md-ellipsis">
+      
+        Elimination is compilation
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#query-aware-exactness">
+<span class="md-ellipsis">
+      
+        Query-aware exactness
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-4-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 4 synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#5-loopy-belief-propagation-and-variational-messages">
+<span class="md-ellipsis">
+      
+        5. Loopy Belief Propagation and Variational Messages
+      
+    </span>
+</a>
+<nav aria-label="5. Loopy Belief Propagation and Variational Messages" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-5-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 5 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#reusing-tree-equations-on-a-loopy-graph">
+<span class="md-ellipsis">
+      
+        Reusing tree equations on a loopy graph
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-counterexample-convergence-without-exact-marginals">
+<span class="md-ellipsis">
+      
+        Worked counterexample: convergence without exact marginals
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#bethe-free-energy-a-precise-but-bounded-connection">
+<span class="md-ellipsis">
+      
+        Bethe free energy: a precise but bounded connection
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#scheduling-damping-and-numerical-practice">
+<span class="md-ellipsis">
+      
+        Scheduling, damping, and numerical practice
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#what-can-be-guaranteed-in-special-cases">
+<span class="md-ellipsis">
+      
+        What can be guaranteed in special cases?
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#gaussian-messages-are-sparse-elimination-in-information-form">
+<span class="md-ellipsis">
+      
+        Gaussian messages are sparse elimination in information form
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#expectation-propagation-replaces-one-site-through-a-tilted-law">
+<span class="md-ellipsis">
+      
+        Expectation propagation replaces one site through a tilted law
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#nearby-methods-are-not-synonyms">
+<span class="md-ellipsis">
+      
+        Nearby methods are not synonyms
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#a-diagnostic-record">
+<span class="md-ellipsis">
+      
+        A diagnostic record
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-5-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 5 synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#6-compilation-differentiation-and-learned-inference">
+<span class="md-ellipsis">
+      
+        6. Compilation, Differentiation, and Learned Inference
+      
+    </span>
+</a>
+<nav aria-label="6. Compilation, Differentiation, and Learned Inference" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-6-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 6 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#differentiate-a-correct-normalizer-to-obtain-moments">
+<span class="md-ellipsis">
+      
+        Differentiate a correct normalizer to obtain moments
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-example-differentiate-the-running-chain">
+<span class="md-ellipsis">
+      
+        Worked example: differentiate the running chain
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#four-ways-to-reuse-inference">
+<span class="md-ellipsis">
+      
+        Four ways to reuse inference
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#randomized-optimization-when-a-map-oracle-becomes-a-sampler">
+<span class="md-ellipsis">
+      
+        Randomized optimization: when a MAP oracle becomes a sampler
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#differentiating-through-messages">
+<span class="md-ellipsis">
+      
+        Differentiating through messages
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#integrated-nested-laplace-approximation-structure-specific-deterministic-inference">
+<span class="md-ellipsis">
+      
+        Integrated nested Laplace approximation: structure-specific deterministic inference
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#probabilistic-messages-neural-messages-and-architecture-analogies">
+<span class="md-ellipsis">
+      
+        Probabilistic messages, neural messages, and architecture analogies
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#current-generative-connections">
+<span class="md-ellipsis">
+      
+        Current generative connections
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#evaluation-contract-for-learned-inference">
+<span class="md-ellipsis">
+      
+        Evaluation contract for learned inference
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#method-selection">
+<span class="md-ellipsis">
+      
+        Method selection
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-6-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 6 synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#further-reading">
+<span class="md-ellipsis">
+      
+        Further Reading
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../filtering-01-bayes-recursions/">
+<span class="md-ellipsis">
+    
+  
+    9. Filtering and Smoothing for State-Space Generators
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../sampling-01-monte-carlo/">
+<span class="md-ellipsis">
+    
+  
+    10. Sampling and Continuous Time
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../smc-01-targets/">
+<span class="md-ellipsis">
+    
+  
+    11. Sequential Monte Carlo and Particle Methods
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../optimization-01-differentiation/">
+<span class="md-ellipsis">
+    
+  
+    12. Optimization and Learning Dynamics
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../generative-models-notation/">
+<span class="md-ellipsis">
+    
+  
+    13. Canonical Notation
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../autoregressive-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Model Families
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gradients-01-taxonomy/">
+<span class="md-ellipsis">
+    
+  
+    Connections and Compositions
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../normalization-01-queries/">
+<span class="md-ellipsis">
+    
+  
+    Research Practice
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../models/vae-guide/">
+<span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/core/base/">
+<span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../examples/overview/">
+<span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../zoo/">
+<span class="md-ellipsis">
+    
+  
+    Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../training/overview/">
+<span class="md-ellipsis">
+    
+  
+    Training
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../data/overview/">
+<span class="md-ellipsis">
+    
+  
+    Data &amp; Modalities
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../inference/overview/">
+<span class="md-ellipsis">
+    
+  
+    Inference &amp; Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../benchmarks/">
+<span class="md-ellipsis">
+    
+  
+    Evaluation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../guides/extensions/">
+<span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../extensions/">
+<span class="md-ellipsis">
+    
+  
+    Advanced Topics
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../cli/">
+<span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../community/contributing/">
+<span class="md-ellipsis">
+    
+  
+    Community
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/configs/protein-extension/">
+<span class="md-ellipsis">
+    
+  
+    Reference Library
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#reader-orientation">
+<span class="md-ellipsis">
+      
+        Reader orientation
+      
+    </span>
+</a>
+<nav aria-label="Reader orientation" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#recurring-notation">
+<span class="md-ellipsis">
+      
+        Recurring notation
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#1-from-a-generative-factorization-to-an-inference-query">
+<span class="md-ellipsis">
+      
+        1. From a Generative Factorization to an Inference Query
+      
+    </span>
+</a>
+<nav aria-label="1. From a Generative Factorization to an Inference Query" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-1-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 1 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#the-probabilistic-object-comes-before-the-graph">
+<span class="md-ellipsis">
+      
+        The probabilistic object comes before the graph
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#the-running-three-variable-model">
+<span class="md-ellipsis">
+      
+        The running three-variable model
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-example-exact-enumeration">
+<span class="md-ellipsis">
+      
+        Worked example: exact enumeration
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#one-model-several-queries">
+<span class="md-ellipsis">
+      
+        One model, several queries
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#plate-notation-shows-repetition-not-computation">
+<span class="md-ellipsis">
+      
+        Plate notation shows repetition, not computation
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#five-graphs-that-answer-different-questions">
+<span class="md-ellipsis">
+      
+        Five graphs that answer different questions
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-1-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 1 synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#2-variable-elimination-and-the-cost-of-intermediate-factors">
+<span class="md-ellipsis">
+      
+        2. Variable Elimination and the Cost of Intermediate Factors
+      
+    </span>
+</a>
+<nav aria-label="2. Variable Elimination and the Cost of Intermediate Factors" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-2-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 2 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#distributivity-is-the-algorithm">
+<span class="md-ellipsis">
+      
+        Distributivity is the algorithm
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-example-eliminate-the-leaves-retain-b">
+<span class="md-ellipsis">
+      
+        Worked example: eliminate the leaves, retain \(B\)
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#scope-growth-fill-in-and-induced-width">
+<span class="md-ellipsis">
+      
+        Scope growth, fill-in, and induced width
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#ordering-is-a-combinatorial-problem">
+<span class="md-ellipsis">
+      
+        Ordering is a combinatorial problem
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#exact-does-not-mean-cheap-and-neural-does-not-mean-approximate">
+<span class="md-ellipsis">
+      
+        Exact does not mean cheap, and neural does not mean approximate
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-2-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 2 synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#3-sum-product-on-trees">
+<span class="md-ellipsis">
+      
+        3. Sum-Product on Trees
+      
+    </span>
+</a>
+<nav aria-label="3. Sum-Product on Trees" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-3-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 3 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#two-local-update-rules">
+<span class="md-ellipsis">
+      
+        Two local update rules
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#why-two-passes-are-enough">
+<span class="md-ellipsis">
+      
+        Why two passes are enough
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-example-recover-all-three-marginals">
+<span class="md-ellipsis">
+      
+        Worked example: recover all three marginals
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#message-scale-and-the-normalizer">
+<span class="md-ellipsis">
+      
+        Message scale and the normalizer
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chains-hidden-markov-models-and-state-space-inference">
+<span class="md-ellipsis">
+      
+        Chains, hidden Markov models, and state-space inference
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#posterior-modes-answer-different-decision-problems">
+<span class="md-ellipsis">
+      
+        Posterior modes answer different decision problems
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#exactness-contract-for-tree-messages">
+<span class="md-ellipsis">
+      
+        Exactness contract for tree messages
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-3-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 3 synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#4-junction-trees-and-reusable-exact-inference">
+<span class="md-ellipsis">
+      
+        4. Junction Trees and Reusable Exact Inference
+      
+    </span>
+</a>
+<nav aria-label="4. Junction Trees and Reusable Exact Inference" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-4-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 4 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#turn-a-loopy-graph-into-a-tree-of-clusters">
+<span class="md-ellipsis">
+      
+        Turn a loopy graph into a tree of clusters
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-example-triangulate-a-four-cycle">
+<span class="md-ellipsis">
+      
+        Worked example: triangulate a four-cycle
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#variable-elimination-versus-a-junction-tree">
+<span class="md-ellipsis">
+      
+        Variable elimination versus a junction tree
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#elimination-is-compilation">
+<span class="md-ellipsis">
+      
+        Elimination is compilation
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#query-aware-exactness">
+<span class="md-ellipsis">
+      
+        Query-aware exactness
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-4-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 4 synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#5-loopy-belief-propagation-and-variational-messages">
+<span class="md-ellipsis">
+      
+        5. Loopy Belief Propagation and Variational Messages
+      
+    </span>
+</a>
+<nav aria-label="5. Loopy Belief Propagation and Variational Messages" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-5-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 5 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#reusing-tree-equations-on-a-loopy-graph">
+<span class="md-ellipsis">
+      
+        Reusing tree equations on a loopy graph
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-counterexample-convergence-without-exact-marginals">
+<span class="md-ellipsis">
+      
+        Worked counterexample: convergence without exact marginals
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#bethe-free-energy-a-precise-but-bounded-connection">
+<span class="md-ellipsis">
+      
+        Bethe free energy: a precise but bounded connection
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#scheduling-damping-and-numerical-practice">
+<span class="md-ellipsis">
+      
+        Scheduling, damping, and numerical practice
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#what-can-be-guaranteed-in-special-cases">
+<span class="md-ellipsis">
+      
+        What can be guaranteed in special cases?
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#gaussian-messages-are-sparse-elimination-in-information-form">
+<span class="md-ellipsis">
+      
+        Gaussian messages are sparse elimination in information form
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#expectation-propagation-replaces-one-site-through-a-tilted-law">
+<span class="md-ellipsis">
+      
+        Expectation propagation replaces one site through a tilted law
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#nearby-methods-are-not-synonyms">
+<span class="md-ellipsis">
+      
+        Nearby methods are not synonyms
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#a-diagnostic-record">
+<span class="md-ellipsis">
+      
+        A diagnostic record
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-5-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 5 synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#6-compilation-differentiation-and-learned-inference">
+<span class="md-ellipsis">
+      
+        6. Compilation, Differentiation, and Learned Inference
+      
+    </span>
+</a>
+<nav aria-label="6. Compilation, Differentiation, and Learned Inference" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-6-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 6 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#differentiate-a-correct-normalizer-to-obtain-moments">
+<span class="md-ellipsis">
+      
+        Differentiate a correct normalizer to obtain moments
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-example-differentiate-the-running-chain">
+<span class="md-ellipsis">
+      
+        Worked example: differentiate the running chain
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#four-ways-to-reuse-inference">
+<span class="md-ellipsis">
+      
+        Four ways to reuse inference
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#randomized-optimization-when-a-map-oracle-becomes-a-sampler">
+<span class="md-ellipsis">
+      
+        Randomized optimization: when a MAP oracle becomes a sampler
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#differentiating-through-messages">
+<span class="md-ellipsis">
+      
+        Differentiating through messages
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#integrated-nested-laplace-approximation-structure-specific-deterministic-inference">
+<span class="md-ellipsis">
+      
+        Integrated nested Laplace approximation: structure-specific deterministic inference
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#probabilistic-messages-neural-messages-and-architecture-analogies">
+<span class="md-ellipsis">
+      
+        Probabilistic messages, neural messages, and architecture analogies
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#current-generative-connections">
+<span class="md-ellipsis">
+      
+        Current generative connections
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#evaluation-contract-for-learned-inference">
+<span class="md-ellipsis">
+      
+        Evaluation contract for learned inference
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#method-selection">
+<span class="md-ellipsis">
+      
+        Method selection
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-6-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 6 synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#further-reading">
+<span class="md-ellipsis">
+      
+        Further Reading
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<nav aria-label="Breadcrumb" class="md-path">
+<ol class="md-path__list">
+<li class="md-path__item">
+<a class="md-path__link" href="../../..">
+<span class="md-ellipsis">
+    Home
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    Generative Models Book
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../probability-01-objects/">
+<span class="md-ellipsis">
+    Foundations
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../message-passing-01-factor-graphs/">
+<span class="md-ellipsis">
+    8. Graphical Inference and Message Passing
+  </span>
+</a>
+</li>
+</ol>
+</nav>
+<article class="md-content__inner md-typeset">
+<h1 id="graphical-inference-and-message-passing">Graphical Inference and Message Passing<a class="headerlink" href="#graphical-inference-and-message-passing" title="Permanent link">¤</a></h1><aside aria-label="Learning path" class="admonition abstract artifex-learning-path"><p class="admonition-title">Learning path</p><p><strong>Required knowledge</strong></p><ul class="artifex-learning-path__links" data-learning-path-role="required"><li><a href="../probability-and-generative-modeling/">Probability and Generative Modeling</a></li><li><a href="../classical-generative-models/">Classical Generative Models and Graphical Structure</a></li><li><a href="../latent-variables-and-inference/">Latent Variables and Inference</a></li><li><a href="../objectives-and-statistical-distances/">Objectives and Statistical Distances</a></li><li><a href="../graphical-models-and-structured-probability/">Graphical Models and Structured Probability</a></li></ul><p><strong>Readiness check:</strong> can you explain the central object and reproduce one worked example from each required chapter? If not, follow its link before continuing.</p><p><strong>Newly unlocked in the default route</strong></p><ul class="artifex-learning-path__links" data-learning-path-role="unlocks"><li><a href="../filtering-01-bayes-recursions/">Filtering 1 — Bayesian Recursions and Information Sets</a></li><li><a href="../filtering-and-smoothing-state-space/">Filtering and Smoothing for State-Space Generators</a></li></ul></aside>
+<p>A factorized generative model describes a global law through local functions. <a href="../graphical-models-and-structured-probability/">Graphical Models and Structured Probability</a> establishes the directed, undirected, conditional, and mixed-graph semantics that determine those functions. Inference asks whether that local structure can answer a global query without enumerating every complete configuration. Sometimes it can: variable elimination rearranges sums and products, tree messages cache the resulting partial computations, and junction trees extend the same idea to graphs with cycles. Sometimes it cannot: intermediate factors become exponentially large, or a deliberately approximate message algorithm converges to beliefs that are not the exact marginals.</p>
+<p>This volume follows that computational thread from a three-variable table to current learned inference. The same finite model is solved by enumeration, variable elimination, sum-product messages, and differentiation of its log normalizer. A constrained posterior separates marginal modes, max-marginals, and a globally coherent MAP state. Gaussian messages then expose sparse elimination in information form, while a separate loopy example demonstrates why convergence and accuracy are different claims. The final chapter places compiled inference, randomized optimization, differentiable solvers, belief-propagation neural networks, graph neural networks, and amortized encoders at their correct abstraction layers.</p>
+<div class="admonition info">
+<p class="admonition-title">Reading routes</p>
+<p><strong>Entry after prerequisites:</strong> Chapters 1–3 build factor semantics and exact tree inference from one complete example.<br/>
+<strong>Practitioner:</strong> Chapters 1–5 add ordering, numerical stability, junction-tree reuse, loopy diagnostics, and approximation selection.<br>
+<strong>Research:</strong> read all six chapters, including decision-specific message algebras, Gaussian-message convergence, free-energy boundaries, randomized optimization, compilation, implicit differentiation, and current learned-message evidence.</br></p>
+</div>
+<div class="admonition info">
+<p class="admonition-title">Evidence convention</p>
+<p>Algebraic identities and mature algorithms are labeled <strong>Established</strong>. Archival results are <strong>Peer-reviewed research</strong>. Work without an archival acceptance is <strong>Preprint</strong> or <strong>workshop paper</strong>, even when its experiments are promising. A neural method is not described as exact merely because its architecture resembles belief propagation.</p>
+</div>
+<h2 id="reader-orientation">Reader orientation<a class="headerlink" href="#reader-orientation" title="Permanent link">¤</a></h2>
+<h3 id="recurring-notation">Recurring notation<a class="headerlink" href="#recurring-notation" title="Permanent link">¤</a></h3>
+<div class="md-typeset__table book-table-container"><table id="tbl-graphical-inference-and-message-passing-recurring-notation"><caption class="book-object-caption"><span class="book-object-number">Table MSG.1.</span> Recurring notation</caption>
+<thead>
+<tr>
+<th>Symbol</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="arithmatex">\(X=(X_1,\ldots,X_n)\)</span></td>
+<td>discrete random variables unless a section says otherwise</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(f_a(x_a)\)</span></td>
+<td>nonnegative factor on the variables indexed by scope <span class="arithmatex">\(a\)</span></td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(\gamma(x)=\prod_a f_a(x_a)\)</span></td>
+<td>unnormalized joint mass</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(Z=\sum_x\gamma(x)\)</span></td>
+<td>partition function or evidence for the declared query</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(p(x)=\gamma(x)/Z\)</span></td>
+<td>normalized law</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(N(i)\)</span></td>
+<td>neighboring factors or variables, as identified locally</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(m_{u\to v}\)</span></td>
+<td>a message from graph node <span class="arithmatex">\(u\)</span> to adjacent node <span class="arithmatex">\(v\)</span></td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(b_i,b_a\)</span></td>
+<td>normalized node or factor beliefs</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(w\)</span></td>
+<td>induced width for a stated elimination order; treewidth is the best achievable width</td>
+</tr>
+</tbody>
+</table></div>
+<p>The same algebra applies to densities when sums become integrals and every factor is defined with respect to a compatible base measure. Exact symbolic integration is much less common than exact finite summation, so the algorithmic guarantees in this volume always state the variable type.</p>
+<figure class="book-figure" id="fig-graphical-inference-and-message-passing-recurring-notation"><pre class="mermaid"><code>flowchart TB
+    model["Factorized model&lt;br/&gt;&amp;nbsp;$$\gamma(x)=\prod_a f_a(x_a)$$"]
+    query["Declared query&lt;br/&gt;normalizer, marginal, conditional, MAP, or sample"]
+    structure["Exploit structure&lt;br/&gt;eliminate, pass messages, or compile"]
+    answer["Answer plus complexity,&lt;br/&gt;approximation, and numerical contract"]
+    model --&gt; query
+    query --&gt; structure
+    structure --&gt; answer</code></pre><figcaption class="book-object-caption"><span class="book-object-number">Figure MSG.1.</span> Recurring notation</figcaption></figure>
+<h2 id="1-from-a-generative-factorization-to-an-inference-query">1. From a Generative Factorization to an Inference Query<a class="headerlink" href="#1-from-a-generative-factorization-to-an-inference-query" title="Permanent link">¤</a></h2>
+<h3 id="chapter-1-prerequisites-and-learning-objectives">Chapter 1 prerequisites and learning objectives<a class="headerlink" href="#chapter-1-prerequisites-and-learning-objectives" title="Permanent link">¤</a></h3>
+<p>You should know joint, marginal, and conditional probability and the distinction between normalized and unnormalized models. By the end of this chapter, you should be able to:</p>
+<ul>
+<li>translate a product of factors into a bipartite factor graph;</li>
+<li>distinguish a directed generative graph, factor graph, plate diagram, computation graph, and message-passing neural network;</li>
+<li>name the exact query before selecting an inference algorithm;</li>
+<li>enumerate one finite model to obtain its normalizer and marginals; and</li>
+<li>explain why small local factors do not guarantee cheap global inference.</li>
+</ul>
+<h3 id="the-probabilistic-object-comes-before-the-graph">The probabilistic object comes before the graph<a class="headerlink" href="#the-probabilistic-object-comes-before-the-graph" title="Permanent link">¤</a></h3>
+<p>Let each factor <span class="arithmatex">\(f_a\)</span> depend only on the subtuple <span class="arithmatex">\(x_a\)</span>. The nonnegative function</p>
+<div class="arithmatex">\[
+\gamma(x)=\prod_{a\in\mathcal F}f_a(x_a)
+\]</div>
+<p>defines a probability law only when</p>
+<div class="arithmatex">\[
+0&lt;Z=\sum_x\gamma(x)&lt;\infty,
+\qquad
+p(x)=\frac{\gamma(x)}{Z}.
+\]</div>
+<p>A factor graph is a bipartite representation of this product: variable nodes connect to factor nodes whose scopes contain them. It records which arguments each local function uses. It does not, by itself, normalize the product, select an inference algorithm, or assert that the graph is sparse enough for tractable exact computation.</p>
+<p>Directed and undirected generative models both admit factor-graph representations. A Bayesian network contributes one normalized conditional factor per node. A Markov random field contributes nonnegative potentials and usually a global partition function. After evidence is fixed, either representation becomes a product of factors over the remaining unknown variables.</p>
+<h3 id="the-running-three-variable-model">The running three-variable model<a class="headerlink" href="#the-running-three-variable-model" title="Permanent link">¤</a></h3>
+<p>Let <span class="arithmatex">\(A,B,C\in\{0,1\}\)</span>. Define unary factors</p>
+<div class="arithmatex">\[
+u_A=(2,1),
+\qquad
+u_C=(1,4),
+\]</div>
+<p>and pair factors, with rows indexing the left variable and columns the right variable,</p>
+<div class="arithmatex">\[
+f_{AB}=
+\begin{bmatrix}
+3&amp;1\\
+1&amp;3
+\end{bmatrix},
+\qquad
+f_{BC}=
+\begin{bmatrix}
+2&amp;1\\
+1&amp;2
+\end{bmatrix}.
+\]</div>
+<p>The unnormalized joint mass is</p>
+<div class="arithmatex">\[
+\gamma(a,b,c)=u_A(a)f_{AB}(a,b)f_{BC}(b,c)u_C(c).
+\]</div>
+<p>Its factor graph is a tree:</p>
+<figure class="book-figure" id="fig-graphical-inference-and-message-passing-the-running-three-variable-model"><pre class="mermaid"><code>flowchart LR
+    A(("$$A$$"))
+    B(("$$B$$"))
+    C(("$$C$$"))
+    uA["Unary factor&amp;nbsp;$$u_A$$"]
+    fAB["Pair factor&amp;nbsp;$$f_{AB}$$"]
+    fBC["Pair factor&amp;nbsp;$$f_{BC}$$"]
+    uC["Unary factor&amp;nbsp;$$u_C$$"]
+    uA --- A
+    A --- fAB
+    fAB --- B
+    B --- fBC
+    fBC --- C
+    C --- uC</code></pre><figcaption class="book-object-caption"><span class="book-object-number">Figure MSG.2.</span> The running three-variable model</figcaption></figure>
+<h3 id="worked-example-exact-enumeration">Worked example: exact enumeration<a class="headerlink" href="#worked-example-exact-enumeration" title="Permanent link">¤</a></h3>
+<p>For three binary variables there are only eight configurations:</p>
+<div class="md-typeset__table book-table-container"><table id="tbl-graphical-inference-and-message-passing-worked-example-exact-enumeration"><caption class="book-object-caption"><span class="book-object-number">Table MSG.2.</span> Worked example: exact enumeration</caption>
+<thead>
+<tr>
+<th style="text-align: right;"><span class="arithmatex">\(a\)</span></th>
+<th style="text-align: right;"><span class="arithmatex">\(b\)</span></th>
+<th style="text-align: right;"><span class="arithmatex">\(c\)</span></th>
+<th style="text-align: right;"><span class="arithmatex">\(\gamma(a,b,c)\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;"><span class="arithmatex">\(2\cdot3\cdot2\cdot1=12\)</span></td>
+</tr>
+<tr>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;"><span class="arithmatex">\(2\cdot3\cdot1\cdot4=24\)</span></td>
+</tr>
+<tr>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;"><span class="arithmatex">\(2\cdot1\cdot1\cdot1=2\)</span></td>
+</tr>
+<tr>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;"><span class="arithmatex">\(2\cdot1\cdot2\cdot4=16\)</span></td>
+</tr>
+<tr>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;"><span class="arithmatex">\(1\cdot1\cdot2\cdot1=2\)</span></td>
+</tr>
+<tr>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;"><span class="arithmatex">\(1\cdot1\cdot1\cdot4=4\)</span></td>
+</tr>
+<tr>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;"><span class="arithmatex">\(1\cdot3\cdot1\cdot1=3\)</span></td>
+</tr>
+<tr>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;"><span class="arithmatex">\(1\cdot3\cdot2\cdot4=24\)</span></td>
+</tr>
+</tbody>
+</table></div>
+<p>Therefore</p>
+<div class="arithmatex">\[
+Z=12+24+2+16+2+4+3+24=87.
+\]</div>
+<p>Collecting rows by one variable gives</p>
+<div class="arithmatex">\[
+p(A)=\frac1{87}(54,33)
+=\left(\frac{18}{29},\frac{11}{29}\right),
+\]</div>
+<div class="arithmatex">\[
+p(B)=\frac1{87}(42,45)
+=\left(\frac{14}{29},\frac{15}{29}\right),
+\qquad
+p(C)=\frac1{87}(19,68).
+\]</div>
+<p>Enumeration is the reference computation against which later algorithms can be checked. Its cost grows as <span class="arithmatex">\(2^n\)</span> for <span class="arithmatex">\(n\)</span> unrestricted binary variables. Factorization becomes useful only when distributivity avoids repeating most of that work.</p>
+<h3 id="one-model-several-queries">One model, several queries<a class="headerlink" href="#one-model-several-queries" title="Permanent link">¤</a></h3>
+<div class="md-typeset__table book-table-container"><table id="tbl-graphical-inference-and-message-passing-one-model-several-queries"><caption class="book-object-caption"><span class="book-object-number">Table MSG.3.</span> One model, several queries</caption>
+<thead>
+<tr>
+<th>Query</th>
+<th>Mathematical object</th>
+<th>What an answer must contain</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>normalizer or evidence</td>
+<td><span class="arithmatex">\(Z=\sum_x\gamma(x)\)</span></td>
+<td>one nonnegative scalar and its numerical accuracy</td>
+</tr>
+<tr>
+<td>marginal</td>
+<td><span class="arithmatex">\(p(x_Q)=Z^{-1}\sum_{x_{\setminus Q}}\gamma(x)\)</span></td>
+<td>a normalized law over the query variables</td>
+</tr>
+<tr>
+<td>conditional</td>
+<td><span class="arithmatex">\(p(x_Q\mid x_E=e)\)</span></td>
+<td>evidence support, a marginal numerator, and nonzero evidence probability</td>
+</tr>
+<tr>
+<td>MPE</td>
+<td><span class="arithmatex">\(\arg\max_x\gamma(x)\)</span></td>
+<td>one or all globally maximizing complete assignments</td>
+</tr>
+<tr>
+<td>marginal MAP</td>
+<td><span class="arithmatex">\(\arg\max_{x_Q}\sum_{x_R}\gamma(x_Q,x_R,e)\)</span></td>
+<td>the order of sum and max operations; they generally do not commute</td>
+</tr>
+<tr>
+<td>exact sample</td>
+<td><span class="arithmatex">\(X\sim p\)</span></td>
+<td>a procedure whose output law is <span class="arithmatex">\(p\)</span>, not only a high-scoring assignment</td>
+</tr>
+</tbody>
+</table></div>
+<p>Evidence can be represented by an indicator factor, such as <span class="arithmatex">\(I(B=1)\)</span>, or by restricting the relevant factor tables. A posterior is not created merely by shading a node in a diagram; conditioning changes the function being summed or normalized.</p>
+<h3 id="plate-notation-shows-repetition-not-computation">Plate notation shows repetition, not computation<a class="headerlink" href="#plate-notation-shows-repetition-not-computation" title="Permanent link">¤</a></h3>
+<p>Plate notation is valuable when a generative story repeats local variables. In a latent model with global parameter <span class="arithmatex">\(\theta\)</span> and <span class="arithmatex">\(N\)</span> exchangeable observations,</p>
+<div class="arithmatex">\[
+p(\theta,z_{1:N},x_{1:N})
+=p(\theta)\prod_{n=1}^{N}p(z_n\mid\theta)p(x_n\mid z_n,\theta).
+\]</div>
+<figure class="book-figure" id="fig-graphical-inference-and-message-passing-plate-notation-shows-repetition-not-computation"><pre class="mermaid"><code>flowchart LR
+    theta(("Global parameter&amp;nbsp;$$\theta$$"))
+    subgraph observations["observations repeated&amp;nbsp;$$N$$&amp;nbsp;times"]
+        z(("Latent state&amp;nbsp;$$z_n$$"))
+        x(("Observed value&amp;nbsp;$$x_n$$"))
+        z --&gt; x
+    end
+    theta --&gt; z
+    theta --&gt; x
+    class x observed</code></pre><figcaption class="book-object-caption"><span class="book-object-number">Figure MSG.3.</span> Plate notation shows repetition, not computation</figcaption></figure>
+<p>The plate compresses repeated model structure. It does not say whether the posterior over <span class="arithmatex">\(\theta\)</span> is conjugate, whether the <span class="arithmatex">\(z_n\)</span> can be eliminated independently after conditioning on <span class="arithmatex">\(\theta\)</span>, or whether an amortized encoder will be used. A factor graph derived after fixing observations makes those inference dependencies explicit.</p>
+<h3 id="five-graphs-that-answer-different-questions">Five graphs that answer different questions<a class="headerlink" href="#five-graphs-that-answer-different-questions" title="Permanent link">¤</a></h3>
+<div class="md-typeset__table book-table-container"><table id="tbl-graphical-inference-and-message-passing-five-graphs-that-answer-different-questions"><caption class="book-object-caption"><span class="book-object-number">Table MSG.4.</span> Five graphs that answer different questions</caption>
+<thead>
+<tr>
+<th>Representation</th>
+<th>Nodes and edges mean</th>
+<th>What it does not imply</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>directed graphical model</td>
+<td>local normalized conditionals and conditional-independence structure</td>
+<td>cheap arbitrary posterior inference</td>
+</tr>
+<tr>
+<td>factor graph</td>
+<td>variables and local factors in one product</td>
+<td>acyclicity, normalization, or convergence of loopy messages</td>
+</tr>
+<tr>
+<td>plate diagram</td>
+<td>repeated variables and shared parameters</td>
+<td>an executable elimination or message schedule</td>
+</tr>
+<tr>
+<td>computation graph</td>
+<td>primitive numerical operations for one implementation</td>
+<td>a probabilistic interpretation of every intermediate value</td>
+</tr>
+<tr>
+<td>GNN or MPNN graph</td>
+<td>learned state exchange under an architecture</td>
+<td>calibrated beliefs or exact inference in a declared probability law</td>
+</tr>
+</tbody>
+</table></div>
+<p>This volume assumes that the factor scopes to be queried are already given.
+Selecting those scopes from repeated multivariate observations is a different
+model-selection problem developed in <a href="../classical-generative-models/#learning-dependency-graphs-from-data">Learning Dependency Graphs from
+Data</a>.
+Learning a graph and answering a marginal on the fitted graph can be composed,
+but neither operation performs the other.</p>
+<div class="admonition failure">
+<p class="admonition-title">Counterexample: tiny factors can create a hard sum</p>
+<p>A grid of binary variables may use only pairwise <span class="arithmatex">\(2\times2\)</span> factors, yet eliminating variables across the grid creates factors whose scopes grow with the grid width. Local table size and global inference complexity are different quantities.</p>
+</div>
+<h3 id="chapter-1-synthesis">Chapter 1 synthesis<a class="headerlink" href="#chapter-1-synthesis" title="Permanent link">¤</a></h3>
+<p>The product <span class="arithmatex">\(\gamma=\prod_a f_a\)</span> defines the object to be queried; a factor graph exposes its local scopes. Enumeration supplies an exact baseline but scales exponentially. Chapter 2 uses distributivity to eliminate variables without repeatedly evaluating every complete configuration.</p>
+<details class="question">
+<summary>Retrieval practice: model, graph, and query</summary>
+<ol>
+<li>Does drawing a factor graph prove that its product is normalized?</li>
+<li>What does a plate communicate that a factor graph need not?</li>
+<li>In the running example, what are <span class="arithmatex">\(Z\)</span> and <span class="arithmatex">\(p(B=1)\)</span>?</li>
+<li>Why must marginal MAP state the order of summation and maximization?</li>
+</ol>
+<p><strong>Solutions.</strong> (1) No; normalization requires a finite positive <span class="arithmatex">\(Z\)</span> or a construction that proves <span class="arithmatex">\(Z=1\)</span>. (2) Repetition and parameter sharing across indexed variables. (3) <span class="arithmatex">\(Z=87\)</span> and <span class="arithmatex">\(p(B=1)=45/87=15/29\)</span>. (4) Sum and max generally do not commute, so changing their order changes the query.</p>
+</details>
+<p><strong>Bridge.</strong> The running model is small enough to enumerate, but its factorization already contains a cheaper calculation. <a href="./#2-variable-elimination-and-the-cost-of-intermediate-factors">Continue continuously</a> or open <a href="../message-passing-02-elimination/">Chapter 2</a>.</p>
+<h2 id="2-variable-elimination-and-the-cost-of-intermediate-factors">2. Variable Elimination and the Cost of Intermediate Factors<a class="headerlink" href="#2-variable-elimination-and-the-cost-of-intermediate-factors" title="Permanent link">¤</a></h2>
+<h3 id="chapter-2-prerequisites-and-learning-objectives">Chapter 2 prerequisites and learning objectives<a class="headerlink" href="#chapter-2-prerequisites-and-learning-objectives" title="Permanent link">¤</a></h3>
+<p>This chapter assumes the factor and query semantics from Chapter 1. By the end, you should be able to:</p>
+<ul>
+<li>derive variable elimination from distributivity;</li>
+<li>execute an elimination step and track its new factor scope;</li>
+<li>construct the induced graph and identify fill-in edges;</li>
+<li>distinguish order-specific induced width from graph treewidth; and</li>
+<li>state time and memory cost using variable cardinalities rather than node count alone.</li>
+</ul>
+<h3 id="distributivity-is-the-algorithm">Distributivity is the algorithm<a class="headerlink" href="#distributivity-is-the-algorithm" title="Permanent link">¤</a></h3>
+<p>Suppose the query retains variables <span class="arithmatex">\(Q\)</span> and eliminates <span class="arithmatex">\(R\)</span>. For one variable <span class="arithmatex">\(X_i\in R\)</span>, collect every current factor whose scope contains <span class="arithmatex">\(X_i\)</span>:</p>
+<div class="arithmatex">\[
+h_i(x_{S_i\setminus\{i\}})
+=\sum_{x_i}\prod_{a:\,i\in a}f_a(x_a),
+\qquad
+S_i=\bigcup_{a:\,i\in a}a.
+\]</div>
+<p>Replace those factors by <span class="arithmatex">\(h_i\)</span> and continue. Factors that do not contain <span class="arithmatex">\(X_i\)</span> remain outside the sum. This is ordinary algebra, but the order of reassociation determines the size of every intermediate table.</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a href="#__codelineno-0-1" id="__codelineno-0-1" name="__codelineno-0-1"></a>factors = initial factors with evidence incorporated
+</span><span id="__span-0-2"><a href="#__codelineno-0-2" id="__codelineno-0-2" name="__codelineno-0-2"></a>for variable in elimination_order:
+</span><span id="__span-0-3"><a href="#__codelineno-0-3" id="__codelineno-0-3" name="__codelineno-0-3"></a>    bucket = every factor whose scope contains variable
+</span><span id="__span-0-4"><a href="#__codelineno-0-4" id="__codelineno-0-4" name="__codelineno-0-4"></a>    product_factor = multiply(bucket)
+</span><span id="__span-0-5"><a href="#__codelineno-0-5" id="__codelineno-0-5" name="__codelineno-0-5"></a>    new_factor = sum_out(product_factor, variable)
+</span><span id="__span-0-6"><a href="#__codelineno-0-6" id="__codelineno-0-6" name="__codelineno-0-6"></a>    factors = (factors without bucket) plus new_factor
+</span><span id="__span-0-7"><a href="#__codelineno-0-7" id="__codelineno-0-7" name="__codelineno-0-7"></a>return multiply(factors)  # normalize if the query requires a probability
+</span></code></pre></div>
+<p>The pseudocode is exact for finite tables. A robust implementation also tracks named axes, base measures, sparse or deterministic structure, log scaling, and the difference between summing and maximizing.</p>
+<h3 id="worked-example-eliminate-the-leaves-retain-b">Worked example: eliminate the leaves, retain <span class="arithmatex">\(B\)</span><a class="headerlink" href="#worked-example-eliminate-the-leaves-retain-b" title="Permanent link">¤</a></h3>
+<p>For the running chain, eliminate <span class="arithmatex">\(A\)</span> first:</p>
+<div class="arithmatex">\[
+r_{A\to B}(b)=\sum_a u_A(a)f_{AB}(a,b).
+\]</div>
+<p>The two entries are</p>
+<div class="arithmatex">\[
+r_{A\to B}(0)=2(3)+1(1)=7,
+\qquad
+r_{A\to B}(1)=2(1)+1(3)=5.
+\]</div>
+<p>Eliminating <span class="arithmatex">\(C\)</span> gives</p>
+<div class="arithmatex">\[
+r_{C\to B}(0)=2(1)+1(4)=6,
+\qquad
+r_{C\to B}(1)=1(1)+2(4)=9.
+\]</div>
+<p>The unnormalized marginal over <span class="arithmatex">\(B\)</span> is their pointwise product,</p>
+<div class="arithmatex">\[
+\widetilde p(B)=(7,5)\odot(6,9)=(42,45).
+\]</div>
+<p>Its sum is <span class="arithmatex">\(87\)</span>, recovering the enumerated normalizer, and normalization gives <span class="arithmatex">\((14/29,15/29)\)</span>. Elimination did not approximate the table; it evaluated the same sum with reusable partial results.</p>
+<h3 id="scope-growth-fill-in-and-induced-width">Scope growth, fill-in, and induced width<a class="headerlink" href="#scope-growth-fill-in-and-induced-width" title="Permanent link">¤</a></h3>
+<p>When eliminating a variable, all its uneliminated neighbors become arguments of the new factor. Graphically, connect those neighbors into a clique before removing the variable. Newly required edges are <strong>fill-in edges</strong>.</p>
+<p>Consider a four-cycle <span class="arithmatex">\(A-B-C-D-A\)</span>. Eliminating <span class="arithmatex">\(A\)</span> combines the factors on <span class="arithmatex">\((A,B)\)</span> and <span class="arithmatex">\((D,A)\)</span> and creates a new factor on <span class="arithmatex">\((B,D)\)</span>, adding the chord <span class="arithmatex">\(B-D\)</span>. The largest factor created by a complete order determines that order's <strong>induced width</strong>: largest induced clique size minus one.</p>
+<figure class="book-figure" id="fig-graphical-inference-and-message-passing-scope-growth-fill-in-and-induced-width"><pre class="mermaid"><code>flowchart LR
+    subgraph before["before eliminating&amp;nbsp;$$A$$"]
+        A1(("$$A$$")) --- B1(("$$B$$"))
+        B1 --- C1(("$$C$$"))
+        C1 --- D1(("$$D$$"))
+        D1 --- A1
+    end
+    subgraph after["after eliminating&amp;nbsp;$$A$$"]
+        B2(("$$B$$")) --- C2(("$$C$$"))
+        C2 --- D2(("$$D$$"))
+        B2 -. "fill-in" .- D2
+    end
+    before --&gt; after</code></pre><figcaption class="book-object-caption"><span class="book-object-number">Figure MSG.4.</span> Scope growth, fill-in, and induced width</figcaption></figure>
+<p>The <strong>treewidth</strong> of a graph is the minimum induced width over all elimination orders. It is a property of the graph after the relevant transformations, whereas induced width belongs to a particular order. A tree has treewidth one; a cycle with at least four vertices has treewidth two; a complete graph on <span class="arithmatex">\(n\)</span> vertices has treewidth <span class="arithmatex">\(n-1\)</span>.</p>
+<p>For at most <span class="arithmatex">\(K\)</span> states per variable and width <span class="arithmatex">\(w\)</span>, a common coarse bound is</p>
+<div class="arithmatex">\[
+\text{time}=O(nK^{w+1}),
+\qquad
+\text{peak table memory}=O(K^{w+1}).
+\]</div>
+<p>With heterogeneous cardinalities, the cost of a factor on scope <span class="arithmatex">\(S\)</span> is proportional to <span class="arithmatex">\(\prod_{i\in S}|\mathcal X_i|\)</span>, not <span class="arithmatex">\(K^{|S|}\)</span>. Sparse support, determinism, context-specific independence, algebraic decision diagrams, low-rank structure, or Gaussian linear algebra may reduce actual cost. Treewidth is therefore a central structural control, not a complete description of every representation.</p>
+<h3 id="ordering-is-a-combinatorial-problem">Ordering is a combinatorial problem<a class="headerlink" href="#ordering-is-a-combinatorial-problem" title="Permanent link">¤</a></h3>
+<p>Finding an order of minimum width is NP-hard. Practical systems use heuristics such as:</p>
+<ul>
+<li><strong>min-degree:</strong> eliminate a variable with the fewest current neighbors;</li>
+<li><strong>min-fill:</strong> eliminate a variable that introduces the fewest fill-in edges;</li>
+<li><strong>weighted min-fill:</strong> weight a prospective clique by state cardinalities;</li>
+<li><strong>nested dissection:</strong> recursively separate sparse spatial graphs; or</li>
+<li>domain-specific orders that preserve repeated or temporal structure.</li>
+</ul>
+<p>Report the chosen order or heuristic, induced width, maximum factor entries, and whether deterministic or sparse compression was used. Reporting only the number of variables hides the main cost driver.</p>
+<h3 id="exact-does-not-mean-cheap-and-neural-does-not-mean-approximate">Exact does not mean cheap, and neural does not mean approximate<a class="headerlink" href="#exact-does-not-mean-cheap-and-neural-does-not-mean-approximate" title="Permanent link">¤</a></h3>
+<p>Exactness concerns the returned query. Cost concerns the representation and order. A large low-treewidth tabular model can support exact inference; a small dense model can be expensive. A neural network may parameterize a local factor while exact elimination remains possible, or it may parameterize an amortized posterior that is approximate even when the original graph is a tree.</p>
+<p>For a Gaussian graphical model, elimination corresponds to Schur complements and sparse matrix factorization. The relevant width controls fill-in in the Cholesky factor. Exact Gaussian algebra avoids enumerating continuous states, but poor conditioning, floating-point error, and dense fill remain practical concerns.</p>
+<div class="admonition failure">
+<p class="admonition-title">Counterexample: the parameter count is not the elimination cost</p>
+<p>One compact network may evaluate a high-order factor with few learned parameters. Eliminating a neighboring variable can still require representing that factor over exponentially many discrete configurations. Parameter sharing does not shrink an exact table unless the inference algorithm exploits its functional structure.</p>
+</div>
+<h3 id="chapter-2-synthesis">Chapter 2 synthesis<a class="headerlink" href="#chapter-2-synthesis" title="Permanent link">¤</a></h3>
+<p>Variable elimination is distributivity organized as an algorithm. Every eliminated variable produces a factor over its remaining neighbors, so order determines induced width and memory. Chapter 3 interprets the same intermediate factors as directional messages and reuses them to obtain every marginal on a tree.</p>
+<details class="question">
+<summary>Retrieval practice: elimination and width</summary>
+<ol>
+<li>What arguments remain in the factor created when eliminating <span class="arithmatex">\(X_i\)</span>?</li>
+<li>Why did eliminating <span class="arithmatex">\(A\)</span> and <span class="arithmatex">\(C\)</span> in the running chain cost less than enumeration?</li>
+<li>What is the difference between induced width and treewidth?</li>
+<li>Why can two variables with the same graph degree have different elimination costs?</li>
+</ol>
+<p><strong>Solutions.</strong> (1) The union of scopes of factors containing <span class="arithmatex">\(X_i\)</span>, minus <span class="arithmatex">\(X_i\)</span>. (2) Each leaf sum was computed once and reused for both values of <span class="arithmatex">\(B\)</span>. (3) Induced width is for one order; treewidth is the minimum over orders. (4) Their state cardinalities and the cardinalities or structure of their neighbors may differ.</p>
+</details>
+<p><strong>Bridge.</strong> An elimination factor summarizes everything on one side of a graph boundary. On a tree, that summary can be cached as a message in both directions. <a href="./#3-sum-product-on-trees">Continue continuously</a> or open <a href="../message-passing-03-sum-product/">Chapter 3</a>.</p>
+<h2 id="3-sum-product-on-trees">3. Sum-Product on Trees<a class="headerlink" href="#3-sum-product-on-trees" title="Permanent link">¤</a></h2>
+<h3 id="chapter-3-prerequisites-and-learning-objectives">Chapter 3 prerequisites and learning objectives<a class="headerlink" href="#chapter-3-prerequisites-and-learning-objectives" title="Permanent link">¤</a></h3>
+<p>You should be able to multiply and marginalize finite factors and follow the elimination calculation in Chapter 2. By the end, you should be able to:</p>
+<ul>
+<li>derive variable-to-factor and factor-to-variable messages;</li>
+<li>explain why the recipient's incoming message is excluded;</li>
+<li>compute exact node and factor marginals on an acyclic factor graph;</li>
+<li>separate sum-product, max-product, and sampling queries; and</li>
+<li>implement normalization and log-domain updates without changing the target.</li>
+</ul>
+<h3 id="two-local-update-rules">Two local update rules<a class="headerlink" href="#two-local-update-rules" title="Permanent link">¤</a></h3>
+<p>For a factor graph, let <span class="arithmatex">\(N(i)\)</span> be the factors adjacent to variable <span class="arithmatex">\(X_i\)</span> and <span class="arithmatex">\(N(a)\)</span> the variables in factor <span class="arithmatex">\(f_a\)</span>. A variable-to-factor message multiplies information arriving from every other neighboring factor:</p>
+<div class="arithmatex">\[
+m_{i\to a}(x_i)
+=\prod_{b\in N(i)\setminus\{a\}}m_{b\to i}(x_i).
+\]</div>
+<p>A factor-to-variable message incorporates the factor and sums out its other arguments:</p>
+<div class="arithmatex">\[
+m_{a\to i}(x_i)
+=\sum_{x_{a\setminus i}}f_a(x_a)
+\prod_{j\in N(a)\setminus\{i\}}m_{j\to a}(x_j).
+\]</div>
+<p>The recipient is excluded because its message already summarizes evidence from that side of the cut. Multiplying it back into the outgoing message would immediately double-count the same subtree.</p>
+<p>Once both directions of every edge have been computed on a tree,</p>
+<div class="arithmatex">\[
+b_i(x_i)\propto\prod_{a\in N(i)}m_{a\to i}(x_i),
+\]</div>
+<p>and</p>
+<div class="arithmatex">\[
+b_a(x_a)\propto f_a(x_a)
+\prod_{i\in N(a)}m_{i\to a}(x_i).
+\]</div>
+<p>After normalization, these beliefs are the exact node and factor marginals. This is the <a href="https://doi.org/10.1109/18.910572">sum-product algorithm</a> on an acyclic factor graph.</p>
+<h3 id="why-two-passes-are-enough">Why two passes are enough<a class="headerlink" href="#why-two-passes-are-enough" title="Permanent link">¤</a></h3>
+<p>Remove any edge from a tree. The graph splits into two components. A message across that edge is the partial sum of every factor on the sender's component, expressed as a function of the boundary variable. A leaf-to-root pass computes all summaries toward an arbitrary root; a root-to-leaf pass computes the opposite summaries. Every complete configuration contributes exactly once.</p>
+<p>An implementation may use a postorder traversal followed by a preorder traversal, or any schedule that sends a message only after all prerequisite messages are ready. For a static tree, each directed edge message is needed once. Parallel synchronous updates reach all nodes after a number of rounds controlled by the tree diameter.</p>
+<h3 id="worked-example-recover-all-three-marginals">Worked example: recover all three marginals<a class="headerlink" href="#worked-example-recover-all-three-marginals" title="Permanent link">¤</a></h3>
+<p>The leaf messages into <span class="arithmatex">\(B\)</span> from Chapter 2 are</p>
+<div class="arithmatex">\[
+r_{A\to B}=(7,5),
+\qquad
+r_{C\to B}=(6,9).
+\]</div>
+<p>Their product gives</p>
+<div class="arithmatex">\[
+b_B\propto(42,45).
+\]</div>
+<p>To send the right-hand evidence through <span class="arithmatex">\(B\)</span> toward <span class="arithmatex">\(A\)</span>,</p>
+<div class="arithmatex">\[
+r_{B\to A}(a)=\sum_b f_{AB}(a,b)r_{C\to B}(b)
+=(27,33).
+\]</div>
+<p>Multiplying by <span class="arithmatex">\(u_A\)</span> yields</p>
+<div class="arithmatex">\[
+b_A\propto(2,1)\odot(27,33)=(54,33).
+\]</div>
+<p>Similarly,</p>
+<div class="arithmatex">\[
+r_{B\to C}(c)=\sum_b r_{A\to B}(b)f_{BC}(b,c)
+=(19,17),
+\]</div>
+<p>so</p>
+<div class="arithmatex">\[
+b_C\propto(1,4)\odot(19,17)=(19,68).
+\]</div>
+<p>Every belief sums to the same <span class="arithmatex">\(Z=87\)</span> before normalization, matching enumeration. The messages are precisely cached elimination factors, now reused for several queries.</p>
+<h3 id="message-scale-and-the-normalizer">Message scale and the normalizer<a class="headerlink" href="#message-scale-and-the-normalizer" title="Permanent link">¤</a></h3>
+<p>Messages can be multiplied by arbitrary positive constants without changing normalized beliefs. Normalizing every message prevents underflow, but discarding all scale factors loses the normalizer. To recover <span class="arithmatex">\(Z\)</span> or a sequence likelihood, store the normalization constants under a consistent convention or evaluate one calibrated root expression before normalizing it.</p>
+<p>For positive factors, log-domain updates replace products by sums and factor marginalization by <code>logsumexp</code>:</p>
+<div class="arithmatex">\[
+\log m_{a\to i}(x_i)
+=\operatorname{logsumexp}_{x_{a\setminus i}}
+\left[
+\log f_a(x_a)+
+\sum_{j\in N(a)\setminus\{i\}}\log m_{j\to a}(x_j)
+\right].
+\]</div>
+<p>Zero factors represent impossible configurations and become <span class="arithmatex">\(-\infty\)</span> in log space. Code must define how an all-impossible message is reported rather than silently producing <code>NaN</code> after normalization.</p>
+<h3 id="chains-hidden-markov-models-and-state-space-inference">Chains, hidden Markov models, and state-space inference<a class="headerlink" href="#chains-hidden-markov-models-and-state-space-inference" title="Permanent link">¤</a></h3>
+<p>Forward-backward in a hidden Markov model is sum-product on a chain. A forward message combines the filtered state with a transition and new emission; a backward message summarizes later observations. Their product gives a smoothed marginal. Viterbi replaces summation by maximization and stores backpointers. Forward-filtering backward-sampling uses calibrated conditionals to draw a complete posterior path.</p>
+<p>These computations answer different queries:</p>
+<div class="md-typeset__table book-table-container"><table id="tbl-graphical-inference-and-message-passing-chains-hidden-markov-models-and-state-space-inference"><caption class="book-object-caption"><span class="book-object-number">Table MSG.5.</span> Chains, hidden Markov models, and state-space inference</caption>
+<thead>
+<tr>
+<th>Operation</th>
+<th>Replaced algebra</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>sum-product</td>
+<td>sum and product</td>
+<td>exact marginals and normalizer on a tree</td>
+</tr>
+<tr>
+<td>max-product / max-sum</td>
+<td>max and product / addition in log space</td>
+<td>max-marginals; global MPE requires compatible traceback</td>
+</tr>
+<tr>
+<td>backward sampling</td>
+<td>normalized calibrated factors</td>
+<td>exact posterior sample on a tree</td>
+</tr>
+<tr>
+<td>coordinatewise marginal mode</td>
+<td>argmax of each exact marginal</td>
+<td>minimum per-node 0–1 loss; need not be a legal or globally most probable joint state</td>
+</tr>
+</tbody>
+</table></div>
+<p>Sum and max cannot be interchanged indiscriminately. Marginal MAP, which sums nuisance variables and maximizes query variables, needs an order compatible with those operations and is generally harder than either all-sum marginalization or all-max MPE.</p>
+<h3 id="posterior-modes-answer-different-decision-problems">Posterior modes answer different decision problems<a class="headerlink" href="#posterior-modes-answer-different-decision-problems" title="Permanent link">¤</a></h3>
+<p>The distinction is visible in a four-row posterior. Let three binary variables
+obey an even-parity constraint, so only <span class="arithmatex">\(000\)</span>, <span class="arithmatex">\(011\)</span>, <span class="arithmatex">\(101\)</span>, and <span class="arithmatex">\(110\)</span> are
+legal, with probabilities</p>
+<div class="md-typeset__table book-table-container"><table id="tbl-graphical-inference-and-message-passing-posterior-modes-answer-different-decision-problems"><caption class="book-object-caption"><span class="book-object-number">Table MSG.6.</span> Posterior modes answer different decision problems</caption>
+<thead>
+<tr>
+<th>State</th>
+<th style="text-align: right;"><span class="arithmatex">\(000\)</span></th>
+<th style="text-align: right;"><span class="arithmatex">\(011\)</span></th>
+<th style="text-align: right;"><span class="arithmatex">\(101\)</span></th>
+<th style="text-align: right;"><span class="arithmatex">\(110\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Posterior probability</td>
+<td style="text-align: right;"><span class="arithmatex">\(0.27\)</span></td>
+<td style="text-align: right;"><span class="arithmatex">\(0.18\)</span></td>
+<td style="text-align: right;"><span class="arithmatex">\(0.30\)</span></td>
+<td style="text-align: right;"><span class="arithmatex">\(0.25\)</span></td>
+</tr>
+</tbody>
+</table></div>
+<p>The unique globally most probable explanation is</p>
+<div class="arithmatex">\[
+x^{\mathrm{MPE}}=101.
+\]</div>
+<p>The singleton posterior probabilities of state <span class="arithmatex">\(1\)</span> are</p>
+<div class="arithmatex">\[
+p(X_1=1)=0.55,
+\qquad
+p(X_2=1)=0.43,
+\qquad
+p(X_3=1)=0.48.
+\]</div>
+<p>Choosing the most probable value independently at each coordinate therefore
+returns <span class="arithmatex">\(100\)</span>, which has posterior probability zero because it violates the
+parity factor. That coordinatewise rule is still a valid Bayes action when the
+loss is Hamming loss: each bit is scored separately. MPE instead minimizes
+posterior expected exact-match <span class="arithmatex">\(0\)</span>–<span class="arithmatex">\(1\)</span> loss, where the entire assignment must be
+correct.</p>
+<p>Max-product computes <strong>max-marginals</strong>. In this example their values are</p>
+<div class="arithmatex">\[
+\begin{aligned}
+\zeta_1(0),\zeta_1(1)&amp;=(0.27,0.30),\\
+\zeta_2(0),\zeta_2(1)&amp;=(0.30,0.25),\\
+\zeta_3(0),\zeta_3(1)&amp;=(0.27,0.30).
+\end{aligned}
+\]</div>
+<p>Their unique local maximizers stitch together as <span class="arithmatex">\(101\)</span>, the MPE. With tied
+max-marginals, independently breaking ties can again create an incompatible
+assignment; a tree traceback or another globally consistent reconstruction is
+required.</p>
+<p>Marginal MAP introduces a third decision. For query variables <span class="arithmatex">\(X_Q\)</span> and
+nuisance variables <span class="arithmatex">\(X_R\)</span>,</p>
+<div class="arithmatex">\[
+x_Q^*=\arg\max_{x_Q}\sum_{x_R}p(x_Q,x_R\mid e).
+\]</div>
+<p>It maximizes posterior mass after eliminating <span class="arithmatex">\(X_R\)</span>; it need not equal the
+restriction of a full MPE assignment. The elimination schedule must respect
+which variables are summed and which are maximized because those operations do
+not generally commute. Thus “run max-product” is incomplete until the query,
+loss, tie rule, and reconstruction procedure have been named.</p>
+<h3 id="exactness-contract-for-tree-messages">Exactness contract for tree messages<a class="headerlink" href="#exactness-contract-for-tree-messages" title="Permanent link">¤</a></h3>
+<p>The standard exact guarantee needs:</p>
+<ol>
+<li>an acyclic factor graph after incorporating evidence;</li>
+<li>factors representing the declared nonnegative finite sum or compatible integral;</li>
+<li>every required message computed from the correct incoming messages;</li>
+<li>exact local sum/product arithmetic, apart from stated floating-point error; and</li>
+<li>a query supported by the chosen algebra.</li>
+</ol>
+<p>A graph that merely looks tree-like, a truncated number of rounds, pruned states, low-rank message compression, quadrature, or particle messages changes the guarantee. Those may be excellent approximations, but they must be named.</p>
+<div class="admonition warning">
+<p class="admonition-title">Misconception check</p>
+<p>Exact singleton marginals do not determine the joint law, and choosing the most probable state of every singleton can violate a global constraint. Use factor marginals, a traceback procedure, or posterior sampling when dependencies matter.</p>
+</div>
+<h3 id="chapter-3-synthesis">Chapter 3 synthesis<a class="headerlink" href="#chapter-3-synthesis" title="Permanent link">¤</a></h3>
+<p>Tree messages are cached partial eliminations. Two directed messages per edge provide all local marginals, and a consistent scale convention recovers the normalizer. Chapter 4 preserves this reuse on a loopy original graph by clustering variables into a junction tree.</p>
+<details class="question">
+<summary>Retrieval practice: exact tree messages</summary>
+<ol>
+<li>Why does <span class="arithmatex">\(m_{i\to a}\)</span> exclude <span class="arithmatex">\(m_{a\to i}\)</span>?</li>
+<li>What do the running example's two incoming messages to <span class="arithmatex">\(B\)</span> multiply to?</li>
+<li>Does normalizing every message make the algorithm approximate?</li>
+<li>Why is a coordinatewise marginal mode not necessarily the MPE state?</li>
+<li>Which loss makes coordinatewise posterior modes optimal?</li>
+</ol>
+<p><strong>Solutions.</strong> (1) To avoid returning and double-counting information that came from the recipient's side. (2) <span class="arithmatex">\((7,5)\odot(6,9)=(42,45)\)</span>. (3) No; positive rescaling leaves normalized beliefs unchanged, although scale factors must be retained to recover <span class="arithmatex">\(Z\)</span>. (4) It optimizes each coordinate separately and can ignore joint constraints or dependence. (5) Additive Hamming loss, with one <span class="arithmatex">\(0\)</span>–<span class="arithmatex">\(1\)</span> penalty per coordinate.</p>
+</details>
+<p><strong>Bridge.</strong> Loops prevent an edge from separating the graph into independent sides. Exact inference can restore a tree by making each node a cluster rather than a single variable. <a href="./#4-junction-trees-and-reusable-exact-inference">Continue continuously</a> or open <a href="../message-passing-04-junction-trees/">Chapter 4</a>.</p>
+<h2 id="4-junction-trees-and-reusable-exact-inference">4. Junction Trees and Reusable Exact Inference<a class="headerlink" href="#4-junction-trees-and-reusable-exact-inference" title="Permanent link">¤</a></h2>
+<h3 id="chapter-4-prerequisites-and-learning-objectives">Chapter 4 prerequisites and learning objectives<a class="headerlink" href="#chapter-4-prerequisites-and-learning-objectives" title="Permanent link">¤</a></h3>
+<p>This chapter assumes variable elimination, induced width, and exact tree messages. By the end, you should be able to:</p>
+<ul>
+<li>construct the clique scopes induced by an elimination order;</li>
+<li>state the running-intersection property;</li>
+<li>derive a clique-to-clique separator message;</li>
+<li>explain how junction-tree calibration reuses work across many marginals; and</li>
+<li>connect elimination to compiled arithmetic and probabilistic circuits without equating their representation costs.</li>
+</ul>
+<h3 id="turn-a-loopy-graph-into-a-tree-of-clusters">Turn a loopy graph into a tree of clusters<a class="headerlink" href="#turn-a-loopy-graph-into-a-tree-of-clusters" title="Permanent link">¤</a></h3>
+<p>The <a href="https://doi.org/10.1111/j.2517-6161.1988.tb01721.x">junction-tree algorithm</a> performs exact message passing on clusters. For a discrete undirected graph, a standard construction is:</p>
+<ol>
+<li>choose an elimination order and add its fill-in edges, producing a chordal graph;</li>
+<li>identify the maximal cliques of that chordal graph;</li>
+<li>connect cliques into a tree whose edge weights favor large intersections; and</li>
+<li>require the <strong>running-intersection property</strong>: all cliques containing any variable <span class="arithmatex">\(X_i\)</span> form a connected subtree.</li>
+</ol>
+<p>For a directed Bayesian network, first incorporate evidence and convert the relevant factorization to undirected scopes. Graphically this includes connecting co-parents when their child conditional is treated as one factor; a practical implementation can work directly from factor scopes instead of relying on a hand-drawn moralization step.</p>
+<p>Let adjacent clique nodes have scopes <span class="arithmatex">\(C_i\)</span> and <span class="arithmatex">\(C_j\)</span> and separator <span class="arithmatex">\(S_{ij}=C_i\cap C_j\)</span>. Assign every original factor to one clique containing its scope and multiply assigned factors into clique potential <span class="arithmatex">\(\psi_i\)</span>. The message is</p>
+<div class="arithmatex">\[
+m_{i\to j}(x_{S_{ij}})
+=\sum_{x_{C_i\setminus S_{ij}}}
+\psi_i(x_{C_i})
+\prod_{k\in N(i)\setminus\{j\}}
+m_{k\to i}(x_{S_{ki}}).
+\]</div>
+<p>This is sum-product again: the “variable” transmitted across an edge is now a separator tuple. After a collect and distribute pass, neighboring clique beliefs agree on their separator marginals. Any node or factor marginal contained in a clique can then be extracted locally.</p>
+<h3 id="worked-example-triangulate-a-four-cycle">Worked example: triangulate a four-cycle<a class="headerlink" href="#worked-example-triangulate-a-four-cycle" title="Permanent link">¤</a></h3>
+<p>Suppose a model has pair factors on the cycle <span class="arithmatex">\(A-B-C-D-A\)</span>. Eliminating <span class="arithmatex">\(A\)</span> first adds the chord <span class="arithmatex">\(B-D\)</span>. One valid pair of maximal cliques is</p>
+<div class="arithmatex">\[
+C_1=\{A,B,D\},
+\qquad
+C_2=\{B,C,D\},
+\]</div>
+<p>with separator</p>
+<div class="arithmatex">\[
+S_{12}=\{B,D\}.
+\]</div>
+<figure class="book-figure" id="fig-graphical-inference-and-message-passing-worked-example-triangulate-a-four-cycle"><pre class="mermaid"><code>flowchart LR
+    C1["Clique&amp;nbsp;$$\{A,B,D\}$$"]
+    S["Separator&amp;nbsp;$$\{B,D\}$$"]
+    C2["Clique&amp;nbsp;$$\{B,C,D\}$$"]
+    C1 --&gt; S
+    S --&gt; C2</code></pre><figcaption class="book-object-caption"><span class="book-object-number">Figure MSG.5.</span> Worked example: triangulate a four-cycle</figcaption></figure>
+<p>Assign <span class="arithmatex">\(f_{AB}\)</span> and <span class="arithmatex">\(f_{DA}\)</span> to <span class="arithmatex">\(C_1\)</span>, and <span class="arithmatex">\(f_{BC}\)</span> and <span class="arithmatex">\(f_{CD}\)</span> to <span class="arithmatex">\(C_2\)</span>. The left-to-right message is</p>
+<div class="arithmatex">\[
+m_{1\to2}(b,d)=\sum_a f_{AB}(a,b)f_{DA}(d,a).
+\]</div>
+<p>The right-to-left message similarly sums out <span class="arithmatex">\(c\)</span>. Calibrated clique beliefs can answer <span class="arithmatex">\(p(A,B)\)</span> from <span class="arithmatex">\(C_1\)</span>, <span class="arithmatex">\(p(B,C)\)</span> from <span class="arithmatex">\(C_2\)</span>, and <span class="arithmatex">\(p(B,D)\)</span> from either clique. For binary variables, each clique table has <span class="arithmatex">\(2^3\)</span> entries. Exactness was recovered by clustering, but its cost rose from pairwise tables to width-two clique tables.</p>
+<h3 id="variable-elimination-versus-a-junction-tree">Variable elimination versus a junction tree<a class="headerlink" href="#variable-elimination-versus-a-junction-tree" title="Permanent link">¤</a></h3>
+<p>Variable elimination is efficient for one target marginal and one evidence pattern when intermediate factors need not be reused. A calibrated junction tree stores messages or clique beliefs so that many compatible marginals can be read without repeating the complete elimination. Changing evidence may permit local repropagation; changing factor scopes or the elimination order may require recompilation.</p>
+<div class="md-typeset__table book-table-container"><table id="tbl-graphical-inference-and-message-passing-variable-elimination-versus-a-junction-tree"><caption class="book-object-caption"><span class="book-object-number">Table MSG.7.</span> Variable elimination versus a junction tree</caption>
+<thead>
+<tr>
+<th>Representation</th>
+<th>Main reusable object</th>
+<th>Strength</th>
+<th>Cost boundary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>one VE run</td>
+<td>intermediate factors for one order/query</td>
+<td>simple exact contraction</td>
+<td>repeated queries may repeat work</td>
+</tr>
+<tr>
+<td>junction tree</td>
+<td>calibrated clique and separator messages</td>
+<td>all contained marginals after calibration</td>
+<td>clique tables exponential in width</td>
+</tr>
+<tr>
+<td>arithmetic circuit</td>
+<td>DAG of sums and products</td>
+<td>repeated evaluation and differentiation under changing evidence/parameters</td>
+<td>compiled DAG may be large</td>
+</tr>
+<tr>
+<td>probabilistic circuit</td>
+<td>a distribution represented directly by constrained sums/products</td>
+<td>selected exact queries linear in circuit size</td>
+<td>compact valid representation is not guaranteed to exist or be easy to learn</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="elimination-is-compilation">Elimination is compilation<a class="headerlink" href="#elimination-is-compilation" title="Permanent link">¤</a></h3>
+<p>An elimination order creates an expression made of local additions and multiplications. Keeping that expression as a DAG rather than immediately evaluating it yields an arithmetic circuit. Shared subexpressions can be reused for new evidence, parameter values, derivatives, and related marginals. This is <strong>algorithmic amortization by compilation</strong>, not learned amortized inference.</p>
+<p><a href="../probabilistic-circuits-explained/">Probabilistic circuits</a> make the compiled representation the model interface. Smoothness and decomposability support exact marginal evaluation by construction; determinism enables additional maximization queries; structured decomposability controls compatibility between circuits. These properties exploit more than a graph's coarse treewidth, including context-specific independence and logical support. The cost statement is linear in the compiled circuit size, which itself can be exponential in the original model.</p>
+<h3 id="query-aware-exactness">Query-aware exactness<a class="headerlink" href="#query-aware-exactness" title="Permanent link">¤</a></h3>
+<p>“The model has a junction tree” is incomplete because every finite graph can be triangulated. Ask instead:</p>
+<ul>
+<li>What is the induced width under the actual order?</li>
+<li>Which variable cardinalities determine clique entries?</li>
+<li>Are the factors dense, sparse, deterministic, low rank, Gaussian, or symbolically integrable?</li>
+<li>Is one query required, all marginals, repeated evidence, MAP, or sampling?</li>
+<li>What compilation and calibration memory is retained?</li>
+</ul>
+<p>The tree decomposition can also guide hybrid algorithms: exact messages within tractable clusters, sampling across cutsets, variational approximations for selected factors, or neural proposals for costly local integrals. Each hybrid must identify which operations remain exact.</p>
+<div class="admonition failure">
+<p class="admonition-title">Counterexample: a tree of huge cliques is not tractable</p>
+<p>The junction graph is always a tree after construction, but a single clique may contain most variables. Tree-shaped control flow does not overcome the exponential state table inside that clique.</p>
+</div>
+<h3 id="chapter-4-synthesis">Chapter 4 synthesis<a class="headerlink" href="#chapter-4-synthesis" title="Permanent link">¤</a></h3>
+<p>Junction trees transform loops into cluster width. Calibration reuses exact elimination work across local queries, while arithmetic and probabilistic circuits preserve the same distributive computation in a compiled DAG. Chapter 5 keeps the original loopy graph and accepts approximation instead.</p>
+<details class="question">
+<summary>Retrieval practice: clusters and compilation</summary>
+<ol>
+<li>What must be true of the cliques containing one variable?</li>
+<li>What variables index a message between adjacent cliques?</li>
+<li>Why can junction-tree inference be exact but impractical?</li>
+<li>How does compilation differ from a learned amortized encoder?</li>
+</ol>
+<p><strong>Solutions.</strong> (1) They form a connected subtree—the running-intersection property. (2) Their separator, the intersection of the clique scopes. (3) Clique tables are exponential in induced width and variable cardinalities. (4) Compilation caches an exact algebraic expression for a represented model; a learned encoder predicts an approximate answer after training on a task distribution.</p>
+</details>
+<p><strong>Bridge.</strong> Exact clustering pays exponential width. Loopy belief propagation keeps small local messages, but its fixed points require a different correctness contract. <a href="./#5-loopy-belief-propagation-and-variational-messages">Continue continuously</a> or open <a href="../message-passing-05-loopy/">Chapter 5</a>.</p>
+<h2 id="5-loopy-belief-propagation-and-variational-messages">5. Loopy Belief Propagation and Variational Messages<a class="headerlink" href="#5-loopy-belief-propagation-and-variational-messages" title="Permanent link">¤</a></h2>
+<h3 id="chapter-5-prerequisites-and-learning-objectives">Chapter 5 prerequisites and learning objectives<a class="headerlink" href="#chapter-5-prerequisites-and-learning-objectives" title="Permanent link">¤</a></h3>
+<p>You should know the exact tree updates and why a tree edge separates two components. By the end, you should be able to:</p>
+<ul>
+<li>run the sum-product updates iteratively on a graph with cycles;</li>
+<li>separate convergence, fixed-point validity, and marginal accuracy;</li>
+<li>relate interior belief-propagation fixed points to stationary points of the Bethe free energy under the required conditions;</li>
+<li>derive scalar Gaussian messages in information form and state their tree and loopy guarantees;</li>
+<li>use damping and residual diagnostics without treating them as correctness proofs; and</li>
+<li>distinguish loopy BP, generalized BP, variational message passing, expectation propagation, and amortized inference.</li>
+</ul>
+<h3 id="reusing-tree-equations-on-a-loopy-graph">Reusing tree equations on a loopy graph<a class="headerlink" href="#reusing-tree-equations-on-a-loopy-graph" title="Permanent link">¤</a></h3>
+<p>Loopy belief propagation applies the Chapter 3 update equations repeatedly even though an edge no longer separates independent subtrees. Information can return around a cycle in a later iteration, so the tree proof no longer applies. One must answer three separate questions:</p>
+<ol>
+<li><strong>Convergence:</strong> do the messages approach a fixed point under the declared schedule and damping?</li>
+<li><strong>Validity:</strong> do the resulting beliefs normalize and satisfy the local marginal-consistency constraints?</li>
+<li><strong>Accuracy:</strong> how close are those beliefs or the estimated normalizer to the exact target query?</li>
+</ol>
+<p>A converged run can be inaccurate. A nonconverged run can occasionally yield a useful early iterate. Locally consistent beliefs need not correspond to any global joint distribution on a loopy graph.</p>
+<h3 id="worked-counterexample-convergence-without-exact-marginals">Worked counterexample: convergence without exact marginals<a class="headerlink" href="#worked-counterexample-convergence-without-exact-marginals" title="Permanent link">¤</a></h3>
+<p>Let <span class="arithmatex">\(A,B,C\in\{0,1\}\)</span> form a triangle. Give each edge the same compatibility factor</p>
+<div class="arithmatex">\[
+f(x_i,x_j)=
+\begin{bmatrix}
+3&amp;1\\
+1&amp;3
+\end{bmatrix},
+\]</div>
+<p>and use unary factors <span class="arithmatex">\(u_A=(2,1)\)</span> and <span class="arithmatex">\(u_B=u_C=(1,1)\)</span>. Exact enumeration gives <span class="arithmatex">\(Z=108\)</span> and</p>
+<div class="arithmatex">\[
+p(A)=\left(\frac23,\frac13\right),
+\qquad
+p(B)=p(C)=\left(\frac{11}{18},\frac7{18}\right)
+\approx(0.61111,0.38889).
+\]</div>
+<p>Starting all directed messages uniformly and applying normalized synchronous sum-product updates converges for this instance. Its fixed-point beliefs are approximately</p>
+<div class="arithmatex">\[
+b_A\approx(0.70691,0.29309),
+\qquad
+b_B=b_C\approx(0.63794,0.36206).
+\]</div>
+<p>The messages converged, the beliefs are normalized, and the answer is still wrong. This finite example rejects the common inference “the residual is small, therefore the posterior is accurate.”</p>
+<h3 id="bethe-free-energy-a-precise-but-bounded-connection">Bethe free energy: a precise but bounded connection<a class="headerlink" href="#bethe-free-energy-a-precise-but-bounded-connection" title="Permanent link">¤</a></h3>
+<p>For normalized candidate factor beliefs <span class="arithmatex">\(b_a(x_a)\)</span> and node beliefs <span class="arithmatex">\(b_i(x_i)\)</span> satisfying local marginal consistency, the Bethe free energy can be written</p>
+<div class="arithmatex">\[
+F_{\mathrm B}(b)
+=\sum_a\sum_{x_a}b_a(x_a)
+\log\frac{b_a(x_a)}{f_a(x_a)}
++\sum_i(1-d_i)\sum_{x_i}b_i(x_i)\log b_i(x_i),
+\]</div>
+<p>where <span class="arithmatex">\(d_i\)</span> is the factor-graph degree of variable <span class="arithmatex">\(i\)</span>. On a tree, the Bethe entropy decomposition is exact and minimizing this objective recovers the exact marginals and log normalizer. On a loopy graph, it is an approximation.</p>
+<p>Under positivity, interiority, and regularity conditions, loopy-BP fixed points correspond to stationary points of the constrained Bethe free energy (<a href="https://doi.org/10.1109/TIT.2005.850085">Yedidia, Freeman, and Weiss, 2005</a>). This does not guarantee that an iteration converges, that the stationary point is unique or globally optimal, or that its beliefs are accurate.</p>
+<h3 id="scheduling-damping-and-numerical-practice">Scheduling, damping, and numerical practice<a class="headerlink" href="#scheduling-damping-and-numerical-practice" title="Permanent link">¤</a></h3>
+<p>Common stabilizers include:</p>
+<ul>
+<li>normalize messages or subtract a log-message offset after every update;</li>
+<li>update serially, in residual-priority order, or by a graph coloring instead of fully synchronously;</li>
+<li>damp a normalized update <span class="arithmatex">\(\widehat m\)</span> using</li>
+</ul>
+<div class="arithmatex">\[
+m^{(t+1)}=(1-\lambda)m^{(t)}+\lambda\widehat m^{(t+1)},
+\qquad 0&lt;\lambda\le1;
+\]</div>
+<ul>
+<li>detect oscillation and track both maximum message residual and belief change;</li>
+<li>set an explicit iteration and wall-clock budget; and</li>
+<li>compare with exact enumeration on small induced subgraphs or with an independent approximate method.</li>
+</ul>
+<p>Convex damping in probability space and interpolation in log space are different algorithms. State which one is used. Damping changes the update dynamics, not the target factor graph, and supplies no universal convergence or accuracy guarantee.</p>
+<h3 id="what-can-be-guaranteed-in-special-cases">What can be guaranteed in special cases?<a class="headerlink" href="#what-can-be-guaranteed-in-special-cases" title="Permanent link">¤</a></h3>
+<p>Guarantees depend on model class. Weak interactions can make the update a contraction. For Gaussian graphical models, walk-summability is a useful sufficient condition for convergence; when Gaussian BP converges under the standard valid-model conditions, its means can be exact while variance estimates need not be (<a href="https://www.jmlr.org/papers/v7/malioutov06a.html">Malioutov, Johnson, and Willsky, 2006</a>). A statement proved for Gaussian means must not be transferred to categorical marginals, MAP, or normalizer estimates.</p>
+<p>Generalized belief propagation clusters short loops into regions, trading larger messages for a richer free-energy approximation. At the limit of a valid exact junction tree, clustering recovers exact inference. Intermediate region graphs need carefully chosen counting numbers and consistency constraints; “uses bigger clusters” is not a complete guarantee.</p>
+<h3 id="gaussian-messages-are-sparse-elimination-in-information-form">Gaussian messages are sparse elimination in information form<a class="headerlink" href="#gaussian-messages-are-sparse-elimination-in-information-form" title="Permanent link">¤</a></h3>
+<p>A Gaussian Markov random field can be written</p>
+<div class="arithmatex">\[
+p(x)\propto
+\exp\!\left(-\frac12x^\top Jx+h^\top x\right),
+\qquad J\succ0.
+\]</div>
+<p>Zeros in the precision matrix <span class="arithmatex">\(J\)</span> encode missing pairwise edges. For scalar
+nodes, write the pair interaction as <span class="arithmatex">\(\exp(-J_{ij}x_ix_j)\)</span>. A Gaussian message
+from <span class="arithmatex">\(i\)</span> to <span class="arithmatex">\(j\)</span> has canonical form</p>
+<div class="arithmatex">\[
+m_{i\to j}(x_j)
+\propto
+\exp\!\left(-\frac12P_{i\to j}x_j^2+q_{i\to j}x_j\right).
+\]</div>
+<p>Combining the unary term at <span class="arithmatex">\(i\)</span> with every incoming message except the one
+from <span class="arithmatex">\(j\)</span> gives the cavity parameters</p>
+<div class="arithmatex">\[
+P_{i\setminus j}=J_{ii}+\sum_{k\in N(i)\setminus\{j\}}P_{k\to i},
+\qquad
+q_{i\setminus j}=h_i+\sum_{k\in N(i)\setminus\{j\}}q_{k\to i}.
+\]</div>
+<p>When <span class="arithmatex">\(P_{i\setminus j}&gt;0\)</span>, integrating out <span class="arithmatex">\(x_i\)</span> is a one-dimensional Schur
+complement:</p>
+<div class="arithmatex">\[
+\boxed{
+P_{i\to j}=-\frac{J_{ij}^2}{P_{i\setminus j}},
+\qquad
+q_{i\to j}=-\frac{J_{ij}q_{i\setminus j}}{P_{i\setminus j}}
+}
+\]</div>
+<p>The negative message precision is not a negative posterior variance. A message
+is an unnormalized partial integral and need not be a normalizable density by
+itself. The combined belief must have positive precision</p>
+<div class="arithmatex">\[
+P_i=J_{ii}+\sum_{k\in N(i)}P_{k\to i},
+\qquad
+q_i=h_i+\sum_{k\in N(i)}q_{k\to i},
+\]</div>
+<p>and then <span class="arithmatex">\(\mathbb E[X_i]=q_i/P_i\)</span> and
+<span class="arithmatex">\(\operatorname{Var}(X_i)=1/P_i\)</span>.</p>
+<p>Consider the chain</p>
+<figure class="book-figure" id="fig-graphical-inference-and-message-passing-gaussian-messages-are-sparse-elimination-in-information-form"><pre class="mermaid"><code>flowchart TB
+    x1(("State&amp;nbsp;$$x_1$$"))
+    f12["Quadratic coupling&lt;br/&gt;&amp;nbsp;$$-J_{12}x_1x_2$$"]
+    x2(("State&amp;nbsp;$$x_2$$"))
+    f23["Quadratic coupling&lt;br/&gt;&amp;nbsp;$$-J_{23}x_2x_3$$"]
+    x3(("State&amp;nbsp;$$x_3$$"))
+    x1 --- f12
+    f12 --- x2
+    x2 --- f23
+    f23 --- x3</code></pre><figcaption class="book-object-caption"><span class="book-object-number">Figure MSG.6.</span> Gaussian messages are sparse elimination in information form</figcaption></figure>
+<p>with</p>
+<div class="arithmatex">\[
+J=
+\begin{bmatrix}
+2&amp;-1&amp;0\\
+-1&amp;3&amp;-1\\
+0&amp;-1&amp;2
+\end{bmatrix},
+\qquad
+h=
+\begin{bmatrix}1\\0\\1\end{bmatrix}.
+\]</div>
+<p>Both leaf-to-center messages have</p>
+<div class="arithmatex">\[
+(P_{1\to2},q_{1\to2})
+=(P_{3\to2},q_{3\to2})
+=\left(-\frac12,\frac12\right).
+\]</div>
+<p>Thus <span class="arithmatex">\(P_2=2\)</span> and <span class="arithmatex">\(q_2=1\)</span>, giving mean <span class="arithmatex">\(1/2\)</span> and variance
+<span class="arithmatex">\(1/2\)</span>. The message from node <span class="arithmatex">\(2\)</span> to node <span class="arithmatex">\(1\)</span>, after absorbing node <span class="arithmatex">\(3\)</span>, is</p>
+<div class="arithmatex">\[
+(P_{2\to1},q_{2\to1})
+=\left(-\frac25,\frac15\right),
+\]</div>
+<p>so node <span class="arithmatex">\(1\)</span> has precision <span class="arithmatex">\(8/5\)</span>, information <span class="arithmatex">\(6/5\)</span>, mean <span class="arithmatex">\(3/4\)</span>, and
+variance <span class="arithmatex">\(5/8\)</span>. Direct linear algebra confirms</p>
+<div class="arithmatex">\[
+J^{-1}h=
+\begin{bmatrix}3/4\\1/2\\3/4\end{bmatrix},
+\qquad
+J^{-1}=\frac18
+\begin{bmatrix}
+5&amp;2&amp;1\\
+2&amp;4&amp;2\\
+1&amp;2&amp;5
+\end{bmatrix}.
+\]</div>
+<p>On a Gaussian tree these messages are exact sparse elimination. On a loopy
+Gaussian graph, convergence is a separate question. Walk-summability is one
+useful sufficient condition; when standard Gaussian BP converges under its
+valid-model conditions, the means can be exact while the marginal variances
+remain approximate (<a href="https://www.jmlr.org/papers/v7/malioutov06a.html">Malioutov, Johnson, and Willsky,
+2006</a>). Block messages,
+reparameterization, damping, and alternative splittings change the convergence
+analysis.</p>
+<p>Do not transfer that theorem to a nonlinear or non-Gaussian factor graph merely
+because every local message has been projected to a Gaussian. <a href="https://proceedings.mlr.press/v235/nabarro24a.html">Deep Gaussian
+factor graphs</a>
+(<strong>Peer-reviewed research</strong>, ICML 2024) learn within a Gaussian-message
+construction; <a href="https://proceedings.iclr.cc/paper_files/paper/2025/hash/2cd38e57eb9c3c96e859b89c3d0a3b18-Abstract-Conference.html">Gaussian Ensemble Belief
+Propagation</a>
+(<strong>Peer-reviewed research</strong>, ICLR 2025) uses ensemble and low-rank local
+approximations for black-box factors. A <a href="https://arxiv.org/abs/2601.21935">2026
+preprint</a> derives Gaussianization with graph,
+factor, uncertainty, and asymptotic assumptions. None of these results makes an
+arbitrary locally Gaussianized loopy solver exact.</p>
+<h3 id="expectation-propagation-replaces-one-site-through-a-tilted-law">Expectation propagation replaces one site through a tilted law<a class="headerlink" href="#expectation-propagation-replaces-one-site-through-a-tilted-law" title="Permanent link">¤</a></h3>
+<p>Expectation propagation (EP) uses a different approximation object from
+mean-field VI. Write a target and tractable approximation as</p>
+<div class="arithmatex">\[
+p(z)=\frac{1}{Z}f_0(z)\prod_{n=1}^{N}f_n(z),
+\qquad
+q(z)=\frac{1}{Z_q}f_0(z)\prod_{n=1}^{N}t_n(z),
+\]</div>
+<p>where each tractable site <span class="arithmatex">\(t_n\)</span> approximates the effect of <span class="arithmatex">\(f_n\)</span>. One EP update
+performs four distinct operations:</p>
+<div class="arithmatex">\[
+\begin{aligned}
+q_{\setminus n}(z)
+&amp;\propto \frac{q(z)}{t_n(z)}
+&amp;&amp;\text{remove the old site},\\
+\widetilde p_n(z)
+&amp;\propto f_n(z)q_{\setminus n}(z)
+&amp;&amp;\text{form the tilted law},\\
+q^{\mathrm{proj}}_n
+&amp;=\arg\min_{r\in\mathcal Q}
+D_{\mathrm{KL}}(\widetilde p_n\|r)
+&amp;&amp;\text{project by moment matching},\\
+t_n^{\mathrm{new}}(z)
+&amp;\propto\frac{q^{\mathrm{proj}}_n(z)}{q_{\setminus n}(z)}
+&amp;&amp;\text{replace the site}.
+\end{aligned}
+\]</div>
+<p>If <span class="arithmatex">\(\mathcal Q\)</span> is a regular exponential family and the tilted moments exist,
+the forward-KL projection matches its sufficient-statistic expectations. The
+factor <span class="arithmatex">\(f_n\)</span> itself need not belong to that family; the required tilted
+integrals may still need quadrature, analytic identities, or another
+approximation. <a href="https://tminka.github.io/papers/ep/">Minka's corrected UAI paper and thesis</a>
+give the foundational construction.</p>
+<p>This local forward-KL projection is not the global reverse-KL objective of
+ordinary ELBO VI. Repeated site replacement may converge to a fixed point of an
+EP energy under the applicable formulation, but EP can oscillate, produce
+improper cavity or site parameters, or converge to an inaccurate approximation.
+Damping a site in natural-parameter space can stabilize the iteration without
+proving accuracy. Assumed-density filtering is the one-pass relative that folds
+each factor into the current approximation without later removing and revising
+its site.</p>
+<p>Power EP changes the amount of a site removed and the factor power inserted;
+limits connect to variational constructions under particular alpha-divergence
+conventions. Alpha symbols and divergence directions differ across papers, so
+an implementation must state its cavity, tilted law, energy, and limiting
+convention rather than claim that EP “is forward KL.” Stochastic EP compresses
+many tied sites into a global approximation to reduce memory
+(<a href="https://proceedings.neurips.cc/paper/2015/hash/f3bd5ad57c8389a8a1a541a76be463bf-Abstract.html">Li, Hernández-Lobato, and Turner</a>);
+black-box alpha methods define another scalable objective
+(<a href="https://proceedings.mlr.press/v48/hernandez-lobatob16.html">Hernández-Lobato et al.</a>).
+These are related algorithms, not interchangeable names.</p>
+<h3 id="nearby-methods-are-not-synonyms">Nearby methods are not synonyms<a class="headerlink" href="#nearby-methods-are-not-synonyms" title="Permanent link">¤</a></h3>
+<div class="md-typeset__table book-table-container"><table id="tbl-graphical-inference-and-message-passing-nearby-methods-are-not-synonyms"><caption class="book-object-caption"><span class="book-object-number">Table MSG.8.</span> Nearby methods are not synonyms</caption>
+<thead>
+<tr>
+<th>Method</th>
+<th>Approximation object</th>
+<th>Update principle</th>
+<th>Important boundary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>loopy BP</td>
+<td>locally consistent factor/node beliefs</td>
+<td>repeated sum-product; Bethe stationary points at fixed points under conditions</td>
+<td>may not converge or be exact</td>
+</tr>
+<tr>
+<td>generalized BP</td>
+<td>region beliefs</td>
+<td>region-graph messages and richer free energy</td>
+<td>region choice affects cost, validity, and accuracy</td>
+</tr>
+<tr>
+<td>mean-field / variational message passing</td>
+<td>chosen variational family, often factorized or conjugate-exponential</td>
+<td>coordinate optimization of an ELBO</td>
+<td>minimizes a declared variational objective, not Bethe by default</td>
+</tr>
+<tr>
+<td>expectation propagation</td>
+<td>product of tractable sites approximating factors</td>
+<td>cavity removal, tilted distribution, moment projection</td>
+<td>moment integrals and convergence may fail</td>
+</tr>
+<tr>
+<td>MCMC or SMC</td>
+<td>weighted or correlated samples</td>
+<td>invariant transitions or sequential reweighting</td>
+<td>Monte Carlo error and mixing replace deterministic fixed-point error</td>
+</tr>
+<tr>
+<td>amortized neural inference</td>
+<td>learned map from observations/model description to posterior parameters</td>
+<td>training over a task distribution</td>
+<td>generalization, calibration, and approximation gaps must be measured</td>
+</tr>
+</tbody>
+</table></div>
+<p>The <a href="../latent-variables-and-inference/">latent-variable inference volume</a> develops ELBO and amortization gaps; the <a href="../sampling-and-continuous-time/">sampling volume</a> develops Monte Carlo correctness; and <a href="../likelihood-and-normalizer-estimation/">normalizer estimation</a> treats uncertainty in evidence estimates. Message passing is one branch of that larger inference decision.</p>
+<h3 id="a-diagnostic-record">A diagnostic record<a class="headerlink" href="#a-diagnostic-record" title="Permanent link">¤</a></h3>
+<p>For every approximate message run, record:</p>
+<ul>
+<li>target factors, evidence, variable cardinalities, and any zeros or hard constraints;</li>
+<li>update equations, schedule, initialization, damping convention, and stopping rule;</li>
+<li>message and belief residual traces, oscillation, and numerical repairs;</li>
+<li>the query extracted from beliefs and whether it needs a normalizer estimate;</li>
+<li>exact small-case comparisons or an independently justified reference; and</li>
+<li>sensitivity to initialization, order, damping, precision, and iteration budget.</li>
+</ul>
+<div class="admonition warning">
+<p class="admonition-title">Misconception check</p>
+<p>A fixed point is an algorithmic event. Posterior correctness is a probabilistic claim. Connect them only with a theorem whose model, graph, update, and query assumptions match the implementation.</p>
+</div>
+<h3 id="chapter-5-synthesis">Chapter 5 synthesis<a class="headerlink" href="#chapter-5-synthesis" title="Permanent link">¤</a></h3>
+<p>Loopy BP trades the exponential clique width of exact inference for fixed-size local iterations. Convergence, local consistency, and accuracy remain distinct. Variational, sampling, and amortized alternatives optimize or approximate different objects. Chapter 6 asks when to compile the exact algebra, differentiate through it, or learn a replacement.</p>
+<details class="question">
+<summary>Retrieval practice: approximate messages</summary>
+<ol>
+<li>Can converged loopy messages produce incorrect marginals?</li>
+<li>What does the Bethe connection say—and not say—about a BP fixed point?</li>
+<li>Does damping alter the declared factorized target law?</li>
+<li>Why is an MPNN with learned messages not automatically loopy BP?</li>
+<li>Can an individual Gaussian canonical message have negative precision?</li>
+<li>Which KL direction appears in one EP moment projection, and does that make the whole EP iteration a global forward-KL minimization?</li>
+</ol>
+<p><strong>Solutions.</strong> (1) Yes; the triangle example does. (2) Under stated conditions it is a stationary point of a constrained approximate free energy; this does not prove convergence, uniqueness, global optimality, or exactness. (3) No; it changes the iterative algorithm, though an early-stopped output changes the approximation. (4) Its messages and readout need not implement probabilistic sum-product or correspond to beliefs in any normalized model. (5) Yes. A message is an unnormalized partial integral; only the combined cavity and belief precisions used as Gaussian laws must be positive. (6) The local projection minimizes <span class="arithmatex">\(D_{\mathrm{KL}}(\widetilde p_n\|q)\)</span> and therefore matches exponential-family moments. Repeated cavity removal and site replacement are not generally one global <span class="arithmatex">\(D_{\mathrm{KL}}(p\|q)\)</span> minimization.</p>
+</details>
+<p><strong>Bridge.</strong> Repeated inference can reuse more than messages: it can retain the whole sum-product computation or train a solver over a distribution of queries. <a href="./#6-compilation-differentiation-and-learned-inference">Continue continuously</a> or open <a href="../message-passing-06-compilation-learning/">Chapter 6</a>.</p>
+<h2 id="6-compilation-differentiation-and-learned-inference">6. Compilation, Differentiation, and Learned Inference<a class="headerlink" href="#6-compilation-differentiation-and-learned-inference" title="Permanent link">¤</a></h2>
+<h3 id="chapter-6-prerequisites-and-learning-objectives">Chapter 6 prerequisites and learning objectives<a class="headerlink" href="#chapter-6-prerequisites-and-learning-objectives" title="Permanent link">¤</a></h3>
+<p>This chapter assumes exact and approximate message passing and basic automatic differentiation. By the end, you should be able to:</p>
+<ul>
+<li>derive marginals from derivatives of a log partition function;</li>
+<li>distinguish compiled exact reuse from learned amortization;</li>
+<li>explain why integrated nested Laplace approximation is specialized to a
+  latent Gaussian model with sparse structure and low-dimensional
+  hyperparameters;</li>
+<li>identify what remains exact when messages are unrolled and differentiated;</li>
+<li>distinguish exact configuration-level Gumbel-Max sampling, approximate low-dimensional perturbations, and exact Gaussian perturb-and-solve;</li>
+<li>separate probabilistic BP from a general GNN or MPNN; and</li>
+<li>design an evaluation protocol for a learned inference system.</li>
+</ul>
+<h3 id="differentiate-a-correct-normalizer-to-obtain-moments">Differentiate a correct normalizer to obtain moments<a class="headerlink" href="#differentiate-a-correct-normalizer-to-obtain-moments" title="Permanent link">¤</a></h3>
+<p>Write an exponential-family factorization as</p>
+<div class="arithmatex">\[
+p_\eta(x)=\exp\{\eta^\top T(x)-A(\eta)\},
+\qquad
+A(\eta)=\log Z(\eta).
+\]</div>
+<p>Whenever differentiation and summation or integration may be exchanged,</p>
+<div class="arithmatex">\[
+\nabla_\eta A(\eta)=\mathbb E_{p_\eta}[T(X)].
+\]</div>
+<p>For a tabular factor entry parameterized by its log value, this becomes</p>
+<div class="arithmatex">\[
+\frac{\partial\log Z}{\partial\log f_a(x_a)}
+=p_\eta(X_a=x_a).
+\]</div>
+<p>Thus an exact differentiable program for <span class="arithmatex">\(\log Z\)</span> can return all represented factor marginals in one reverse-mode pass. The gradient is exact only to the extent that the forward normalizer computation and numerical differentiation are exact.</p>
+<h3 id="worked-example-differentiate-the-running-chain">Worked example: differentiate the running chain<a class="headerlink" href="#worked-example-differentiate-the-running-chain" title="Permanent link">¤</a></h3>
+<p>In the running model, scale <span class="arithmatex">\(u_A(0)\)</span> by <span class="arithmatex">\(e^\theta\)</span>. Differentiating at <span class="arithmatex">\(\theta=0\)</span> gives</p>
+<div class="arithmatex">\[
+\left.\frac{\partial\log Z(\theta)}{\partial\theta}\right|_{\theta=0}
+=p(A=0)=\frac{54}{87}=\frac{18}{29}.
+\]</div>
+<p>Likewise, differentiating with respect to <span class="arithmatex">\(\log f_{AB}(0,0)\)</span> returns</p>
+<div class="arithmatex">\[
+p(A=0,B=0)=\frac{12+24}{87}=\frac{12}{29}.
+\]</div>
+<p>These values agree with enumeration and calibrated messages. Automatic differentiation changed how the marginals were extracted, not the probability law or the sum being computed.</p>
+<h3 id="four-ways-to-reuse-inference">Four ways to reuse inference<a class="headerlink" href="#four-ways-to-reuse-inference" title="Permanent link">¤</a></h3>
+<div class="md-typeset__table book-table-container"><table id="tbl-graphical-inference-and-message-passing-four-ways-to-reuse-inference"><caption class="book-object-caption"><span class="book-object-number">Table MSG.9.</span> Four ways to reuse inference</caption>
+<thead>
+<tr>
+<th>Strategy</th>
+<th>What is reused</th>
+<th>Guarantee</th>
+<th>New failure mode</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>cached tree/junction messages</td>
+<td>partial exact contractions</td>
+<td>exact for supported queries and unchanged assumptions</td>
+<td>invalid cache after factor/evidence changes</td>
+</tr>
+<tr>
+<td>arithmetic or probabilistic circuit</td>
+<td>compiled sum-product DAG</td>
+<td>exact for queries justified by circuit properties</td>
+<td>compilation size and representation mismatch</td>
+</tr>
+<tr>
+<td>differentiable unrolling</td>
+<td>a fixed number of solver iterations</td>
+<td>exact only if the unrolled algorithm reaches an exact result under its schedule</td>
+<td>truncation bias, unstable gradients, memory cost</td>
+</tr>
+<tr>
+<td>amortized neural solver</td>
+<td>parameters learned across query instances</td>
+<td>empirical approximation under the training distribution</td>
+<td>generalization, calibration, and shortcut learning</td>
+</tr>
+</tbody>
+</table></div>
+<p>Compilation and amortization both move work before a query, but only compilation preserves a proved symbolic computation by construction. A learned solver may be faster or handle intractable factors, yet its answer needs empirical validation.</p>
+<h3 id="randomized-optimization-when-a-map-oracle-becomes-a-sampler">Randomized optimization: when a MAP oracle becomes a sampler<a class="headerlink" href="#randomized-optimization-when-a-map-oracle-becomes-a-sampler" title="Permanent link">¤</a></h3>
+<p>Optimization returns a high-scoring state; sampling must reproduce an entire
+law. Random perturbations connect the two only under a declared construction.
+For a finite configuration space <span class="arithmatex">\(\mathcal X\)</span> with unnormalized log mass
+<span class="arithmatex">\(a(x)\)</span>, draw one independent standard Gumbel variable <span class="arithmatex">\(G_x\)</span> for <strong>every
+complete configuration</strong>. Then</p>
+<div class="arithmatex">\[
+X^*=\arg\max_{x\in\mathcal X}\{a(x)+G_x\}
+\quad\Longrightarrow\quad
+\Pr(X^*=x)=\frac{e^{a(x)}}{\sum_{x'}e^{a(x')}}.
+\]</div>
+<p>For weights <span class="arithmatex">\((1,2,5)\)</span>, the returned configuration therefore has probabilities
+<span class="arithmatex">\((1/8,2/8,5/8)\)</span>. This is an exact sample, not a temperature heuristic. The
+difficulty is computational: a structured state with exponentially many
+configurations appears to require exponentially many independent perturbations
+and a global argmax.</p>
+<p>Low-dimensional perturb-and-MAP replaces that field with noise on unary or
+local factors so a structured MAP solver can be reused. It is generally a
+different output law. For example, if an equality constraint leaves only
+<span class="arithmatex">\(00\)</span> and <span class="arithmatex">\(11\)</span>, full-configuration Gumbel-Max compares one difference of two
+Gumbels, which is logistic with variance <span class="arithmatex">\(\pi^2/3\)</span>. Independently perturbing
+the two unary factors compares a sum of two independent logistic differences,
+whose variance is <span class="arithmatex">\(2\pi^2/3\)</span>. The selection law therefore cannot agree for all
+score gaps. Factorwise perturbation can be useful, but exactness needs a
+separate theorem, correction, or special factorization.</p>
+<p>This boundary explains the difference between exact Gumbel-process search such
+as <a href="https://proceedings.neurips.cc/paper_files/paper/2014/hash/937debc749f041eb5700df7211ac795c-Abstract.html">A* sampling</a>,
+low-dimensional methods with exact or approximate regimes
+(<a href="https://proceedings.neurips.cc/paper/2013/hash/443cb001c138b2561a0d90720d6ce111-Abstract.html">Hazan, Maji, and Jaakkola,
+2013</a>),
+and <a href="https://proceedings.neurips.cc/paper/2021/hash/07b1c04a30f798b5506c1ec5acfb9031-Abstract.html">perturb-and-max-product for discrete
+EBMs</a>,
+which is presented as approximate sampling. A continuous relaxation of the
+argmax supplies a differentiable surrogate; it does not preserve the discrete
+sample law automatically.</p>
+<p>Gaussian quadratic models provide an important exact local construction. If</p>
+<div class="arithmatex">\[
+p(x)\propto
+\prod_{\ell=1}^{L}
+\mathcal N(F_\ell x;\mu_\ell,\Sigma_\ell),
+\]</div>
+<p>define</p>
+<div class="arithmatex">\[
+J=\sum_\ell F_\ell^\top\Sigma_\ell^{-1}F_\ell,
+\qquad
+h=\sum_\ell F_\ell^\top\Sigma_\ell^{-1}\mu_\ell.
+\]</div>
+<p>Draw <span class="arithmatex">\(\widetilde\mu_\ell\sim
+\mathcal N(\mu_\ell,\Sigma_\ell)\)</span> independently and solve</p>
+<div class="arithmatex">\[
+\widetilde x
+=J^{-1}\sum_\ell
+F_\ell^\top\Sigma_\ell^{-1}\widetilde\mu_\ell.
+\]</div>
+<p>Then <span class="arithmatex">\(\mathbb E[\widetilde x]=J^{-1}h\)</span> and
+<span class="arithmatex">\(\operatorname{Cov}(\widetilde x)=J^{-1}\)</span>, so the solve returns an exact
+Gaussian sample when <span class="arithmatex">\(J\)</span> is nonsingular and the factor perturbations and solve
+are exact. This <a href="https://proceedings.neurips.cc/paper_files/paper/2010/hash/d09bf41544a3365a46c9077ebb5e35c3-Abstract.html">Gaussian local-perturbation
+construction</a>
+can exploit sparse or matrix-free solvers. Finite solver tolerance changes the
+sample unless its error is controlled or corrected.</p>
+<p>Keep a randomized-optimization audit with:</p>
+<ol>
+<li>the target score and temperature;</li>
+<li>the unit being perturbed—configuration, factor, variable, or continuous
+   field;</li>
+<li>the noise law and dependence structure;</li>
+<li>whether the argmax or linear solve is exact, bounded, relaxed, or
+   truncated;</li>
+<li>the theorem or correction connecting returned states to the target law; and</li>
+<li>small-state frequency, moment, constraint, and independence checks.</li>
+</ol>
+<p>Gumbel noise can also be used as latent randomness in a learned or distilled
+generator. For example, <a href="https://arxiv.org/abs/2603.22216">Gumbel Distillation for Parallel Text
+Generation</a> (<strong>Preprint</strong>, 2026) trains a
+parallel model using a Gumbel-coupled autoregressive teacher. That is a
+distillation construction with empirical claims, not evidence that arbitrary
+local perturb-and-MAP samples the teacher exactly. The <a href="../transitions-and-few-step-generation/#5-progressive-consistency-adversarial-and-distribution-distillation">few-step and
+distillation volume</a>
+provides the corresponding teacher–student evaluation contract.</p>
+<h3 id="differentiating-through-messages">Differentiating through messages<a class="headerlink" href="#differentiating-through-messages" title="Permanent link">¤</a></h3>
+<p>Unrolling <span class="arithmatex">\(L\)</span> iterations creates a feed-forward computation graph. Gradients can train factor parameters, damping, schedules, or downstream objectives. On a tree with a dependency-respecting complete schedule, the exact result needs finitely many messages; differentiating that exact computation is principled. On a loopy graph, differentiating <span class="arithmatex">\(L\)</span> iterations optimizes the behavior of that truncated approximate solver.</p>
+<p>Implicit differentiation treats a converged fixed point <span class="arithmatex">\(m^*=F_\theta(m^*)\)</span> as a constraint. It requires a sufficiently regular fixed point and solving a linear system involving <span class="arithmatex">\(I-\partial F/\partial m\)</span>. Nonconvergence, nonuniqueness, singular Jacobians, or switching between fixed points can invalidate a naive gradient. “No need to store every iterate” is a memory statement, not a correctness theorem.</p>
+<h3 id="integrated-nested-laplace-approximation-structure-specific-deterministic-inference">Integrated nested Laplace approximation: structure-specific deterministic inference<a class="headerlink" href="#integrated-nested-laplace-approximation-structure-specific-deterministic-inference" title="Permanent link">¤</a></h3>
+<p>Some graphical models expose a more specialized deterministic route. A
+<strong>latent Gaussian model</strong> has a latent field <span class="arithmatex">\(x\)</span> whose conditional prior is
+Gaussian with sparse precision <span class="arithmatex">\(Q(\theta)\)</span>, a comparatively low-dimensional
+hyperparameter <span class="arithmatex">\(\theta\)</span>, and observations that are conditionally independent
+given components or linear projections of <span class="arithmatex">\(x\)</span>:</p>
+<p>Define the conditionally factorized observation likelihood</p>
+<div class="arithmatex">\[
+L(y\mid x,\theta)
+=\prod_{i=1}^{n}p(y_i\mid\eta_i(x),\theta).
+\]</div>
+<p>Then the joint model is</p>
+<div class="arithmatex">\[
+p(y,x,\theta)=p(\theta)p(x\mid\theta)L(y\mid x,\theta),
+\]</div>
+<p>with sparse latent Gaussian law</p>
+<div class="arithmatex">\[
+p(x\mid\theta)
+=\mathcal N\!\left(x;m(\theta),Q(\theta)^{-1}\right).
+\]</div>
+<p>The posterior is generally non-Gaussian when the observation laws are, for
+example, Bernoulli or Poisson. <strong>Integrated nested Laplace approximation
+(INLA)</strong> targets marginal posteriors without constructing an MCMC chain. Its
+two integrations make the name literal:</p>
+<div class="arithmatex">\[
+\widetilde p(x_i\mid y)
+=\int \widetilde p(x_i\mid\theta,y)
+       \widetilde p(\theta\mid y)\,d\theta.
+\]</div>
+<p>With quadrature points <span class="arithmatex">\(\theta_k\)</span> and area weights <span class="arithmatex">\(\Delta_k\)</span>, write</p>
+<div class="arithmatex">\[
+\begin{aligned}
+\widetilde p(x_i\mid y)
+&amp;\approx\sum_k w_k\widetilde p(x_i\mid\theta_k,y),\\
+w_k&amp;=\widetilde p(\theta_k\mid y)\Delta_k.
+\end{aligned}
+\]</div>
+<p>First, a Gaussian approximation to <span class="arithmatex">\(p(x\mid\theta,y)\)</span> around its conditional
+mode supplies a Laplace approximation to <span class="arithmatex">\(p(\theta\mid y)\)</span>. Second, Gaussian,
+simplified-Laplace, or full-Laplace approximations estimate
+<span class="arithmatex">\(p(x_i\mid\theta,y)\)</span> at selected <span class="arithmatex">\(\theta_k\)</span>. Numerical integration over those
+points yields the marginal. Sparse Cholesky operations exploit the GMRF
+precision structure; the low dimension of <span class="arithmatex">\(\theta\)</span> makes its numerical
+integration plausible.</p>
+<p>This is not a theorem that every graphical model has fast, globally accurate
+Laplace inference. The contract can fail or degrade when the latent field is
+not conditionally Gaussian, the precision lacks useful sparsity, the
+hyperparameter dimension is too large for numerical integration, relevant
+posterior mass is strongly multimodal, or local quadratic/skewness corrections
+are inadequate. A mode-finding routine also finds a stationary point or local
+mode under its numerical conditions—not an unconditional global maximum.
+Check approximation variants against exact small cases, importance sampling,
+or well-diagnosed MCMC whenever the scientific conclusion is sensitive to
+tails or joint rather than marginal behavior.</p>
+<p>The original <a href="https://doi.org/10.1111/j.1467-9868.2008.00700.x">INLA construction</a>
+(<strong>Established / peer-reviewed</strong>) explicitly assumes a latent Gaussian field,
+uses sparsity and few hyperparameters for speed, and studies Gaussian,
+simplified-Laplace, and Laplace marginal approximations. It therefore belongs
+beside graphical compilation and differentiation as a structure-aware
+inference method, not as a universal alternative to Monte Carlo.</p>
+<h3 id="probabilistic-messages-neural-messages-and-architecture-analogies">Probabilistic messages, neural messages, and architecture analogies<a class="headerlink" href="#probabilistic-messages-neural-messages-and-architecture-analogies" title="Permanent link">¤</a></h3>
+<p>Keep four designs separate:</p>
+<ol>
+<li><strong>Learned factors, exact messages.</strong> A network outputs local factor values; a tree or tractable circuit still computes an exact query for the resulting model.</li>
+<li><strong>Parameterized BP corrections.</strong> Learned operators adjust damping or messages while preserving some BP invariances or constraints.</li>
+<li><strong>Unrolled approximate inference.</strong> A fixed number of recognizable BP, mean-field, EP, or optimization steps is trained end to end.</li>
+<li><strong>General MPNN/GNN.</strong> Hidden vectors are exchanged and aggregated on a graph, but they need not be log probabilities, normalized beliefs, or messages for any factorized law.</li>
+</ol>
+<p><a href="https://proceedings.neurips.cc/paper/2020/hash/07217414eb3fbe24d4e5b6cafb91ca18-Abstract.html">Belief Propagation Neural Networks</a> (<strong>Peer-reviewed research</strong>, NeurIPS 2020) parameterize operators on factor graphs and study retained BP properties. <a href="https://proceedings.neurips.cc/paper_files/paper/2020/hash/61c66a2f4e6e10dc9c16ddf9d19745d6-Abstract.html">Factor Graph Neural Networks</a> (<strong>Peer-reviewed research</strong>, NeurIPS 2020) show that a factor-graph neural architecture can represent max-product BP. Neither result makes every trained GNN a calibrated posterior solver.</p>
+<h3 id="current-generative-connections">Current generative connections<a class="headerlink" href="#current-generative-connections" title="Permanent link">¤</a></h3>
+<p>Message structure continues to enter generative modeling in several distinct ways:</p>
+<ul>
+<li>a score, energy, or decoder can be parameterized by an equivariant MPNN while sampling is performed by diffusion, a flow, MCMC, or autoregression;</li>
+<li>exact or approximate messages can infer latent variables inside a structured generator;</li>
+<li>a learned message system can amortize inference across related factor graphs; and</li>
+<li>graph structure itself can be optimized for a downstream iterative decoder.</li>
+</ul>
+<p><a href="https://openreview.net/forum?id=GbLvncuryy">Factored Score Matching on Graphical Models</a> (<strong>Workshop paper / preprint</strong>, 2026) studies exact score computation by messages on trees and contractive approximations on loopy Markov random fields, then uses the structure in a score-based generator. Its stated graph and contraction assumptions bound the theory; the reported molecular results do not establish a general superiority of factorized score networks.</p>
+<p><a href="https://openreview.net/forum?id=umAACdl2uX">Factor Graph Optimization for Belief Propagation Decoding</a> (<strong>Preprint / conference submission</strong>, 2026 record) differentiates through a representation of BP to optimize code graphs. It is evidence for learned graph-and-algorithm co-design in a particular decoding setting, not an established generic inference guarantee.</p>
+<p>These examples belong in this chapter because they connect a model factorization, inference computation, or generative score to learned message structure. A generic graph architecture with no declared generative object or inference query belongs in a graph-learning text instead.</p>
+<h3 id="evaluation-contract-for-learned-inference">Evaluation contract for learned inference<a class="headerlink" href="#evaluation-contract-for-learned-inference" title="Permanent link">¤</a></h3>
+<p>Use instances small enough for exact enumeration or junction-tree answers before scaling. Then report:</p>
+<ul>
+<li>the model/query distribution used for training and testing, including graph sizes and out-of-distribution structures;</li>
+<li>whether ground truth is exact, bounded, Monte Carlo estimated, or unavailable;</li>
+<li>marginal error, calibration, normalizer error, MAP objective gap, or sample discrepancy as appropriate;</li>
+<li>constraint violations and local/global consistency, not only task accuracy;</li>
+<li>iterations, messages, active parameters, peak memory, wall-clock hardware, and compilation/training cost;</li>
+<li>sensitivity to initialization, factor scale, graph diameter, degree, loops, and evidence strength; and</li>
+<li>baselines matched by target query and compute, including exact methods wherever feasible.</li>
+</ul>
+<p>A solver trained only to predict the correct MAP label may produce excellent decisions and poor posterior probabilities. Conversely, small marginal KL does not prove accurate rare-event probabilities, joint samples, or marginal MAP. Match the metric to the exposed query.</p>
+<h3 id="method-selection">Method selection<a class="headerlink" href="#method-selection" title="Permanent link">¤</a></h3>
+<figure class="book-figure" id="fig-graphical-inference-and-message-passing-method-selection"><pre class="mermaid"><code>flowchart TB
+    q["Name the probabilistic query"]
+    exact["Exact algebra available&lt;br/&gt;for the required scale?"]
+    repeated["Many related queries?"]
+    compile["Cache messages or compile&lt;br/&gt;a tractable circuit"]
+    direct["Run elimination or exact messages"]
+    approx["Choose an approximation&lt;br/&gt;with a declared error object"]
+    validate["Validate against exact small cases&lt;br/&gt;and independent diagnostics"]
+    q --&gt; exact
+    exact --&gt;|yes| repeated
+    repeated --&gt;|yes| compile
+    repeated --&gt;|no| direct
+    exact --&gt;|no| approx
+    approx --&gt; validate</code></pre><figcaption class="book-object-caption"><span class="book-object-number">Figure MSG.7.</span> Method selection</figcaption></figure>
+<h3 id="chapter-6-synthesis">Chapter 6 synthesis<a class="headerlink" href="#chapter-6-synthesis" title="Permanent link">¤</a></h3>
+<p>Exact inference can be cached, compiled, differentiated, and—in special randomized constructions—reused for sampling. Approximate inference can be specialized to latent Gaussian structure, randomized through lower-dimensional perturbations, unrolled, implicitly differentiated, or amortized. Neural message passing becomes probabilistic inference only when its target, semantics, and guarantees are stated. Across all variants, model structure, query, algorithm, numerical implementation, and empirical evaluation remain separate layers.</p>
+<details class="question">
+<summary>Retrieval practice: compilation and learning</summary>
+<ol>
+<li>What does <span class="arithmatex">\(\partial\log Z/\partial\log f_a(x_a)\)</span> return for a tabular positive factor?</li>
+<li>Why is an arithmetic circuit not the same as an amortized encoder?</li>
+<li>When is differentiating through a finite message schedule differentiating an exact answer?</li>
+<li>Which structural conditions make INLA a plausible inference strategy?</li>
+<li>What must be shown before a learned GNN output can be called a posterior marginal?</li>
+<li>Why does adding independent Gumbels to unary factors not generally implement exact Gumbel-Max over complete structured states?</li>
+</ol>
+<p><strong>Solutions.</strong> (1) The factor-scope marginal probability <span class="arithmatex">\(p(X_a=x_a)\)</span>. (2) The circuit stores a symbolic sum-product computation; the encoder learns a predictive approximation across instances. (3) When the schedule completes an exact algorithm under its model and numerical assumptions, as on a finite tree. (4) A latent Gaussian field with useful sparse precision, conditionally factorized observations, and sufficiently few hyperparameters for numerical integration; approximation quality still requires diagnostics. (5) A declared probabilistic target, output semantics and normalization, and accuracy/calibration evidence under the relevant instance distribution. (6) Exact Gumbel-Max requires the joint perturbation field induced by independent noise for every complete configuration. A sum of reusable local Gumbels has a different dependence and difference distribution except under special constructions.</p>
+</details>
+<p><strong>Next steps.</strong> Continue to <a href="../filtering-and-smoothing-state-space/">Filtering and Smoothing for State-Space Generators</a> for sequential Bayes messages, Kalman and RTS closure, nonlinear projection, ensembles, particles, and learned filters. Revisit <a href="../classical-generative-models/#9-exact-inference-message-passing-and-tractability">Classical Generative Models</a> for the surrounding model families, <a href="../latent-variables-and-inference/">Latent Variables and Inference</a> for variational and Monte Carlo alternatives, <a href="../probabilistic-circuits-explained/">Probabilistic Circuits</a> for tractability by representation, <a href="../tensor-network-and-born-probability-models/#3-contraction-marginalization-conditioning-and-sampling">Tensor-Network and Born Probability Models</a> for low-rank contraction and sampling, and <a href="../likelihood-and-normalizer-estimation/">Estimating Likelihoods and Normalizing Constants</a> when the required evidence remains intractable.</p>
+<h2 id="further-reading">Further Reading<a class="headerlink" href="#further-reading" title="Permanent link">¤</a></h2>
+<div class="md-typeset__table book-table-container"><table id="tbl-graphical-inference-and-message-passing-further-reading"><caption class="book-object-caption"><span class="book-object-number">Table MSG.10.</span> Further Reading</caption>
+<thead>
+<tr>
+<th>Resource</th>
+<th>Evidence role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://doi.org/10.1109/18.910572">Kschischang, Frey, and Loeliger, <em>Factor Graphs and the Sum-Product Algorithm</em></a></td>
+<td><strong>Established / peer-reviewed:</strong> factor graphs and generic sum-product updates</td>
+</tr>
+<tr>
+<td><a href="https://doi.org/10.1111/j.2517-6161.1988.tb01721.x">Lauritzen and Spiegelhalter, <em>Local Computations with Probabilities on Graphical Structures</em></a></td>
+<td><strong>Established / peer-reviewed:</strong> exact local computation and junction-tree foundations</td>
+</tr>
+<tr>
+<td><a href="https://doi.org/10.1016/S0004-3702(99)00059-4">Dechter, <em>Bucket Elimination: A Unifying Framework for Reasoning</em></a></td>
+<td><strong>Established / peer-reviewed:</strong> elimination framework and induced-width complexity</td>
+</tr>
+<tr>
+<td><a href="https://proceedings.mlr.press/r6/chandrasekaran08a.html">Chandrasekaran, Srebro, and Harsha, <em>Complexity of Inference in Graphical Models</em></a></td>
+<td><strong>Peer-reviewed research:</strong> structural complexity and bounded-treewidth context</td>
+</tr>
+<tr>
+<td><a href="https://doi.org/10.1109/TIT.2005.850085">Yedidia, Freeman, and Weiss, <em>Constructing Free-Energy Approximations and Generalized Belief Propagation Algorithms</em></a></td>
+<td><strong>Established / peer-reviewed:</strong> Bethe stationary points and region-based approximations</td>
+</tr>
+<tr>
+<td><a href="https://www.jmlr.org/papers/v6/winn05a.html">Winn and Bishop, <em>Variational Message Passing</em></a></td>
+<td><strong>Established / peer-reviewed:</strong> factor-local organization of supported conjugate-exponential mean-field updates</td>
+</tr>
+<tr>
+<td><a href="https://tminka.github.io/papers/ep/">Minka, <em>Expectation Propagation for Approximate Bayesian Inference</em></a></td>
+<td><strong>Established / corrected primary record:</strong> cavity, tilted-law, moment-projection, site-update, and EP-energy formulations</td>
+</tr>
+<tr>
+<td><a href="https://proceedings.neurips.cc/paper/2015/hash/f3bd5ad57c8389a8a1a541a76be463bf-Abstract.html">Li, Hernández-Lobato, and Turner, <em>Stochastic Expectation Propagation</em></a></td>
+<td><strong>Peer-reviewed research:</strong> tied-site stochastic EP and its memory/approximation boundary</td>
+</tr>
+<tr>
+<td><a href="https://www.jmlr.org/papers/v7/malioutov06a.html">Malioutov, Johnson, and Willsky, <em>Walk-Sums and Belief Propagation in Gaussian Graphical Models</em></a></td>
+<td><strong>Peer-reviewed research:</strong> Gaussian convergence and walk-summability boundaries</td>
+</tr>
+<tr>
+<td><a href="https://proceedings.neurips.cc/paper_files/paper/2010/hash/d09bf41544a3365a46c9077ebb5e35c3-Abstract.html">Papandreou and Yuille, <em>Gaussian Sampling by Local Perturbations</em></a></td>
+<td><strong>Peer-reviewed research:</strong> exact Gaussian factor perturbation followed by a matching linear solve</td>
+</tr>
+<tr>
+<td><a href="https://proceedings.neurips.cc/paper_files/paper/2014/hash/937debc749f041eb5700df7211ac795c-Abstract.html">Maddison, Tarlow, and Minka, <em>A</em> Sampling*</a></td>
+<td><strong>Peer-reviewed research:</strong> exact optimization-based sampling through a Gumbel process and bounded search</td>
+</tr>
+<tr>
+<td><a href="https://proceedings.mlr.press/v235/nabarro24a.html">Nabarro, van der Wilk, and Davison, <em>Learning in Deep Factor Graphs with Gaussian Belief Propagation</em></a></td>
+<td><strong>Peer-reviewed research:</strong> learned Gaussian factor graphs and local distributed inference</td>
+</tr>
+<tr>
+<td><a href="https://doi.org/10.1145/765568.765570">Darwiche, <em>A Differential Approach to Inference in Bayesian Networks</em></a></td>
+<td><strong>Established / peer-reviewed:</strong> compiled arithmetic circuits and derivative queries</td>
+</tr>
+<tr>
+<td><a href="https://starai.cs.ucla.edu/papers/ProbCirc20.pdf">Choi, Vergari, and Van den Broeck, <em>Probabilistic Circuits: A Unifying Framework for Tractable Probabilistic Models</em></a></td>
+<td><strong>Technical report:</strong> circuit semantics and query-specific tractability framework</td>
+</tr>
+<tr>
+<td><a href="https://proceedings.neurips.cc/paper/2020/hash/07217414eb3fbe24d4e5b6cafb91ca18-Abstract.html">Kuck et al., <em>Belief Propagation Neural Networks</em></a></td>
+<td><strong>Peer-reviewed research:</strong> parameterized factor-graph inference operators</td>
+</tr>
+</tbody>
+</table></div>
+</article>
+</div>
+<script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  Back to top
+</button>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+<div class="md-social">
+<a class="md-social__link" href="https://github.com/avitai/artifex" rel="noopener" target="_blank" title="github.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</a>
+<a class="md-social__link" href="https://pypi.org/project/avitai-artifex/" rel="noopener" target="_blank" title="pypi.org">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-66.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.3v101.8c0 29 25.2 46 53.4 54.3 33.8 9.9 66.3 11.7 106.8 0 26.9-7.8 53.4-23.5 53.4-54.3v-40.7H226.2v-13.6h160.2c31.1 0 42.6-21.7 53.4-54.2 11.2-33.5 10.7-65.7 0-108.6M286.2 444.7a20.4 20.4 0 1 1 0-40.7 20.4 20.4 0 1 1 0 40.7M167.8 248.1h106.8c29.7 0 53.4-24.5 53.4-54.3V91.9c0-29-24.4-50.7-53.4-55.6-35.8-5.9-74.7-5.6-106.8.1-45.2 8-53.4 24.7-53.4 55.6v40.7h106.9v13.6h-147c-31.1 0-58.3 18.7-66.8 54.2-9.8 40.7-10.2 66.1 0 108.6 7.6 31.6 25.7 54.2 56.8 54.2H101v-48.8c0-35.3 30.5-66.4 66.8-66.4m-6.6-183.4a20.4 20.4 0 1 1 0 40.8 20.4 20.4 0 1 1 0-40.8"></path></svg>
+</a>
+<a class="md-social__link" href="https://twitter.com/mahdi_shafiei" rel="noopener" target="_blank" title="twitter.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M459.4 151.7c.3 4.5.3 9.1.3 13.6 0 138.7-105.6 298.6-298.6 298.6-59.5 0-114.7-17.2-161.1-47.1 8.4 1 16.6 1.3 25.3 1.3 49.1 0 94.2-16.6 130.3-44.8-46.1-1-84.8-31.2-98.1-72.8 6.5 1 13 1.6 19.8 1.6 9.4 0 18.8-1.3 27.6-3.6-48.1-9.7-84.1-52-84.1-103v-1.3c14 7.8 30.2 12.7 47.4 13.3-28.3-18.8-46.8-51-46.8-87.4 0-19.5 5.2-37.4 14.3-53C87.4 130.8 165 172.4 252.1 176.9c-1.6-7.8-2.6-15.9-2.6-24C249.5 95.1 296.3 48 354.4 48c30.2 0 57.5 12.7 76.7 33.1 23.7-4.5 46.5-13.3 66.6-25.3-7.8 24.4-24.4 44.8-46.1 57.8 21.1-2.3 41.6-8.1 60.4-16.2-14.3 20.8-32.2 39.3-52.6 54.3"></path></svg>
+</a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.path", "navigation.top", "navigation.prune", "toc.follow", "search.highlight", "search.share", "search.suggest", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "content.mermaid"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+<script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+<script src="../../../javascripts/reading-layout.js"></script>
+</body>
+</html>

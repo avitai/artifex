@@ -1,0 +1,1748 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="This chapter covers exploration, proportionality evaluation, the five-component design-and-evidence loop, invariants, scientific applications, failure modes," name="description"/>
+<meta content="Mahdi Shafiei" name="author"/>
+<link href="https://docs.avitai.bio/artifex/user-guide/concepts/gflownets-06-practice/" rel="canonical"/>
+<link href="../gflownets-05-relations/" rel="prev"/>
+<link href="../gflownets-explained/" rel="next"/>
+<link href="../../../assets/images/favicon.png" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.7.7" name="generator"/>
+<title>GFlowNets 6 — Practice and Research - Artifex</title>
+<link href="../../../assets/stylesheets/main.ec1eaa64.min.css" rel="stylesheet"/>
+<link href="../../../assets/stylesheets/palette.ab4e12ef.min.css" rel="stylesheet"/>
+<script src="../../../assets/vendor/iframe-worker/index.js"></script>
+<link href="../../../assets/_mkdocstrings.css" rel="stylesheet"/>
+<link href="../../../_static/extra.css" rel="stylesheet"/>
+<script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+<meta content="article" property="og:type"/>
+<meta content="The Artifex Generative Models Book" property="og:site_name"/>
+<meta content="GFlowNets 6 — Practice and Research" property="og:title"/>
+<meta content="This chapter covers exploration, proportionality evaluation, the five-component design-and-evidence loop, invariants, scientific applications, failure modes," property="og:description"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/gflownets-06-practice/" property="og:url"/>
+<meta content="2026-07-18" property="article:modified_time"/>
+<meta content="summary" name="twitter:card"/>
+<meta content="GFlowNets 6 — Practice and Research" name="twitter:title"/>
+<meta content="This chapter covers exploration, proportionality evaluation, the five-component design-and-evidence loop, invariants, scientific applications, failure modes," name="twitter:description"/>
+<meta content="Generative models, Machine learning, Probabilistic modeling, research, specialization, canonical_chapter, gflownets-practice, practitioner, researcher" name="keywords"/>
+<meta content="GFlowNets 6 — Practice and Research" name="citation_title"/>
+<meta content="Mahdi Shafiei" name="citation_author"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/gflownets-06-practice/" name="citation_public_url"/>
+<meta content="en" name="citation_language"/>
+<meta content="GFlowNets 6 — Practice and Research" name="DC.title"/>
+<meta content="Mahdi Shafiei" name="DC.creator"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/gflownets-06-practice/" name="DC.identifier"/>
+<meta content="Text.LearningResource" name="DC.type"/>
+<meta content="2026-07-18" name="DCTERMS.modified"/>
+<meta content="https://github.com/avitai/artifex/blob/main/LICENSE" name="DCTERMS.license"/>
+<meta content="research" name="DCTERMS.educationLevel"/>
+<meta content="practitioner, researcher" name="DCTERMS.audience"/>
+<link href="https://github.com/avitai/artifex/blob/main/LICENSE" rel="license"/>
+<script id="artifex-book-metadata" type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Chapter",
+  "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/gflownets-06-practice/",
+  "url": "https://docs.avitai.bio/artifex/user-guide/concepts/gflownets-06-practice/",
+  "name": "GFlowNets 6 \u2014 Practice and Research",
+  "description": "This chapter covers exploration, proportionality evaluation, the five-component design-and-evidence loop, invariants, scientific applications, failure modes,",
+  "identifier": "gflownets-practice",
+  "inLanguage": "en",
+  "isAccessibleForFree": true,
+  "learningResourceType": "Canonical chapter",
+  "educationalLevel": "research",
+  "educationalUse": "specialization",
+  "audience": [
+    
+      {"@type": "EducationalAudience", "audienceType": "practitioner"},
+    
+      {"@type": "EducationalAudience", "audienceType": "researcher"}
+    
+  ],
+  "dateModified": "2026-07-18",
+  "keywords": ["Generative models", "Machine learning", "Probabilistic modeling", "research", "specialization", "canonical_chapter", "gflownets-practice", "practitioner", "researcher"],
+  "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+  "author": [
+    
+      {"@type": "Person", "name": "Mahdi Shafiei"}
+    
+  ],
+  "isPartOf": {
+    "@type": "Book",
+    "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/#book",
+    "url": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/",
+    "name": "The Artifex Generative Models Book",
+    "bookEdition": "Living Web Edition",
+    "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+    "author": [
+      
+        {"@type": "Person", "name": "Mahdi Shafiei"}
+      
+    ]
+  }
+}
+</script>
+<link href="../../../assets/vendor/katex/katex.min.css" id="artifex-katex-stylesheet" integrity="sha384-UA8juhPf75SzzAMA/4fo3yOU7sBJ0om7SCD2GHq0fZqZco6tr1UCV7nUbk9J90JM" rel="stylesheet"/>
+<script defer="" integrity="sha384-T/0lMUdJpd2S1ZHtRiofG3htU3xPCrFVeAQ1UUE2TJwlEJSV5NUwn30kP28n238E" src="../../../assets/vendor/mermaid/mermaid.min.js"></script>
+<script defer="" src="../../../assets/vendor/katex/katex-shadow.js"></script>
+<script defer="" src="../../../javascripts/mermaid-math.js"></script>
+<script defer="" src="../../../javascripts/mathjax.js"></script>
+<script defer="" integrity="sha384-OrHfGTnIbkl0do3N76qW/uWr38o91N05sbSPuYBPLH+hG8X/dNSrjZf3AGjzrCwC" src="../../../assets/vendor/mathjax/tex-mml-chtml.js"></script>
+</head>
+<body data-md-color-accent="amber" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#gflownets-6-practice-and-research">
+          Skip to content
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header md-header--shadow" data-md-component="header">
+<nav aria-label="Header" class="md-header__inner md-grid">
+<a aria-label="Artifex" class="md-header__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            Artifex
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+            
+              GFlowNets 6 — Practice and Research
+            
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-label="Switch to dark mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: light)" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_1" hidden="" title="Switch to dark mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+<input aria-label="Switch to light mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-primary="indigo" data-md-color-scheme="slate" id="__palette_1" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_0" hidden="" title="Switch to light mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+</form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div aria-label="Search" class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Search" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="Search" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="Search" class="md-search__options">
+<a aria-label="Share" class="md-search__icon md-icon" data-clipboard="" data-clipboard-text="" data-md-component="search-share" href="javascript:void(0)" tabindex="-1" title="Share">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"></path></svg>
+</a>
+<button aria-label="Clear" class="md-search__icon md-icon" tabindex="-1" title="Clear" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            Initializing search
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Navigation" class="md-nav md-nav--primary" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="Artifex" class="md-nav__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+    Artifex
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../..">
+<span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../getting-started/installation/">
+<span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Generative Models Book
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Generative Models Book
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    
+  
+    Start Here — The Landscape
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../first-course-01-generative-systems/">
+<span class="md-ellipsis">
+    
+  
+    First Course — New to Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../probability-01-objects/">
+<span class="md-ellipsis">
+    
+  
+    Foundations
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_4" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_4" id="__nav_3_4_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Model Families
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_4_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_4">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Model Families
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../autoregressive-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Autoregressive Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../vae-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Variational Autoencoders
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gan-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Generative Adversarial Networks
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../ebm-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Energy-Based Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../diffusion-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Diffusion Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../flow-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Normalizing Flows and Flow Matching
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../probabilistic-circuits-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Probabilistic Circuits
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../tensor-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Tensor-Network and Born Probability Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../implicit-generators-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Implicit Generators Beyond GANs
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../discrete-iterative-01-masked/">
+<span class="md-ellipsis">
+    
+  
+    Discrete Iterative Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../bayesian-flow-networks-01-story/">
+<span class="md-ellipsis">
+    
+  
+    Bayesian Flow Networks
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_4_12" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_4_12" id="__nav_3_4_12_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Generative Flow Networks
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_4_12_label" class="md-nav" data-md-level="3">
+<label class="md-nav__title" for="__nav_3_4_12">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Generative Flow Networks
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../gflownets-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    1. Constructive Flow
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../gflownets-02-local-balance/">
+<span class="md-ellipsis">
+    
+  
+    2. Local Balance
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../gflownets-03-trajectory-balance/">
+<span class="md-ellipsis">
+    
+  
+    3. Trajectory Balance
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../gflownets-04-inference/">
+<span class="md-ellipsis">
+    
+  
+    4. Partition Functions and Inference
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../gflownets-05-relations/">
+<span class="md-ellipsis">
+    
+  
+    5. Relations to Other Families
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
+    
+  
+    6. Practice and Research
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
+<span class="md-ellipsis">
+    
+  
+    6. Practice and Research
+  
+
+    
+  </span>
+</a>
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#6-exploration-evaluation-applications-and-research">
+<span class="md-ellipsis">
+      
+        6. Exploration, Evaluation, Applications, and Research
+      
+    </span>
+</a>
+<nav aria-label="6. Exploration, Evaluation, Applications, and Research" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-6-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 6 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#exploration-is-part-of-correctness">
+<span class="md-ellipsis">
+      
+        Exploration Is Part of Correctness
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#evaluation-contract">
+<span class="md-ellipsis">
+      
+        Evaluation Contract
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-example-exact-proportionality-beats-rank-correlation">
+<span class="md-ellipsis">
+      
+        Worked example: exact proportionality beats rank correlation
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#minimal-exact-graph-test-suite">
+<span class="md-ellipsis">
+      
+        Minimal Exact-Graph Test Suite
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#implementation-invariants">
+<span class="md-ellipsis">
+      
+        Implementation Invariants
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#reference-training-loop">
+<span class="md-ellipsis">
+      
+        Reference Training Loop
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#applications">
+<span class="md-ellipsis">
+      
+        Applications
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#a-gflownet-is-the-inference-engine-not-the-experiment">
+<span class="md-ellipsis">
+      
+        A GFlowNet is the inference engine, not the experiment
+      
+    </span>
+</a>
+<nav aria-label="A GFlowNet is the inference engine, not the experiment" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#evidence-from-complete-design-loops">
+<span class="md-ellipsis">
+      
+        Evidence from complete design loops
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#scientific-discovery-capstone">
+<span class="md-ellipsis">
+      
+        Scientific-Discovery Capstone
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#failure-modes">
+<span class="md-ellipsis">
+      
+        Failure Modes
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#research-exercises">
+<span class="md-ellipsis">
+      
+        Research Exercises
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#exploration-research">
+<span class="md-ellipsis">
+      
+        Exploration Research
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#independent-practice-and-assessment-map-evaluation-and-research">
+<span class="md-ellipsis">
+      
+        Independent practice and assessment map: evaluation and research
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#primary-reading-trail">
+<span class="md-ellipsis">
+      
+        Primary Reading Trail
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#source-tracing-checklist">
+<span class="md-ellipsis">
+      
+        Source-Tracing Checklist
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#final-synthesis">
+<span class="md-ellipsis">
+      
+        Final Synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../gflownets-explained/">
+<span class="md-ellipsis">
+    
+  
+    Continuous View (All Chapters)
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../bnp-01-random-measures/">
+<span class="md-ellipsis">
+    
+  
+    Bayesian Nonparametric Random-Measure Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../stochastic-process-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Stochastic-Process and Function-Space Generators
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../point-processes-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Point Processes and Random Finite Sets
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../random-graphs-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Random Graphs and Relational Generators
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../copula-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Copula Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../grammar-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Probabilistic Grammars and Program Derivations
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../causal-generative-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Causal Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../new-families-frontier-evidence/">
+<span class="md-ellipsis">
+    
+  
+    Research Evidence Ledger
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gradients-01-taxonomy/">
+<span class="md-ellipsis">
+    
+  
+    Connections and Compositions
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../normalization-01-queries/">
+<span class="md-ellipsis">
+    
+  
+    Research Practice
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../models/vae-guide/">
+<span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/core/base/">
+<span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../examples/overview/">
+<span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../zoo/">
+<span class="md-ellipsis">
+    
+  
+    Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../training/overview/">
+<span class="md-ellipsis">
+    
+  
+    Training
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../data/overview/">
+<span class="md-ellipsis">
+    
+  
+    Data &amp; Modalities
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../inference/overview/">
+<span class="md-ellipsis">
+    
+  
+    Inference &amp; Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../benchmarks/">
+<span class="md-ellipsis">
+    
+  
+    Evaluation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../guides/extensions/">
+<span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../extensions/">
+<span class="md-ellipsis">
+    
+  
+    Advanced Topics
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../cli/">
+<span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../community/contributing/">
+<span class="md-ellipsis">
+    
+  
+    Community
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/configs/protein-extension/">
+<span class="md-ellipsis">
+    
+  
+    Reference Library
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#6-exploration-evaluation-applications-and-research">
+<span class="md-ellipsis">
+      
+        6. Exploration, Evaluation, Applications, and Research
+      
+    </span>
+</a>
+<nav aria-label="6. Exploration, Evaluation, Applications, and Research" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-6-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 6 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#exploration-is-part-of-correctness">
+<span class="md-ellipsis">
+      
+        Exploration Is Part of Correctness
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#evaluation-contract">
+<span class="md-ellipsis">
+      
+        Evaluation Contract
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-example-exact-proportionality-beats-rank-correlation">
+<span class="md-ellipsis">
+      
+        Worked example: exact proportionality beats rank correlation
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#minimal-exact-graph-test-suite">
+<span class="md-ellipsis">
+      
+        Minimal Exact-Graph Test Suite
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#implementation-invariants">
+<span class="md-ellipsis">
+      
+        Implementation Invariants
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#reference-training-loop">
+<span class="md-ellipsis">
+      
+        Reference Training Loop
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#applications">
+<span class="md-ellipsis">
+      
+        Applications
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#a-gflownet-is-the-inference-engine-not-the-experiment">
+<span class="md-ellipsis">
+      
+        A GFlowNet is the inference engine, not the experiment
+      
+    </span>
+</a>
+<nav aria-label="A GFlowNet is the inference engine, not the experiment" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#evidence-from-complete-design-loops">
+<span class="md-ellipsis">
+      
+        Evidence from complete design loops
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#scientific-discovery-capstone">
+<span class="md-ellipsis">
+      
+        Scientific-Discovery Capstone
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#failure-modes">
+<span class="md-ellipsis">
+      
+        Failure Modes
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#research-exercises">
+<span class="md-ellipsis">
+      
+        Research Exercises
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#exploration-research">
+<span class="md-ellipsis">
+      
+        Exploration Research
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#independent-practice-and-assessment-map-evaluation-and-research">
+<span class="md-ellipsis">
+      
+        Independent practice and assessment map: evaluation and research
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#primary-reading-trail">
+<span class="md-ellipsis">
+      
+        Primary Reading Trail
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#source-tracing-checklist">
+<span class="md-ellipsis">
+      
+        Source-Tracing Checklist
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#final-synthesis">
+<span class="md-ellipsis">
+      
+        Final Synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<nav aria-label="Breadcrumb" class="md-path">
+<ol class="md-path__list">
+<li class="md-path__item">
+<a class="md-path__link" href="../../..">
+<span class="md-ellipsis">
+    Home
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    Generative Models Book
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../autoregressive-01-foundations/">
+<span class="md-ellipsis">
+    Model Families
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../gflownets-01-foundations/">
+<span class="md-ellipsis">
+    Generative Flow Networks
+  </span>
+</a>
+</li>
+</ol>
+</nav>
+<article class="md-content__inner md-typeset">
+<h1 id="gflownets-6-practice-and-research">GFlowNets 6 — Practice and Research<a class="headerlink" href="#gflownets-6-practice-and-research" title="Permanent link">¤</a></h1><aside aria-label="Learning path" class="admonition abstract artifex-learning-path"><p class="admonition-title">Learning path</p><p><strong>Required knowledge</strong></p><ul class="artifex-learning-path__links" data-learning-path-role="required"><li><a href="../gflownets-05-relations/">GFlowNets 5 — Relations to Other Families</a></li></ul><p><strong>Readiness check:</strong> can you explain the central object and reproduce one worked example from each required chapter? If not, follow its link before continuing.</p><p><strong>Newly unlocked in the default route</strong></p><p>No immediate successor names this page as its final required prerequisite. Continue through the book navigation or the chapter's cross-links.</p></aside>
+<p>This chapter covers exploration, proportionality evaluation, the five-component design-and-evidence loop, invariants, scientific applications, failure modes, exercises, and primary sources. For uninterrupted reading, use the <a href="../gflownets-explained/#6-exploration-evaluation-applications-and-research">complete guide</a>.</p>
+<h2 id="6-exploration-evaluation-applications-and-research">6. Exploration, Evaluation, Applications, and Research<a class="headerlink" href="#6-exploration-evaluation-applications-and-research" title="Permanent link">¤</a></h2>
+<h3 id="chapter-6-prerequisites-and-learning-objectives">Chapter 6 prerequisites and learning objectives<a class="headerlink" href="#chapter-6-prerequisites-and-learning-objectives" title="Permanent link">¤</a></h3>
+<p>This capstone assumes Chapters 1–5 and the research-practice modules on metrics, reproducibility, and evidence. After completing it, you should be able to:</p>
+<ol>
+<li>separate exploratory behavior, replay, discovery, distribution fitting, and target-policy evaluation in one reproducible training protocol;</li>
+<li>evaluate reward proportionality, mode coverage, partition estimates, validity, diversity, and conditional generalization with claim-matched evidence;</li>
+<li>implement an enumerated exact-graph test suite and use invariants to localize graph, mask, stop, multiplicity, support, and log-domain bugs;</li>
+<li>locate a GFlowNet inside the five-component support–prediction–target–inference–evidence loop and separate sampler error from oracle error;</li>
+<li>compare scientific and application results at matched reward-call, compute, and external-validation budgets without promoting benchmark evidence; and</li>
+<li>transfer the full audit to a new research problem, including offline, continuous, stochastic, and frontier-method maturity boundaries.</li>
+</ol>
+<h3 id="exploration-is-part-of-correctness">Exploration Is Part of Correctness<a class="headerlink" href="#exploration-is-part-of-correctness" title="Permanent link">¤</a></h3>
+<p>Balance losses only constrain visited states and trajectories. Sparse high-reward modes may never be discovered. Useful strategies include exploratory behavior policies, replay buffers, backward trajectory sampling, tempered rewards, curriculum/pretraining, and active-learning loops. Each changes data collection; reward transformations may also change the target.</p>
+<p>Exploration has two phases. <strong>Discovery</strong> reaches previously unknown rewarding terminals; <strong>distribution fitting</strong> revisits enough of the graph to allocate probability in proportion to their rewards. A method can excel at the first and still miscalibrate the second. Conversely, a sampler can fit known modes well and never discover a separated mode.</p>
+<p>Common mechanisms have different semantics:</p>
+<ul>
+<li>mixing <span class="arithmatex">\(P_F\)</span> with a uniform valid-action policy changes the behavior distribution but can leave the evaluated target unchanged;</li>
+<li>prioritizing replay toward high residual or high reward changes which constraints receive gradient updates;</li>
+<li>sampling backward from known terminals improves credit coverage but cannot discover unknown terminals by itself;</li>
+<li>pretraining on cheaper rewards changes initialization and may import reward-oracle bias;</li>
+<li>sampling from <span class="arithmatex">\(R^\beta\)</span> changes the target unless an explicit correction restores the original law.</li>
+</ul>
+<figure class="book-figure" id="fig-gflownets-explained-exploration-is-part-of-correctness"><pre class="mermaid"><code>%%{init: {'themeCSS': '.nodeLabel p { color: #111827 !important; } .flowchart-link { stroke: #78879a !important; stroke-width: 2px !important; } marker path { fill: #78879a !important; stroke: #78879a !important; }'}}%%
+flowchart LR
+    B["exploratory behavior policy"] --&gt; D["discover terminals and transitions"]
+    D --&gt; RP["replay and coverage ledger"]
+    RP --&gt; L["fit declared balance objective"]
+    L --&gt; PF["target forward policy&lt;br/&gt;exploration disabled"]
+    PF --&gt; DIST["distribution evidence&lt;br/&gt;R/Z, modes, Z, validity"]
+    PF --&gt; EXT["external evidence&lt;br/&gt;simulator, synthesis, assay"]
+    EXT --&gt; UP["update predictor, reward, or context"]
+    UP -.-&gt; B
+    DIST -.-&gt; L</code></pre><figcaption class="book-object-caption"><span class="book-object-number">Figure GFN.7.</span> Exploration Is Part of Correctness</figcaption></figure>
+<p>Discovery and fitting share data but have different success criteria. The
+target-policy evaluation branch must disable exploratory sampling, while the
+external-evidence branch tests the reward or scientific claim rather than the
+balance equations.</p>
+<p>Record the behavior policy, exploration coefficient/schedule, replay capacity and priorities, backward sampling rule, and reward evaluations. “Same number of updates” is not a controlled comparison when methods consume different oracle budgets.</p>
+<h3 id="evaluation-contract">Evaluation Contract<a class="headerlink" href="#evaluation-contract" title="Permanent link">¤</a></h3>
+<div class="md-typeset__table book-table-container"><table id="tbl-gflownets-explained-evaluation-contract"><caption class="book-object-caption"><span class="book-object-number">Table GFN.5.</span> Evaluation Contract</caption>
+<thead>
+<tr>
+<th>Claim</th>
+<th>Evidence</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Reward proportionality</td>
+<td>exact small-domain distribution, correlation/calibration across reward bins, divergence with uncertainty</td>
+</tr>
+<tr>
+<td>Mode coverage</td>
+<td>discovered modes versus oracle/catalog, reward-stratified recall, duplicate-adjusted diversity</td>
+</tr>
+<tr>
+<td>Partition estimate</td>
+<td>comparison to exact/AIS bounds, seed variance, training trajectory coverage</td>
+</tr>
+<tr>
+<td>Better than MCMC</td>
+<td>equal reward calls/wall clock, burn-in and effective samples, amortization cost included</td>
+</tr>
+<tr>
+<td>Scientific discovery</td>
+<td>prospective validation or independent simulator/experiment, novelty and synthesizability</td>
+</tr>
+<tr>
+<td>Conditional generalization</td>
+<td>held-out contexts and calibrated conditional distributions</td>
+</tr>
+</tbody>
+</table></div>
+<p>Top-<span class="arithmatex">\(k\)</span> reward alone rewards collapse and is not a GFlowNet distributional evaluation.</p>
+<h3 id="worked-example-exact-proportionality-beats-rank-correlation">Worked example: exact proportionality beats rank correlation<a class="headerlink" href="#worked-example-exact-proportionality-beats-rank-correlation" title="Permanent link">¤</a></h3>
+<p>Let terminal rewards be <span class="arithmatex">\((1,2,3)\)</span>. The exact target is</p>
+<div class="arithmatex">\[
+p^*=\left(\frac16,\frac13,\frac12\right).
+\]</div>
+<p>Sampler A returns exactly <span class="arithmatex">\(p^*\)</span>. Sampler B returns the tempered law proportional to <span class="arithmatex">\(R^2\)</span>,</p>
+<div class="arithmatex">\[
+q=\left(\frac1{14},\frac4{14},\frac9{14}\right).
+\]</div>
+<p>Both samplers have perfect reward–frequency rank correlation, and sampler B has higher expected reward. Yet its total variation error is</p>
+<div class="arithmatex">\[
+D_{\mathrm{TV}}(p^*,q)
+=\frac12\sum_i|p_i^*-q_i|
+=\frac17.
+\]</div>
+<p>Thus rank correlation and best/mean reward can prefer a sampler with the wrong
+distribution. On an enumerated graph, direct probability error is the primary
+proportionality evidence; optimization and discovery metrics answer additional
+questions.</p>
+<p>On a finite test graph with exact target <span class="arithmatex">\(p^*(x)=R(x)/Z\)</span>, report at least total variation or KL where support permits, expected reward, effective sample size/entropy, and the error of <span class="arithmatex">\(\hat Z\)</span>. For large spaces, use reward-stratified calibration: bin objects by predicted or oracle reward and compare empirical terminal frequency with the mass implied by the target. Correlation between reward and frequency is necessary but not sufficient—a sampler proportional to <span class="arithmatex">\(R^{10}\)</span> can have excellent rank correlation and the wrong distribution.</p>
+<p>Mode counts require a declared mode threshold or clustering rule and confidence intervals. Novelty is relative to a declared reference corpus. Diversity metrics should deduplicate semantic objects, not just construction strings. Scientific claims additionally need oracle calibration and, when possible, prospective physical or experimental validation.</p>
+<h3 id="minimal-exact-graph-test-suite">Minimal Exact-Graph Test Suite<a class="headerlink" href="#minimal-exact-graph-test-suite" title="Permanent link">¤</a></h3>
+<p>Before scaling, construct several enumerated environments:</p>
+<ol>
+<li>a chain with one path per terminal;</li>
+<li>a diamond with unequal path splits;</li>
+<li>equal-reward objects with unequal path multiplicity;</li>
+<li>a disconnected positive-reward mode that exploration must discover;</li>
+<li>variable-length paths with explicit stop;</li>
+<li>zero-reward failure terminals.</li>
+</ol>
+<p>Enumerate every trajectory and verify policy normalization, backward normalization, conservation, terminal frequencies, reward-rescaling behavior, learned <span class="arithmatex">\(Z\)</span>, and agreement among FM/DB/TB population solutions. These tests find semantic bugs that a large benchmark score cannot localize.</p>
+<h3 id="implementation-invariants">Implementation Invariants<a class="headerlink" href="#implementation-invariants" title="Permanent link">¤</a></h3>
+<ol>
+<li>The state graph must be acyclic or include an augmented construction-time state that makes trajectories finite.</li>
+<li>Forward and backward action masks must be mutually consistent.</li>
+<li>Terminal rewards must be nonnegative; log objectives require positive support handling.</li>
+<li>Stop actions and terminal states must be represented exactly once.</li>
+<li>Duplicate encodings of one object must be canonicalized or summed correctly.</li>
+<li>Log probabilities use stable normalization over valid actions only.</li>
+<li>
+<p>Replay/exploration must cover target-relevant transitions.</p>
+</li>
+<li>
+<p>A semantic object ID must be separated from its trajectory/serialization ID.</p>
+</li>
+<li>Context-specific normalizers and masks must use the same context as the reward.</li>
+<li>Evaluation sampling must declare whether exploration noise or target temperature remains enabled.</li>
+</ol>
+<h3 id="reference-training-loop">Reference Training Loop<a class="headerlink" href="#reference-training-loop" title="Permanent link">¤</a></h3>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a href="#__codelineno-0-1" id="__codelineno-0-1" name="__codelineno-0-1"></a>initialize forward policy, backward policy, and optional log-flow/log-Z models
+</span><span id="__span-0-2"><a href="#__codelineno-0-2" id="__codelineno-0-2" name="__codelineno-0-2"></a>initialize replay buffer
+</span><span id="__span-0-3"><a href="#__codelineno-0-3" id="__codelineno-0-3" name="__codelineno-0-3"></a>repeat:
+</span><span id="__span-0-4"><a href="#__codelineno-0-4" id="__codelineno-0-4" name="__codelineno-0-4"></a>    choose a context and behavior policy
+</span><span id="__span-0-5"><a href="#__codelineno-0-5" id="__codelineno-0-5" name="__codelineno-0-5"></a>    sample a finite valid trajectory to an explicit terminal
+</span><span id="__span-0-6"><a href="#__codelineno-0-6" id="__codelineno-0-6" name="__codelineno-0-6"></a>    evaluate a nonnegative terminal reward and record oracle cost
+</span><span id="__span-0-7"><a href="#__codelineno-0-7" id="__codelineno-0-7" name="__codelineno-0-7"></a>    store states, masks, actions, context, reward, and behavior metadata
+</span><span id="__span-0-8"><a href="#__codelineno-0-8" id="__codelineno-0-8" name="__codelineno-0-8"></a>    choose on-policy and/or replay trajectories
+</span><span id="__span-0-9"><a href="#__codelineno-0-9" id="__codelineno-0-9" name="__codelineno-0-9"></a>    compute the declared FM, DB, TB, or SubTB residual in log space
+</span><span id="__span-0-10"><a href="#__codelineno-0-10" id="__codelineno-0-10" name="__codelineno-0-10"></a>    update models; monitor support, residuals by length/reward, and log-Z
+</span><span id="__span-0-11"><a href="#__codelineno-0-11" id="__codelineno-0-11" name="__codelineno-0-11"></a>periodically:
+</span><span id="__span-0-12"><a href="#__codelineno-0-12" id="__codelineno-0-12" name="__codelineno-0-12"></a>    sample with the target forward policy, not the exploratory behavior policy
+</span><span id="__span-0-13"><a href="#__codelineno-0-13" id="__codelineno-0-13" name="__codelineno-0-13"></a>    run exact toy tests and distributional/domain-specific evaluation
+</span></code></pre></div>
+<p>This pseudocode deliberately leaves the neural architecture open. The core correctness risks are graph semantics, support, objectives, and evaluation—not whether the policy uses a Transformer, message-passing network, or MLP.</p>
+<h3 id="applications">Applications<a class="headerlink" href="#applications" title="Permanent link">¤</a></h3>
+<ul>
+<li>molecular and material design with expensive property rewards;</li>
+<li>Bayesian network and phylogenetic structure posteriors;</li>
+<li>program, sequence, set, graph, and combinatorial-object generation;</li>
+<li>multi-objective Pareto-conditioned discovery;</li>
+<li>active learning where diverse batches are evaluated by an oracle;</li>
+<li>amortized posterior inference under an unnormalized target.</li>
+</ul>
+<p><a href="https://proceedings.mlr.press/v202/jain23a.html">Multi-Objective GFlowNets</a> condition on scalarizations or acquisition objectives. <a href="https://proceedings.mlr.press/v267/pandey25b.html">Atomic GFlowNet pretraining</a> is a peer-reviewed 2025 example of using cheaper molecular signals before expensive reward optimization. Benchmark gains remain protocol-specific and should not be generalized across reward oracles.</p>
+<p><a href="https://proceedings.neurips.cc/paper_files/paper/2024/hash/4b25c000967af9036fb9b207b198a626-Abstract-Conference.html">Genetic-guided GFlowNets</a> combine evolutionary search signals with GFlowNet training for biological sequence design. The evidence is <strong>peer-reviewed research</strong>: better exploration on the reported oracles is not laboratory confirmation of biological function. <a href="https://proceedings.mlr.press/v216/pan23a.html">Stochastic GFlowNets</a> augment the framework for stochastic environments by separating agent actions from environment outcomes; ordinary deterministic-DAG equations should not be reused without that augmentation.</p>
+<h3 id="a-gflownet-is-the-inference-engine-not-the-experiment">A GFlowNet is the inference engine, not the experiment<a class="headerlink" href="#a-gflownet-is-the-inference-engine-not-the-experiment" title="Permanent link">¤</a></h3>
+<p>In a scientific-design system, a GFlowNet occupies one layer of a larger <a href="../generative-models-unified/#five-components-of-a-generative-decision-system">five-component decomposition</a>:</p>
+<div class="md-typeset__table book-table-container"><table id="tbl-gflownets-explained-a-gflownet-is-the-inference-engine-not-the-experiment"><caption class="book-object-caption"><span class="book-object-number">Table GFN.6.</span> A GFlowNet is the inference engine, not the experiment</caption>
+<thead>
+<tr>
+<th>Component</th>
+<th>Constructive-design realization</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1. reference and support</td>
+<td>semantic object definition, building blocks, action graph, validity rules, optional prior <span class="arithmatex">\(g_0(x\mid c)\)</span></td>
+</tr>
+<tr>
+<td>2. predictive model</td>
+<td>learned property surrogate, simulator, docking score, synthesis model, or calibrated ensemble</td>
+</tr>
+<tr>
+<td>3. target construction</td>
+<td>nonnegative reward, acquisition function, constraint indicator, scalarization, or posterior tilt</td>
+</tr>
+<tr>
+<td>4. inference engine</td>
+<td>the GFlowNet policy, backward policy, balance objective, exploration behavior, and replay system</td>
+</tr>
+<tr>
+<td>5. evidence and update</td>
+<td>high-fidelity simulation, synthesis, assay, field test, posterior/model update, and the next design round</td>
+</tr>
+</tbody>
+</table></div>
+<p>For example, a posterior-style design target can use</p>
+<div class="arithmatex">\[
+R_t(x\mid c)=g_{0,t}(x\mid c)\,w_t(x,c),
+\qquad
+P_{F,t}(x\mid c)=\frac{R_t(x\mid c)}{Z_t(c)}.
+\]</div>
+<p>If <span class="arithmatex">\(w_t(x,c)\)</span> is a learned success probability, exact balance makes the terminal policy proportional to the <strong>learned</strong> success-weighted reference law. It does not make <span class="arithmatex">\(w_t\)</span> calibrated outside its training support. If the reward is changed to <span class="arithmatex">\(R_t=w_t\)</span>, the reference factor is removed and the target distribution changes. If an acquisition function replaces success probability, uncertainty and information value become part of component 3; they are not uncertainty automatically produced by reward-proportional sampling.</p>
+<p>The <a href="../generative-models-unified/#worked-three-candidate-tilt-predicted-success-is-not-observed-success">three-candidate tilt</a> makes the boundary executable. A GFlowNet could reproduce <span class="arithmatex">\((4/13,6/13,3/13)\)</span> perfectly and still over-sample the candidate whose predicted success is <span class="arithmatex">\(0.9\)</span> but prospective success is <span class="arithmatex">\(0.1\)</span>. Flow error and oracle error are orthogonal:</p>
+<div class="arithmatex">\[
+\underbrace{D\!\left(P_F,\frac{R}{Z}\right)}_{\text{sampler fidelity}}
+\quad\text{and}\quad
+\underbrace{\mathbb E_{X\sim P_F}
+\left[\hat u(X)-u_{\mathrm{real}}(X)\right]}_{\text{selection-conditioned oracle gap}}
+\]</div>
+<p>answer different questions. Low balance residual or low terminal divergence cannot upper-bound the second quantity without assumptions connecting the learned score to real outcomes on the selected distribution.</p>
+<p>“Oracle” is therefore a role, not an evidence grade. A cheap neural score, a docking program, a density-functional calculation, an expert review, and a prospective assay have different error mechanisms and costs. Record which one supplies training reward, which one selects candidates, and which one is withheld for validation.</p>
+<h4 id="evidence-from-complete-design-loops">Evidence from complete design loops<a class="headerlink" href="#evidence-from-complete-design-loops" title="Permanent link">¤</a></h4>
+<ul>
+<li><a href="https://proceedings.mlr.press/v139/trabucco21a.html">Conservative Objective Models</a> provide <strong>peer-reviewed research</strong> evidence that optimizing a learned offline objective can drive selection toward erroneously overestimated out-of-distribution inputs. Their conservative construction is one defense, not a universal calibration guarantee.</li>
+<li>The <a href="https://proceedings.neurips.cc/paper_files/paper/2022/hash/8644353f7d307baaf29bc1e56fe8e0ec-Abstract-Datasets_and_Benchmarks.html">Practical Molecular Optimization benchmark</a> compares 25 methods on 23 tasks and shows that conclusions change under a fixed 10,000-call computational-oracle budget. It evaluates optimisation protocols, not wet-lab discovery.</li>
+<li><a href="https://www.nature.com/articles/s43588-025-00902-w">SynGFN</a> is <strong>peer-reviewed research</strong> for reaction-based constructive support, hierarchical policy pretraining, and multifidelity acquisition in its reported molecular protocols. Its computational design results do not turn every reward evaluation into experimental evidence.</li>
+<li>A 2026 <a href="https://www.nature.com/articles/s41524-025-01924-8">closed-loop molecular active-learning study</a> feeds higher-fidelity density-functional calculations back into property models and reports large selected-region prediction improvements. This supports the value of component 5 while remaining simulation-based evidence.</li>
+<li><a href="https://www.nature.com/articles/s42256-024-00809-7">SyntheMol</a> synthesized 58 generated molecules and reported antibacterial activity for six. This is prospective experimental evidence for that pipeline and assay protocol, not proof that its computational reward is generally calibrated.</li>
+</ul>
+<p>These examples differ in model family, support, target, inference, and evidence level. Their common lesson is architectural: compare complete loops at matched real-oracle budget, not generators at unlimited surrogate calls.</p>
+<details class="question">
+<summary>Retrieval practice: localize the design-system claim</summary>
+<ol>
+<li>
+<p>What does exact GFlowNet balance establish in a design loop?</p>
+</li>
+<li>
+<p>Where should epistemic uncertainty enter if the desired target is an acquisition distribution?</p>
+</li>
+<li>
+<p>Can a prospective assay validate reward proportionality?</p>
+</li>
+<li>
+<p>Can reward proportionality validate biological activity?</p>
+</li>
+</ol>
+<details class="success">
+<summary>Solutions</summary>
+<ol>
+<li>
+<p>Fidelity of the covered terminal law to the declared nonnegative reward, subject to the graph, support, and optimization assumptions.</p>
+</li>
+<li>
+<p>In the predictive model and target construction; for example, an ensemble supplies uncertainty and an acquisition rule converts it into nonnegative reward.</p>
+</li>
+<li>
+<p>Not by itself. Assays test external utility; proportionality requires terminal-frequency evidence against <span class="arithmatex">\(R/Z\)</span> or another target-specific diagnostic.</p>
+</li>
+<li>
+<p>No. A sampler can match a misspecified computational reward exactly. Activity requires an appropriate external experiment.</p>
+</li>
+</ol>
+</details>
+</details>
+<h3 id="scientific-discovery-capstone">Scientific-Discovery Capstone<a class="headerlink" href="#scientific-discovery-capstone" title="Permanent link">¤</a></h3>
+<p>Suppose the goal is to propose a diverse batch of molecules for an expensive assay.</p>
+<ol>
+<li><strong>Define the semantic object.</strong> A molecular graph, including stereochemistry and charge—not a construction string.</li>
+<li><strong>Define the graph.</strong> Valid atom/bond actions, canonical terminal identity, explicit stop, and failure states.</li>
+<li><strong>Define reward.</strong> A nonnegative combination of predicted activity, uncertainty/acquisition value, synthesizability, and constraints. State whether scalarization changes across contexts.</li>
+<li><strong>Separate oracle levels.</strong> Cheap learned predictor, higher-fidelity simulator, synthesis feasibility, and physical assay are not interchangeable evidence.</li>
+<li><strong>Train with coverage controls.</strong> Track unique semantic terminals, replay age, behavior support, oracle calls, residuals by length and reward, and <span class="arithmatex">\(Z\)</span> stability.</li>
+<li><strong>Evaluate distribution and utility.</strong> Use an enumerated proxy for proportionality, compare baselines at equal oracle/compute budget, and report novelty, diversity, calibration, and prospective hit rate.</li>
+<li><strong>Close the loop.</strong> When assays return, update the reward/posterior and disclose whether the sampler was retrained, conditioned, or evaluated out of distribution.</li>
+</ol>
+<p>The terminal target is only as meaningful as the reward. A perfectly trained GFlowNet can faithfully amplify a biased predictor; the five-component audit makes that failure attributable rather than calling the entire pipeline a bad generator.</p>
+<h3 id="failure-modes">Failure Modes<a class="headerlink" href="#failure-modes" title="Permanent link">¤</a></h3>
+<ul>
+<li>undiscovered modes and replay self-reinforcement;</li>
+<li>reward hacking or simulator exploitation;</li>
+<li>trajectory-length bias from incorrect backward policies;</li>
+<li>duplicate-object multiplicity errors;</li>
+<li>unstable learned <span class="arithmatex">\(Z\)</span> and log-reward scale;</li>
+<li>invalid actions or dead-end partial states;</li>
+<li>high reward but low real-world feasibility;</li>
+<li>
+<p>conditional sampler failure outside trained reward/context ranges.</p>
+</li>
+<li>
+<p>offline non-identifiability when logged prefixes omit actions;</p>
+</li>
+<li>continuous-action density errors from missing reference-measure or Jacobian terms;</li>
+<li>confusing discovery of high reward with proportional fitting;</li>
+<li>reporting forward-policy samples generated with exploration enabled as target samples.</li>
+</ul>
+<h3 id="research-exercises">Research Exercises<a class="headerlink" href="#research-exercises" title="Permanent link">¤</a></h3>
+<ol>
+<li>Assign flows on the diamond graph and verify conservation for two different path splits.</li>
+<li>Sum the TB identity over backward paths to derive <span class="arithmatex">\(P_F(x)=R(x)/Z\)</span>.</li>
+<li>Construct a state graph where two encodings represent the same terminal object and show the multiplicity bias.</li>
+<li>Compare DB, TB, and SubTB residuals on a length-10 chain with reward only at termination.</li>
+<li>Turn a two-variable Bayesian posterior into a reward and compare exact enumeration with learned terminal frequencies.</li>
+<li>Apply <span class="arithmatex">\(R^\beta\)</span> and plot the quality/diversity change.</li>
+<li>Create an offline prefix dataset that omits one branch and exhibit two policies with identical observed SubTB residuals but different unsupported mass.</li>
+<li>Reparameterize a continuous action and identify which density/Jacobian term is required for invariance.</li>
+</ol>
+<h3 id="exploration-research">Exploration Research<a class="headerlink" href="#exploration-research" title="Permanent link">¤</a></h3>
+<p><a href="https://openreview.net/forum?id=dPDOQs7qHl">Avoid What You Know: Divergent Trajectory Balance</a>, accepted at ICML 2026, introduces adaptive complementary exploration aimed at undersampled high-reward regions. It is <strong>peer-reviewed research</strong> evidence that exploration remains a first-order training bottleneck. It does not change the population reward-proportional target or remove the need to evaluate proportionality and oracle coverage outside the reported benchmarks.</p>
+<p><a href="https://openreview.net/forum?id=kWM0etSpBG">Evaluation Balance</a>, accepted as an ICLR 2026 poster, derives a partial-episode evaluator for policy-based GFlowNet training and studies parameterized backward policies and offline data. It should be read as an optimisation/evaluation contribution: exact population balance and target coverage assumptions remain the reference semantics.</p>
+<p><a href="https://openreview.net/forum?id=i5Yfc5RY9q">Flow of Spans (FoSS)</a>, accepted as an ICLR 2026 poster, constructs a DAG over alternative retrieved-span segmentations so that multiple construction paths for the same text are represented explicitly. Its reported MAUVE and knowledge-task gains are specific to its GPT-2/BERT, retrieval, reward-model, and datastore protocols. FoSS illustrates why the state graph matters; it does not imply that every language model benefits from a GFlowNet objective or that MAUVE alone establishes reward proportionality.</p>
+<p><a href="https://openreview.net/forum?id=FXIy6qfQIR">Conservative GFlowNets for LLM-based recommendation</a>, accepted at ICML 2026, identifies non-identifiability of naive SubTB on partially supported logged token-prefix DAGs and proposes CFlower. This is especially important negative evidence: an objective valid under online coverage can be underdetermined offline. The paper's accuracy–exposure results remain specific to its Amazon recommendation protocols.</p>
+<p><a href="https://openreview.net/forum?id=m3H7Oexpbx">PowerFlow</a>, accepted at ICML 2026, frames unsupervised LLM fine-tuning as matching an <span class="arithmatex">\(\alpha\)</span>-power distribution and introduces a length-aware TB objective. Its sharpening/flattening interpretation and reported reasoning/creativity trade-offs are <strong>peer-reviewed research</strong> evidence for the named models and evaluations, not a general demonstration that a power target improves both properties in every language model.</p>
+<p>Together, these papers broaden exploration, evaluation, offline learning, structured language DAGs, and length-aware distribution matching. None removes the established contract: declare the target, construction graph, support, objective, and evaluation distribution separately.</p>
+<details class="success">
+<summary>Exercise sketches</summary>
+<ol>
+<li>Any nonnegative split totaling 3 into <span class="arithmatex">\(x\)</span> preserves its terminal mass.  </li>
+<li>Backward trajectory probabilities conditioned on <span class="arithmatex">\(x\)</span> sum to one.  </li>
+<li>Treating encodings as separate terminals doubles mass unless rewards/canonicalization compensate.  </li>
+<li>TB propagates terminal reward globally; DB bootstraps locally; SubTB interpolates.  </li>
+<li>Reward is prior times likelihood and <span class="arithmatex">\(Z\)</span> is evidence.  </li>
+<li>Larger <span class="arithmatex">\(\beta\)</span> concentrates on maxima; smaller positive <span class="arithmatex">\(\beta\)</span> flattens.</li>
+<li>Keep all observed-prefix probabilities fixed and vary probability assigned after an unobserved action; no logged constraint detects the change.</li>
+<li>A density transforms with the action-coordinate Jacobian relative to the declared reference measure.</li>
+</ol>
+</details>
+<h3 id="independent-practice-and-assessment-map-evaluation-and-research">Independent practice and assessment map: evaluation and research<a class="headerlink" href="#independent-practice-and-assessment-map-evaluation-and-research" title="Permanent link">¤</a></h3>
+<ol>
+<li><strong>P1.1 — Predict before computing.</strong> An exact target policy <span class="arithmatex">\(P_F=(0.9,0.1)\)</span> is evaluated while still mixed 20% with a uniform two-action exploration policy. Predict whether measured frequencies certify the target, compute the behavior frequencies, and specify the correct evaluation intervention.</li>
+<li><strong>P1.2 — Distributional audit.</strong> For rewards <span class="arithmatex">\((1,2,3)\)</span> and reported sampler <span class="arithmatex">\(q=(1/14,4/14,9/14)\)</span>, compute <span class="arithmatex">\(Z\)</span>, target probabilities, total variation, both expected rewards, and mode coverage under threshold <span class="arithmatex">\(R\ge2\)</span>. Explain why no one metric subsumes the others.</li>
+<li><strong>P1.3 — Exact-graph debugging.</strong> Design a six-environment unit suite covering a chain, diamond, unequal path multiplicity, disconnected positive-reward mode, explicit stop, and zero reward. For each, name the invariant and the failure it isolates; include reward-rescaling and semantic deduplication checks.</li>
+<li><strong>P1.4 — System decomposition.</strong> A molecular GFlowNet matches a docking-based reward exactly, but synthesized candidates fail an assay. Assign the support, predictor, target, inference, and evidence components; identify which error is ruled out, which remains, and the next controlled update.</li>
+<li><strong>P1.5 — Evidence comparison.</strong> Compare a top-<span class="arithmatex">\(k\)</span> molecular benchmark, an exact toy proportionality test, a fixed-budget computational active-learning loop, and a prospective synthesis-and-assay study. State the strongest justified claim and one non-claim for each.</li>
+<li><strong>P1.6 — Transfer.</strong> Specify an end-to-end GFlowNet study for hybrid discrete/continuous catalyst design from semantic identity through external validation. Include reference measures, stochastic simulator outcomes, logged-data support, reward uncertainty, exploration, balance objective, exact proxy tests, matched budgets, and a prospective evidence step.</li>
+</ol>
+<h5 id="outcome-to-task-alignment-support-evaluation-and-evidence">Outcome-to-task alignment: support, evaluation, and evidence<a class="headerlink" href="#outcome-to-task-alignment-support-evaluation-and-evidence" title="Permanent link">¤</a></h5>
+<div class="md-typeset__table book-table-container"><table id="tbl-gflownets-explained-outcome-to-task-alignment-support-evaluation-and-evidence"><caption class="book-object-caption"><span class="book-object-number">Table GFN.12.</span> Outcome-to-task alignment: support, evaluation, and evidence</caption>
+<thead>
+<tr>
+<th>Learning objective</th>
+<th>Independently assessed by</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>O1 — Separate behavior, discovery, fitting, and target evaluation; evidence is the exploration-mixture intervention</td>
+<td>P1.1</td>
+</tr>
+<tr>
+<td>O2 — Match evidence to proportionality, modes, <span class="arithmatex">\(Z\)</span>, and utility; evidence is the complete three-terminal audit</td>
+<td>P1.2, P1.5</td>
+</tr>
+<tr>
+<td>O3 — Localize implementation failures on exact graphs; evidence is the six-environment invariant suite</td>
+<td>P1.3</td>
+</tr>
+<tr>
+<td>O4 — Separate sampler and oracle error in the five-component loop; evidence is the docking-to-assay diagnosis</td>
+<td>P1.4</td>
+</tr>
+<tr>
+<td>O5 — Bound application claims by budgets and evidence; evidence is the four-study comparison</td>
+<td>P1.5</td>
+</tr>
+<tr>
+<td>O6 — Transfer the complete research audit; evidence is the hybrid catalyst protocol</td>
+<td>P1.6</td>
+</tr>
+</tbody>
+</table></div>
+<details class="success">
+<summary>Complete solutions to P1</summary>
+<ol>
+<li>The behavior law is <span class="arithmatex">\(0.8(0.9,0.1)+0.2(0.5,0.5)=(0.82,0.18)\)</span>, not the target. Those frequencies validate only the mixed behavior sampler. Disable the exploration mixture, sample from the normalized target forward policy with declared target temperature, and report the behavior run separately as training/coverage evidence.</li>
+<li><span class="arithmatex">\(Z=6\)</span> and <span class="arithmatex">\(p^*=(1/6,1/3,1/2)\)</span>. As derived above, <span class="arithmatex">\(D_{\mathrm{TV}}=1/7\)</span>. Expected reward is <span class="arithmatex">\(7/3\approx2.333\)</span> under <span class="arithmatex">\(p^*\)</span> and <span class="arithmatex">\(36/14=18/7\approx2.571\)</span> under <span class="arithmatex">\(q\)</span>. Both assign positive mass to both threshold modes, so catalog coverage is complete, although their masses are miscalibrated. TV measures proportionality, expected reward measures utility tilt, and mode coverage ignores within-mode calibration.</li>
+<li>The chain checks normalization and one-path products; the diamond checks path aggregation and backward allocation; unequal multiplicity checks semantic canonicalization; the disconnected mode checks exploration/coverage; explicit stop checks length and single terminal accounting; zero reward checks positive-log support or failure-sink policy. Across all applicable cases, multiplying rewards by a constant must leave terminal frequencies unchanged while shifting <span class="arithmatex">\(Z\)</span>, and trajectory IDs must aggregate to canonical semantic IDs.</li>
+<li>Support is the molecular representation, building blocks, validity graph, and synthesizability restrictions. The docking surrogate is the predictive model; its nonnegative transform is the target; the GFlowNet is the inference engine; synthesis and assay are external evidence. Exact reward matching rules out sampler-fidelity error on covered support, not docking misspecification or selection-conditioned extrapolation. Add assay outcomes to a calibrated model/update loop, preserve a held-out prospective test, redefine the reward transparently, and retrain or recondition before the next round.</li>
+<li>Top-<span class="arithmatex">\(k\)</span> benchmark results support optimization under that benchmark and budget but not proportional fitting or wet-lab validity. Exact toy tests support implementation semantics and population-law recovery on the enumerated graph but not scaling. A fixed-budget computational loop supports sample/decision efficiency against that simulator and protocol but not physical discovery. Prospective synthesis and assay support external outcomes for selected candidates and assay conditions but do not by themselves prove that all terminal frequencies follow <span class="arithmatex">\(R/Z\)</span>.</li>
+<li>Define catalysts up to graph/geometry symmetries, with discrete composition/bond actions and continuous coordinates relative to declared base measures and Jacobians. Separate agent actions from stochastic simulator outcomes and use a stochastic-GFlowNet formulation rather than deterministic DAG equations. Audit logged transitions for unsupported actions; combine online exploration or conservative restrictions with explicit scope. Use a calibrated ensemble to turn uncertainty and predicted utility into a nonnegative acquisition reward. Train a declared DB/TB/SubTB objective, validate on enumerated coarse catalysts and coordinate-reparameterization tests, and compare to MCMC/SMC/search at matched simulator calls, amortization, and wall time. Finally fabricate and test a preregistered held-out batch, update the predictor from returned outcomes, and keep sampler proportionality and experimental success as separate endpoints.</li>
+</ol>
+</details>
+<h3 id="primary-reading-trail">Primary Reading Trail<a class="headerlink" href="#primary-reading-trail" title="Permanent link">¤</a></h3>
+<ul>
+<li><a href="https://proceedings.neurips.cc/paper/2021/hash/e614f646836aaed9f89ce58e837e2310-Abstract.html">Bengio et al., <em>Flow Network Based Generative Models</em></a>.</li>
+<li><a href="https://jmlr.org/beta/papers/v24/22-0364.html">Bengio et al., <em>GFlowNet Foundations</em></a>.</li>
+<li><a href="https://proceedings.mlr.press/v202/lahlou23a.html">Lahlou et al., <em>A Theory of Continuous Generative Flow Networks</em></a>.</li>
+<li><a href="https://proceedings.neurips.cc/paper_files/paper/2022/hash/27b51baca8377a0cf109f6ecc15a0f70-Abstract-Conference.html">Malkin et al., <em>Trajectory Balance</em></a>.</li>
+<li><a href="https://proceedings.mlr.press/v202/madan23a.html">Madan et al., <em>Subtrajectory Balance</em></a>.</li>
+<li><a href="https://proceedings.mlr.press/v180/deleu22a.html">Deleu et al., <em>Bayesian Structure Learning with GFlowNets</em></a>.</li>
+<li><a href="https://proceedings.mlr.press/v202/hu23c.html">Hu et al., <em>GFlowNet-EM</em></a>.</li>
+<li><a href="https://proceedings.neurips.cc/paper_files/paper/2024/hash/8aaae73117c9266b35eb977e70fcf95f-Abstract-Conference.html">da Silva et al., <em>On Divergence Measures for Training GFlowNets</em></a>.</li>
+<li><a href="https://proceedings.neurips.cc/paper_files/paper/2024/hash/2fb57276bfbaf1b832d7bfcba36bb41c-Abstract-Conference.html">da Silva, de Souza, and Mesquita, <em>Streaming Bayes GFlowNets</em></a>.</li>
+<li><a href="https://openreview.net/forum?id=kWM0etSpBG">Niu, Wu, and Qian, <em>Evaluating GFlowNet from Partial Episodes</em></a>.</li>
+<li><a href="https://openreview.net/forum?id=i5Yfc5RY9q">Xue et al., <em>Flow of Spans</em></a>.</li>
+<li><a href="https://openreview.net/forum?id=FXIy6qfQIR">Yu et al., <em>Conservative Generative Flow Networks</em></a>.</li>
+<li><a href="https://openreview.net/forum?id=m3H7Oexpbx">Chen et al., <em>PowerFlow</em></a>.</li>
+<li><a href="https://www.nature.com/articles/s43588-025-00902-w">Zhu et al., <em>SynGFN</em></a>.</li>
+<li><a href="https://proceedings.neurips.cc/paper_files/paper/2022/hash/8644353f7d307baaf29bc1e56fe8e0ec-Abstract-Datasets_and_Benchmarks.html">Gao et al., <em>Sample Efficiency Matters</em></a>.</li>
+<li><a href="https://proceedings.mlr.press/v139/trabucco21a.html">Trabucco et al., <em>Conservative Objective Models</em></a>.</li>
+</ul>
+<h3 id="source-tracing-checklist">Source-Tracing Checklist<a class="headerlink" href="#source-tracing-checklist" title="Permanent link">¤</a></h3>
+<p>For every technical or benchmark claim, record:</p>
+<ol>
+<li>the exact paper version and archival status;</li>
+<li>the target reward, construction graph, terminal identity, and support;</li>
+<li>the balance objective, backward-policy choice, behavior/replay distribution, and reward transform;</li>
+<li>model/data/oracle budgets, seeds, sampling temperature, and amortization cost;</li>
+<li>whether evidence measures proportionality, mode discovery, optimization, or external scientific validity;</li>
+<li>whether an apparent family relationship is an algebraic equivalence, assumption-bounded correspondence, analogy, or composition.</li>
+</ol>
+<h2 id="final-synthesis">Final Synthesis<a class="headerlink" href="#final-synthesis" title="Permanent link">¤</a></h2>
+<p>GFlowNets turn an unnormalized terminal reward into an amortized constructive sampler. Conservation connects trajectory, edge, state, and terminal flows; local, trajectory, and subtrajectory balance provide complementary training constraints. The backward policy allocates reward among multiple construction histories, while source flow estimates the partition function. Their promise—diverse sampling in combinatorial scientific spaces—depends on exploration, correct state-graph semantics, and evaluation of proportionality rather than only best reward.</p>
+<p>Continue with <a href="../stochastic-process-generators-explained/">Stochastic-Process and Function-Space Generators</a>, or compare GFlowNets with <a href="../ebm-explained/">Energy-Based Models</a>, <a href="../autoregressive-explained/">Autoregressive Models</a>, and <a href="../latent-variables-and-inference/">Bayesian inference</a>.</p>
+<p>Return to <a href="../generative-models-unified/#coverage-matrix">The Generative Modeling Landscape</a>, and use the <a href="../new-families-frontier-evidence/#generative-flow-networks">Generative-Family Research Evidence Ledger</a> for maturity boundaries.</p>
+<p><a href="../gflownets-explained/#chapter-map-and-notation-contract">Return to the chapter map</a>, or use the <a href="./">Chapter 6 stopping-point view</a>.</p>
+<hr/>
+<p><strong>Navigate:</strong> <a href="../gflownets-05-relations/">← Relations</a> · <a href="../generative-models-unified/">Return to curriculum map</a> · <a href="../gflownets-explained/">Complete guide</a></p>
+</article>
+</div>
+<script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  Back to top
+</button>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+<div class="md-social">
+<a class="md-social__link" href="https://github.com/avitai/artifex" rel="noopener" target="_blank" title="github.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</a>
+<a class="md-social__link" href="https://pypi.org/project/avitai-artifex/" rel="noopener" target="_blank" title="pypi.org">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-66.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.3v101.8c0 29 25.2 46 53.4 54.3 33.8 9.9 66.3 11.7 106.8 0 26.9-7.8 53.4-23.5 53.4-54.3v-40.7H226.2v-13.6h160.2c31.1 0 42.6-21.7 53.4-54.2 11.2-33.5 10.7-65.7 0-108.6M286.2 444.7a20.4 20.4 0 1 1 0-40.7 20.4 20.4 0 1 1 0 40.7M167.8 248.1h106.8c29.7 0 53.4-24.5 53.4-54.3V91.9c0-29-24.4-50.7-53.4-55.6-35.8-5.9-74.7-5.6-106.8.1-45.2 8-53.4 24.7-53.4 55.6v40.7h106.9v13.6h-147c-31.1 0-58.3 18.7-66.8 54.2-9.8 40.7-10.2 66.1 0 108.6 7.6 31.6 25.7 54.2 56.8 54.2H101v-48.8c0-35.3 30.5-66.4 66.8-66.4m-6.6-183.4a20.4 20.4 0 1 1 0 40.8 20.4 20.4 0 1 1 0-40.8"></path></svg>
+</a>
+<a class="md-social__link" href="https://twitter.com/mahdi_shafiei" rel="noopener" target="_blank" title="twitter.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M459.4 151.7c.3 4.5.3 9.1.3 13.6 0 138.7-105.6 298.6-298.6 298.6-59.5 0-114.7-17.2-161.1-47.1 8.4 1 16.6 1.3 25.3 1.3 49.1 0 94.2-16.6 130.3-44.8-46.1-1-84.8-31.2-98.1-72.8 6.5 1 13 1.6 19.8 1.6 9.4 0 18.8-1.3 27.6-3.6-48.1-9.7-84.1-52-84.1-103v-1.3c14 7.8 30.2 12.7 47.4 13.3-28.3-18.8-46.8-51-46.8-87.4 0-19.5 5.2-37.4 14.3-53C87.4 130.8 165 172.4 252.1 176.9c-1.6-7.8-2.6-15.9-2.6-24C249.5 95.1 296.3 48 354.4 48c30.2 0 57.5 12.7 76.7 33.1 23.7-4.5 46.5-13.3 66.6-25.3-7.8 24.4-24.4 44.8-46.1 57.8 21.1-2.3 41.6-8.1 60.4-16.2-14.3 20.8-32.2 39.3-52.6 54.3"></path></svg>
+</a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.path", "navigation.top", "navigation.prune", "toc.follow", "search.highlight", "search.share", "search.suggest", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "content.mermaid"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+<script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+<script src="../../../javascripts/reading-layout.js"></script>
+</body>
+</html>

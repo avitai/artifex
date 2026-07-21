@@ -1,0 +1,1537 @@
+schema_version: 1
+generated_at: '2026-07-20'
+source_equation_registry: docs/user-guide/concepts/curriculum-equation-registry.yml
+source_equation_registry_sha256: e1e6d8344f92a4db18a2f74fd6468d6f0e4b1b66c9b90a0d67e95cfc80ca7a1f
+review_contract:
+  pending_records: No source-equivalence, symbol, dimension, or correctness judgment has been recorded;
+    review fields must not be inferred.
+  reviewed_required_fields:
+  - source_tex
+  - source_tex_sha256
+  - registry_expression_sha256
+  - registry_convention_sha256
+  - fidelity
+  - equivalence_notes
+  - symbols
+  - dimensions
+  - theorem_level
+  - human_signoff
+  - reviewer
+  - verification_method
+  - verified_at
+  fidelity_values:
+  - literal
+  - normalized_equivalent
+  - assumption_qualified
+  human_signoff_values:
+  - not_required
+  - pending
+  - approved
+  theorem_level_human_signoff_required: true
+reviewer_registry:
+  openai-codex:
+    reviewer_type: ai_assisted
+    human_signoff: false
+summary:
+  equations: 319
+  status_counts:
+    pending: 312
+    reviewed: 7
+records:
+- equation_id: mixed-atomic-continuous-law
+  canonical_guide: probability-and-generative-modeling.md
+  anchor: not-every-law-is-discrete-or-continuously-densitized
+  status: pending
+- equation_id: dirichlet-categorical-point-summaries
+  canonical_guide: probability-and-generative-modeling.md
+  anchor: a-distribution-atlas-organized-by-the-generated-object
+  status: pending
+- equation_id: randomized-probability-integral-transform
+  canonical_guide: probability-and-generative-modeling.md
+  anchor: probability-integral-transforms-need-an-atom-check
+  status: pending
+- equation_id: exponential-family-mle-moment-condition
+  canonical_guide: classical-generative-models.md
+  anchor: moment-matching-has-an-existence-boundary
+  status: pending
+- equation_id: gaussian-information-factor-product
+  canonical_guide: classical-generative-models.md
+  anchor: gaussian-moment-form-information-form-and-potentials
+  status: pending
+- equation_id: periodic-two-state-markov-law
+  canonical_guide: sampling-and-continuous-time.md
+  anchor: worked-two-state-boundary-unique-but-not-convergent
+  status: pending
+- equation_id: hellinger-and-total-variation-measures
+  canonical_guide: objectives-and-statistical-distances.md
+  anchor: hellinger-total-variation-and-chi-squared-conventions
+  status: pending
+- equation_id: conditional-squared-loss-bayes-action
+  canonical_guide: probability-and-generative-modeling.md
+  anchor: a-conditional-law-is-not-a-decision-rule
+  status: pending
+- equation_id: autoregressive-chain-rule
+  canonical_guide: autoregressive-explained.md
+  anchor: mathematical-foundation
+  status: reviewed
+  source_tex: p(x_1, x_2, \ldots, x_n) = p(x_1) \prod_{i=2}^{n} p(x_i \mid x_1, \ldots, x_{i-1})
+  source_tex_sha256: b552cb8c5f5ab43dca6a91b815cb2cdb9a3a128342dd65e18613b0bc2aae35fe
+  registry_expression_sha256: bc4a5e64e68ba53a0dbfccc039fa3cff8952f784533a7ded00e7c51b98f65eef
+  registry_convention_sha256: 7209e4204decacb0af3c90f4768ff640842c3f5fa83abbca12ebcc73027c7c19
+  fidelity: normalized_equivalent
+  equivalence_notes: The registry renames the source length n to D, writes a compact prefix x_<i, and
+    starts the product at one by using the empty-prefix convention p(x_1|x_<1)=p(x_1).
+  symbols:
+  - name: x_i
+    meaning: random variable at ordered position i
+  - name: D
+    meaning: number of factors in the registry convention; n in the source TeX
+  dimensions:
+  - object: p(x_1:D)
+    shape: scalar probability mass or density value
+  theorem_level: false
+  human_signoff: not_required
+  executable_checks:
+  - test_autoregressive_probability_objects_and_output_laws_are_executable
+  reviewer: openai-codex
+  verification_method: source_text_and_contract_review
+  verified_at: '2026-07-16'
+- equation_id: autoregressive-direct-conditional-factorization
+  canonical_guide: autoregressive-explained.md
+  anchor: direct-conditioning-and-joint-prefix-modeling-are-different-objectives
+  status: pending
+- equation_id: autoregressive-joint-prefix-factorization
+  canonical_guide: autoregressive-explained.md
+  anchor: direct-conditioning-and-joint-prefix-modeling-are-different-objectives
+  status: pending
+- equation_id: autoregressive-continuous-mixture-conditional
+  canonical_guide: autoregressive-explained.md
+  anchor: continuous-conditionals-normalization-is-an-output-law-decision
+  status: pending
+- equation_id: autoregressive-temperature
+  canonical_guide: autoregressive-explained.md
+  anchor: sampling-with-temperature
+  status: pending
+- equation_id: autoregressive-constrained-conditional
+  canonical_guide: autoregressive-explained.md
+  anchor: constrained-decoding
+  status: pending
+- equation_id: speculative-acceptance
+  canonical_guide: autoregressive-explained.md
+  anchor: speculative-decoding-and-multi-token-proposals
+  status: pending
+- equation_id: vae-elbo
+  canonical_guide: vae-explained.md
+  anchor: the-elbo-evidence-lower-bound
+  status: pending
+- equation_id: vae-kl-decomposition
+  canonical_guide: vae-explained.md
+  anchor: beta-tcvae-and-factorvae-targeting-total-correlation
+  status: pending
+- equation_id: vae-full-covariance-gaussian-kl
+  canonical_guide: vae-explained.md
+  anchor: beyond-a-diagonal-gaussian-posterior
+  status: reviewed
+  source_tex: '\begin{aligned}
+
+    &D_{\mathrm{KL}}\!\left(q_\phi(z\mid x)\|p(z)\right)\\
+
+    &\quad=\frac12\left[
+
+    \|\mu\|_2^2+\|L\|_F^2-d\right.\\[-2pt]
+
+    &\qquad\left.-2\sum_{i=1}^{d}\log L_{ii}
+
+    \right].
+
+    \end{aligned}'
+  source_tex_sha256: c18b539ce837c995a4d497ea3796e310b7fe77165f19a4a650199ff77f3ca02f
+  registry_expression_sha256: 34eba6abaa6f32b9e1007e36bb5f57ddc5340ec0733c19a779ded505e11f9a5d
+  registry_convention_sha256: 88346481b22a18c87a30bec0852d33edb77f0748dc72b19c657ae6e93f9b737b
+  fidelity: assumption_qualified
+  equivalence_notes: The surrounding source fixes p(z)=N(0,I), q=N(mu,LL^T), and positive diagonal L.
+    The registry removes encoder arguments and TeX layout while preserving every scalar term and sign.
+  symbols:
+  - name: mu
+    meaning: posterior mean vector
+  - name: L
+    meaning: lower-triangular Cholesky factor with positive diagonal
+  - name: d
+    meaning: latent dimension
+  dimensions:
+  - object: mu
+    shape: R^d
+  - object: L
+    shape: R^(d x d)
+  - object: KL
+    shape: scalar in nats
+  theorem_level: false
+  human_signoff: not_required
+  executable_checks:
+  - test_vae_covariance_and_elbo_optimization_boundaries_are_executable
+  reviewer: openai-codex
+  verification_method: source_text_and_executable_finite_check
+  verified_at: '2026-07-16'
+- equation_id: infovae-aggregate-objective
+  canonical_guide: vae-explained.md
+  anchor: aggregate-posterior-objectives-infovae-mmd-vae-and-aae
+  status: pending
+- equation_id: vae-latent-process-factorization
+  canonical_guide: vae-explained.md
+  anchor: sequence-vaes-one-global-code-or-a-latent-process
+  status: pending
+- equation_id: gan-optimal-discriminator
+  canonical_guide: gan-explained.md
+  anchor: mathematical-foundation
+  status: pending
+- equation_id: gan-minimax-js-reduction
+  canonical_guide: gan-explained.md
+  anchor: mathematical-foundation
+  status: pending
+- equation_id: gan-pushforward-law
+  canonical_guide: gan-explained.md
+  anchor: from-a-deterministic-map-to-a-probability-law
+  status: pending
+- equation_id: gan-f-divergence-variational-witness
+  canonical_guide: gan-explained.md
+  anchor: variational-f-divergence-witnesses
+  status: pending
+- equation_id: gan-integral-probability-metric
+  canonical_guide: gan-explained.md
+  anchor: ipms-wasserstein-critics-mmd-and-moments
+  status: pending
+- equation_id: gan-bilinear-simultaneous-radius
+  canonical_guide: gan-explained.md
+  anchor: worked-dynamical-example-one-game-three-trajectories
+  status: reviewed
+  source_tex: '\begin{bmatrix}\theta_{k+1}\\\phi_{k+1}\end{bmatrix}
+
+    =
+
+    \begin{bmatrix}1&-\eta\\\eta&1\end{bmatrix}
+
+    \begin{bmatrix}\theta_k\\\phi_k\end{bmatrix},
+
+    \qquad
+
+    \theta_{k+1}^2+\phi_{k+1}^2
+
+    =(1+\eta^2)(\theta_k^2+\phi_k^2).'
+  source_tex_sha256: 064b2828b713e78abc0026cab4365997b61c2dd4e375b5823602b57e404cbd0a
+  registry_expression_sha256: a779bffb84925dc96f90a176451ec822cf6bedb0bc19636b11205a6bd1124ee5
+  registry_convention_sha256: 9a4eec32ec10c4deef4ceef3f0e5c73f2466951a860c317aba930a7440449f21
+  fidelity: literal
+  equivalence_notes: The registry transcribes the radius identity from the second half of the same display
+    and omits only the matrix update that derives it.
+  symbols:
+  - name: theta_k
+    meaning: minimizing-player scalar iterate
+  - name: phi_k
+    meaning: maximizing-player scalar iterate
+  - name: eta
+    meaning: shared positive Euler step size
+  dimensions:
+  - object: theta_k, phi_k, eta
+    shape: real scalars
+  - object: theta_k^2 + phi_k^2
+    shape: nonnegative scalar squared radius
+  theorem_level: false
+  human_signoff: not_required
+  executable_checks:
+  - test_gan_pushforward_witness_and_game_dynamics_are_executable
+  reviewer: openai-codex
+  verification_method: source_text_and_executable_finite_check
+  verified_at: '2026-07-16'
+- equation_id: gan-discrete-score-function-gradient
+  canonical_guide: gan-explained.md
+  anchor: discrete-outputs-require-an-estimator-choice
+  status: pending
+- equation_id: classifier-density-ratio-prior-correction
+  canonical_guide: objectives-and-statistical-distances.md
+  anchor: 2-f-divergences-and-density-ratio-estimation
+  status: pending
+- equation_id: ebm-normalized-density
+  canonical_guide: ebm-explained.md
+  anchor: mathematical-foundation
+  status: pending
+- equation_id: ebm-score-energy
+  canonical_guide: ebm-explained.md
+  anchor: energy-functions-and-neural-networks
+  status: pending
+- equation_id: ebm-likelihood-gradient
+  canonical_guide: ebm-explained.md
+  anchor: maximum-likelihood-the-ideal-but-intractable-approach
+  status: pending
+- equation_id: ebm-score-matching-implicit
+  canonical_guide: ebm-explained.md
+  anchor: score-matching-avoiding-sampling
+  status: pending
+- equation_id: ebm-sliced-score-matching
+  canonical_guide: ebm-explained.md
+  anchor: sliced-score-matching-estimate-a-trace-with-directions
+  status: pending
+- equation_id: ebm-nce-data-posterior
+  canonical_guide: ebm-explained.md
+  anchor: noise-contrastive-estimation-nce
+  status: pending
+- equation_id: ebm-langevin-stein-operator
+  canonical_guide: ebm-explained.md
+  anchor: stein-discrepancies-compare-through-witness-functions
+  status: pending
+- equation_id: ebm-quadratic-ula-variance
+  canonical_guide: ebm-explained.md
+  anchor: running-example-a-one-step-chain-moves-the-exact-target
+  status: pending
+- equation_id: flow-change-of-variables
+  canonical_guide: flow-explained.md
+  anchor: the-change-of-variables-formula
+  status: pending
+- equation_id: flow-structured-affine-volume
+  canonical_guide: flow-explained.md
+  anchor: structured-affine-maps
+  status: pending
+- equation_id: flow-low-rank-residual-determinant
+  canonical_guide: flow-explained.md
+  anchor: low-rank-route-the-determinant-lemma-reduces-dimension-not-assumptions
+  status: reviewed
+  source_tex: \det(I_D+V D_h W)=\det(I_M+D_h W V).
+  source_tex_sha256: 8720c60509fea36dc6c2568ebe32f8d495722abdf599f85c522720d7ef9b7339
+  registry_expression_sha256: 9762993a56bc1656f6160c65564bde87ddc3f3dd1c390de2b6d6aafde41d3f3d
+  registry_convention_sha256: f3d322a9248977b44251d444ebe17d1aea3d52ece2174bca6d5ca096e08b7559
+  fidelity: literal
+  equivalence_notes: The registry is the same determinant identity with spacing and TeX commands normalized.
+  symbols:
+  - name: W
+    meaning: low-rank input projection
+  - name: V
+    meaning: low-rank output projection
+  - name: D_h
+    meaning: diagonal activation-derivative matrix
+  dimensions:
+  - object: W
+    shape: R^(M x D)
+  - object: V
+    shape: R^(D x M)
+  - object: D_h
+    shape: R^(M x M)
+  - object: left and right determinants
+    shape: scalar determinants of D x D and M x M matrices
+  theorem_level: false
+  human_signoff: not_required
+  executable_checks:
+  - test_flow_model_posterior_proposal_and_transport_contracts_are_executable
+  reviewer: openai-codex
+  verification_method: source_text_and_executable_finite_check
+  verified_at: '2026-07-16'
+- equation_id: flow-contractive-residual-logdet
+  canonical_guide: flow-explained.md
+  anchor: contractive-route-a-global-inverse-with-estimated-volume
+  status: pending
+- equation_id: flow-cnf-instantaneous-density
+  canonical_guide: flow-explained.md
+  anchor: continuous-normalizing-flows-neural-odes
+  status: pending
+- equation_id: flow-matching-population-velocity
+  canonical_guide: flow-explained.md
+  anchor: flow-matching-simulation-free-training
+  status: pending
+- equation_id: flow-uniform-dequantization-bound
+  canonical_guide: flow-explained.md
+  anchor: critical-preprocessing-steps
+  status: pending
+- equation_id: pc-sum-node-semantics
+  canonical_guide: probabilistic-circuits-explained.md
+  anchor: 1-from-arithmetic-expression-to-probability-model
+  status: pending
+- equation_id: pc-marginal-recursion
+  canonical_guide: probabilistic-circuits-explained.md
+  anchor: why-the-marginal-recursion-works
+  status: pending
+- equation_id: pc-edge-responsibility
+  canonical_guide: probabilistic-circuits-explained.md
+  anchor: derivatives-and-responsibilities
+  status: pending
+- equation_id: pc-em-sum-weight-update
+  canonical_guide: probabilistic-circuits-explained.md
+  anchor: parameter-learning-with-fixed-structure
+  status: pending
+- equation_id: implicit-mmd-squared
+  canonical_guide: implicit-generators-explained.md
+  anchor: 2-mmd-and-generative-moment-matching-networks
+  status: pending
+- equation_id: implicit-imle-assignment-objective
+  canonical_guide: implicit-generators-explained.md
+  anchor: 4-implicit-maximum-likelihood-estimation
+  status: pending
+- equation_id: implicit-small-noise-softmin
+  canonical_guide: implicit-generators-explained.md
+  anchor: what-implicit-maximum-likelihood-requires
+  status: pending
+- equation_id: implicit-sliced-wasserstein
+  canonical_guide: implicit-generators-explained.md
+  anchor: sliced-wasserstein-distance
+  status: pending
+- equation_id: implicit-energy-distance
+  canonical_guide: implicit-generators-explained.md
+  anchor: cramer-and-energy-distances
+  status: pending
+- equation_id: diffusion-forward-marginal
+  canonical_guide: diffusion-explained.md
+  anchor: the-forward-diffusion-process
+  status: pending
+- equation_id: diffusion-clean-conditioned-posterior
+  canonical_guide: diffusion-explained.md
+  anchor: worked-example-one-scalar-forward-and-posterior-step
+  status: pending
+- equation_id: diffusion-denoising-score-expectation
+  canonical_guide: diffusion-explained.md
+  anchor: worked-example-one-scalar-forward-and-posterior-step
+  status: reviewed
+  source_tex: '\mathbb E\!\left[
+
+    \nabla_{x_2}\log q(X_2\mid X_0)
+
+    \mid X_2=x_2
+
+    \right]
+
+    =s_2(x_2).'
+  source_tex_sha256: c174fa885018e36284a42b9dcaef0e52ea0d2ea29e9c76a21fcb4f728b773c8d
+  registry_expression_sha256: d9d8c689432e5dafaeca8b12b899c468eae729f203172d4a0375b247ccc6cf75
+  registry_convention_sha256: 7d816ce7b017cb64aad0ed518cca147f5630cf09b81ce4dd58300bca220d4560
+  fidelity: normalized_equivalent
+  equivalence_notes: The source instantiates t=2 and defines s_2 as the marginal score. The registry restores
+    a generic t and expands s_t(x) as grad_x log q_t(x), without changing the conditioning identity.
+  symbols:
+  - name: X_0
+    meaning: clean random variable
+  - name: X_t
+    meaning: noisy state at time t
+  - name: q_t
+    meaning: marginal law of X_t
+  dimensions:
+  - object: X_0, X_t, x
+    shape: scalar in the worked source; vector form requires componentwise gradient regularity
+  - object: conditional expectation and score
+    shape: scalar derivative in the worked source
+  theorem_level: false
+  human_signoff: not_required
+  executable_checks:
+  - test_diffusion_three_formulation_contracts_are_executable
+  reviewer: openai-codex
+  verification_method: source_text_and_executable_gaussian_check
+  verified_at: '2026-07-16'
+- equation_id: diffusion-gaussian-tweedie-posterior
+  canonical_guide: diffusion-explained.md
+  anchor: worked-example-one-scalar-forward-and-posterior-step
+  status: pending
+- equation_id: diffusion-vp-velocity-conversion
+  canonical_guide: diffusion-explained.md
+  anchor: v-prediction-velocity
+  status: pending
+- equation_id: diffusion-elbo-three-term-decomposition
+  canonical_guide: diffusion-explained.md
+  anchor: the-elbo-derivation
+  status: pending
+- equation_id: diffusion-learned-log-variance-interpolation
+  canonical_guide: diffusion-explained.md
+  anchor: loss-function-variants
+  status: pending
+- equation_id: diffusion-gaussian-reverse-kl
+  canonical_guide: diffusion-explained.md
+  anchor: worked-example-what-a-learned-variance-can-and-cannot-repair
+  status: pending
+- equation_id: diffusion-logsnr-time-measure
+  canonical_guide: diffusion-explained.md
+  anchor: a-schedule-is-also-a-measure-over-denoising-problems
+  status: pending
+- equation_id: diffusion-coarse-two-mode-posterior
+  canonical_guide: diffusion-explained.md
+  anchor: why-a-large-reverse-jump-changes-the-statistical-problem
+  status: pending
+- equation_id: diffusion-cfg-scale
+  canonical_guide: diffusion-explained.md
+  anchor: guidance-techniques
+  status: pending
+- equation_id: diffusion-acceleration-call-ledger
+  canonical_guide: diffusion-explained.md
+  anchor: compute-ledger-from-outer-transitions-to-end-to-end-latency
+  status: pending
+- equation_id: probability-flow-ode
+  canonical_guide: probability-paths-and-stochastic-transport.md
+  anchor: 2-score-diffusion-and-probability-flow-odes
+  status: pending
+- equation_id: continuity-equation
+  canonical_guide: probability-paths-and-stochastic-transport.md
+  anchor: continuity-equation
+  status: pending
+- equation_id: gflownet-trajectory-balance
+  canonical_guide: gflownets-explained.md
+  anchor: 3-trajectory-and-subtrajectory-balance
+  status: reviewed
+  source_tex: 'Z_\theta\prod_{t=0}^{n-1}P_F(s_{t+1}\mid s_t)
+
+    =R(x)\prod_{t=0}^{n-1}P_B(s_t\mid s_{t+1}).'
+  source_tex_sha256: c8094cab94db35b054f103fa671f868a709239692f4b62d2c3462b08104c14bc
+  registry_expression_sha256: 3579c22d6bf81f12dfaeaf35e1c7577fce52ee0187f7c4515b0f0178d15e6165
+  registry_convention_sha256: 5bb13b935716b8143407aa5b21622ef5ee20b0b2c40fd1f363b7a0d1fdc904e5
+  fidelity: assumption_qualified
+  equivalence_notes: The registry removes theta and explicit product limits while its convention retains
+    the complete positive-reward trajectory and support conditions required by the source equation.
+  symbols:
+  - name: Z_theta
+    meaning: learned source-flow normalizer
+  - name: P_F, P_B
+    meaning: forward and backward transition policies along one complete trajectory
+  - name: R(x)
+    meaning: positive terminal reward
+  dimensions:
+  - object: Z_theta, R(x), P_F, P_B
+    shape: nonnegative scalars; probabilities are dimensionless
+  theorem_level: false
+  human_signoff: not_required
+  reviewer: openai-codex
+  verification_method: source_text_and_assumption_review
+  verified_at: '2026-07-16'
+- equation_id: gflownet-object-marginal
+  canonical_guide: gflownets-explained.md
+  anchor: forward-and-backward-policies
+  status: pending
+- equation_id: gflownet-detailed-balance
+  canonical_guide: gflownets-explained.md
+  anchor: detailed-balance
+  status: pending
+- equation_id: gflownet-subtrajectory-balance
+  canonical_guide: gflownets-explained.md
+  anchor: subtrajectory-balance
+  status: pending
+- equation_id: discrete-diffusion-forward-posterior
+  canonical_guide: discrete-iterative-generation-explained.md
+  anchor: exact-forward-posterior
+  status: pending
+- equation_id: discrete-learned-forward-factorization
+  canonical_guide: discrete-iterative-generation-explained.md
+  anchor: learning-the-forward-construction-without-losing-tractability
+  status: pending
+- equation_id: discrete-ctmc-reverse-rate
+  canonical_guide: discrete-iterative-generation-explained.md
+  anchor: reverse-time-rates
+  status: pending
+- equation_id: discrete-score-entropy
+  canonical_guide: discrete-iterative-generation-explained.md
+  anchor: discrete-score-and-score-entropy
+  status: pending
+- equation_id: discrete-flow-probability-velocity
+  canonical_guide: discrete-iterative-generation-explained.md
+  anchor: 4-discrete-flow-matching-and-order-agnostic-generation
+  status: pending
+- equation_id: discrete-oracle-parallel-tv
+  canonical_guide: discrete-iterative-generation-explained.md
+  anchor: cumulative-worked-study-an-oracle-denoiser-with-a-wrong-sampler
+  status: pending
+- equation_id: bfn-receiver-mixture
+  canonical_guide: bayesian-flow-networks-explained.md
+  anchor: 1-the-bfn-generative-story
+  status: pending
+- equation_id: bfn-additive-update-semigroup
+  canonical_guide: bayesian-flow-networks-explained.md
+  anchor: natural-parameters-accumulate-evidence
+  status: pending
+- equation_id: bfn-transmission-loss
+  canonical_guide: bayesian-flow-networks-explained.md
+  anchor: training-flow-and-generative-flow
+  status: pending
+- equation_id: bfn-continuous-flow-marginal
+  canonical_guide: bayesian-flow-networks-explained.md
+  anchor: accuracy-schedule-and-exact-flow-marginal
+  status: pending
+- equation_id: bfn-categorical-sender-update
+  canonical_guide: bayesian-flow-networks-explained.md
+  anchor: canonical-gaussian-logit-sender
+  status: pending
+- equation_id: bfn-discrete-continuous-time-loss
+  canonical_guide: bayesian-flow-networks-explained.md
+  anchor: discrete-output-distribution
+  status: pending
+- equation_id: gaussian-process-posterior
+  canonical_guide: stochastic-process-generators-explained.md
+  anchor: conditioning
+  status: pending
+- equation_id: gaussian-process-composite-seasonal-kernel
+  canonical_guide: stochastic-process-generators-explained.md
+  anchor: worked-kernel-design-trend-evolving-seasonality-and-noise
+  status: pending
+- equation_id: log-gaussian-cox-process-likelihood
+  canonical_guide: stochastic-process-generators-explained.md
+  anchor: worked-log-gaussian-cox-process-boundary
+  status: pending
+- equation_id: sparse-variational-gp-elbo
+  canonical_guide: stochastic-process-generators-explained.md
+  anchor: scalability
+  status: pending
+- equation_id: latent-sde-drift-path-kl
+  canonical_guide: stochastic-process-generators-explained.md
+  anchor: variational-latent-sdes
+  status: pending
+- equation_id: function-diffusion-finite-score
+  canonical_guide: stochastic-process-generators-explained.md
+  anchor: worked-finite-set-score-calculation
+  status: pending
+- equation_id: causal-truncated-factorization
+  canonical_guide: causal-generative-models-explained.md
+  anchor: observation-intervention-and-counterfactual
+  status: pending
+- equation_id: causal-backdoor-adjustment
+  canonical_guide: causal-generative-models-explained.md
+  anchor: worked-confounding-example
+  status: pending
+- equation_id: causal-potential-outcome-ate
+  canonical_guide: causal-generative-models-explained.md
+  anchor: potential-outcomes-and-the-consistency-bridge
+  status: pending
+- equation_id: causal-frontdoor-functional
+  canonical_guide: causal-generative-models-explained.md
+  anchor: from-adjustment-to-graphical-identification
+  status: pending
+- equation_id: causal-notears-acyclicity
+  canonical_guide: causal-generative-models-explained.md
+  anchor: the-target-of-discovery
+  status: pending
+- equation_id: steering-normalized-target-reweighting
+  canonical_guide: conditioning-steering-and-constraints.md
+  anchor: 1-begin-with-the-target-not-the-steering-algorithm
+  status: pending
+- equation_id: steering-conditional-score-identity
+  canonical_guide: conditioning-steering-and-constraints.md
+  anchor: 3-guidance-doob-transforms-and-twisted-sampling
+  status: pending
+- equation_id: steering-finite-doob-transform
+  canonical_guide: conditioning-steering-and-constraints.md
+  anchor: worked-finite-state-doob-transform
+  status: pending
+- equation_id: steering-global-constrained-next-token
+  canonical_guide: conditioning-steering-and-constraints.md
+  anchor: local-token-masking-is-not-generally-global-conditioning
+  status: pending
+- equation_id: steering-best-of-n-density
+  canonical_guide: conditioning-steering-and-constraints.md
+  anchor: best-of-n-has-its-own-output-law
+  status: pending
+- equation_id: flow-injective-manifold-density
+  canonical_guide: flow-explained.md
+  anchor: what-changes-when-the-transformation-is-not-bijective
+  status: pending
+- equation_id: residual-vector-quantization-recursion
+  canonical_guide: representations-and-multimodal-systems.md
+  anchor: residual-product-and-lookup-free-quantization
+  status: pending
+- equation_id: linear-centered-kernel-alignment
+  canonical_guide: representations-and-multimodal-systems.md
+  anchor: representational-similarity-is-a-diagnostic-not-a-quality-score
+  status: pending
+- equation_id: infonce-contrastive-loss
+  canonical_guide: representations-and-multimodal-systems.md
+  anchor: the-pair-law-defines-a-contrastive-objective
+  status: pending
+- equation_id: infonce-mutual-information-bound
+  canonical_guide: representations-and-multimodal-systems.md
+  anchor: the-pair-law-defines-a-contrastive-objective
+  status: pending
+- equation_id: generative-representation-alignment-objective
+  canonical_guide: representations-and-multimodal-systems.md
+  anchor: representation-alignment-is-an-auxiliary-generative-objective
+  status: pending
+- equation_id: latent-joint-marginal-posterior
+  canonical_guide: classical-generative-models.md
+  anchor: 2-the-latent-variable-grammar
+  status: pending
+- equation_id: mixture-responsibility
+  canonical_guide: classical-generative-models.md
+  anchor: 3-mixture-models-and-em
+  status: pending
+- equation_id: factor-analysis-marginal
+  canonical_guide: classical-generative-models.md
+  anchor: 4-factor-analysis-and-matrix-factorization
+  status: pending
+- equation_id: factor-analysis-posterior
+  canonical_guide: classical-generative-models.md
+  anchor: 4-factor-analysis-and-matrix-factorization
+  status: pending
+- equation_id: gaussian-scale-mixture-precision-posterior
+  canonical_guide: classical-generative-models.md
+  anchor: gaussian-scale-mixtures-and-adaptive-tails
+  status: pending
+- equation_id: linear-ica-change-of-variables
+  canonical_guide: classical-generative-models.md
+  anchor: independent-components-and-the-source-separation-contract
+  status: pending
+- equation_id: sparse-code-map-objective
+  canonical_guide: classical-generative-models.md
+  anchor: sparse-coding-and-dictionary-learning
+  status: pending
+- equation_id: hmm-baum-welch-transition-update
+  canonical_guide: classical-generative-models.md
+  anchor: learning-hmm-parameters-one-model-four-estimators
+  status: pending
+- equation_id: hmm-geometric-dwell-time
+  canonical_guide: classical-generative-models.md
+  anchor: durations-and-structured-discrete-states
+  status: pending
+- equation_id: linear-state-stationary-covariance
+  canonical_guide: classical-generative-models.md
+  anchor: system-identification-and-stability
+  status: pending
+- equation_id: local-level-h-step-forecast
+  canonical_guide: classical-generative-models.md
+  anchor: structural-probabilistic-time-series-models
+  status: pending
+- equation_id: gaussian-graphical-lasso-objective
+  canonical_guide: classical-generative-models.md
+  anchor: gaussian-graphical-models-zeros-in-the-precision-matrix
+  status: pending
+- equation_id: latent-gaussian-marginal-precision
+  canonical_guide: classical-generative-models.md
+  anchor: hidden-variables-turn-sparse-structure-into-dense-dependence
+  status: pending
+- equation_id: em-evidence-decomposition
+  canonical_guide: latent-variables-and-inference.md
+  anchor: em-variational-em-and-a-vae-share-one-identity
+  status: pending
+- equation_id: dirichlet-process-finite-partition-law
+  canonical_guide: bayesian-nonparametric-models-explained.md
+  anchor: the-dirichlet-process-contract
+  status: pending
+- equation_id: dirichlet-process-posterior
+  canonical_guide: bayesian-nonparametric-models-explained.md
+  anchor: conjugacy-and-the-posterior-random-measure
+  status: pending
+- equation_id: blackwell-macqueen-predictive-law
+  canonical_guide: bayesian-nonparametric-models-explained.md
+  anchor: conjugacy-and-the-posterior-random-measure
+  status: pending
+- equation_id: dirichlet-process-stick-breaking
+  canonical_guide: bayesian-nonparametric-models-explained.md
+  anchor: stick-breaking-atoms-and-size-biased-weights
+  status: pending
+- equation_id: dirichlet-process-eppf
+  canonical_guide: bayesian-nonparametric-models-explained.md
+  anchor: the-partition-law
+  status: pending
+- equation_id: dirichlet-mixture-collapsed-assignment
+  canonical_guide: bayesian-nonparametric-models-explained.md
+  anchor: posterior-assignment-includes-the-likelihood
+  status: pending
+- equation_id: indian-buffet-process-predictive-law
+  canonical_guide: bayesian-nonparametric-models-explained.md
+  anchor: from-one-label-to-many-features
+  status: pending
+- equation_id: indian-buffet-process-efpf
+  canonical_guide: bayesian-nonparametric-models-explained.md
+  anchor: the-exchangeable-probability-of-an-unlabeled-feature-allocation
+  status: pending
+- equation_id: bernoulli-crm-local-feature-count
+  canonical_guide: bayesian-nonparametric-models-explained.md
+  anchor: why-infinitely-many-atoms-can-yield-a-finite-row
+  status: pending
+- equation_id: hierarchical-dirichlet-process-law
+  canonical_guide: bayesian-nonparametric-models-explained.md
+  anchor: why-independent-group-priors-fail-to-share-atoms
+  status: pending
+- equation_id: unnormalized-target-normalizer
+  canonical_guide: likelihood-and-normalizer-estimation.md
+  anchor: four-queries-with-one-integral-shape
+  status: pending
+- equation_id: ordinary-importance-normalizer-estimator
+  canonical_guide: likelihood-and-normalizer-estimation.md
+  anchor: the-change-of-measure-identity
+  status: pending
+- equation_id: importance-relative-variance-chi-square
+  canonical_guide: likelihood-and-normalizer-estimation.md
+  anchor: proposal-quality-as-a-divergence
+  status: pending
+- equation_id: forward-ais-normalizer-ratio
+  canonical_guide: likelihood-and-normalizer-estimation.md
+  anchor: forward-ais-convention
+  status: pending
+- equation_id: smc-sampler-incremental-weight
+  canonical_guide: likelihood-and-normalizer-estimation.md
+  anchor: general-smc-sampler-weight
+  status: reviewed
+  source_tex: 'G_t(x_{t-1},x_t)
+
+    =\frac{
+
+    \gamma_t(x_t)L_{t-1}(x_t,x_{t-1})
+
+    }{
+
+    \gamma_{t-1}(x_{t-1})K_t(x_{t-1},x_t)
+
+    }.'
+  source_tex_sha256: b23e21040cfb6d2995417481250878803477b88c71b0b7d350435f42bb32ac08
+  registry_expression_sha256: c088f33a8aa952c255fb3b7ed4af2d0a40dc38b08f1ed2b90bc05c5e5045927a
+  registry_convention_sha256: c9c45b2aa56857d89b951caf0db8364673149330930ab4f5da0cb6d9f3fb17d6
+  fidelity: assumption_qualified
+  equivalence_notes: The registry is a notation-normalized transcription. Its convention preserves that
+    K_t is the forward proposal and L_(t-1) a compatible backward kernel on the declared extended path.
+  symbols:
+  - name: gamma_t
+    meaning: unnormalized target density at stage t
+  - name: K_t
+    meaning: forward proposal kernel
+  - name: L_(t-1)
+    meaning: compatible backward kernel
+  - name: G_t
+    meaning: incremental importance weight
+  dimensions:
+  - object: gamma_t, K_t, L_(t-1), G_t
+    shape: nonnegative scalar density or mass values relative to declared measures
+  theorem_level: false
+  human_signoff: not_required
+  reviewer: openai-codex
+  verification_method: source_text_and_measure-semantics_review
+  verified_at: '2026-07-16'
+- equation_id: bridge-sampling-normalizer-ratio
+  canonical_guide: likelihood-and-normalizer-estimation.md
+  anchor: bridge-sampling-uses-both-endpoint-laws
+  status: pending
+- equation_id: thermodynamic-integration-normalizer-ratio
+  canonical_guide: likelihood-and-normalizer-estimation.md
+  anchor: thermodynamic-integration-and-path-sampling
+  status: pending
+- equation_id: nested-sampling-prior-mass-integral
+  canonical_guide: likelihood-and-normalizer-estimation.md
+  anchor: nested-sampling-changes-coordinates
+  status: pending
+- equation_id: factorized-unnormalized-joint-law
+  canonical_guide: graphical-inference-and-message-passing.md
+  anchor: the-probabilistic-object-comes-before-the-graph
+  status: pending
+- equation_id: variable-elimination-bucket-factor
+  canonical_guide: graphical-inference-and-message-passing.md
+  anchor: distributivity-is-the-algorithm
+  status: pending
+- equation_id: factor-graph-variable-to-factor-message
+  canonical_guide: graphical-inference-and-message-passing.md
+  anchor: two-local-update-rules
+  status: pending
+- equation_id: factor-graph-factor-to-variable-message
+  canonical_guide: graphical-inference-and-message-passing.md
+  anchor: two-local-update-rules
+  status: pending
+- equation_id: junction-tree-separator-message
+  canonical_guide: graphical-inference-and-message-passing.md
+  anchor: turn-a-loopy-graph-into-a-tree-of-clusters
+  status: pending
+- equation_id: treewidth-elimination-complexity
+  canonical_guide: graphical-inference-and-message-passing.md
+  anchor: scope-growth-fill-in-and-induced-width
+  status: pending
+- equation_id: bethe-free-energy-factor-graph
+  canonical_guide: graphical-inference-and-message-passing.md
+  anchor: bethe-free-energy-a-precise-but-bounded-connection
+  status: pending
+- equation_id: log-partition-gradient-marginal
+  canonical_guide: graphical-inference-and-message-passing.md
+  anchor: differentiate-a-correct-normalizer-to-obtain-moments
+  status: pending
+- equation_id: point-process-janossy-normalization
+  canonical_guide: point-processes-and-random-finite-sets.md
+  anchor: janossy-densities-the-factorial-is-part-of-the-definition
+  status: pending
+- equation_id: point-process-cardinality-location-decomposition
+  canonical_guide: point-processes-and-random-finite-sets.md
+  anchor: janossy-densities-the-factorial-is-part-of-the-definition
+  status: pending
+- equation_id: temporal-point-process-log-likelihood
+  canonical_guide: point-processes-and-random-finite-sets.md
+  anchor: survival-derives-the-next-event-density
+  status: pending
+- equation_id: exponential-hawkes-branching-ratio
+  canonical_guide: point-processes-and-random-finite-sets.md
+  anchor: linear-hawkes-processes
+  status: pending
+- equation_id: finite-dpp-l-ensemble
+  canonical_guide: point-processes-and-random-finite-sets.md
+  anchor: determinantal-point-processes
+  status: pending
+- equation_id: papangelou-density-ratio
+  canonical_guide: point-processes-and-random-finite-sets.md
+  anchor: gibbs-processes-and-papangelou-conditional-intensity
+  status: pending
+- equation_id: point-process-monte-carlo-compensator
+  canonical_guide: point-processes-and-random-finite-sets.md
+  anchor: exact-likelihood-and-numerical-integration
+  status: pending
+- equation_id: spatial-papangelou-pseudolikelihood
+  canonical_guide: point-processes-and-random-finite-sets.md
+  anchor: gibbs-likelihood-pseudolikelihood-and-composite-objectives
+  status: pending
+- equation_id: point-process-inverse-compensator
+  canonical_guide: point-processes-and-random-finite-sets.md
+  anchor: inverse-integrated-hazard
+  status: pending
+- equation_id: temporal-point-process-time-rescaling
+  canonical_guide: point-processes-and-random-finite-sets.md
+  anchor: time-rescaling-and-residual-analysis
+  status: pending
+- equation_id: random-graph-unlabeled-orbit-mass
+  canonical_guide: random-graphs-and-relational-generators.md
+  anchor: relabeling-as-a-group-action
+  status: pending
+- equation_id: random-graph-automorphism-mass-conversion
+  canonical_guide: random-graphs-and-relational-generators.md
+  anchor: relabeling-as-a-group-action
+  status: pending
+- equation_id: erdos-renyi-likelihood-and-mle
+  canonical_guide: random-graphs-and-relational-generators.md
+  anchor: independent-edges-gnp-and-gnm
+  status: pending
+- equation_id: stochastic-block-model-joint-law
+  canonical_guide: random-graphs-and-relational-generators.md
+  anchor: stochastic-block-models
+  status: pending
+- equation_id: exponential-random-graph-law
+  canonical_guide: random-graphs-and-relational-generators.md
+  anchor: exponential-random-graph-models
+  status: pending
+- equation_id: exponential-random-graph-score
+  canonical_guide: random-graphs-and-relational-generators.md
+  anchor: ergm-normalizers-and-monte-carlo
+  status: pending
+- equation_id: vertex-exchangeable-graphon-law
+  canonical_guide: random-graphs-and-relational-generators.md
+  anchor: graphons-and-vertex-exchangeability
+  status: pending
+- equation_id: symmetric-two-block-detectability-threshold
+  canonical_guide: random-graphs-and-relational-generators.md
+  anchor: detectability-is-a-property-of-a-regime
+  status: pending
+- equation_id: categorical-graph-corruption-kernel
+  canonical_guide: random-graphs-and-relational-generators.md
+  anchor: a-graph-valued-markov-path
+  status: pending
+- equation_id: exact-graph-constraint-conditioning
+  canonical_guide: random-graphs-and-relational-generators.md
+  anchor: hard-constraints-versus-guided-preferences
+  status: pending
+- equation_id: sklar-joint-cdf-factorization
+  canonical_guide: copula-models-explained.md
+  anchor: sklars-theorem-with-its-uniqueness-clause
+  status: pending
+- equation_id: copula-joint-density-factorization
+  canonical_guide: copula-models-explained.md
+  anchor: density-factorization
+  status: pending
+- equation_id: randomized-distributional-transform
+  canonical_guide: copula-models-explained.md
+  anchor: probability-integral-transforms
+  status: pending
+- equation_id: student-t-copula-tail-dependence
+  canonical_guide: copula-models-explained.md
+  anchor: elliptical-copulas
+  status: pending
+- equation_id: archimedean-copula-generator
+  canonical_guide: copula-models-explained.md
+  anchor: archimedean-copulas
+  status: pending
+- equation_id: bivariate-copula-conditional-cdf
+  canonical_guide: copula-models-explained.md
+  anchor: conditional-laws-from-copula-derivatives
+  status: pending
+- equation_id: classifier-copula-density-ratio
+  canonical_guide: copula-models-explained.md
+  anchor: density-ratio-estimation
+  status: pending
+- equation_id: three-variable-pair-copula-density
+  canonical_guide: copula-models-explained.md
+  anchor: from-the-chain-rule-to-pair-copulas
+  status: pending
+- equation_id: bivariate-discrete-copula-cell-mass
+  canonical_guide: copula-models-explained.md
+  anchor: discrete-likelihood-uses-rectangle-probabilities
+  status: pending
+- equation_id: rosenblatt-transform
+  canonical_guide: copula-models-explained.md
+  anchor: the-rosenblatt-transform
+  status: pending
+- equation_id: pcfg-derivation-product
+  canonical_guide: probabilistic-grammars-and-program-derivations.md
+  anchor: from-a-context-free-grammar-to-a-pcfg
+  status: pending
+- equation_id: grammar-yield-marginal
+  canonical_guide: probabilistic-grammars-and-program-derivations.md
+  anchor: from-a-context-free-grammar-to-a-pcfg
+  status: pending
+- equation_id: binary-pcfg-termination-fixed-point
+  canonical_guide: probabilistic-grammars-and-program-derivations.md
+  anchor: local-rule-normalization-does-not-prove-global-consistency
+  status: pending
+- equation_id: weighted-grammar-tree-normalizer
+  canonical_guide: probabilistic-grammars-and-program-derivations.md
+  anchor: weighted-grammars-and-partition-functions
+  status: pending
+- equation_id: pcfg-inside-recurrence
+  canonical_guide: probabilistic-grammars-and-program-derivations.md
+  anchor: inside-probabilities
+  status: pending
+- equation_id: pcfg-posterior-span-marginal
+  canonical_guide: probabilistic-grammars-and-program-derivations.md
+  anchor: outside-probabilities-and-posterior-events
+  status: pending
+- equation_id: supervised-pcfg-rule-mle
+  canonical_guide: probabilistic-grammars-and-program-derivations.md
+  anchor: observed-derivations-count-and-normalize
+  status: pending
+- equation_id: compound-pcfg-yield-marginal
+  canonical_guide: probabilistic-grammars-and-program-derivations.md
+  anchor: global-latents-and-conditional-tractability
+  status: pending
+- equation_id: executable-program-output-pushforward
+  canonical_guide: probabilistic-grammars-and-program-derivations.md
+  anchor: a-grammar-over-programs
+  status: pending
+- equation_id: locally-grammar-constrained-conditional
+  canonical_guide: probabilistic-grammars-and-program-derivations.md
+  anchor: autoregressive-yield-models-plus-formal-constraints
+  status: pending
+- equation_id: globally-language-conditioned-sequence-law
+  canonical_guide: probabilistic-grammars-and-program-derivations.md
+  anchor: autoregressive-yield-models-plus-formal-constraints
+  status: pending
+- equation_id: nonnegative-tensor-probability-law
+  canonical_guide: tensor-network-and-born-probability-models.md
+  anchor: three-probability-constructions
+  status: pending
+- equation_id: born-tensor-probability-law
+  canonical_guide: tensor-network-and-born-probability-models.md
+  anchor: three-probability-constructions
+  status: pending
+- equation_id: locally-purified-tensor-law
+  canonical_guide: tensor-network-and-born-probability-models.md
+  anchor: three-probability-constructions
+  status: pending
+- equation_id: open-boundary-mps-amplitude
+  canonical_guide: tensor-network-and-born-probability-models.md
+  anchor: the-open-boundary-mps
+  status: pending
+- equation_id: mps-gauge-transformation
+  canonical_guide: tensor-network-and-born-probability-models.md
+  anchor: gauge-freedom-and-canonical-forms
+  status: pending
+- equation_id: left-canonical-mps-condition
+  canonical_guide: tensor-network-and-born-probability-models.md
+  anchor: gauge-freedom-and-canonical-forms
+  status: pending
+- equation_id: born-left-environment-recurrence
+  canonical_guide: tensor-network-and-born-probability-models.md
+  anchor: one-amplitude-versus-the-whole-normalizer
+  status: pending
+- equation_id: tensor-conditional-ratio
+  canonical_guide: tensor-network-and-born-probability-models.md
+  anchor: exact-sequential-sampling
+  status: pending
+- equation_id: born-negative-log-likelihood
+  canonical_guide: tensor-network-and-born-probability-models.md
+  anchor: maximum-likelihood-and-its-negative-phase
+  status: pending
+- equation_id: continuous-tensor-feature-gram
+  canonical_guide: tensor-network-and-born-probability-models.md
+  anchor: continuous-variables-through-feature-maps
+  status: pending
+- equation_id: beta-bernoulli-posterior-and-evidence
+  canonical_guide: bayesian-learning-and-model-assessment.md
+  anchor: 2-worked-example-betabernoulli-learning
+  status: pending
+- equation_id: exponential-family-conjugate-update
+  canonical_guide: bayesian-learning-and-model-assessment.md
+  anchor: the-conjugate-exponential-family-calculation
+  status: pending
+- equation_id: covariance-separation-and-lkj-density
+  canonical_guide: bayesian-learning-and-model-assessment.md
+  anchor: multivariate-priors-should-expose-scale-and-dependence
+  status: pending
+- equation_id: normal-hierarchical-shrinkage
+  canonical_guide: bayesian-learning-and-model-assessment.md
+  anchor: worked-normalnormal-shrinkage
+  status: pending
+- equation_id: existing-versus-new-group-predictive
+  canonical_guide: bayesian-learning-and-model-assessment.md
+  anchor: existing-group-and-new-group-prediction-differ
+  status: pending
+- equation_id: psis-sample-size-warning-threshold
+  canonical_guide: bayesian-learning-and-model-assessment.md
+  anchor: leave-one-out-predictive-evaluation
+  status: pending
+- equation_id: waic-pointwise-effective-parameters
+  canonical_guide: bayesian-learning-and-model-assessment.md
+  anchor: waic-and-singular-models
+  status: pending
+- equation_id: predictive-total-variance
+  canonical_guide: bayesian-learning-and-model-assessment.md
+  anchor: aleatoric-and-parameter-uncertainty-depend-on-the-query
+  status: pending
+- equation_id: observed-data-selection-likelihood
+  canonical_guide: bayesian-learning-and-model-assessment.md
+  anchor: 7-missing-data-and-observation-mechanisms
+  status: pending
+- equation_id: dag-local-kernel-factorization
+  canonical_guide: graphical-models-and-structured-probability.md
+  anchor: a-graph-is-structure-the-conditionals-define-the-law
+  status: pending
+- equation_id: monitoring-dag-joint-law
+  canonical_guide: graphical-models-and-structured-probability.md
+  anchor: running-model-two-possible-causes-and-two-measurements
+  status: pending
+- equation_id: d-separation-markov-implication
+  canonical_guide: graphical-models-and-structured-probability.md
+  anchor: active-and-blocked-trails
+  status: pending
+- equation_id: dag-markov-blanket
+  canonical_guide: graphical-models-and-structured-probability.md
+  anchor: markov-blankets
+  status: pending
+- equation_id: undirected-factor-normalization
+  canonical_guide: graphical-models-and-structured-probability.md
+  anchor: local-compatibility-global-normalization
+  status: pending
+- equation_id: two-spin-ising-law-and-conditional
+  canonical_guide: graphical-models-and-structured-probability.md
+  anchor: worked-two-spin-ising-model
+  status: pending
+- equation_id: mrf-likelihood-moment-gradient
+  canonical_guide: graphical-models-and-structured-probability.md
+  anchor: undirected-maximum-likelihood
+  status: pending
+- equation_id: nodewise-pseudolikelihood
+  canonical_guide: graphical-models-and-structured-probability.md
+  anchor: pseudolikelihood-is-a-composite-objective
+  status: pending
+- equation_id: composite-likelihood-sandwich-covariance
+  canonical_guide: graphical-models-and-structured-probability.md
+  anchor: pseudolikelihood-is-a-composite-objective
+  status: pending
+- equation_id: conditional-random-field-law
+  canonical_guide: graphical-models-and-structured-probability.md
+  anchor: conditional-random-fields
+  status: pending
+- equation_id: inla-nested-marginal-approximation
+  canonical_guide: graphical-inference-and-message-passing.md
+  anchor: integrated-nested-laplace-approximation-structure-specific-deterministic-inference
+  status: pending
+- equation_id: entropy-cross-entropy-relative-entropy
+  canonical_guide: information-coding-and-generative-modeling.md
+  anchor: cross-entropy-and-model-mismatch
+  status: pending
+- equation_id: differential-entropy-coordinate-transform
+  canonical_guide: information-coding-and-generative-modeling.md
+  anchor: continuous-variables-require-a-reference-measure
+  status: pending
+- equation_id: asymptotic-equipartition-information-rate
+  canonical_guide: information-coding-and-generative-modeling.md
+  anchor: typical-sequences-are-not-modal-sequences
+  status: pending
+- equation_id: mutual-information-relative-entropy
+  canonical_guide: information-coding-and-generative-modeling.md
+  anchor: mutual-information-compares-a-joint-law-with-independence
+  status: pending
+- equation_id: binary-symmetric-mutual-information
+  canonical_guide: information-coding-and-generative-modeling.md
+  anchor: worked-dependence-table
+  status: pending
+- equation_id: total-correlation
+  canonical_guide: information-coding-and-generative-modeling.md
+  anchor: several-variables-have-several-dependence-functionals
+  status: pending
+- equation_id: infonce-lower-bound
+  canonical_guide: information-coding-and-generative-modeling.md
+  anchor: variational-lower-and-upper-bounds
+  status: pending
+- equation_id: kraft-prefix-code-condition
+  canonical_guide: information-coding-and-generative-modeling.md
+  anchor: a-code-is-a-protocol-not-a-metaphor
+  status: pending
+- equation_id: autoregressive-ideal-codelength
+  canonical_guide: information-coding-and-generative-modeling.md
+  anchor: sequential-probability-models-become-sequential-coders
+  status: pending
+- equation_id: shannon-rate-distortion-function
+  canonical_guide: information-coding-and-generative-modeling.md
+  anchor: lossy-coding-begins-with-what-may-be-forgotten
+  status: pending
+- equation_id: binary-hamming-rate-distortion
+  canonical_guide: information-coding-and-generative-modeling.md
+  anchor: worked-binary-ratedistortion-function
+  status: pending
+- equation_id: vae-variational-rate-decomposition
+  canonical_guide: information-coding-and-generative-modeling.md
+  anchor: vae-rate-and-its-decomposition
+  status: pending
+- equation_id: binary-symmetric-channel-capacity
+  canonical_guide: information-coding-and-generative-modeling.md
+  anchor: capacity-maximizes-reliable-information-rate
+  status: pending
+- equation_id: fano-decoding-inequality
+  canonical_guide: information-coding-and-generative-modeling.md
+  anchor: fano-bounds-error-through-remaining-uncertainty
+  status: pending
+- equation_id: information-bottleneck-lagrangian
+  canonical_guide: information-coding-and-generative-modeling.md
+  anchor: the-bottleneck-is-a-task-relative-trade-off
+  status: pending
+- equation_id: prefix-kolmogorov-complexity
+  canonical_guide: information-coding-and-generative-modeling.md
+  anchor: algorithmic-information-is-a-limit-concept-not-a-measured-neural-score
+  status: pending
+- equation_id: jacobian-vector-and-vector-jacobian-products
+  canonical_guide: optimization-and-learning-dynamics.md
+  anchor: jvps-and-vjps
+  status: pending
+- equation_id: stop-gradient-derivative
+  canonical_guide: optimization-and-learning-dynamics.md
+  anchor: detachment-changes-the-derivative-program
+  status: pending
+- equation_id: score-function-gradient-estimator
+  canonical_guide: optimization-and-learning-dynamics.md
+  anchor: score-function-estimator
+  status: pending
+- equation_id: pathwise-gradient-estimator
+  canonical_guide: optimization-and-learning-dynamics.md
+  anchor: pathwise-estimator
+  status: pending
+- equation_id: bernoulli-straight-through-bias
+  canonical_guide: optimization-and-learning-dynamics.md
+  anchor: worked-discrete-estimator-unbiased-score-biased-straight-through
+  status: pending
+- equation_id: global-gradient-norm-clipping
+  canonical_guide: optimization-and-learning-dynamics.md
+  anchor: clipping-has-multiple-meanings
+  status: pending
+- equation_id: fisher-local-kl-and-natural-step
+  canonical_guide: optimization-and-learning-dynamics.md
+  anchor: geometry-from-a-local-distributional-constraint
+  status: pending
+- equation_id: bilinear-gradient-game-radius
+  canonical_guide: optimization-and-learning-dynamics.md
+  anchor: worked-bilinear-game-why-gradients-rotate
+  status: pending
+- equation_id: em-free-energy-decomposition
+  canonical_guide: optimization-and-learning-dynamics.md
+  anchor: one-identity-organizes-the-chapter
+  status: pending
+- equation_id: bernoulli-mixture-em-update
+  canonical_guide: optimization-and-learning-dynamics.md
+  anchor: worked-two-component-bernoulli-mixture
+  status: pending
+- equation_id: cross-entropy-elite-distribution-update
+  canonical_guide: optimization-and-learning-dynamics.md
+  anchor: estimation-of-distribution-algorithms
+  status: pending
+- equation_id: gaussian-evolution-strategy-gradient
+  canonical_guide: optimization-and-learning-dynamics.md
+  anchor: evolution-strategies
+  status: pending
+- equation_id: determinantal-point-process-l-ensemble
+  canonical_guide: optimization-and-learning-dynamics.md
+  anchor: determinantal-point-processes
+  status: pending
+- equation_id: kantorovich-optimal-transport
+  canonical_guide: optimization-and-learning-dynamics.md
+  anchor: transport-begins-with-a-cost-and-two-marginals
+  status: pending
+- equation_id: transport-forward-change-of-variables
+  canonical_guide: optimization-and-learning-dynamics.md
+  anchor: change-of-variables-has-a-fixed-direction
+  status: pending
+- equation_id: wasserstein-p-distance
+  canonical_guide: optimization-and-learning-dynamics.md
+  anchor: wasserstein-distances
+  status: pending
+- equation_id: sinkhorn-debiased-divergence
+  canonical_guide: optimization-and-learning-dynamics.md
+  anchor: entropic-regularization
+  status: pending
+- equation_id: benamou-brenier-dynamic-transport
+  canonical_guide: optimization-and-learning-dynamics.md
+  anchor: dynamic-transport-and-probability-paths
+  status: pending
+- equation_id: gradient-five-field-contract
+  canonical_guide: gradients-and-geometry-in-generative-modeling.md
+  anchor: the-five-field-gradient-contract
+  status: pending
+- equation_id: statistical-tangent-fisher-metric
+  canonical_guide: gradients-and-geometry-in-generative-modeling.md
+  anchor: a-tangent-vector-changes-a-law
+  status: pending
+- equation_id: exponential-family-natural-mean-duality
+  canonical_guide: gradients-and-geometry-in-generative-modeling.md
+  anchor: dual-coordinates
+  status: pending
+- equation_id: conjugate-svi-natural-update
+  canonical_guide: gradients-and-geometry-in-generative-modeling.md
+  anchor: conjugate-svi-when-the-update-becomes-simple
+  status: pending
+- equation_id: autoregressive-conditional-fisher-sum
+  canonical_guide: gradients-and-geometry-in-generative-modeling.md
+  anchor: autoregressive-models-a-conditional-fisher-sum
+  status: pending
+- equation_id: ebm-parameter-score-and-fisher
+  canonical_guide: gradients-and-geometry-in-generative-modeling.md
+  anchor: ebms-fisher-estimation-inherits-the-negative-phase-problem
+  status: pending
+- equation_id: bilevel-implicit-response-gradient
+  canonical_guide: gradients-and-geometry-in-generative-modeling.md
+  anchor: game-unrolled-and-implicit-gradients-answer-different-questions
+  status: pending
+- equation_id: wasserstein-functional-gradient-flow
+  canonical_guide: gradients-and-geometry-in-generative-modeling.md
+  anchor: wasserstein-gradient-flow
+  status: pending
+- equation_id: free-energy-langevin-gradient-flow
+  canonical_guide: gradients-and-geometry-in-generative-modeling.md
+  anchor: worked-free-energy-flow-becomes-langevin-dynamics
+  status: pending
+- equation_id: conditional-state-score-guidance
+  canonical_guide: gradients-and-geometry-in-generative-modeling.md
+  anchor: state-scores-energy-forces-and-guidance
+  status: pending
+- equation_id: pathwise-transport-continuity-gradient
+  canonical_guide: gradients-and-geometry-in-generative-modeling.md
+  anchor: pathwise-gradients-are-transport-velocities
+  status: pending
+- equation_id: stein-variational-rkhs-direction
+  canonical_guide: gradients-and-geometry-in-generative-modeling.md
+  anchor: stein-variational-gradients-move-an-interacting-particle-system
+  status: pending
+- equation_id: categorical-natural-search-flow
+  canonical_guide: gradients-and-geometry-in-generative-modeling.md
+  anchor: worked-categorical-search-distribution
+  status: pending
+- equation_id: expectation-gradient-master-identity
+  canonical_guide: gradients-and-geometry-in-generative-modeling.md
+  anchor: one-derivative-several-estimator-families
+  status: pending
+- equation_id: bernoulli-score-baseline-gradient
+  canonical_guide: gradients-and-geometry-in-generative-modeling.md
+  anchor: worked-bernoulli-estimator-exact-score-function-and-baseline
+  status: pending
+- equation_id: importance-weighted-multisample-bound
+  canonical_guide: gradients-and-geometry-in-generative-modeling.md
+  anchor: multi-sample-bounds-couple-objective-and-estimator
+  status: pending
+- equation_id: continuous-ode-adjoint-sensitivity
+  canonical_guide: gradients-and-geometry-in-generative-modeling.md
+  anchor: solver-output-is-a-parameterized-computation
+  status: pending
+- equation_id: trajectory-reward-score-gradient
+  canonical_guide: gradients-and-geometry-in-generative-modeling.md
+  anchor: reward-gradients-for-autoregressive-and-iterative-generators
+  status: pending
+- equation_id: score-distillation-pullback-update
+  canonical_guide: gradients-and-geometry-in-generative-modeling.md
+  anchor: score-distillation-transfers-a-state-field-through-a-generator
+  status: pending
+- equation_id: gamma-poisson-posterior-update
+  canonical_guide: latent-variables-and-inference.md
+  anchor: a-finite-atlas-exact-conditioning-map-quadrature-and-laplace
+  status: pending
+- equation_id: continuous-map-density-transform
+  canonical_guide: latent-variables-and-inference.md
+  anchor: map-depends-on-the-coordinate-used-for-a-continuous-density
+  status: pending
+- equation_id: midpoint-posterior-quadrature
+  canonical_guide: latent-variables-and-inference.md
+  anchor: grid-quadrature-is-a-numerical-integral-not-a-density-family
+  status: pending
+- equation_id: laplace-local-gaussian
+  canonical_guide: latent-variables-and-inference.md
+  anchor: laplace-approximation-is-local-and-coordinate-sensitive
+  status: pending
+- equation_id: simulation-based-calibration-rank
+  canonical_guide: latent-variables-and-inference.md
+  anchor: layer-3-prior-predictive-simulation-based-calibration
+  status: pending
+- equation_id: state-space-generative-joint-law
+  canonical_guide: filtering-and-smoothing-state-space.md
+  anchor: prerequisite-refresh
+  status: pending
+- equation_id: exact-bayesian-filter-recursion
+  canonical_guide: filtering-and-smoothing-state-space.md
+  anchor: deriving-the-exact-bayesian-filter
+  status: pending
+- equation_id: state-space-backward-smoothing-recursion
+  canonical_guide: filtering-and-smoothing-state-space.md
+  anchor: deriving-the-backward-smoothing-recursion
+  status: pending
+- equation_id: linear-gaussian-kalman-correction
+  canonical_guide: filtering-and-smoothing-state-space.md
+  anchor: correction-from-one-joint-gaussian
+  status: pending
+- equation_id: kalman-predictive-log-likelihood
+  canonical_guide: filtering-and-smoothing-state-space.md
+  anchor: correction-from-one-joint-gaussian
+  status: pending
+- equation_id: rts-gaussian-smoother
+  canonical_guide: filtering-and-smoothing-state-space.md
+  anchor: rauchtungstriebel-smoothing
+  status: pending
+- equation_id: gaussian-information-measurement-update
+  canonical_guide: filtering-and-smoothing-state-space.md
+  anchor: information-coordinates-and-factor-addition
+  status: pending
+- equation_id: joint-moment-gaussian-filter-update
+  canonical_guide: filtering-and-smoothing-state-space.md
+  anchor: joint-moment-gaussian-filtering
+  status: pending
+- equation_id: adf-forward-kl-projection
+  canonical_guide: filtering-and-smoothing-state-space.md
+  anchor: assumed-density-filtering
+  status: pending
+- equation_id: gaussian-mixture-moment-collapse
+  canonical_guide: filtering-and-smoothing-state-space.md
+  anchor: switching-systems-and-gaussian-sum-filters
+  status: pending
+- equation_id: normalized-filter-consistency-statistics
+  canonical_guide: filtering-and-smoothing-state-space.md
+  anchor: validation-starts-with-the-query
+  status: pending
+- equation_id: marginal-map-query
+  canonical_guide: graphical-inference-and-message-passing.md
+  anchor: posterior-modes-answer-different-decision-problems
+  status: pending
+- equation_id: gaussian-information-message-update
+  canonical_guide: graphical-inference-and-message-passing.md
+  anchor: gaussian-messages-are-sparse-elimination-in-information-form
+  status: pending
+- equation_id: configuration-gumbel-max-sample
+  canonical_guide: graphical-inference-and-message-passing.md
+  anchor: randomized-optimization-when-a-map-oracle-becomes-a-sampler
+  status: pending
+- equation_id: gaussian-local-perturbation-sample
+  canonical_guide: graphical-inference-and-message-passing.md
+  anchor: randomized-optimization-when-a-map-oracle-becomes-a-sampler
+  status: pending
+- equation_id: mean-field-cavi-coordinate-update
+  canonical_guide: latent-variables-and-inference.md
+  anchor: from-the-functional-optimum-to-coordinate-ascent-vi
+  status: pending
+- equation_id: two-spin-mean-field-fixed-point
+  canonical_guide: latent-variables-and-inference.md
+  anchor: worked-finite-example-a-factorized-optimum-can-break-a-real-symmetry
+  status: pending
+- equation_id: advi-transformed-elbo
+  canonical_guide: latent-variables-and-inference.md
+  anchor: advi-transforms-the-target-as-well-as-the-sample
+  status: pending
+- equation_id: bbvi-elbo-score-gradient
+  canonical_guide: latent-variables-and-inference.md
+  anchor: score-function-estimator
+  status: pending
+- equation_id: iwae-generative-parameter-gradient
+  canonical_guide: latent-variables-and-inference.md
+  anchor: the-same-weights-support-different-learning-objectives
+  status: pending
+- equation_id: expectation-propagation-site-update
+  canonical_guide: graphical-inference-and-message-passing.md
+  anchor: expectation-propagation-replaces-one-site-through-a-tilted-law
+  status: pending
+- equation_id: iid-monte-carlo-mean-variance-clt
+  canonical_guide: sampling-and-continuous-time.md
+  anchor: monte-carlo-begins-with-a-query
+  status: pending
+- equation_id: mcmc-long-run-variance-and-effective-sample-size
+  canonical_guide: sampling-and-continuous-time.md
+  anchor: correlated-draws-change-estimator-uncertainty
+  status: pending
+- equation_id: markov-total-variation-mixing-time
+  canonical_guide: sampling-and-continuous-time.md
+  anchor: mixing-time-is-a-theorem-warmup-is-a-workflow
+  status: pending
+- equation_id: bivariate-gaussian-gibbs-sweep
+  canonical_guide: sampling-and-continuous-time.md
+  anchor: worked-example-a-bivariate-gaussian-exposes-scalar-gibbs-slowdown
+  status: pending
+- equation_id: mala-asymmetric-acceptance
+  canonical_guide: sampling-and-continuous-time.md
+  anchor: 5-langevin-algorithms
+  status: pending
+- equation_id: hmc-mass-and-leapfrog-convention
+  canonical_guide: sampling-and-continuous-time.md
+  anchor: leapfrog-supplies-a-reversible-numerical-proposal
+  status: pending
+- equation_id: reversible-jump-acceptance
+  canonical_guide: sampling-and-continuous-time.md
+  anchor: 9-transdimensional-and-structure-changing-mcmc
+  status: pending
+- equation_id: parallel-tempering-swap-acceptance
+  canonical_guide: sampling-and-continuous-time.md
+  anchor: 10-annealing-and-tempering
+  status: pending
+- equation_id: rejection-sampling-normalizer-acceptance
+  canonical_guide: sampling-and-continuous-time.md
+  anchor: rejection-sampling-exposes-its-normalizer
+  status: pending
+- equation_id: gaussian-rejection-dimensional-scaling
+  canonical_guide: sampling-and-continuous-time.md
+  anchor: worked-failure-case-a-harmless-scale-mismatch-becomes-exponential
+  status: pending
+- equation_id: monte-carlo-control-variate-optimum
+  canonical_guide: sampling-and-continuous-time.md
+  anchor: control-variates-make-correlation-explicit
+  status: pending
+- equation_id: antithetic-pair-variance
+  canonical_guide: sampling-and-continuous-time.md
+  anchor: antithetic-pairs-and-common-random-numbers-answer-different-questions
+  status: pending
+- equation_id: common-random-number-difference-variance
+  canonical_guide: sampling-and-continuous-time.md
+  anchor: antithetic-pairs-and-common-random-numbers-answer-different-questions
+  status: pending
+- equation_id: fixed-sample-average-objective
+  canonical_guide: sampling-and-continuous-time.md
+  anchor: fixed-randomness-creates-a-finite-optimization-problem
+  status: pending
+- equation_id: multilevel-monte-carlo-telescope
+  canonical_guide: sampling-and-continuous-time.md
+  anchor: multilevel-estimators-couple-resolutions
+  status: pending
+- equation_id: smc-feynman-kac-path-measure
+  canonical_guide: sequential-monte-carlo-and-particle-methods.md
+  anchor: the-feynmankac-construction
+  status: pending
+- equation_id: smc-growing-space-incremental-weight
+  canonical_guide: sequential-monte-carlo-and-particle-methods.md
+  anchor: generic-growing-space-weight
+  status: pending
+- equation_id: particle-filter-incremental-weight
+  canonical_guide: sequential-monte-carlo-and-particle-methods.md
+  anchor: from-exact-bayes-recursion-to-particles
+  status: pending
+- equation_id: particle-normalizer-product-estimator
+  canonical_guide: sequential-monte-carlo-and-particle-methods.md
+  anchor: normalizing-constant-estimate
+  status: pending
+- equation_id: particle-resampling-offspring-and-ess
+  canonical_guide: sequential-monte-carlo-and-particle-methods.md
+  anchor: resampling-is-an-offspring-distribution
+  status: pending
+- equation_id: locally-optimal-particle-proposal
+  canonical_guide: sequential-monte-carlo-and-particle-methods.md
+  anchor: the-locally-optimal-proposal
+  status: pending
+- equation_id: particle-backward-trajectory-kernel
+  canonical_guide: sequential-monte-carlo-and-particle-methods.md
+  anchor: filtering-particles-are-not-automatically-smoothing-particles
+  status: pending
+- equation_id: static-smc-forward-backward-weight
+  canonical_guide: sequential-monte-carlo-and-particle-methods.md
+  anchor: fixed-dimensional-smc-samplers
+  status: pending
+- equation_id: smc-conditional-effective-sample-size
+  canonical_guide: sequential-monte-carlo-and-particle-methods.md
+  anchor: likelihood-tempering
+  status: pending
+- equation_id: smc-terminal-doob-twist
+  canonical_guide: sequential-monte-carlo-and-particle-methods.md
+  anchor: worked-terminal-twist
+  status: pending

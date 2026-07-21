@@ -1,0 +1,1430 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="This chapter completes a Bernoulli-mixture workflow from generation to EM, then consolidates diagnostics, misconceptions, primary reading, retrieval, and cross-" name="description"/>
+<meta content="Mahdi Shafiei" name="author"/>
+<link href="https://docs.avitai.bio/artifex/user-guide/concepts/classical-06-practice/" rel="canonical"/>
+<link href="../classical-05-sequences-functions/" rel="prev"/>
+<link href="../classical-generative-models/" rel="next"/>
+<link href="../../../assets/images/favicon.png" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.7.7" name="generator"/>
+<title>Classical Models 6 — Worked Synthesis and Retrieval - Artifex</title>
+<link href="../../../assets/stylesheets/main.ec1eaa64.min.css" rel="stylesheet"/>
+<link href="../../../assets/stylesheets/palette.ab4e12ef.min.css" rel="stylesheet"/>
+<script src="../../../assets/vendor/iframe-worker/index.js"></script>
+<link href="../../../assets/_mkdocstrings.css" rel="stylesheet"/>
+<link href="../../../_static/extra.css" rel="stylesheet"/>
+<script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+<meta content="article" property="og:type"/>
+<meta content="The Artifex Generative Models Book" property="og:site_name"/>
+<meta content="Classical Models 6 — Worked Synthesis and Retrieval" property="og:title"/>
+<meta content="This chapter completes a Bernoulli-mixture workflow from generation to EM, then consolidates diagnostics, misconceptions, primary reading, retrieval, and cross-" property="og:description"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/classical-06-practice/" property="og:url"/>
+<meta content="2026-07-15" property="article:modified_time"/>
+<meta content="summary" name="twitter:card"/>
+<meta content="Classical Models 6 — Worked Synthesis and Retrieval" name="twitter:title"/>
+<meta content="This chapter completes a Bernoulli-mixture workflow from generation to EM, then consolidates diagnostics, misconceptions, primary reading, retrieval, and cross-" name="twitter:description"/>
+<meta content="Generative models, Machine learning, Probabilistic modeling, foundation, required, canonical_chapter, classical-practice, newcomer, practitioner, researcher" name="keywords"/>
+<meta content="Classical Models 6 — Worked Synthesis and Retrieval" name="citation_title"/>
+<meta content="Mahdi Shafiei" name="citation_author"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/classical-06-practice/" name="citation_public_url"/>
+<meta content="en" name="citation_language"/>
+<meta content="Classical Models 6 — Worked Synthesis and Retrieval" name="DC.title"/>
+<meta content="Mahdi Shafiei" name="DC.creator"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/classical-06-practice/" name="DC.identifier"/>
+<meta content="Text.LearningResource" name="DC.type"/>
+<meta content="2026-07-15" name="DCTERMS.modified"/>
+<meta content="https://github.com/avitai/artifex/blob/main/LICENSE" name="DCTERMS.license"/>
+<meta content="foundation" name="DCTERMS.educationLevel"/>
+<meta content="newcomer, practitioner, researcher" name="DCTERMS.audience"/>
+<link href="https://github.com/avitai/artifex/blob/main/LICENSE" rel="license"/>
+<script id="artifex-book-metadata" type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Chapter",
+  "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/classical-06-practice/",
+  "url": "https://docs.avitai.bio/artifex/user-guide/concepts/classical-06-practice/",
+  "name": "Classical Models 6 \u2014 Worked Synthesis and Retrieval",
+  "description": "This chapter completes a Bernoulli-mixture workflow from generation to EM, then consolidates diagnostics, misconceptions, primary reading, retrieval, and cross-",
+  "identifier": "classical-practice",
+  "inLanguage": "en",
+  "isAccessibleForFree": true,
+  "learningResourceType": "Canonical chapter",
+  "educationalLevel": "foundation",
+  "educationalUse": "required",
+  "audience": [
+    
+      {"@type": "EducationalAudience", "audienceType": "newcomer"},
+    
+      {"@type": "EducationalAudience", "audienceType": "practitioner"},
+    
+      {"@type": "EducationalAudience", "audienceType": "researcher"}
+    
+  ],
+  "dateModified": "2026-07-15",
+  "keywords": ["Generative models", "Machine learning", "Probabilistic modeling", "foundation", "required", "canonical_chapter", "classical-practice", "newcomer", "practitioner", "researcher"],
+  "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+  "author": [
+    
+      {"@type": "Person", "name": "Mahdi Shafiei"}
+    
+  ],
+  "isPartOf": {
+    "@type": "Book",
+    "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/#book",
+    "url": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/",
+    "name": "The Artifex Generative Models Book",
+    "bookEdition": "Living Web Edition",
+    "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+    "author": [
+      
+        {"@type": "Person", "name": "Mahdi Shafiei"}
+      
+    ]
+  }
+}
+</script>
+<script defer="" src="../../../javascripts/mathjax.js"></script>
+<script defer="" integrity="sha384-OrHfGTnIbkl0do3N76qW/uWr38o91N05sbSPuYBPLH+hG8X/dNSrjZf3AGjzrCwC" src="../../../assets/vendor/mathjax/tex-mml-chtml.js"></script>
+</head>
+<body data-md-color-accent="amber" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#classical-models-6-worked-synthesis-and-retrieval">
+          Skip to content
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header md-header--shadow" data-md-component="header">
+<nav aria-label="Header" class="md-header__inner md-grid">
+<a aria-label="Artifex" class="md-header__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            Artifex
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+            
+              Classical Models 6 — Worked Synthesis and Retrieval
+            
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-label="Switch to dark mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: light)" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_1" hidden="" title="Switch to dark mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+<input aria-label="Switch to light mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-primary="indigo" data-md-color-scheme="slate" id="__palette_1" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_0" hidden="" title="Switch to light mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+</form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div aria-label="Search" class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Search" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="Search" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="Search" class="md-search__options">
+<a aria-label="Share" class="md-search__icon md-icon" data-clipboard="" data-clipboard-text="" data-md-component="search-share" href="javascript:void(0)" tabindex="-1" title="Share">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"></path></svg>
+</a>
+<button aria-label="Clear" class="md-search__icon md-icon" tabindex="-1" title="Clear" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            Initializing search
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Navigation" class="md-nav md-nav--primary" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="Artifex" class="md-nav__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+    Artifex
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../..">
+<span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../getting-started/installation/">
+<span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Generative Models Book
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Generative Models Book
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    
+  
+    Start Here — The Landscape
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../first-course-01-generative-systems/">
+<span class="md-ellipsis">
+    
+  
+    First Course — New to Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Foundations
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_3_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Foundations
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../probability-01-objects/">
+<span class="md-ellipsis">
+    
+  
+    1. Probability and Generative Modeling
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_3_2" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_3_2" id="__nav_3_3_2_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    2. Classical Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_3_2_label" class="md-nav" data-md-level="3">
+<label class="md-nav__title" for="__nav_3_3_2">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    2. Classical Generative Models
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../classical-01-latent-foundations/">
+<span class="md-ellipsis">
+    
+  
+    1. Exponential and Latent-Variable Foundations
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../classical-02-factor-analysis/">
+<span class="md-ellipsis">
+    
+  
+    2. Factor Analysis and Matrix Factorization
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../classical-03-directed-graphs/">
+<span class="md-ellipsis">
+    
+  
+    3. Directed Graphical Models
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../classical-04-undirected-structure/">
+<span class="md-ellipsis">
+    
+  
+    4. Undirected Models and Structure Learning
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../classical-05-sequences-functions/">
+<span class="md-ellipsis">
+    
+  
+    5. Topics, Functions, and Sequential Inference
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
+    
+  
+    6. Worked Synthesis and Retrieval
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
+<span class="md-ellipsis">
+    
+  
+    6. Worked Synthesis and Retrieval
+  
+
+    
+  </span>
+</a>
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#cumulative-worked-example-a-bernoulli-mixture-from-generation-to-em">
+<span class="md-ellipsis">
+      
+        Cumulative Worked Example: A Bernoulli Mixture from Generation to EM
+      
+    </span>
+</a>
+<nav aria-label="Cumulative Worked Example: A Bernoulli Mixture from Generation to EM" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#classical-model-capstone-learning-objectives">
+<span class="md-ellipsis">
+      
+        Classical-model capstone learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#1-generate-and-score-a-complete-pair">
+<span class="md-ellipsis">
+      
+        1. Generate and Score a Complete Pair
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#2-marginalize-and-infer-responsibilities">
+<span class="md-ellipsis">
+      
+        2. Marginalize and Infer Responsibilities
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#3-evaluate-the-observed-data-likelihood">
+<span class="md-ellipsis">
+      
+        3. Evaluate the Observed-Data Likelihood
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#4-perform-one-exact-e-step-and-m-step">
+<span class="md-ellipsis">
+      
+        4. Perform One Exact E-Step and M-Step
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#5-sample-from-the-updated-model">
+<span class="md-ellipsis">
+      
+        5. Sample from the Updated Model
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#6-diagnose-what-the-data-cannot-identify">
+<span class="md-ellipsis">
+      
+        6. Diagnose What the Data Cannot Identify
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#failure-and-diagnostic-checklist">
+<span class="md-ellipsis">
+      
+        Failure and Diagnostic Checklist
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#misconception-checks">
+<span class="md-ellipsis">
+      
+        Misconception Checks
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#primary-reading-trail">
+<span class="md-ellipsis">
+      
+        Primary Reading Trail
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#retrieval-check">
+<span class="md-ellipsis">
+      
+        Retrieval Check
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#summary-and-next-step">
+<span class="md-ellipsis">
+      
+        Summary and Next Step
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../classical-generative-models/">
+<span class="md-ellipsis">
+    
+  
+    Continuous View (All Chapters)
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../bayesian-learning-01-object/">
+<span class="md-ellipsis">
+    
+  
+    3. Bayesian Learning and Model Assessment
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../inference-01-objects-and-queries/">
+<span class="md-ellipsis">
+    
+  
+    4. Latent Variables and Inference
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../objectives-01-discrepancies/">
+<span class="md-ellipsis">
+    
+  
+    5. Objectives and Statistical Distances
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../information-coding-01-measures/">
+<span class="md-ellipsis">
+    
+  
+    6. Information, Coding, and Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../graphical-models-01-directed/">
+<span class="md-ellipsis">
+    
+  
+    7. Graphical Models and Structured Probability
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../message-passing-01-factor-graphs/">
+<span class="md-ellipsis">
+    
+  
+    8. Graphical Inference and Message Passing
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../filtering-01-bayes-recursions/">
+<span class="md-ellipsis">
+    
+  
+    9. Filtering and Smoothing for State-Space Generators
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../sampling-01-monte-carlo/">
+<span class="md-ellipsis">
+    
+  
+    10. Sampling and Continuous Time
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../smc-01-targets/">
+<span class="md-ellipsis">
+    
+  
+    11. Sequential Monte Carlo and Particle Methods
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../optimization-01-differentiation/">
+<span class="md-ellipsis">
+    
+  
+    12. Optimization and Learning Dynamics
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../generative-models-notation/">
+<span class="md-ellipsis">
+    
+  
+    13. Canonical Notation
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../autoregressive-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Model Families
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gradients-01-taxonomy/">
+<span class="md-ellipsis">
+    
+  
+    Connections and Compositions
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../normalization-01-queries/">
+<span class="md-ellipsis">
+    
+  
+    Research Practice
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../models/vae-guide/">
+<span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/core/base/">
+<span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../examples/overview/">
+<span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../zoo/">
+<span class="md-ellipsis">
+    
+  
+    Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../training/overview/">
+<span class="md-ellipsis">
+    
+  
+    Training
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../data/overview/">
+<span class="md-ellipsis">
+    
+  
+    Data &amp; Modalities
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../inference/overview/">
+<span class="md-ellipsis">
+    
+  
+    Inference &amp; Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../benchmarks/">
+<span class="md-ellipsis">
+    
+  
+    Evaluation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../guides/extensions/">
+<span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../extensions/">
+<span class="md-ellipsis">
+    
+  
+    Advanced Topics
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../cli/">
+<span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../community/contributing/">
+<span class="md-ellipsis">
+    
+  
+    Community
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/configs/protein-extension/">
+<span class="md-ellipsis">
+    
+  
+    Reference Library
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#cumulative-worked-example-a-bernoulli-mixture-from-generation-to-em">
+<span class="md-ellipsis">
+      
+        Cumulative Worked Example: A Bernoulli Mixture from Generation to EM
+      
+    </span>
+</a>
+<nav aria-label="Cumulative Worked Example: A Bernoulli Mixture from Generation to EM" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#classical-model-capstone-learning-objectives">
+<span class="md-ellipsis">
+      
+        Classical-model capstone learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#1-generate-and-score-a-complete-pair">
+<span class="md-ellipsis">
+      
+        1. Generate and Score a Complete Pair
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#2-marginalize-and-infer-responsibilities">
+<span class="md-ellipsis">
+      
+        2. Marginalize and Infer Responsibilities
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#3-evaluate-the-observed-data-likelihood">
+<span class="md-ellipsis">
+      
+        3. Evaluate the Observed-Data Likelihood
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#4-perform-one-exact-e-step-and-m-step">
+<span class="md-ellipsis">
+      
+        4. Perform One Exact E-Step and M-Step
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#5-sample-from-the-updated-model">
+<span class="md-ellipsis">
+      
+        5. Sample from the Updated Model
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#6-diagnose-what-the-data-cannot-identify">
+<span class="md-ellipsis">
+      
+        6. Diagnose What the Data Cannot Identify
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#failure-and-diagnostic-checklist">
+<span class="md-ellipsis">
+      
+        Failure and Diagnostic Checklist
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#misconception-checks">
+<span class="md-ellipsis">
+      
+        Misconception Checks
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#primary-reading-trail">
+<span class="md-ellipsis">
+      
+        Primary Reading Trail
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#retrieval-check">
+<span class="md-ellipsis">
+      
+        Retrieval Check
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#summary-and-next-step">
+<span class="md-ellipsis">
+      
+        Summary and Next Step
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<nav aria-label="Breadcrumb" class="md-path">
+<ol class="md-path__list">
+<li class="md-path__item">
+<a class="md-path__link" href="../../..">
+<span class="md-ellipsis">
+    Home
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    Generative Models Book
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../probability-01-objects/">
+<span class="md-ellipsis">
+    Foundations
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../classical-01-latent-foundations/">
+<span class="md-ellipsis">
+    2. Classical Generative Models
+  </span>
+</a>
+</li>
+</ol>
+</nav>
+<article class="md-content__inner md-typeset">
+<h1 id="classical-models-6-worked-synthesis-and-retrieval">Classical Models 6 — Worked Synthesis and Retrieval<a class="headerlink" href="#classical-models-6-worked-synthesis-and-retrieval" title="Permanent link">¤</a></h1><aside aria-label="Learning path" class="admonition abstract artifex-learning-path"><p class="admonition-title">Learning path</p><p><strong>Required knowledge</strong></p><ul class="artifex-learning-path__links" data-learning-path-role="required"><li><a href="../classical-05-sequences-functions/">Classical Models 5 — Topics, Functions, and Sequential Inference</a></li></ul><p><strong>Readiness check:</strong> can you explain the central object and reproduce one worked example from each required chapter? If not, follow its link before continuing.</p><p><strong>Newly unlocked in the default route</strong></p><p>No immediate successor names this page as its final required prerequisite. Continue through the book navigation or the chapter's cross-links.</p></aside>
+<p>This chapter completes a Bernoulli-mixture workflow from generation to EM,
+then consolidates diagnostics, misconceptions, primary reading, retrieval, and
+cross-family continuations. For uninterrupted reading, use the <a href="../classical-generative-models/#cumulative-worked-example-a-bernoulli-mixture-from-generation-to-em">continuous
+view</a>.</p>
+<h2 id="cumulative-worked-example-a-bernoulli-mixture-from-generation-to-em">Cumulative Worked Example: A Bernoulli Mixture from Generation to EM<a class="headerlink" href="#cumulative-worked-example-a-bernoulli-mixture-from-generation-to-em" title="Permanent link">¤</a></h2>
+<h3 id="classical-model-capstone-learning-objectives">Classical-model capstone learning objectives<a class="headerlink" href="#classical-model-capstone-learning-objectives" title="Permanent link">¤</a></h3>
+<p>This capstone assumes all preceding classical chapters. By the end, you should
+be able to generate and score complete and observed Bernoulli-mixture records,
+infer responsibilities, perform an exact EM update, sample from the updated
+model, identify its label and data-identifiability limits, and use the diagnostic
+checklist to connect mixture failures to factor, graph, state-space, and
+dependency-structure models.</p>
+<p>This finite model carries one set of numbers through the operations introduced in Section 2. It is deliberately small enough to enumerate—and deliberately non-identifiable enough to show why a latent explanation is not automatically learned from observations.</p>
+<p>Let <span class="arithmatex">\(Z\in\{1,2\}\)</span> choose one of two Bernoulli components:</p>
+<div class="arithmatex">\[
+p(Z=1)=p(Z=2)=\frac12,
+\qquad
+p(X=1\mid Z=1)=\mu_1=0.2,
+\qquad
+p(X=1\mid Z=2)=\mu_2=0.8.
+\]</div>
+<h3 id="1-generate-and-score-a-complete-pair">1. Generate and Score a Complete Pair<a class="headerlink" href="#1-generate-and-score-a-complete-pair" title="Permanent link">¤</a></h3>
+<p>Generation first samples <span class="arithmatex">\(Z\)</span>, then samples <span class="arithmatex">\(X\)</span> from the selected component. For example,</p>
+<div class="arithmatex">\[
+p(X=1,Z=2)=p(Z=2)p(X=1\mid Z=2)=0.5(0.8)=0.4.
+\]</div>
+<p>The four joint masses are</p>
+<div class="md-typeset__table book-table-container"><table id="tbl-classical-generative-models-1-generate-and-score-a-complete-pair"><caption class="book-object-caption"><span class="book-object-number">Table CLASS.11.</span> 1. Generate and Score a Complete Pair</caption>
+<thead>
+<tr>
+<th></th>
+<th style="text-align: right;"><span class="arithmatex">\(X=0\)</span></th>
+<th style="text-align: right;"><span class="arithmatex">\(X=1\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="arithmatex">\(Z=1\)</span></td>
+<td style="text-align: right;"><span class="arithmatex">\(0.4\)</span></td>
+<td style="text-align: right;"><span class="arithmatex">\(0.1\)</span></td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(Z=2\)</span></td>
+<td style="text-align: right;"><span class="arithmatex">\(0.1\)</span></td>
+<td style="text-align: right;"><span class="arithmatex">\(0.4\)</span></td>
+</tr>
+</tbody>
+</table></div>
+<p>They sum to one, so they can be checked without numerical integration.</p>
+<h3 id="2-marginalize-and-infer-responsibilities">2. Marginalize and Infer Responsibilities<a class="headerlink" href="#2-marginalize-and-infer-responsibilities" title="Permanent link">¤</a></h3>
+<p>Summing down each column gives</p>
+<div class="arithmatex">\[
+p(X=0)=p(X=1)=0.5.
+\]</div>
+<p>Conditioning reverses the generative direction. For an arbitrary observation <span class="arithmatex">\(x_n\)</span>, the responsibility of component 2 is</p>
+<div class="arithmatex">\[
+r_{n2}=
+\frac{0.5\,\mu_2^{x_n}(1-\mu_2)^{1-x_n}}
+{0.5\,\mu_1^{x_n}(1-\mu_1)^{1-x_n}
++0.5\,\mu_2^{x_n}(1-\mu_2)^{1-x_n}}.
+\]</div>
+<p>Thus</p>
+<div class="arithmatex">\[
+p(Z=2\mid X=1)=0.8,
+\qquad
+p(Z=2\mid X=0)=0.2.
+\]</div>
+<p>These are posterior probabilities under the current parameters, not observed labels.</p>
+<h3 id="3-evaluate-the-observed-data-likelihood">3. Evaluate the Observed-Data Likelihood<a class="headerlink" href="#3-evaluate-the-observed-data-likelihood" title="Permanent link">¤</a></h3>
+<p>For the dataset <span class="arithmatex">\((x_1,x_2,x_3)=(1,1,0)\)</span>, the initial observed-data likelihood is</p>
+<div class="arithmatex">\[
+p(x_{1:3})=(0.5)^3=\frac18,
+\qquad
+\log p(x_{1:3})=-3\log2\approx-2.07944.
+\]</div>
+<p>Multiplying the most likely complete-data assignments would answer a different question; the observed likelihood sums over both assignments for every item.</p>
+<h3 id="4-perform-one-exact-e-step-and-m-step">4. Perform One Exact E-Step and M-Step<a class="headerlink" href="#4-perform-one-exact-e-step-and-m-step" title="Permanent link">¤</a></h3>
+<p>For the two ones, the component-two responsibilities are <span class="arithmatex">\(r_{12}=r_{22}=0.8\)</span>; for the zero, <span class="arithmatex">\(r_{32}=0.2\)</span>. The effective counts are therefore <span class="arithmatex">\(N_2=1.8\)</span> and <span class="arithmatex">\(N_1=1.2\)</span>. The M-step gives</p>
+<div class="arithmatex">\[
+\pi_2'=\frac{1.8}{3}=0.6,
+\qquad
+\mu_2'=\frac{0.8+0.8}{1.8}=0.888\ldots,
+\]</div>
+<p>while</p>
+<div class="arithmatex">\[
+\pi_1'=0.4,
+\qquad
+\mu_1'=\frac{0.2+0.2}{1.2}=\frac13.
+\]</div>
+<p>Soft assignments let every observation contribute to each component. The updated marginal success probability is</p>
+<div class="arithmatex">\[
+p_{\theta'}(X=1)
+=0.4\left(\frac13\right)+0.6\left(\frac89\right)
+=\frac23.
+\]</div>
+<p>Consequently,</p>
+<div class="arithmatex">\[
+p_{\theta'}(x_{1:3})
+=\left(\frac23\right)^2\left(\frac13\right)
+=\frac4{27},
+\qquad
+\log p_{\theta'}(x_{1:3})\approx-1.90954.
+\]</div>
+<p>The likelihood rose from <span class="arithmatex">\(1/8\)</span> to <span class="arithmatex">\(4/27\)</span>, exactly as the EM lower-bound argument predicts. This is one monotone update, not a proof of a global optimum.</p>
+<h3 id="5-sample-from-the-updated-model">5. Sample from the Updated Model<a class="headerlink" href="#5-sample-from-the-updated-model" title="Permanent link">¤</a></h3>
+<p>To draw a new observation, sample <span class="arithmatex">\(Z=2\)</span> with probability <span class="arithmatex">\(0.6\)</span> (otherwise <span class="arithmatex">\(Z=1\)</span>), then sample</p>
+<div class="arithmatex">\[
+X\mid Z=2\sim\operatorname{Bernoulli}(8/9),
+\qquad
+X\mid Z=1\sim\operatorname{Bernoulli}(1/3).
+\]</div>
+<p>Marginally, the new draw is Bernoulli with success probability <span class="arithmatex">\(2/3\)</span>. Sampling the component exposes a latent explanation; sampling only <span class="arithmatex">\(X\sim\operatorname{Bernoulli}(2/3)\)</span> produces the same observed law.</p>
+<h3 id="6-diagnose-what-the-data-cannot-identify">6. Diagnose What the Data Cannot Identify<a class="headerlink" href="#6-diagnose-what-the-data-cannot-identify" title="Permanent link">¤</a></h3>
+<p>A mixture of univariate Bernoulli distributions is itself Bernoulli:</p>
+<div class="arithmatex">\[
+p(X=1)=\pi_1\mu_1+\pi_2\mu_2.
+\]</div>
+<p>Infinitely many triples <span class="arithmatex">\((\pi_2,\mu_1,\mu_2)\)</span> yield <span class="arithmatex">\(2/3\)</span>, so observations of one binary coordinate cannot identify the two components. The responsibilities are internally consistent with the fitted parameters but are not uniquely determined by the observed law. Multiple binary features with conditional structure, repeated measurements, informative priors, or other assumptions can make a mixture more informative, yet label permutation still remains.</p>
+<p>With only three points, even the identifiable observed Bernoulli rate is uncertain. The purpose of the example is to expose generation, joint scoring, marginalization, posterior responsibilities, EM learning, and sampling—not to claim a reliable population decomposition.</p>
+<h2 id="failure-and-diagnostic-checklist">Failure and Diagnostic Checklist<a class="headerlink" href="#failure-and-diagnostic-checklist" title="Permanent link">¤</a></h2>
+<ul>
+<li><strong>Mixtures:</strong> inspect tiny component weights, covariance eigenvalues, label stability, and multiple initializations.</li>
+<li><strong>Factor and matrix models:</strong> inspect residual covariance, held-out likelihood, posterior uncertainty, rank sensitivity, and invariance under rotations or rescalings.</li>
+<li><strong>ICA/source separation:</strong> test held-out likelihood and residual dependence, repeat whitening and initialization, report the equivalence class, and validate sources against external information.</li>
+<li><strong>Sparse dictionaries:</strong> normalize columns, vary sparsity and width, compare code stability across runs, and separate MAP reconstruction from marginal predictive evidence.</li>
+<li><strong>HMMs/state-space models:</strong> verify that emissions are normalized in the declared direction, compare filtered and smoothed beliefs, inspect transition entropy and dwell-time fit, test stability, and evaluate long-rollout calibration.</li>
+<li><strong>State estimators:</strong> declare the information set, posterior representation, approximation family, and whether future observations entered training or evaluation.</li>
+<li><strong>Undirected models:</strong> assess chain mixing and partition-function estimators rather than relying on reconstruction alone.</li>
+<li><strong>Learned dependency graphs:</strong> declare the graph object and assumptions; vary regularization, resample data, report edge stability or posterior uncertainty, test held-out joint queries, and examine latent-variable sensitivity.</li>
+<li><strong>Topic models:</strong> report held-out likelihood and stability/coherence under multiple seeds; do not name topics as if labels were identified.</li>
+<li><strong>Gaussian processes:</strong> check kernel assumptions, numerical conditioning, posterior calibration, and extrapolation behavior.</li>
+<li><strong>Graphical inference:</strong> record whether results are exact, variational, loopy-message, or Monte Carlo approximations.</li>
+</ul>
+<h2 id="misconception-checks">Misconception Checks<a class="headerlink" href="#misconception-checks" title="Permanent link">¤</a></h2>
+<div class="admonition warning">
+<p class="admonition-title">A graphical factorization is not automatically causal</p>
+<p>A DAG can encode conditional independence without making intervention or counterfactual claims. Causal semantics require structural assumptions and an intervention model.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">EM is not generic gradient descent</p>
+<p>EM alternates an exact or approximate posterior expectation with parameter maximization of a lower bound. Generalized EM may only improve the M-step objective, but the latent-variable decomposition remains essential.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">A state score is not automatically an emission density</p>
+<p>A discriminative score can rank states for one observation without defining a normalized law over observations. Generation and sequence likelihood require the latter.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">An exact E-step is not Bayesian parameter inference</p>
+<p>Standard mixture EM computes exact assignment responsibilities conditional on current point parameters and then optimizes those parameters. It does not integrate parameter uncertainty, guarantee a global optimum, or identify a unique latent interpretation.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">A named latent component is not identified</p>
+<p>Mixture labels can permute, topic meanings can rotate or split, and latent factors can be observationally equivalent.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Non-Gaussian does not mean semantically identified</p>
+<p>Classical ICA can reduce linear rotational ambiguity under its source and mixing assumptions. It still permits permutation and scaling, and it supplies no domain meaning for an axis. Nonlinear models require stronger assumptions still.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Local linearity does not restore exact global inference</p>
+<p>A switching or nonlinear model may have tractable local conditionals while its path-marginal posterior is an exponentially growing mixture or a non-Gaussian law.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Temporal precedence is not an intervention</p>
+<p>A state-space graph orders variables in time. Counterfactual claims additionally require intervention semantics, identification assumptions, and an appropriate comparison distribution.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">An estimated edge does not have one universal meaning</p>
+<p>A nonzero Gaussian precision entry, a Bayesian-network parent, a causal arrow, a sampled random-graph edge, and a learned GNN connection answer different questions. Shared adjacency notation does not transfer their semantics or guarantees.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Sparsity does not remove hidden-variable bias</p>
+<p>A sparse estimator can select a compact observed graph even when latent common variables induced the observed dependencies. Direct-interaction language requires a latent-variable argument, not merely a sparse picture.</p>
+</div>
+<h2 id="primary-reading-trail">Primary Reading Trail<a class="headerlink" href="#primary-reading-trail" title="Permanent link">¤</a></h2>
+<ul>
+<li><a href="https://doi.org/10.1561/2200000001">Wainwright and Jordan, <em>Graphical Models, Exponential Families, and Variational Inference</em></a> — base measures, minimal and overcomplete representations, mean-parameter geometry, maximum entropy, and moment matching under explicit assumptions.</li>
+<li><a href="https://doi.org/10.1214/08-EJS349">Geyer, <em>Likelihood Inference in Exponential Families and Directions of Recession</em></a> — finite-MLE failure, boundary completions, and directions in which natural parameters diverge.</li>
+<li><a href="https://doi.org/10.1111/j.2517-6161.1977.tb01600.x">Dempster, Laird, and Rubin, <em>Maximum Likelihood from Incomplete Data via the EM Algorithm</em></a> — the general incomplete-data likelihood and EM construction.</li>
+<li><a href="https://doi.org/10.1111/j.2517-6161.1974.tb00989.x">Andrews and Mallows, <em>Scale Mixtures of Normal Distributions</em></a> — exact representability conditions for univariate normal scale mixtures.</li>
+<li><a href="https://doi.org/10.1111/1467-9868.00196">Tipping and Bishop, <em>Probabilistic Principal Component Analysis</em></a> — probabilistic linear factors, likelihood, posterior coordinates, and EM.</li>
+<li><a href="https://www.cs.utoronto.ca/~hinton/absps/tr96-1.html">Ghahramani and Hinton, <em>The EM Algorithm for Mixtures of Factor Analyzers</em></a> — local low-rank Gaussian components and exact EM.</li>
+<li><a href="https://www.stat.berkeley.edu/~jordan/688.pdf">Bach and Jordan, <em>A Probabilistic Interpretation of Canonical Correlation Analysis</em></a> — the shared Gaussian latent model and its relationship to canonical subspaces.</li>
+<li><a href="https://proceedings.neurips.cc/paper_files/paper/2001/hash/f410588e48dc83f2822a880a68f78923-Abstract.html">Collins, Dasgupta, and Schapire, <em>A Generalization of Principal Component Analysis to the Exponential Family</em></a> — point-estimated factors and observation-matched Bregman objectives.</li>
+<li><a href="https://doi.org/10.1155/2009/785152">Cemgil, <em>Bayesian Inference for Nonnegative Matrix Factorisation Models</em></a> — a Gamma–Poisson generative interpretation and Bayesian inference boundary for NMF.</li>
+<li><a href="https://www.jmlr.org/papers/v6/lawrence05a.html">Lawrence, <em>Probabilistic Non-linear Principal Component Analysis with Gaussian Process Latent Variable Models</em></a> — nonlinear GP decoders with latent inputs and the inference boundary of the original GP-LVM.</li>
+<li><a href="https://doi.org/10.1016/0165-1684(94)90029-9">Comon, <em>Independent Component Analysis, A New Concept?</em></a> — linear ICA, independence contrasts, and its classical identification equivalence.</li>
+<li><a href="https://www.jmlr.org/papers/v11/mairal10a.html">Mairal et al., <em>Online Learning for Matrix Factorization and Sparse Coding</em></a> — scalable dictionary learning with explicit constraint and optimization choices.</li>
+<li><a href="https://proceedings.mlr.press/v89/hyvarinen19a.html">Hyvärinen, Sasaki, and Turner, <em>Nonlinear ICA Using Auxiliary Variables and Generalized Contrastive Learning</em></a> — an assumption-explicit auxiliary-variable route to nonlinear identification.</li>
+<li><a href="https://proceedings.mlr.press/v108/khemakhem20a.html">Khemakhem et al., <em>Variational Autoencoders and Nonlinear ICA</em></a> — conditional latent priors and the assumptions under which nonlinear latent identification becomes possible.</li>
+<li><a href="https://www.jmlr.org/papers/v3/blei03a.html">Blei, Ng, and Jordan, <em>Latent Dirichlet Allocation</em></a> — document-level simplex latents and token-level topic assignments.</li>
+<li><a href="https://doi.org/10.1109/5.18626">Rabiner, <em>A Tutorial on Hidden Markov Models and Selected Applications in Speech Recognition</em></a> — forward–backward, decoding, and HMM parameter learning.</li>
+<li><a href="https://doi.org/10.1214/aoms/1177697196">Baum et al., <em>A Maximization Technique Occurring in the Statistical Analysis of Probabilistic Functions of Markov Chains</em></a> — the likelihood-maximization construction now called Baum–Welch.</li>
+<li><a href="https://doi.org/10.1023/A:1007425814087">Ghahramani and Jordan, <em>Factorial Hidden Markov Models</em></a> — distributed discrete state through multiple coupled-to-observation Markov chains.</li>
+<li><a href="https://doi.org/10.1016/j.artint.2009.11.011">Yu, <em>Hidden Semi-Markov Models</em></a> — explicit duration modeling and the HMM/HSMM inference boundary.</li>
+<li><a href="https://arxiv.org/abs/0710.3742">Adams and MacKay, <em>Bayesian Online Changepoint Detection</em></a> — online run-length inference under a hazard and segment predictive model.</li>
+<li><a href="https://doi.org/10.1111/j.1467-9892.1982.tb00349.x">Shumway and Stoffer, <em>An Approach to Time Series Smoothing and Forecasting Using the EM Algorithm</em></a> — parameter learning for linear state-space models through smoothed sufficient statistics.</li>
+<li><a href="https://proceedings.mlr.press/v54/linderman17a.html">Linderman et al., <em>Bayesian Learning and Inference in Recurrent Switching Linear Dynamical Systems</em></a> — discrete–continuous switching with state-dependent transitions and approximate Bayesian inference.</li>
+<li><a href="https://ojs.aaai.org/index.php/AAAI/article/view/10779">Krishnan, Shalit, and Sontag, <em>Structured Inference Networks for Nonlinear State Space Models</em></a> — neural transitions and emissions with a separately structured variational posterior.</li>
+<li><a href="https://proceedings.neurips.cc/paper/2015/hash/b618c3210e934362ac261db280128c22-Abstract.html">Chung et al., <em>A Recurrent Latent Variable Model for Sequential Data</em></a> — deterministic recurrent history combined with per-step stochastic latents.</li>
+<li><a href="https://doi.org/10.1214/14-AOAS788">Brodersen et al., <em>Inferring Causal Impact Using Bayesian Structural Time-Series Models</em></a> — counterfactual prediction with explicit design and identification assumptions.</li>
+<li><a href="https://openreview.net/forum?id=md3glg1Lft">Brady, Nüsken, and Li, <em>Efficient Learning of Deep State Space Models via Importance Smoothing</em></a> — an ICML 2026 parallel particle-smoothing estimator for supervised deep state-space learning, with claims bounded to its stated algorithms and experiments.</li>
+<li><a href="https://doi.org/10.2307/2528966">Dempster, <em>Covariance Selection</em></a> — precision zeros and conditional structure in multivariate Gaussian models.</li>
+<li><a href="https://doi.org/10.1093/biostatistics/kxm045">Friedman, Hastie, and Tibshirani, <em>Sparse Inverse Covariance Estimation with the Graphical Lasso</em></a> — penalized Gaussian precision estimation and its coordinate-descent algorithm.</li>
+<li><a href="https://doi.org/10.1214/009053606000000281">Meinshausen and Bühlmann, <em>High-Dimensional Graphs and Variable Selection with the Lasso</em></a> — sparse neighborhood selection for Gaussian graphs under explicit high-dimensional assumptions.</li>
+<li><a href="https://doi.org/10.1214/11-AOS949">Chandrasekaran, Parrilo, and Willsky, <em>Latent Variable Graphical Model Selection via Convex Optimization</em></a> — sparse-plus-low-rank decomposition and its identifiability conditions.</li>
+<li><a href="https://doi.org/10.1109/TIT.1968.1054142">Chow and Liu, <em>Approximating Discrete Probability Distributions with Dependence Trees</em></a> — the KL-optimal tree-structured approximation and maximum-spanning-tree construction.</li>
+<li><a href="https://www.jmlr.org/papers/v2/chickering02a.html">Chickering, <em>Learning Equivalence Classes of Bayesian-Network Structures</em></a> — score-equivalent search over observational DAG equivalence classes.</li>
+<li><a href="https://proceedings.neurips.cc/paper_files/paper/2025/hash/1ecbfd5ea3a5745d5302c0c3ee35eb3a-Abstract-Conference.html">Bhattacharyya et al., <em>Distribution Learning Meets Graph Structure Sampling</em></a> — distribution learning for Bayes-net classes under declared chordal-skeleton and indegree restrictions.</li>
+<li><a href="https://openreview.net/forum?id=fVMr2sTow5">Yang et al., <em>Variational Graph Structure Learning for GNNs by Using Marginal Likelihood</em></a> — a TMLR graph-learning method whose adjacency is tied to a GNN prediction model and approximate marginal-likelihood objective.</li>
+<li><a href="https://arxiv.org/abs/1312.6114">Kingma and Welling, <em>Auto-Encoding Variational Bayes</em></a> — nonlinear latent conditionals, amortized inference, and stochastic variational learning.</li>
+</ul>
+<h2 id="retrieval-check">Retrieval Check<a class="headerlink" href="#retrieval-check" title="Permanent link">¤</a></h2>
+<ol>
+<li>Why does an HMM admit exact dynamic programming while a general latent sequence model may not?</li>
+<li>Which RBM property makes block Gibbs sampling easy?</li>
+<li>What controls variable-elimination complexity?</li>
+<li>What extra semantics distinguish an SCM from an ordinary Bayesian network?</li>
+<li>Why can the Viterbi path differ from choosing the most probable state at every time?</li>
+<li>What makes a GP more than independent uncertainty estimates at each input?</li>
+<li>Why is an exact Kalman update not available for an arbitrary neural transition?</li>
+<li>Why can two latent state-space parameterizations describe the same observation process?</li>
+<li>In the Bernoulli-mixture example, which six operations use the same joint law but return different objects?</li>
+<li>What assumption makes factor-analysis posterior inference analytic, and what usually breaks after inserting a nonlinear decoder?</li>
+<li>Why is a low-rank matrix reconstruction not automatically a generative model?</li>
+<li>Why does the determinant appear in the noiseless ICA likelihood?</li>
+<li>What ambiguity remains even under the standard linear ICA identification theorem?</li>
+<li>Why must dictionary columns be constrained when an <span class="arithmatex">\(\ell_1\)</span> code penalty is used?</li>
+<li>Why does source independence alone not identify an unrestricted nonlinear ICA model?</li>
+<li>Why can a calibrated state classifier help filtering without defining an HMM sequence likelihood?</li>
+<li>What quantities does Baum–Welch normalize to update one transition row?</li>
+<li>Which dwell-time law does an ordinary HMM impose, and what does an HSMM change?</li>
+<li>Why can a factorial HMM be compact as a model yet expensive for exact inference?</li>
+<li>What is the correct discrete-time stability criterion for an autonomous linear latent process?</li>
+<li>Why does locally linear-Gaussian structure not make an SLDS globally Kalman-exact?</li>
+<li>In the local-level example, why does predictive variance grow linearly with the forecast horizon?</li>
+<li>What additional contract is required before a structural time-series forecast supports a causal-impact claim?</li>
+<li>Why does a zero Gaussian precision entry express a conditional rather than marginal independence?</li>
+<li>What two structures can a sparse-plus-low-rank precision decomposition attempt to separate?</li>
+<li>Why is an adjacency learned for node prediction not automatically a probabilistic or causal graph?</li>
+<li>When does a selected graph become part of a generative model rather than merely a structural hypothesis?</li>
+<li>What makes an exponential-family representation minimal, and what fails to be unique when it is overcomplete?</li>
+<li>Why does moment matching not guarantee a finite Bernoulli MLE for an all-zero dataset?</li>
+<li>Why is <span class="arithmatex">\(p_\eta(x_{1:N})=g_\eta(T_N)r(x_{1:N})\)</span> a valid sufficiency statement while <span class="arithmatex">\(p(x_{1:N}\mid\eta)=p(T_N\mid\eta)\)</span> generally is not?</li>
+<li>When can two Gaussian information factors be added without yet defining a normalized Gaussian distribution?</li>
+</ol>
+<details class="success">
+<summary>Solutions</summary>
+<ol>
+<li>Its first-order Markov and local-emission structure permits reusable forward messages over a finite state space.</li>
+<li>The bipartite graph makes hidden units conditionally independent given visibles and vice versa.</li>
+<li>Induced treewidth under the elimination order.</li>
+<li>Structural mechanisms, exogenous variables, and defined interventions/counterfactuals.</li>
+<li>Viterbi maximizes one jointly valid path under transition constraints; marginal modes optimize each time separately and may not form the MAP path.</li>
+<li>Its finite-dimensional predictions form coherent joint Gaussian distributions whose covariances couple function values across inputs.</li>
+<li>The Kalman recursion relies on linear-Gaussian closure. A nonlinear transition or emission generally produces a non-Gaussian predictive or posterior law that cannot be represented exactly by only a mean and covariance.</li>
+<li>Latent labels may permute, and invertible coordinate changes can transform dynamics and emissions while leaving the observation law unchanged.</li>
+<li>Generation, complete-data scoring, observed-data likelihood, posterior responsibilities, parameter learning by EM, and sampling from the updated model.</li>
+<li>Linear-Gaussian closure. A nonlinear decoder generally makes the latent integral and posterior non-Gaussian and analytically intractable.</li>
+<li>It supplies factors and a reconstruction objective but not necessarily priors, an observation likelihood, a new-object sampling law, or a declaration of which quantities are random.</li>
+<li>The inverse map changes volume. The factor <span class="arithmatex">\(|\det B|\)</span> converts the product source density into a normalized density with respect to observation-space volume.</li>
+<li>Source order and every nonzero coordinate scale, including sign, remain arbitrary. The theorem's non-Gaussianity and mixing assumptions must also hold.</li>
+<li>Scaling a column by <span class="arithmatex">\(c\)</span> and its code by <span class="arithmatex">\(1/c\)</span> preserves reconstruction while reducing the code penalty as <span class="arithmatex">\(c\)</span> grows, so the unconstrained objective has a scale degeneracy.</li>
+<li>Flexible measure-preserving transformations can produce alternative independent coordinates with the same observed law. Temporal, auxiliary, multi-view, environmental, structural, or interventional information is needed to reduce that equivalence class.</li>
+<li>Bayes' rule converts calibrated posterior state probabilities into likelihood ratios only after accounting for the classifier's state prior. The unknown common observation marginal cancels in normalized state weights, but it is still required for a normalized emission density, ancestral observation sampling, and sequence likelihood.</li>
+<li>It normalizes the smoothed expected counts <span class="arithmatex">\(\sum_t\xi_t(i,j)\)</span> over destination <span class="arithmatex">\(j\)</span>, equivalently dividing by the expected number <span class="arithmatex">\(\sum_t\gamma_t(i)\)</span> of transitions out of state <span class="arithmatex">\(i\)</span>.</li>
+<li>A self-transition probability imposes a memoryless geometric duration. An HSMM introduces an explicit duration variable and a state-dependent duration law, enlarging both the model and the dynamic-programming state.</li>
+<li>Several small chains can represent a combinatorial joint state, but exact messages may still range over their Cartesian product. Factorized representation does not guarantee factorized posterior inference after the chains meet at an observation.</li>
+<li>The spectral radius must satisfy <span class="arithmatex">\(\rho(A)&lt;1\)</span>: every eigenvalue magnitude, not every signed eigenvalue, lies inside the unit circle. Then a finite stationary covariance solves the discrete Lyapunov equation under finite process noise.</li>
+<li>Conditioning on one mode path gives a Gaussian calculation, but marginalizing the mode path creates a Gaussian mixture whose unreduced component count grows exponentially with time.</li>
+<li>Each unobserved transition adds an independent process-noise variance <span class="arithmatex">\(q\)</span>; the future observation adds <span class="arithmatex">\(r\)</span> on top of the current filtered uncertainty <span class="arithmatex">\(P_t\)</span>, giving <span class="arithmatex">\(P_t+hq+r\)</span>.</li>
+<li>A defined intervention and counterfactual estimand, appropriate unaffected comparison information or structural restrictions, stable mechanisms, and diagnostics or sensitivity analysis sufficient for the identification claim.</li>
+<li>In a nonsingular joint Gaussian, the relevant conditional covariance or partial correlation is determined by the precision matrix. Marginal covariance can remain nonzero because an unconditioned path through other variables transmits association.</li>
+<li>Sparse direct conditional interactions among observed variables and low-rank dependence induced by a smaller latent subsystem, subject to assumptions that make those components distinguishable.</li>
+<li>Its objective can select information-flow edges useful for one architecture and supervised task without defining normalized factors, observational conditional independences, interventions, or a graph-valued sampling law.</li>
+<li>When the structure is paired with fitted local normalized conditionals or potentials, a declared support and base measure, and valid normalization and sampling procedures for the resulting joint law.</li>
+<li>No nonzero linear combination of its sufficient statistics is constant almost everywhere. In an overcomplete representation, an affine set of natural-parameter vectors can describe the same law, so the parameter vector and strict convexity in all chosen coordinates fail to be unique.</li>
+<li>The empirical mean lies on the boundary. Matching it requires <span class="arithmatex">\(\sigma(\eta)=0\)</span>, approached only as <span class="arithmatex">\(\eta\to-\infty\)</span> in the open natural parameter space; the limiting boundary law exists but no finite natural-parameter maximizer does.</li>
+<li>The factorization theorem preserves the parameter-free carrier <span class="arithmatex">\(r\)</span>, which counts or weights datasets sharing a statistic. The proposed equality drops that carrier and equates densities on different state spaces.</li>
+<li>Their precisions and information vectors may be added as an unnormalized quadratic potential. A standalone Gaussian additionally requires a positive-definite combined precision and the correct normalizing constant.</li>
+</ol>
+</details>
+<h2 id="summary-and-next-step">Summary and Next Step<a class="headerlink" href="#summary-and-next-step" title="Permanent link">¤</a></h2>
+<p>Classical models make structure and inference explicit: mixtures expose the full latent workflow and motivate EM; scale mixtures expose adaptive heavy tails; factor analysis separates low-dimensional shared variation from residual noise; ICA and sparse coding show exactly which assumptions can reduce latent equivalences; HMMs separate generation, recognition, filtering, smoothing, decoding, and learning; duration and factorial extensions expose the cost of enlarging hidden structure; linear-Gaussian models expose exact belief updates, identification, and stability; switching and nonlinear systems show why local tractability need not survive path marginalization; structural time-series models propagate forecast uncertainty without manufacturing causal semantics; directed graphs motivate conditional factorization; undirected models motivate energies; dependency-structure learning separates precision support, DAG equivalence, latent-induced dependence, and task-specific learned adjacency; and GPs motivate function-space generation. Neural parameterizations can enlarge a factor family without changing the graph or query, but they often trade analytic inference and classical identification results for learned approximation. Continue with <a href="../bayesian-learning-and-model-assessment/">Bayesian Learning and Model Assessment</a> for priors, posterior prediction, hierarchical pooling, model comparison, criticism, and missingness; then use <a href="../latent-variables-and-inference/">Latent Variables and Inference</a> for the exact, variational, Monte Carlo, and amortized computational boundaries. <a href="../graphical-models-and-structured-probability/">Graphical Models and Structured Probability</a> develops factorization, separation, normalization, conditional structured laws, and mixed representations; <a href="../graphical-inference-and-message-passing/">Graphical Inference and Message Passing</a> develops queries once factors are fixed; <a href="../random-graphs-and-relational-generators/">Random Graphs and Relational Generators</a> develops graph-valued probability; <a href="../causal-generative-models-explained/">Causal Generative Models</a> adds intervention semantics and causal discovery; <a href="../vae-explained/">VAEs</a> introduce nonlinear amortized latent models; <a href="../representations-and-multimodal-systems/">Representations and Multimodal Systems</a> separates query-specific representation claims; <a href="../world-models-and-causal-simulators/#2-latent-dynamics-partial-observability-and-uncertainty">World Models and Causal Simulators</a> treats controlled neural dynamics; and <a href="../stochastic-process-generators-explained/#4-latent-dynamics-neural-sdes-and-path-measures">Stochastic-Process Generators</a> develops continuous-time path laws.</p>
+<hr/>
+<p><strong>Next:</strong> <a href="../bayesian-learning-01-object/">Bayesian Learning 1 — The Generative Object</a> · <a href="../classical-generative-models/">Continuous view</a></p>
+</article>
+</div>
+<script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  Back to top
+</button>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+<div class="md-social">
+<a class="md-social__link" href="https://github.com/avitai/artifex" rel="noopener" target="_blank" title="github.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</a>
+<a class="md-social__link" href="https://pypi.org/project/avitai-artifex/" rel="noopener" target="_blank" title="pypi.org">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-66.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.3v101.8c0 29 25.2 46 53.4 54.3 33.8 9.9 66.3 11.7 106.8 0 26.9-7.8 53.4-23.5 53.4-54.3v-40.7H226.2v-13.6h160.2c31.1 0 42.6-21.7 53.4-54.2 11.2-33.5 10.7-65.7 0-108.6M286.2 444.7a20.4 20.4 0 1 1 0-40.7 20.4 20.4 0 1 1 0 40.7M167.8 248.1h106.8c29.7 0 53.4-24.5 53.4-54.3V91.9c0-29-24.4-50.7-53.4-55.6-35.8-5.9-74.7-5.6-106.8.1-45.2 8-53.4 24.7-53.4 55.6v40.7h106.9v13.6h-147c-31.1 0-58.3 18.7-66.8 54.2-9.8 40.7-10.2 66.1 0 108.6 7.6 31.6 25.7 54.2 56.8 54.2H101v-48.8c0-35.3 30.5-66.4 66.8-66.4m-6.6-183.4a20.4 20.4 0 1 1 0 40.8 20.4 20.4 0 1 1 0-40.8"></path></svg>
+</a>
+<a class="md-social__link" href="https://twitter.com/mahdi_shafiei" rel="noopener" target="_blank" title="twitter.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M459.4 151.7c.3 4.5.3 9.1.3 13.6 0 138.7-105.6 298.6-298.6 298.6-59.5 0-114.7-17.2-161.1-47.1 8.4 1 16.6 1.3 25.3 1.3 49.1 0 94.2-16.6 130.3-44.8-46.1-1-84.8-31.2-98.1-72.8 6.5 1 13 1.6 19.8 1.6 9.4 0 18.8-1.3 27.6-3.6-48.1-9.7-84.1-52-84.1-103v-1.3c14 7.8 30.2 12.7 47.4 13.3-28.3-18.8-46.8-51-46.8-87.4 0-19.5 5.2-37.4 14.3-53C87.4 130.8 165 172.4 252.1 176.9c-1.6-7.8-2.6-15.9-2.6-24C249.5 95.1 296.3 48 354.4 48c30.2 0 57.5 12.7 76.7 33.1 23.7-4.5 46.5-13.3 66.6-25.3-7.8 24.4-24.4 44.8-46.1 57.8 21.1-2.3 41.6-8.1 60.4-16.2-14.3 20.8-32.2 39.3-52.6 54.3"></path></svg>
+</a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.path", "navigation.top", "navigation.prune", "toc.follow", "search.highlight", "search.share", "search.suggest", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "content.mermaid"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+<script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+<script src="../../../javascripts/reading-layout.js"></script>
+</body>
+</html>

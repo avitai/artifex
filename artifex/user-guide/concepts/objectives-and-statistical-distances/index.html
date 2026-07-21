@@ -1,0 +1,2638 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="A training loss is not merely a score to minimize: it determines which information about the data distribution is observable to the optimizer, how finite" name="description"/>
+<meta content="Mahdi Shafiei" name="author"/>
+<link href="https://docs.avitai.bio/artifex/user-guide/concepts/objectives-and-statistical-distances/" rel="canonical"/>
+<link href="../objectives-04-practice/" rel="prev"/>
+<link href="../information-coding-01-measures/" rel="next"/>
+<link href="../../../assets/images/favicon.png" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.7.7" name="generator"/>
+<title>Objectives and Statistical Distances - Artifex</title>
+<link href="../../../assets/stylesheets/main.ec1eaa64.min.css" rel="stylesheet"/>
+<link href="../../../assets/stylesheets/palette.ab4e12ef.min.css" rel="stylesheet"/>
+<script src="../../../assets/vendor/iframe-worker/index.js"></script>
+<link href="../../../assets/_mkdocstrings.css" rel="stylesheet"/>
+<link href="../../../_static/extra.css" rel="stylesheet"/>
+<script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+<meta content="article" property="og:type"/>
+<meta content="The Artifex Generative Models Book" property="og:site_name"/>
+<meta content="Objectives and Statistical Distances" property="og:title"/>
+<meta content="A training loss is not merely a score to minimize: it determines which information about the data distribution is observable to the optimizer, how finite" property="og:description"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/objectives-and-statistical-distances/" property="og:url"/>
+<meta content="2026-07-14" property="article:modified_time"/>
+<meta content="summary" name="twitter:card"/>
+<meta content="Objectives and Statistical Distances" name="twitter:title"/>
+<meta content="A training loss is not merely a score to minimize: it determines which information about the data distribution is observable to the optimizer, how finite" name="twitter:description"/>
+<meta content="Generative models, Machine learning, Probabilistic modeling, foundation, reference, continuous_view, objectives-statistical-distances, newcomer, practitioner, researcher" name="keywords"/>
+<meta content="Objectives and Statistical Distances" name="citation_title"/>
+<meta content="Mahdi Shafiei" name="citation_author"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/objectives-and-statistical-distances/" name="citation_public_url"/>
+<meta content="en" name="citation_language"/>
+<meta content="Objectives and Statistical Distances" name="DC.title"/>
+<meta content="Mahdi Shafiei" name="DC.creator"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/objectives-and-statistical-distances/" name="DC.identifier"/>
+<meta content="Text.LearningResource" name="DC.type"/>
+<meta content="2026-07-14" name="DCTERMS.modified"/>
+<meta content="https://github.com/avitai/artifex/blob/main/LICENSE" name="DCTERMS.license"/>
+<meta content="foundation" name="DCTERMS.educationLevel"/>
+<meta content="newcomer, practitioner, researcher" name="DCTERMS.audience"/>
+<link href="https://github.com/avitai/artifex/blob/main/LICENSE" rel="license"/>
+<script id="artifex-book-metadata" type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Chapter",
+  "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/objectives-and-statistical-distances/",
+  "url": "https://docs.avitai.bio/artifex/user-guide/concepts/objectives-and-statistical-distances/",
+  "name": "Objectives and Statistical Distances",
+  "description": "A training loss is not merely a score to minimize: it determines which information about the data distribution is observable to the optimizer, how finite",
+  "identifier": "objectives-statistical-distances",
+  "inLanguage": "en",
+  "isAccessibleForFree": true,
+  "learningResourceType": "Continuous volume",
+  "educationalLevel": "foundation",
+  "educationalUse": "reference",
+  "audience": [
+    
+      {"@type": "EducationalAudience", "audienceType": "newcomer"},
+    
+      {"@type": "EducationalAudience", "audienceType": "practitioner"},
+    
+      {"@type": "EducationalAudience", "audienceType": "researcher"}
+    
+  ],
+  "dateModified": "2026-07-14",
+  "keywords": ["Generative models", "Machine learning", "Probabilistic modeling", "foundation", "reference", "continuous_view", "objectives-statistical-distances", "newcomer", "practitioner", "researcher"],
+  "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+  "author": [
+    
+      {"@type": "Person", "name": "Mahdi Shafiei"}
+    
+  ],
+  "isPartOf": {
+    "@type": "Book",
+    "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/#book",
+    "url": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/",
+    "name": "The Artifex Generative Models Book",
+    "bookEdition": "Living Web Edition",
+    "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+    "author": [
+      
+        {"@type": "Person", "name": "Mahdi Shafiei"}
+      
+    ]
+  }
+}
+</script>
+<link href="../../../assets/vendor/katex/katex.min.css" id="artifex-katex-stylesheet" integrity="sha384-UA8juhPf75SzzAMA/4fo3yOU7sBJ0om7SCD2GHq0fZqZco6tr1UCV7nUbk9J90JM" rel="stylesheet"/>
+<script defer="" integrity="sha384-T/0lMUdJpd2S1ZHtRiofG3htU3xPCrFVeAQ1UUE2TJwlEJSV5NUwn30kP28n238E" src="../../../assets/vendor/mermaid/mermaid.min.js"></script>
+<script defer="" src="../../../assets/vendor/katex/katex-shadow.js"></script>
+<script defer="" src="../../../javascripts/mermaid-math.js"></script>
+<script defer="" src="../../../javascripts/mathjax.js"></script>
+<script defer="" integrity="sha384-OrHfGTnIbkl0do3N76qW/uWr38o91N05sbSPuYBPLH+hG8X/dNSrjZf3AGjzrCwC" src="../../../assets/vendor/mathjax/tex-mml-chtml.js"></script>
+<meta content="noindex,follow" name="robots"/>
+</head>
+<body data-md-color-accent="amber" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#objectives-and-statistical-distances">
+          Skip to content
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header md-header--shadow" data-md-component="header">
+<nav aria-label="Header" class="md-header__inner md-grid">
+<a aria-label="Artifex" class="md-header__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            Artifex
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+            
+              Objectives and Statistical Distances
+            
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-label="Switch to dark mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: light)" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_1" hidden="" title="Switch to dark mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+<input aria-label="Switch to light mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-primary="indigo" data-md-color-scheme="slate" id="__palette_1" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_0" hidden="" title="Switch to light mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+</form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div aria-label="Search" class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Search" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="Search" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="Search" class="md-search__options">
+<a aria-label="Share" class="md-search__icon md-icon" data-clipboard="" data-clipboard-text="" data-md-component="search-share" href="javascript:void(0)" tabindex="-1" title="Share">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"></path></svg>
+</a>
+<button aria-label="Clear" class="md-search__icon md-icon" tabindex="-1" title="Clear" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            Initializing search
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Navigation" class="md-nav md-nav--primary" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="Artifex" class="md-nav__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+    Artifex
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../..">
+<span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../getting-started/installation/">
+<span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Generative Models Book
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Generative Models Book
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    
+  
+    Start Here — The Landscape
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../first-course-01-generative-systems/">
+<span class="md-ellipsis">
+    
+  
+    First Course — New to Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Foundations
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_3_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Foundations
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../probability-01-objects/">
+<span class="md-ellipsis">
+    
+  
+    1. Probability and Generative Modeling
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../classical-01-latent-foundations/">
+<span class="md-ellipsis">
+    
+  
+    2. Classical Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../bayesian-learning-01-object/">
+<span class="md-ellipsis">
+    
+  
+    3. Bayesian Learning and Model Assessment
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../inference-01-objects-and-queries/">
+<span class="md-ellipsis">
+    
+  
+    4. Latent Variables and Inference
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_3_5" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_3_5" id="__nav_3_3_5_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    5. Objectives and Statistical Distances
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_3_5_label" class="md-nav" data-md-level="3">
+<label class="md-nav__title" for="__nav_3_3_5">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    5. Objectives and Statistical Distances
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../objectives-01-discrepancies/">
+<span class="md-ellipsis">
+    
+  
+    1. Divergences, Ratios, IPMs, and MMD
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../objectives-02-support-score-ratios/">
+<span class="md-ellipsis">
+    
+  
+    2. Support, Scores, Ratios, and Conditional Regression
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../objectives-03-transport-information/">
+<span class="md-ellipsis">
+    
+  
+    3. Transport, Information, and Composite Objectives
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../objectives-04-practice/">
+<span class="md-ellipsis">
+    
+  
+    4. Worked Examples, Selection, and Retrieval
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
+    
+  
+    Continuous View (All Chapters)
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
+<span class="md-ellipsis">
+    
+  
+    Continuous View (All Chapters)
+  
+
+    
+  </span>
+</a>
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#start-with-the-information-available-to-the-optimizer">
+<span class="md-ellipsis">
+      
+        Start with the Information Available to the Optimizer
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#learning-objectives">
+<span class="md-ellipsis">
+      
+        Learning Objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#1-forward-and-reverse-kl">
+<span class="md-ellipsis">
+      
+        1. Forward and Reverse KL
+      
+    </span>
+</a>
+<nav aria-label="1. Forward and Reverse KL" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#a-two-mode-thought-experiment">
+<span class="md-ellipsis">
+      
+        A Two-Mode Thought Experiment
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#kl-is-not-a-metric">
+<span class="md-ellipsis">
+      
+        KL Is Not a Metric
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#2-f-divergences-and-density-ratio-estimation">
+<span class="md-ellipsis">
+      
+        2. f-Divergences and Density-Ratio Estimation
+      
+    </span>
+</a>
+<nav aria-label="2. f-Divergences and Density-Ratio Estimation" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#the-measure-level-definition-includes-singular-mass">
+<span class="md-ellipsis">
+      
+        The Measure-Level Definition Includes Singular Mass
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#hellinger-total-variation-and-chi-squared-conventions">
+<span class="md-ellipsis">
+      
+        Hellinger, Total Variation, and Chi-Squared Conventions
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#original-gan-discriminator">
+<span class="md-ellipsis">
+      
+        Original GAN discriminator
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#3-integral-probability-metrics">
+<span class="md-ellipsis">
+      
+        3. Integral Probability Metrics
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#4-maximum-mean-discrepancy">
+<span class="md-ellipsis">
+      
+        4. Maximum Mean Discrepancy
+      
+    </span>
+</a>
+<nav aria-label="4. Maximum Mean Discrepancy" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#a-discrepancy-value-is-not-yet-a-two-sample-test">
+<span class="md-ellipsis">
+      
+        A Discrepancy Value Is Not Yet a Two-Sample Test
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#one-comparison-spine-which-witness-can-see-the-difference">
+<span class="md-ellipsis">
+      
+        One Comparison Spine: Which Witness Can See the Difference?
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#discrepancy-retrieval-practice">
+<span class="md-ellipsis">
+      
+        Discrepancy retrieval practice
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#discrepancy-synthesis">
+<span class="md-ellipsis">
+      
+        Discrepancy synthesis
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#support-mismatch-three-remedies-three-different-contracts">
+<span class="md-ellipsis">
+      
+        Support Mismatch: Three Remedies, Three Different Contracts
+      
+    </span>
+</a>
+<nav aria-label="Support Mismatch: Three Remedies, Three Different Contracts" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#support-score-ratio-and-regression-learning-objectives">
+<span class="md-ellipsis">
+      
+        Support, score, ratio, and regression learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#a-finite-example-that-becomes-a-singular-continuous-example">
+<span class="md-ellipsis">
+      
+        A finite example that becomes a singular continuous example
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#remedy-1-smooth-both-laws">
+<span class="md-ellipsis">
+      
+        Remedy 1: smooth both laws
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#remedy-2-choose-a-comparison-that-remains-informative-without-overlap">
+<span class="md-ellipsis">
+      
+        Remedy 2: choose a comparison that remains informative without overlap
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#remedy-3-learn-a-state-space-then-model-its-law">
+<span class="md-ellipsis">
+      
+        Remedy 3: learn a state space, then model its law
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#population-identification-is-not-finite-optimization">
+<span class="md-ellipsis">
+      
+        Population identification is not finite optimization
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#5-score-matching-and-fisher-divergence">
+<span class="md-ellipsis">
+      
+        5. Score Matching and Fisher Divergence
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#6-noise-contrastive-estimation">
+<span class="md-ellipsis">
+      
+        6. Noise-Contrastive Estimation
+      
+    </span>
+</a>
+<nav aria-label="6. Noise-Contrastive Estimation" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#61-the-unnormalized-model-objective-family">
+<span class="md-ellipsis">
+      
+        6.1 The unnormalized-model objective family
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#7-conditional-regression-as-marginal-learning">
+<span class="md-ellipsis">
+      
+        7. Conditional Regression as Marginal Learning
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#support-and-local-objective-retrieval-practice">
+<span class="md-ellipsis">
+      
+        Support and local-objective retrieval practice
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#support-and-local-objective-synthesis">
+<span class="md-ellipsis">
+      
+        Support and local-objective synthesis
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#8-optimal-transport-objectives">
+<span class="md-ellipsis">
+      
+        8. Optimal Transport Objectives
+      
+    </span>
+</a>
+<nav aria-label="8. Optimal Transport Objectives" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#transport-information-and-composite-objective-learning-objectives">
+<span class="md-ellipsis">
+      
+        Transport, information, and composite-objective learning objectives
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#9-ratedistortion-and-information-bottlenecks">
+<span class="md-ellipsis">
+      
+        9. Rate–Distortion and Information Bottlenecks
+      
+    </span>
+</a>
+<nav aria-label="9. Rate–Distortion and Information Bottlenecks" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#lagrangians-select-operating-points">
+<span class="md-ellipsis">
+      
+        Lagrangians select operating points
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#learned-codecs-have-several-rates">
+<span class="md-ellipsis">
+      
+        Learned codecs have several rates
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#vae-rate-distortion-and-bits-back">
+<span class="md-ellipsis">
+      
+        VAE rate, distortion, and bits back
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#distortion-is-not-perception-or-utility">
+<span class="md-ellipsis">
+      
+        Distortion is not perception or utility
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#10-composite-objectives-and-identifiability">
+<span class="md-ellipsis">
+      
+        10. Composite Objectives and Identifiability
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#transport-and-information-retrieval-practice">
+<span class="md-ellipsis">
+      
+        Transport and information retrieval practice
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#transport-and-information-synthesis">
+<span class="md-ellipsis">
+      
+        Transport and information synthesis
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-example-mmd-for-two-point-masses">
+<span class="md-ellipsis">
+      
+        Worked Example: MMD for Two Point Masses
+      
+    </span>
+</a>
+<nav aria-label="Worked Example: MMD for Two Point Masses" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#objective-selection-capstone-learning-objectives">
+<span class="md-ellipsis">
+      
+        Objective-selection capstone learning objectives
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-example-from-a-classifier-to-a-ratio-value-and-generator-step">
+<span class="md-ellipsis">
+      
+        Worked Example: From a Classifier to a Ratio, Value, and Generator Step
+      
+    </span>
+</a>
+<nav aria-label="Worked Example: From a Classifier to a Ratio, Value, and Generator Step" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#frozen-discriminator-losses-are-different-functions">
+<span class="md-ellipsis">
+      
+        Frozen-Discriminator Losses Are Different Functions
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#primary-and-archival-reading-trail">
+<span class="md-ellipsis">
+      
+        Primary and Archival Reading Trail
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#objective-selection-checklist">
+<span class="md-ellipsis">
+      
+        Objective Selection Checklist
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#retrieval-check">
+<span class="md-ellipsis">
+      
+        Retrieval Check
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#summary-and-next-step">
+<span class="md-ellipsis">
+      
+        Summary and Next Step
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../information-coding-01-measures/">
+<span class="md-ellipsis">
+    
+  
+    6. Information, Coding, and Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../graphical-models-01-directed/">
+<span class="md-ellipsis">
+    
+  
+    7. Graphical Models and Structured Probability
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../message-passing-01-factor-graphs/">
+<span class="md-ellipsis">
+    
+  
+    8. Graphical Inference and Message Passing
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../filtering-01-bayes-recursions/">
+<span class="md-ellipsis">
+    
+  
+    9. Filtering and Smoothing for State-Space Generators
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../sampling-01-monte-carlo/">
+<span class="md-ellipsis">
+    
+  
+    10. Sampling and Continuous Time
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../smc-01-targets/">
+<span class="md-ellipsis">
+    
+  
+    11. Sequential Monte Carlo and Particle Methods
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../optimization-01-differentiation/">
+<span class="md-ellipsis">
+    
+  
+    12. Optimization and Learning Dynamics
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../generative-models-notation/">
+<span class="md-ellipsis">
+    
+  
+    13. Canonical Notation
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../autoregressive-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Model Families
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gradients-01-taxonomy/">
+<span class="md-ellipsis">
+    
+  
+    Connections and Compositions
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../normalization-01-queries/">
+<span class="md-ellipsis">
+    
+  
+    Research Practice
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../models/vae-guide/">
+<span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/core/base/">
+<span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../examples/overview/">
+<span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../zoo/">
+<span class="md-ellipsis">
+    
+  
+    Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../training/overview/">
+<span class="md-ellipsis">
+    
+  
+    Training
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../data/overview/">
+<span class="md-ellipsis">
+    
+  
+    Data &amp; Modalities
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../inference/overview/">
+<span class="md-ellipsis">
+    
+  
+    Inference &amp; Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../benchmarks/">
+<span class="md-ellipsis">
+    
+  
+    Evaluation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../guides/extensions/">
+<span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../extensions/">
+<span class="md-ellipsis">
+    
+  
+    Advanced Topics
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../cli/">
+<span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../community/contributing/">
+<span class="md-ellipsis">
+    
+  
+    Community
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/configs/protein-extension/">
+<span class="md-ellipsis">
+    
+  
+    Reference Library
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#start-with-the-information-available-to-the-optimizer">
+<span class="md-ellipsis">
+      
+        Start with the Information Available to the Optimizer
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#learning-objectives">
+<span class="md-ellipsis">
+      
+        Learning Objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#1-forward-and-reverse-kl">
+<span class="md-ellipsis">
+      
+        1. Forward and Reverse KL
+      
+    </span>
+</a>
+<nav aria-label="1. Forward and Reverse KL" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#a-two-mode-thought-experiment">
+<span class="md-ellipsis">
+      
+        A Two-Mode Thought Experiment
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#kl-is-not-a-metric">
+<span class="md-ellipsis">
+      
+        KL Is Not a Metric
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#2-f-divergences-and-density-ratio-estimation">
+<span class="md-ellipsis">
+      
+        2. f-Divergences and Density-Ratio Estimation
+      
+    </span>
+</a>
+<nav aria-label="2. f-Divergences and Density-Ratio Estimation" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#the-measure-level-definition-includes-singular-mass">
+<span class="md-ellipsis">
+      
+        The Measure-Level Definition Includes Singular Mass
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#hellinger-total-variation-and-chi-squared-conventions">
+<span class="md-ellipsis">
+      
+        Hellinger, Total Variation, and Chi-Squared Conventions
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#original-gan-discriminator">
+<span class="md-ellipsis">
+      
+        Original GAN discriminator
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#3-integral-probability-metrics">
+<span class="md-ellipsis">
+      
+        3. Integral Probability Metrics
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#4-maximum-mean-discrepancy">
+<span class="md-ellipsis">
+      
+        4. Maximum Mean Discrepancy
+      
+    </span>
+</a>
+<nav aria-label="4. Maximum Mean Discrepancy" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#a-discrepancy-value-is-not-yet-a-two-sample-test">
+<span class="md-ellipsis">
+      
+        A Discrepancy Value Is Not Yet a Two-Sample Test
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#one-comparison-spine-which-witness-can-see-the-difference">
+<span class="md-ellipsis">
+      
+        One Comparison Spine: Which Witness Can See the Difference?
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#discrepancy-retrieval-practice">
+<span class="md-ellipsis">
+      
+        Discrepancy retrieval practice
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#discrepancy-synthesis">
+<span class="md-ellipsis">
+      
+        Discrepancy synthesis
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#support-mismatch-three-remedies-three-different-contracts">
+<span class="md-ellipsis">
+      
+        Support Mismatch: Three Remedies, Three Different Contracts
+      
+    </span>
+</a>
+<nav aria-label="Support Mismatch: Three Remedies, Three Different Contracts" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#support-score-ratio-and-regression-learning-objectives">
+<span class="md-ellipsis">
+      
+        Support, score, ratio, and regression learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#a-finite-example-that-becomes-a-singular-continuous-example">
+<span class="md-ellipsis">
+      
+        A finite example that becomes a singular continuous example
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#remedy-1-smooth-both-laws">
+<span class="md-ellipsis">
+      
+        Remedy 1: smooth both laws
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#remedy-2-choose-a-comparison-that-remains-informative-without-overlap">
+<span class="md-ellipsis">
+      
+        Remedy 2: choose a comparison that remains informative without overlap
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#remedy-3-learn-a-state-space-then-model-its-law">
+<span class="md-ellipsis">
+      
+        Remedy 3: learn a state space, then model its law
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#population-identification-is-not-finite-optimization">
+<span class="md-ellipsis">
+      
+        Population identification is not finite optimization
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#5-score-matching-and-fisher-divergence">
+<span class="md-ellipsis">
+      
+        5. Score Matching and Fisher Divergence
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#6-noise-contrastive-estimation">
+<span class="md-ellipsis">
+      
+        6. Noise-Contrastive Estimation
+      
+    </span>
+</a>
+<nav aria-label="6. Noise-Contrastive Estimation" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#61-the-unnormalized-model-objective-family">
+<span class="md-ellipsis">
+      
+        6.1 The unnormalized-model objective family
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#7-conditional-regression-as-marginal-learning">
+<span class="md-ellipsis">
+      
+        7. Conditional Regression as Marginal Learning
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#support-and-local-objective-retrieval-practice">
+<span class="md-ellipsis">
+      
+        Support and local-objective retrieval practice
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#support-and-local-objective-synthesis">
+<span class="md-ellipsis">
+      
+        Support and local-objective synthesis
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#8-optimal-transport-objectives">
+<span class="md-ellipsis">
+      
+        8. Optimal Transport Objectives
+      
+    </span>
+</a>
+<nav aria-label="8. Optimal Transport Objectives" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#transport-information-and-composite-objective-learning-objectives">
+<span class="md-ellipsis">
+      
+        Transport, information, and composite-objective learning objectives
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#9-ratedistortion-and-information-bottlenecks">
+<span class="md-ellipsis">
+      
+        9. Rate–Distortion and Information Bottlenecks
+      
+    </span>
+</a>
+<nav aria-label="9. Rate–Distortion and Information Bottlenecks" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#lagrangians-select-operating-points">
+<span class="md-ellipsis">
+      
+        Lagrangians select operating points
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#learned-codecs-have-several-rates">
+<span class="md-ellipsis">
+      
+        Learned codecs have several rates
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#vae-rate-distortion-and-bits-back">
+<span class="md-ellipsis">
+      
+        VAE rate, distortion, and bits back
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#distortion-is-not-perception-or-utility">
+<span class="md-ellipsis">
+      
+        Distortion is not perception or utility
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#10-composite-objectives-and-identifiability">
+<span class="md-ellipsis">
+      
+        10. Composite Objectives and Identifiability
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#transport-and-information-retrieval-practice">
+<span class="md-ellipsis">
+      
+        Transport and information retrieval practice
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#transport-and-information-synthesis">
+<span class="md-ellipsis">
+      
+        Transport and information synthesis
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-example-mmd-for-two-point-masses">
+<span class="md-ellipsis">
+      
+        Worked Example: MMD for Two Point Masses
+      
+    </span>
+</a>
+<nav aria-label="Worked Example: MMD for Two Point Masses" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#objective-selection-capstone-learning-objectives">
+<span class="md-ellipsis">
+      
+        Objective-selection capstone learning objectives
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-example-from-a-classifier-to-a-ratio-value-and-generator-step">
+<span class="md-ellipsis">
+      
+        Worked Example: From a Classifier to a Ratio, Value, and Generator Step
+      
+    </span>
+</a>
+<nav aria-label="Worked Example: From a Classifier to a Ratio, Value, and Generator Step" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#frozen-discriminator-losses-are-different-functions">
+<span class="md-ellipsis">
+      
+        Frozen-Discriminator Losses Are Different Functions
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#primary-and-archival-reading-trail">
+<span class="md-ellipsis">
+      
+        Primary and Archival Reading Trail
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#objective-selection-checklist">
+<span class="md-ellipsis">
+      
+        Objective Selection Checklist
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#retrieval-check">
+<span class="md-ellipsis">
+      
+        Retrieval Check
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#summary-and-next-step">
+<span class="md-ellipsis">
+      
+        Summary and Next Step
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<nav aria-label="Breadcrumb" class="md-path">
+<ol class="md-path__list">
+<li class="md-path__item">
+<a class="md-path__link" href="../../..">
+<span class="md-ellipsis">
+    Home
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    Generative Models Book
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../probability-01-objects/">
+<span class="md-ellipsis">
+    Foundations
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../objectives-01-discrepancies/">
+<span class="md-ellipsis">
+    5. Objectives and Statistical Distances
+  </span>
+</a>
+</li>
+</ol>
+</nav>
+<article class="md-content__inner md-typeset">
+<h1 id="objectives-and-statistical-distances">Objectives and Statistical Distances<a class="headerlink" href="#objectives-and-statistical-distances" title="Permanent link">¤</a></h1><aside aria-label="Learning path" class="admonition abstract artifex-learning-path"><p class="admonition-title">Learning path</p><p><strong>Required knowledge</strong></p><ul class="artifex-learning-path__links" data-learning-path-role="required"><li><a href="../probability-and-generative-modeling/">Probability and Generative Modeling</a></li></ul><p><strong>Readiness check:</strong> can you explain the central object and reproduce one worked example from each required chapter? If not, follow its link before continuing.</p><p><strong>Newly unlocked in the default route</strong></p><ul class="artifex-learning-path__links" data-learning-path-role="unlocks"><li><a href="../information-coding-and-generative-modeling/">Information, Coding, and Generative Models</a></li><li><a href="../graphical-models-and-structured-probability/">Graphical Models and Structured Probability</a></li><li><a href="../sampling-01-monte-carlo/">Sampling 1 — Monte Carlo Queries and Variance</a></li><li><a href="../sampling-and-continuous-time/">Sampling and Continuous-Time Generative Mathematics</a></li><li><a href="../steering-01-targets/">Steering 1 — Target Laws and Feasible Sets</a></li><li><a href="../evaluation-01-likelihood/">Evaluation 1 — Likelihood and Perplexity</a></li></ul></aside>
+<p>A training loss is not merely a score to minimize: it determines which information about the data distribution is observable to the optimizer, how finite samples are weighted, and which model errors are easy to detect. This chapter separates mathematical discrepancies from their estimators and from the neural architectures used to optimize them.</p>
+<div class="admonition info">
+<p class="admonition-title">Reading routes</p>
+<p><strong>Beginner:</strong> compare KL, GAN density ratios, MMD, and score matching, then do both worked examples.<br/>
+<strong>Practitioner:</strong> focus on estimator bias, critic constraints, kernel/feature choice, loss reductions, and diagnostics.<br/>
+<strong>Research:</strong> derive each population optimum and then list which assumptions fail for a finite minibatch, finite network, and finite sampler.</p>
+</div>
+<h2 id="start-with-the-information-available-to-the-optimizer">Start with the Information Available to the Optimizer<a class="headerlink" href="#start-with-the-information-available-to-the-optimizer" title="Permanent link">¤</a></h2>
+<p>Suppose the data place mass around two separated regions while a generator
+currently reaches only one. A learning rule can discover that omission only
+through the information its objective exposes. Likelihood reads density at data
+points; a classifier estimates a ratio; an IPM searches for a witness; MMD fixes
+a kernel witness class; score matching compares local log-density derivatives;
+transport couples mass across space.</p>
+<figure class="book-figure" id="fig-objectives-and-statistical-distances-start-with-the-information-available-to-the-optimizer"><pre class="mermaid"><code>flowchart LR
+    data["Data law"]
+    model["Model law"]
+    density["Density values&lt;br/&gt;likelihood and ratio objectives"]
+    critic["Learned witness&lt;br/&gt;ratios or IPMs"]
+    kernel["Fixed kernel features&lt;br/&gt;MMD"]
+    score["Local derivatives&lt;br/&gt;score matching"]
+    coupling["Mass displacement&lt;br/&gt;optimal transport"]
+
+    data --&gt; density
+    model --&gt; density
+    data --&gt; critic
+    model --&gt; critic
+    data --&gt; kernel
+    model --&gt; kernel
+    data --&gt; score
+    model --&gt; score
+    data --&gt; coupling
+    model --&gt; coupling</code></pre><figcaption class="book-object-caption"><span class="book-object-number">Figure OBJ.1.</span> Start with the Information Available to the Optimizer</figcaption></figure>
+<p>The diagram is not a tournament bracket. Each branch changes the statistical
+and computational contract.</p>
+<div class="grid cards">
+<ul>
+<li>
+<p><span class="twemoji lg middle"><svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 5v16h6v-1.5H7V18h2v-1.5H5V15h4v-1.5H7V12h2v-1.5H5V9h4V5h1.5v4H12V7h1.5v2H15V5h1.5v4H18V7h1.5v2H21V3H5a2 2 0 0 0-2 2m3 2a1 1 0 0 1-1-1 1 1 0 0 1 1-1 1 1 0 0 1 1 1 1 1 0 0 1-1 1"></path></svg></span> <strong>Population object</strong></p>
+<hr/>
+<p>The discrepancy, proper score, divergence, or identifying equation defined
+for full probability laws.</p>
+</li>
+<li>
+<p><span class="twemoji lg middle"><svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M4 19v1h18v2H2V2h2v15c3 0 6-2 8.1-5.6 3-5 6.3-7.4 9.9-7.4v2c-2.8 0-5.5 2.1-8.1 6.5C11.3 16.6 7.7 19 4 19"></path></svg></span> <strong>Estimator</strong></p>
+<hr/>
+<p>The finite-sample statistic, variational bound, regression target, or
+Monte Carlo approximation actually computed.</p>
+</li>
+<li>
+<p><span class="twemoji lg middle"><svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21.33 12.91c.09 1.55-.62 3.04-1.89 3.95l.77 1.49c.23.45.26.98.06 1.45-.19.47-.58.84-1.06 1l-.79.25a1.687 1.687 0 0 1-1.86-.55L14.44 18c-.89-.15-1.73-.53-2.44-1.1-.5.15-1 .23-1.5.23-.88 0-1.76-.27-2.5-.79-.53.16-1.07.23-1.62.22-.79.01-1.57-.15-2.3-.45a4.1 4.1 0 0 1-2.43-3.61c-.08-.72.04-1.45.35-2.11-.29-.75-.32-1.57-.07-2.33C2.3 7.11 3 6.32 3.87 5.82c.58-1.69 2.21-2.82 4-2.7 1.6-1.5 4.05-1.66 5.83-.37.42-.11.86-.17 1.3-.17 1.36-.03 2.65.57 3.5 1.64 2.04.53 3.5 2.35 3.58 4.47.05 1.11-.25 2.2-.86 3.13.07.36.11.72.11 1.09m-5-1.41c.57.07 1.02.5 1.02 1.07a1 1 0 0 1-1 1h-.63c-.32.9-.88 1.69-1.62 2.29.25.09.51.14.77.21 5.13-.07 4.53-3.2 4.53-3.25a2.59 2.59 0 0 0-2.69-2.49 1 1 0 0 1-1-1 1 1 0 0 1 1-1c1.23.03 2.41.49 3.33 1.3.05-.29.08-.59.08-.89-.06-1.24-.62-2.32-2.87-2.53-1.25-2.96-4.4-1.32-4.4-.4-.03.23.21.72.25.75a1 1 0 0 1 1 1c0 .55-.45 1-1 1-.53-.02-1.03-.22-1.43-.56-.48.31-1.03.5-1.6.56-.57.05-1.04-.35-1.07-.9a.97.97 0 0 1 .88-1.1c.16-.02.94-.14.94-.77 0-.66.25-1.29.68-1.79-.92-.25-1.91.08-2.91 1.29C6.75 5 6 5.25 5.45 7.2 4.5 7.67 4 8 3.78 9c1.08-.22 2.19-.13 3.22.25.5.19.78.75.59 1.29-.19.52-.77.78-1.29.59-.73-.32-1.55-.34-2.3-.06-.32.27-.32.83-.32 1.27 0 .74.37 1.43 1 1.83.53.27 1.12.41 1.71.4q-.225-.39-.39-.81a1.038 1.038 0 0 1 1.96-.68c.4 1.14 1.42 1.92 2.62 2.05 1.37-.07 2.59-.88 3.19-2.13.23-1.38 1.34-1.5 2.56-1.5m2 7.47-.62-1.3-.71.16 1 1.25zm-4.65-8.61a1 1 0 0 0-.91-1.03c-.71-.04-1.4.2-1.93.67-.57.58-.87 1.38-.84 2.19a1 1 0 0 0 1 1c.57 0 1-.45 1-1 0-.27.07-.54.23-.76.12-.1.27-.15.43-.15.55.03 1.02-.38 1.02-.92"></path></svg></span> <strong>Parameterization</strong></p>
+<hr/>
+<p>The generator, critic, kernel, representation, or score network that limits
+the functions available.</p>
+</li>
+<li>
+<p><span class="twemoji lg middle"><svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M11 13h2V7h-2m10-3h-6v6l2.24-2.24A6 6 0 0 1 19 12a5.99 5.99 0 0 1-4 5.65v2.09c3.45-.89 6-4.01 6-7.74 0-2.21-.91-4.2-2.36-5.64M11 17h2v-2h-2m-8-3c0 2.21.91 4.2 2.36 5.64L3 20h6v-6l-2.24 2.24A6 6 0 0 1 5 12a5.99 5.99 0 0 1 4-5.65V4.26C5.55 5.15 3 8.27 3 12"></path></svg></span> <strong>Optimization path</strong></p>
+<hr/>
+<p>The finite updates, regularization, sampling error, and numerical choices
+that determine the trained result.</p>
+</li>
+</ul>
+</div>
+<p>Throughout the chapter, read every claim at all four levels. Equality at a
+population optimum does not make two finite training procedures equivalent.</p>
+<h2 id="learning-objectives">Learning Objectives<a class="headerlink" href="#learning-objectives" title="Permanent link">¤</a></h2>
+<ul>
+<li>distinguish forward and reverse KL without reducing every failure mode to them;</li>
+<li>derive the optimal discriminator in the original GAN;</li>
+<li>compare f-divergences, IPMs, Wasserstein distance, MMD, score matching, and NCE;</li>
+<li>distinguish a divergence from a metric and Hellinger distance from its square;</li>
+<li>state density-ratio objectives at the measure level, including singular support;</li>
+<li>analyze support mismatch and distinguish smoothing, support-compatible discrepancies, and representation changes;</li>
+<li>explain conditional regression used by diffusion and flow matching;</li>
+<li>distinguish operational bitrate, Shannon rate, entropy-model cross-entropy, a VAE's variational rate, and token count;</li>
+<li>identify when a claimed divergence interpretation requires an optimal auxiliary model or population limit.</li>
+</ul>
+<h2 id="1-forward-and-reverse-kl">1. Forward and Reverse KL<a class="headerlink" href="#1-forward-and-reverse-kl" title="Permanent link">¤</a></h2>
+<div class="admonition example">
+<p class="admonition-title">What KL can see</p>
+<p>Forward KL averages under <span class="arithmatex">\(p\)</span>, so every data-supported region matters.
+Reverse KL averages under <span class="arithmatex">\(q\)</span>, so it sees only regions the model visits.
+This difference explains the zero-avoiding and zero-forcing intuitions; it
+does not by itself diagnose a particular neural optimizer.</p>
+</div>
+<div class="arithmatex">\[
+D_{\mathrm{KL}}(p\|q)=\mathbb E_p\left[\log\frac{p(X)}{q(X)}\right].
+\]</div>
+<p>Forward KL <span class="arithmatex">\(D_{\mathrm{KL}}(p_{\mathrm{data}}\|p_\theta)\)</span> is infinite when the model assigns zero density where data have positive density, motivating “zero avoiding” or coverage-seeking language. Reverse KL <span class="arithmatex">\(D_{\mathrm{KL}}(p_\theta\|p_{\mathrm{data}})\)</span> is infinite when the model samples where data density is zero, motivating “zero forcing” or mode-seeking language.</p>
+<p>These descriptions are asymptotic intuitions, not diagnoses of every trained model. Capacity, optimization, support smoothing, estimator bias, finite data, and architecture can dominate. In particular, vanilla GAN mode collapse should not be explained as direct reverse-KL minimization.</p>
+<h3 id="a-two-mode-thought-experiment">A Two-Mode Thought Experiment<a class="headerlink" href="#a-two-mode-thought-experiment" title="Permanent link">¤</a></h3>
+<p>Let <span class="arithmatex">\(p\)</span> put equal mass on two separated modes while <span class="arithmatex">\(q_\theta\)</span> can represent only one narrow mode. Forward KL is infinite if the omitted data mode has positive mass and <span class="arithmatex">\(q\)</span> assigns it zero probability. Reverse KL can remain finite when <span class="arithmatex">\(q\)</span> stays inside either supported mode, so it may prefer one mode over placing mass between them. If <span class="arithmatex">\(q\)</span> instead has fixed full support, neither divergence is infinite and the optimum depends on its parameterization. “Coverage-seeking” and “mode-seeking” summarize this geometry; they do not predict a particular neural training run.</p>
+<h3 id="kl-is-not-a-metric">KL Is Not a Metric<a class="headerlink" href="#kl-is-not-a-metric" title="Permanent link">¤</a></h3>
+<p>KL is asymmetric and violates the triangle inequality. Jensen–Shannon divergence symmetrizes through a mixture. Define</p>
+<div class="arithmatex">\[
+\begin{aligned}
+m&amp;=\tfrac12(p+q),\\
+D_{\mathrm{JS}}(p\|q)=\tfrac12D_{\mathrm{KL}}(p\|m)+\tfrac12D_{\mathrm{KL}}(q\|m).
+\end{aligned}
+\]</div>
+<p>It remains finite and bounded by <span class="arithmatex">\(\log2\)</span> for natural logarithms, including disjoint supports. That boundedness can produce saturated discrimination and weak generator gradients when supports are separated.</p>
+<h2 id="2-f-divergences-and-density-ratio-estimation">2. f-Divergences and Density-Ratio Estimation<a class="headerlink" href="#2-f-divergences-and-density-ratio-estimation" title="Permanent link">¤</a></h2>
+<p>The ratio <span class="arithmatex">\(p(x)/q(x)\)</span> is the central object in this section. If neither density
+can be evaluated, a classifier can estimate a monotone transform of that ratio
+from labeled samples—but only to the extent that its class, training data, and
+optimization approximate the population discriminator.</p>
+<p>For convex <span class="arithmatex">\(f\)</span> with <span class="arithmatex">\(f(1)=0\)</span>,</p>
+<div class="arithmatex">\[
+D_f(p\|q)=\mathbb E_q\left[f\left(\frac{p(X)}{q(X)}\right)\right].
+\]</div>
+<h3 id="the-measure-level-definition-includes-singular-mass">The Measure-Level Definition Includes Singular Mass<a class="headerlink" href="#the-measure-level-definition-includes-singular-mass" title="Permanent link">¤</a></h3>
+<p>The compact density formula assumes a common dominating measure. Such a
+measure always exists for two probability laws—for example
+<span class="arithmatex">\(\mu=P+Q\)</span>—with Radon--Nikodym derivatives <span class="arithmatex">\(p=dP/d\mu\)</span> and <span class="arithmatex">\(q=dQ/d\mu\)</span>. Then</p>
+<div class="arithmatex">\[
+D_f(P\|Q)=\int q(x)f\!\left(\frac{p(x)}{q(x)}\right)\mu(dx),
+\]</div>
+<p>where the integrand at <span class="arithmatex">\(q(x)=0\)</span> is defined by the lower-semicontinuous
+extended-value limit. This convention is not cosmetic. Forward KL is infinite
+when <span class="arithmatex">\(P\)</span> assigns positive mass to a region where <span class="arithmatex">\(Q\)</span> assigns none, whereas JS
+remains finite because each law is compared with their mixture. A neural
+classifier trained on samples does not remove these measure-level facts; it
+approximates a variational witness under a finite function class and dataset.</p>
+<p>Strict convexity of <span class="arithmatex">\(f\)</span> at one supplies the usual population identification
+<span class="arithmatex">\(D_f(P\|Q)=0\Rightarrow P=Q\)</span>. Symmetry and the triangle inequality are
+separate properties and usually fail. The word “distance” in an algorithm name
+should therefore not be treated as a metric theorem.</p>
+<h3 id="hellinger-total-variation-and-chi-squared-conventions">Hellinger, Total Variation, and Chi-Squared Conventions<a class="headerlink" href="#hellinger-total-variation-and-chi-squared-conventions" title="Permanent link">¤</a></h3>
+<p>Using the same dominating measure, define Hellinger distance by</p>
+<div class="arithmatex">\[
+H^2(P,Q)=\frac12\int(\sqrt p-\sqrt q)^2\,d\mu.
+\]</div>
+<p>The unsquared distance is</p>
+<div class="arithmatex">\[
+H(P,Q)=\sqrt{H^2(P,Q)}.
+\]</div>
+<p>Total variation has equivalent density and event forms:</p>
+<div class="arithmatex">\[
+d_{\mathrm{TV}}(P,Q)=\frac12\int|p-q|\,d\mu.
+\]</div>
+<p>Equivalently,</p>
+<div class="arithmatex">\[
+d_{\mathrm{TV}}(P,Q)=\sup_A|P(A)-Q(A)|.
+\]</div>
+<p>The Hellinger distance <span class="arithmatex">\(H\)</span> is a metric; its square <span class="arithmatex">\(H^2\)</span> generally does <strong>not</strong>
+satisfy the triangle inequality. Both are bounded and independent of the
+chosen dominating measure, but a paper must say which one it reports. Total
+variation is also a metric and has the operational event interpretation shown
+above. Neither metric supplies a geometry between nearby observations unless
+that geometry enters through the laws or another construction.</p>
+<p>One Pearson chi-squared convention is</p>
+<div class="arithmatex">\[
+r_{\chi^2}(x)=\frac{(p(x)-q(x))^2}{q(x)}.
+\]</div>
+<p>Then</p>
+<div class="arithmatex">\[
+\chi^2(P\|Q)=\int r_{\chi^2}(x)\,\mu(dx).
+\]</div>
+<p>with value <span class="arithmatex">\(+\infty\)</span> when the required absolute continuity fails. Some sources
+reverse <span class="arithmatex">\(P,Q\)</span> or insert a factor of one half. Orientation and scale must be
+recorded before comparing a result or mapping it to a discriminator loss.</p>
+<p>Under the regularity conditions of convex duality, the variational representation used by f-GAN (<a href="https://proceedings.neurips.cc/paper_files/paper/2016/hash/cedebb6e872f539bef8c3f919874e9d7-Abstract.html">Nowozin et al., 2016</a>) is</p>
+<div class="arithmatex">\[
+\mathcal J_f(T)=\mathbb E_p[T(X)]-\mathbb E_q[f^*(T(X))].
+\]</div>
+<p>The divergence is the best admissible value of this witness objective:</p>
+<div class="arithmatex">\[
+D_f(p\|q)=\sup_{T\in\operatorname{dom}f^*}\mathcal J_f(T),
+\]</div>
+<p>where the supremum ranges over all admissible measurable functions. Replacing that class by a neural family <span class="arithmatex">\(\mathcal T\)</span> gives a lower bound,</p>
+<div class="arithmatex">\[
+\sup_{T\in\mathcal T}\mathcal J_f(T)\le D_f(p\|q).
+\]</div>
+<p>Equality therefore belongs to the unrestricted population problem, not automatically to a trained critic. Alternating finite neural updates optimize a game approximation, not the exact divergence at every step.</p>
+<p>The critic has two roles that must not be conflated: it is an estimator of a density-ratio-related variational objective, and it supplies gradients to move generator samples. A critic can classify well while providing geometrically unhelpful gradients. Regularization and feature architecture alter both roles.</p>
+<h3 id="original-gan-discriminator">Original GAN discriminator<a class="headerlink" href="#original-gan-discriminator" title="Permanent link">¤</a></h3>
+<p>For</p>
+<div class="arithmatex">\[
+V(D,G)=\mathbb E_{p_{\mathrm{data}}}\log D(x)
++\mathbb E_{p_g}\log(1-D(x)),
+\]</div>
+<p>pointwise maximization gives</p>
+<div class="arithmatex">\[
+D^*(x)=\frac{p_{\mathrm{data}}(x)}{p_{\mathrm{data}}(x)+p_g(x)}.
+\]</div>
+<p>Substitution gives the population value</p>
+<div class="arithmatex">\[
+-\log4+2D_{\mathrm{JS}}(p_{\mathrm{data}}\|p_g).
+\]</div>
+<p>The non-saturating generator loss changes gradients while retaining the same ideal fixed point; it should not be described as simply minimizing the same finite-step objective.</p>
+<p>If real examples have class prior <span class="arithmatex">\(\pi\)</span> and generated examples have prior <span class="arithmatex">\(1-\pi\)</span>, the Bayes-optimal classifier satisfies</p>
+<div class="arithmatex">\[
+D^*_{\pi}(x)
+=\frac{\pi p(x)}{\pi p(x)+(1-\pi)q(x)},
+\qquad
+\frac{p(x)}{q(x)}
+=\frac{1-\pi}{\pi}\frac{D^*_{\pi}(x)}{1-D^*_{\pi}(x)}.
+\]</div>
+<p>With equal class priors, the prior correction disappears and the optimal discriminator logit is</p>
+<div class="arithmatex">\[
+\log\frac{D^*(x)}{1-D^*(x)}
+=\log\frac{p_{\mathrm{data}}(x)}{p_g(x)}.
+\]</div>
+<p>This is the density-ratio connection. It assumes densities relative to a common reference measure and a population-optimal discriminator. The numeric discriminator loss alone cannot diagnose mode coverage, memorization, or equilibrium.</p>
+<p>The same identity has a specialized dependence interpretation in <a href="../copula-models-explained/#density-ratio-estimation">Copula Models</a>: after exact continuous marginal transforms, the product reference is uniform and the density ratio is the copula density. Finite classifier calibration, normalization, marginal validity, and sampling remain separate obligations.</p>
+<h2 id="3-integral-probability-metrics">3. Integral Probability Metrics<a class="headerlink" href="#3-integral-probability-metrics" title="Permanent link">¤</a></h2>
+<p>Instead of estimating a density ratio, an IPM asks for a function whose expected
+value differs most between the two laws. The function class determines what
+differences are visible and how reliably that witness can be estimated.</p>
+<p>An IPM compares expectations over a function class <span class="arithmatex">\(\mathcal F\)</span>:</p>
+<div class="arithmatex">\[
+d_{\mathcal F}(p,q)
+=\sup_{f\in\mathcal F}\left|\mathbb E_p[f(X)]-\mathbb E_q[f(X)]\right|.
+\]</div>
+<p>The function class defines the discrepancy. Wasserstein-1 uses 1-Lipschitz functions through Kantorovich–Rubinstein duality:</p>
+<div class="arithmatex">\[
+W_1(p,q)=\sup_{\|f\|_L\le1}
+\left(\mathbb E_p f-\mathbb E_qf\right).
+\]</div>
+<p>WGAN approximates this with a neural critic and an imperfect Lipschitz constraint. Weight clipping, gradient penalties, spectral normalization, and other regularizers enforce different approximations; none proves mode collapse impossible.</p>
+<p>The primal Wasserstein-1 distance is the minimum expected transport cost <span class="arithmatex">\(\inf_{\pi\in\Pi(p,q)}\mathbb E_\pi\|X-Y\|\)</span>. Unlike JS, it varies continuously as two disjoint point masses move through space. That gives a useful geometric signal in idealized settings. A neural WGAN critic estimates a restricted dual and can still be biased, underoptimized, or violate global Lipschitzness.</p>
+<h2 id="4-maximum-mean-discrepancy">4. Maximum Mean Discrepancy<a class="headerlink" href="#4-maximum-mean-discrepancy" title="Permanent link">¤</a></h2>
+<p>MMD fixes the witness geometry through a kernel. This removes the alternating
+critic optimization used by a GAN, but it does not remove the modeling choice:
+bandwidth and representation decide which sample differences count as nearby.</p>
+<p>For an RKHS <span class="arithmatex">\(\mathcal H\)</span> with kernel <span class="arithmatex">\(k\)</span>,</p>
+<div class="arithmatex">\[
+\operatorname{MMD}^2(p,q)
+=\mathbb E_{x,x'\sim p}k(x,x')
++\mathbb E_{y,y'\sim q}k(y,y')
+-2\mathbb E_{x\sim p,y\sim q}k(x,y).
+\]</div>
+<p>Characteristic kernels make population MMD zero only when <span class="arithmatex">\(p=q\)</span>. Finite-sample estimators may be biased or unbiased; kernel bandwidth and representation determine test power. GMMNs train an implicit generator directly with this discrepancy, showing that implicit generation does not require an adversarial critic.</p>
+<p>For samples <span class="arithmatex">\(x_{1:m}\sim p\)</span> and <span class="arithmatex">\(y_{1:n}\sim q\)</span>, the V-statistic includes diagonal kernel terms, while the unbiased U-statistic removes <span class="arithmatex">\(i=j\)</span> terms within each sample set. The unbiased estimate of squared MMD can be negative at finite sample size even though population <span class="arithmatex">\(\operatorname{MMD}^2\ge0\)</span>. This is estimator fluctuation, not a negative population distance.</p>
+<p>Kernel choice defines which discrepancies are visible. An RBF kernel on raw pixels may be dominated by low-level distances; a kernel on pretrained features inherits that encoder's invariances and biases. Calling feature-space MMD “distribution-free” hides a representation choice.</p>
+<h3 id="a-discrepancy-value-is-not-yet-a-two-sample-test">A Discrepancy Value Is Not Yet a Two-Sample Test<a class="headerlink" href="#a-discrepancy-value-is-not-yet-a-two-sample-test" title="Permanent link">¤</a></h3>
+<p>MMD can be a differentiable population objective, a minibatch training loss, a
+descriptive validation statistic, or the statistic inside a calibrated
+hypothesis test. These uses are not interchangeable. A level-<span class="arithmatex">\(\alpha\)</span> test
+needs a null distribution or valid resampling/asymptotic calibration, a
+declared estimator, and a rule fixed independently of the observed test
+outcome. Selecting the kernel on the same data to maximize separation, checking
+the test repeatedly during training, or stopping when it rejects changes the
+decision procedure and can invalidate its nominal level unless the calibration
+accounts for that adaptivity. The full protocol appears in <a href="../generative-model-evaluation/#two-sample-tests-are-finite-decision-procedures">Generative Model
+Evaluation</a>.</p>
+<h3 id="one-comparison-spine-which-witness-can-see-the-difference">One Comparison Spine: Which Witness Can See the Difference?<a class="headerlink" href="#one-comparison-spine-which-witness-can-see-the-difference" title="Permanent link">¤</a></h3>
+<p>Sample-based objectives can look similar in code because each compares expectations under data and model samples. Their mathematical contracts differ in the witness class, the penalty or constraint imposed on that witness, and whether the witness is fixed, solved analytically, or learned by alternating optimization.</p>
+<div class="md-typeset__table book-table-container"><table id="tbl-objectives-and-statistical-distances-one-comparison-spine-which-witness-can-see-the-difference"><caption class="book-object-caption"><span class="book-object-number">Table OBJ.1.</span> One Comparison Spine: Which Witness Can See the Difference?</caption>
+<thead>
+<tr>
+<th>Comparison</th>
+<th>Population form</th>
+<th>What defines the witness</th>
+<th>What equality identifies</th>
+<th>Optimization consequence</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="arithmatex">\(f\)</span>-divergence variational form</td>
+<td><span class="arithmatex">\(\sup_T\{\mathbb E_pT-\mathbb E_q f^*(T)\}\)</span></td>
+<td>all admissible <span class="arithmatex">\(T\)</span> for equality; often a restricted neural class in practice</td>
+<td><span class="arithmatex">\(p=q\)</span> when the chosen <span class="arithmatex">\(f\)</span> is strictly convex at <span class="arithmatex">\(1\)</span> and the unrestricted divergence is zero</td>
+<td>the conjugate penalty is part of the objective; a restricted or underoptimized critic supplies only a lower bound</td>
+</tr>
+<tr>
+<td>integral probability metric</td>
+<td><span class="arithmatex">\(\sup_{h\in\mathcal F}(\mathbb E_ph-\mathbb E_qh)\)</span> for symmetric <span class="arithmatex">\(\mathcal F\)</span></td>
+<td>the declared function class <span class="arithmatex">\(\mathcal F\)</span></td>
+<td>depends on whether <span class="arithmatex">\(\mathcal F\)</span> separates probability laws</td>
+<td>the constraint on <span class="arithmatex">\(\mathcal F\)</span> defines the geometry; there is generally no density-ratio interpretation</td>
+</tr>
+<tr>
+<td>finite feature moments</td>
+<td><span class="arithmatex">\(\|\mathbb E_p\phi-\mathbb E_q\phi\|_2\)</span></td>
+<td>a fixed finite feature map <span class="arithmatex">\(\phi:\mathcal X\to\mathbb R^d\)</span></td>
+<td>equality of the declared feature means, not generally equality of distributions</td>
+<td>the maximizing linear witness is analytic; no alternating critic is required</td>
+</tr>
+<tr>
+<td>MMD</td>
+<td><span class="arithmatex">\(\|\mu_p-\mu_q\|_{\mathcal H_k}\)</span></td>
+<td>the unit ball of the RKHS for a fixed kernel <span class="arithmatex">\(k\)</span></td>
+<td><span class="arithmatex">\(p=q\)</span> for characteristic <span class="arithmatex">\(k\)</span> on the stated domain and measure class</td>
+<td>the population witness is analytic and the empirical loss is direct; learning the kernel adversarially creates a different game</td>
+</tr>
+</tbody>
+</table></div>
+<p>Finite moment matching is itself an IPM over the linear class <span class="arithmatex">\(h_w(x)=w^\top\phi(x)\)</span> with <span class="arithmatex">\(\|w\|_2\le1\)</span>. MMD extends this construction to a possibly infinite-dimensional RKHS feature map. An <span class="arithmatex">\(f\)</span>-divergence bound is not merely another IPM: the <span class="arithmatex">\(q\)</span>-expectation contains the nonlinear conjugate <span class="arithmatex">\(f^*(T)\)</span> rather than the same witness appearing in a difference of expectations. These are algebraic distinctions, not names for interchangeable neural losses.</p>
+<p>Four levels should consequently be written separately:</p>
+<ol>
+<li>the <strong>population discrepancy</strong>, defined after its supremum or analytic witness is solved;</li>
+<li>the <strong>auxiliary optimum</strong> for the current model distribution;</li>
+<li>the <strong>implemented generator loss</strong> while the current auxiliary model is held fixed; and</li>
+<li>the <strong>optimization path</strong> produced by finite samples, restricted networks, update ratios, and optimizer state.</li>
+</ol>
+<p>Agreement at the population optimum does not make levels 3 or 4 identical. The finite example near the end of this chapter computes the distinction explicitly.</p>
+<h2 id="discrepancy-retrieval-practice">Discrepancy retrieval practice<a class="headerlink" href="#discrepancy-retrieval-practice" title="Permanent link">¤</a></h2>
+<details class="question">
+<summary>Retrieval practice: KL, ratios, IPMs, and MMD</summary>
+<ol>
+<li>Why do forward and reverse KL respond differently to missing support and extra modes?</li>
+<li>What information does a density-ratio classifier estimate at population optimum?</li>
+<li>How does an IPM depend on its critic function class?</li>
+<li>When is an empirical MMD equal to zero without proving equality of population laws?</li>
+</ol>
+<p><strong>Solutions.</strong> (1) Forward KL averages under the data law and heavily penalizes assigning too little model density where data occur; reverse KL averages under the model and can avoid unsupported data regions while penalizing model mass in low-data-density areas. (2) A monotone transform of the data/model density ratio under the declared class priors and classification loss. (3) The class determines which expectation differences are visible and whether the discrepancy identifies the full law. (4) With finite samples, a non-characteristic kernel, biased estimator coincidences, or degenerate features; population identification additionally requires a characteristic kernel and assumptions.</p>
+</details>
+<h2 id="discrepancy-synthesis">Discrepancy synthesis<a class="headerlink" href="#discrepancy-synthesis" title="Permanent link">¤</a></h2>
+<p>Every discrepancy exposes only information available through its sampling,
+density-ratio, score, coupling, or critic interface. Direction, support,
+function class, estimator, and finite optimization determine behavior. Naming a
+divergence does not by itself specify the trained generator.</p>
+<h2 id="support-mismatch-three-remedies-three-different-contracts">Support Mismatch: Three Remedies, Three Different Contracts<a class="headerlink" href="#support-mismatch-three-remedies-three-different-contracts" title="Permanent link">¤</a></h2>
+<h3 id="support-score-ratio-and-regression-learning-objectives">Support, score, ratio, and regression learning objectives<a class="headerlink" href="#support-score-ratio-and-regression-learning-objectives" title="Permanent link">¤</a></h3>
+<p>This projection assumes density ratios, gradients, and conditional expectation.
+By the end, you should be able to diagnose singular support mismatch, distinguish
+smoothing from changing discrepancy or representation, derive score matching
+and noise-contrastive objectives, identify their boundary and normalization
+assumptions, and explain how conditional regression can learn a marginal target
+only after the relevant conditional expectation is taken.</p>
+<p>Support mismatch is not one scalar pathology. It is a mismatch among a target law, a model law, a reference measure, and the topology induced by the objective. A probability distribution can be perfectly valid while having no density with respect to ambient Lebesgue measure. For example, a distribution on a curve in <span class="arithmatex">\(\mathbb R^2\)</span> may have a density with respect to arc length but be singular with respect to two-dimensional area. The first question is therefore not “does the density exist?” but <strong>“with respect to which measure, and which comparison is the optimizer estimating?”</strong></p>
+<h3 id="a-finite-example-that-becomes-a-singular-continuous-example">A finite example that becomes a singular continuous example<a class="headerlink" href="#a-finite-example-that-becomes-a-singular-continuous-example" title="Permanent link">¤</a></h3>
+<p>Begin with two probability laws on four points in <span class="arithmatex">\(\mathbb R^2\)</span>:</p>
+<div class="arithmatex">\[
+\begin{aligned}
+P
+&amp;=\tfrac12\delta_{(-1,0)}+\tfrac12\delta_{(1,0)},\\
+Q_h
+&amp;=\tfrac12\delta_{(-1,h)}+\tfrac12\delta_{(1,h)}.
+\end{aligned}
+\]</div>
+<p>For every <span class="arithmatex">\(h\ne0\)</span>, the supports are disjoint. Consequently,</p>
+<div class="arithmatex">\[
+\begin{aligned}
+D_{\mathrm{KL}}(P\|Q_h)
+&amp;=D_{\mathrm{KL}}(Q_h\|P)=\infty,\\
+D_{\mathrm{JS}}(P\|Q_h)
+&amp;=\log 2.
+\end{aligned}
+\]</div>
+<p>Neither value records whether the two rows of points are a millimeter or a kilometer apart. By contrast, with Euclidean transport cost,</p>
+<div class="arithmatex">\[
+W_1(P,Q_h)=|h|.
+\]</div>
+<p>Pairing each point with the point directly above or below it gives the upper bound <span class="arithmatex">\(W_1\le |h|\)</span>. The function <span class="arithmatex">\(f(x_1,x_2)=\operatorname{sign}(h)x_2\)</span> is 1-Lipschitz, so the Kantorovich--Rubinstein dual gives the matching lower bound. Thus <span class="arithmatex">\(Q_h\)</span> converges to <span class="arithmatex">\(P\)</span> in <span class="arithmatex">\(W_1\)</span> as <span class="arithmatex">\(h\to0\)</span>, while JS remains at its maximum until the supports coincide. This is the elementary geometry behind the continuity result used by <a href="https://proceedings.mlr.press/v70/arjovsky17a.html">Wasserstein GANs</a>; it is not a claim that a finite neural critic computes <span class="arithmatex">\(W_1\)</span> exactly.</p>
+<p>Now replace the two horizontal coordinates by a continuous random variable <span class="arithmatex">\(U\sim\operatorname{Unif}[-1,1]\)</span>:</p>
+<div class="arithmatex">\[
+\begin{aligned}
+X&amp;=(U,0),\\
+Y_h&amp;=(U,h).
+\end{aligned}
+\]</div>
+<p>The laws of <span class="arithmatex">\(X\)</span> and <span class="arithmatex">\(Y_h\)</span> are supported on parallel line segments. Both are singular with respect to two-dimensional Lebesgue measure, and they are mutually singular when <span class="arithmatex">\(h\ne0\)</span>. The same coupling and dual witness still prove <span class="arithmatex">\(W_1(\mathcal L(X),\mathcal L(Y_h))=|h|\)</span>. The finite construction therefore exposes the same distinction as a continuum-supported model: a comparison based on density ratios can saturate or become infinite even while the model law approaches the target weakly.</p>
+<p>This example establishes a problem, not a universal winner. There are at least three materially different responses.</p>
+<h3 id="remedy-1-smooth-both-laws">Remedy 1: smooth both laws<a class="headerlink" href="#remedy-1-smooth-both-laws" title="Permanent link">¤</a></h3>
+<p>Let <span class="arithmatex">\(S_\sigma P\)</span> denote the law of <span class="arithmatex">\(X+\varepsilon\)</span> for <span class="arithmatex">\(X\sim P\)</span> and <span class="arithmatex">\(\varepsilon\sim\mathcal N(0,\sigma^2I)\)</span>. Gaussian convolution turns any finite measure on <span class="arithmatex">\(\mathbb R^d\)</span> into a smooth, strictly positive density, so it removes the zero-overlap singularity in the example. A spread objective can then compare</p>
+<div class="arithmatex">\[
+D_{\mathrm{KL}}(S_\sigma P\|S_\sigma Q).
+\]</div>
+<p>Because the Gaussian characteristic function is nowhere zero, <span class="arithmatex">\(S_\sigma P=S_\sigma Q\)</span> implies <span class="arithmatex">\(P=Q\)</span>. Smoothing can therefore preserve the population zero set even though the loss compares blurred laws. This is the identification argument behind <a href="https://proceedings.mlr.press/v119/zhang20j.html">Spread Divergence</a>. Common support alone does not guarantee that every KL is finite for arbitrary heavy-tailed laws; the required log-ratio integrability or tail conditions must still be checked.</p>
+<p>The bandwidth <span class="arithmatex">\(\sigma\)</span> changes what finite data and finite networks can resolve. Large <span class="arithmatex">\(\sigma\)</span> joins separated regions and supplies broad gradients but suppresses fine structure. Small <span class="arithmatex">\(\sigma\)</span> is closer to the endpoint law but can restore sharp ratios, high estimator variance, and difficult low-noise learning. Diffusion objectives use multiple noise levels rather than pretending that one bandwidth solves both global movement and local detail.</p>
+<p>The smoothing kernel is also a geometric modeling choice. For a law subject to known equality constraints, isotropic noise moves both normal to and along the constraint set. A 2026 ICML result instead perturbs along normal spaces and projects samples back; it proves exact recovery for linear constraints and gives a curvature-dependent total-variation bound for nonlinear manifolds under its stated reach and regularity assumptions (<a href="https://openreview.net/forum?id=UPiyC9W4ms">Keegan and Ruthotto, 2026</a>). The lesson is not that one perturbation is universal. It is that the noise law and any recovery map belong in the model specification.</p>
+<h3 id="remedy-2-choose-a-comparison-that-remains-informative-without-overlap">Remedy 2: choose a comparison that remains informative without overlap<a class="headerlink" href="#remedy-2-choose-a-comparison-that-remains-informative-without-overlap" title="Permanent link">¤</a></h3>
+<p>Wasserstein distance and some kernel discrepancies can compare singular laws directly. Their assumptions differ:</p>
+<ul>
+<li>On a compact metric space, convergence in <span class="arithmatex">\(W_1\)</span> is equivalent to weak convergence. On an unbounded space, <span class="arithmatex">\(W_p\)</span> convergence additionally controls the relevant <span class="arithmatex">\(p\)</span>th moments; finite <span class="arithmatex">\(W_1\)</span> requires finite first moments.</li>
+<li>A characteristic kernel makes population MMD zero only when the laws are equal. Characteristicness alone does not guarantee that MMD metrizes weak convergence on every topological space. The kernel, its boundedness and continuity properties, and the class of probability measures matter.</li>
+<li>A neural WGAN replaces the full 1-Lipschitz function class by a trained, regularized critic family. A learned-kernel MMD likewise replaces a fixed identifying witness class by an optimization problem. These implementations may supply useful gradients, but their finite objectives need not equal the named population distances.</li>
+</ul>
+<p>The <a href="https://www.jmlr.org/papers/v13/gretton12a.html">kernel two-sample analysis</a> makes the statistical trade-off explicit: a witness class must be rich enough to identify unequal distributions yet restricted enough to estimate from finite samples. “Works on disjoint supports” therefore means that the population quantity is defined and can vary; it does not mean that every empirical estimator has high power or every generator receives a non-vanishing gradient.</p>
+<h3 id="remedy-3-learn-a-state-space-then-model-its-law">Remedy 3: learn a state space, then model its law<a class="headerlink" href="#remedy-3-learn-a-state-space-then-model-its-law" title="Permanent link">¤</a></h3>
+<p>A two-stage system first learns an encoder <span class="arithmatex">\(E:\mathcal X\to\mathcal Z\)</span> and decoder <span class="arithmatex">\(G:\mathcal Z\to\mathcal X\)</span>, then fits a latent model <span class="arithmatex">\(R\)</span> to the encoded law <span class="arithmatex">\(E_\#P\)</span>. Its output law is <span class="arithmatex">\(G_\#R\)</span>. This changes the space in which distribution learning occurs; it does not make the original support question disappear.</p>
+<p>For a concrete error decomposition, suppose <span class="arithmatex">\(G\)</span> is <span class="arithmatex">\(L\)</span>-Lipschitz and all laws have finite first moments. Coupling each <span class="arithmatex">\(X\sim P\)</span> with its reconstruction <span class="arithmatex">\(G(E(X))\)</span>, then using stability of <span class="arithmatex">\(W_1\)</span> under a Lipschitz map, gives</p>
+<div class="arithmatex">\[
+\begin{aligned}
+W_1(P,G_\#R)
+&amp;\le W_1(P,G_\#E_\#P)\\
+&amp;\quad +W_1(G_\#E_\#P,G_\#R)\\
+&amp;\le \mathbb E_{X\sim P}\|X-G(E(X))\|\\
+&amp;\quad +L\,W_1(E_\#P,R).
+\end{aligned}
+\]</div>
+<p>The two terms are different failure modes: codec distortion and latent distribution error. Perfect population reconstruction together with <span class="arithmatex">\(R=E_\#P\)</span> recovers <span class="arithmatex">\(P\)</span>. Finite autoencoders and finite latent models need not satisfy either condition.</p>
+<p>Representation-level matching can also destroy identification. If <span class="arithmatex">\(E(x)=0\)</span> for every <span class="arithmatex">\(x\)</span>, then <span class="arithmatex">\(E_\#P=E_\#Q\)</span> for all <span class="arithmatex">\(P\)</span> and <span class="arithmatex">\(Q\)</span>, so every identifying latent discrepancy is zero even when the observation laws are unrelated. More generally, a non-injective encoder can erase distinctions that matter for generation. Exact two-step recovery results require assumptions such as reconstruction almost surely, matched intrinsic dimension, sufficient regularity, and a correctly learned encoded law (<a href="https://tmlr.infinite-conf.org/paper_pages/0nEZCVshxS.html">Loaiza-Ganem et al., 2022</a>). The related Wasserstein interpretation is an upper-bound result under its own cost, measurability, and population assumptions; it is not a blanket theorem that any learned codec optimizes observation-space Wasserstein distance (<a href="https://openreview.net/forum?id=a90WpmSi0I">Loaiza-Ganem et al., 2024</a>).</p>
+<p>Latent diffusion and learned-token systems instantiate this decomposition operationally: a codec fixes the state space, and a separate generator learns its aggregate latent law. Reconstruction quality, latent learnability, and decoded sample quality must all be measured. A low latent loss cannot certify information that the encoder removed.</p>
+<h3 id="population-identification-is-not-finite-optimization">Population identification is not finite optimization<a class="headerlink" href="#population-identification-is-not-finite-optimization" title="Permanent link">¤</a></h3>
+<div class="md-typeset__table book-table-container"><table id="tbl-objectives-and-statistical-distances-population-identification-is-not-finite-optimization"><caption class="book-object-caption"><span class="book-object-number">Table OBJ.2.</span> Population identification is not finite optimization</caption>
+<thead>
+<tr>
+<th>Construction</th>
+<th>Population identification claim</th>
+<th>Assumptions that carry the claim</th>
+<th>Finite estimation or optimization failure</th>
+<th>What the construction changes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Raw f-divergence or density-ratio objective</td>
+<td>Zero identifies equal laws for the chosen divergence</td>
+<td>Common dominating measure; required absolute-continuity and integrability conditions; population-optimal auxiliary critic when using a variational form</td>
+<td>Ratios can be infinite or saturated; a finite critic can overfit, underfit, or supply a gradient unrelated to the exact divergence gradient</td>
+<td>No state-space change; comparison uses density ratios</td>
+</tr>
+<tr>
+<td>Gaussian smoothing or spread objective</td>
+<td>Injective convolution preserves equality of the original laws</td>
+<td>Same injective noise channel applied to both laws; non-vanishing characteristic function; required tail/integrability conditions</td>
+<td>Bandwidth hides fine differences or yields sharp, high-variance estimation; sampled noise may remain at deployment unless explicitly removed</td>
+<td>Compares perturbed laws and introduces a resolution scale</td>
+</tr>
+<tr>
+<td>Wasserstein or another metric IPM</td>
+<td><span class="arithmatex">\(W_p=0\)</span> identifies equality; topology depends on the metric and moment class</td>
+<td>Valid ground metric, finite <span class="arithmatex">\(p\)</span>th moments, and the theorem's compactness or moment conditions</td>
+<td>Empirical transport can be sample-hungry; restricted critics and imperfect Lipschitz enforcement need not realize the dual</td>
+<td>Adds a ground geometry and transport cost</td>
+</tr>
+<tr>
+<td>MMD</td>
+<td>Zero identifies equality for a characteristic kernel on the declared measure class</td>
+<td>Characteristic kernel plus required boundedness/integrability; stronger conditions for weak-convergence claims</td>
+<td>Bandwidth and features determine power; empirical estimates fluctuate; distant samples can receive tiny gradients</td>
+<td>Adds a kernel geometry or learned feature geometry</td>
+</tr>
+<tr>
+<td>Encoder, decoder, then latent model</td>
+<td>Exact reconstruction and exact latent matching imply exact decoded-law recovery</td>
+<td><span class="arithmatex">\(G\circ E=\operatorname{id}\)</span> almost surely on the target, suitable latent dimension/regularity, and a latent model matching <span class="arithmatex">\(E_\#P\)</span></td>
+<td>Codec distortion, information loss, latent undercoverage, and decoder sensitivity compound</td>
+<td>Replaces observation-space modeling by a learned state space plus reconstruction map</td>
+</tr>
+</tbody>
+</table></div>
+<p>The table separates three questions that are often collapsed into one:</p>
+<ol>
+<li><strong>Identification:</strong> is the population optimum unique at the target law?</li>
+<li><strong>Estimation:</strong> can finite samples and a finite witness approximate that population quantity?</li>
+<li><strong>Optimization:</strong> does the parameterized loss provide a useful path from the current model to the optimum?</li>
+</ol>
+<p>A theorem answering the first question does not answer the other two. Conversely, a deliberately biased finite critic may provide useful gradients even when it is not an accurate divergence estimator. Objective selection should state which of these properties is being claimed.</p>
+<h2 id="5-score-matching-and-fisher-divergence">5. Score Matching and Fisher Divergence<a class="headerlink" href="#5-score-matching-and-fisher-divergence" title="Permanent link">¤</a></h2>
+<div class="admonition example">
+<p class="admonition-title">From global normalization to local slope</p>
+<p>A score field describes how log density changes around a point. Because the
+derivative of a global normalizing constant is zero, score matching can
+train an unnormalized model without evaluating that constant. It still
+needs suitable boundary conditions, data-space geometry, and an estimator
+of the population score.</p>
+</div>
+<p>The score is <span class="arithmatex">\(s_p(x)=\nabla_x\log p(x)\)</span>. Fisher divergence compares scores:</p>
+<div class="arithmatex">\[
+D_F(p\|q)=\frac12\mathbb E_p\|s_p(X)-s_q(X)\|^2.
+\]</div>
+<p>Hyvärinen score matching removes the unknown data score by integration by parts, under boundary and differentiability conditions:</p>
+<div class="arithmatex">\[
+\mathcal J(\theta)
+=\mathbb E_{p_{\mathrm{data}}}
+\left[\frac12\|s_\theta(x)\|^2+\nabla\cdot s_\theta(x)\right]
++\text{constant}.
+\]</div>
+<p>Denoising score matching perturbs data and regresses the conditional perturbation score. Its population optimum is the marginal perturbed-data score through conditional expectation. It avoids the data Hessian but introduces a noise-level/path design.</p>
+<p>For Gaussian corruption <span class="arithmatex">\(x_t=\alpha_t x_0+\sigma_t\epsilon\)</span>, the conditional score is</p>
+<div class="arithmatex">\[
+\nabla_{x_t}\log p(x_t\mid x_0)
+=-\frac{x_t-\alpha_t x_0}{\sigma_t^2}
+=-\frac{\epsilon}{\sigma_t}.
+\]</div>
+<p>The marginal score is its posterior conditional expectation given <span class="arithmatex">\(x_t\)</span>; the two are not equal sample by sample. This distinction is the reason a network trained on conditional targets can recover a marginal field at the population optimum.</p>
+<p>Integration by parts requires differentiability and vanishing or controlled boundary terms. On bounded domains, manifolds, or discrete spaces, ordinary Euclidean score matching must be modified. A low score-matching loss at noisy levels also does not automatically imply accurate normalized likelihood at the data endpoint.</p>
+<h2 id="6-noise-contrastive-estimation">6. Noise-Contrastive Estimation<a class="headerlink" href="#6-noise-contrastive-estimation" title="Permanent link">¤</a></h2>
+<p>NCE turns unnormalized density estimation into classification between data and known noise. If data-to-noise ratio is <span class="arithmatex">\(1:k\)</span>, the optimal probability that a sample came from data is</p>
+<div class="arithmatex">\[
+P(y=1\mid x)=\frac{p_\theta(x)}{p_\theta(x)+k p_n(x)}.
+\]</div>
+<p>Parameterizing an unnormalized <span class="arithmatex">\(p_\theta\)</span> and, when needed, its log normalizer allows consistent estimation under suitable noise, identifiability, and asymptotic conditions. Poor noise overlap produces an easy classifier but weak density-ratio information.</p>
+<p>NCE differs from negative sampling used as a heuristic embedding objective: consistency as a density estimator depends on the exact classification construction, known noise law, treatment of the normalizer, and asymptotic regime. The number and quality of noise samples trade compute against estimator variance.</p>
+<h3 id="61-the-unnormalized-model-objective-family">6.1 The unnormalized-model objective family<a class="headerlink" href="#61-the-unnormalized-model-objective-family" title="Permanent link">¤</a></h3>
+<p>For <span class="arithmatex">\(p_\theta(x)=e^{-E_\theta(x)}/Z_\theta\)</span>, the likelihood gradient removes explicit evaluation of <span class="arithmatex">\(Z_\theta\)</span> but introduces an exact model expectation. The main alternatives are transformations of this obstacle, not progressively more approximate spellings of one algorithm:</p>
+<div class="md-typeset__table book-table-container"><table id="tbl-objectives-and-statistical-distances-61-the-unnormalized-model-objective-family"><caption class="book-object-caption"><span class="book-object-number">Table OBJ.3.</span> 6.1 The unnormalized-model objective family</caption>
+<thead>
+<tr>
+<th>Transformation</th>
+<th>Population comparison</th>
+<th>Nuisance removed</th>
+<th>New obligation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Exact negative-phase expectation</td>
+<td>Forward KL or likelihood</td>
+<td>Explicit partition-function integral</td>
+<td>Representative samples from the current normalized model</td>
+</tr>
+<tr>
+<td>Finite CD or PCD transition</td>
+<td>Short-run transition contrast</td>
+<td>Equilibrated draw</td>
+<td>Kernel choice, initialization, discretization, mixing, and parameter-drift bias</td>
+</tr>
+<tr>
+<td>Integration by parts</td>
+<td>Fisher divergence</td>
+<td>Partition function, model samples, and unknown data score</td>
+<td>Smooth support, boundary decay, and score derivatives</td>
+</tr>
+<tr>
+<td>Denoising identity</td>
+<td>Fisher divergence at each corrupted marginal</td>
+<td>Clean score and Hessian trace</td>
+<td>Corruption path, noise weighting, and endpoint recovery</td>
+</tr>
+<tr>
+<td>Random projection</td>
+<td>Sliced Fisher divergence or stochastic trace</td>
+<td>Full trace evaluation</td>
+<td>Nondegenerate direction law and projection variance</td>
+</tr>
+<tr>
+<td>Data-versus-noise classification</td>
+<td>Logistic density-ratio objective</td>
+<td>Model samples and normalizer integration</td>
+<td>Known noise density, overlap, class ratio, and fitted intercept</td>
+</tr>
+<tr>
+<td>Stein identity</td>
+<td>Integral probability measure over Stein witnesses</td>
+<td>Partition function and target samples</td>
+<td>Valid operator, boundary behavior, and identifying witness class</td>
+</tr>
+<tr>
+<td>Learned discriminator</td>
+<td>Population data-to-generator density ratio</td>
+<td>Fixed evaluable noise density</td>
+<td>Restricted critic and coupled game optimization</td>
+</tr>
+</tbody>
+</table></div>
+<p>The Langevin Stein operator in <span class="arithmatex">\(d\)</span> dimensions is</p>
+<div class="arithmatex">\[
+(\mathcal T_{p_\theta}f)(x)
+=s_\theta(x)^\top f(x)+\nabla\cdot f(x),
+\]</div>
+<p>and a Stein discrepancy is the supremum of <span class="arithmatex">\(|\mathbb E_P[\mathcal T_{p_\theta}f]|\)</span> over a declared class. It inherits the useful cancellation <span class="arithmatex">\(s_\theta=-\nabla E_\theta\)</span>, but zero identifies equality only when the operator and witness class are sufficiently rich under their regularity assumptions. Kernel Stein discrepancies make the supremum computable for RKHS witnesses; kernel choice and finite-sample estimation remain part of the claim.</p>
+<p>The <a href="../ebm-explained/#the-objective-tree-what-each-transformation-removes">EBM objective chapter</a> carries one quadratic Gaussian through MLE, one-step CD, basic and denoising score matching, sliced estimation, NCE, and two Stein witnesses. It also derives the precise boundaries to <a href="../ebm-explained/#denoising-score-matching-the-conditional-target-learns-a-marginal-score">diffusion score learning</a> and <a href="../ebm-explained/#connection-to-adversarial-density-ratio-estimation">adversarial density-ratio estimation</a>. The reusable lesson is to report population identification, finite estimation, and parameter optimization as three separate claims.</p>
+<h2 id="7-conditional-regression-as-marginal-learning">7. Conditional Regression as Marginal Learning<a class="headerlink" href="#7-conditional-regression-as-marginal-learning" title="Permanent link">¤</a></h2>
+<p>Diffusion and flow matching often create tractable conditional targets <span class="arithmatex">\(u(x_t\mid x_1)\)</span> and train</p>
+<div class="arithmatex">\[
+\mathbb E\|u_\theta(x_t,t)-u(x_t\mid x_1)\|^2.
+\]</div>
+<p>The squared-error optimum is</p>
+<div class="arithmatex">\[
+u^*(x,t)=\mathbb E[u(x_t\mid x_1)\mid x_t=x],
+\]</div>
+<p>which is the required marginal field under the construction's assumptions. This conditional-to-marginal regression principle unifies several objectives, but it does not make their paths, samplers, or finite-network errors identical.</p>
+<p>If the loss is weighted by <span class="arithmatex">\(w(t,x_t)\)</span>, the optimum becomes a weighted conditional expectation unless the weight depends only on variables held fixed in the conditioning. Seemingly harmless loss weights can therefore change the learned field, not merely its optimization emphasis.</p>
+<h2 id="support-and-local-objective-retrieval-practice">Support and local-objective retrieval practice<a class="headerlink" href="#support-and-local-objective-retrieval-practice" title="Permanent link">¤</a></h2>
+<details class="question">
+<summary>Retrieval practice: support, scores, and conditional targets</summary>
+<ol>
+<li>Why can smoothing both laws make a divergence finite while changing the original estimation problem?</li>
+<li>Which boundary term must vanish or be controlled in the classical score-matching integration by parts?</li>
+<li>What does noise-contrastive estimation require from its noise distribution?</li>
+<li>Why is a per-pair conditional regression target not automatically the marginal score or velocity?</li>
+</ol>
+<p><strong>Solutions.</strong> (1) It compares convolved distributions and therefore a different support and resolution. (2) The probability-weighted score/model field flux at the support boundary, together with regularity/integrability conditions. (3) Known/evaluable positive density over the relevant data support and a declared sampling ratio. (4) Several latent/clean conditions can produce the same observed state; the population marginal target is their posterior conditional expectation.</p>
+</details>
+<h2 id="support-and-local-objective-synthesis">Support and local-objective synthesis<a class="headerlink" href="#support-and-local-objective-synthesis" title="Permanent link">¤</a></h2>
+<p>Support remedies are modeling decisions: smoothing, changing the comparison,
+and learning a representation answer different questions. Scores and ratios can
+avoid explicit normalizers but introduce derivative, boundary, noise, and
+conditioning contracts. Conditional regression identifies a marginal object
+only through the population averaging identity.</p>
+<h2 id="8-optimal-transport-objectives">8. Optimal Transport Objectives<a class="headerlink" href="#8-optimal-transport-objectives" title="Permanent link">¤</a></h2>
+<h3 id="transport-information-and-composite-objective-learning-objectives">Transport, information, and composite-objective learning objectives<a class="headerlink" href="#transport-information-and-composite-objective-learning-objectives" title="Permanent link">¤</a></h3>
+<p>This projection assumes couplings, KL divergence, and latent-variable learning.
+By the end, you should be able to distinguish primal transport, entropic
+regularization, and learned-critic approximations; derive rate–distortion and
+information-bottleneck operating points; separate VAE rate, distortion, and
+actual code length; and audit composite objectives for scale, estimator,
+identifiability, and Pareto tradeoffs rather than reading coefficients as model
+semantics.</p>
+<p>Optimal transport introduces an explicit geometric cost for moving mass. A
+small distance therefore means little only relative to that chosen ground cost;
+raw pixels, learned features, molecular coordinates, and manifold geodesics
+encode different notions of a useful move.</p>
+<p>The primal transport problem is</p>
+<div class="arithmatex">\[
+W_c(p,q)=\inf_{\pi\in\Pi(p,q)}\mathbb E_{(x,y)\sim\pi}[c(x,y)].
+\]</div>
+<p>Choosing a coupling affects path geometry and regression variance. Entropic regularization trades exact transport cost for smoother, computationally tractable couplings and leads to Sinkhorn algorithms and Schrödinger bridges. A minibatch OT coupling is itself an approximation whose bias depends on batch construction.</p>
+<p>The dynamic Benamou–Brenier formulation writes quadratic transport as</p>
+<div class="arithmatex">\[
+W_2^2(p_0,p_1)=
+\inf_{(p_t,v_t)}\int_0^1\mathbb E_{x\sim p_t}\|v_t(x)\|^2dt
+\]</div>
+<p>subject to <span class="arithmatex">\(\partial_t p_t+\nabla\cdot(p_tv_t)=0\)</span> and the endpoint distributions. Flow matching may learn a vector field along a chosen probability path without solving this minimum-action problem. Using an OT coupling can straighten paths and reduce target variance, but “flow matching” and “optimal transport” are not synonyms.</p>
+<h2 id="9-ratedistortion-and-information-bottlenecks">9. Rate–Distortion and Information Bottlenecks<a class="headerlink" href="#9-ratedistortion-and-information-bottlenecks" title="Permanent link">¤</a></h2>
+<p>The <a href="../information-coding-and-generative-modeling/#4-ratedistortion-learned-codecs-and-generative-reconstruction">Information, Coding, and Generative Models</a> volume supplies the source-coding theorem, mutual-information prerequisites, operational channel distinctions, and description-length boundaries. This section retains the objective-centered derivation needed to compare generative training losses.</p>
+<p>Lossless coding asks the decoder to recover a discrete message exactly. <strong>Lossy</strong> coding permits a reconstruction <span class="arithmatex">\(\hat X\)</span> and must therefore state what counts as an error. For a block <span class="arithmatex">\(X^n\)</span>, an encoder emits a finite bitstring <span class="arithmatex">\(M\)</span> and a decoder maps it to <span class="arithmatex">\(\hat X^n\)</span>. Two operational quantities are</p>
+<div class="arithmatex">\[
+\begin{aligned}
+R_n
+&amp;=\frac{\mathbb E[|M|]}{n},\\
+D_n
+&amp;=\frac1n\mathbb E\!\left[
+\sum_{i=1}^{n}d(X_i,\hat X_i)
+\right].
+\end{aligned}
+\]</div>
+<p>The <strong>rate</strong> counts transmitted bits, including whatever the protocol requires. The <strong>distortion</strong> is an expected task-declared cost, such as squared error, a perceptual feature distance, or a domain-specific penalty. Zero distortion means exact recovery only when <span class="arithmatex">\(d(x,\hat x)=0\)</span> implies <span class="arithmatex">\(x=\hat x\)</span>.</p>
+<figure class="book-figure" id="fig-objectives-and-statistical-distances-9-ratedistortion-and-information-bottlenecks"><pre class="mermaid"><code>flowchart TB
+    X["Source block&amp;nbsp;$$X^n$$"] --&gt; E[Encoder]
+    E --&gt; M["Bitstream&amp;nbsp;$$M$$&amp;nbsp;&lt;br/&gt;rate&amp;nbsp;$$R_n$$"]
+    M --&gt; C[Decoder]
+    C --&gt; H["Reconstruction&amp;nbsp;$$\hat X^n$$"]
+    X -. reference .-&gt; D["Distortion&amp;nbsp;$$d$$"]
+    H -. compare .-&gt; D</code></pre><figcaption class="book-object-caption"><span class="book-object-number">Figure OBJ.2.</span> 9. Rate–Distortion and Information Bottlenecks</figcaption></figure>
+<p>For a memoryless source and the usual asymptotic block-coding assumptions, Shannon's rate–distortion function is</p>
+<div class="arithmatex">\[
+R(D_0)=
+\inf_{r(\hat x\mid x):\,
+\mathbb E[d(X,\hat X)]\leq D_0}
+I(X;\hat X).
+\]</div>
+<p>It gives the minimum asymptotic rate compatible with expected distortion at most <span class="arithmatex">\(D_0\)</span> under the declared source and distortion. It is not the loss of a particular neural codec, and one finite architecture need not attain it. The original fidelity-criterion coding theorem is due to <a href="https://ieeexplore.ieee.org/document/5311476">Shannon (1959)</a>.</p>
+<h3 id="lagrangians-select-operating-points">Lagrangians select operating points<a class="headerlink" href="#lagrangians-select-operating-points" title="Permanent link">¤</a></h3>
+<p>Constrained coding problems are commonly trained with either</p>
+<div class="arithmatex">\[
+R+\lambda D
+\qquad\text{or}\qquad
+D+\beta R.
+\]</div>
+<p>These conventions invert the role and units of the multiplier: <span class="arithmatex">\(\lambda\)</span> prices distortion in bits, whereas <span class="arithmatex">\(\beta\)</span> prices rate in distortion units. Increasing <span class="arithmatex">\(\beta\)</span> in the second convention favors lower rate, not universally “better compression,” because the chosen distortion may ignore important information. Lagrangian sweeps recover supported points of an ideal convex trade-off; finite data, quantization relaxations, non-convex networks, and imperfect optimization can leave gaps or dominated solutions.</p>
+<h3 id="learned-codecs-have-several-rates">Learned codecs have several rates<a class="headerlink" href="#learned-codecs-have-several-rates" title="Permanent link">¤</a></h3>
+<p>Let a learned encoder quantize to <span class="arithmatex">\(\hat z\)</span> and let an entropy model be <span class="arithmatex">\(m_\psi(\hat z)\)</span>. Its model-based ideal rate is</p>
+<div class="arithmatex">\[
+R_{\mathrm{model}}
+=\mathbb E[-\log_2m_\psi(\hat Z)].
+\]</div>
+<p>An arithmetic or ANS implementation turns those probabilities into a bitstream. Actual rate also includes finite-precision and termination overhead, side information, model headers when they are not shared, container metadata, and padding. Token count, latent scalar count, vocabulary size, empirical token entropy, entropy-model cross-entropy, and measured file size are consequently different quantities. End-to-end learned compression optimizes this rate proxy jointly with distortion; see <a href="https://openreview.net/forum?id=rJxdQ3jeg">Ballé, Laparra, and Simoncelli (2017)</a> and the later scale-hyperprior construction of <a href="https://openreview.net/forum?id=rkcQFMZRb">Ballé et al. (2018)</a>.</p>
+<h3 id="vae-rate-distortion-and-bits-back">VAE rate, distortion, and bits back<a class="headerlink" href="#vae-rate-distortion-and-bits-back" title="Permanent link">¤</a></h3>
+<p>Latent probabilistic models often use the variational quantities</p>
+<div class="arithmatex">\[
+R_{\mathrm{var}}
+=\mathbb E_xD_{\mathrm{KL}}(q(z\mid x)\|p(z)),
+\qquad
+D_{\mathrm{NLL}}
+=-\mathbb E_{x,z}\log p(x\mid z).
+\]</div>
+<p>With base-two logarithms, their sum is the negative ELBO in bits. A naive two-part code appears to pay the cross-entropy of <span class="arithmatex">\(q(z\mid x)\)</span> under <span class="arithmatex">\(p(z)\)</span> plus the residual code under <span class="arithmatex">\(p(x\mid z)\)</span>. A bits-back construction uses initial random coder state to choose <span class="arithmatex">\(z\sim q(z\mid x)\)</span> and recovers information corresponding to <span class="arithmatex">\(-\log_2q(z\mid x)\)</span> during decoding. Its net ideal expected cost is therefore</p>
+<div class="arithmatex">\[
+\begin{aligned}
+-\operatorname{ELBO}_2(x)
+&amp;=\mathbb E_{q(z\mid x)}\!\left[
+-\log_2p(x,z)\right.\\
+&amp;\qquad\left.+\log_2q(z\mid x)
+\right].
+\end{aligned}
+\]</div>
+<p>This is a coding interpretation with conditions, not a claim that an ordinary VAE checkpoint is already a compressor. A concrete implementation needs a discrete coding construction, synchronized probability tables, an initial bit reservoir, and a strategy such as message chaining to amortize startup cost. Approximate inference and finite coder precision create overhead. <a href="https://openreview.net/forum?id=ryE98iR5tm">Townsend, Bird, and Barber (2019)</a> demonstrate a practical lossless bits-back construction using ANS.</p>
+<p>Changing <span class="arithmatex">\(\beta\)</span> in a <span class="arithmatex">\(\beta\)</span>-VAE optimizes</p>
+<div class="arithmatex">\[
+D_{\mathrm{NLL}}+\beta R_{\mathrm{var}}.
+\]</div>
+<p>This is a variational compression trade-off, not a guarantee of disentanglement and not automatically the operational rate–distortion curve of a deployed codec. Learned representations must be evaluated both for reconstruction and for how easily a downstream prior models their latents.</p>
+<p>The variational rate decomposes into mutual information plus aggregate-posterior mismatch:</p>
+<div class="arithmatex">\[
+\mathbb E_xD_{\mathrm{KL}}(q(z\mid x)\|p(z))
+=I_q(X;Z)+D_{\mathrm{KL}}(q(z)\|p(z)).
+\]</div>
+<p>Thus a lower variational rate can mean less instance information, better prior matching, or both. It upper-bounds <span class="arithmatex">\(I_q(X;Z)\)</span>, but it is not simply “the information in the latent” unless the aggregate posterior matches the prior. Distortion also depends on the decoder likelihood: pixel MSE corresponds to a fixed-variance Gaussian assumption, not a universal perceptual distance.</p>
+<h3 id="distortion-is-not-perception-or-utility">Distortion is not perception or utility<a class="headerlink" href="#distortion-is-not-perception-or-utility" title="Permanent link">¤</a></h3>
+<p>Two reconstructions can have the same average distortion while differing in realism, semantic correctness, or downstream value. Conversely, a perceptually plausible decoder may replace an uncertain detail with a realistic but incorrect one. The <a href="https://openaccess.thecvf.com/content_cvpr_2018/html/Blau_The_Perception-Distortion_Tradeoff_CVPR_2018_paper.html">perception–distortion result of Blau and Michaeli (2018)</a> formalizes a conflict between reconstruction distortion and distributional perceptual quality under its assumptions. Scientific, medical, identity, text, and control applications must report fidelity to the particular information that matters rather than treating visual plausibility as a universal distortion measure.</p>
+<div class="admonition question">
+<p class="admonition-title">Misconception check</p>
+<p>A tokenizer maps a <span class="arithmatex">\(256\times256\)</span> image to <span class="arithmatex">\(16\times16\)</span> categorical tokens from a vocabulary of size 8192. Has the image been compressed to exactly <span class="arithmatex">\(256\log_2 8192=3328\)</span> bits?</p>
+<p><strong>Solution.</strong> No. That is a nominal fixed-width index count. Actual storage depends on the token distribution, context-dependent entropy model, entropy coder, side information, headers, and implementation overhead. If the tokens are never serialized—for example, they only reduce a latent generator's compute—there may be no bitstream at all.</p>
+</div>
+<h2 id="10-composite-objectives-and-identifiability">10. Composite Objectives and Identifiability<a class="headerlink" href="#10-composite-objectives-and-identifiability" title="Permanent link">¤</a></h2>
+<p>Modern systems often combine reconstruction, adversarial, perceptual, score, preference, and regularization terms:</p>
+<div class="arithmatex">\[
+\mathcal J(\theta)=\sum_j\lambda_j\mathcal J_j(\theta).
+\]</div>
+<p>This sum generally does not minimize one named divergence unless a derivation proves it. Scale depends on reduction, feature dimension, noise level, and critic state, so coefficient values are not portable defaults. Report each term, its units/reduction, gradient norms or conflicts, and ablations.</p>
+<p>A reward or constraint can also define a new endpoint target
+<span class="arithmatex">\(\pi(x)\propto p_0(x)w(x)\)</span>. That change of measure is distinct from adding
+<span class="arithmatex">\(w\)</span> as an uncalibrated training penalty. The <a href="../conditioning-steering-and-constraints/#1-begin-with-the-target-not-the-steering-algorithm">target-law
+chapter</a>
+separates likelihood conditioning, exponential tilting, hard feasibility, and
+the algorithms used to approximate each target.</p>
+<p>Even if a discrepancy identifies the data distribution over observations, it need not identify latent variables, causal mechanisms, or a unique parameter vector. Distributional identifiability and representation identifiability are different research questions.</p>
+<h2 id="transport-and-information-retrieval-practice">Transport and information retrieval practice<a class="headerlink" href="#transport-and-information-retrieval-practice" title="Permanent link">¤</a></h2>
+<details class="question">
+<summary>Retrieval practice: transport, rate, and composite losses</summary>
+<ol>
+<li>Which choice makes an optimal-transport distance depend on geometry rather than only probability mass?</li>
+<li>How does entropic regularization change the coupling objective?</li>
+<li>Why is the expected KL in a VAE not automatically the number of bits written by a practical codec?</li>
+<li>What should be reported when a composite loss improves one metric and worsens another?</li>
+</ol>
+<p><strong>Solutions.</strong> (1) The ground cost/metric and its scale. (2) It trades transport cost against coupling entropy or KL to a reference, smoothing the solution and changing the estimand at finite regularization. (3) Actual coding also depends on the aggregated latent distribution, prior mismatch, bits-back protocol, quantization, entropy coder, and overhead. (4) The full Pareto tradeoff, coefficient normalization, estimator variance, training budget, uncertainty, and the intended decision criterion rather than a single selected score.</p>
+</details>
+<h2 id="transport-and-information-synthesis">Transport and information synthesis<a class="headerlink" href="#transport-and-information-synthesis" title="Permanent link">¤</a></h2>
+<p>Transport objectives require a geometry and coupling class. Information
+Lagrangians choose operating points rather than universally optimal models, and
+learned codecs distinguish variational rates from realized code lengths.
+Composite losses combine estimands with scale and optimization interactions, so
+their coefficients must be treated as an explicit multi-objective design.</p>
+<h2 id="worked-example-mmd-for-two-point-masses">Worked Example: MMD for Two Point Masses<a class="headerlink" href="#worked-example-mmd-for-two-point-masses" title="Permanent link">¤</a></h2>
+<h3 id="objective-selection-capstone-learning-objectives">Objective-selection capstone learning objectives<a class="headerlink" href="#objective-selection-capstone-learning-objectives" title="Permanent link">¤</a></h3>
+<p>This capstone assumes the discrepancy, support, transport, and information
+chapters. By the end, you should be able to compute MMD on a finite example,
+convert a calibrated classifier into a density-ratio estimate and generator
+update, choose an objective from available information and support geometry,
+and use the checklist to separate the population discrepancy from its estimator,
+optimization, and deployed sampling procedure.</p>
+<p>Let <span class="arithmatex">\(p=\delta_0\)</span>, <span class="arithmatex">\(q=\delta_a\)</span>, and use the RBF kernel <span class="arithmatex">\(k(x,y)=\exp(-(x-y)^2/(2\sigma^2))\)</span>. Then</p>
+<div class="arithmatex">\[
+\operatorname{MMD}^2(p,q)
+=2-2\exp\left(-\frac{a^2}{2\sigma^2}\right).
+\]</div>
+<p>For <span class="arithmatex">\(|a|\gg\sigma\)</span>, MMD approaches <span class="arithmatex">\(2\)</span> and its gradient with respect to <span class="arithmatex">\(a\)</span> becomes small; for <span class="arithmatex">\(\sigma\)</span> too large, distinct points look similar. Multi-scale kernels mitigate but do not remove representation and bandwidth choices.</p>
+<h2 id="worked-example-from-a-classifier-to-a-ratio-value-and-generator-step">Worked Example: From a Classifier to a Ratio, Value, and Generator Step<a class="headerlink" href="#worked-example-from-a-classifier-to-a-ratio-value-and-generator-step" title="Permanent link">¤</a></h2>
+<p>Let the data law be <span class="arithmatex">\(p=(0.75,0.25)\)</span> and let the model family be <span class="arithmatex">\(q_\theta=(\theta,1-\theta)\)</span> on outcomes <span class="arithmatex">\((a,b)\)</span>. Begin at <span class="arithmatex">\(\theta=0.5\)</span> and construct a balanced real-versus-generated classification problem. Its joint class masses are</p>
+<div class="md-typeset__table book-table-container"><table id="tbl-objectives-and-statistical-distances-worked-example-from-a-classifier-to-a-ratio-value-and-generator-step"><caption class="book-object-caption"><span class="book-object-number">Table OBJ.4.</span> Worked Example: From a Classifier to a Ratio, Value, and Generator Step</caption>
+<thead>
+<tr>
+<th>Outcome</th>
+<th style="text-align: right;">real class, <span class="arithmatex">\(\tfrac12p(x)\)</span></th>
+<th style="text-align: right;">generated class, <span class="arithmatex">\(\tfrac12q_{0.5}(x)\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="arithmatex">\(a\)</span></td>
+<td style="text-align: right;"><span class="arithmatex">\(0.375\)</span></td>
+<td style="text-align: right;"><span class="arithmatex">\(0.25\)</span></td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(b\)</span></td>
+<td style="text-align: right;"><span class="arithmatex">\(0.125\)</span></td>
+<td style="text-align: right;"><span class="arithmatex">\(0.25\)</span></td>
+</tr>
+</tbody>
+</table></div>
+<p>Dividing each real-class mass by the total mass at that outcome gives the Bayes classifier:</p>
+<div class="arithmatex">\[
+D^*(a)=\frac{0.75}{0.75+0.5}=0.6,
+\qquad
+D^*(b)=\frac{0.25}{0.25+0.5}=\frac13.
+\]</div>
+<p>Its odds recover the density ratios:</p>
+<div class="arithmatex">\[
+\frac{D^*(a)}{1-D^*(a)}=1.5=\frac{p_{\mathrm{data}}(a)}{p_g(a)},
+\]</div>
+<div class="arithmatex">\[
+\frac{D^*(b)}{1-D^*(b)}=0.5=\frac{p_{\mathrm{data}}(b)}{p_g(b)}.
+\]</div>
+<p>With unequal class priors, these raw odds would also contain the prior odds; the correction <span class="arithmatex">\((1-\pi)/\pi\)</span> is essential. The classifier is therefore not merely labeling individual samples. At its population optimum, with declared priors, it represents a pointwise relation between the two laws.</p>
+<p>Now keep the equal-prior convention used by the original GAN value, which omits factors of <span class="arithmatex">\(1/2\)</span>. Substitution gives</p>
+<div class="arithmatex">\[
+V(D^*,q_{0.5})=-1.318650
+=-\log4+2D_{\mathrm{JS}}(p\|q_{0.5}),
+\]</div>
+<p>so <span class="arithmatex">\(D_{\mathrm{JS}}(p\|q_{0.5})=0.033822\)</span> nats. This is the <strong>optimized population value</strong> for the current <span class="arithmatex">\(q\)</span>; it is not yet a prescription for a finite generator update.</p>
+<h3 id="frozen-discriminator-losses-are-different-functions">Frozen-Discriminator Losses Are Different Functions<a class="headerlink" href="#frozen-discriminator-losses-are-different-functions" title="Permanent link">¤</a></h3>
+<p>To see why, freeze the two classifier outputs and compare two generator losses. The minimax generator term is</p>
+<div class="arithmatex">\[
+L_{\mathrm{MM}}(\theta)
+=\theta\log(1-0.6)+(1-\theta)\log(1-1/3),
+\]</div>
+<p>whereas the non-saturating loss is</p>
+<div class="arithmatex">\[
+L_{\mathrm{NS}}(\theta)
+=-\theta\log0.6-(1-\theta)\log(1/3).
+\]</div>
+<p>At <span class="arithmatex">\(\theta=0.5\)</span> their values and derivatives are</p>
+<div class="arithmatex">\[
+\begin{array}{c|c|c}
+&amp;L(0.5)&amp;dL/d\theta\\ \hline
+L_{\mathrm{MM}}&amp;-0.660878&amp;\log0.6=-0.510826\\
+L_{\mathrm{NS}}&amp;0.804719&amp;\log(5/9)=-0.587787.
+\end{array}
+\]</div>
+<p>Gradient descent increases <span class="arithmatex">\(\theta\)</span> in both frozen-classifier calculations, toward the target value <span class="arithmatex">\(0.75\)</span>, but the objectives and gradients are not equal. Reoptimizing <span class="arithmatex">\(D\)</span> after <span class="arithmatex">\(\theta\)</span> changes produces yet another function of <span class="arithmatex">\(\theta\)</span>. Equating a frozen-discriminator derivative with the derivative of the optimized value requires the relevant envelope-theorem assumptions and the same underlying objective; it cannot be assumed for the non-saturating replacement.</p>
+<p>Finally, a finite classifier can memorize sample identity, and alternating neural updates need not track <span class="arithmatex">\(D^*_{q_\theta}\)</span>. Held-out discrimination, regularization, generator-side coverage metrics, and game dynamics therefore remain necessary even though every population number in this example is exact.</p>
+<h2 id="primary-and-archival-reading-trail">Primary and Archival Reading Trail<a class="headerlink" href="#primary-and-archival-reading-trail" title="Permanent link">¤</a></h2>
+<ul>
+<li><a href="https://real.mtak.hu/196543/">Csiszár, <em>Information-Type Measures of Difference of Probability Distributions and Indirect Observations</em></a> — measure-level divergence constructions and information monotonicity.</li>
+<li><a href="https://doi.org/10.1214/12-EJS722">Sriperumbudur et al., <em>On the Empirical Estimation of Integral Probability Metrics</em></a> — function-class assumptions and empirical estimation for IPMs.</li>
+<li><a href="https://www.jmlr.org/papers/v13/gretton12a.html">Gretton et al., <em>A Kernel Two-Sample Test</em></a> — characteristic-kernel MMD, biased and unbiased estimators, null calibration, power, and linear-time tests.</li>
+<li><a href="https://proceedings.neurips.cc/paper_files/paper/2016/hash/cedebb6e872f539bef8c3f919874e9d7-Abstract.html">Nowozin, Cseke, and Tomioka, <em>f-GAN: Training Generative Neural Samplers Using Variational Divergence Minimization</em></a> — convex-dual variational bounds and their adversarial implementation.</li>
+</ul>
+<h2 id="objective-selection-checklist">Objective Selection Checklist<a class="headerlink" href="#objective-selection-checklist" title="Permanent link">¤</a></h2>
+<p>Before selecting or naming an objective, answer:</p>
+<ol>
+<li>What population distributional quantity does it identify, if any?</li>
+<li>Does the claim require an optimal critic, score, posterior, or coupling?</li>
+<li>Which density/support/reference-measure assumptions are required?</li>
+<li>Is the implemented estimator biased, and how does variance scale?</li>
+<li>What representation or kernel defines perceptual similarity?</li>
+<li>Which finite-sample failure is invisible to the loss?</li>
+<li>Which sampler is used at evaluation, and does training control its error?</li>
+<li>Are multiple loss terms being presented as one named divergence without proof?</li>
+</ol>
+<h2 id="retrieval-check">Retrieval Check<a class="headerlink" href="#retrieval-check" title="Permanent link">¤</a></h2>
+<ol>
+<li>When does the original GAN objective equal a JS-divergence expression?</li>
+<li>What property of <span class="arithmatex">\(\mathcal F\)</span> makes Wasserstein-1 different from an arbitrary critic IPM?</li>
+<li>Why can denoising regression learn a marginal score from conditional targets?</li>
+<li>Does a characteristic kernel make every finite-sample MMD estimate reliable?</li>
+<li>Why may an unbiased MMD U-statistic be negative?</li>
+<li>When does conditional target regression learn a marginal vector or score field?</li>
+<li>Why is an OT coupling useful in flow matching without making every flow an optimal transport?</li>
+<li>Why does Gaussian smoothing not necessarily destroy population identifiability?</li>
+<li>Which two errors control the decoded <span class="arithmatex">\(W_1\)</span> bound for a two-stage generator?</li>
+<li>Why does population identification not guarantee a useful generator update?</li>
+<li>Why is a tokenizer's token count not its operational bitrate?</li>
+<li>Why does the VAE variational rate upper-bound rather than generally equal <span class="arithmatex">\(I_q(X;Z)\)</span>?</li>
+<li>What quantity does a bits-back construction recover from a naive latent two-part code?</li>
+<li>Why can the non-saturating GAN loss share the distribution-matching fixed point without being the derivative of the optimized JS value?</li>
+<li>Why must an <span class="arithmatex">\(f\)</span>-divergence define what happens where <span class="arithmatex">\(q=0\)</span>?</li>
+<li>Which of <span class="arithmatex">\(H\)</span> and <span class="arithmatex">\(H^2\)</span> is guaranteed to be a metric?</li>
+<li>Why is an MMD value computed on a validation minibatch not automatically a level-<span class="arithmatex">\(\alpha\)</span> two-sample test?</li>
+<li>What must be stated before comparing two reported chi-squared divergences?</li>
+</ol>
+<details class="success">
+<summary>Solutions</summary>
+<ol>
+<li>After optimizing the discriminator to its population optimum for the current generator.</li>
+<li>The critic class is the set of 1-Lipschitz functions.</li>
+<li>The squared-error population optimum is the conditional expectation of the conditional target given the noisy state.</li>
+<li>No. It gives population identifiability; finite-sample power and gradients still depend on kernel, representation, and sample size.</li>
+<li>Finite-sample estimator noise can cross zero even though the population squared discrepancy is nonnegative.</li>
+<li>At the population squared-error optimum, under the construction's conditional-expectation identity and weighting assumptions.</li>
+<li>It can reduce path curvature and regression variance, but the learned path need not solve the minimum-action OT problem.</li>
+<li>Gaussian convolution has a nowhere-zero characteristic function, so equality of the convolved laws implies equality of the original laws. Bandwidth still changes finite-resolution estimation and optimization.</li>
+<li>Observation-space reconstruction error and latent-law mismatch, with the latter amplified by the decoder's Lipschitz constant.</li>
+<li>A finite estimator may have high variance or low test power, and a restricted or underoptimized witness may provide a poor parameter-space gradient even when the population optimum is unique.</li>
+<li>Token count omits symbol probabilities, contextual redundancy, precision, side information, entropy-coder overhead, and even whether the tokens are serialized.</li>
+<li>It equals <span class="arithmatex">\(I_q(X;Z)+D_{\mathrm{KL}}(q(z)\|p(z))\)</span>; prior mismatch supplies a nonnegative extra term.</li>
+<li>It recovers information associated with the posterior sampling choice, ideally <span class="arithmatex">\(-\log_2q(z\mid x)\)</span> bits, leaving the negative ELBO as the net expected rate.</li>
+<li>It replaces the generator half of the minimax objective while holding the current discriminator fixed. Sharing an ideal fixed point does not make its finite-step gradient equal to the derivative obtained after optimizing the discriminator in the original minimax value.</li>
+<li>Singular mass can lie where <span class="arithmatex">\(P\)</span> is positive and <span class="arithmatex">\(Q\)</span> is zero. The extended-value convention determines whether and how that mass contributes; for forward KL it makes the divergence infinite.</li>
+<li><span class="arithmatex">\(H\)</span> is a metric. Its square is an <span class="arithmatex">\(f\)</span>-divergence but generally fails the triangle inequality.</li>
+<li>A hypothesis test additionally needs a declared statistic, null calibration, significance threshold, and treatment of kernel selection and repeated or adaptive inspection.</li>
+<li>The orientation of <span class="arithmatex">\(P\)</span> and <span class="arithmatex">\(Q\)</span>, the normalization factor, the common dominating measure or support convention, and the treatment of zero denominator density.</li>
+</ol>
+</details>
+<h2 id="summary-and-next-step">Summary and Next Step<a class="headerlink" href="#summary-and-next-step" title="Permanent link">¤</a></h2>
+<p>Objectives expose different information through different estimators. Divergence names apply only when their auxiliary optima and assumptions hold. Support mismatch can be addressed by smoothing, a support-compatible discrepancy, or a learned state space, but each route changes a different object and carries different identification and optimization conditions. Rate–distortion analysis likewise requires separating transmitted bits, model cross-entropy, variational KL, reconstruction cost, perception, and task utility. Continue with <a href="../graphical-models-and-structured-probability/">Graphical Models and Structured Probability</a> to see how factorization and normalization determine which likelihood, composite, and conditional objectives are available; use <a href="../sampling-and-continuous-time/">Sampling and Continuous-Time Generative Mathematics</a> to study how a learned distribution or field becomes actual samples; and use <a href="../optimization-and-learning-dynamics/">Optimization and Learning Dynamics</a> to audit stochastic gradients, games, latent bounds, and transport algorithms separately from their population objectives.</p>
+</article>
+</div>
+<script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  Back to top
+</button>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+<div class="md-social">
+<a class="md-social__link" href="https://github.com/avitai/artifex" rel="noopener" target="_blank" title="github.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</a>
+<a class="md-social__link" href="https://pypi.org/project/avitai-artifex/" rel="noopener" target="_blank" title="pypi.org">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-66.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.3v101.8c0 29 25.2 46 53.4 54.3 33.8 9.9 66.3 11.7 106.8 0 26.9-7.8 53.4-23.5 53.4-54.3v-40.7H226.2v-13.6h160.2c31.1 0 42.6-21.7 53.4-54.2 11.2-33.5 10.7-65.7 0-108.6M286.2 444.7a20.4 20.4 0 1 1 0-40.7 20.4 20.4 0 1 1 0 40.7M167.8 248.1h106.8c29.7 0 53.4-24.5 53.4-54.3V91.9c0-29-24.4-50.7-53.4-55.6-35.8-5.9-74.7-5.6-106.8.1-45.2 8-53.4 24.7-53.4 55.6v40.7h106.9v13.6h-147c-31.1 0-58.3 18.7-66.8 54.2-9.8 40.7-10.2 66.1 0 108.6 7.6 31.6 25.7 54.2 56.8 54.2H101v-48.8c0-35.3 30.5-66.4 66.8-66.4m-6.6-183.4a20.4 20.4 0 1 1 0 40.8 20.4 20.4 0 1 1 0-40.8"></path></svg>
+</a>
+<a class="md-social__link" href="https://twitter.com/mahdi_shafiei" rel="noopener" target="_blank" title="twitter.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M459.4 151.7c.3 4.5.3 9.1.3 13.6 0 138.7-105.6 298.6-298.6 298.6-59.5 0-114.7-17.2-161.1-47.1 8.4 1 16.6 1.3 25.3 1.3 49.1 0 94.2-16.6 130.3-44.8-46.1-1-84.8-31.2-98.1-72.8 6.5 1 13 1.6 19.8 1.6 9.4 0 18.8-1.3 27.6-3.6-48.1-9.7-84.1-52-84.1-103v-1.3c14 7.8 30.2 12.7 47.4 13.3-28.3-18.8-46.8-51-46.8-87.4 0-19.5 5.2-37.4 14.3-53C87.4 130.8 165 172.4 252.1 176.9c-1.6-7.8-2.6-15.9-2.6-24C249.5 95.1 296.3 48 354.4 48c30.2 0 57.5 12.7 76.7 33.1 23.7-4.5 46.5-13.3 66.6-25.3-7.8 24.4-24.4 44.8-46.1 57.8 21.1-2.3 41.6-8.1 60.4-16.2-14.3 20.8-32.2 39.3-52.6 54.3"></path></svg>
+</a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.path", "navigation.top", "navigation.prune", "toc.follow", "search.highlight", "search.share", "search.suggest", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "content.mermaid"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+<script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+<script src="../../../javascripts/reading-layout.js"></script>
+</body>
+</html>

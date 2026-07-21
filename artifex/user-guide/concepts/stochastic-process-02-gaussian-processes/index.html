@@ -1,0 +1,2088 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="This chapter constructs a random function from compatible finite GP laws, derives joint and sequential conditioning, studies learned priors, and then develops" name="description"/>
+<meta content="Mahdi Shafiei" name="author"/>
+<link href="https://docs.avitai.bio/artifex/user-guide/concepts/stochastic-process-02-gaussian-processes/" rel="canonical"/>
+<link href="../stochastic-process-01-foundations/" rel="prev"/>
+<link href="../stochastic-process-03-neural-processes/" rel="next"/>
+<link href="../../../assets/images/favicon.png" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.7.7" name="generator"/>
+<title>Stochastic-Process Generators 2 — Gaussian Processes - Artifex</title>
+<link href="../../../assets/stylesheets/main.ec1eaa64.min.css" rel="stylesheet"/>
+<link href="../../../assets/stylesheets/palette.ab4e12ef.min.css" rel="stylesheet"/>
+<script src="../../../assets/vendor/iframe-worker/index.js"></script>
+<link href="../../../assets/_mkdocstrings.css" rel="stylesheet"/>
+<link href="../../../_static/extra.css" rel="stylesheet"/>
+<script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+<meta content="article" property="og:type"/>
+<meta content="The Artifex Generative Models Book" property="og:site_name"/>
+<meta content="Stochastic-Process Generators 2 — Gaussian Processes" property="og:title"/>
+<meta content="This chapter constructs a random function from compatible finite GP laws, derives joint and sequential conditioning, studies learned priors, and then develops" property="og:description"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/stochastic-process-02-gaussian-processes/" property="og:url"/>
+<meta content="2026-07-19" property="article:modified_time"/>
+<meta content="summary" name="twitter:card"/>
+<meta content="Stochastic-Process Generators 2 — Gaussian Processes" name="twitter:title"/>
+<meta content="This chapter constructs a random function from compatible finite GP laws, derives joint and sequential conditioning, studies learned priors, and then develops" name="twitter:description"/>
+<meta content="Generative models, Machine learning, Probabilistic modeling, advanced, specialization, canonical_chapter, stochastic-process-gaussian-processes, practitioner, researcher" name="keywords"/>
+<meta content="Stochastic-Process Generators 2 — Gaussian Processes" name="citation_title"/>
+<meta content="Mahdi Shafiei" name="citation_author"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/stochastic-process-02-gaussian-processes/" name="citation_public_url"/>
+<meta content="en" name="citation_language"/>
+<meta content="Stochastic-Process Generators 2 — Gaussian Processes" name="DC.title"/>
+<meta content="Mahdi Shafiei" name="DC.creator"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/stochastic-process-02-gaussian-processes/" name="DC.identifier"/>
+<meta content="Text.LearningResource" name="DC.type"/>
+<meta content="2026-07-19" name="DCTERMS.modified"/>
+<meta content="https://github.com/avitai/artifex/blob/main/LICENSE" name="DCTERMS.license"/>
+<meta content="advanced" name="DCTERMS.educationLevel"/>
+<meta content="practitioner, researcher" name="DCTERMS.audience"/>
+<link href="https://github.com/avitai/artifex/blob/main/LICENSE" rel="license"/>
+<script id="artifex-book-metadata" type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Chapter",
+  "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/stochastic-process-02-gaussian-processes/",
+  "url": "https://docs.avitai.bio/artifex/user-guide/concepts/stochastic-process-02-gaussian-processes/",
+  "name": "Stochastic-Process Generators 2 \u2014 Gaussian Processes",
+  "description": "This chapter constructs a random function from compatible finite GP laws, derives joint and sequential conditioning, studies learned priors, and then develops",
+  "identifier": "stochastic-process-gaussian-processes",
+  "inLanguage": "en",
+  "isAccessibleForFree": true,
+  "learningResourceType": "Canonical chapter",
+  "educationalLevel": "advanced",
+  "educationalUse": "specialization",
+  "audience": [
+    
+      {"@type": "EducationalAudience", "audienceType": "practitioner"},
+    
+      {"@type": "EducationalAudience", "audienceType": "researcher"}
+    
+  ],
+  "dateModified": "2026-07-19",
+  "keywords": ["Generative models", "Machine learning", "Probabilistic modeling", "advanced", "specialization", "canonical_chapter", "stochastic-process-gaussian-processes", "practitioner", "researcher"],
+  "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+  "author": [
+    
+      {"@type": "Person", "name": "Mahdi Shafiei"}
+    
+  ],
+  "isPartOf": {
+    "@type": "Book",
+    "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/#book",
+    "url": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/",
+    "name": "The Artifex Generative Models Book",
+    "bookEdition": "Living Web Edition",
+    "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+    "author": [
+      
+        {"@type": "Person", "name": "Mahdi Shafiei"}
+      
+    ]
+  }
+}
+</script>
+<link href="../../../assets/vendor/katex/katex.min.css" id="artifex-katex-stylesheet" integrity="sha384-UA8juhPf75SzzAMA/4fo3yOU7sBJ0om7SCD2GHq0fZqZco6tr1UCV7nUbk9J90JM" rel="stylesheet"/>
+<script defer="" integrity="sha384-T/0lMUdJpd2S1ZHtRiofG3htU3xPCrFVeAQ1UUE2TJwlEJSV5NUwn30kP28n238E" src="../../../assets/vendor/mermaid/mermaid.min.js"></script>
+<script defer="" src="../../../assets/vendor/katex/katex-shadow.js"></script>
+<script defer="" src="../../../javascripts/mermaid-math.js"></script>
+<script defer="" src="../../../javascripts/mathjax.js"></script>
+<script defer="" integrity="sha384-OrHfGTnIbkl0do3N76qW/uWr38o91N05sbSPuYBPLH+hG8X/dNSrjZf3AGjzrCwC" src="../../../assets/vendor/mathjax/tex-mml-chtml.js"></script>
+</head>
+<body data-md-color-accent="amber" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#stochastic-process-generators-2-gaussian-processes">
+          Skip to content
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header md-header--shadow" data-md-component="header">
+<nav aria-label="Header" class="md-header__inner md-grid">
+<a aria-label="Artifex" class="md-header__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            Artifex
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+            
+              Stochastic-Process Generators 2 — Gaussian Processes
+            
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-label="Switch to dark mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: light)" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_1" hidden="" title="Switch to dark mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+<input aria-label="Switch to light mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-primary="indigo" data-md-color-scheme="slate" id="__palette_1" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_0" hidden="" title="Switch to light mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+</form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div aria-label="Search" class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Search" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="Search" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="Search" class="md-search__options">
+<a aria-label="Share" class="md-search__icon md-icon" data-clipboard="" data-clipboard-text="" data-md-component="search-share" href="javascript:void(0)" tabindex="-1" title="Share">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"></path></svg>
+</a>
+<button aria-label="Clear" class="md-search__icon md-icon" tabindex="-1" title="Clear" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            Initializing search
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Navigation" class="md-nav md-nav--primary" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="Artifex" class="md-nav__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+    Artifex
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../..">
+<span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../getting-started/installation/">
+<span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Generative Models Book
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Generative Models Book
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    
+  
+    Start Here — The Landscape
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../first-course-01-generative-systems/">
+<span class="md-ellipsis">
+    
+  
+    First Course — New to Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../probability-01-objects/">
+<span class="md-ellipsis">
+    
+  
+    Foundations
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_4" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_4" id="__nav_3_4_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Model Families
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_4_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_4">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Model Families
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../autoregressive-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Autoregressive Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../vae-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Variational Autoencoders
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gan-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Generative Adversarial Networks
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../ebm-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Energy-Based Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../diffusion-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Diffusion Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../flow-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Normalizing Flows and Flow Matching
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../probabilistic-circuits-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Probabilistic Circuits
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../tensor-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Tensor-Network and Born Probability Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../implicit-generators-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Implicit Generators Beyond GANs
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../discrete-iterative-01-masked/">
+<span class="md-ellipsis">
+    
+  
+    Discrete Iterative Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../bayesian-flow-networks-01-story/">
+<span class="md-ellipsis">
+    
+  
+    Bayesian Flow Networks
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gflownets-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Generative Flow Networks
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../bnp-01-random-measures/">
+<span class="md-ellipsis">
+    
+  
+    Bayesian Nonparametric Random-Measure Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_4_14" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_4_14" id="__nav_3_4_14_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Stochastic-Process and Function-Space Generators
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_4_14_label" class="md-nav" data-md-level="3">
+<label class="md-nav__title" for="__nav_3_4_14">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Stochastic-Process and Function-Space Generators
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../stochastic-process-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    1. Function-Space Foundations
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
+    
+  
+    2. Gaussian Processes
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
+<span class="md-ellipsis">
+    
+  
+    2. Gaussian Processes
+  
+
+    
+  </span>
+</a>
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#2-gaussian-processes-as-the-canonical-function-prior">
+<span class="md-ellipsis">
+      
+        2. Gaussian Processes as the Canonical Function Prior
+      
+    </span>
+</a>
+<nav aria-label="2. Gaussian Processes as the Canonical Function Prior" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-2-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 2 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#from-one-kernel-to-a-random-function">
+<span class="md-ellipsis">
+      
+        From One Kernel to a Random Function
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#a-kernel-is-a-covariance-contract-not-merely-a-similarity-score">
+<span class="md-ellipsis">
+      
+        A Kernel Is a Covariance Contract, Not Merely a Similarity Score
+      
+    </span>
+</a>
+<nav aria-label="A Kernel Is a Covariance Contract, Not Merely a Similarity Score" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#squared-exponential-rbf">
+<span class="md-ellipsis">
+      
+        Squared exponential / RBF
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#matern">
+<span class="md-ellipsis">
+      
+        Matérn
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#periodic">
+<span class="md-ellipsis">
+      
+        Periodic
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#linear">
+<span class="md-ellipsis">
+      
+        Linear
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#white-noise-covariance">
+<span class="md-ellipsis">
+      
+        White-noise covariance
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#building-kernels-without-misreading-the-construction">
+<span class="md-ellipsis">
+      
+        Building Kernels Without Misreading the Construction
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-kernel-design-trend-evolving-seasonality-and-noise">
+<span class="md-ellipsis">
+      
+        Worked Kernel Design: Trend, Evolving Seasonality, and Noise
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#conditioning">
+<span class="md-ellipsis">
+      
+        Conditioning
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-two-point-posterior">
+<span class="md-ellipsis">
+      
+        Worked Two-Point Posterior
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#exact-conditioning-is-an-associativity-property">
+<span class="md-ellipsis">
+      
+        Exact Conditioning Is an Associativity Property
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#marginal-likelihood-and-kernel-learning">
+<span class="md-ellipsis">
+      
+        Marginal Likelihood and Kernel Learning
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#rkhs-functions-and-gp-draws-are-different-objects">
+<span class="md-ellipsis">
+      
+        RKHS Functions and GP Draws Are Different Objects
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#the-observation-model-controls-posterior-tractability">
+<span class="md-ellipsis">
+      
+        The Observation Model Controls Posterior Tractability
+      
+    </span>
+</a>
+<nav aria-label="The Observation Model Controls Posterior Tractability" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-log-gaussian-cox-process-boundary">
+<span class="md-ellipsis">
+      
+        Worked log-Gaussian Cox process boundary
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#learning-a-gp-prior-across-related-functions">
+<span class="md-ellipsis">
+      
+        Learning a GP Prior Across Related Functions
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#scalability">
+<span class="md-ellipsis">
+      
+        Scalability
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#four-different-gp-neural-connections">
+<span class="md-ellipsis">
+      
+        Four Different GP-Neural Connections
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#vector-fields-and-symmetry">
+<span class="md-ellipsis">
+      
+        Vector Fields and Symmetry
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#gp-limitations">
+<span class="md-ellipsis">
+      
+        GP Limitations
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#counterexample-stationarity-at-a-boundary">
+<span class="md-ellipsis">
+      
+        Counterexample: Stationarity at a Boundary
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#independent-practice-and-assessment-map-gaussian-processes">
+<span class="md-ellipsis">
+      
+        Independent practice and assessment map: Gaussian processes
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-2-retrieval-questions">
+<span class="md-ellipsis">
+      
+        Chapter 2 retrieval Questions
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-2-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 2 Synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../stochastic-process-03-neural-processes/">
+<span class="md-ellipsis">
+    
+  
+    3. Neural Processes
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../stochastic-process-04-dynamics/">
+<span class="md-ellipsis">
+    
+  
+    4. Latent Dynamics and SDEs
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../stochastic-process-05-diffusion/">
+<span class="md-ellipsis">
+    
+  
+    5. Function-Space Diffusion
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../stochastic-process-06-practice/">
+<span class="md-ellipsis">
+    
+  
+    6. Evaluation and Research
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../stochastic-process-generators-explained/">
+<span class="md-ellipsis">
+    
+  
+    Continuous View (All Chapters)
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../point-processes-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Point Processes and Random Finite Sets
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../random-graphs-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Random Graphs and Relational Generators
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../copula-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Copula Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../grammar-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Probabilistic Grammars and Program Derivations
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../causal-generative-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Causal Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../new-families-frontier-evidence/">
+<span class="md-ellipsis">
+    
+  
+    Research Evidence Ledger
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gradients-01-taxonomy/">
+<span class="md-ellipsis">
+    
+  
+    Connections and Compositions
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../normalization-01-queries/">
+<span class="md-ellipsis">
+    
+  
+    Research Practice
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../models/vae-guide/">
+<span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/core/base/">
+<span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../examples/overview/">
+<span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../zoo/">
+<span class="md-ellipsis">
+    
+  
+    Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../training/overview/">
+<span class="md-ellipsis">
+    
+  
+    Training
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../data/overview/">
+<span class="md-ellipsis">
+    
+  
+    Data &amp; Modalities
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../inference/overview/">
+<span class="md-ellipsis">
+    
+  
+    Inference &amp; Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../benchmarks/">
+<span class="md-ellipsis">
+    
+  
+    Evaluation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../guides/extensions/">
+<span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../extensions/">
+<span class="md-ellipsis">
+    
+  
+    Advanced Topics
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../cli/">
+<span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../community/contributing/">
+<span class="md-ellipsis">
+    
+  
+    Community
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/configs/protein-extension/">
+<span class="md-ellipsis">
+    
+  
+    Reference Library
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#2-gaussian-processes-as-the-canonical-function-prior">
+<span class="md-ellipsis">
+      
+        2. Gaussian Processes as the Canonical Function Prior
+      
+    </span>
+</a>
+<nav aria-label="2. Gaussian Processes as the Canonical Function Prior" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-2-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 2 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#from-one-kernel-to-a-random-function">
+<span class="md-ellipsis">
+      
+        From One Kernel to a Random Function
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#a-kernel-is-a-covariance-contract-not-merely-a-similarity-score">
+<span class="md-ellipsis">
+      
+        A Kernel Is a Covariance Contract, Not Merely a Similarity Score
+      
+    </span>
+</a>
+<nav aria-label="A Kernel Is a Covariance Contract, Not Merely a Similarity Score" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#squared-exponential-rbf">
+<span class="md-ellipsis">
+      
+        Squared exponential / RBF
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#matern">
+<span class="md-ellipsis">
+      
+        Matérn
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#periodic">
+<span class="md-ellipsis">
+      
+        Periodic
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#linear">
+<span class="md-ellipsis">
+      
+        Linear
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#white-noise-covariance">
+<span class="md-ellipsis">
+      
+        White-noise covariance
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#building-kernels-without-misreading-the-construction">
+<span class="md-ellipsis">
+      
+        Building Kernels Without Misreading the Construction
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-kernel-design-trend-evolving-seasonality-and-noise">
+<span class="md-ellipsis">
+      
+        Worked Kernel Design: Trend, Evolving Seasonality, and Noise
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#conditioning">
+<span class="md-ellipsis">
+      
+        Conditioning
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-two-point-posterior">
+<span class="md-ellipsis">
+      
+        Worked Two-Point Posterior
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#exact-conditioning-is-an-associativity-property">
+<span class="md-ellipsis">
+      
+        Exact Conditioning Is an Associativity Property
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#marginal-likelihood-and-kernel-learning">
+<span class="md-ellipsis">
+      
+        Marginal Likelihood and Kernel Learning
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#rkhs-functions-and-gp-draws-are-different-objects">
+<span class="md-ellipsis">
+      
+        RKHS Functions and GP Draws Are Different Objects
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#the-observation-model-controls-posterior-tractability">
+<span class="md-ellipsis">
+      
+        The Observation Model Controls Posterior Tractability
+      
+    </span>
+</a>
+<nav aria-label="The Observation Model Controls Posterior Tractability" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-log-gaussian-cox-process-boundary">
+<span class="md-ellipsis">
+      
+        Worked log-Gaussian Cox process boundary
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#learning-a-gp-prior-across-related-functions">
+<span class="md-ellipsis">
+      
+        Learning a GP Prior Across Related Functions
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#scalability">
+<span class="md-ellipsis">
+      
+        Scalability
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#four-different-gp-neural-connections">
+<span class="md-ellipsis">
+      
+        Four Different GP-Neural Connections
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#vector-fields-and-symmetry">
+<span class="md-ellipsis">
+      
+        Vector Fields and Symmetry
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#gp-limitations">
+<span class="md-ellipsis">
+      
+        GP Limitations
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#counterexample-stationarity-at-a-boundary">
+<span class="md-ellipsis">
+      
+        Counterexample: Stationarity at a Boundary
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#independent-practice-and-assessment-map-gaussian-processes">
+<span class="md-ellipsis">
+      
+        Independent practice and assessment map: Gaussian processes
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-2-retrieval-questions">
+<span class="md-ellipsis">
+      
+        Chapter 2 retrieval Questions
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-2-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 2 Synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<nav aria-label="Breadcrumb" class="md-path">
+<ol class="md-path__list">
+<li class="md-path__item">
+<a class="md-path__link" href="../../..">
+<span class="md-ellipsis">
+    Home
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    Generative Models Book
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../autoregressive-01-foundations/">
+<span class="md-ellipsis">
+    Model Families
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../stochastic-process-01-foundations/">
+<span class="md-ellipsis">
+    Stochastic-Process and Function-Space Generators
+  </span>
+</a>
+</li>
+</ol>
+</nav>
+<article class="md-content__inner md-typeset">
+<h1 id="stochastic-process-generators-2-gaussian-processes">Stochastic-Process Generators 2 — Gaussian Processes<a class="headerlink" href="#stochastic-process-generators-2-gaussian-processes" title="Permanent link">¤</a></h1><aside aria-label="Learning path" class="admonition abstract artifex-learning-path"><p class="admonition-title">Learning path</p><p><strong>Required knowledge</strong></p><ul class="artifex-learning-path__links" data-learning-path-role="required"><li><a href="../stochastic-process-01-foundations/">Stochastic-Process Generators 1 — Function-Space Foundations</a></li></ul><p><strong>Readiness check:</strong> can you explain the central object and reproduce one worked example from each required chapter? If not, follow its link before continuing.</p><p><strong>Newly unlocked in the default route</strong></p><ul class="artifex-learning-path__links" data-learning-path-role="unlocks"><li><a href="../stochastic-process-03-neural-processes/">Stochastic-Process Generators 3 — Neural Processes</a></li></ul></aside>
+<p>This chapter constructs a random function from compatible finite GP laws, derives joint and sequential conditioning, studies learned priors, and then develops marginal likelihood, scalability, vector fields, and uncertainty limitations. For uninterrupted reading, use the <a href="../stochastic-process-generators-explained/#2-gaussian-processes-as-the-canonical-function-prior">complete guide</a>.</p>
+<h2 id="2-gaussian-processes-as-the-canonical-function-prior">2. Gaussian Processes as the Canonical Function Prior<a class="headerlink" href="#2-gaussian-processes-as-the-canonical-function-prior" title="Permanent link">¤</a></h2>
+<h3 id="chapter-2-prerequisites-and-learning-objectives">Chapter 2 prerequisites and learning objectives<a class="headerlink" href="#chapter-2-prerequisites-and-learning-objectives" title="Permanent link">¤</a></h3>
+<p>This chapter assumes Chapter 1 and multivariate Gaussians. By the end, you
+should be able to construct a GP from mean and positive-semidefinite kernel,
+derive finite posterior prediction and marginal likelihood, distinguish prior,
+latent-function, and noisy-observation uncertainty, analyze kernel and inducing-
+point approximations, and identify where stationarity, smoothness, and Gaussian
+assumptions constrain generated functions.</p>
+<p><strong>Prerequisites.</strong> Chapter 1, multivariate Gaussian conditioning, and linear algebra.</p>
+<p><strong>Numbered learning outcomes.</strong> After completing the chapter, you can:</p>
+<ol>
+<li><strong>O1 — Construct compatible GP laws.</strong> Verify kernel positive semidefiniteness and explain why one mean/kernel pair gives permutation- and projectively consistent finite Gaussians.</li>
+<li><strong>O2 — Derive GP updating.</strong> Compute posterior mean, covariance, sequential conditioning, and marginal likelihood without treating a numerical inverse as an algorithm.</li>
+<li><strong>O3 — Separate uncertainty layers.</strong> Distinguish latent-function covariance, observation noise, jitter, hyperparameter uncertainty, and non-Gaussian likelihood approximation.</li>
+<li><strong>O4 — Audit scalable inference.</strong> Identify whether a method changes the data, kernel/prior, posterior family, conditional approximation, or numerical solve.</li>
+<li><strong>O5 — Connect without conflating.</strong> Separate GP draws from RKHS functions and distinguish NNGP, NTK, deep-kernel, and deep-GP constructions.</li>
+<li><strong>O6 — Diagnose model boundaries.</strong> Evaluate stationarity, boundary behavior, learned geometry, extrapolation, calibration, and empirical-prior shift.</li>
+</ol>
+<p>A Gaussian process (GP)</p>
+<div class="arithmatex">\[
+f\sim\mathcal{GP}(m,k)
+\]</div>
+<p>means every finite vector <span class="arithmatex">\(f_X=(f(x_1),\ldots,f(x_n))\)</span> is Gaussian:</p>
+<div class="arithmatex">\[
+f_X\sim\mathcal N(m_X,K_{XX}),
+\qquad K_{ij}=k(x_i,x_j).
+\]</div>
+<p>A valid kernel is positive semidefinite for every finite input set. It determines covariance, smoothness, stationarity, periodicity, and symmetry assumptions.</p>
+<p>Positive semidefinite means</p>
+<div class="arithmatex">\[
+\sum_{i,j=1}^n a_i a_j k(x_i,x_j)\ge0
+\]</div>
+<p>for every finite <span class="arithmatex">\(X\)</span> and coefficient vector <span class="arithmatex">\(a\)</span>. Symmetry alone is insufficient. Kernel sums and nonnegative scalar products remain kernels; multiplying kernels also preserves validity under standard closure results. Input-dependent neural features can define <span class="arithmatex">\(k_\phi(x,x')=\langle\phi(x),\phi(x')\rangle\)</span>, but their learned extrapolation geometry must be audited.</p>
+<h3 id="from-one-kernel-to-a-random-function">From One Kernel to a Random Function<a class="headerlink" href="#from-one-kernel-to-a-random-function" title="Permanent link">¤</a></h3>
+<p>A GP is not defined by fitting one covariance matrix. One pair of functions <span class="arithmatex">\((m,k)\)</span> supplies a law for <em>every</em> finite ordered query collection <span class="arithmatex">\(X\)</span>:</p>
+<div class="arithmatex">\[
+P_X=\mathcal N(m_X,K_{XX}).
+\]</div>
+<p>These laws are automatically compatible. If a permutation matrix <span class="arithmatex">\(\Pi\)</span> reorders <span class="arithmatex">\(X\)</span>, then the new mean and covariance are <span class="arithmatex">\(\Pi m_X\)</span> and <span class="arithmatex">\(\Pi K_{XX}\Pi^\top\)</span>. If <span class="arithmatex">\(X\subset X'\)</span>, marginalizing the Gaussian law at <span class="arithmatex">\(X'\)</span> to the coordinates in <span class="arithmatex">\(X\)</span> selects the corresponding entries of <span class="arithmatex">\(m_{X'}\)</span> and principal submatrix of <span class="arithmatex">\(K_{X'X'}\)</span>, which are exactly <span class="arithmatex">\(m_X\)</span> and <span class="arithmatex">\(K_{XX}\)</span>. The kernel therefore supplies the permutation and projective consistency required by the extension construction in Chapter 1.</p>
+<p>For example, with the unit-variance RBF kernel <span class="arithmatex">\(k(x,x')=\exp(-(x-x')^2/2)\)</span>, the laws on <span class="arithmatex">\(X=(0,1)\)</span> and <span class="arithmatex">\(X'=(0,1,2)\)</span> use</p>
+<div class="arithmatex">\[
+K_X=
+\begin{bmatrix}
+1&amp;e^{-1/2}\\
+e^{-1/2}&amp;1
+\end{bmatrix},
+\qquad
+K_{X'}=
+\begin{bmatrix}
+1&amp;e^{-1/2}&amp;e^{-2}\\
+e^{-1/2}&amp;1&amp;e^{-1/2}\\
+e^{-2}&amp;e^{-1/2}&amp;1
+\end{bmatrix}.
+\]</div>
+<p>The upper-left block of <span class="arithmatex">\(K_{X'}\)</span> is <span class="arithmatex">\(K_X\)</span>, so integrating out <span class="arithmatex">\(f(2)\)</span> recovers the two-input law exactly. This statement holds for every nested pair, not only these grids. The consistent family defines an abstract random function on the product sigma algebra; continuity or membership in <span class="arithmatex">\(C(\mathcal X)\)</span>, an RKHS, or a Sobolev space needs additional kernel and path-regularity results.</p>
+<p>Repeated query locations create another useful boundary. If <span class="arithmatex">\(x_i=x_j\)</span>, then <span class="arithmatex">\(f(x_i)=f(x_j)\)</span> almost surely and the finite covariance is singular. The Gaussian law still exists, but it has no ordinary Lebesgue density on the full coordinate space. Positive <em>semidefiniteness</em> is the general kernel requirement; strict definiteness is an optional condition for nonsingular densities on distinct inputs.</p>
+<p>Sampling on one finite grid produces a random vector, not a literal stored value at every point of an uncountable domain. Samples on two grids have the correct marginal laws even if drawn independently, but they represent the same realized function only when they are coupled through one process draw. This distinction matters when comparing a coarse sample with a refined version of that <em>same</em> field.</p>
+<h3 id="a-kernel-is-a-covariance-contract-not-merely-a-similarity-score">A Kernel Is a Covariance Contract, Not Merely a Similarity Score<a class="headerlink" href="#a-kernel-is-a-covariance-contract-not-merely-a-similarity-score" title="Permanent link">¤</a></h3>
+<p>For a GP, <span class="arithmatex">\(k(x,x')\)</span> has units of output squared and specifies covariance before any data are observed. Calling it a similarity can build intuition, but it hides three facts:</p>
+<ol>
+<li><span class="arithmatex">\(k(x,x)\)</span> is a prior variance, not a self-similarity normalized to one;</li>
+<li>negative covariance is allowed; and</li>
+<li>the complete Gram matrix must remain positive semidefinite for every finite input set.</li>
+</ol>
+<p>On a Euclidean input space, a <strong>stationary</strong> kernel depends on the displacement <span class="arithmatex">\(x-x'\)</span>. An <strong>isotropic</strong> kernel depends only on its length <span class="arithmatex">\(r=\lVert x-x'\rVert\)</span>. Every isotropic kernel is stationary, but a stationary kernel can distinguish direction. Neither assumption is automatic for time, geography, boundaries, graphs, or manifolds.</p>
+<p>The following vocabulary connects a formula to the functions it favors. These are prior implications, not facts learned from the observations.</p>
+<h4 id="squared-exponential-rbf">Squared exponential / RBF<a class="headerlink" href="#squared-exponential-rbf" title="Permanent link">¤</a></h4>
+<div class="arithmatex">\[
+k(r)=\sigma_f^2\exp\!\left(-\frac{r^2}{2\ell^2}\right).
+\]</div>
+<p>One length scale produces extremely smooth local variation. It can be too smooth for abrupt or rough phenomena.</p>
+<h4 id="matern">Matérn<a class="headerlink" href="#matern" title="Permanent link">¤</a></h4>
+<div class="arithmatex">\[
+k(r)=\sigma_f^2 M_\nu(r/\ell),
+\]</div>
+<p>where <span class="arithmatex">\(M_\nu\)</span> is the Matérn correlation. The parameter <span class="arithmatex">\(\nu\)</span> controls mean-square differentiability and <span class="arithmatex">\(\ell\)</span> controls range. A sample-path differentiability claim still needs a precise theorem and domain assumptions.</p>
+<h4 id="periodic">Periodic<a class="headerlink" href="#periodic" title="Permanent link">¤</a></h4>
+<p>With <span class="arithmatex">\(\Delta=t-t'\)</span>,</p>
+<div class="arithmatex">\[
+k(t,t')=\sigma_f^2
+\exp\!\left[
+-\frac{2\sin^2(\pi\Delta/p)}{\ell^2}
+\right].
+\]</div>
+<p>This kernel states exact repetition with period <span class="arithmatex">\(p\)</span>, which is stronger than a recurring but evolving seasonal pattern.</p>
+<h4 id="linear">Linear<a class="headerlink" href="#linear" title="Permanent link">¤</a></h4>
+<div class="arithmatex">\[
+k(x,x')=\sigma_b^2
++\sigma_v^2(x-c)^T(x'-c).
+\]</div>
+<p>This is a prior over random affine functions around origin <span class="arithmatex">\(c\)</span>. It is nonstationary: prior variance grows with distance from <span class="arithmatex">\(c\)</span>.</p>
+<h4 id="white-noise-covariance">White-noise covariance<a class="headerlink" href="#white-noise-covariance" title="Permanent link">¤</a></h4>
+<div class="arithmatex">\[
+k(x,x')=\sigma^2\mathbf 1\{x=x'\}.
+\]</div>
+<p>Values at distinct inputs are independent. On a continuum, the construction need not have ordinary function-valued samples.</p>
+<p>For the common anisotropic RBF kernel, define its squared scaled distance by</p>
+<div class="arithmatex">\[
+d_\ell^2(x,x')=
+\sum_{d=1}^{D}
+\frac{(x_d-x'_d)^2}{\ell_d^2}
+\]</div>
+<p>and then set</p>
+<div class="arithmatex">\[
+k(x,x')=\sigma_f^2
+\exp\!\left(-\frac12d_\ell^2(x,x')\right).
+\]</div>
+<p>A large fitted <span class="arithmatex">\(\ell_d\)</span> makes changes along coordinate <span class="arithmatex">\(d\)</span> weak under this kernel and parameterization. The label <strong>automatic relevance determination</strong> is historical: a fitted length scale is not a causal relevance certificate, and correlated coordinates, scaling, local optima, priors, and kernel misspecification can make individual length scales non-identifiable or unstable.</p>
+<p>Positive-semidefinite covariance kernels and Mercer expansions are related but not synonymous. A positive-semidefinite kernel is enough to define the compatible finite Gaussian laws above. A Mercer eigenfunction expansion additionally invokes conditions on a domain, measure, and kernel—for example, a continuous kernel on a compact domain with the associated integral operator. The phrase “Mercer kernel” should not be used to smuggle those extra conditions into every GP.</p>
+<h3 id="building-kernels-without-misreading-the-construction">Building Kernels Without Misreading the Construction<a class="headerlink" href="#building-kernels-without-misreading-the-construction" title="Permanent link">¤</a></h3>
+<p>If <span class="arithmatex">\(f_1\)</span> and <span class="arithmatex">\(f_2\)</span> are independent zero-mean GPs with kernels <span class="arithmatex">\(k_1\)</span> and <span class="arithmatex">\(k_2\)</span>, then <span class="arithmatex">\(f=f_1+f_2\)</span> is a GP with kernel <span class="arithmatex">\(k_1+k_2\)</span>. This gives a literal additive component interpretation. Nonnegative scaling, sums, and products of valid kernels preserve positive semidefiniteness, but the interpretations differ:</p>
+<ul>
+<li><span class="arithmatex">\(k_1+k_2\)</span> can represent a sum of independent latent functions;</li>
+<li><span class="arithmatex">\(k_1k_2\)</span> represents the conjunction of two covariance structures; and</li>
+<li><span class="arithmatex">\(f_1(x)f_2(x)\)</span> is generally <strong>not</strong> Gaussian, so it is not the GP whose kernel is <span class="arithmatex">\(k_1k_2\)</span>.</li>
+</ul>
+<p>That last distinction is easy to miss. At one input, the product of two independent standard-normal GP values has a product-normal distribution, not a Gaussian distribution, even though its covariance across inputs is <span class="arithmatex">\(k_1k_2\)</span>. A covariance function does not determine a non-Gaussian process law.</p>
+<p>Input warping and learned features also preserve validity when they are used consistently. If <span class="arithmatex">\(g_\phi\)</span> maps raw inputs into a feature space and <span class="arithmatex">\(k_0\)</span> is valid there, then</p>
+<div class="arithmatex">\[
+k_\phi(x,x')=k_0\!\left(g_\phi(x),g_\phi(x')\right)
+\]</div>
+<p>is a valid kernel for fixed <span class="arithmatex">\(\phi\)</span>. Learning <span class="arithmatex">\(\phi\)</span> changes the geometry of extrapolation. It does not make uncertainty about <span class="arithmatex">\(\phi\)</span> disappear; a plug-in estimate conditions on one learned geometry.</p>
+<h3 id="worked-kernel-design-trend-evolving-seasonality-and-noise">Worked Kernel Design: Trend, Evolving Seasonality, and Noise<a class="headerlink" href="#worked-kernel-design-trend-evolving-seasonality-and-noise" title="Permanent link">¤</a></h3>
+<p>Suppose a monthly environmental series has a smooth trend, a seasonal pattern that changes gradually, and independent measurement noise. Let <span class="arithmatex">\(\Delta=t-t'\)</span>. One coherent covariance decomposition for the observed series is</p>
+<div class="arithmatex">\[
+k(t,t')=k_{\mathrm{trend}}
++k_{\mathrm{season}}
++k_{\mathrm{noise}},
+\]</div>
+<p>with</p>
+<div class="arithmatex">\[
+k_{\mathrm{trend}}=
+\sigma_{\mathrm{trend}}^2
+\exp\!\left(-\frac{\Delta^2}{2\ell_{\mathrm{trend}}^2}\right),
+\]</div>
+<div class="arithmatex">\[
+\begin{aligned}
+k_{\mathrm{period}}&amp;=
+\exp\!\left[
+-\frac{2\sin^2(\pi\Delta/12)}
+{\ell_{\mathrm{period}}^2}
+\right],\\
+k_{\mathrm{drift}}&amp;=
+\exp\!\left(-\frac{\Delta^2}{2\ell_{\mathrm{drift}}^2}\right),
+\end{aligned}
+\]</div>
+<div class="arithmatex">\[
+k_{\mathrm{season}}=
+\sigma_{\mathrm{season}}^2
+k_{\mathrm{period}}k_{\mathrm{drift}},
+\]</div>
+<p>and</p>
+<div class="arithmatex">\[
+k_{\mathrm{noise}}=
+\sigma_{\mathrm{noise}}^2\mathbf 1\{t=t'\}.
+\]</div>
+<p>The first summand is a long-range trend. The product in the second line says points must be close both in seasonal phase and across years; when <span class="arithmatex">\(\ell_{\mathrm{drift}}\)</span> is finite, the seasonal shape can evolve instead of repeating forever. If the final diagonal term belongs in the likelihood, the latent kernel is <span class="arithmatex">\(k_{\mathrm{trend}}+k_{\mathrm{season}}\)</span> and the observation covariance includes the independent noise term. If the diagonal term is placed in the latent-function kernel instead, it declares a latent process with independent pointwise variation. The same matrix expression can therefore encode different scientific objects depending on which random variable it belongs to.</p>
+<p>This design is a hypothesis, not a discovery. Posterior checks should test residual seasonality, boundary behavior, long-horizon calibration, and sensitivity to alternative decompositions. Several component combinations can explain the same finite observations, so a visually plausible decomposition need not be identifiable.</p>
+<h3 id="conditioning">Conditioning<a class="headerlink" href="#conditioning" title="Permanent link">¤</a></h3>
+<p>For noisy observations <span class="arithmatex">\(y_C=f_C+\epsilon\)</span>, <span class="arithmatex">\(\epsilon\sim\mathcal N(0,\sigma^2I)\)</span>, the target posterior is</p>
+<div class="arithmatex">\[
+\mu_T=m_T+K_{TC}(K_{CC}+\sigma^2I)^{-1}(y_C-m_C),
+\]</div>
+<div class="arithmatex">\[
+\Sigma_T=K_{TT}-K_{TC}(K_{CC}+\sigma^2I)^{-1}K_{CT}.
+\]</div>
+<p>The covariance couples all targets. Adding a target point and then marginalizing it exactly recovers the smaller posterior.</p>
+<p>These formulas are the Schur-complement conditional of one joint Gaussian:</p>
+<div class="arithmatex">\[
+\begin{bmatrix}y_C\\f_T\end{bmatrix}
+\sim\mathcal N\!\left(
+\begin{bmatrix}m_C\\m_T\end{bmatrix},
+\begin{bmatrix}K_{CC}+\sigma^2I&amp;K_{CT}\\K_{TC}&amp;K_{TT}\end{bmatrix}
+\right).
+\]</div>
+<p>Never form the matrix inverse explicitly. Solve a Cholesky system (with declared jitter if needed), and distinguish observation noise <span class="arithmatex">\(\sigma^2\)</span> from numerical jitter. Jitter changes the computed covariance; it is not automatically part of the statistical likelihood.</p>
+<figure class="book-figure" id="fig-stochastic-process-generators-explained-conditioning"><pre class="mermaid"><code>%%{init: {'themeCSS': '.nodeLabel p { color: #111827 !important; } .flowchart-link { stroke: #78879a !important; stroke-width: 2px !important; } marker path { fill: #78879a !important; stroke: #78879a !important; }'}}%%
+flowchart LR
+    K[Kernel on context and targets] --&gt; J[One joint Gaussian law]
+    N[Observation model and noise] --&gt; J
+    J --&gt;|condition on y_C| M[Posterior mean at targets]
+    J --&gt;|Schur complement| V[Posterior target covariance]
+    H[Hyperparameter treatment] --&gt; K
+    A[Approximation and solver] --&gt; M
+    A --&gt; V</code></pre><figcaption class="book-object-caption"><span class="book-object-number">Figure PROC.3.</span> Conditioning</figcaption></figure>
+<p>The posterior mean and covariance are two outputs of the same conditional law.
+A pipeline that reports only the mean, silently identifies jitter with noise,
+or changes hyperparameters between updates has changed this diagram's contract.</p>
+<h3 id="worked-two-point-posterior">Worked Two-Point Posterior<a class="headerlink" href="#worked-two-point-posterior" title="Permanent link">¤</a></h3>
+<p>Let prior mean be zero, variance one, and correlation <span class="arithmatex">\(k(x_1,x_2)=\rho\)</span>. The complete two-input prior is</p>
+<div class="arithmatex">\[
+\begin{bmatrix}f_1\\f_2\end{bmatrix}
+\sim\mathcal N\!\left(
+\begin{bmatrix}0\\0\end{bmatrix},
+\begin{bmatrix}1&amp;\rho\\\rho&amp;1\end{bmatrix}
+\right).
+\]</div>
+<p>After observing noiseless <span class="arithmatex">\(f(x_1)=a\)</span>, Gaussian conditioning gives</p>
+<div class="arithmatex">\[
+f(x_2)\mid f(x_1)=a
+\sim\mathcal N(\rho a,1-\rho^2).
+\]</div>
+<p>For <span class="arithmatex">\(\rho=0\)</span>, the observation gives no information. As <span class="arithmatex">\(|\rho|\to1\)</span>, posterior uncertainty vanishes. The kernel controls both adaptation and extrapolation.</p>
+<p>For <span class="arithmatex">\(a=2\)</span> and <span class="arithmatex">\(\rho=0.75\)</span>, the posterior is <span class="arithmatex">\(\mathcal N(1.5,0.4375)\)</span>. A second noisy observation would not reduce variance to zero even at the observed input. This is a complete distributional statement; reporting only the posterior mean discards the feature that makes a GP a function-space generator.</p>
+<p>The same calculation is also a constructive sampler for the prior:</p>
+<div class="arithmatex">\[
+f_1\sim\mathcal N(0,1),
+\qquad
+f_2\mid f_1\sim\mathcal N(\rho f_1,1-\rho^2).
+\]</div>
+<p>Indeed, <span class="arithmatex">\(\mathbb E[f_2]=0\)</span>, <span class="arithmatex">\(\operatorname{Var}(f_2)=\rho^2+(1-\rho^2)=1\)</span>, and <span class="arithmatex">\(\operatorname{Cov}(f_1,f_2)=\rho\)</span>. Thus ancestral conditional sampling and a joint two-dimensional Gaussian draw produce the same finite law. Using an independently resampled <span class="arithmatex">\(f_1\)</span> inside the second equation would destroy that coupling.</p>
+<h3 id="exact-conditioning-is-an-associativity-property">Exact Conditioning Is an Associativity Property<a class="headerlink" href="#exact-conditioning-is-an-associativity-property" title="Permanent link">¤</a></h3>
+<p>For disjoint input sets <span class="arithmatex">\(A,B,T\)</span>, a GP posterior may be obtained by conditioning the prior jointly on observations at <span class="arithmatex">\(A\cup B\)</span>, or by first conditioning on <span class="arithmatex">\(A\)</span> and then updating that posterior with <span class="arithmatex">\(B\)</span>. In exact arithmetic, both routes are conditionals of the same joint Gaussian and therefore give the same <span class="arithmatex">\(p(f_T\mid y_A,y_B)\)</span>. Implementations can disagree if they refit hyperparameters between updates, change the observation model, replace either posterior by an approximation, or accumulate numerical error.</p>
+<p>A three-input example makes the claim concrete. For <span class="arithmatex">\(|\rho|&lt;1\)</span>, take</p>
+<div class="arithmatex">\[
+\begin{bmatrix}f_1\\f_2\\f_3\end{bmatrix}
+\sim\mathcal N\!\left(0,
+\begin{bmatrix}
+1&amp;\rho&amp;\rho^2\\
+\rho&amp;1&amp;\rho\\
+\rho^2&amp;\rho&amp;1
+\end{bmatrix}
+\right).
+\]</div>
+<p>This is the covariance of a stationary Gaussian Markov chain. Conditioning directly on <span class="arithmatex">\(f_1=a,f_2=b\)</span> gives</p>
+<div class="arithmatex">\[
+f_3\mid f_1=a,f_2=b\sim\mathcal N(\rho b,1-\rho^2).
+\]</div>
+<p>Sequentially updating first with <span class="arithmatex">\(a\)</span> and then with <span class="arithmatex">\(b\)</span> gives the same law. By contrast, adding <span class="arithmatex">\((x_2,b)\)</span> to a learned context encoder and calling the network again need not equal conditioning its earlier joint predictive distribution. That is the conditioning-consistency distinction used to evaluate Neural Processes.</p>
+<h3 id="marginal-likelihood-and-kernel-learning">Marginal Likelihood and Kernel Learning<a class="headerlink" href="#marginal-likelihood-and-kernel-learning" title="Permanent link">¤</a></h3>
+<p>The GP log marginal likelihood is</p>
+<div class="arithmatex">\[
+\log p(y\mid X)=
+-\frac12(y-m)^TK_y^{-1}(y-m)
+-\frac12\log|K_y|
+-\frac n2\log2\pi,
+\]</div>
+<p>where <span class="arithmatex">\(K_y=K+\sigma^2I\)</span>. The data-fit and log-determinant terms trade fit against volume/complexity. Hyperparameter optimization can have local optima and can underestimate uncertainty when the kernel family is misspecified.</p>
+<p>The log determinant is sometimes called an Occam factor, but it is not a universal guarantee against overfitting. Optimizing hyperparameters on one dataset and then treating them as known ignores hyperparameter uncertainty. Fully Bayesian inference integrates them; empirical Bayes plugs in an estimate. Both retain conditional Gaussian algebra but express different uncertainty.</p>
+<p>The objective is usually nonconvex in length scales, noise, amplitudes, inducing locations, and learned features. Report parameter transforms, priors, initialization, restarts, optimizer, stopping rule, and whether the displayed uncertainty conditions on a point estimate or integrates hyperparameters. Marginal likelihood compares models only inside the declared likelihood and prior family; it cannot diagnose a missing boundary condition or an inappropriate observation law by itself.</p>
+<h3 id="rkhs-functions-and-gp-draws-are-different-objects">RKHS Functions and GP Draws Are Different Objects<a class="headerlink" href="#rkhs-functions-and-gp-draws-are-different-objects" title="Permanent link">¤</a></h3>
+<p>Every positive-semidefinite kernel <span class="arithmatex">\(k\)</span> determines a reproducing-kernel Hilbert space <span class="arithmatex">\(\mathcal H_k\)</span> satisfying</p>
+<div class="arithmatex">\[
+\langle f,k(x,\cdot)\rangle_{\mathcal H_k}=f(x).
+\]</div>
+<p>The representer theorem makes this space computationally useful. For many regularized empirical-risk problems, a minimizer has the finite form</p>
+<div class="arithmatex">\[
+\widehat f(\cdot)=\sum_{i=1}^{n}\alpha_i k(x_i,\cdot).
+\]</div>
+<p>With squared loss and a matched regularization/noise convention, kernel ridge regression produces the same point prediction as the posterior mean of GP regression. It does <strong>not</strong> produce the GP posterior covariance, hyperparameter posterior, or function samples. Equality of one estimator is not equality of probabilistic models.</p>
+<p>There is a deeper apparent paradox. <span class="arithmatex">\(\mathcal H_k\)</span> describes finite-energy shifts of the Gaussian measure—its Cameron–Martin geometry—but in the usual infinite-dimensional, non-degenerate setting, a draw from <span class="arithmatex">\(\mathcal{GP}(0,k)\)</span> lies outside <span class="arithmatex">\(\mathcal H_k\)</span> with probability one. Brownian motion makes this concrete: the associated Cameron–Martin functions are absolutely continuous with a square-integrable derivative and a fixed starting value, while Brownian paths are almost surely nowhere differentiable. The RKHS controls directions of plausible shifts and regularized estimators; it is not generally the set in which random draws live. Finite-rank GPs are an important exception because their draws remain in the finite feature span.</p>
+<h3 id="the-observation-model-controls-posterior-tractability">The Observation Model Controls Posterior Tractability<a class="headerlink" href="#the-observation-model-controls-posterior-tractability" title="Permanent link">¤</a></h3>
+<p>The GP prior specifies a law for a latent function. A complete model also declares how observations arise:</p>
+<div class="arithmatex">\[
+f\sim\mathcal{GP}(m,k),
+\qquad
+y_i\mid f\sim p(y_i\mid f(x_i)).
+\]</div>
+<p>Independent Gaussian noise is conjugate, which is why the conditioning equations above are exact. Bernoulli or categorical likelihoods create GP classifiers; Poisson and point-process likelihoods create count and event models; Student-<span class="arithmatex">\(t\)</span> likelihoods can reduce sensitivity to large residuals. For these non-Gaussian likelihoods, the posterior over <span class="arithmatex">\(f\)</span> is generally not a GP. Laplace, expectation propagation, variational inference, MCMC, and augmentation methods approximate or sample different objects and have different failure modes.</p>
+<p>A link function evaluated at the posterior mean is not the posterior predictive probability. For binary logistic observations,</p>
+<div class="arithmatex">\[
+p(y_*=1\mid x_*,D)
+=\int \sigma(f_*)\,p(f_*\mid x_*,D)\,df_*,
+\]</div>
+<p>which generally differs from <span class="arithmatex">\(\sigma(\mathbb E[f_*\mid D])\)</span>. The integral carries latent-function uncertainty through the nonlinear link.</p>
+<h4 id="worked-log-gaussian-cox-process-boundary">Worked log-Gaussian Cox process boundary<a class="headerlink" href="#worked-log-gaussian-cox-process-boundary" title="Permanent link">¤</a></h4>
+<p>For event locations <span class="arithmatex">\(S=\{s_1,\ldots,s_N\}\)</span> in a window <span class="arithmatex">\(W\)</span>, let</p>
+<div class="arithmatex">\[
+f\sim\mathcal{GP}(m,k),
+\qquad
+\lambda(s)=\exp(f(s)).
+\]</div>
+<p>Conditional on the complete intensity function, the point-pattern log likelihood is, up to the chosen reference-measure constant,</p>
+<div class="arithmatex">\[
+\begin{aligned}
+\log p(S\mid f)={}&amp;
+\sum_{i=1}^{N} f(s_i)\\
+&amp;-\int_W \exp(f(s))\,ds.
+\end{aligned}
+\]</div>
+<p>The integral supplies the probability of no additional events in the rest of the window. Evaluating <span class="arithmatex">\(f\)</span> only at observed event locations and multiplying <span class="arithmatex">\(\lambda(s_i)\)</span> omits this normalizer and does not define the point-process likelihood. Gridding or quadrature approximates the integral and therefore becomes part of the realized inference protocol. The <a href="../point-processes-and-random-finite-sets/#poisson-cox-and-cluster-constructions">Point Processes and Random Finite Sets</a> volume develops the associated cardinality, empty-space, and event-set semantics.</p>
+<h3 id="learning-a-gp-prior-across-related-functions">Learning a GP Prior Across Related Functions<a class="headerlink" href="#learning-a-gp-prior-across-related-functions" title="Permanent link">¤</a></h3>
+<p>When training data contain independent functions <span class="arithmatex">\(f^{(1)},\ldots,f^{(S)}\)</span> from related tasks, the mean and covariance themselves can be learned across tasks. With complete noiseless functions, the elementary empirical construction is</p>
+<div class="arithmatex">\[
+\widehat m_S(x)=\frac1S\sum_{s=1}^S f^{(s)}(x),
+\]</div>
+<div class="arithmatex">\[
+\widehat k_S(x,x')=
+\frac1S\sum_{s=1}^S
+\bigl(f^{(s)}(x)-\widehat m_S(x)\bigr)
+\bigl(f^{(s)}(x')-\widehat m_S(x')\bigr).
+\]</div>
+<p>For any common finite query set, <span class="arithmatex">\(\widehat k_S\)</span> is positive semidefinite because its Gram matrix is an empirical covariance. It may be low rank when the number of functions is small. Partial, noisy, and heterogeneous observation locations require latent-function inference; simply filling missing values and computing a covariance can confound imputation error with prior variation.</p>
+<p><a href="https://openreview.net/forum?id=Oj7ZwBhiyE">Empirical Gaussian Processes</a>, published at ICML 2026, develops this multi-task prior-learning view with an EM construction for heterogeneous observations and a function-space convergence result under the paper's assumptions. It still fits the closest Gaussian-process prior under its criterion; it does not make Gaussian finite-dimensional laws universally adequate for multimodal or heavy-tailed function populations. Once the mean and kernel are fitted, GP conditioning is exact <em>for that fitted model</em>. Finite-task estimation error, task-distribution shift, and ignored uncertainty in the learned prior remain separate issues.</p>
+<h3 id="scalability">Scalability<a class="headerlink" href="#scalability" title="Permanent link">¤</a></h3>
+<p>Dense Cholesky inference for a generic <span class="arithmatex">\(n\times n\)</span> covariance costs <span class="arithmatex">\(O(n^3)\)</span> time and <span class="arithmatex">\(O(n^2)\)</span> memory. Those are costs of one standard algorithm for an unstructured matrix, not a lower bound for every GP. A scalability claim is incomplete until it states which object was approximated.</p>
+<p>Let <span class="arithmatex">\(Z=(z_1,\ldots,z_M)\)</span> be inducing locations, <span class="arithmatex">\(u=f_Z\)</span>, and</p>
+<div class="arithmatex">\[
+Q_{AB}=K_{AZ}K_{ZZ}^{-1}K_{ZB}.
+\]</div>
+<p>This low-rank covariance appears in several methods that should not be conflated:</p>
+<div class="grid cards">
+<ul>
+<li>
+<p><strong>Subset of data</strong></p>
+<hr/>
+<p><strong>Changes:</strong> discards observations, then performs exact inference on the retained subset.</p>
+<p><strong>Report:</strong> selection rule and omitted-data sensitivity.</p>
+</li>
+<li>
+<p><strong>Random features / Nyström</strong></p>
+<hr/>
+<p><strong>Changes:</strong> replaces the kernel or its feature representation by finite rank.</p>
+<p><strong>Report:</strong> feature count, sampling or landmarks, kernel error, and randomness.</p>
+</li>
+<li>
+<p><strong>SoR / deterministic inducing conditional</strong></p>
+<hr/>
+<p><strong>Changes:</strong> replaces train and test covariance by a degenerate <span class="arithmatex">\(Q\)</span> construction.</p>
+<p><strong>Report:</strong> rank collapse and variance behavior away from <span class="arithmatex">\(Z\)</span>.</p>
+</li>
+<li>
+<p><strong>DTC / FITC-style conditionals</strong></p>
+<hr/>
+<p><strong>Changes:</strong> use different residual-covariance approximations at training and prediction points.</p>
+<p><strong>Report:</strong> the precise train/test conditional convention; “sparse GP” is insufficient.</p>
+</li>
+<li>
+<p><strong>Sparse variational GP</strong></p>
+<hr/>
+<p><strong>Changes:</strong> keeps the declared GP model but optimizes a variational posterior and bound using <span class="arithmatex">\(u\)</span>.</p>
+<p><strong>Report:</strong> inducing-variable definition, <span class="arithmatex">\(M\)</span>, ELBO, variational family, minibatching, and gap diagnostics.</p>
+</li>
+<li>
+<p><strong>Structured kernel interpolation</strong></p>
+<hr/>
+<p><strong>Changes:</strong> approximates kernel matrix–vector products through an inducing-grid and interpolation structure.</p>
+<p><strong>Report:</strong> grid, interpolation rule, dimensional scaling, and boundary effects.</p>
+</li>
+<li>
+<p><strong>Conjugate gradients and stochastic Lanczos quadrature</strong></p>
+<hr/>
+<p><strong>Changes:</strong> approximate solves and log determinants for the chosen finite kernel matrix.</p>
+<p><strong>Report:</strong> residual tolerance, preconditioner, iterations, probe count, and stochastic error.</p>
+</li>
+<li>
+<p><strong>State-space conversion</strong></p>
+<hr/>
+<p><strong>Changes:</strong> exploits a finite Markov representation of a one-dimensional kernel.</p>
+<p><strong>Report:</strong> whether conversion is exact, state dimension, and discretization or parallel-scan details.</p>
+</li>
+<li>
+<p><strong>Local / Vecchia construction</strong></p>
+<hr/>
+<p><strong>Changes:</strong> factors or approximates conditionals using neighborhoods.</p>
+<p><strong>Report:</strong> ordering, neighbor sets, induced joint law, and long-range error.</p>
+</li>
+</ul>
+</div>
+<p>The classical variational construction uses</p>
+<div class="arithmatex">\[
+q(f,u)=p(f\mid u)q(u)
+\]</div>
+<p>and maximizes</p>
+<div class="arithmatex">\[
+\begin{aligned}
+\mathcal L
+&amp;=\mathbb E_{q(f)}[\log p(y\mid f)]\\
+&amp;\quad-D_{\mathrm{KL}}\!\left(q(u)\,\|\,p(u)\right).
+\end{aligned}
+\]</div>
+<p>The inducing variables are variational summaries, not necessarily observed data and not necessarily point evaluations; inter-domain linear functionals are also possible. With point inducing variables and common dense algebra, batch computation often scales as <span class="arithmatex">\(O(nM^2+M^3)\)</span> and minibatch steps as <span class="arithmatex">\(O(BM^2+M^3)\)</span>, but prediction, output dimension, whitening, structure, and implementation change the realized cost. <a href="https://proceedings.mlr.press/v5/titsias09a.html">Titsias (2009)</a> derives the variational inducing-point view. <a href="https://proceedings.mlr.press/v267/titsias25a.html">Newer sparse-GP bounds</a> relax the conditional variational factor in a particular construction to tighten the training bound; this is a change in approximation family, not evidence that every inducing method targets the same posterior.</p>
+<p>Matrix-free computation presents a different trade-off. Conjugate gradients may retain the selected kernel matrix while solving its linear system only to a tolerance; stochastic Lanczos quadrature estimates the log determinant with random probes. Calling the result “exact GP inference” without solver and estimator error is therefore misleading. Conversely, an approximation can be highly accurate without preserving the original model exactly. Model error and numerical error need separate ledgers.</p>
+<p>For one-dimensional inputs such as time, kernels with suitable rational spectral representations admit finite-dimensional linear state-space forms and Kalman inference. Matérn kernels with common half-integer smoothness values are central examples. The squared-exponential kernel does not have an exact finite-dimensional rational state-space representation, although controlled approximations are available. Regular grids, Kronecker products, Toeplitz structure, compact support, or sparsity provide other accelerations only when the inputs and covariance actually have that structure.</p>
+<p>Neural Processes make a different exchange: they amortize prediction over a task distribution rather than solving one GP posterior for every new task. Their cost and approximation error depend on meta-training, context size, target factorization, and architecture; they are not simply inducing-point GPs implemented by a neural network.</p>
+<h3 id="four-different-gp-neural-connections">Four Different GP-Neural Connections<a class="headerlink" href="#four-different-gp-neural-connections" title="Permanent link">¤</a></h3>
+<p>The phrase “a neural network is a Gaussian process” collapses several non-equivalent constructions:</p>
+<div class="grid cards">
+<ul>
+<li>
+<p><strong>Neural-network GP (NNGP)</strong></p>
+<hr/>
+<p><strong>Object:</strong> random network weights at initialization.</p>
+<p><strong>GP statement:</strong> under architecture, scaling, independence, activation, and infinite-width assumptions, finite output vectors converge to Gaussian laws with a recursive kernel.</p>
+<p><strong>Boundary:</strong> a generic finite trained network does not thereby have a GP posterior.</p>
+</li>
+<li>
+<p><strong>Neural tangent kernel (NTK)</strong></p>
+<hr/>
+<p><strong>Object:</strong> parameter Jacobian along gradient training.</p>
+<p><strong>GP statement:</strong> in the specified infinite-width and lazy-training regime, the limiting kernel governs function evolution and can remain constant.</p>
+<p><strong>Boundary:</strong> the NTK is not the NNGP covariance and does not describe unrestricted feature learning.</p>
+</li>
+<li>
+<p><strong>Deep kernel learning (DKL)</strong></p>
+<hr/>
+<p><strong>Object:</strong> deterministic learned feature map inside <span class="arithmatex">\(k_0(g_\phi(x),g_\phi(x'))\)</span>.</p>
+<p><strong>GP statement:</strong> conditional on fitted <span class="arithmatex">\(\phi\)</span>, this is one GP with a data-adapted covariance geometry.</p>
+<p><strong>Boundary:</strong> marginal likelihood does not automatically prevent feature collapse or integrate uncertainty in <span class="arithmatex">\(\phi\)</span>.</p>
+</li>
+<li>
+<p><strong>Deep Gaussian process (DGP)</strong></p>
+<hr/>
+<p><strong>Object:</strong> composition of random functions <span class="arithmatex">\(f_L\circ\cdots\circ f_1\)</span>.</p>
+<p><strong>GP statement:</strong> every layer has a GP conditional prior.</p>
+<p><strong>Boundary:</strong> the marginal output process is generally not Gaussian, and posterior inference is generally not analytic.</p>
+</li>
+</ul>
+</div>
+<p><a href="https://proceedings.neurips.cc/paper/2018/hash/5a4be1fa34e62bb8a6ec6b91d2462f5a-Abstract.html">Jacot, Gabriel, and Hongler</a> establish the NTK result in its asymptotic training regime. <a href="https://proceedings.mlr.press/v51/wilson16.html">Wilson et al.</a> construct deep kernels, while <a href="https://proceedings.mlr.press/v161/ober21a.html">Ober, Rasmussen, and van der Wilk</a> exhibit overfitting pathologies for highly parameterized plug-in DKL and study a Bayesian treatment. These results support a component-level distinction: an expressive covariance, a posterior over its parameters, and calibrated extrapolation are three different claims.</p>
+<p>Infinite-width limits also extend beyond vector-input multilayer perceptrons. <a href="https://openreview.net/forum?id=7M9JGaoAeC">Infinite Neural Operators</a>, published at NeurIPS 2025, derives function-valued GP limits for specified neural-operator parameterizations under its assumptions. That result characterizes those prior limits; it does not turn every finite trained neural operator into a calibrated stochastic operator.</p>
+<h3 id="vector-fields-and-symmetry">Vector Fields and Symmetry<a class="headerlink" href="#vector-fields-and-symmetry" title="Permanent link">¤</a></h3>
+<p>For vector-valued outputs, matrix-valued kernels encode correlations among components. Translation, rotation, reflection, divergence-free, or curl-free structure can be built into the kernel. <a href="https://proceedings.mlr.press/v139/holderrieth21a.html">Equivariant stochastic-field work</a> connects these GP constraints to steerable Neural Processes.</p>
+<h3 id="gp-limitations">GP Limitations<a class="headerlink" href="#gp-limitations" title="Permanent link">¤</a></h3>
+<p>Gaussian finite-dimensional marginals can be too restrictive for multimodal function posteriors. Kernel selection may be difficult, dense generic scaling is poor, and stationary kernels extrapolate according to prior assumptions rather than learned semantic reasoning. A flexible learned kernel can distort distances, collapse features, or overfit the marginal likelihood; “the GP layer supplies uncertainty” is not a calibration theorem. Non-Gaussian likelihoods, hyperparameter fitting, approximate inference, and numerical solvers add distinct approximation layers.</p>
+<h3 id="counterexample-stationarity-at-a-boundary">Counterexample: Stationarity at a Boundary<a class="headerlink" href="#counterexample-stationarity-at-a-boundary" title="Permanent link">¤</a></h3>
+<p>A stationary kernel depends only on <span class="arithmatex">\(x-x'\)</span>. On a bounded physical domain, two points equally separated near and far from a boundary receive the same prior covariance, even when boundary conditions make their behavior different. Coordinate features, nonstationary kernels, or physics-informed constructions may be needed. Translation equivariance is a modeling assumption, not a free form of generalization.</p>
+<h3 id="independent-practice-and-assessment-map-gaussian-processes">Independent practice and assessment map: Gaussian processes<a class="headerlink" href="#independent-practice-and-assessment-map-gaussian-processes" title="Permanent link">¤</a></h3>
+<ol>
+<li><strong>P1.1 — Kernel validity.</strong> <em>Type: derive · Difficulty: foundation · Typical time: 10 min.</em> For the unit RBF kernel at <span class="arithmatex">\(X=(0,1)\)</span> with length scale one, write the Gram matrix, compute its determinant, and connect the result to finite-law compatibility rather than only to numerical invertibility.</li>
+<li><strong>P1.2 — Two-point conditioning.</strong> <em>Type: derive · Difficulty: foundation · Typical time: 10 min.</em> In the noiseless two-point model, take <span class="arithmatex">\(a=1.5\)</span> and <span class="arithmatex">\(\rho=0.6\)</span>. Derive the posterior mean and variance at <span class="arithmatex">\(x_2\)</span> and give one limiting-case check.</li>
+<li><strong>P1.3 — Predict before computing.</strong> <em>Type: predict · Difficulty: core · Typical time: 12 min.</em> A zero-mean unit-variance latent value is observed once as <span class="arithmatex">\(y=2\)</span> with noise variance <span class="arithmatex">\(0.25\)</span>. Predict whether the latent posterior variance is above or below <span class="arithmatex">\(0.25\)</span>, then compute its mean and variance and the variance of a future noisy observation at the same input.</li>
+<li><strong>P1.4 — Product-kernel diagnosis.</strong> <em>Type: diagnose · Difficulty: core · Typical time: 12 min.</em> Let <span class="arithmatex">\(f_1,f_2\)</span> be independent zero-mean GPs with kernels <span class="arithmatex">\(k_1,k_2\)</span>. Explain why <span class="arithmatex">\(k_1k_2\)</span> is a valid GP kernel but <span class="arithmatex">\(f_1f_2\)</span> is generally not a GP. Use a one-input distributional check.</li>
+<li><strong>P1.5 — Approximation ledger.</strong> <em>Type: compare · Difficulty: stretch · Typical time: 18 min.</em> Classify subset-of-data, random-feature, sparse-variational, and conjugate-gradient methods by the object each changes. State one diagnostic required for each.</li>
+<li><strong>P1.6 — Transfer.</strong> <em>Type: transfer · Difficulty: stretch · Typical time: 20 min.</em> Design a GP for a field on a bounded domain with evolving seasonality and noisy measurements. State the kernel components, likelihood, boundary treatment, hyperparameter policy, approximation, and extrapolation tests without claiming identifiability from a plausible fit.</li>
+</ol>
+<h5 id="feedback-contract-gaussian-processes">Feedback contract: Gaussian processes<a class="headerlink" href="#feedback-contract-gaussian-processes" title="Permanent link">¤</a></h5>
+<div class="md-typeset__table book-table-container"><table id="tbl-stochastic-process-generators-explained-feedback-contract-gaussian-processes-1"><caption class="book-object-caption"><span class="book-object-number">Table PROC.10.</span> Feedback contract: Gaussian processes — table 1</caption>
+<thead>
+<tr>
+<th>Task</th>
+<th>Evidence of success</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>P1.1</td>
+<td>The Gram matrix, determinant, PSD conclusion, and cross-query compatibility statement are distinct.</td>
+</tr>
+<tr>
+<td>P1.2</td>
+<td>Both posterior parameters are correct and one limiting value checks the result.</td>
+</tr>
+<tr>
+<td>P1.3</td>
+<td>Latent uncertainty, observation noise, and future-observation variance are not conflated.</td>
+</tr>
+<tr>
+<td>P1.4</td>
+<td>Kernel closure is separated from the non-Gaussian law of a product of draws.</td>
+</tr>
+<tr>
+<td>P1.5</td>
+<td>Every method is tied to a changed object and a method-specific diagnostic.</td>
+</tr>
+<tr>
+<td>P1.6</td>
+<td>The design declares scientific and computational assumptions and tests boundary extrapolation.</td>
+</tr>
+</tbody>
+</table></div>
+<details class="tip">
+<summary>Graduated hints for P1</summary>
+<div class="md-typeset__table book-table-container"><table id="tbl-stochastic-process-generators-explained-feedback-contract-gaussian-processes-2"><caption class="book-object-caption"><span class="book-object-number">Table PROC.11.</span> Feedback contract: Gaussian processes — table 2</caption>
+<thead>
+<tr>
+<th>Task</th>
+<th>Hint 1 — Direction</th>
+<th>Hint 2 — Setup</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>P1.1</td>
+<td>Evaluate the kernel at zero and unit separation.</td>
+<td>A symmetric two-by-two matrix is PSD when its diagonal and determinant are nonnegative.</td>
+</tr>
+<tr>
+<td>P1.2</td>
+<td>Use the worked conditional formula directly.</td>
+<td>Substitute into <span class="arithmatex">\(\rho a\)</span> and <span class="arithmatex">\(1-\rho^2\)</span>.</td>
+</tr>
+<tr>
+<td>P1.3</td>
+<td>Conditioning combines prior and noise precisions.</td>
+<td>Use <span class="arithmatex">\(K_{TC}(K_{CC}+\sigma^2)^{-1}\)</span> with all latent covariances equal to one.</td>
+</tr>
+<tr>
+<td>P1.4</td>
+<td>Inspect one input before considering a complete path.</td>
+<td>A product of two independent standard normals is not normal, although its covariance factors.</td>
+</tr>
+<tr>
+<td>P1.5</td>
+<td>Ask whether data, prior features, posterior family, or linear algebra changed.</td>
+<td>Pair each changed object with omitted-data, kernel-error, variational-gap, or residual-tolerance evidence.</td>
+</tr>
+<tr>
+<td>P1.6</td>
+<td>Build trend, drifting periodic, and observation terms in separate layers.</td>
+<td>Treat boundary conditions and hyperparameter uncertainty as declared modeling choices, not automatic kernel benefits.</td>
+</tr>
+</tbody>
+</table></div>
+</details>
+<h5 id="outcome-to-task-alignment-gaussian-processes">Outcome-to-task alignment: Gaussian processes<a class="headerlink" href="#outcome-to-task-alignment-gaussian-processes" title="Permanent link">¤</a></h5>
+<div class="md-typeset__table book-table-container"><table id="tbl-stochastic-process-generators-explained-outcome-to-task-alignment-gaussian-processes"><caption class="book-object-caption"><span class="book-object-number">Table PROC.12.</span> Outcome-to-task alignment: Gaussian processes</caption>
+<thead>
+<tr>
+<th>Learning objective</th>
+<th>Independently assessed by</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>O1 — Construct compatible GP laws</td>
+<td>P1.1</td>
+</tr>
+<tr>
+<td>O2 — Derive GP updating</td>
+<td>P1.2, P1.3</td>
+</tr>
+<tr>
+<td>O3 — Separate uncertainty layers</td>
+<td>P1.3, P1.6</td>
+</tr>
+<tr>
+<td>O4 — Audit scalable inference</td>
+<td>P1.5, P1.6</td>
+</tr>
+<tr>
+<td>O5 — Connect without conflating</td>
+<td>P1.4</td>
+</tr>
+<tr>
+<td>O6 — Diagnose model boundaries</td>
+<td>P1.6</td>
+</tr>
+</tbody>
+</table></div>
+<details class="success">
+<summary>Complete solutions to P1</summary>
+<ol>
+<li><strong>P1.1.</strong> The matrix is <span class="arithmatex">\(\begin{bmatrix}1&amp;e^{-1/2}\\e^{-1/2}&amp;1\end{bmatrix}\)</span> with determinant <span class="arithmatex">\(1-e^{-1}&gt;0\)</span>, so it is positive definite. Using this same kernel on every query set makes retained principal submatrices agree with directly constructed Gram matrices. <strong>Check.</strong> Invertibility is useful for this distinct-input example, but positive semidefiniteness and one shared kernel are the semantic requirements.</li>
+<li><strong>P1.2.</strong> The conditional law is <span class="arithmatex">\(\mathcal N(0.6\cdot1.5,1-0.6^2)=\mathcal N(0.9,0.64)\)</span>. At <span class="arithmatex">\(\rho=0\)</span>, it returns the unit prior; as the magnitude of <span class="arithmatex">\(\rho\)</span> tends to one, its variance tends to zero. <strong>Check.</strong> The variance does not depend on the observed value <span class="arithmatex">\(a\)</span>.</li>
+<li><strong>P1.3.</strong> The latent posterior mean is <span class="arithmatex">\(2/1.25=1.6\)</span> and variance is <span class="arithmatex">\(1-1/1.25=0.2\)</span>, below <span class="arithmatex">\(0.25\)</span>. A future noisy observation has variance <span class="arithmatex">\(0.2+0.25=0.45\)</span>. <strong>Check.</strong> Adding observation noise to the latent posterior is required only for the future observed value, not for the latent function itself.</li>
+<li><strong>P1.4.</strong> Kernel products preserve positive semidefiniteness, so a newly declared GP can have covariance <span class="arithmatex">\(k_1k_2\)</span>. At one input, however, <span class="arithmatex">\(f_1(x)f_2(x)\)</span> is a product of independent Gaussian variables and is not generally Gaussian. <strong>Check.</strong> Matching a covariance never establishes a non-Gaussian process law.</li>
+<li><strong>P1.5.</strong> Subset-of-data changes the dataset and needs selection/omission sensitivity; random features change the finite-rank kernel representation and need feature/kernel error; sparse variational inference keeps the prior but changes posterior optimization and needs ELBO/gap and inducing sensitivity; conjugate gradients retain the chosen matrix but approximate a solve and need residual, preconditioner, iteration, and downstream-error checks. <strong>Rubric.</strong> Full credit identifies both changed object and diagnostic for all four methods.</li>
+<li><strong>P1.6.</strong> One defensible model adds a long-scale trend kernel to a periodic-times-drift kernel, places independent sensor noise in the likelihood, and introduces coordinates or a boundary-aware construction rather than assuming stationarity across the boundary. Hyperparameters receive declared priors or a plug-in/restart policy; computation names its inducing or matrix-free approximation; evaluation separates in-domain fit, future periods, boundary regions, calibration, residual seasonality, and alternative decompositions. <strong>Rubric.</strong> A plausible curve fit without an observation layer, boundary test, or uncertainty policy is incomplete.</li>
+</ol>
+</details>
+<h3 id="chapter-2-retrieval-questions">Chapter 2 retrieval Questions<a class="headerlink" href="#chapter-2-retrieval-questions" title="Permanent link">¤</a></h3>
+<ol>
+<li>Which posterior term carries target–target dependence?</li>
+<li>Why should numerical jitter not be reported as learned observation noise?</li>
+<li>What makes <span class="arithmatex">\(k_\phi(x,x')=\langle\phi(x),\phi(x')\rangle\)</span> positive semidefinite?</li>
+<li>Why do finite GP laws built from one kernel satisfy projective consistency?</li>
+<li>Why is the product kernel <span class="arithmatex">\(k_1k_2\)</span> not the law of the product of two independent GP draws?</li>
+<li>Which part of a log-Gaussian Cox-process likelihood accounts for unobserved events?</li>
+<li>What is equal—and what remains different—between kernel ridge regression and GP regression?</li>
+<li>How do a sparse variational GP and a random-feature GP approximation modify different objects?</li>
+<li>Why are NNGP, NTK, DKL, and DGP not interchangeable names?</li>
+</ol>
+<h3 id="chapter-2-synthesis">Chapter 2 Synthesis<a class="headerlink" href="#chapter-2-synthesis" title="Permanent link">¤</a></h3>
+<p>GPs make function-space coherence explicit through one covariance contract across every finite query set. The observation law determines whether posterior conditioning is analytic; the kernel, hyperparameter treatment, approximation family, and numerical solver determine what uncertainty is actually reported. Neural Processes retain set-conditioned amortization while replacing per-task analytic conditioning with a learned conditional map.</p>
+<details class="success">
+<summary>Retrieval solutions</summary>
+<ol>
+<li>The complete posterior covariance <span class="arithmatex">\(\Sigma_T=K_{TT}-K_{TC}(K_{CC}+\sigma^2I)^{-1}K_{CT}\)</span>; its off-diagonal entries encode posterior target dependence.</li>
+<li>Jitter is a declared numerical regularizer used to stabilize a solve. Observation noise is a statistical parameter in the likelihood. Conflating them changes the stated model and its uncertainty.</li>
+<li>For any coefficients <span class="arithmatex">\(a_i\)</span>, <span class="arithmatex">\(\sum_{ij}a_i a_j k_\phi(x_i,x_j)=\lVert\sum_i a_i\phi(x_i)\rVert^2\ge0\)</span>.</li>
+<li>Marginalizing a larger joint Gaussian selects the mean coordinates and covariance principal submatrix associated with the retained inputs, which are exactly those constructed directly from the same <span class="arithmatex">\(m\)</span> and <span class="arithmatex">\(k\)</span>.</li>
+<li>The product of independent Gaussian random variables is generally non-Gaussian. The product <span class="arithmatex">\(k_1k_2\)</span> is a valid covariance for a newly declared GP, not a proof that multiplying the original sample paths preserves Gaussianity.</li>
+<li>The negative integrated intensity <span class="arithmatex">\(-\int_W\lambda(s)\,ds\)</span>. It supplies the survival/no-additional-event factor over the observation window.</li>
+<li>Under matched squared-loss, kernel, noise, and regularization conventions, their point estimates/posterior means agree. Kernel ridge regression does not thereby provide the GP posterior covariance or samples.</li>
+<li>A random-feature method approximates the kernel/prior with a finite feature model. A standard sparse variational GP retains the declared prior and approximates posterior inference through inducing variables and an ELBO.</li>
+<li>NNGP concerns a random-network prior limit; NTK concerns a training-dynamics kernel limit; DKL learns a deterministic input geometry inside one kernel; and a DGP composes random GP layers and is generally non-Gaussian after marginalization.</li>
+</ol>
+</details>
+<p><a href="../stochastic-process-generators-explained/#3-conditional-latent-attentive-and-transformer-neural-processes">Continue continuously</a>, or use the <a href="./">Chapter 2 stopping-point view</a>.</p>
+<hr/>
+<p><strong>Navigate:</strong> <a href="../stochastic-process-01-foundations/">← Foundations</a> · <a href="../stochastic-process-03-neural-processes/">3. Neural Processes →</a> · <a href="../stochastic-process-generators-explained/">Complete guide</a></p>
+</article>
+</div>
+<script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  Back to top
+</button>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+<div class="md-social">
+<a class="md-social__link" href="https://github.com/avitai/artifex" rel="noopener" target="_blank" title="github.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</a>
+<a class="md-social__link" href="https://pypi.org/project/avitai-artifex/" rel="noopener" target="_blank" title="pypi.org">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-66.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.3v101.8c0 29 25.2 46 53.4 54.3 33.8 9.9 66.3 11.7 106.8 0 26.9-7.8 53.4-23.5 53.4-54.3v-40.7H226.2v-13.6h160.2c31.1 0 42.6-21.7 53.4-54.2 11.2-33.5 10.7-65.7 0-108.6M286.2 444.7a20.4 20.4 0 1 1 0-40.7 20.4 20.4 0 1 1 0 40.7M167.8 248.1h106.8c29.7 0 53.4-24.5 53.4-54.3V91.9c0-29-24.4-50.7-53.4-55.6-35.8-5.9-74.7-5.6-106.8.1-45.2 8-53.4 24.7-53.4 55.6v40.7h106.9v13.6h-147c-31.1 0-58.3 18.7-66.8 54.2-9.8 40.7-10.2 66.1 0 108.6 7.6 31.6 25.7 54.2 56.8 54.2H101v-48.8c0-35.3 30.5-66.4 66.8-66.4m-6.6-183.4a20.4 20.4 0 1 1 0 40.8 20.4 20.4 0 1 1 0-40.8"></path></svg>
+</a>
+<a class="md-social__link" href="https://twitter.com/mahdi_shafiei" rel="noopener" target="_blank" title="twitter.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M459.4 151.7c.3 4.5.3 9.1.3 13.6 0 138.7-105.6 298.6-298.6 298.6-59.5 0-114.7-17.2-161.1-47.1 8.4 1 16.6 1.3 25.3 1.3 49.1 0 94.2-16.6 130.3-44.8-46.1-1-84.8-31.2-98.1-72.8 6.5 1 13 1.6 19.8 1.6 9.4 0 18.8-1.3 27.6-3.6-48.1-9.7-84.1-52-84.1-103v-1.3c14 7.8 30.2 12.7 47.4 13.3-28.3-18.8-46.8-51-46.8-87.4 0-19.5 5.2-37.4 14.3-53C87.4 130.8 165 172.4 252.1 176.9c-1.6-7.8-2.6-15.9-2.6-24C249.5 95.1 296.3 48 354.4 48c30.2 0 57.5 12.7 76.7 33.1 23.7-4.5 46.5-13.3 66.6-25.3-7.8 24.4-24.4 44.8-46.1 57.8 21.1-2.3 41.6-8.1 60.4-16.2-14.3 20.8-32.2 39.3-52.6 54.3"></path></svg>
+</a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.path", "navigation.top", "navigation.prune", "toc.follow", "search.highlight", "search.share", "search.suggest", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "content.mermaid"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+<script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+<script src="../../../javascripts/reading-layout.js"></script>
+</body>
+</html>

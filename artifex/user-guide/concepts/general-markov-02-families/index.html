@@ -1,0 +1,1449 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="This chapter derives deterministic, diffusion, jump, jump-diffusion, and piecewise-deterministic generators on continuous and discrete state spaces. Read it" name="description"/>
+<meta content="Mahdi Shafiei" name="author"/>
+<link href="https://docs.avitai.bio/artifex/user-guide/concepts/general-markov-02-families/" rel="canonical"/>
+<link href="../general-markov-01-operators/" rel="prev"/>
+<link href="../general-markov-03-matching/" rel="next"/>
+<link href="../../../assets/images/favicon.png" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.7.7" name="generator"/>
+<title>General Markov Generators 2 — Flows, Diffusions, and Jumps - Artifex</title>
+<link href="../../../assets/stylesheets/main.ec1eaa64.min.css" rel="stylesheet"/>
+<link href="../../../assets/stylesheets/palette.ab4e12ef.min.css" rel="stylesheet"/>
+<script src="../../../assets/vendor/iframe-worker/index.js"></script>
+<link href="../../../assets/_mkdocstrings.css" rel="stylesheet"/>
+<link href="../../../_static/extra.css" rel="stylesheet"/>
+<script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+<meta content="article" property="og:type"/>
+<meta content="The Artifex Generative Models Book" property="og:site_name"/>
+<meta content="General Markov Generators 2 — Flows, Diffusions, and Jumps" property="og:title"/>
+<meta content="This chapter derives deterministic, diffusion, jump, jump-diffusion, and piecewise-deterministic generators on continuous and discrete state spaces. Read it" property="og:description"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/general-markov-02-families/" property="og:url"/>
+<meta content="2026-07-20" property="article:modified_time"/>
+<meta content="summary" name="twitter:card"/>
+<meta content="General Markov Generators 2 — Flows, Diffusions, and Jumps" name="twitter:title"/>
+<meta content="This chapter derives deterministic, diffusion, jump, jump-diffusion, and piecewise-deterministic generators on continuous and discrete state spaces. Read it" name="twitter:description"/>
+<meta content="Generative models, Machine learning, Probabilistic modeling, research, specialization, canonical_chapter, general-markov-families, practitioner, researcher" name="keywords"/>
+<meta content="General Markov Generators 2 — Flows, Diffusions, and Jumps" name="citation_title"/>
+<meta content="Mahdi Shafiei" name="citation_author"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/general-markov-02-families/" name="citation_public_url"/>
+<meta content="en" name="citation_language"/>
+<meta content="General Markov Generators 2 — Flows, Diffusions, and Jumps" name="DC.title"/>
+<meta content="Mahdi Shafiei" name="DC.creator"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/general-markov-02-families/" name="DC.identifier"/>
+<meta content="Text.LearningResource" name="DC.type"/>
+<meta content="2026-07-20" name="DCTERMS.modified"/>
+<meta content="https://github.com/avitai/artifex/blob/main/LICENSE" name="DCTERMS.license"/>
+<meta content="research" name="DCTERMS.educationLevel"/>
+<meta content="practitioner, researcher" name="DCTERMS.audience"/>
+<link href="https://github.com/avitai/artifex/blob/main/LICENSE" rel="license"/>
+<script id="artifex-book-metadata" type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Chapter",
+  "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/general-markov-02-families/",
+  "url": "https://docs.avitai.bio/artifex/user-guide/concepts/general-markov-02-families/",
+  "name": "General Markov Generators 2 \u2014 Flows, Diffusions, and Jumps",
+  "description": "This chapter derives deterministic, diffusion, jump, jump-diffusion, and piecewise-deterministic generators on continuous and discrete state spaces. Read it",
+  "identifier": "general-markov-families",
+  "inLanguage": "en",
+  "isAccessibleForFree": true,
+  "learningResourceType": "Canonical chapter",
+  "educationalLevel": "research",
+  "educationalUse": "specialization",
+  "audience": [
+    
+      {"@type": "EducationalAudience", "audienceType": "practitioner"},
+    
+      {"@type": "EducationalAudience", "audienceType": "researcher"}
+    
+  ],
+  "dateModified": "2026-07-20",
+  "keywords": ["Generative models", "Machine learning", "Probabilistic modeling", "research", "specialization", "canonical_chapter", "general-markov-families", "practitioner", "researcher"],
+  "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+  "author": [
+    
+      {"@type": "Person", "name": "Mahdi Shafiei"}
+    
+  ],
+  "isPartOf": {
+    "@type": "Book",
+    "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/#book",
+    "url": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/",
+    "name": "The Artifex Generative Models Book",
+    "bookEdition": "Living Web Edition",
+    "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+    "author": [
+      
+        {"@type": "Person", "name": "Mahdi Shafiei"}
+      
+    ]
+  }
+}
+</script>
+<link href="../../../assets/vendor/katex/katex.min.css" id="artifex-katex-stylesheet" integrity="sha384-UA8juhPf75SzzAMA/4fo3yOU7sBJ0om7SCD2GHq0fZqZco6tr1UCV7nUbk9J90JM" rel="stylesheet"/>
+<script defer="" integrity="sha384-T/0lMUdJpd2S1ZHtRiofG3htU3xPCrFVeAQ1UUE2TJwlEJSV5NUwn30kP28n238E" src="../../../assets/vendor/mermaid/mermaid.min.js"></script>
+<script defer="" src="../../../assets/vendor/katex/katex-shadow.js"></script>
+<script defer="" src="../../../javascripts/mermaid-math.js"></script>
+<script defer="" src="../../../javascripts/mathjax.js"></script>
+<script defer="" integrity="sha384-OrHfGTnIbkl0do3N76qW/uWr38o91N05sbSPuYBPLH+hG8X/dNSrjZf3AGjzrCwC" src="../../../assets/vendor/mathjax/tex-mml-chtml.js"></script>
+</head>
+<body data-md-color-accent="amber" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#general-markov-generators-2-flows-diffusions-and-jumps">
+          Skip to content
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header md-header--shadow" data-md-component="header">
+<nav aria-label="Header" class="md-header__inner md-grid">
+<a aria-label="Artifex" class="md-header__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            Artifex
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+            
+              General Markov Generators 2 — Flows, Diffusions, and Jumps
+            
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-label="Switch to dark mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: light)" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_1" hidden="" title="Switch to dark mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+<input aria-label="Switch to light mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-primary="indigo" data-md-color-scheme="slate" id="__palette_1" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_0" hidden="" title="Switch to light mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+</form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div aria-label="Search" class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Search" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="Search" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="Search" class="md-search__options">
+<a aria-label="Share" class="md-search__icon md-icon" data-clipboard="" data-clipboard-text="" data-md-component="search-share" href="javascript:void(0)" tabindex="-1" title="Share">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"></path></svg>
+</a>
+<button aria-label="Clear" class="md-search__icon md-icon" tabindex="-1" title="Clear" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            Initializing search
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Navigation" class="md-nav md-nav--primary" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="Artifex" class="md-nav__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+    Artifex
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../..">
+<span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../getting-started/installation/">
+<span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Generative Models Book
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Generative Models Book
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    
+  
+    Start Here — The Landscape
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../first-course-01-generative-systems/">
+<span class="md-ellipsis">
+    
+  
+    First Course — New to Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../probability-01-objects/">
+<span class="md-ellipsis">
+    
+  
+    Foundations
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../autoregressive-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Model Families
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_5" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_5" id="__nav_3_5_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Connections and Compositions
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_5_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_5">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Connections and Compositions
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gradients-01-taxonomy/">
+<span class="md-ellipsis">
+    
+  
+    Gradients and Geometry in Generative Modeling
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../density-latent-energy-01-objects/">
+<span class="md-ellipsis">
+    
+  
+    Density, Latent, Energy, and Score
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../probability-paths-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Probability Paths and Stochastic Transport
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_5_4" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_5_4" id="__nav_3_5_4_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    General Markov Generators
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_5_4_label" class="md-nav" data-md-level="3">
+<label class="md-nav__title" for="__nav_3_5_4">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    General Markov Generators
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../general-markov-01-operators/">
+<span class="md-ellipsis">
+    
+  
+    1. Operators and Forward Equations
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
+    
+  
+    2. Flows, Diffusions, and Jumps
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
+<span class="md-ellipsis">
+    
+  
+    2. Flows, Diffusions, and Jumps
+  
+
+    
+  </span>
+</a>
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#2-flows-diffusions-jumps-and-piecewise-deterministic-processes">
+<span class="md-ellipsis">
+      
+        2. Flows, Diffusions, Jumps, and Piecewise-Deterministic Processes
+      
+    </span>
+</a>
+<nav aria-label="2. Flows, Diffusions, Jumps, and Piecewise-Deterministic Processes" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-2-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 2 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#deterministic-flow">
+<span class="md-ellipsis">
+      
+        Deterministic flow
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#diffusion">
+<span class="md-ellipsis">
+      
+        Diffusion
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#pure-jump-process">
+<span class="md-ellipsis">
+      
+        Pure jump process
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#jump-diffusion-and-pdmp">
+<span class="md-ellipsis">
+      
+        Jump diffusion and PDMP
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-birth-process">
+<span class="md-ellipsis">
+      
+        Worked birth process
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#geometry-changes-the-generator">
+<span class="md-ellipsis">
+      
+        Geometry changes the generator
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#misconception-checks-families-and-geometry">
+<span class="md-ellipsis">
+      
+        Misconception checks: families and geometry
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#independent-practice-and-assessment-map-process-families">
+<span class="md-ellipsis">
+      
+        Independent practice and assessment map: process families
+      
+    </span>
+</a>
+<nav aria-label="Independent practice and assessment map: process families" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#feedback-contract-process-families">
+<span class="md-ellipsis">
+      
+        Feedback contract: process families
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#outcome-to-task-alignment-process-families">
+<span class="md-ellipsis">
+      
+        Outcome-to-task alignment: process families
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-2-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 2 synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../general-markov-03-matching/">
+<span class="md-ellipsis">
+    
+  
+    3. Conditional Generator Matching
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../general-markov-04-superposition/">
+<span class="md-ellipsis">
+    
+  
+    4. Superposition and Multimodality
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../general-markov-05-simulation/">
+<span class="md-ellipsis">
+    
+  
+    5. Reversal and Simulation
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../general-markov-06-practice/">
+<span class="md-ellipsis">
+    
+  
+    6. Evidence and Practice
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../general-markov-generators/">
+<span class="md-ellipsis">
+    
+  
+    Continuous View (All Chapters)
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../few-step-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Transitions and Few-Step Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../geometric-01-symmetry/">
+<span class="md-ellipsis">
+    
+  
+    Geometric and Equivariant Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../representations-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Representations and Multimodal Systems
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../steering-01-targets/">
+<span class="md-ellipsis">
+    
+  
+    Conditioning, Steering, Constraints, and Selection
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../world-models-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    World Models and Causal Simulators
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../landscape-01-copulas/">
+<span class="md-ellipsis">
+    
+  
+    Extended Generative Landscape
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../normalization-01-queries/">
+<span class="md-ellipsis">
+    
+  
+    Research Practice
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../models/vae-guide/">
+<span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/core/base/">
+<span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../examples/overview/">
+<span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../zoo/">
+<span class="md-ellipsis">
+    
+  
+    Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../training/overview/">
+<span class="md-ellipsis">
+    
+  
+    Training
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../data/overview/">
+<span class="md-ellipsis">
+    
+  
+    Data &amp; Modalities
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../inference/overview/">
+<span class="md-ellipsis">
+    
+  
+    Inference &amp; Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../benchmarks/">
+<span class="md-ellipsis">
+    
+  
+    Evaluation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../guides/extensions/">
+<span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../extensions/">
+<span class="md-ellipsis">
+    
+  
+    Advanced Topics
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../cli/">
+<span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../community/contributing/">
+<span class="md-ellipsis">
+    
+  
+    Community
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/configs/protein-extension/">
+<span class="md-ellipsis">
+    
+  
+    Reference Library
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#2-flows-diffusions-jumps-and-piecewise-deterministic-processes">
+<span class="md-ellipsis">
+      
+        2. Flows, Diffusions, Jumps, and Piecewise-Deterministic Processes
+      
+    </span>
+</a>
+<nav aria-label="2. Flows, Diffusions, Jumps, and Piecewise-Deterministic Processes" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-2-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 2 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#deterministic-flow">
+<span class="md-ellipsis">
+      
+        Deterministic flow
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#diffusion">
+<span class="md-ellipsis">
+      
+        Diffusion
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#pure-jump-process">
+<span class="md-ellipsis">
+      
+        Pure jump process
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#jump-diffusion-and-pdmp">
+<span class="md-ellipsis">
+      
+        Jump diffusion and PDMP
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-birth-process">
+<span class="md-ellipsis">
+      
+        Worked birth process
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#geometry-changes-the-generator">
+<span class="md-ellipsis">
+      
+        Geometry changes the generator
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#misconception-checks-families-and-geometry">
+<span class="md-ellipsis">
+      
+        Misconception checks: families and geometry
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#independent-practice-and-assessment-map-process-families">
+<span class="md-ellipsis">
+      
+        Independent practice and assessment map: process families
+      
+    </span>
+</a>
+<nav aria-label="Independent practice and assessment map: process families" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#feedback-contract-process-families">
+<span class="md-ellipsis">
+      
+        Feedback contract: process families
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#outcome-to-task-alignment-process-families">
+<span class="md-ellipsis">
+      
+        Outcome-to-task alignment: process families
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-2-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 2 synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<nav aria-label="Breadcrumb" class="md-path">
+<ol class="md-path__list">
+<li class="md-path__item">
+<a class="md-path__link" href="../../..">
+<span class="md-ellipsis">
+    Home
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    Generative Models Book
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../gradients-01-taxonomy/">
+<span class="md-ellipsis">
+    Connections and Compositions
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../general-markov-01-operators/">
+<span class="md-ellipsis">
+    General Markov Generators
+  </span>
+</a>
+</li>
+</ol>
+</nav>
+<article class="md-content__inner md-typeset">
+<h1 id="general-markov-generators-2-flows-diffusions-and-jumps">General Markov Generators 2 — Flows, Diffusions, and Jumps<a class="headerlink" href="#general-markov-generators-2-flows-diffusions-and-jumps" title="Permanent link">¤</a></h1><aside aria-label="Learning path" class="admonition abstract artifex-learning-path"><p class="admonition-title">Learning path</p><p><strong>Required knowledge</strong></p><ul class="artifex-learning-path__links" data-learning-path-role="required"><li><a href="../general-markov-01-operators/">General Markov Generators 1 — Operators and Forward Equations</a></li><li><a href="../discrete-iterative-generation-explained/">Discrete Iterative Generation Explained</a></li></ul><p><strong>Readiness check:</strong> can you explain the central object and reproduce one worked example from each required chapter? If not, follow its link before continuing.</p><p><strong>Newly unlocked in the default route</strong></p><ul class="artifex-learning-path__links" data-learning-path-role="unlocks"><li><a href="../general-markov-03-matching/">General Markov Generators 3 — Conditional Generator Matching</a></li></ul></aside>
+<p>This chapter derives deterministic, diffusion, jump, jump-diffusion, and piecewise-deterministic generators on continuous and discrete state spaces. Read it continuously in the <a href="../general-markov-generators/#2-flows-diffusions-jumps-and-piecewise-deterministic-processes">complete guide</a>.</p>
+<h2 id="2-flows-diffusions-jumps-and-piecewise-deterministic-processes">2. Flows, Diffusions, Jumps, and Piecewise-Deterministic Processes<a class="headerlink" href="#2-flows-diffusions-jumps-and-piecewise-deterministic-processes" title="Permanent link">¤</a></h2>
+<h3 id="chapter-2-prerequisites-and-learning-objectives">Chapter 2 prerequisites and learning objectives<a class="headerlink" href="#chapter-2-prerequisites-and-learning-objectives" title="Permanent link">¤</a></h3>
+<p>This chapter assumes Chapter 1 and basic ODE/SDE notation. By the end, you should
+be able to:</p>
+<ol>
+<li><strong>O1 — Read path behavior from an operator:</strong> associate first-order,
+   second-order, and nonlocal terms with flows, diffusions, and jumps.</li>
+<li><strong>O2 — Derive family-specific forward equations:</strong> adjoint drift,
+   state-dependent covariance, and jump-rate terms without suppressing the base
+   measure.</li>
+<li><strong>O3 — Construct hybrid processes:</strong> write jump-diffusion and PDMP
+   generators with valid clocks and post-event kernels.</li>
+<li><strong>O4 — Diagnose explosion and integrability:</strong> distinguish finite activity,
+   infinite activity, compensation, and accumulating event times.</li>
+<li><strong>O5 — Respect geometry:</strong> choose test functions, tangent coefficients,
+   allowed moves, and boundary behavior for the actual state space.</li>
+<li><strong>O6 — Transfer by mechanism:</strong> choose a family from the path regularity
+   and events a new generative task must represent.</li>
+</ol>
+<figure class="book-figure" id="fig-general-markov-generators-chapter-2-prerequisites-and-learning-objectives"><pre class="mermaid"><code>%%{init: {'themeCSS': '.nodeLabel p { color: #111827 !important; } .flowchart-link { stroke: #78879a !important; stroke-width: 2px !important; } marker path { fill: #78879a !important; stroke: #78879a !important; }'}}%%
+flowchart TB
+    accTitle: Path behavior leaves a signature in the generator
+    accDescr: First derivatives encode continuous deterministic motion, second derivatives encode continuous stochastic fluctuation, nonlocal differences encode jumps, and valid sums create jump diffusions or piecewise deterministic processes.
+    L[Generator on test functions] --&gt; D[First order drift]
+    L --&gt; S[Second order covariance]
+    L --&gt; J[Nonlocal jump difference]
+    D --&gt; F[Continuous finite-variation paths]
+    S --&gt; C[Continuous rough paths]
+    J --&gt; P[Discontinuous paths]
+    D --&gt; H[Hybrid sum]
+    S --&gt; H
+    J --&gt; H</code></pre><figcaption class="book-object-caption"><span class="book-object-number">Figure MARKOV.3.</span> Path behavior leaves a signature in the generator</figcaption></figure>
+<h3 id="deterministic-flow">Deterministic flow<a class="headerlink" href="#deterministic-flow" title="Permanent link">¤</a></h3>
+<p>For <span class="arithmatex">\(dX_t=b_t(X_t)dt\)</span>,</p>
+<div class="arithmatex">\[
+\mathcal L_t\varphi(x)=b_t(x)^T\nabla\varphi(x).
+\]</div>
+<p>The adjoint equation is <span class="arithmatex">\(\partial_tp=-\nabla\cdot(bp)\)</span>. With a sufficiently regular unique ODE, randomness comes only from the initial state; trajectories do not branch after conditioning on <span class="arithmatex">\(X_0\)</span>.</p>
+<p>For coordinate tests <span class="arithmatex">\(\varphi_i(x)=x_i\)</span>, the generator returns the drift
+<span class="arithmatex">\(\mathcal L\varphi_i=b_i\)</span>. For quadratic tests, it also exposes how a cloud
+deforms. A first-order generator satisfies the derivation rule
+<span class="arithmatex">\(\mathcal L(\varphi\psi)=\varphi\mathcal L\psi+\psi\mathcal L\varphi\)</span>;
+diffusion adds a nonzero carré-du-champ term. This gives an operator-level way
+to distinguish deterministic transport from stochastic local variation.</p>
+<h3 id="diffusion">Diffusion<a class="headerlink" href="#diffusion" title="Permanent link">¤</a></h3>
+<p>For</p>
+<div class="arithmatex">\[
+dX_t=b_t(X_t)dt+\sigma_t(X_t)dW_t,
+\qquad a=\sigma\sigma^T,
+\]</div>
+<p>Itô's formula gives</p>
+<div class="arithmatex">\[
+\mathcal L_t\varphi
+=b^T\nabla\varphi+
+\frac12\operatorname{Tr}(a\nabla^2\varphi).
+\]</div>
+<p>The second-order term encodes local covariance. Two matrices <span class="arithmatex">\(\sigma\)</span> with the same <span class="arithmatex">\(a\)</span> generate the same diffusion law under appropriate well-posedness, although their noise-coordinate implementations differ.</p>
+<p>With respect to Lebesgue measure, the forward equation for state-dependent
+<span class="arithmatex">\(a\)</span> is</p>
+<div class="arithmatex">\[
+\partial_t p
+=-\sum_i\partial_i(b_i p)
++\frac12\sum_{i,j}\partial_i\partial_j(a_{ij}p).
+\]</div>
+<p>Moving <span class="arithmatex">\(a\)</span> outside the derivatives is valid only under additional spatial
+constancy. Positive semidefiniteness of <span class="arithmatex">\(a\)</span> is necessary, but a matrix square
+root, coefficient regularity, boundary behavior, and a well-posed SDE or
+martingale problem are still needed. Degenerate diffusion may be entirely
+appropriate---for example, noise restricted to tangent directions---but it
+changes which smoothing and uniqueness arguments apply.</p>
+<h3 id="pure-jump-process">Pure jump process<a class="headerlink" href="#pure-jump-process" title="Permanent link">¤</a></h3>
+<p>For finite-activity jumps with rate kernel <span class="arithmatex">\(q_t(x,dy)\)</span>,</p>
+<div class="arithmatex">\[
+\mathcal L_t\varphi(x)
+=\int[\varphi(y)-\varphi(x)]q_t(x,dy).
+\]</div>
+<p>The total rate <span class="arithmatex">\(\lambda_t(x)=q_t(x,\mathcal X\setminus\{x\})\)</span> controls waiting time; the normalized kernel selects the destination. Infinite-activity Lévy processes require a compensated integral and additional integrability conditions.</p>
+<p>In Euclidean coordinates a common compensated form is</p>
+<div class="arithmatex">\[
+\mathcal L\varphi(x)=b(x)^T\nabla\varphi(x)
++\frac12\operatorname{Tr}(a(x)\nabla^2\varphi(x))
++\int\!\left[\varphi(x+z)-\varphi(x)
+-\mathbf1_{\{\|z\|&lt;1\}}z^T\nabla\varphi(x)\right]\nu(x,dz).
+\]</div>
+<p>The subtraction makes the small-jump integral finite under the corresponding
+Lévy integrability condition. Changing the truncation convention shifts the
+reported drift, so “same jump measure” does not by itself mean two code paths
+use the same drift parameterization. Courrège-type representation results
+explain why drift, covariance, killing, and jump terms arise for rich Feller
+generators satisfying the positive maximum principle; they do not license
+arbitrary neural choices for each term.</p>
+<p>For finite categorical states this reduces to a rate matrix. Discrete diffusion and masking CTMCs are structured jump processes, not Euclidean diffusions with merely discrete tensors.</p>
+<p>For a finite-state law <span class="arithmatex">\(p_t(x)\)</span> under the row-rate convention,</p>
+<div class="arithmatex">\[
+\partial_t p_t(x)
+=\sum_{y\ne x}p_t(y)q_t(y,x)
+-p_t(x)\sum_{y\ne x}q_t(x,y).
+\]</div>
+<p>The first term is incoming probability flux and the second is outgoing flux.
+This gain-minus-loss form is the safest way to recover transposes in an
+implementation.</p>
+<h3 id="jump-diffusion-and-pdmp">Jump diffusion and PDMP<a class="headerlink" href="#jump-diffusion-and-pdmp" title="Permanent link">¤</a></h3>
+<p>Adding valid components produces</p>
+<div class="arithmatex">\[
+\mathcal L=\mathcal L_{\mathrm{drift}}
++\mathcal L_{\mathrm{diffusion}}
++\mathcal L_{\mathrm{jump}}.
+\]</div>
+<p>A piecewise-deterministic Markov process follows an ODE between random events. Its generator combines <span class="arithmatex">\(b^T\nabla\varphi\)</span> with a jump term. This is useful when continuous geometry evolves smoothly but discrete topology, object count, or event type changes abruptly.</p>
+<p>Writing the event rate and post-event kernel separately makes the PDMP contract
+visible:</p>
+<div class="arithmatex">\[
+\mathcal L\varphi(x)
+=b(x)^T\nabla\varphi(x)
++\lambda(x)\int[\varphi(y)-\varphi(x)]K(x,dy).
+\]</div>
+<p>Between events, solve the ODE. Along that trajectory, integrate the hazard until
+it reaches an exponential threshold, then sample the reset from <span class="arithmatex">\(K\)</span>. Assuming a
+constant exponential holding time while <span class="arithmatex">\(\lambda(X_t)\)</span> changes along the flow
+simulates a different process. Davis's
+<a href="https://doi.org/10.1111/j.2517-6161.1984.tb01308.x">PDMP construction</a>
+formalizes this deterministic-motion/random-event interface.</p>
+<h3 id="worked-birth-process">Worked birth process<a class="headerlink" href="#worked-birth-process" title="Permanent link">¤</a></h3>
+<p>For count <span class="arithmatex">\(N_t\in\mathbb N\)</span> with birth rate <span class="arithmatex">\(\lambda(n)\)</span>,</p>
+<div class="arithmatex">\[
+(\mathcal L\varphi)(n)=\lambda(n)[\varphi(n+1)-\varphi(n)].
+\]</div>
+<p>If <span class="arithmatex">\(\lambda(n)=\lambda\)</span> is constant, <span class="arithmatex">\(N_t-N_0\)</span> is Poisson with mean <span class="arithmatex">\(\lambda t\)</span>. If rates grow too quickly, infinitely many jumps can occur in finite time; non-explosion must be checked.</p>
+<p>The rate-growth warning has an exact pure-birth test. Starting at <span class="arithmatex">\(1\)</span>, the
+holding times are independent exponentials <span class="arithmatex">\(E_n\)</span> with mean <span class="arithmatex">\(1/\lambda(n)\)</span>.
+For <span class="arithmatex">\(\lambda(n)=n\)</span>, the sum of means diverges and the usual pure-birth process
+does not explode. For <span class="arithmatex">\(\lambda(n)=n^2\)</span>, <span class="arithmatex">\(\sum_n1/n^2&lt;\infty\)</span> and the total time
+to infinitely many births is finite almost surely. A finite rate at every
+individual state therefore does not imply non-explosion.</p>
+<h3 id="geometry-changes-the-generator">Geometry changes the generator<a class="headerlink" href="#geometry-changes-the-generator" title="Permanent link">¤</a></h3>
+<p>On a Riemannian manifold, Brownian motion uses the Laplace–Beltrami operator, not the ambient Euclidean Laplacian. On graphs, allowed edges constrain jump rates. On sets with variable cardinality, birth/death moves change dimension. “Use the same generator network” is an implementation analogy unless the operator respects the state space.</p>
+<div class="md-typeset__table book-table-container"><table id="tbl-general-markov-generators-geometry-changes-the-generator"><caption class="book-object-caption"><span class="book-object-number">Table MARKOV.7.</span> Geometry changes the generator</caption>
+<thead>
+<tr>
+<th>State space</th>
+<th>Admissible infinitesimal mechanisms</th>
+<th>A required structural check</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>bounded Euclidean domain</td>
+<td>tangent drift, reflected/absorbed diffusion, interior jumps</td>
+<td>boundary flux and solver boundary rule agree</td>
+</tr>
+<tr>
+<td>Riemannian manifold</td>
+<td>tangent drift, metric covariance, intrinsic jumps</td>
+<td>coordinate invariance or equivariance under chart change</td>
+</tr>
+<tr>
+<td>finite graph</td>
+<td>jumps along declared edges</td>
+<td>nonnegative edge rates and exact row sums</td>
+</tr>
+<tr>
+<td>variable-size set</td>
+<td>births, deaths, moves, marks</td>
+<td>reference measure and dimension-changing rate convention</td>
+</tr>
+<tr>
+<td>product discrete/continuous space</td>
+<td>coupled drift, diffusion, and jumps</td>
+<td>each event maps into the declared product state space</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="misconception-checks-families-and-geometry">Misconception checks: families and geometry<a class="headerlink" href="#misconception-checks-families-and-geometry" title="Permanent link">¤</a></h3>
+<ul>
+<li><strong>“Discrete diffusion is a Gaussian update on integers.”</strong> A discrete CTMC
+  uses jump rates and a master equation; an integer-valued Gaussian rounding
+  scheme is a different transition kernel.</li>
+<li><strong>“A covariance network may output any matrix.”</strong> The generator sees a
+  symmetric positive-semidefinite covariance <span class="arithmatex">\(a\)</span>, not an unconstrained matrix.</li>
+<li><strong>“Finite rate everywhere prevents explosion.”</strong> State-dependent rates can
+  grow along a path fast enough for holding times to accumulate.</li>
+<li><strong>“Adding a jump head to an ODE makes a PDMP.”</strong> The event clock, integrated
+  hazard, reset kernel, and post-event state must also be defined.</li>
+</ul>
+<details class="question">
+<summary>Retrieval practice: Markov process families</summary>
+<ol>
+<li>Which generator term distinguishes diffusion from deterministic flow?</li>
+<li>What quantities specify a pure-jump generator?</li>
+<li>Why is a piecewise-deterministic process not merely an ODE with observation noise?</li>
+<li>What must change when a process is constrained to a manifold or a bounded domain?</li>
+</ol>
+<p><strong>Solutions.</strong> (1) The second-order covariance/Hessian term. (2) Jump intensities and a post-jump kernel, or equivalent state-to-state rates. (3) Its random event times and state transitions are part of the latent dynamics, interrupting deterministic evolution. (4) The generator domain, tangent or boundary behavior, reference measure, and simulator must respect the actual state space.</p>
+</details>
+<h3 id="independent-practice-and-assessment-map-process-families">Independent practice and assessment map: process families<a class="headerlink" href="#independent-practice-and-assessment-map-process-families" title="Permanent link">¤</a></h3>
+<ol>
+<li><strong>P1.1 — Predict before computing: test functions.</strong> <em>Type: predict · Difficulty: foundation · Typical time: 8 min.</em> For a one-dimensional process, predict which of <span class="arithmatex">\(\varphi(x)=1,x,x^2\)</span> can reveal drift, diffusion variance, and symmetric unit jumps; then compute their generator values.</li>
+<li><strong>P1.2 — Derive a state-dependent forward equation.</strong> <em>Type: derive · Difficulty: core · Typical time: 12 min.</em> For <span class="arithmatex">\(dX_t=-X_tdt+e^{X_t/2}dW_t\)</span>, derive <span class="arithmatex">\(\mathcal L\varphi\)</span> and <span class="arithmatex">\(\mathcal L^*p\)</span>. Identify the term lost by incorrectly writing <span class="arithmatex">\(\tfrac12a\,p''\)</span>.</li>
+<li><strong>P1.3 — Check a symmetric compound-Poisson oracle.</strong> <em>Type: derive · Difficulty: core · Typical time: 10 min.</em> Jumps <span class="arithmatex">\(+1\)</span> and <span class="arithmatex">\(-1\)</span> each occur at rate <span class="arithmatex">\(\lambda/2\)</span>. Compute <span class="arithmatex">\(\mathcal Lx\)</span> and <span class="arithmatex">\(\mathcal Lx^2\)</span> and infer the derivatives of the first two moments.</li>
+<li><strong>P1.4 — Diagnose explosion.</strong> <em>Type: derive · Difficulty: stretch · Typical time: 12 min.</em> Compare pure-birth rates <span class="arithmatex">\(\lambda(n)=n\)</span> and <span class="arithmatex">\(\lambda(n)=n^2\)</span> using the sum of mean holding times. Explain why bounding a finite simulation at <span class="arithmatex">\(n\leq N\)</span> cannot establish non-explosion of the unbounded model.</li>
+<li><strong>P1.5 — Design a two-mode thermostat PDMP.</strong> <em>Type: design · Difficulty: stretch · Typical time: 18 min.</em> Let a continuous temperature relax toward a mode-dependent target while the mode switches with a temperature-dependent rate. Write <span class="arithmatex">\(b\)</span>, <span class="arithmatex">\(\lambda\)</span>, <span class="arithmatex">\(K\)</span>, the generator, and an exact event-time procedure up to ODE quadrature.</li>
+<li><strong>P1.6 — Transfer to a molecular manifold.</strong> <em>Type: transfer · Difficulty: stretch · Typical time: 18 min.</em> Propose drift, covariance, and bond-jump mechanisms for fixed-length molecular coordinates modulo rigid motion. State one geometry, validity, explosion, and finite-solver audit.</li>
+</ol>
+<h4 id="feedback-contract-process-families">Feedback contract: process families<a class="headerlink" href="#feedback-contract-process-families" title="Permanent link">¤</a></h4>
+<div class="md-typeset__table book-table-container"><table id="tbl-general-markov-generators-feedback-contract-process-families-1"><caption class="book-object-caption"><span class="book-object-number">Table MARKOV.8.</span> Feedback contract: process families — table 1</caption>
+<thead>
+<tr>
+<th>Task</th>
+<th>Evidence of success</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>P1.1</td>
+<td>Constants vanish, linear tests expose mean drift, and quadratic tests expose local covariance or jump variance.</td>
+</tr>
+<tr>
+<td>P1.2</td>
+<td>Both derivatives act on <span class="arithmatex">\(e^xp\)</span> in the adjoint and the missing product-rule terms are named.</td>
+</tr>
+<tr>
+<td>P1.3</td>
+<td>Zero mean drift and variance growth <span class="arithmatex">\(\lambda\)</span> are recovered from the same jump generator.</td>
+</tr>
+<tr>
+<td>P1.4</td>
+<td>The harmonic and square-summable holding-time regimes are distinguished, including the truncation caveat.</td>
+</tr>
+<tr>
+<td>P1.5</td>
+<td>Continuous flow, integrated hazard, switch kernel, and post-event restart are all explicit.</td>
+</tr>
+<tr>
+<td>P1.6</td>
+<td>The mechanisms live on the correct quotient/tangent structure and every requested audit is concrete.</td>
+</tr>
+</tbody>
+</table></div>
+<details class="tip">
+<summary>Graduated hints for P1</summary>
+<div class="md-typeset__table book-table-container"><table id="tbl-general-markov-generators-feedback-contract-process-families-2"><caption class="book-object-caption"><span class="book-object-number">Table MARKOV.9.</span> Feedback contract: process families — table 2</caption>
+<thead>
+<tr>
+<th>Task</th>
+<th>Hint 1 — Direction</th>
+<th>Hint 2 — Setup</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>P1.1</td>
+<td>A constant cannot distinguish any conservative mechanism.</td>
+<td>Diffusion and symmetric jumps both vanish on <span class="arithmatex">\(x\)</span> but not on <span class="arithmatex">\(x^2\)</span>.</td>
+</tr>
+<tr>
+<td>P1.2</td>
+<td>Here <span class="arithmatex">\(a(x)=e^x\)</span>.</td>
+<td>The adjoint term is <span class="arithmatex">\(\tfrac12\partial_{xx}(e^xp)\)</span>.</td>
+</tr>
+<tr>
+<td>P1.3</td>
+<td>Average the two increments.</td>
+<td>For <span class="arithmatex">\(x^2\)</span>, <span class="arithmatex">\((x+1)^2+(x-1)^2-2x^2=2\)</span>.</td>
+</tr>
+<tr>
+<td>P1.4</td>
+<td>Explosion time is <span class="arithmatex">\(\sum_nE_n\)</span>.</td>
+<td>Compare <span class="arithmatex">\(\sum1/n\)</span> with <span class="arithmatex">\(\sum1/n^2\)</span>.</td>
+</tr>
+<tr>
+<td>P1.5</td>
+<td>The hazard changes as temperature follows its ODE.</td>
+<td>Solve <span class="arithmatex">\(\int_0^\tau\lambda(X_s)ds=E\)</span> for <span class="arithmatex">\(E\sim\operatorname{Exp}(1)\)</span>.</td>
+</tr>
+<tr>
+<td>P1.6</td>
+<td>Remove translations and make vector fields rotate equivariantly.</td>
+<td>Tangent projection and invariant jump features are separate checks.</td>
+</tr>
+</tbody>
+</table></div>
+</details>
+<h4 id="outcome-to-task-alignment-process-families">Outcome-to-task alignment: process families<a class="headerlink" href="#outcome-to-task-alignment-process-families" title="Permanent link">¤</a></h4>
+<div class="md-typeset__table book-table-container"><table id="tbl-general-markov-generators-outcome-to-task-alignment-process-families"><caption class="book-object-caption"><span class="book-object-number">Table MARKOV.10.</span> Outcome-to-task alignment: process families</caption>
+<thead>
+<tr>
+<th>Learning objective</th>
+<th>Independently assessed by</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>O1 — Read path behavior from an operator</td>
+<td>P1.1, P1.3</td>
+</tr>
+<tr>
+<td>O2 — Derive family-specific forward equations</td>
+<td>P1.2, P1.3</td>
+</tr>
+<tr>
+<td>O3 — Construct hybrid processes</td>
+<td>P1.5, P1.6</td>
+</tr>
+<tr>
+<td>O4 — Diagnose explosion and integrability</td>
+<td>P1.4, P1.5</td>
+</tr>
+<tr>
+<td>O5 — Respect geometry</td>
+<td>P1.6</td>
+</tr>
+<tr>
+<td>O6 — Transfer by mechanism</td>
+<td>P1.5, P1.6</td>
+</tr>
+</tbody>
+</table></div>
+<details class="success">
+<summary>Complete solutions to P1</summary>
+<ol>
+<li><strong>P1.1.</strong> Every conservative generator kills <span class="arithmatex">\(1\)</span>. For a drift <span class="arithmatex">\(b\)</span>, <span class="arithmatex">\(\mathcal Lx=b\)</span> and <span class="arithmatex">\(\mathcal Lx^2=2bx\)</span>. Adding diffusion variance <span class="arithmatex">\(a\)</span> changes the latter to <span class="arithmatex">\(2bx+a\)</span>. Symmetric unit jumps contribute <span class="arithmatex">\(\lambda[(x+1)^2+(x-1)^2-2x^2]/2=\lambda\)</span> while contributing zero to <span class="arithmatex">\(x\)</span>. Thus <span class="arithmatex">\(x\)</span> sees drift, and <span class="arithmatex">\(x^2\)</span> sees total local/jump variation but does not by itself separate their sources. <strong>Check.</strong> More test functions or path information are required for full identification.</li>
+<li><strong>P1.2.</strong> <span class="arithmatex">\(\mathcal L\varphi=-x\varphi'+\tfrac12e^x\varphi''\)</span> and <span class="arithmatex">\(\mathcal L^*p=\partial_x(xp)+\tfrac12\partial_{xx}(e^xp)\)</span>. Expanding the second term produces <span class="arithmatex">\(\tfrac12e^x(p+2p'+p'')\)</span>; the shortcut retains only <span class="arithmatex">\(\tfrac12e^xp''\)</span>. <strong>Check.</strong> Spatial covariance derivatives are not optional.</li>
+<li><strong>P1.3.</strong> <span class="arithmatex">\(\mathcal Lx=\frac\lambda2[(x+1-x)+(x-1-x)]=0\)</span>. Also <span class="arithmatex">\(\mathcal Lx^2=\lambda\)</span>. Dynkin's formula gives <span class="arithmatex">\(d\mathbb E[X_t]/dt=0\)</span> and <span class="arithmatex">\(d\mathbb E[X_t^2]/dt=\lambda\)</span>. <strong>Check.</strong> This agrees with a rate-<span class="arithmatex">\(\lambda\)</span> Poisson number of variance-one jumps.</li>
+<li><strong>P1.4.</strong> Mean holding times sum as <span class="arithmatex">\(\sum1/n=\infty\)</span> for linear rates but as <span class="arithmatex">\(\sum1/n^2&lt;\infty\)</span> for quadratic rates; the latter pure-birth chain explodes. Any cap <span class="arithmatex">\(N\)</span> leaves only finitely many jumps and therefore changes the question. <strong>Check.</strong> “No explosion observed” under truncation is not a theorem about the original state space.</li>
+<li><strong>P1.5.</strong> One construction uses state <span class="arithmatex">\((m,T)\)</span>, <span class="arithmatex">\(m\in\{0,1\}\)</span>, <span class="arithmatex">\(b(m,T)=-\kappa[T-\theta_m]\)</span>, rate <span class="arithmatex">\(\lambda(m,T)\geq0\)</span>, and <span class="arithmatex">\(K((m,T),d(m',T'))=\delta_{(1-m,T)}\)</span>. Then <span class="arithmatex">\(\mathcal L\varphi=b\partial_T\varphi+\lambda[\varphi(1-m,T)-\varphi(m,T)]\)</span>. Integrate the ODE and cumulative hazard to an exponential threshold, flip <span class="arithmatex">\(m\)</span>, and restart. <strong>Check.</strong> Sampling <span class="arithmatex">\(\operatorname{Exp}(\lambda(m,T_0))\)</span> without integrating the changing rate is generally wrong.</li>
+<li><strong>P1.6.</strong> Use translation-free coordinates, equivariant tangent drift, positive-semidefinite tangent covariance, and nonnegative bond rates based on invariant distances/angles. Audit rigid-motion equivariance, covariance/rate validity and row sums, bounded event intensities or a Lyapunov condition, and weak convergence plus constraint error under step refinement. <strong>Rubric.</strong> Ambient Gaussian steps followed by projection must be reported as a finite approximation, not the intrinsic generator.</li>
+</ol>
+</details>
+<h3 id="chapter-2-synthesis">Chapter 2 synthesis<a class="headerlink" href="#chapter-2-synthesis" title="Permanent link">¤</a></h3>
+<p>First-order, second-order, and nonlocal terms correspond to deterministic drift, diffusion, and jumps. Their sum can model hybrid evolution, but every component must be a valid operator on the same state space. Chapter 3 explains how conditional generators can be marginalized into a learnable generative process.</p>
+<hr/>
+<p><strong>Previous:</strong> <a href="../general-markov-01-operators/">1. Operators</a> · <strong>Continue:</strong> <a href="../general-markov-03-matching/">3. Generator Matching</a> · <a href="../general-markov-generators/">Complete guide</a></p>
+</article>
+</div>
+<script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  Back to top
+</button>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+<div class="md-social">
+<a class="md-social__link" href="https://github.com/avitai/artifex" rel="noopener" target="_blank" title="github.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</a>
+<a class="md-social__link" href="https://pypi.org/project/avitai-artifex/" rel="noopener" target="_blank" title="pypi.org">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-66.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.3v101.8c0 29 25.2 46 53.4 54.3 33.8 9.9 66.3 11.7 106.8 0 26.9-7.8 53.4-23.5 53.4-54.3v-40.7H226.2v-13.6h160.2c31.1 0 42.6-21.7 53.4-54.2 11.2-33.5 10.7-65.7 0-108.6M286.2 444.7a20.4 20.4 0 1 1 0-40.7 20.4 20.4 0 1 1 0 40.7M167.8 248.1h106.8c29.7 0 53.4-24.5 53.4-54.3V91.9c0-29-24.4-50.7-53.4-55.6-35.8-5.9-74.7-5.6-106.8.1-45.2 8-53.4 24.7-53.4 55.6v40.7h106.9v13.6h-147c-31.1 0-58.3 18.7-66.8 54.2-9.8 40.7-10.2 66.1 0 108.6 7.6 31.6 25.7 54.2 56.8 54.2H101v-48.8c0-35.3 30.5-66.4 66.8-66.4m-6.6-183.4a20.4 20.4 0 1 1 0 40.8 20.4 20.4 0 1 1 0-40.8"></path></svg>
+</a>
+<a class="md-social__link" href="https://twitter.com/mahdi_shafiei" rel="noopener" target="_blank" title="twitter.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M459.4 151.7c.3 4.5.3 9.1.3 13.6 0 138.7-105.6 298.6-298.6 298.6-59.5 0-114.7-17.2-161.1-47.1 8.4 1 16.6 1.3 25.3 1.3 49.1 0 94.2-16.6 130.3-44.8-46.1-1-84.8-31.2-98.1-72.8 6.5 1 13 1.6 19.8 1.6 9.4 0 18.8-1.3 27.6-3.6-48.1-9.7-84.1-52-84.1-103v-1.3c14 7.8 30.2 12.7 47.4 13.3-28.3-18.8-46.8-51-46.8-87.4 0-19.5 5.2-37.4 14.3-53C87.4 130.8 165 172.4 252.1 176.9c-1.6-7.8-2.6-15.9-2.6-24C249.5 95.1 296.3 48 354.4 48c30.2 0 57.5 12.7 76.7 33.1 23.7-4.5 46.5-13.3 66.6-25.3-7.8 24.4-24.4 44.8-46.1 57.8 21.1-2.3 41.6-8.1 60.4-16.2-14.3 20.8-32.2 39.3-52.6 54.3"></path></svg>
+</a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.path", "navigation.top", "navigation.prune", "toc.follow", "search.highlight", "search.share", "search.suggest", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "content.mermaid"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+<script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+<script src="../../../javascripts/reading-layout.js"></script>
+</body>
+</html>

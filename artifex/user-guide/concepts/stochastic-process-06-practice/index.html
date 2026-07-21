@@ -1,0 +1,1684 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="This chapter provides model selection, function-space evaluation, failure modes, evidence review, research exercises, and primary sources. For uninterrupted" name="description"/>
+<meta content="Mahdi Shafiei" name="author"/>
+<link href="https://docs.avitai.bio/artifex/user-guide/concepts/stochastic-process-06-practice/" rel="canonical"/>
+<link href="../stochastic-process-05-diffusion/" rel="prev"/>
+<link href="../stochastic-process-generators-explained/" rel="next"/>
+<link href="../../../assets/images/favicon.png" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.7.7" name="generator"/>
+<title>Stochastic-Process Generators 6 — Evaluation and Research - Artifex</title>
+<link href="../../../assets/stylesheets/main.ec1eaa64.min.css" rel="stylesheet"/>
+<link href="../../../assets/stylesheets/palette.ab4e12ef.min.css" rel="stylesheet"/>
+<script src="../../../assets/vendor/iframe-worker/index.js"></script>
+<link href="../../../assets/_mkdocstrings.css" rel="stylesheet"/>
+<link href="../../../_static/extra.css" rel="stylesheet"/>
+<script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+<meta content="article" property="og:type"/>
+<meta content="The Artifex Generative Models Book" property="og:site_name"/>
+<meta content="Stochastic-Process Generators 6 — Evaluation and Research" property="og:title"/>
+<meta content="This chapter provides model selection, function-space evaluation, failure modes, evidence review, research exercises, and primary sources. For uninterrupted" property="og:description"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/stochastic-process-06-practice/" property="og:url"/>
+<meta content="2026-07-19" property="article:modified_time"/>
+<meta content="summary" name="twitter:card"/>
+<meta content="Stochastic-Process Generators 6 — Evaluation and Research" name="twitter:title"/>
+<meta content="This chapter provides model selection, function-space evaluation, failure modes, evidence review, research exercises, and primary sources. For uninterrupted" name="twitter:description"/>
+<meta content="Generative models, Machine learning, Probabilistic modeling, research, specialization, canonical_chapter, stochastic-process-practice, practitioner, researcher" name="keywords"/>
+<meta content="Stochastic-Process Generators 6 — Evaluation and Research" name="citation_title"/>
+<meta content="Mahdi Shafiei" name="citation_author"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/stochastic-process-06-practice/" name="citation_public_url"/>
+<meta content="en" name="citation_language"/>
+<meta content="Stochastic-Process Generators 6 — Evaluation and Research" name="DC.title"/>
+<meta content="Mahdi Shafiei" name="DC.creator"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/stochastic-process-06-practice/" name="DC.identifier"/>
+<meta content="Text.LearningResource" name="DC.type"/>
+<meta content="2026-07-19" name="DCTERMS.modified"/>
+<meta content="https://github.com/avitai/artifex/blob/main/LICENSE" name="DCTERMS.license"/>
+<meta content="research" name="DCTERMS.educationLevel"/>
+<meta content="practitioner, researcher" name="DCTERMS.audience"/>
+<link href="https://github.com/avitai/artifex/blob/main/LICENSE" rel="license"/>
+<script id="artifex-book-metadata" type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Chapter",
+  "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/stochastic-process-06-practice/",
+  "url": "https://docs.avitai.bio/artifex/user-guide/concepts/stochastic-process-06-practice/",
+  "name": "Stochastic-Process Generators 6 \u2014 Evaluation and Research",
+  "description": "This chapter provides model selection, function-space evaluation, failure modes, evidence review, research exercises, and primary sources. For uninterrupted",
+  "identifier": "stochastic-process-practice",
+  "inLanguage": "en",
+  "isAccessibleForFree": true,
+  "learningResourceType": "Canonical chapter",
+  "educationalLevel": "research",
+  "educationalUse": "specialization",
+  "audience": [
+    
+      {"@type": "EducationalAudience", "audienceType": "practitioner"},
+    
+      {"@type": "EducationalAudience", "audienceType": "researcher"}
+    
+  ],
+  "dateModified": "2026-07-19",
+  "keywords": ["Generative models", "Machine learning", "Probabilistic modeling", "research", "specialization", "canonical_chapter", "stochastic-process-practice", "practitioner", "researcher"],
+  "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+  "author": [
+    
+      {"@type": "Person", "name": "Mahdi Shafiei"}
+    
+  ],
+  "isPartOf": {
+    "@type": "Book",
+    "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/#book",
+    "url": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/",
+    "name": "The Artifex Generative Models Book",
+    "bookEdition": "Living Web Edition",
+    "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+    "author": [
+      
+        {"@type": "Person", "name": "Mahdi Shafiei"}
+      
+    ]
+  }
+}
+</script>
+<link href="../../../assets/vendor/katex/katex.min.css" id="artifex-katex-stylesheet" integrity="sha384-UA8juhPf75SzzAMA/4fo3yOU7sBJ0om7SCD2GHq0fZqZco6tr1UCV7nUbk9J90JM" rel="stylesheet"/>
+<script defer="" integrity="sha384-T/0lMUdJpd2S1ZHtRiofG3htU3xPCrFVeAQ1UUE2TJwlEJSV5NUwn30kP28n238E" src="../../../assets/vendor/mermaid/mermaid.min.js"></script>
+<script defer="" src="../../../assets/vendor/katex/katex-shadow.js"></script>
+<script defer="" src="../../../javascripts/mermaid-math.js"></script>
+<script defer="" src="../../../javascripts/mathjax.js"></script>
+<script defer="" integrity="sha384-OrHfGTnIbkl0do3N76qW/uWr38o91N05sbSPuYBPLH+hG8X/dNSrjZf3AGjzrCwC" src="../../../assets/vendor/mathjax/tex-mml-chtml.js"></script>
+</head>
+<body data-md-color-accent="amber" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#stochastic-process-generators-6-evaluation-and-research">
+          Skip to content
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header md-header--shadow" data-md-component="header">
+<nav aria-label="Header" class="md-header__inner md-grid">
+<a aria-label="Artifex" class="md-header__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            Artifex
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+            
+              Stochastic-Process Generators 6 — Evaluation and Research
+            
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-label="Switch to dark mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: light)" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_1" hidden="" title="Switch to dark mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+<input aria-label="Switch to light mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-primary="indigo" data-md-color-scheme="slate" id="__palette_1" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_0" hidden="" title="Switch to light mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+</form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div aria-label="Search" class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Search" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="Search" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="Search" class="md-search__options">
+<a aria-label="Share" class="md-search__icon md-icon" data-clipboard="" data-clipboard-text="" data-md-component="search-share" href="javascript:void(0)" tabindex="-1" title="Share">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"></path></svg>
+</a>
+<button aria-label="Clear" class="md-search__icon md-icon" tabindex="-1" title="Clear" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            Initializing search
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Navigation" class="md-nav md-nav--primary" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="Artifex" class="md-nav__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+    Artifex
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../..">
+<span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../getting-started/installation/">
+<span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Generative Models Book
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Generative Models Book
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    
+  
+    Start Here — The Landscape
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../first-course-01-generative-systems/">
+<span class="md-ellipsis">
+    
+  
+    First Course — New to Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../probability-01-objects/">
+<span class="md-ellipsis">
+    
+  
+    Foundations
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_4" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_4" id="__nav_3_4_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Model Families
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_4_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_4">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Model Families
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../autoregressive-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Autoregressive Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../vae-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Variational Autoencoders
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gan-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Generative Adversarial Networks
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../ebm-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Energy-Based Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../diffusion-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Diffusion Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../flow-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Normalizing Flows and Flow Matching
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../probabilistic-circuits-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Probabilistic Circuits
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../tensor-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Tensor-Network and Born Probability Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../implicit-generators-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Implicit Generators Beyond GANs
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../discrete-iterative-01-masked/">
+<span class="md-ellipsis">
+    
+  
+    Discrete Iterative Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../bayesian-flow-networks-01-story/">
+<span class="md-ellipsis">
+    
+  
+    Bayesian Flow Networks
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gflownets-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Generative Flow Networks
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../bnp-01-random-measures/">
+<span class="md-ellipsis">
+    
+  
+    Bayesian Nonparametric Random-Measure Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_4_14" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_4_14" id="__nav_3_4_14_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Stochastic-Process and Function-Space Generators
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_4_14_label" class="md-nav" data-md-level="3">
+<label class="md-nav__title" for="__nav_3_4_14">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Stochastic-Process and Function-Space Generators
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../stochastic-process-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    1. Function-Space Foundations
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../stochastic-process-02-gaussian-processes/">
+<span class="md-ellipsis">
+    
+  
+    2. Gaussian Processes
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../stochastic-process-03-neural-processes/">
+<span class="md-ellipsis">
+    
+  
+    3. Neural Processes
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../stochastic-process-04-dynamics/">
+<span class="md-ellipsis">
+    
+  
+    4. Latent Dynamics and SDEs
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../stochastic-process-05-diffusion/">
+<span class="md-ellipsis">
+    
+  
+    5. Function-Space Diffusion
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
+    
+  
+    6. Evaluation and Research
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
+<span class="md-ellipsis">
+    
+  
+    6. Evaluation and Research
+  
+
+    
+  </span>
+</a>
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#6-evaluation-applications-and-research">
+<span class="md-ellipsis">
+      
+        6. Evaluation, Applications, and Research
+      
+    </span>
+</a>
+<nav aria-label="6. Evaluation, Applications, and Research" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-6-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 6 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#model-selection">
+<span class="md-ellipsis">
+      
+        Model Selection
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#evaluation-contract">
+<span class="md-ellipsis">
+      
+        Evaluation Contract
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#data-and-compute-protocol">
+<span class="md-ellipsis">
+      
+        Data and Compute Protocol
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#failure-modes">
+<span class="md-ellipsis">
+      
+        Failure Modes
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#research-evidence-map">
+<span class="md-ellipsis">
+      
+        Research Evidence Map
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#cumulative-worked-study-irregular-climate-fields">
+<span class="md-ellipsis">
+      
+        Cumulative Worked Study: Irregular Climate Fields
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#independent-practice-and-assessment-map-evaluation-and-research">
+<span class="md-ellipsis">
+      
+        Independent practice and assessment map: evaluation and research
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#research-exercises">
+<span class="md-ellipsis">
+      
+        Research Exercises
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#primary-reading-trail">
+<span class="md-ellipsis">
+      
+        Primary Reading Trail
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#source-tracing-checklist">
+<span class="md-ellipsis">
+      
+        Source-Tracing Checklist
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#final-synthesis">
+<span class="md-ellipsis">
+      
+        Final Synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../stochastic-process-generators-explained/">
+<span class="md-ellipsis">
+    
+  
+    Continuous View (All Chapters)
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../point-processes-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Point Processes and Random Finite Sets
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../random-graphs-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Random Graphs and Relational Generators
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../copula-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Copula Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../grammar-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Probabilistic Grammars and Program Derivations
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../causal-generative-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Causal Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../new-families-frontier-evidence/">
+<span class="md-ellipsis">
+    
+  
+    Research Evidence Ledger
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gradients-01-taxonomy/">
+<span class="md-ellipsis">
+    
+  
+    Connections and Compositions
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../normalization-01-queries/">
+<span class="md-ellipsis">
+    
+  
+    Research Practice
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../models/vae-guide/">
+<span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/core/base/">
+<span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../examples/overview/">
+<span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../zoo/">
+<span class="md-ellipsis">
+    
+  
+    Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../training/overview/">
+<span class="md-ellipsis">
+    
+  
+    Training
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../data/overview/">
+<span class="md-ellipsis">
+    
+  
+    Data &amp; Modalities
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../inference/overview/">
+<span class="md-ellipsis">
+    
+  
+    Inference &amp; Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../benchmarks/">
+<span class="md-ellipsis">
+    
+  
+    Evaluation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../guides/extensions/">
+<span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../extensions/">
+<span class="md-ellipsis">
+    
+  
+    Advanced Topics
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../cli/">
+<span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../community/contributing/">
+<span class="md-ellipsis">
+    
+  
+    Community
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/configs/protein-extension/">
+<span class="md-ellipsis">
+    
+  
+    Reference Library
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#6-evaluation-applications-and-research">
+<span class="md-ellipsis">
+      
+        6. Evaluation, Applications, and Research
+      
+    </span>
+</a>
+<nav aria-label="6. Evaluation, Applications, and Research" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-6-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 6 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#model-selection">
+<span class="md-ellipsis">
+      
+        Model Selection
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#evaluation-contract">
+<span class="md-ellipsis">
+      
+        Evaluation Contract
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#data-and-compute-protocol">
+<span class="md-ellipsis">
+      
+        Data and Compute Protocol
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#failure-modes">
+<span class="md-ellipsis">
+      
+        Failure Modes
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#research-evidence-map">
+<span class="md-ellipsis">
+      
+        Research Evidence Map
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#cumulative-worked-study-irregular-climate-fields">
+<span class="md-ellipsis">
+      
+        Cumulative Worked Study: Irregular Climate Fields
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#independent-practice-and-assessment-map-evaluation-and-research">
+<span class="md-ellipsis">
+      
+        Independent practice and assessment map: evaluation and research
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#research-exercises">
+<span class="md-ellipsis">
+      
+        Research Exercises
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#primary-reading-trail">
+<span class="md-ellipsis">
+      
+        Primary Reading Trail
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#source-tracing-checklist">
+<span class="md-ellipsis">
+      
+        Source-Tracing Checklist
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#final-synthesis">
+<span class="md-ellipsis">
+      
+        Final Synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<nav aria-label="Breadcrumb" class="md-path">
+<ol class="md-path__list">
+<li class="md-path__item">
+<a class="md-path__link" href="../../..">
+<span class="md-ellipsis">
+    Home
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    Generative Models Book
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../autoregressive-01-foundations/">
+<span class="md-ellipsis">
+    Model Families
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../stochastic-process-01-foundations/">
+<span class="md-ellipsis">
+    Stochastic-Process and Function-Space Generators
+  </span>
+</a>
+</li>
+</ol>
+</nav>
+<article class="md-content__inner md-typeset">
+<h1 id="stochastic-process-generators-6-evaluation-and-research">Stochastic-Process Generators 6 — Evaluation and Research<a class="headerlink" href="#stochastic-process-generators-6-evaluation-and-research" title="Permanent link">¤</a></h1><aside aria-label="Learning path" class="admonition abstract artifex-learning-path"><p class="admonition-title">Learning path</p><p><strong>Required knowledge</strong></p><ul class="artifex-learning-path__links" data-learning-path-role="required"><li><a href="../stochastic-process-05-diffusion/">Stochastic-Process Generators 5 — Function-Space Diffusion</a></li></ul><p><strong>Readiness check:</strong> can you explain the central object and reproduce one worked example from each required chapter? If not, follow its link before continuing.</p><p><strong>Newly unlocked in the default route</strong></p><p>No immediate successor names this page as its final required prerequisite. Continue through the book navigation or the chapter's cross-links.</p></aside>
+<p>This chapter provides model selection, function-space evaluation, failure modes, evidence review, research exercises, and primary sources. For uninterrupted reading, use the <a href="../stochastic-process-generators-explained/#6-evaluation-applications-and-research">complete guide</a>.</p>
+<h2 id="6-evaluation-applications-and-research">6. Evaluation, Applications, and Research<a class="headerlink" href="#6-evaluation-applications-and-research" title="Permanent link">¤</a></h2>
+<h3 id="chapter-6-prerequisites-and-learning-objectives">Chapter 6 prerequisites and learning objectives<a class="headerlink" href="#chapter-6-prerequisites-and-learning-objectives" title="Permanent link">¤</a></h3>
+<p>This capstone assumes all preceding process families. By the end, you should be
+able to select a process model from its query and consistency requirements,
+evaluate calibration, coherence, dynamics, extremes, and downstream utility
+across grids and horizons, design controlled replacements in a cumulative study,
+and distinguish evidence for interpolation on observed grids from evidence for
+a coherent continuous-domain generator.</p>
+<p><strong>Prerequisites.</strong> Chapters 1–5 and the research-practice modules on evaluation, compute, and reproducibility.</p>
+<p><strong>Numbered learning outcomes.</strong> After completing the chapter, you can:</p>
+<ol>
+<li><strong>O1 — Select by query and law.</strong> Match a scientific need to a GP, Neural Process, latent dynamics model, stochastic operator, or function transport without choosing by benchmark rank alone.</li>
+<li><strong>O2 — Build a layered evaluation.</strong> Combine pointwise, finite-joint, projective, conditional, pathwise, discretization, physical, and decision tests.</li>
+<li><strong>O3 — Prevent task leakage.</strong> Design independent-function, context/target, horizon, regime, and resolution splits that separate interpolation from extrapolation and adaptation.</li>
+<li><strong>O4 — Report uncertainty and compute.</strong> Disaggregate observation, process, parameter, approximation, and numerical uncertainty alongside training and per-query cost.</li>
+<li><strong>O5 — Audit evidence boundaries.</strong> Trace each research claim to its named model, data, function space, discretization, approximation, and review status.</li>
+<li><strong>O6 — Specify a reproducible study.</strong> Predeclare the object, conditioning information, baselines, ablations, metrics, failure criteria, artifacts, and negative-result policy.</li>
+</ol>
+<h3 id="model-selection">Model Selection<a class="headerlink" href="#model-selection" title="Permanent link">¤</a></h3>
+<div class="md-typeset__table book-table-container"><table id="tbl-stochastic-process-generators-explained-model-selection"><caption class="book-object-caption"><span class="book-object-number">Table PROC.4.</span> Model Selection</caption>
+<thead>
+<tr>
+<th>Need</th>
+<th>Strong starting point</th>
+<th>Main limitation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Small-data calibrated regression</td>
+<td>GP</td>
+<td>kernel design and cubic scaling</td>
+</tr>
+<tr>
+<td>Fast adaptation across related tasks</td>
+<td>CNP/TNP</td>
+<td>meta-distribution shift and joint coherence</td>
+</tr>
+<tr>
+<td>Multimodal global function uncertainty</td>
+<td>latent/flow/diffusion NP</td>
+<td>inference and sampling cost</td>
+</tr>
+<tr>
+<td>Irregular continuous-time dynamics</td>
+<td>latent SDE/state-space model</td>
+<td>solver and latent identifiability</td>
+</tr>
+<tr>
+<td>Implicit realistic paths</td>
+<td>neural SDE GAN</td>
+<td>no pointwise likelihood; critic dependence</td>
+</tr>
+<tr>
+<td>Resolution-flexible fields</td>
+<td>stochastic operator/function diffusion</td>
+<td>discretization consistency and boundary assumptions</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="evaluation-contract">Evaluation Contract<a class="headerlink" href="#evaluation-contract" title="Permanent link">¤</a></h3>
+<p>Report context and target selection, observation noise, query resolution, marginal and joint log scores, calibration, coherent-sample diagnostics, interpolation versus extrapolation, task-distribution shift, solver error, and wall clock. For physical fields, include symmetries, conservation residuals, boundary conditions, and units.</p>
+<div class="md-typeset__table book-table-container"><table id="tbl-stochastic-process-generators-explained-evaluation-contract"><caption class="book-object-caption"><span class="book-object-number">Table PROC.5.</span> Evaluation Contract</caption>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Minimum test</th>
+<th>What it catches</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>pointwise</td>
+<td>RMSE/NLL and coverage by location/regime</td>
+<td>mean error and marginal miscalibration</td>
+</tr>
+<tr>
+<td>finite joint</td>
+<td>joint NLL, energy/kernel score, covariance</td>
+<td>dependence errors hidden by marginals</td>
+</tr>
+<tr>
+<td>projective</td>
+<td>nested-query restriction and permutations</td>
+<td>query-set inconsistency</td>
+</tr>
+<tr>
+<td>conditional</td>
+<td>add-as-context versus probabilistic conditioning</td>
+<td>learned conditioning gap</td>
+</tr>
+<tr>
+<td>pathwise</td>
+<td>increments, spectra, hitting/event statistics</td>
+<td>wrong temporal law</td>
+</tr>
+<tr>
+<td>discretization</td>
+<td>coarse/fine pushforward and refinement</td>
+<td>grid-specific generator</td>
+</tr>
+<tr>
+<td>physical</td>
+<td>boundary, conservation, units, symmetries</td>
+<td>implausible scientific fields</td>
+</tr>
+<tr>
+<td>decision</td>
+<td>control, BO, or inverse-task regret</td>
+<td>uncertainty irrelevant to use</td>
+</tr>
+</tbody>
+</table></div>
+<p>Use proper scoring rules where tractable and report Monte Carlo estimator error. Energy/MMD scores on finite vectors depend on coordinate weighting and grid density; quadrature-aware norms are needed before comparing resolutions. Coverage without interval width rewards vacuous uncertainty, while sharpness without coverage rewards overconfidence.</p>
+<figure class="book-figure" id="fig-stochastic-process-generators-explained-evaluation-contract"><pre class="mermaid"><code>%%{init: {'themeCSS': '.nodeLabel p { color: #111827 !important; } .flowchart-link { stroke: #78879a !important; stroke-width: 2px !important; } marker path { fill: #78879a !important; stroke: #78879a !important; }'}}%%
+flowchart TB
+    A[Pointwise accuracy and calibration] --&gt; B[Finite-joint dependence]
+    B --&gt; C[Projective and conditioning coherence]
+    C --&gt; D[Path and event behavior]
+    D --&gt; E[Resolution and physical constraints]
+    E --&gt; F[Decision utility and cost]
+    F --&gt; G{Claim supported at every required layer?}
+    G --&gt;|yes| H[Bounded scientific conclusion]
+    G --&gt;|no| I[Report failed layer and narrower claim]</code></pre><figcaption class="book-object-caption"><span class="book-object-number">Figure PROC.7.</span> Evaluation Contract</figcaption></figure>
+<p>The ladder prevents a pointwise score from standing in for a process-level
+claim. A study need not pass every layer, but its conclusion must stop at the
+highest layer actually tested.</p>
+<h3 id="data-and-compute-protocol">Data and Compute Protocol<a class="headerlink" href="#data-and-compute-protocol" title="Permanent link">¤</a></h3>
+<p>Split by independent functions/tasks before splitting coordinates; otherwise observations from the same latent function can leak across train and test. Report the number of tasks, observations per task, context-size distribution, query mechanism, spatial/temporal resolution, normalization units, and whether missingness is simulated or real.</p>
+<p>Compute reporting includes parameters, active parameters, training function evaluations, solver NFE, memory, wall clock/hardware, sampling batch size, and cost per queried coordinate or field. For amortized methods, separate one-time training cost from per-task adaptation and sampling.</p>
+<h3 id="failure-modes">Failure Modes<a class="headerlink" href="#failure-modes" title="Permanent link">¤</a></h3>
+<ul>
+<li>correct marginals but incoherent target covariance;</li>
+<li>context aggregation bottlenecks;</li>
+<li>latent collapse and underdispersed samples;</li>
+<li>meta-training leakage between tasks/functions;</li>
+<li>interpolation-heavy evaluation presented as forecasting;</li>
+<li>grid-specific noise scaling;</li>
+<li>neural operator violating boundary or conservation constraints;</li>
+<li>SDE solver error mistaken for stochastic uncertainty;</li>
+<li>
+<p>symmetry assumptions failing under nonstationarity.</p>
+</li>
+<li>
+<p>learned conditioning updates that disagree with the model's earlier joint law;</p>
+</li>
+<li>an identity-noise discretization presented as an <span class="arithmatex">\(H\)</span>-valued Gaussian;</li>
+<li>function-space claims without a named norm/reference measure;</li>
+<li>test tasks sharing latent trajectories or PDE simulations with training;</li>
+<li>stochasticity that conflates observation noise, parameter uncertainty, and intrinsic forcing.</li>
+</ul>
+<h3 id="research-evidence-map">Research Evidence Map<a class="headerlink" href="#research-evidence-map" title="Permanent link">¤</a></h3>
+<div class="md-typeset__table book-table-container"><table id="tbl-stochastic-process-generators-explained-research-evidence-map"><caption class="book-object-caption"><span class="book-object-number">Table PROC.6.</span> Research Evidence Map</caption>
+<thead>
+<tr>
+<th>Work</th>
+<th>Evidence</th>
+<th>Curriculum use</th>
+<th>Boundary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://proceedings.mlr.press/v235/ashman24a.html">Translation-Equivariant TNPs</a>, ICML 2024</td>
+<td>Peer-reviewed research</td>
+<td>Symmetry-aware posterior prediction maps</td>
+<td>Translation symmetry is task-dependent</td>
+</tr>
+<tr>
+<td><a href="https://proceedings.mlr.press/v235/park24f.html">Mean-field Chaos Diffusion</a>, ICML 2024</td>
+<td>Peer-reviewed research</td>
+<td>Infinite/high-cardinality interacting systems</td>
+<td>Mean-field assumptions do not cover arbitrary fields</td>
+</tr>
+<tr>
+<td><a href="https://proceedings.mlr.press/v238/kerrigan24a.html">Functional Flow Matching</a>, AISTATS 2024</td>
+<td>Peer-reviewed research</td>
+<td>Measure transport and vector fields in function space</td>
+<td>Finite basis/grid and ODE approximations still require convergence tests</td>
+</tr>
+<tr>
+<td><a href="https://proceedings.mlr.press/v267/magnani25a.html">Linearized Neural Operators</a>, ICML 2025</td>
+<td>Peer-reviewed research</td>
+<td>Approximate function-valued Gaussian beliefs from trained operators</td>
+<td>Linearization and approximate weight posterior bound uncertainty claims</td>
+</tr>
+<tr>
+<td><a href="https://proceedings.neurips.cc/paper_files/paper/2025/hash/36ca6503f05da1b8ad4391775d55c9f5-Abstract-Conference.html">Operator Flow Matching</a>, NeurIPS 2025</td>
+<td>Peer-reviewed research</td>
+<td>Learned stochastic-process priors, finite-query densities, and functional regression</td>
+<td>Sampled query sets, neural operator, ODE, trace, and SGLD approximations remain</td>
+</tr>
+<tr>
+<td><a href="https://proceedings.neurips.cc/paper_files/paper/2025/hash/57e5c3cb4c1e56cd7c12569426121a31-Abstract-Conference.html">FNOPE</a>, NeurIPS 2025</td>
+<td>Peer-reviewed research</td>
+<td>Simulation-based posterior inference for function-valued parameters</td>
+<td>Prior, simulator, grid, and benchmark scope bound evidence</td>
+</tr>
+<tr>
+<td><a href="https://openreview.net/forum?id=rLJ5Hm5vbG">Conditioning Consistency Gap</a>, TMLR 2026</td>
+<td>Peer-reviewed research</td>
+<td>Quantifies CNP conditioning inconsistency and an <span class="arithmatex">\(O(n^{-2})\)</span> rate under assumptions</td>
+<td>Bounded-encoder/Lipschitz-decoder result; few-shot gaps and other NP families remain</td>
+</tr>
+<tr>
+<td><a href="https://openreview.net/forum?id=Oj7ZwBhiyE">Empirical Gaussian Processes</a>, ICML 2026</td>
+<td>Peer-reviewed research</td>
+<td>Learns a GP mean and covariance from historical functions</td>
+<td>Gaussian projection, task independence, observation model, and population assumptions remain</td>
+</tr>
+<tr>
+<td><a href="https://openreview.net/forum?id=W76xuQcrzS">Robust IW Neural Processes</a>, ICML 2026</td>
+<td>Peer-reviewed research</td>
+<td>Tail-risk and particle-imbalance analysis for IWNPs</td>
+<td>Robust objectives trade tail and average performance</td>
+</tr>
+<tr>
+<td><a href="https://openreview.net/forum?id=uZWpKAqjEg">Expanding the Chaos</a>, ICML 2026</td>
+<td>Peer-reviewed research</td>
+<td>Neural operators for stochastic differential equations</td>
+<td>Benchmark/operator scope is specific</td>
+</tr>
+<tr>
+<td><a href="https://openreview.net/forum?id=XcJk9un0Tb">Functional Adjoint Sampler</a>, ICML 2026</td>
+<td>Peer-reviewed research</td>
+<td>Stochastic-control sampling for Hilbert-space Gibbs targets</td>
+<td>Target, functional representation, and optimization assumptions bound claims</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2512.12749">FLORAL</a>, ICLR 2026</td>
+<td>Peer-reviewed research</td>
+<td>Operator-valued flow matching for residual multi-fidelity PDE uncertainty</td>
+<td>Named PDEs, solvers, grids, and FNO architecture bound evidence</td>
+</tr>
+<tr>
+<td><a href="https://openreview.net/forum?id=7dkPGrmEMN">Direct Flow Neural Processes</a>, ICML 2026 SPIGM workshop</td>
+<td>Workshop research</td>
+<td>Amortized flow-step sampling idea</td>
+<td>Not labeled as main-conference peer review</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="cumulative-worked-study-irregular-climate-fields">Cumulative Worked Study: Irregular Climate Fields<a class="headerlink" href="#cumulative-worked-study-irregular-climate-fields" title="Permanent link">¤</a></h3>
+<p>Design a conditional generator for daily temperature fields from sparse stations and uncertain forcing.</p>
+<ol>
+<li><strong>Object:</strong> a field <span class="arithmatex">\(f(t,s)\)</span> with declared temporal interval, spatial domain, units, and regularity.</li>
+<li><strong>Context:</strong> station observations with sensor-specific noise and a documented placement/missingness process.</li>
+<li><strong>Conditioning:</strong> past observations imply forecasting; observations on both sides imply smoothing; forcing scenarios are separate covariates.</li>
+<li><strong>Family:</strong> a GP is an interpretable small-data baseline; an equivariant NP amortizes across days/regions; a latent SDE handles temporal paths; function diffusion/operator flow represents non-Gaussian fields.</li>
+<li><strong>Law:</strong> specify whether randomness represents weather variability, measurement error, parameter uncertainty, or unresolved physics.</li>
+<li><strong>Evaluation:</strong> hold out whole weather systems/years, test station permutations and nested grids, check spectra/extremes/spell duration, calibrate regional integrals, and verify boundary/physical units.</li>
+<li><strong>Evidence:</strong> compare at equal data and compute, report independent-task uncertainty, and avoid calling reanalysis agreement an independent physical validation.</li>
+</ol>
+<p>The “best” family depends on which of these semantics and workloads matter. A lower pointwise RMSE does not compensate for incoherent extreme-event probabilities.</p>
+<h3 id="independent-practice-and-assessment-map-evaluation-and-research">Independent practice and assessment map: evaluation and research<a class="headerlink" href="#independent-practice-and-assessment-map-evaluation-and-research" title="Permanent link">¤</a></h3>
+<ol>
+<li><strong>P1.1 — Predict before computing.</strong> <em>Type: predict · Difficulty: foundation · Typical time: 10 min.</em> For sparse stations and few historical fields, predict which of a GP, factorized CNP, latent SDE, and function diffusion provides the strongest transparent baseline for calibrated small-data regression. Then name the conditions that could reverse the choice.</li>
+<li><strong>P1.2 — Evaluation-stack design.</strong> <em>Type: design · Difficulty: core · Typical time: 18 min.</em> Build a minimum evaluation stack for a claimed resolution-flexible field generator. Include one pointwise, finite-joint, projective, physical, and decision metric, plus uncertainty for estimated metrics.</li>
+<li><strong>P1.3 — Leakage diagnosis.</strong> <em>Type: diagnose · Difficulty: core · Typical time: 12 min.</em> A dataset randomly splits coordinates from every simulated trajectory between train and test. Explain which generalization claims remain possible, which are invalid, and how to redesign the split.</li>
+<li><strong>P1.4 — Uncertainty-and-compute ledger.</strong> <em>Type: evaluate · Difficulty: stretch · Typical time: 18 min.</em> Specify separate measurements for observation, process, parameter, inference, discretization, and Monte Carlo uncertainty, then pair them with training and per-query compute reporting.</li>
+<li><strong>P1.5 — Evidence-boundary audit.</strong> <em>Type: research · Difficulty: stretch · Typical time: 20 min.</em> Choose one work from the research evidence map and write a supported claim, an unsupported stronger claim, the decisive experiment or theorem, and one independent reproduction target.</li>
+<li><strong>P1.6 — Transfer.</strong> <em>Type: transfer · Difficulty: stretch · Typical time: 25 min.</em> Pre-register a matched comparison of a GP, Neural Process, and stochastic operator on irregular climate fields. Declare data units, conditioning query, budgets, ablations, failure criteria, artifacts, and how negative results will be reported.</li>
+</ol>
+<h5 id="feedback-contract-evaluation-and-research">Feedback contract: evaluation and research<a class="headerlink" href="#feedback-contract-evaluation-and-research" title="Permanent link">¤</a></h5>
+<div class="md-typeset__table book-table-container"><table id="tbl-stochastic-process-generators-explained-feedback-contract-evaluation-and-research-1"><caption class="book-object-caption"><span class="book-object-number">Table PROC.22.</span> Feedback contract: evaluation and research — table 1</caption>
+<thead>
+<tr>
+<th>Task</th>
+<th>Evidence of success</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>P1.1</td>
+<td>The baseline follows the stated data/query regime and reversal conditions are explicit.</td>
+</tr>
+<tr>
+<td>P1.2</td>
+<td>Metrics cover five distinct layers and include estimator uncertainty.</td>
+</tr>
+<tr>
+<td>P1.3</td>
+<td>Within-trajectory interpolation is not mislabeled as new-task or future-trajectory generalization.</td>
+</tr>
+<tr>
+<td>P1.4</td>
+<td>Six uncertainty sources and amortized versus per-query costs remain separate.</td>
+</tr>
+<tr>
+<td>P1.5</td>
+<td>The supported and unsupported claims are traceable to primary evidence.</td>
+</tr>
+<tr>
+<td>P1.6</td>
+<td>The preregistration makes model, data, compute, evaluation, and publication decisions auditable.</td>
+</tr>
+</tbody>
+</table></div>
+<details class="tip">
+<summary>Graduated hints for P1</summary>
+<div class="md-typeset__table book-table-container"><table id="tbl-stochastic-process-generators-explained-feedback-contract-evaluation-and-research-2"><caption class="book-object-caption"><span class="book-object-number">Table PROC.23.</span> Feedback contract: evaluation and research — table 2</caption>
+<thead>
+<tr>
+<th>Task</th>
+<th>Hint 1 — Direction</th>
+<th>Hint 2 — Setup</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>P1.1</td>
+<td>Match the baseline to small data and an explicit observation model before considering flexibility.</td>
+<td>Reverse the choice only after naming task population, multimodality, dynamics, or resolution workload.</td>
+</tr>
+<tr>
+<td>P1.2</td>
+<td>Move upward through the evaluation ladder.</td>
+<td>Pair RMSE or NLL with a joint score, restriction test, boundary residual, and downstream regret.</td>
+</tr>
+<tr>
+<td>P1.3</td>
+<td>Ask which latent trajectory appears on both sides of the split.</td>
+<td>Hold out complete functions, regimes, horizons, or simulations before splitting coordinates within test tasks.</td>
+</tr>
+<tr>
+<td>P1.4</td>
+<td>Separate randomness in the world, observations, posterior, algorithm, mesh, and metric estimator.</td>
+<td>Report one-time amortized training separately from solver NFE and cost per field or coordinate.</td>
+</tr>
+<tr>
+<td>P1.5</td>
+<td>Start from the exact claim in the primary abstract or theorem.</td>
+<td>Add every named representation, benchmark, approximation, and review-status boundary before generalizing.</td>
+</tr>
+<tr>
+<td>P1.6</td>
+<td>Freeze the scientific question and budgets before choosing winner metrics.</td>
+<td>Require matched splits, base laws, ablations, seeds, artifacts, and a place for failed coherence tests.</td>
+</tr>
+</tbody>
+</table></div>
+</details>
+<h5 id="outcome-to-task-alignment-evaluation-and-research">Outcome-to-task alignment: evaluation and research<a class="headerlink" href="#outcome-to-task-alignment-evaluation-and-research" title="Permanent link">¤</a></h5>
+<div class="md-typeset__table book-table-container"><table id="tbl-stochastic-process-generators-explained-outcome-to-task-alignment-evaluation-and-research"><caption class="book-object-caption"><span class="book-object-number">Table PROC.24.</span> Outcome-to-task alignment: evaluation and research</caption>
+<thead>
+<tr>
+<th>Learning objective</th>
+<th>Independently assessed by</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>O1 — Select by query and law</td>
+<td>P1.1, P1.6</td>
+</tr>
+<tr>
+<td>O2 — Build a layered evaluation</td>
+<td>P1.2</td>
+</tr>
+<tr>
+<td>O3 — Prevent task leakage</td>
+<td>P1.3, P1.6</td>
+</tr>
+<tr>
+<td>O4 — Report uncertainty and compute</td>
+<td>P1.4, P1.6</td>
+</tr>
+<tr>
+<td>O5 — Audit evidence boundaries</td>
+<td>P1.5</td>
+</tr>
+<tr>
+<td>O6 — Specify a reproducible study</td>
+<td>P1.6</td>
+</tr>
+</tbody>
+</table></div>
+<details class="success">
+<summary>Complete solutions to P1</summary>
+<ol>
+<li><strong>P1.1.</strong> A GP is the strongest transparent starting baseline in the stated small-data regime because it declares a kernel, observation law, exact finite Gaussian posterior under conjugacy, and calibrated quantities that can be checked. Many related tasks can justify an amortized NP; multimodal field laws can justify function diffusion; irregular temporal dynamics can justify a latent SDE. <strong>Check.</strong> The answer chooses from the query and evidence regime rather than a universal family ranking.</li>
+<li><strong>P1.2.</strong> One stack uses quadrature-aware RMSE and NLL/coverage, an energy or kernel score for finite joints, a coarse-versus-restricted-fine two-sample discrepancy, boundary/conservation residuals, and downstream forecast/control regret. Every Monte Carlo metric reports standard error or interval across samples and seeds. <strong>Rubric.</strong> A second pointwise metric cannot substitute for the joint or projective layer.</li>
+<li><strong>P1.3.</strong> The split can assess interpolation at held-out coordinates of already-seen trajectories, subject to leakage through preprocessing and context selection. It cannot support independent-function, new-regime, new-simulation, or forecasting claims. Hold out complete trajectories/functions or regimes first, then form context/target splits only inside held-out test tasks; use directional time splits for forecasting. <strong>Check.</strong> No latent trajectory crosses the train/test task boundary.</li>
+<li><strong>P1.4.</strong> Use replicated sensors or a likelihood for observation noise; repeated future paths conditional on fixed inputs for process variability; posterior draws or sensitivity for parameters; method comparisons and gap diagnostics for inference; mesh/step refinement for discretization; and repeated samples/seeds for Monte Carlo error. Report one-time training data/steps/hardware, parameters and memory, solver NFE, sampling throughput, and cost per queried field/coordinate. <strong>Rubric.</strong> Combining these into one predictive interval without provenance fails the ledger.</li>
+<li><strong>P1.5.</strong> For Operator Flow Matching, a supported claim is that the named method learns stochastic-process priors with finite-query density and regression machinery in its declared function-space construction and experiments. An unsupported claim is that every neural operator gives exact, calibrated likelihoods on arbitrary grids. The paper's construction and its sampled-query, ODE, trace, and posterior approximations define the boundary; an independent target is a restriction-consistency and density audit across held-out grids with estimator error. <strong>Rubric.</strong> Another evidence-map work is acceptable when the four requested components are equally explicit.</li>
+<li><strong>P1.6.</strong> Predeclare field units/domain, station and forcing observation models, forecast versus smoothing query, complete-year/system train-test splits, equal data and compute envelopes, kernel/NP/operator choices, uncertainty sources, and seed count. Compare point, joint, projective, physical, extreme-event, and cost metrics; ablate shared latents, reference process, resolution training, and boundary features; publish configs, code, checkpoints, manifests, raw metrics, and failed runs. <strong>Rubric.</strong> Negative coherence or calibration results remain in the report and narrow the conclusion rather than disappearing behind the best RMSE.</li>
+</ol>
+</details>
+<h3 id="research-exercises">Research Exercises<a class="headerlink" href="#research-exercises" title="Permanent link">¤</a></h3>
+<ol>
+<li>Construct a pair of finite-dimensional laws that violate marginal consistency.</li>
+<li>Sample a GP on nested grids and verify restriction consistency numerically.</li>
+<li>Compare independent CNP target sampling with a shared-latent NP on a periodic task.</li>
+<li>Evaluate interpolation and extrapolation with separate context splits.</li>
+<li>Simulate the OU transition at irregular gaps and compare with a fixed-step approximation.</li>
+<li>Test a function diffusion model by coarse/fine restriction consistency.</li>
+<li>Measure the conditioning consistency gap by turning a target into context.</li>
+<li>Compare identity grid noise with a trace-class GP reference under refinement.</li>
+</ol>
+<details class="success">
+<summary>Exercise sketches</summary>
+<ol>
+<li>Give one-point and two-point distributions with different marginals.  </li>
+<li>Both are marginals of one joint Gaussian kernel matrix.  </li>
+<li>Independent samples lack shared phase/function uncertainty.  </li>
+<li>Random splits often overstate extrapolation.  </li>
+<li>Exact decay and variance depend on <span class="arithmatex">\(\Delta\)</span>.  </li>
+<li>Fine samples restricted to coarse points should match direct coarse laws within statistical/numerical error.</li>
+<li>Compare fresh re-encoding against the conditional of the earlier joint prediction.</li>
+<li>Identity noise does not approach the same regular <span class="arithmatex">\(H\)</span>-valued law without an appropriate scaling/reference construction.</li>
+</ol>
+</details>
+<h3 id="primary-reading-trail">Primary Reading Trail<a class="headerlink" href="#primary-reading-trail" title="Permanent link">¤</a></h3>
+<ul>
+<li><a href="https://gaussianprocess.org/gpml/chapters/RW2.pdf">Rasmussen and Williams, <em>Gaussian Processes for Machine Learning</em>, Chapter 2</a>.</li>
+<li><a href="https://proceedings.mlr.press/v80/garnelo18a.html">Garnelo et al., <em>Conditional Neural Processes</em></a>.</li>
+<li><a href="https://arxiv.org/abs/1807.01622">Garnelo et al., <em>Neural Processes</em></a>.</li>
+<li><a href="https://proceedings.mlr.press/v139/holderrieth21a.html">Holderrieth et al., <em>Equivariant Learning of Stochastic Fields</em></a>.</li>
+<li><a href="https://proceedings.mlr.press/v139/kidger21b.html">Kidger et al., <em>Neural SDEs as Infinite-Dimensional GANs</em></a>.</li>
+<li><a href="https://proceedings.mlr.press/v202/bilos23a.html">Biloš et al., <em>Stochastic Process Diffusion</em></a>.</li>
+<li><a href="https://proceedings.mlr.press/v235/ashman24a.html">Ashman et al., <em>Translation-Equivariant Transformer Neural Processes</em></a>.</li>
+<li><a href="https://proceedings.mlr.press/v202/dutordoir23a.html">Dutordoir et al., <em>Neural Diffusion Processes</em></a>.</li>
+<li><a href="https://proceedings.mlr.press/v206/kerrigan23a.html">Kerrigan, Ley, and Smyth, <em>Diffusion Generative Models in Infinite Dimensions</em></a>.</li>
+<li><a href="https://proceedings.mlr.press/v238/kerrigan24a.html">Kerrigan, Migliorini, and Smyth, <em>Functional Flow Matching</em></a>.</li>
+<li><a href="https://proceedings.neurips.cc/paper_files/paper/2025/hash/36ca6503f05da1b8ad4391775d55c9f5-Abstract-Conference.html">Shi et al., <em>Stochastic Process Learning via Operator Flow Matching</em></a>.</li>
+<li><a href="https://openreview.net/forum?id=rLJ5Hm5vbG">Young, <em>On the Conditioning Consistency Gap in Conditional Neural Processes</em></a>.</li>
+</ul>
+<h3 id="source-tracing-checklist">Source-Tracing Checklist<a class="headerlink" href="#source-tracing-checklist" title="Permanent link">¤</a></h3>
+<p>For every result, record the paper version and evidence status; process/function space and norm; finite-grid or infinite-dimensional claim; context/target and task split; observation/noise semantics; architecture and objective; query/grid resolution; solver and NFE; calibration/joint/path metrics; and independent reproduction status.</p>
+<details class="question">
+<summary>Cumulative retrieval: stochastic-process generators</summary>
+<ol>
+<li>What consistency condition distinguishes a process model from unrelated predictors for each query grid?</li>
+<li>Which uncertainty sources should a latent stochastic-dynamics model separate?</li>
+<li>Why can low fixed-grid error coexist with incoherent refinement behavior?</li>
+<li>What evaluation supports a claim of function-space rather than discretization-specific generation?</li>
+</ol>
+<p><strong>Solutions.</strong> (1) Marginals on overlapping finite query sets must agree under restriction, up to explicitly bounded approximation. (2) Latent initial state, process/dynamics noise, parameter or posterior uncertainty, and observation noise. (3) The network can learn grid-index correlations without defining compatible laws when points are inserted, removed, or moved. (4) Held-out locations, irregular and refined grids, restriction consistency, calibrated joint samples, boundary/physics tests, and comparison across discretizations with the same underlying functions.</p>
+</details>
+<h2 id="final-synthesis">Final Synthesis<a class="headerlink" href="#final-synthesis" title="Permanent link">¤</a></h2>
+<p>Stochastic-process generators model random functions rather than fixed vectors. GPs guarantee coherent finite-dimensional laws analytically; Neural Processes amortize context-conditioned prediction across tasks; latent variables and attention improve global uncertainty and local retrieval; neural SDEs generate path measures; function diffusion and stochastic operators extend denoising and learned solution maps to fields. The central acceptance test is cross-query and cross-resolution coherence, not merely the ability to accept variable-size tensors.</p>
+<p>Continue with the causal-generative-modeling volume, where observational, interventional, and counterfactual function distributions must be separated.</p>
+<p>Return to <a href="../generative-models-unified/#coverage-matrix">The Generative Modeling Landscape</a>, and use the <a href="../new-families-frontier-evidence/#stochastic-process-and-function-space-generators">Generative-Family Research Evidence Ledger</a> for maturity boundaries.</p>
+<p><a href="../stochastic-process-generators-explained/#chapter-map-and-notation-contract">Return to the chapter map</a>, or use the <a href="./">Chapter 6 stopping-point view</a>.</p>
+<hr/>
+<p><strong>Navigate:</strong> <a href="../stochastic-process-05-diffusion/">← Function-Space Diffusion</a> · <a href="../generative-models-unified/">Return to curriculum map</a> · <a href="../stochastic-process-generators-explained/">Complete guide</a></p>
+</article>
+</div>
+<script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  Back to top
+</button>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+<div class="md-social">
+<a class="md-social__link" href="https://github.com/avitai/artifex" rel="noopener" target="_blank" title="github.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</a>
+<a class="md-social__link" href="https://pypi.org/project/avitai-artifex/" rel="noopener" target="_blank" title="pypi.org">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-66.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.3v101.8c0 29 25.2 46 53.4 54.3 33.8 9.9 66.3 11.7 106.8 0 26.9-7.8 53.4-23.5 53.4-54.3v-40.7H226.2v-13.6h160.2c31.1 0 42.6-21.7 53.4-54.2 11.2-33.5 10.7-65.7 0-108.6M286.2 444.7a20.4 20.4 0 1 1 0-40.7 20.4 20.4 0 1 1 0 40.7M167.8 248.1h106.8c29.7 0 53.4-24.5 53.4-54.3V91.9c0-29-24.4-50.7-53.4-55.6-35.8-5.9-74.7-5.6-106.8.1-45.2 8-53.4 24.7-53.4 55.6v40.7h106.9v13.6h-147c-31.1 0-58.3 18.7-66.8 54.2-9.8 40.7-10.2 66.1 0 108.6 7.6 31.6 25.7 54.2 56.8 54.2H101v-48.8c0-35.3 30.5-66.4 66.8-66.4m-6.6-183.4a20.4 20.4 0 1 1 0 40.8 20.4 20.4 0 1 1 0-40.8"></path></svg>
+</a>
+<a class="md-social__link" href="https://twitter.com/mahdi_shafiei" rel="noopener" target="_blank" title="twitter.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M459.4 151.7c.3 4.5.3 9.1.3 13.6 0 138.7-105.6 298.6-298.6 298.6-59.5 0-114.7-17.2-161.1-47.1 8.4 1 16.6 1.3 25.3 1.3 49.1 0 94.2-16.6 130.3-44.8-46.1-1-84.8-31.2-98.1-72.8 6.5 1 13 1.6 19.8 1.6 9.4 0 18.8-1.3 27.6-3.6-48.1-9.7-84.1-52-84.1-103v-1.3c14 7.8 30.2 12.7 47.4 13.3-28.3-18.8-46.8-51-46.8-87.4 0-19.5 5.2-37.4 14.3-53C87.4 130.8 165 172.4 252.1 176.9c-1.6-7.8-2.6-15.9-2.6-24C249.5 95.1 296.3 48 354.4 48c30.2 0 57.5 12.7 76.7 33.1 23.7-4.5 46.5-13.3 66.6-25.3-7.8 24.4-24.4 44.8-46.1 57.8 21.1-2.3 41.6-8.1 60.4-16.2-14.3 20.8-32.2 39.3-52.6 54.3"></path></svg>
+</a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.path", "navigation.top", "navigation.prune", "toc.follow", "search.highlight", "search.share", "search.suggest", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "content.mermaid"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+<script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+<script src="../../../javascripts/reading-layout.js"></script>
+</body>
+</html>

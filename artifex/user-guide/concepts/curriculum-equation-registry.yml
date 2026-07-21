@@ -1,0 +1,1927 @@
+schema_version: 2
+last_updated: 2026-07-19
+
+equation_review_catalog: curriculum-equation-review.yml
+cross_reference_registry: curriculum-cross-reference-registry.yml
+fidelity_schema: >-
+  The registry expression is a compact notation-normalized summary, not a
+  verbatim source transcription. Exact source TeX, source and registry hashes,
+  equivalence notes, symbols, dimensions, executable checks, reviewer, review
+  method, and theorem-level human signoff are tracked by equation ID in the
+  review catalog. Pending records intentionally contain no inferred fidelity or
+  correctness judgment.
+
+equations:
+  - id: mixed-atomic-continuous-law
+    canonical_guide: probability-and-generative-modeling.md
+    anchor: not-every-law-is-discrete-or-continuously-densitized
+    convention: B is Bernoulli with success probability 0.3, U is independent Uniform(0,1), and X equals zero on success and U otherwise; delta_0 is a unit point mass, so no ordinary Lebesgue density represents the complete law.
+    expression: 'P_X = 0.3 delta_0 + 0.7 Uniform(0,1)'
+
+  - id: dirichlet-categorical-point-summaries
+    canonical_guide: probability-and-generative-modeling.md
+    anchor: a-distribution-atlas-organized-by-the-generated-object
+    convention: Counts sum to N and alpha_0=sum_j alpha_j; the displayed MAP formula is an interior mode only when every posterior parameter n_j+alpha_j exceeds one, while adding alpha_j gives the posterior mean and posterior predictive probability.
+    expression: 'MLE_j=n_j/N; posterior_mean_j=(n_j+alpha_j)/(N+alpha_0); interior_MAP_j=(n_j+alpha_j-1)/(N+alpha_0-K)'
+
+  - id: randomized-probability-integral-transform
+    canonical_guide: probability-and-generative-modeling.md
+    anchor: probability-integral-transforms-need-an-atom-check
+    convention: V is independent Uniform(0,1), F(x-) is the left CDF limit, and the randomized transform is uniform for discrete, continuous, or mixed univariate laws; F(X) alone requires the relevant continuity condition.
+    expression: 'U = F(X-) + V (F(X)-F(X-))'
+
+  - id: exponential-family-mle-moment-condition
+    canonical_guide: classical-generative-models.md
+    anchor: moment-matching-has-an-existence-boundary
+    convention: The log likelihood omits terms independent of eta; the moment equation characterizes an attained interior optimum, and an empirical statistic on the mean-parameter boundary may require eta to diverge rather than produce a finite MLE.
+    expression: 'ell(eta)=eta^T T_bar-A(eta); grad ell=0 iff grad A(eta_hat)=T_bar at an attained interior optimum'
+
+  - id: gaussian-information-factor-product
+    canonical_guide: classical-generative-models.md
+    anchor: gaussian-moment-form-information-form-and-potentials
+    convention: The two quadratic Gaussian factors concern the same variable; multiplying them adds precision and information vector, but a normalized Gaussian requires positive-definite combined precision and restoration of the normalizer.
+    expression: 'Lambda_tilde=Lambda_1+Lambda_2; h_tilde=h_1+h_2'
+
+  - id: periodic-two-state-markov-law
+    canonical_guide: sampling-and-continuous-time.md
+    anchor: worked-two-state-boundary-unique-but-not-convergent
+    convention: K deterministically flips two states and pi=(1/2,1/2) is its unique invariant law; from delta_0 the even and odd time marginals alternate, so uniqueness and detailed balance do not imply marginal convergence without aperiodicity.
+    expression: 'K=[[0,1],[1,0]]; delta_0 K^(2t)=delta_0; delta_0 K^(2t+1)=delta_1'
+
+  - id: hellinger-and-total-variation-measures
+    canonical_guide: objectives-and-statistical-distances.md
+    anchor: hellinger-total-variation-and-chi-squared-conventions
+    convention: p and q are densities of P and Q under any common dominating measure; H is the metric square root of H_squared, whereas H_squared generally fails the triangle inequality, and total variation also equals the supremum probability gap over measurable events.
+    expression: 'H^2=0.5 integral (sqrt(p)-sqrt(q))^2 dmu; H=sqrt(H^2); TV=0.5 integral |p-q| dmu=sup_A |P(A)-Q(A)|'
+
+  - id: conditional-squared-loss-bayes-action
+    canonical_guide: probability-and-generative-modeling.md
+    anchor: a-conditional-law-is-not-a-decision-rule
+    convention: The predictive law is fixed, the action space is the real line, and squared loss makes the conditional mean the Bayes action; restricting the action set requires minimizing risk over the allowed candidates instead.
+    expression: 'a_star = E[Y|c] = 0(0.50) + 1(0.30) + 4(0.20) = 1.10'
+
+  - id: autoregressive-chain-rule
+    canonical_guide: autoregressive-explained.md
+    anchor: mathematical-foundation
+    convention: The ordering is part of the factorisation; each factor conditions only on predecessors.
+    expression: 'p(x_{1:D}) = prod_{i=1}^{D} p(x_i | x_{<i})'
+
+  - id: autoregressive-direct-conditional-factorization
+    canonical_guide: autoregressive-explained.md
+    anchor: direct-conditioning-and-joint-prefix-modeling-are-different-objectives
+    convention: Context c is observed and excluded from the modeled marginal; target loss begins at the first Y factor and every factor is locally normalized.
+    expression: 'p_theta(y_{1:T}|c) = prod_{t=1}^{T} p_theta(y_t|c,y_{<t})'
+
+  - id: autoregressive-joint-prefix-factorization
+    canonical_guide: autoregressive-explained.md
+    anchor: direct-conditioning-and-joint-prefix-modeling-are-different-objectives
+    convention: Context precedes target in one normalized joint factorization; conditioning on c cancels p_phi(c), while fitting context-token factors remains part of joint maximum likelihood.
+    expression: 'p_phi(c,y_{1:T}) = p_phi(c) prod_{t=1}^{T} p_phi(y_t|c,y_{<t})'
+
+  - id: autoregressive-continuous-mixture-conditional
+    canonical_guide: autoregressive-explained.md
+    anchor: continuous-conditionals-normalization-is-an-output-law-decision
+    convention: Mixture weights lie on the simplex, every scale is strictly positive, and the displayed Gaussian density is used for a continuous coordinate; quantized observations require bin integration or a discrete mass law.
+    expression: 'p_theta(x_d|x_{<d}) = sum_{k=1}^{K} pi_{d,k}(x_{<d}) Normal(x_d; mu_{d,k}(x_{<d}), sigma_{d,k}^2(x_{<d}))'
+
+  - id: autoregressive-temperature
+    canonical_guide: autoregressive-explained.md
+    anchor: sampling-with-temperature
+    convention: tau must be positive; tau equals one preserves the categorical model conditional and greedy is the tau-to-zero-positive limit with an explicit tie rule.
+    expression: 'p_tau(v | prefix) = exp(logit_v / tau) / sum_u exp(logit_u / tau)'
+
+  - id: autoregressive-constrained-conditional
+    canonical_guide: autoregressive-explained.md
+    anchor: constrained-decoding
+    convention: The legal set must be non-empty; this is the model conditional restricted to the legal support and renormalized, not the unconstrained model law.
+    expression: 'p_tilde(v | prefix) = p(v | prefix) 1[v in A(prefix)] / sum_{u in A(prefix)} p(u | prefix)'
+
+  - id: speculative-acceptance
+    canonical_guide: autoregressive-explained.md
+    anchor: speculative-decoding-and-multi-token-proposals
+    convention: For y sampled from proposal q, exact correction accepts with min(1,p(y)/q(y)); rejection samples from the normalized positive residual under the full algorithm assumptions.
+    expression: 'a(y) = min(1, p(y) / q(y))'
+
+  - id: vae-elbo
+    canonical_guide: vae-explained.md
+    anchor: the-elbo-evidence-lower-bound
+    convention: The displayed objective is maximised; the KL gap to log p(x) uses q(z|x) against the exact posterior.
+    expression: 'ELBO = E_q[log p_theta(x|z)] - KL(q_phi(z|x) || p(z))'
+
+  - id: vae-kl-decomposition
+    canonical_guide: vae-explained.md
+    anchor: beta-tcvae-and-factorvae-targeting-total-correlation
+    convention: The expectation over the empirical data distribution and a factorized prior decompose average posterior-to-prior KL into mutual information, aggregate total correlation, and dimension-wise prior mismatch.
+    expression: 'E_data KL(q(z|x)||p(z)) = I_q(X;Z) + KL(q(z)||prod_j q(z_j)) + sum_j KL(q(z_j)||p(z_j))'
+
+  - id: vae-full-covariance-gaussian-kl
+    canonical_guide: vae-explained.md
+    anchor: beyond-a-diagonal-gaussian-posterior
+    convention: L is lower triangular with a strictly positive diagonal, q(z|x) is N(mu, L L^T), and the reference prior is N(0,I); emitting L directly avoids a separate dense covariance factorization.
+    expression: 'KL(q||N(0,I)) = 0.5 * (||mu||^2 + ||L||_F^2 - d - 2 sum_i log L_ii)'
+
+  - id: infovae-aggregate-objective
+    canonical_guide: vae-explained.md
+    anchor: aggregate-posterior-objectives-infovae-mmd-vae-and-aae
+    convention: The objective is maximized under the displayed InfoVAE parameterization; D acts on the aggregate posterior, and alpha=0 with lambda=1 recovers the ordinary ELBO because the coefficient of D vanishes.
+    expression: 'L_InfoVAE = E_q log p_theta(x|z) - (1-alpha) E_data KL(q(z|x)||p(z)) - (alpha+lambda-1) D(q(z)||p(z))'
+
+  - id: vae-latent-process-factorization
+    canonical_guide: vae-explained.md
+    anchor: sequence-vaes-one-global-code-or-a-latent-process
+    convention: Histories are ordered causally in the generative model; the factorization permits dependence on all previous latent and observed values and does not imply that the observation decoder is parallel.
+    expression: 'p(z_1:T,x_1:T) = prod_t p(z_t|z_<t,x_<t) p(x_t|z_<=t,x_<t)'
+
+  - id: gan-optimal-discriminator
+    canonical_guide: gan-explained.md
+    anchor: mathematical-foundation
+    convention: Holds almost everywhere at the population optimum for a fixed generator under the original logistic objective, an equal real/fake class prior, and densities or masses with respect to a common dominating measure.
+    expression: 'D*(x) = p_data(x) / (p_data(x) + p_g(x))'
+
+  - id: gan-minimax-js-reduction
+    canonical_guide: gan-explained.md
+    anchor: mathematical-foundation
+    convention: First optimize over an unrestricted logistic discriminator under an equal real/fake mixture; this is a population value identity, not the trajectory followed by finite alternating neural updates.
+    expression: 'C(G) = -log(4) + 2 JSD(p_data || p_g)'
+
+  - id: gan-pushforward-law
+    canonical_guide: gan-explained.md
+    anchor: from-a-deterministic-map-to-a-probability-law
+    convention: G_theta is measurable and P_theta is defined on measurable output events; the identity defines a probability law without asserting an inverse or a density with respect to an ambient volume measure.
+    expression: 'P_theta(A) = P_Z(G_theta^{-1}(A))'
+
+  - id: gan-f-divergence-variational-witness
+    canonical_guide: gan-explained.md
+    anchor: variational-f-divergence-witnesses
+    convention: f is convex with f(1)=0 and the unrestricted admissible function class and integrability conditions yield equality; a restricted neural witness family generally yields only a lower bound for fixed Q.
+    expression: 'D_f(P||Q) = sup_T { E_P[T(X)] - E_Q[f_star(T(X))] }'
+
+  - id: gan-integral-probability-metric
+    canonical_guide: gan-explained.md
+    anchor: ipms-wasserstein-critics-mmd-and-moments
+    convention: The declared witness class F determines whether the expression is identifying, finite, and a metric; a finite neural subfamily and imperfect constraint enforcement change the estimated quantity.
+    expression: 'd_F(P,Q) = sup_{f in F} (E_P[f(X)] - E_Q[f(X)])'
+
+  - id: gan-bilinear-simultaneous-radius
+    canonical_guide: gan-explained.md
+    anchor: worked-dynamical-example-one-game-three-trajectories
+    convention: Simultaneous Euler descent-ascent is applied to V(theta,phi)=theta phi with one common positive step size eta; the continuous flow preserves radius but the discrete update expands squared Euclidean radius.
+    expression: 'theta_{k+1}^2 + phi_{k+1}^2 = (1 + eta^2)(theta_k^2 + phi_k^2)'
+
+  - id: gan-discrete-score-function-gradient
+    canonical_guide: gan-explained.md
+    anchor: discrete-outputs-require-an-estimator-choice
+    convention: q_theta is a normalized differentiable discrete policy with parameter-independent support and the exchange of derivative and sum is justified; R_phi is held fixed during the generator update.
+    expression: 'grad_theta E_{q_theta}[R_phi(X)] = E_{q_theta}[R_phi(X) grad_theta log q_theta(X)]'
+
+  - id: classifier-density-ratio-prior-correction
+    canonical_guide: objectives-and-statistical-distances.md
+    anchor: 2-f-divergences-and-density-ratio-estimation
+    convention: Real examples have prior pi and generated examples have prior one minus pi; the Bayes-classifier odds contain class-prior odds, and densities or masses use a common dominating measure.
+    expression: 'p(x)/q(x) = ((1-pi)/pi) D_pi*(x)/(1-D_pi*(x))'
+
+  - id: ebm-normalized-density
+    canonical_guide: ebm-explained.md
+    anchor: mathematical-foundation
+    convention: Z depends on theta and the base measure; adding an x-independent constant to energy leaves the normalized density unchanged.
+    expression: 'p_theta(x) = exp(-E_theta(x)) / Z_theta'
+
+  - id: ebm-score-energy
+    canonical_guide: ebm-explained.md
+    anchor: energy-functions-and-neural-networks
+    convention: Holds where the normalized density is differentiable in x; the partition function vanishes under the x-gradient.
+    expression: 'grad_x log p_theta(x) = -grad_x E_theta(x)'
+
+  - id: ebm-likelihood-gradient
+    canonical_guide: ebm-explained.md
+    anchor: maximum-likelihood-the-ideal-but-intractable-approach
+    convention: This is the gradient of log likelihood; the negative-log-likelihood gradient has the opposite sign, and replacing the model expectation by finite negative chains introduces estimator bias.
+    expression: 'grad_theta log p_theta(x) = -grad_theta E_theta(x) + E_{p_theta}[grad_theta E_theta(X)]'
+
+  - id: ebm-score-matching-implicit
+    canonical_guide: ebm-explained.md
+    anchor: score-matching-avoiding-sampling
+    convention: Equal to the Fisher divergence up to a theta-independent constant only under the required common-support, differentiability, integrability, and boundary conditions; the score convention is s_theta equals minus grad_x E_theta.
+    expression: 'J_SM(theta) = E_data[0.5 ||s_theta(X)||^2 + div s_theta(X)]'
+
+  - id: ebm-sliced-score-matching
+    canonical_guide: ebm-explained.md
+    anchor: sliced-score-matching-estimate-a-trace-with-directions
+    convention: Uses an independent projection with positive-definite second moment; identity covariance makes the quadratic Jacobian-vector term a trace estimator, while finitely many directions retain Monte Carlo variance.
+    expression: 'J_SSM(theta) = E_data,V[0.5 (V^T s_theta(X))^2 + V^T grad_x s_theta(X) V]'
+
+  - id: ebm-nce-data-posterior
+    canonical_guide: ebm-explained.md
+    anchor: noise-contrastive-estimation-nce
+    convention: Uses k noise observations per data observation, an evaluable noise density, and a core energy bar E without its free intercept; omitting minus log k changes the class-posterior model.
+    expression: 'h_{theta,c}(x) = sigmoid(-bar_E_theta(x) - c - log p_n(x) - log k)'
+
+  - id: ebm-langevin-stein-operator
+    canonical_guide: ebm-explained.md
+    anchor: stein-discrepancies-compare-through-witness-functions
+    convention: One-dimensional Langevin Stein operator; its expectation is zero under the target only for functions in the operator domain with the required boundary decay.
+    expression: 'T_p f(x) = s_p(x) f(x) + f_prime(x)'
+
+  - id: ebm-quadratic-ula-variance
+    canonical_guide: ebm-explained.md
+    anchor: running-example-a-one-step-chain-moves-the-exact-target
+    convention: One calibrated ULA step of size delta, initialized at the exact N(m,v) target of the quadratic energy, preserves the mean but has fixed-step variance bias delta squared divided by four v.
+    expression: 'Var(X_1) = v + delta^2 / (4v)'
+
+  - id: flow-change-of-variables
+    canonical_guide: flow-explained.md
+    anchor: the-change-of-variables-formula
+    convention: x = f(z); the inverse-direction Jacobian sign must match this map direction.
+    expression: 'log p_X(x) = log p_Z(f^{-1}(x)) + log |det J_{f^{-1}}(x)|'
+
+  - id: flow-structured-affine-volume
+    canonical_guide: flow-explained.md
+    anchor: structured-affine-maps
+    convention: For x=Au+b with nonsingular A, the output log density subtracts log absolute determinant A; matrix structure changes transform, solve, and determinant costs separately.
+    expression: 'log p_X(Au+b) = log p_U(u) - log |det A|'
+
+  - id: flow-low-rank-residual-determinant
+    canonical_guide: flow-explained.md
+    anchor: low-rank-route-the-determinant-lemma-reduces-dimension-not-assumptions
+    convention: W is M by D, V is D by M, and D_h is the M by M diagonal activation-derivative matrix; the identity reduces determinant dimension but does not guarantee global invertibility.
+    expression: 'det(I_D + V D_h W) = det(I_M + D_h W V)'
+
+  - id: flow-contractive-residual-logdet
+    canonical_guide: flow-explained.md
+    anchor: contractive-route-a-global-inverse-with-estimated-volume
+    convention: The matrix-log series requires a residual Jacobian with spectral radius controlled below one; trace estimation and randomized truncation add separate variance and integrability conditions.
+    expression: 'log det(I + J_g) = sum_{k>=1} (-1)^(k+1) tr(J_g^k) / k'
+
+  - id: flow-cnf-instantaneous-density
+    canonical_guide: flow-explained.md
+    anchor: continuous-normalizing-flows-neural-odes
+    convention: Uses forward time dz_t/dt=f(z_t,t); sufficient regularity and a density with respect to the declared volume measure are required, and practical integration is numerical.
+    expression: 'd log p_t(z_t) / dt = -div f(z_t,t)'
+
+  - id: flow-matching-population-velocity
+    canonical_guide: flow-explained.md
+    anchor: flow-matching-simulation-free-training
+    convention: For squared conditional flow-matching loss, the population predictor is the conditional expectation of the sampled conditional velocity; under regularity it induces the marginal continuity-equation velocity.
+    expression: 'v*(x,t) = E[U_t | X_t=x, t]'
+
+  - id: flow-uniform-dequantization-bound
+    canonical_guide: flow-explained.md
+    anchor: critical-preprocessing-steps
+    convention: Uses y=(x+u)/256 for uint8 x and uniform u on the unit cell; the D log 256 rescaling constant must be retained for a discrete-mass bound.
+    expression: 'log P(X=x) >= E_u[log p_Y((x+u)/256) - D log 256]'
+
+  - id: pc-sum-node-semantics
+    canonical_guide: probabilistic-circuits-explained.md
+    anchor: 1-from-arithmetic-expression-to-probability-model
+    convention: Sum weights are nonnegative and normalized and children share a scope; together with normalized children this is a mixture distribution.
+    expression: 'v_n(x) = sum_c w_nc v_c(x)'
+
+  - id: pc-marginal-recursion
+    canonical_guide: probabilistic-circuits-explained.md
+    anchor: why-the-marginal-recursion-works
+    convention: Smooth sums use weighted child marginals and decomposable products use products of child marginals; leaf marginal queries must be tractable.
+    expression: 'M_sum(e)=sum_c w_c M_c(e); M_product(e)=prod_c M_c(e)'
+
+  - id: pc-edge-responsibility
+    canonical_guide: probabilistic-circuits-explained.md
+    anchor: derivatives-and-responsibilities
+    convention: For positive root value C(x), the normalized downward flow includes the probability of reaching the parent in a shared DAG.
+    expression: 'gamma_nc(x) = (1/C(x)) (partial C(x)/partial v_n) w_nc v_c(x)'
+
+  - id: pc-em-sum-weight-update
+    canonical_guide: probabilistic-circuits-explained.md
+    anchor: parameter-learning-with-fixed-structure
+    convention: This is the exact full-batch M-step for normalized sum weights from expected edge counts; priors and stochastic or generalized EM change the update.
+    expression: 'w_nc_new = sum_i gamma_i,nc / sum_cprime sum_i gamma_i,ncprime'
+
+  - id: implicit-mmd-squared
+    canonical_guide: implicit-generators-explained.md
+    anchor: 2-mmd-and-generative-moment-matching-networks
+    convention: Expectations use independent copies and a kernel whose mean embeddings exist; characteristicness is a separate property needed for zero to identify equality.
+    expression: 'MMD^2(P,Q) = E k(X,Xprime) + E k(Y,Yprime) - 2 E k(X,Y)'
+
+  - id: implicit-imle-assignment-objective
+    canonical_guide: implicit-generators-explained.md
+    anchor: 4-implicit-maximum-likelihood-estimation
+    convention: Uses a finite latent candidate pool and data-to-generated nearest-neighbor assignments; distance, pool size, assignment refresh, and search approximation define the practical objective.
+    expression: 'L_IMLE(theta) = sum_i min_j d(x_i, G_theta(z_j))'
+
+  - id: implicit-small-noise-softmin
+    canonical_guide: implicit-generators-explained.md
+    anchor: what-implicit-maximum-likelihood-requires
+    convention: For a finite Gaussian-kernel mixture, negative two sigma squared times log-sum-exp converges to the minimum squared distance as sigma tends to zero; finite noise retains all candidate contributions.
+    expression: '-2 sigma^2 log[(1/M) sum_j exp(-d_j/(2 sigma^2))] -> min_j d_j'
+
+  - id: implicit-sliced-wasserstein
+    canonical_guide: implicit-generators-explained.md
+    anchor: sliced-wasserstein-distance
+    convention: Population integration is over all unit directions; practical Monte Carlo with finitely many directions adds projection-sampling error and may not identify the law.
+    expression: 'SW_p^p(P,Q) = integral_{u on sphere} W_p^p((P_u)#P, (P_u)#Q) du'
+
+  - id: implicit-energy-distance
+    canonical_guide: implicit-generators-explained.md
+    anchor: cramer-and-energy-distances
+    convention: Uses independent copies and Euclidean distance with required finite moments; feature transformations or alternative semimetrics change the identification claim.
+    expression: 'E^2(P,Q) = 2 E||X-Y|| - E||X-Xprime|| - E||Y-Yprime||'
+
+  - id: diffusion-forward-marginal
+    canonical_guide: diffusion-explained.md
+    anchor: the-forward-diffusion-process
+    convention: epsilon is standard normal and alpha_bar_t is the cumulative signal coefficient.
+    expression: 'x_t = sqrt(alpha_bar_t) x_0 + sqrt(1-alpha_bar_t) epsilon'
+
+  - id: diffusion-clean-conditioned-posterior
+    canonical_guide: diffusion-explained.md
+    anchor: worked-example-one-scalar-forward-and-posterior-step
+    convention: The posterior conditions on both the noisy state and clean data under the declared linear Gaussian DDPM chain; it is not the marginal reverse kernel available at generation time.
+    expression: 'q(x_{t-1}|x_t,x_0) = N(c1_t x_0 + c2_t x_t, beta_tilde_t I)'
+
+  - id: diffusion-denoising-score-expectation
+    canonical_guide: diffusion-explained.md
+    anchor: worked-example-one-scalar-forward-and-posterior-step
+    convention: Requires a positive differentiable noisy marginal and conditions permitting differentiation through the marginal integral; the equality is after conditioning and averaging, not for each sampled clean-noise pair.
+    expression: 'E[grad_{x_t} log q(X_t|X_0) | X_t=x] = grad_x log q_t(x)'
+
+  - id: diffusion-gaussian-tweedie-posterior
+    canonical_guide: diffusion-explained.md
+    anchor: worked-example-one-scalar-forward-and-posterior-step
+    convention: Uses X_t=a_t X_0+b_t epsilon with a_t and b_t positive; the score is the marginal noisy-data score, not one realized conditional perturbation score.
+    expression: 'E[X_0|X_t=x] = (x + b_t^2 grad_x log q_t(x)) / a_t'
+
+  - id: diffusion-vp-velocity-conversion
+    canonical_guide: diffusion-explained.md
+    anchor: v-prediction-velocity
+    convention: Uses x_t=a_t x_0+b_t epsilon with a_t=cos(phi), b_t=sin(phi), and v=d x_phi/d phi=a_t epsilon-b_t x_0; for an arbitrary clock t, d x_t/dt=phi_prime(t) v, and this VP velocity is not an arbitrary flow-matching velocity.
+    expression: 'epsilon_hat = a_t v_hat + b_t x_t; x0_hat = a_t x_t - b_t v_hat'
+
+  - id: diffusion-elbo-three-term-decomposition
+    canonical_guide: diffusion-explained.md
+    anchor: the-elbo-derivation
+    convention: The pointwise DDPM bound contains a decoder expectation, terminal prior KL, and intermediate reverse-transition KLs; an outer data expectation forms the training objective and the observation model determines discrete-data likelihood semantics.
+    expression: 'log p_theta(x0) >= E_q log p_theta(x0|x1) - KL(q(xT|x0)||p(xT)) - sum_{t=2}^T E_q KL(q(x_{t-1}|x_t,x0)||p_theta(x_{t-1}|x_t))'
+
+  - id: diffusion-learned-log-variance-interpolation
+    canonical_guide: diffusion-explained.md
+    anchor: loss-function-variants
+    convention: Improved DDPM interpolates in log variance between beta_t and beta_tilde_t; it is interpolation only when v lies in zero to one, and the paper reports leaving v unconstrained.
+    expression: 'Sigma_theta = exp(v_theta log beta_t + (1-v_theta) log beta_tilde_t)'
+
+  - id: diffusion-gaussian-reverse-kl
+    canonical_guide: diffusion-explained.md
+    anchor: worked-example-what-a-learned-variance-can-and-cannot-repair
+    convention: Scalar KL from q=N(mu_q,s_q_squared) to p=N(mu_p,s_p_squared); optimizing model variance at fixed mean yields s_p_squared=s_q_squared+(mu_q-mu_p)^2.
+    expression: 'KL(q||p)=0.5[log(s_p^2/s_q^2)+(s_q^2+(mu_q-mu_p)^2)/s_p^2-1]'
+
+  - id: diffusion-logsnr-time-measure
+    canonical_guide: diffusion-explained.md
+    anchor: a-schedule-is-also-a-measure-over-denoising-problems
+    convention: With uniform t in zero to one and lambda_B(t)=L(1-2t^2), the induced log-SNR density is the absolute inverse derivative and differs from the uniform density induced by lambda_A(t)=L(1-2t), despite identical endpoints.
+    expression: 'p_B(lambda)=|dt/dlambda|=1/[4 L sqrt((1-lambda/L)/2)]'
+
+  - id: diffusion-coarse-two-mode-posterior
+    canonical_guide: diffusion-explained.md
+    anchor: why-a-large-reverse-jump-changes-the-statistical-problem
+    convention: X0 and an independent corruption E are each uniform on minus one and plus one, with Xt=X0+E; conditioning on Xt=0 leaves the two compatible endpoint paths with equal mass, so the exact coarse posterior has two atoms and is not one Gaussian.
+    expression: 'P(X0=-1|Xt=0)=P(X0=+1|Xt=0)=1/2'
+
+  - id: diffusion-cfg-scale
+    canonical_guide: diffusion-explained.md
+    anchor: guidance-techniques
+    convention: In this convention s=0 is unconditional and s=1 is the ordinary conditional prediction; the alternative extrapolation parameter w equals s-1.
+    expression: 'epsilon_guided = epsilon_u + s (epsilon_c - epsilon_u)'
+
+  - id: diffusion-acceleration-call-ledger
+    canonical_guide: diffusion-explained.md
+    anchor: compute-ledger-from-outer-transitions-to-end-to-end-latency
+    convention: Branch-equivalent evaluations count every logical guidance branch, whereas launched backbone calls count executions after batching or fusion; neither count includes heads, codecs, cascades, rerankers, or safety models unless added explicitly.
+    expression: 'E_branch = sum_i sum_j b_ij; L_backbone = sum_i sum_j ell_ij'
+
+  - id: probability-flow-ode
+    canonical_guide: probability-paths-and-stochastic-transport.md
+    anchor: 2-score-diffusion-and-probability-flow-odes
+    convention: Uses the forward-time SDE convention dX = f dt + g dW and the marginal score grad log p_t.
+    expression: 'dX_t/dt = f_t(X_t) - 0.5 g_t^2 grad_x log p_t(X_t)'
+
+  - id: continuity-equation
+    canonical_guide: probability-paths-and-stochastic-transport.md
+    anchor: continuity-equation
+    convention: Density and velocity require sufficient regularity or a weak/distributional interpretation.
+    expression: 'partial_t p_t + div(p_t v_t) = 0'
+
+  - id: gflownet-trajectory-balance
+    canonical_guide: gflownets-explained.md
+    anchor: 3-trajectory-and-subtrajectory-balance
+    convention: Applies to complete positive-reward trajectories with valid forward/backward support and terminal reward boundary conditions.
+    expression: 'Z prod_t P_F(s_{t+1}|s_t) = R(x) prod_t P_B(s_t|s_{t+1})'
+
+  - id: gflownet-object-marginal
+    canonical_guide: gflownets-explained.md
+    anchor: forward-and-backward-policies
+    convention: The semantic object probability sums all complete forward trajectories ending at the same terminal object; construction histories are not separate objects unless the model explicitly defines them that way.
+    expression: 'P_F(X=x) = sum_{tau: terminal(tau)=x} prod_t P_F(s_{t+1}|s_t)'
+
+  - id: gflownet-detailed-balance
+    canonical_guide: gflownets-explained.md
+    anchor: detailed-balance
+    convention: Uses one compatible positive state flow and normalized forward/backward kernels on a directed construction edge, with terminal state flow anchored to reward.
+    expression: 'F(s) P_F(s_prime|s) = F(s_prime) P_B(s|s_prime)'
+
+  - id: gflownet-subtrajectory-balance
+    canonical_guide: gflownets-explained.md
+    anchor: subtrajectory-balance
+    convention: Applies between any two states on a sampled subtrajectory; objective weighting and normalization across lengths must be declared separately.
+    expression: 'F(s_m) prod_{t=m}^{n-1} P_F(s_{t+1}|s_t) = F(s_n) prod_{t=m}^{n-1} P_B(s_t|s_{t+1})'
+
+  - id: discrete-diffusion-forward-posterior
+    canonical_guide: discrete-iterative-generation-explained.md
+    anchor: exact-forward-posterior
+    convention: Uses one-hot row vectors and cumulative matrix product bar_Q_t=Q_1...Q_t; the denominator is the scalar forward probability of the observed x_t.
+    expression: 'q(x_{t-1}|x_t,x_0) = [(x_t Q_t^T) elementwise (x_0 bar_Q_{t-1})] / [x_0 bar_Q_t x_t^T]'
+
+  - id: discrete-learned-forward-factorization
+    canonical_guide: discrete-iterative-generation-explained.md
+    anchor: learning-the-forward-construction-without-losing-tractability
+    convention: This is a reverse-time factorization of a normalized variational path conditioned on clean x; it is generally non-Markovian in forward time and requires consistent tractable marginals, posteriors, endpoints, and gradient estimators.
+    expression: 'q_phi(z_0:T|x)=q_phi(z_T|x) prod_{t=1}^T q_phi(z_{t-1}|z_t,x)'
+
+  - id: discrete-ctmc-reverse-rate
+    canonical_guide: discrete-iterative-generation-explained.md
+    anchor: reverse-time-rates
+    convention: For an allowed forward jump i to j and positive current marginal p_t(j), local probability-flux reversal gives the off-diagonal reverse rate; the reverse diagonal is minus its total exit rate.
+    expression: 'bar_R_t(j,i) = R_t(i,j) p_t(i) / p_t(j)'
+
+  - id: discrete-score-entropy
+    canonical_guide: discrete-iterative-generation-explained.md
+    anchor: discrete-score-and-score-entropy
+    convention: On positive-support state-graph edges with positive weights, the population minimizer is the marginal ratio p(y)/p(x); denoising and implicit estimators require their own support and tractability assumptions.
+    expression: 'L_SE = E_p sum_{y!=x} w_xy [s_theta(x,y) - (p(y)/p(x)) log s_theta(x,y) + K(p(y)/p(x))]'
+
+  - id: discrete-flow-probability-velocity
+    canonical_guide: discrete-iterative-generation-explained.md
+    anchor: 4-discrete-flow-matching-and-order-agnostic-generation
+    convention: Applies to the single-coordinate mixture path with scheduler kappa and endpoint posterior p_{1|t}; a finite Euler update must preserve nonnegative categorical probabilities.
+    expression: 'u_t(a,z) = kappa_dot_t/(1-kappa_t) [p_{1|t}(a|z) - delta_z(a)]'
+
+  - id: discrete-oracle-parallel-tv
+    canonical_guide: discrete-iterative-generation-explained.md
+    anchor: cumulative-worked-study-an-oracle-denoiser-with-a-wrong-sampler
+    convention: For data mass one half on 00 and 11, an oracle marginal denoiser followed by one independent parallel draw produces the uniform four-string law and total-variation error one half.
+    expression: 'TV(p_parallel,p_data) = 0.5 sum_x |p_parallel(x)-p_data(x)| = 0.5'
+
+  - id: bfn-receiver-mixture
+    canonical_guide: bayesian-flow-networks-explained.md
+    anchor: 1-the-bfn-generative-story
+    convention: The receiver averages the declared sender message law over the network output belief at the current input parameters and time; factorization and tractability depend on the chosen families.
+    expression: 'p_R(y|theta,t,alpha) = integral p_S(y|x;alpha) p_O(x|theta,t) dx'
+
+  - id: bfn-additive-update-semigroup
+    canonical_guide: bayesian-flow-networks-explained.md
+    anchor: natural-parameters-accumulate-evidence
+    convention: Applies only when independent sender messages and the Bayesian update family compose distributionally; scalar cumulative accuracy alone does not prove the identity.
+    expression: 'p_U(theta2|theta,x;alpha_a+alpha_b) = integral p_U(theta1|theta,x;alpha_a) p_U(theta2|theta1,x;alpha_b) dtheta1'
+
+  - id: bfn-transmission-loss
+    canonical_guide: bayesian-flow-networks-explained.md
+    anchor: training-flow-and-generative-flow
+    convention: The KL direction is sender to receiver and the expectation follows sender-induced parameter trajectories; adding the endpoint reconstruction term gives the finite-message negative variational bound.
+    expression: 'L_n(x) = E sum_i KL(p_S(.|x;alpha_i) || p_R(.|theta_{i-1},t_{i-1},alpha_i))'
+
+  - id: bfn-continuous-flow-marginal
+    canonical_guide: bayesian-flow-networks-explained.md
+    anchor: accuracy-schedule-and-exact-flow-marginal
+    convention: Uses the canonical standard-normal input prior and entropy-linear schedule beta(t)=sigma_1^(-2t)-1; precision is deterministic at fixed time.
+    expression: 'mu_t|x ~ N(gamma(t)x, gamma(t)(1-gamma(t))I), gamma(t)=1-sigma_1^(2t)'
+
+  - id: bfn-categorical-sender-update
+    canonical_guide: bayesian-flow-networks-explained.md
+    anchor: canonical-gaussian-logit-sender
+    convention: Uses redundant K-dimensional logits, intrinsic class one-hot e_x, uniform full-support prior in the canonical flow, and a log-sum-exp implementation of the multiplicative Bayes update.
+    expression: 'y|x ~ N(alpha(K e_x-1), alpha K I); theta_prime = softmax(log theta + y)'
+
+  - id: bfn-discrete-continuous-time-loss
+    canonical_guide: bayesian-flow-networks-explained.md
+    anchor: discrete-output-distribution
+    convention: This is the original categorical BFN continuous-time limit under beta(t)=beta(1)t^2; replacing the squared predicted-mean error by cross-entropy changes the objective unless separately derived.
+    expression: 'L_inf(x) = K beta(1) E[t ||e_x - ehat(theta_t,t)||^2]'
+
+  - id: gaussian-process-posterior
+    canonical_guide: stochastic-process-generators-explained.md
+    anchor: conditioning
+    convention: Uses a GP latent function with independent Gaussian observation noise on context points; numerical jitter is not part of sigma squared unless declared in the model.
+    expression: 'mu_T = m_T + K_TC (K_CC + sigma^2 I)^(-1)(y_C-m_C); Sigma_T = K_TT - K_TC (K_CC + sigma^2 I)^(-1) K_CT'
+
+  - id: gaussian-process-composite-seasonal-kernel
+    canonical_guide: stochastic-process-generators-explained.md
+    anchor: worked-kernel-design-trend-evolving-seasonality-and-noise
+    convention: The three terms represent an independent smooth trend, a locally periodic latent component, and a diagonal term whose meaning depends on whether it belongs to the latent kernel or observation likelihood; the decomposition is not automatically identifiable.
+    expression: 'k(t,t_prime) = k_trend(t,t_prime) + k_periodic(t,t_prime) k_drift(t,t_prime) + sigma_noise^2 1{t=t_prime}'
+
+  - id: log-gaussian-cox-process-likelihood
+    canonical_guide: stochastic-process-generators-explained.md
+    anchor: worked-log-gaussian-cox-process-boundary
+    convention: Conditional likelihood for a simple point pattern in a bounded observation window with lambda(s)=exp(f(s)); the displayed log density is up to the declared point-process reference-measure constant and requires a finite integrated intensity.
+    expression: 'log p(S|f) = sum_(s_i in S) f(s_i) - integral_W exp(f(s)) ds'
+
+  - id: sparse-variational-gp-elbo
+    canonical_guide: stochastic-process-generators-explained.md
+    anchor: scalability
+    convention: Classical inducing-variable variational family q(f,u)=p(f|u)q(u) for the declared GP prior; likelihood factorization, inducing-variable definition, minibatching, and any relaxed conditional family must be reported separately.
+    expression: 'L = E_q(f)[log p(y|f)] - KL(q(u)||p(u))'
+
+  - id: latent-sde-drift-path-kl
+    canonical_guide: stochastic-process-generators-explained.md
+    anchor: variational-latent-sdes
+    convention: Requires compatible prior and recognition diffusion, drift difference in the diffusion range, absolute continuity, and the needed integrability conditions; an initial-law KL is additional.
+    expression: 'KL_path contains 0.5 E_q integral ||g(z_t,t)^dagger (f_q(z_t,t)-f_p(z_t,t))||^2 dt'
+
+  - id: function-diffusion-finite-score
+    canonical_guide: stochastic-process-generators-explained.md
+    anchor: worked-finite-set-score-calculation
+    convention: Conditional finite-query score for Gaussian process noise with positive-definite covariance K_X; an infinite-dimensional score needs a reference-measure formulation.
+    expression: 'grad log p(f_t(X)|f_0(X)) = -(1/b_t^2) K_X^(-1) (f_t(X)-a_t f_0(X))'
+
+  - id: causal-truncated-factorization
+    canonical_guide: causal-generative-models-explained.md
+    anchor: observation-intervention-and-counterfactual
+    convention: Applies to an acyclic causally sufficient Markovian SCM under an atomic intervention that replaces the target mechanism; latent confounding, cycles, or soft interventions require their corresponding formulation.
+    expression: 'p(x_1,...,x_d | do(X_k=a)) = 1[x_k=a] prod_{i!=k} p(x_i | x_pa(i))'
+
+  - id: causal-backdoor-adjustment
+    canonical_guide: causal-generative-models-explained.md
+    anchor: worked-confounding-example
+    convention: Requires a valid adjustment set plus consistency and positivity/overlap for the target treatment levels; the deterministic XOR example on the same page violates positivity.
+    expression: 'p(y | do(x)) = sum_z p(y | x,z) p(z)'
+
+  - id: causal-potential-outcome-ate
+    canonical_guide: causal-generative-models-explained.md
+    anchor: potential-outcomes-and-the-consistency-bridge
+    convention: Difference of marginal potential-outcome means; identification of these marginals does not identify the joint coupling p(Y_0,Y_1) or the individual treatment-effect distribution.
+    expression: 'ATE = E[Y_1] - E[Y_0]'
+
+  - id: causal-frontdoor-functional
+    canonical_guide: causal-generative-models-explained.md
+    anchor: from-adjustment-to-graphical-identification
+    convention: Requires the stated front-door graphical conditions together with consistency and positivity; the inner standardization over the observational exposure distribution must occur before weighting by the intervention-specific mediator law, and arbitrary mediator conditioning is not equivalent.
+    expression: 'p(y | do(x)) = sum_m p(m | x) sum_x_prime p(y | m,x_prime) p(x_prime)'
+
+  - id: causal-notears-acyclicity
+    canonical_guide: causal-generative-models-explained.md
+    anchor: the-target-of-discovery
+    convention: Exact trace-exponential characterization for a real weighted adjacency matrix; finite penalties, optimization tolerances, and thresholding require separate checks and do not establish causal identifiability.
+    expression: 'h(W) = tr(exp(W elementwise W)) - d = 0'
+
+  - id: steering-normalized-target-reweighting
+    canonical_guide: conditioning-steering-and-constraints.md
+    anchor: 1-begin-with-the-target-not-the-steering-algorithm
+    convention: The weight is nonnegative and measurable with a finite positive base-law expectation; the formula cannot assign mass outside the base law's support.
+    expression: 'pi(x|c) = p0(x|c) w(x,c) / E_p0[w(X,c)]'
+
+  - id: steering-conditional-score-identity
+    canonical_guide: conditioning-steering-and-constraints.md
+    anchor: 3-guidance-doob-transforms-and-twisted-sampling
+    convention: Holds at the same noise time where the marginal, conditional, and condition-likelihood densities are positive and differentiable; substituting learned fields and a finite solver adds approximation error.
+    expression: 'grad_x log p_t(x|y) = grad_x log p_t(x) + grad_x log p_t(y|x)'
+
+  - id: steering-finite-doob-transform
+    canonical_guide: conditioning-steering-and-constraints.md
+    anchor: worked-finite-state-doob-transform
+    convention: The backward information function is positive on used states and carries the exact future terminal weight; learned or truncated lookahead defines an approximation rather than the exact transformed transition.
+    expression: 'K^h(x_prime|x) = K(x_prime|x) h_next(x_prime) / sum_z K(z|x) h_next(z)'
+
+  - id: steering-global-constrained-next-token
+    canonical_guide: conditioning-steering-and-constraints.md
+    anchor: local-token-masking-is-not-generally-global-conditioning
+    convention: The event F concerns the completed sequence; binary viability masking recovers this conditional only when it supplies the relevant valid-completion masses rather than merely their positivity.
+    expression: 'p(x_t|prefix,F) proportional_to p(x_t|prefix) p(F|prefix,x_t)'
+
+  - id: steering-best-of-n-density
+    canonical_guide: conditioning-steering-and-constraints.md
+    anchor: best-of-n-has-its-own-output-law
+    convention: The N base candidates are independent and identically distributed and the scalar reward has a continuous CDF; ties or dependent candidates require a modified law.
+    expression: 'q_N(x) = N p0(x) F_R(r(x))^(N-1)'
+
+  - id: flow-injective-manifold-density
+    canonical_guide: flow-explained.md
+    anchor: what-changes-when-the-transformation-is-not-bijective
+    convention: The map is a regular injective chart from d to D dimensions with d less than D; the density is relative to d-dimensional image volume, not D-dimensional ambient Lebesgue measure.
+    expression: 'p_M(f(z)) = p_Z(z) / sqrt(det(J_f(z)^T J_f(z)))'
+
+  - id: residual-vector-quantization-recursion
+    canonical_guide: representations-and-multimodal-systems.md
+    anchor: residual-product-and-lookup-free-quantization
+    convention: Each level quantizes the previous residual and reconstruction sums the selected code vectors; nominal fixed-width rate does not equal empirical entropy or serialized bitrate.
+    expression: 'r_0=z; e_l=Q_l(r_(l-1)); r_l=r_(l-1)-e_l; z_hat=sum_l e_l'
+
+  - id: linear-centered-kernel-alignment
+    canonical_guide: representations-and-multimodal-systems.md
+    anchor: representational-similarity-is-a-diagnostic-not-a-quality-score
+    convention: X and Y contain centered activations for the same n examples and both self-Gram factors have nonzero Frobenius norm; the value is a representation-similarity diagnostic, not a task or decoder score.
+    expression: 'CKA_lin(X,Y)=||X^T Y||_F^2/(||X^T X||_F ||Y^T Y||_F)'
+
+  - id: infonce-contrastive-loss
+    canonical_guide: representations-and-multimodal-systems.md
+    anchor: the-pair-law-defines-a-contrastive-objective
+    convention: Candidate one follows the declared positive conditional, candidates two through N are IID from the positive law's Y marginal, and N counts the positive as well as the negatives.
+    expression: 'w_(eta,j)=exp s_eta(X,Y_j); Z_N=sum_(j=1)^N w_(eta,j); L_NCE=-E log[w_(eta,1)/Z_N]'
+
+  - id: infonce-mutual-information-bound
+    canonical_guide: representations-and-multimodal-systems.md
+    anchor: the-pair-law-defines-a-contrastive-objective
+    convention: The standard positive and marginal-negative candidate construction and variational regularity hold; the lower bound, not the true mutual information, is capped by log N.
+    expression: 'I_p+(X;Y) >= log N - L_NCE'
+
+  - id: generative-representation-alignment-objective
+    canonical_guide: representations-and-multimodal-systems.md
+    anchor: representation-alignment-is-an-auxiliary-generative-objective
+    convention: The generator layer, noise state, conditioning, projection, teacher representation, stop-gradient behavior, discrepancy, weight, and averaging law are declared; the auxiliary term does not by itself define a probability family or sampler.
+    expression: 'A_(theta,l)=P_l h_(theta,l)(X_t,t,C); T_l=sg(E_l(X_0)); L_total=L_gen+lambda E[d(A_(theta,l),T_l)]'
+
+  - id: latent-joint-marginal-posterior
+    canonical_guide: classical-generative-models.md
+    anchor: 2-the-latent-variable-grammar
+    convention: The factorization uses a prior and observation conditional under fixed theta; sums replace integrals for discrete latents, and neither operation implies computational tractability.
+    expression: 'p_theta(x,z)=p_theta(z)p_theta(x|z); p_theta(x)=integral p_theta(x,z) dz; p_theta(z|x)=p_theta(x,z)/p_theta(x)'
+
+  - id: mixture-responsibility
+    canonical_guide: classical-generative-models.md
+    anchor: 3-mixture-models-and-em
+    convention: Component weights are nonnegative and normalized, and the observed point has positive marginal density or mass under the mixture.
+    expression: 'r_nk = pi_k p(x_n|z_n=k) / sum_j pi_j p(x_n|z_n=j)'
+
+  - id: factor-analysis-marginal
+    canonical_guide: classical-generative-models.md
+    anchor: 4-factor-analysis-and-matrix-factorization
+    convention: Uses z~N(0,I), x|z~N(Wz+mu,Psi), with positive-definite residual covariance Psi; the analytic form follows from linear-Gaussian closure.
+    expression: 'p(x) = N(x; mu, W W^T + Psi)'
+
+  - id: factor-analysis-posterior
+    canonical_guide: classical-generative-models.md
+    anchor: 4-factor-analysis-and-matrix-factorization
+    convention: Uses the same linear-Gaussian model as factor-analysis-marginal, with M=I+W^T Psi^(-1) W; implementations solve linear systems rather than form inverses explicitly.
+    expression: 'p(z|x)=N(z; M^(-1) W^T Psi^(-1)(x-mu), M^(-1))'
+
+  - id: gaussian-scale-mixture-precision-posterior
+    canonical_guide: classical-generative-models.md
+    anchor: gaussian-scale-mixtures-and-adaptive-tails
+    convention: The Gamma distribution uses shape and rate, x is scalar, Sigma is positive, and the prior precision has shape and rate nu/2.
+    expression: 'lambda|x ~ Gamma((nu+1)/2, (nu+(x-mu)^2/Sigma)/2)'
+
+  - id: linear-ica-change-of-variables
+    canonical_guide: classical-generative-models.md
+    anchor: independent-components-and-the-source-separation-contract
+    convention: A is an invertible square mixing matrix, B=A^(-1), the sources have densities with respect to product Lebesgue measure, and their joint density factorizes.
+    expression: 'p_X(x) = abs(det(B)) prod_j p_j((B x)_j)'
+
+  - id: sparse-code-map-objective
+    canonical_guide: classical-generative-models.md
+    anchor: sparse-coding-and-dictionary-learning
+    convention: Uses independent zero-location Laplace code priors with rate lambda and isotropic Gaussian observation variance sigma squared; proportionality constants independent of z are dropped.
+    expression: 'z_MAP = argmin_z { ||x-Wz||_2^2/(2 sigma^2) + lambda ||z||_1 }'
+
+  - id: hmm-baum-welch-transition-update
+    canonical_guide: classical-generative-models.md
+    anchor: learning-hmm-parameters-one-model-four-estimators
+    convention: Gamma and xi are one- and two-slice smoothed probabilities under the current finite-HMM parameters; the denominator is positive and sums expected departures from state i over t=1 through T-1.
+    expression: 'A_new[i,j] = sum_(t=1)^(T-1) xi_t(i,j) / sum_(t=1)^(T-1) gamma_t(i)'
+
+  - id: hmm-geometric-dwell-time
+    canonical_guide: classical-generative-models.md
+    anchor: durations-and-structured-discrete-states
+    convention: A_jj is the self-transition probability in [0,1), a visit begins on entry to state j, and duration d is a positive integer ending with the first departure.
+    expression: 'p(D_j=d)=A_jj^(d-1)(1-A_jj); E[D_j]=1/(1-A_jj)'
+
+  - id: linear-state-stationary-covariance
+    canonical_guide: classical-generative-models.md
+    anchor: system-identification-and-stability
+    convention: The autonomous process is z_t=A z_(t-1)+q_t with independent zero-mean finite-covariance noise Q; rho(A) less than one gives the unique finite stationary covariance.
+    expression: 'rho(A)<1; P_infinity = A P_infinity A^T + Q'
+
+  - id: local-level-h-step-forecast
+    canonical_guide: classical-generative-models.md
+    anchor: structural-probabilistic-time-series-models
+    convention: The filtered level at time t is N(m_t,P_t), future level innovations are independent N(0,q), observation noise is independent N(0,r), and no later observations are conditioned upon.
+    expression: 'y_(t+h) | y_(1:t) ~ N(m_t, P_t + h q + r)'
+
+  - id: gaussian-graphical-lasso-objective
+    canonical_guide: classical-generative-models.md
+    anchor: gaussian-graphical-models-zeros-in-the-precision-matrix
+    convention: S is the centered maximum-likelihood sample covariance, Theta is positive definite, lambda is nonnegative, and this convention penalizes only off-diagonal entries; alternative implementations must declare diagonal treatment and scaling.
+    expression: 'Theta_hat_lambda=argmin_(Theta positive definite) {-log det Theta + tr(S Theta) + lambda sum_(i != j) |Theta_ij|}'
+
+  - id: latent-gaussian-marginal-precision
+    canonical_guide: classical-generative-models.md
+    anchor: hidden-variables-turn-sparse-structure-into-dense-dependence
+    convention: The joint observed-latent Gaussian precision is positive definite and partitioned into O and H blocks; K_HH is invertible, S=K_OO, and L=K_OH K_HH^(-1) K_HO is positive semidefinite with rank at most the latent dimension.
+    expression: 'Theta_O,marg = K_OO - K_OH K_HH^(-1) K_HO = S - L'
+
+  - id: em-evidence-decomposition
+    canonical_guide: latent-variables-and-inference.md
+    anchor: em-variational-em-and-a-vae-share-one-identity
+    convention: Applies to normalized q_n with support covering the relevant posterior mass; exact EM sets q_n to the current posterior, whereas variational and amortized procedures restrict or share q_n.
+    expression: 'sum_n log p_theta(x_n) = F(theta,q_1:N) + sum_n KL(q_n(z_n) || p_theta(z_n|x_n))'
+
+  - id: dirichlet-process-finite-partition-law
+    canonical_guide: bayesian-nonparametric-models-explained.md
+    anchor: the-dirichlet-process-contract
+    convention: H is a probability measure, alpha is positive, and the displayed law holds for every finite measurable partition of the atom space.
+    expression: '(G(A_1),...,G(A_m)) ~ Dirichlet(alpha H(A_1),...,alpha H(A_m))'
+
+  - id: dirichlet-process-posterior
+    canonical_guide: bayesian-nonparametric-models-explained.md
+    anchor: conjugacy-and-the-posterior-random-measure
+    convention: The latent atom values are observed conditionally IID from G; a mixture model with hidden atoms requires an additional posterior computation over them.
+    expression: 'G | theta_1:n ~ DP(alpha+n, (alpha H + sum_i delta_theta_i)/(alpha+n))'
+
+  - id: blackwell-macqueen-predictive-law
+    canonical_guide: bayesian-nonparametric-models-explained.md
+    anchor: conjugacy-and-the-posterior-random-measure
+    convention: The predictive distribution is for the next latent atom after integrating a DP draw, before conditioning on a new observation likelihood.
+    expression: 'theta_(n+1) | theta_1:n ~ (alpha/(alpha+n)) H + (1/(alpha+n)) sum_i delta_theta_i'
+
+  - id: dirichlet-process-stick-breaking
+    canonical_guide: bayesian-nonparametric-models-explained.md
+    anchor: stick-breaking-atoms-and-size-biased-weights
+    convention: The beta-one-alpha breaks and IID H atoms give a size-biased, not decreasing-ranked, representation of a DP draw.
+    expression: 'v_k~Beta(1,alpha); pi_k=v_k product_(l<k)(1-v_l); G=sum_k pi_k delta_phi_k'
+
+  - id: dirichlet-process-eppf
+    canonical_guide: bayesian-nonparametric-models-explained.md
+    anchor: the-partition-law
+    convention: The block sizes are unordered positive integers summing to n, and the formula is the exchangeable partition probability for a DP with concentration alpha.
+    expression: 'p(Pi_n={B_1,...,B_K}) = alpha^K Gamma(alpha)/Gamma(alpha+n) product_k Gamma(|B_k|)'
+
+  - id: dirichlet-mixture-collapsed-assignment
+    canonical_guide: bayesian-nonparametric-models-explained.md
+    anchor: posterior-assignment-includes-the-likelihood
+    convention: Existing-cluster weights multiply the leave-one-out count by its posterior predictive density, while the new-cluster weight multiplies alpha by the base predictive density.
+    expression: 'p(c_i=k|rest) proportional_to n_(-i,k) m_k(x_i); p(c_i=new|rest) proportional_to alpha m_0(x_i)'
+
+  - id: indian-buffet-process-predictive-law
+    canonical_guide: bayesian-nonparametric-models-explained.md
+    anchor: from-one-label-to-many-features
+    convention: Under the one-parameter IBP, row i includes old feature k with probability m_k/i and introduces Poisson(alpha/i) new features; columns are unlabeled.
+    expression: 'z_(i,k)~Bernoulli(m_k/i); K_i_new~Poisson(alpha/i)'
+
+  - id: indian-buffet-process-efpf
+    canonical_guide: bayesian-nonparametric-models-explained.md
+    anchor: the-exchangeable-probability-of-an-unlabeled-feature-allocation
+    convention: Z has N rows and K_+ nonzero unlabeled columns, m_k is column k's number of active rows, K_h counts repeated nonzero binary column history h, and H_N is the Nth harmonic number under the one-parameter IBP.
+    expression: 'p([Z]) = alpha^(K_+) exp(-alpha H_N) / product_h K_h! * product_k ((N-m_k)! (m_k-1)! / N!)'
+
+  - id: bernoulli-crm-local-feature-count
+    canonical_guide: bayesian-nonparametric-models-explained.md
+    anchor: why-infinitely-many-atoms-can-yield-a-finite-row
+    convention: Global atoms form a Poisson random measure on weights omega in (0,1) and locations phi with Levy intensity nu; one Bernoulli-process row independently retains each atom with probability omega, and Lambda is finite.
+    expression: 'K_i ~ Poisson(Lambda); Lambda = integral_Theta integral_0^1 omega nu(domega,dphi)'
+
+  - id: hierarchical-dirichlet-process-law
+    canonical_guide: bayesian-nonparametric-models-explained.md
+    anchor: why-independent-group-priors-fail-to-share-atoms
+    convention: The global DP draw is discrete almost surely and supplies the base measure for every group-specific DP, inducing shared atom locations with group-specific weights.
+    expression: 'G_0~DP(gamma,H); G_j|G_0~DP(alpha,G_0); theta_ji|G_j~G_j; x_ji|theta_ji~f(x_ji|theta_ji)'
+
+  - id: unnormalized-target-normalizer
+    canonical_guide: likelihood-and-normalizer-estimation.md
+    anchor: four-queries-with-one-integral-shape
+    convention: Gamma is nonnegative and measurable on the declared support and base measure, and its integral is finite and strictly positive.
+    expression: 'Z=integral gamma(x) dmu(x); pi(x)=gamma(x)/Z'
+
+  - id: ordinary-importance-normalizer-estimator
+    canonical_guide: likelihood-and-normalizer-estimation.md
+    anchor: the-change-of-measure-identity
+    convention: The normalized proposal q is sampleable and scoreable and is positive wherever gamma is positive; finite variance additionally requires a finite second weight moment.
+    expression: 'X_k~q; w_k=gamma(X_k)/q(X_k); Z_hat_K=(1/K) sum_k w_k; E[Z_hat_K]=Z'
+
+  - id: importance-relative-variance-chi-square
+    canonical_guide: likelihood-and-normalizer-estimation.md
+    anchor: proposal-quality-as-a-divergence
+    convention: Pi=gamma/Z is normalized, q covers pi, draws are IID, and the chi-square divergence is finite.
+    expression: 'Var(Z_hat_K)/Z^2 = chi2(pi||q)/K'
+
+  - id: forward-ais-normalizer-ratio
+    canonical_guide: likelihood-and-normalizer-estimation.md
+    anchor: forward-ais-convention
+    convention: X_0 is exact from pi_0, each K_t leaves pi_t invariant, and the displayed reweight-then-move convention estimates Z_T/Z_0 rather than its inverse.
+    expression: 'W=product_(t=1)^T gamma_t(X_(t-1))/gamma_(t-1)(X_(t-1)); E[W]=Z_T/Z_0'
+
+  - id: smc-sampler-incremental-weight
+    canonical_guide: likelihood-and-normalizer-estimation.md
+    anchor: general-smc-sampler-weight
+    convention: K_t is the forward proposal and L_(t-1) is a compatible backward kernel on the declared extended path; simplifications require additional invariance or reversal choices.
+    expression: 'G_t(x_(t-1),x_t)=gamma_t(x_t)L_(t-1)(x_t,x_(t-1))/(gamma_(t-1)(x_(t-1))K_t(x_(t-1),x_t))'
+
+  - id: bridge-sampling-normalizer-ratio
+    canonical_guide: likelihood-and-normalizer-estimation.md
+    anchor: bridge-sampling-uses-both-endpoint-laws
+    convention: Pi_i=gamma_i/Z_i, the positive bridge h gives finite nonzero endpoint expectations, and endpoint samples represent both normalized laws.
+    expression: 'Z_1/Z_0 = E_(pi_0)[h(X)gamma_1(X)] / E_(pi_1)[h(X)gamma_0(X)]'
+
+  - id: thermodynamic-integration-normalizer-ratio
+    canonical_guide: likelihood-and-normalizer-estimation.md
+    anchor: thermodynamic-integration-and-path-sampling
+    convention: The path gamma_beta has fixed compatible support, is differentiable in beta, and differentiation may pass under the integral; finite algorithms add quadrature and Monte Carlo error.
+    expression: 'log(Z_1/Z_0)=integral_0^1 E_(pi_beta)[partial_beta log gamma_beta(X)] dbeta'
+
+  - id: nested-sampling-prior-mass-integral
+    canonical_guide: likelihood-and-normalizer-estimation.md
+    anchor: nested-sampling-changes-coordinates
+    convention: L(X) is an appropriate generalized inverse of the likelihood-survival prior mass; practical validity also requires reliable likelihood-constrained prior sampling.
+    expression: 'X(lambda)=Pr_(theta~prior)(L(theta)>lambda); Z=integral_0^1 L(X) dX'
+
+  - id: factorized-unnormalized-joint-law
+    canonical_guide: graphical-inference-and-message-passing.md
+    anchor: the-probabilistic-object-comes-before-the-graph
+    convention: Every factor is nonnegative on a compatible finite support or base measure, and the global normalizer is finite and strictly positive.
+    expression: 'gamma(x)=product_(a in F) f_a(x_a); Z=sum_x gamma(x); p(x)=gamma(x)/Z'
+
+  - id: variable-elimination-bucket-factor
+    canonical_guide: graphical-inference-and-message-passing.md
+    anchor: distributivity-is-the-algorithm
+    convention: The bucket contains all current factors involving X_i; their product is summed over X_i and replaced by one factor over the union scope without X_i.
+    expression: 'h_i(x_(S_i without i))=sum_(x_i) product_(a:i in a) f_a(x_a)'
+
+  - id: factor-graph-variable-to-factor-message
+    canonical_guide: graphical-inference-and-message-passing.md
+    anchor: two-local-update-rules
+    convention: The recipient factor is excluded so information from its side of the edge is not immediately double-counted.
+    expression: 'm_(i->a)(x_i)=product_(b in N(i) without a) m_(b->i)(x_i)'
+
+  - id: factor-graph-factor-to-variable-message
+    canonical_guide: graphical-inference-and-message-passing.md
+    anchor: two-local-update-rules
+    convention: The factor scope excluding X_i is summed out; on an acyclic factor graph with a complete dependency-respecting schedule this supports exact local marginals.
+    expression: 'm_(a->i)(x_i)=sum_(x_(a without i)) f_a(x_a) product_(j in N(a) without i) m_(j->a)(x_j)'
+
+  - id: junction-tree-separator-message
+    canonical_guide: graphical-inference-and-message-passing.md
+    anchor: turn-a-loopy-graph-into-a-tree-of-clusters
+    convention: Adjacent clique scopes C_i and C_j use separator S_ij=C_i intersect C_j, and every variable satisfies the running-intersection property.
+    expression: 'm_(i->j)(x_Sij)=sum_(x_(C_i without S_ij)) psi_i(x_Ci) product_(k in N(i) without j) m_(k->i)(x_Ski)'
+
+  - id: treewidth-elimination-complexity
+    canonical_guide: graphical-inference-and-message-passing.md
+    anchor: scope-growth-fill-in-and-induced-width
+    convention: The coarse bound assumes n variables, at most K states per variable, and induced width w for the declared order; heterogeneous cardinalities require products of state counts.
+    expression: 'time=O(n K^(w+1)); peak_dense_factor_memory=O(K^(w+1))'
+
+  - id: bethe-free-energy-factor-graph
+    canonical_guide: graphical-inference-and-message-passing.md
+    anchor: bethe-free-energy-a-precise-but-bounded-connection
+    convention: Factor and node beliefs are normalized and locally consistent; the Bethe entropy is exact on trees and approximate on loopy graphs.
+    expression: 'F_B(b)=sum_a sum_(x_a) b_a log(b_a/f_a) + sum_i (1-d_i) sum_(x_i) b_i log b_i'
+
+  - id: log-partition-gradient-marginal
+    canonical_guide: graphical-inference-and-message-passing.md
+    anchor: differentiate-a-correct-normalizer-to-obtain-moments
+    convention: Differentiation may pass through the exact finite sum or integral; for a tabular log-factor entry, the sufficient statistic is its assignment indicator.
+    expression: 'grad_eta log Z(eta)=E_p[T(X)]; partial log Z / partial log f_a(x_a)=p(X_a=x_a)'
+
+  - id: point-process-janossy-normalization
+    canonical_guide: point-processes-and-random-finite-sets.md
+    anchor: janossy-densities-the-factorial-is-part-of-the-definition
+    convention: The Janossy densities are symmetric with respect to the declared location base measure on a bounded window; the factorial quotients out the orderings of one simple configuration.
+    expression: 'j_0 + sum_(n>=1) (1/n!) integral_(W^n) j_n(x_1:n) dmu^n = 1'
+
+  - id: point-process-cardinality-location-decomposition
+    canonical_guide: point-processes-and-random-finite-sets.md
+    anchor: janossy-densities-the-factorial-is-part-of-the-definition
+    convention: f_n is a symmetric arbitrarily labeled tuple density conditional on cardinality n and integrates to one on W^n under the declared base measure.
+    expression: 'p_n=(1/n!) integral j_n dmu^n; j_n(x_1:n)=n! p_n f_n(x_1:n)'
+
+  - id: temporal-point-process-log-likelihood
+    canonical_guide: point-processes-and-random-finite-sets.md
+    anchor: survival-derives-the-next-event-density
+    convention: The conditional intensity is predictable and integrable on a known observation window, histories use only prior events, and the terminal no-event interval is included in the compensator.
+    expression: 'log p(t_1:n|T)=sum_i log lambda(t_i|H_ti) - integral_0^T lambda(s|H_s) ds'
+
+  - id: exponential-hawkes-branching-ratio
+    canonical_guide: point-processes-and-random-finite-sets.md
+    anchor: linear-hawkes-processes
+    convention: For a nonnegative univariate linear Hawkes kernel g(u)=alpha exp(-beta u), alpha and beta are positive; eta less than one is the subcritical stationary branching condition, not a universal condition for all Hawkes variants.
+    expression: 'lambda(t)=mu+sum_(t_i<t) alpha exp(-beta(t-t_i)); eta=integral_0^infinity g(u)du=alpha/beta'
+
+  - id: finite-dpp-l-ensemble
+    canonical_guide: point-processes-and-random-finite-sets.md
+    anchor: determinantal-point-processes
+    convention: L is positive semidefinite on a finite ground set, L_Y is its principal submatrix, and det(L_empty)=1; continuous DPPs require additional operator conditions.
+    expression: 'Pr(X=Y)=det(L_Y)/det(I+L); K=L(I+L)^(-1)'
+
+  - id: papangelou-density-ratio
+    canonical_guide: point-processes-and-random-finite-sets.md
+    anchor: gibbs-processes-and-papangelou-conditional-intensity
+    convention: The finite Gibbs density is hereditary and defined relative to one fixed Poisson reference; the ratio is evaluated where f(X) is positive and is not the temporal predictable intensity.
+    expression: 'lambda_P(u|X)=f(X union {u})/f(X)'
+
+  - id: point-process-monte-carlo-compensator
+    canonical_guide: point-processes-and-random-finite-sets.md
+    anchor: exact-likelihood-and-numerical-integration
+    convention: U_k are IID uniform on the finite temporal window and the history-conditioned intensity is integrable; unbiasedness of the integral or log-likelihood estimate does not survive exponentiation in general.
+    expression: 'Lambda_hat=(T/K) sum_(k=1)^K lambda(U_k|H_Uk); E[Lambda_hat]=integral_0^T lambda(s|H_s)ds'
+
+  - id: spatial-papangelou-pseudolikelihood
+    canonical_guide: point-processes-and-random-finite-sets.md
+    anchor: gibbs-likelihood-pseudolikelihood-and-composite-objectives
+    convention: The Papangelou intensity and base measure use the same bounded-window reference convention; this local estimating objective is not the normalized global configuration likelihood.
+    expression: 'log PL(theta;X)=sum_(x_i in X) log lambda_P,theta(x_i|X without x_i) - integral_W lambda_P,theta(u|X)du'
+
+  - id: point-process-inverse-compensator
+    canonical_guide: point-processes-and-random-finite-sets.md
+    anchor: inverse-integrated-hazard
+    convention: Along the no-new-event history, the cumulative conditional intensity is evaluable, continuous enough for the selected generalized inverse, and diverges or is compared with the finite window endpoint to determine stopping.
+    expression: 'E~Exponential(1); integral_(t_i)^(t_(i+1)) lambda(s|H_s)ds=E'
+
+  - id: temporal-point-process-time-rescaling
+    canonical_guide: point-processes-and-random-finite-sets.md
+    anchor: time-rescaling-and-residual-analysis
+    convention: Under a correctly specified simple process and the standard regularity, completeness, and non-termination assumptions, compensator increments are IID Exp(1); terminating or incomplete processes require the generalized treatment.
+    expression: 'z_i=integral_(t_(i-1))^(t_i) lambda(s|H_s)ds ~iid Exp(1); u_i=1-exp(-z_i) ~iid Uniform(0,1)'
+
+  - id: random-graph-unlabeled-orbit-mass
+    canonical_guide: random-graphs-and-relational-generators.md
+    anchor: relabeling-as-a-group-action
+    convention: The orbit uses the declared relabeling group and preserves every node, edge, type, and attribute regarded as part of the graph; the sum applies whether or not the labeled law is invariant.
+    expression: 'p_unlab([G])=sum_(H in [G]) p_lab(H)'
+
+  - id: random-graph-automorphism-mass-conversion
+    canonical_guide: random-graphs-and-relational-generators.md
+    anchor: relabeling-as-a-group-action
+    convention: The labeled law is invariant over the full declared orbit on n vertices, and Aut(G) preserves all declared graph structure and attributes.
+    expression: 'p_unlab([G])=(n!/|Aut(G)|) p_lab(G)'
+
+  - id: erdos-renyi-likelihood-and-mle
+    canonical_guide: random-graphs-and-relational-generators.md
+    anchor: independent-edges-gnp-and-gnm
+    convention: G is one fully observed simple undirected labeled graph on fixed n, M=choose(n,2), and every possible edge is IID Bernoulli(p); the interior MLE is m/M with the usual boundary cases.
+    expression: 'p(G|n,p)=p^m(1-p)^(M-m); p_hat=m/M'
+
+  - id: stochastic-block-model-joint-law
+    canonical_guide: random-graphs-and-relational-generators.md
+    anchor: stochastic-block-models
+    convention: Node labels are IID categorical under pi and simple undirected edges are conditionally independent given z with a symmetric probability matrix B.
+    expression: 'p(A,z|pi,B)=product_i pi_(z_i) product_(i<j) B_(z_i,z_j)^A_ij (1-B_(z_i,z_j))^(1-A_ij)'
+
+  - id: exponential-random-graph-law
+    canonical_guide: random-graphs-and-relational-generators.md
+    anchor: exponential-random-graph-models
+    convention: The finite graph support G_n and sufficient statistics s(G) are fixed and the log normalizer sums over that same support.
+    expression: 'p_theta(G|n)=exp(theta^T s(G)-psi_n(theta)); psi_n(theta)=log sum_(H in G_n) exp(theta^T s(H))'
+
+  - id: exponential-random-graph-score
+    canonical_guide: random-graphs-and-relational-generators.md
+    anchor: ergm-normalizers-and-monte-carlo
+    convention: Differentiation may pass through the finite graph sum; Monte Carlo estimates of the model moment additionally depend on representative sampling from the current ERGM.
+    expression: 'grad_theta log p_theta(G)=s(G)-E_theta[s(H)]'
+
+  - id: vertex-exchangeable-graphon-law
+    canonical_guide: random-graphs-and-relational-generators.md
+    anchor: graphons-and-vertex-exchangeability
+    convention: U_i are IID uniform, W is measurable and symmetric for undirected graphs, and edges are conditionally independent given the latent coordinates; W is identified only up to the relevant measure-preserving equivalence.
+    expression: 'U_i~iid Uniform(0,1); A_ij|U_i,U_j~Bernoulli(W(U_i,U_j))'
+
+  - id: symmetric-two-block-detectability-threshold
+    canonical_guide: random-graphs-and-relational-generators.md
+    anchor: detectability-is-a-property-of-a-regime
+    convention: This weak-recovery threshold is for the asymptotic sparse symmetric two-block SBM with equal block sizes and p_in=a/n, p_out=b/n; it is not a universal graph-learning threshold.
+    expression: '(a-b)^2 > 2(a+b)'
+
+  - id: categorical-graph-corruption-kernel
+    canonical_guide: random-graphs-and-relational-generators.md
+    anchor: a-graph-valued-markov-path
+    convention: x_0 is a categorical row vector, m is a normalized categorical reference marginal, and alpha_t lies in [0,1]; graph symmetry and node-count semantics still require a coherent joint construction.
+    expression: 'q_t(x_t|x_0)=x_0[alpha_t I+(1-alpha_t) 1 m^T]'
+
+  - id: exact-graph-constraint-conditioning
+    canonical_guide: random-graphs-and-relational-generators.md
+    anchor: hard-constraints-versus-guided-preferences
+    convention: The feasible event C has strictly positive probability under the base graph law; deterministic repair generally induces a different pushforward law.
+    expression: 'p(G|G in C)=p(G) 1{G in C}/Pr_p(G in C)'
+
+  - id: sklar-joint-cdf-factorization
+    canonical_guide: copula-models-explained.md
+    anchor: sklars-theorem-with-its-uniqueness-clause
+    convention: A copula exists for every joint CDF; it is unique on the whole unit cube when all marginals are continuous and otherwise is uniquely determined only on the product of marginal ranges.
+    expression: 'F(x_1,...,x_d)=C(F_1(x_1),...,F_d(x_d))'
+
+  - id: copula-joint-density-factorization
+    canonical_guide: copula-models-explained.md
+    anchor: density-factorization
+    convention: The joint law, all marginals, and the copula are absolutely continuous with compatible base measures; the identity does not apply to discrete cells by pointwise density evaluation.
+    expression: 'f(x)=c(F_1(x_1),...,F_d(x_d)) product_j f_j(x_j)'
+
+  - id: randomized-distributional-transform
+    canonical_guide: copula-models-explained.md
+    anchor: probability-integral-transforms
+    convention: V_j is uniform and independent under the declared augmentation; the construction produces a uniform latent coordinate but does not identify a unique whole-cube copula from discrete observations.
+    expression: 'U_j=F_j(X_j^-)+V_j(F_j(X_j)-F_j(X_j^-))'
+
+  - id: student-t-copula-tail-dependence
+    canonical_guide: copula-models-explained.md
+    anchor: elliptical-copulas
+    convention: This symmetric lower/upper coefficient is for the bivariate Student-t copula with finite degrees of freedom nu and correlation rho strictly between -1 and 1.
+    expression: 'lambda_L=lambda_U=2 t_(nu+1)(-sqrt((nu+1)(1-rho)/(1+rho)))'
+
+  - id: archimedean-copula-generator
+    canonical_guide: copula-models-explained.md
+    anchor: archimedean-copulas
+    convention: The generalized inverse and boundary conventions are fixed and psi satisfies the d-monotonicity conditions needed to define a d-dimensional copula; arbitrary decreasing functions are not sufficient.
+    expression: 'C(u_1,...,u_d)=psi(sum_j psi^(-1)(u_j))'
+
+  - id: bivariate-copula-conditional-cdf
+    canonical_guide: copula-models-explained.md
+    anchor: conditional-laws-from-copula-derivatives
+    convention: The bivariate copula is continuously differentiable in the conditioning coordinate and the conditional law is interpreted in the regular conditional-density sense; atoms and interval observations require differences or integrals.
+    expression: 'F_(U_2|U_1=u)(v)=partial C(u,v)/partial u'
+
+  - id: classifier-copula-density-ratio
+    canonical_guide: copula-models-explained.md
+    anchor: density-ratio-estimation
+    convention: Positive examples follow the continuous copula density, negative examples follow the product of uniform marginals, class priors are equal, and h star is the Bayes-optimal class probability.
+    expression: 'c(u)=h_star(u)/(1-h_star(u))'
+
+  - id: three-variable-pair-copula-density
+    canonical_guide: copula-models-explained.md
+    anchor: from-the-chain-rule-to-pair-copulas
+    convention: The joint copula is absolutely continuous; the conditional pair copula may depend directly on the conditioning value unless the additional simplifying assumption is imposed.
+    expression: 'c_123=c_12 c_23 c_(13|2)(F_(1|2),F_(3|2);u_2)'
+
+  - id: bivariate-discrete-copula-cell-mass
+    canonical_guide: copula-models-explained.md
+    anchor: discrete-likelihood-uses-rectangle-probabilities
+    convention: F_X(x^-) and F_Y(y^-) are the CDF left limits; the four-corner difference is the observed cell probability and remains identified even when the whole-cube copula extension is not.
+    expression: 'p(x,y)=C(F_X(x),F_Y(y))-C(F_X(x^-),F_Y(y))-C(F_X(x),F_Y(y^-))+C(F_X(x^-),F_Y(y^-))'
+
+  - id: rosenblatt-transform
+    canonical_guide: copula-models-explained.md
+    anchor: the-rosenblatt-transform
+    convention: The ordered conditional CDFs are correctly specified and continuous under the standard regularity; the resulting coordinates must be mutually independent as well as marginally uniform.
+    expression: 'Z_1=F_1(X_1); Z_j=F_(j|1:j-1)(X_j|X_1:j-1) ~ iid Uniform(0,1)'
+
+  - id: pcfg-derivation-product
+    canonical_guide: probabilistic-grammars-and-program-derivations.md
+    anchor: from-a-context-free-grammar-to-a-pcfg
+    convention: The derivation is finite, each production choice follows the PCFG conditional-independence semantics, and repeated rule uses contribute repeated factors.
+    expression: 'p(t)=product_(r in t) theta_r'
+
+  - id: grammar-yield-marginal
+    canonical_guide: probabilistic-grammars-and-program-derivations.md
+    anchor: from-a-context-free-grammar-to-a-pcfg
+    convention: The sum ranges over every finite derivation whose yield is x; replacing the sum by a best derivation changes the model query.
+    expression: 'p(x)=sum_(t:yield(t)=x) p(t)'
+
+  - id: binary-pcfg-termination-fixed-point
+    canonical_guide: probabilistic-grammars-and-program-derivations.md
+    anchor: local-rule-normalization-does-not-prove-global-consistency
+    convention: For S to SS with probability rho and S to a otherwise, q is the smallest solution in [0,1]; local production probabilities sum to one even when q is less than one.
+    expression: 'q=(1-rho)+rho q^2; q=1 if rho<=1/2 and q=(1-rho)/rho otherwise'
+
+  - id: weighted-grammar-tree-normalizer
+    canonical_guide: probabilistic-grammars-and-program-derivations.md
+    anchor: weighted-grammars-and-partition-functions
+    convention: Z_S sums nonnegative weights over finite derivations and must be finite and positive before w(t)/Z_S defines a probability law on those derivations.
+    expression: 'Z_S=sum_(t finite from S) w(t); p(t)=w(t)/Z_S'
+
+  - id: pcfg-inside-recurrence
+    canonical_guide: probabilistic-grammars-and-program-derivations.md
+    anchor: inside-probabilities
+    convention: The displayed binary recurrence assumes an acyclic span decomposition; unary and nullable cycles require a closure or fixed-point construction.
+    expression: 'alpha[A,i,j]=sum_(A->BC) theta_(A->BC) sum_(k=i+1)^(j-1) alpha[B,i,k] alpha[C,k,j]'
+
+  - id: pcfg-posterior-span-marginal
+    canonical_guide: probabilistic-grammars-and-program-derivations.md
+    anchor: outside-probabilities-and-posterior-events
+    convention: Alpha is inside mass, beta is outside mass under the same grammar and span convention, and p(x) is positive.
+    expression: 'p(A spans i:j | x)=alpha[A,i,j] beta[A,i,j]/p(x)'
+
+  - id: supervised-pcfg-rule-mle
+    canonical_guide: probabilistic-grammars-and-program-derivations.md
+    anchor: observed-derivations-count-and-normalize
+    convention: Complete derivation trees are observed and rule probabilities are normalized separately for every left-hand side; smoothing changes the estimator.
+    expression: 'theta_hat_(A->beta)=c_(A->beta)/sum_(r:lhs(r)=A) c_r'
+
+  - id: compound-pcfg-yield-marginal
+    canonical_guide: probabilistic-grammars-and-program-derivations.md
+    anchor: global-latents-and-conditional-tractability
+    convention: The inside sum over trees is exact conditional on z under the PCFG assumptions, while integration over the global latent generally requires approximation.
+    expression: 'p(x)=integral p(z) sum_(t:yield(t)=x) p(t|z) dz'
+
+  - id: executable-program-output-pushforward
+    canonical_guide: probabilistic-grammars-and-program-derivations.md
+    anchor: a-grammar-over-programs
+    convention: The sum includes every program and the integral includes declared execution randomness; partial execution needs an explicit failure or subprobability convention.
+    expression: 'p(y)=sum_P p_theta(P) integral p(u|P) 1{Exec(P,u)=y} du'
+
+  - id: locally-grammar-constrained-conditional
+    canonical_guide: probabilistic-grammars-and-program-derivations.md
+    anchor: autoregressive-yield-models-plus-formal-constraints
+    convention: The viable-token set is nonempty and defined by the formal-language checker; per-prefix renormalization guarantees declared support but generally differs from global conditioning on validity.
+    expression: 'q(v|prefix)=p_theta(v|prefix) 1{v in V_L(prefix)}/sum_(v prime in V_L(prefix)) p_theta(v prime|prefix)'
+
+  - id: globally-language-conditioned-sequence-law
+    canonical_guide: probabilistic-grammars-and-program-derivations.md
+    anchor: autoregressive-yield-models-plus-formal-constraints
+    convention: The valid-language event has positive mass under the base sequence law; exact global conditioning retains each prefix total completion mass.
+    expression: 'p_theta(x|x in L)=p_theta(x) 1{x in L}/P_theta(X in L)'
+
+  - id: nonnegative-tensor-probability-law
+    canonical_guide: tensor-network-and-born-probability-models.md
+    anchor: three-probability-constructions
+    convention: The contracted function f is nonnegative on the declared finite state space and its total mass Z is finite and strictly positive.
+    expression: 'p(x)=f(x)/Z; Z=sum_x f(x)'
+
+  - id: born-tensor-probability-law
+    canonical_guide: tensor-network-and-born-probability-models.md
+    anchor: three-probability-constructions
+    convention: Psi is a real or complex amplitude over the declared basis and Z is its finite positive squared norm; phase and gauge parameters need not be identifiable from p.
+    expression: 'p(x)=|Psi(x)|^2/Z; Z=sum_x |Psi(x)|^2'
+
+  - id: locally-purified-tensor-law
+    canonical_guide: tensor-network-and-born-probability-models.md
+    anchor: three-probability-constructions
+    convention: The auxiliary index a is summed after modulus squaring, which guarantees nonnegativity while distinguishing a purified construction from one scalar amplitude per x.
+    expression: 'p(x)=sum_a |Phi(x,a)|^2/Z'
+
+  - id: open-boundary-mps-amplitude
+    canonical_guide: tensor-network-and-born-probability-models.md
+    anchor: the-open-boundary-mps
+    convention: Boundary ranks are one, each physical index selects a matrix-shaped core slice, and adjacent bond dimensions agree.
+    expression: 'Psi(x_1:d)=A_1[x_1] A_2[x_2] ... A_d[x_d]'
+
+  - id: mps-gauge-transformation
+    canonical_guide: tensor-network-and-born-probability-models.md
+    anchor: gauge-freedom-and-canonical-forms
+    convention: G is invertible on one internal bond; inserting G and its inverse changes neighboring cores without changing any represented amplitude.
+    expression: 'A_i[x_i] -> A_i[x_i]G; A_(i+1)[x_(i+1)] -> G^(-1)A_(i+1)[x_(i+1)]'
+
+  - id: left-canonical-mps-condition
+    canonical_guide: tensor-network-and-born-probability-models.md
+    anchor: gauge-freedom-and-canonical-forms
+    convention: The stated identity applies at a left-canonical site with the matrix orientation used in the guide; other orientations transpose the condition.
+    expression: 'sum_(x_i) A_i[x_i]^dagger A_i[x_i]=I'
+
+  - id: born-left-environment-recurrence
+    canonical_guide: tensor-network-and-born-probability-models.md
+    anchor: one-amplitude-versus-the-whole-normalizer
+    convention: The recurrence contracts physical indices and conjugate amplitude copies from left to right; L_0 is the scalar one and the final scalar is Z.
+    expression: 'L_i=sum_(x_i) A_i[x_i]^dagger L_(i-1) A_i[x_i]; Z=L_d'
+
+  - id: tensor-conditional-ratio
+    canonical_guide: tensor-network-and-born-probability-models.md
+    anchor: exact-sequential-sampling
+    convention: Prefix probability is positive, both numerator and denominator come from the same normalized tensor law, and the suffix is contracted exactly.
+    expression: 'p(x_i=a|x_<i)=p(x_<i,a)/p(x_<i)'
+
+  - id: born-negative-log-likelihood
+    canonical_guide: tensor-network-and-born-probability-models.md
+    anchor: maximum-likelihood-and-its-negative-phase
+    convention: Data amplitudes are nonzero, Z is the squared-amplitude normalizer, and complex derivatives use an appropriate real or Wirtinger convention.
+    expression: 'L(theta)=-(2/n) sum_m log|Psi_theta(x^m)| + log Z_theta'
+
+  - id: continuous-tensor-feature-gram
+    canonical_guide: tensor-network-and-born-probability-models.md
+    anchor: continuous-variables-through-feature-maps
+    convention: The integral is with respect to the declared one-site base measure; normalization inserts G at an integrated site, and G equals I only for orthonormal features.
+    expression: 'G_i[s,t]=integral phi_(i,s)(x) conjugate(phi_(i,t)(x)) d mu_i(x)'
+
+  - id: beta-bernoulli-posterior-and-evidence
+    canonical_guide: bayesian-learning-and-model-assessment.md
+    anchor: 2-worked-example-betabernoulli-learning
+    convention: The ordered sequence contains s successes and f failures under conditionally IID Bernoulli sampling; count evidence additionally includes the binomial multiplicity.
+    expression: 'theta|x_1:n ~ Beta(alpha+s,beta+f); p(sequence)=B(alpha+s,beta+f)/B(alpha,beta); P(S=s)=choose(n,s) p(sequence)'
+
+  - id: exponential-family-conjugate-update
+    canonical_guide: bayesian-learning-and-model-assessment.md
+    anchor: the-conjugate-exponential-family-calculation
+    convention: The prior on the natural parameter is proper and has kernel exp(eta^T tau-nu A(eta)); the mean-parameter expectation requires the boundary conditions for integration by parts and is not generally E[eta].
+    expression: 'tau_post=tau+sum_i T(x_i); nu_post=nu+n; E[grad A(eta)]=tau/nu under the stated prior conditions'
+
+  - id: covariance-separation-and-lkj-density
+    canonical_guide: bayesian-learning-and-model-assessment.md
+    anchor: multivariate-priors-should-expose-scale-and-dependence
+    convention: D is diagonal with strictly positive marginal scales, R is a valid d-dimensional correlation matrix, and the proportional LKJ density is with respect to its matrix measure; a Cholesky parameterization requires a transformed density.
+    expression: 'Sigma=D R D; p(R|eta) proportional to det(R)^(eta-1), eta>0'
+
+  - id: normal-hierarchical-shrinkage
+    canonical_guide: bayesian-learning-and-model-assessment.md
+    anchor: worked-normalnormal-shrinkage
+    convention: The population mean mu, between-group variance tau squared, observation variance sigma squared, and group sample size n_j are treated as known for this conditional calculation.
+    expression: 'E[theta_j|xbar_j]=w_j xbar_j+(1-w_j)mu; w_j=n_j tau^2/(n_j tau^2+sigma^2)'
+
+  - id: existing-versus-new-group-predictive
+    canonical_guide: bayesian-learning-and-model-assessment.md
+    anchor: existing-group-and-new-group-prediction-differ
+    convention: An existing group has observations in D and hence a group-specific posterior; a new exchangeable group requires drawing a fresh state from the learned population distribution.
+    expression: 'p(x_new_group|D)=integral p(x|theta_tilde,phi) p(theta_tilde|phi) p(phi|D) dtheta_tilde dphi'
+
+  - id: psis-sample-size-warning-threshold
+    canonical_guide: bayesian-learning-and-model-assessment.md
+    anchor: leave-one-out-predictive-evaluation
+    convention: S is the number of importance draws; exceeding the threshold warns about the finite importance approximation and is not a model adequacy statistic.
+    expression: 'k_warn(S)=min(1-1/log10(S),0.7)'
+
+  - id: waic-pointwise-effective-parameters
+    canonical_guide: bayesian-learning-and-model-assessment.md
+    anchor: waic-and-singular-models
+    convention: Likelihood contributions use the declared independent or conditionally factorized prediction unit; the variance is across posterior draws of each pointwise log likelihood.
+    expression: 'p_WAIC=sum_i Var_post[log p(y_i|theta)]; elpd_WAIC=sum_i log E_post[p(y_i|theta)]-p_WAIC'
+
+  - id: predictive-total-variance
+    canonical_guide: bayesian-learning-and-model-assessment.md
+    anchor: aleatoric-and-parameter-uncertainty-depend-on-the-query
+    convention: The scalar predictive quantity has finite conditional second moments under the posterior; changing what is included in theta changes the two named terms without changing total predictive variance.
+    expression: 'Var(Y_tilde|D)=E_post[Var(Y_tilde|theta,D)]+Var_post[E(Y_tilde|theta,D)]'
+
+  - id: observed-data-selection-likelihood
+    canonical_guide: bayesian-learning-and-model-assessment.md
+    anchor: 7-missing-data-and-observation-mechanisms
+    convention: The complete-data model and missingness mechanism share a declared dominating measure; the integral is over the unobserved components and ignorability requires additional MAR and parameter-separation conditions.
+    expression: 'p(y_obs,r|theta,psi)=integral p(y_obs,y_mis|theta) p(r|y_obs,y_mis,psi) dy_mis'
+
+  - id: dag-local-kernel-factorization
+    canonical_guide: graphical-models-and-structured-probability.md
+    anchor: a-graph-is-structure-the-conditionals-define-the-law
+    convention: G is a finite DAG, pa(v) is the parent set of vertex v, and every local kernel is normalized in x_v; reverse-topological elimination proves global normalization.
+    expression: 'p(x_V)=product_(v in V) p_v(x_v|x_pa(v))'
+
+  - id: monitoring-dag-joint-law
+    canonical_guide: graphical-models-and-structured-probability.md
+    anchor: running-model-two-possible-causes-and-two-measurements
+    convention: F and O are independent root causes, A is an alarm conditional on both causes, and S is a targeted signal conditional only on F.
+    expression: 'p(f,o,a,s)=p(f)p(o)p(a|f,o)p(s|f)'
+
+  - id: d-separation-markov-implication
+    canonical_guide: graphical-models-and-structured-probability.md
+    anchor: active-and-blocked-trails
+    convention: The graph is a DAG and the distribution is Markov to it; d-separation entails conditional independence, while a converse for one parameterization requires additional assumptions such as faithfulness.
+    expression: 'A d-separated from B by C in G implies X_A independent of X_B given X_C'
+
+  - id: dag-markov-blanket
+    canonical_guide: graphical-models-and-structured-probability.md
+    anchor: markov-blankets
+    convention: The blanket includes the parents, children, and other parents of every child; it is a probabilistic shielding set, not automatically a causal adjustment set.
+    expression: 'mb(v)=pa(v) union ch(v) union_(u in ch(v)) (pa(u) minus {v})'
+
+  - id: undirected-factor-normalization
+    canonical_guide: graphical-models-and-structured-probability.md
+    anchor: local-compatibility-global-normalization
+    convention: Potentials are nonnegative relative to the declared base measure mu, and their product defines a probability law only when the global normalizer is finite and strictly positive.
+    expression: 'gamma(x)=product_c psi_c(x_c); Z=integral gamma dmu in (0,infinity); p=gamma/Z'
+
+  - id: two-spin-ising-law-and-conditional
+    canonical_guide: graphical-models-and-structured-probability.md
+    anchor: worked-two-spin-ising-model
+    convention: X_1 and X_2 take values minus one or plus one and J=log 2; the four unnormalized weights sum to five, while the global normalizer cancels from the single-site conditional.
+    expression: 'p(x_1,x_2)=exp(J x_1 x_2)/5; p(X_1=1|X_2=x_2)=sigmoid(2J x_2)'
+
+  - id: mrf-likelihood-moment-gradient
+    canonical_guide: graphical-models-and-structured-probability.md
+    anchor: undirected-maximum-likelihood
+    convention: The MRF is a regular exponential family and the displayed objective is average log likelihood; approximate negative-phase methods change the estimator unless they evaluate the expectation exactly.
+    expression: 'grad ell(theta)=N^(-1) sum_n phi(x_n)-E_p_theta[phi(X)]'
+
+  - id: nodewise-pseudolikelihood
+    canonical_guide: graphical-models-and-structured-probability.md
+    anchor: pseudolikelihood-is-a-composite-objective
+    convention: Every full conditional is derived from one compatible joint model; their product is a composite objective and generally is not normalized over full configurations.
+    expression: 'PL_theta(x)=product_(v in V) p_theta(x_v|x_(V minus {v}))'
+
+  - id: composite-likelihood-sandwich-covariance
+    canonical_guide: graphical-models-and-structured-probability.md
+    anchor: pseudolikelihood-is-a-composite-objective
+    convention: H is the sensitivity of the composite score and J is its variability under the declared sampling design; a Fisher-information inverse is recovered only under an additional information identity.
+    expression: 'Avar(theta_hat_PL)=H^(-1) J H^(-1)'
+
+  - id: conditional-random-field-law
+    canonical_guide: graphical-models-and-structured-probability.md
+    anchor: conditional-random-fields
+    convention: The output state space and base measure are declared and the input-dependent normalizer is finite; a bare argmin structured predictor does not by itself define this conditional law.
+    expression: 'p_theta(y|x)=exp(s_theta(x,y))/Z_theta(x); Z_theta(x)=sum_(y prime) exp(s_theta(x,y prime))'
+
+  - id: inla-nested-marginal-approximation
+    canonical_guide: graphical-inference-and-message-passing.md
+    anchor: integrated-nested-laplace-approximation-structure-specific-deterministic-inference
+    convention: The model has a latent Gaussian field with useful sparse precision and a sufficiently low-dimensional hyperparameter theta for numerical integration; both factors in the integrand are approximations unless a special case makes one exact.
+    expression: 'p_tilde(x_i|y)=integral p_tilde(x_i|theta,y) p_tilde(theta|y) dtheta approximately sum_k p_tilde(x_i|theta_k,y) p_tilde(theta_k|y) Delta_k'
+
+  - id: entropy-cross-entropy-relative-entropy
+    canonical_guide: information-coding-and-generative-modeling.md
+    anchor: cross-entropy-and-model-mismatch
+    convention: The discrete source p is absolutely continuous with respect to model q for a finite value, and all logarithms use one declared base.
+    expression: 'H(p,q)=H(p)+D_KL(p||q); H(p,q)=-E_p log q(X)'
+
+  - id: differential-entropy-coordinate-transform
+    canonical_guide: information-coding-and-generative-modeling.md
+    anchor: continuous-variables-require-a-reference-measure
+    convention: X has a density, f is a sufficiently regular bijection with nonzero Jacobian almost everywhere, and both entropies and the log-Jacobian expectation exist.
+    expression: 'h(f(X))=h(X)+E log|det J_f(X)|'
+
+  - id: asymptotic-equipartition-information-rate
+    canonical_guide: information-coding-and-generative-modeling.md
+    anchor: typical-sequences-are-not-modal-sequences
+    convention: X_1:n are IID under the displayed elementary form and self-information has the integrability required by the law of large numbers; stationary ergodic extensions require their own assumptions.
+    expression: '-n^(-1) log p(X_1:n) -> H(X) in probability'
+
+  - id: mutual-information-relative-entropy
+    canonical_guide: information-coding-and-generative-modeling.md
+    anchor: mutual-information-compares-a-joint-law-with-independence
+    convention: The joint law is absolutely continuous with respect to the product of its marginals for finite MI; separate entropy identities additionally require their terms to be well defined.
+    expression: 'I(X;Y)=D_KL(p_XY||p_X p_Y)'
+
+  - id: binary-symmetric-mutual-information
+    canonical_guide: information-coding-and-generative-modeling.md
+    anchor: worked-dependence-table
+    convention: X is a uniform bit and Y=X xor N with independent Bernoulli epsilon noise; h_2 uses base-two logarithms.
+    expression: 'I(X;Y)=1-h_2(epsilon) bits'
+
+  - id: total-correlation
+    canonical_guide: information-coding-and-generative-modeling.md
+    anchor: several-variables-have-several-dependence-functionals
+    convention: The joint is absolutely continuous with respect to the product of marginals; the entropy expansion is used only when every term is well defined.
+    expression: 'TC(X_1:d)=D_KL(p(x_1:d)||product_j p(x_j))=sum_j H(X_j)-H(X_1:d)'
+
+  - id: infonce-lower-bound
+    canonical_guide: information-coding-and-generative-modeling.md
+    anchor: variational-lower-and-upper-bounds
+    convention: One positive pair and K-1 negatives follow the standard independent marginal-candidate sampling construction; alternative mining, dependence, or multiple-positive rules change the bound.
+    expression: 'I(X;Y)>=log K-L_NCE and this bound is at most log K'
+
+  - id: kraft-prefix-code-condition
+    canonical_guide: information-coding-and-generative-modeling.md
+    anchor: a-code-is-a-protocol-not-a-metaphor
+    convention: Codeword lengths are positive integers for a binary prefix code; the converse constructs a prefix code, while the McMillan necessity extends to uniquely decodable codes.
+    expression: 'sum_x 2^(-ell(x))<=1'
+
+  - id: autoregressive-ideal-codelength
+    canonical_guide: information-coding-and-generative-modeling.md
+    anchor: sequential-probability-models-become-sequential-coders
+    convention: Every conditional is a normalized discrete distribution and the encoder and decoder use the same ordering and probability tables; actual files add finite-coder overhead.
+    expression: '-log_2 q(x_1:T)=sum_t -log_2 q(x_t|x_<t)'
+
+  - id: shannon-rate-distortion-function
+    canonical_guide: information-coding-and-generative-modeling.md
+    anchor: lossy-coding-begins-with-what-may-be-forgotten
+    convention: The displayed single-letter form applies to a memoryless source under the standard asymptotic expected-distortion coding formulation and a declared distortion function.
+    expression: 'R(D_0)=inf_(r(xhat|x): E d(X,Xhat)<=D_0) I(X;Xhat)'
+
+  - id: binary-hamming-rate-distortion
+    canonical_guide: information-coding-and-generative-modeling.md
+    anchor: worked-binary-ratedistortion-function
+    convention: X is a fair Bernoulli source, distortion is Hamming, logarithms are base two, and 0<=D<=1/2; the rate is zero for D>=1/2.
+    expression: 'R(D)=1-h_2(D) for 0<=D<=1/2'
+
+  - id: vae-variational-rate-decomposition
+    canonical_guide: information-coding-and-generative-modeling.md
+    anchor: vae-rate-and-its-decomposition
+    convention: q(x,z)=p_D(x)q_phi(z|x), q_phi(z) is its aggregate posterior, and all KL terms are finite under one logarithm convention.
+    expression: 'E_x D_KL(q(z|x)||p(z))=I_q(X;Z)+D_KL(q(z)||p(z))'
+
+  - id: binary-symmetric-channel-capacity
+    canonical_guide: information-coding-and-generative-modeling.md
+    anchor: capacity-maximizes-reliable-information-rate
+    convention: The memoryless binary channel flips each input independently with probability epsilon in [0,1/2], has no additional input cost, and uses base-two logarithms.
+    expression: 'C=max_p(x) I(X;Y)=1-h_2(epsilon) bits per channel use'
+
+  - id: fano-decoding-inequality
+    canonical_guide: information-coding-and-generative-modeling.md
+    anchor: fano-bounds-error-through-remaining-uncertainty
+    convention: M has a finite alphabet of size K, Mhat is any function of Y, P_e=P(Mhat!=M), and logarithms are base two.
+    expression: 'H(M|Y)<=h_2(P_e)+P_e log_2(K-1)'
+
+  - id: information-bottleneck-lagrangian
+    canonical_guide: information-coding-and-generative-modeling.md
+    anchor: the-bottleneck-is-a-task-relative-trade-off
+    convention: The joint p(x,y) is fixed, the encoder q(z|x) creates Y->X->Z, and the sign and placement of beta follow the guide's compression-minus-relevance convention.
+    expression: 'L_IB=I(X;Z)-beta I(Y;Z)'
+
+  - id: prefix-kolmogorov-complexity
+    canonical_guide: information-coding-and-generative-modeling.md
+    anchor: algorithmic-information-is-a-limit-concept-not-a-measured-neural-score
+    convention: U is a fixed universal prefix machine and p ranges over halting prefix programs that output x; K_U is uncomputable and machine dependent up to an additive constant.
+    expression: 'K_U(x)=min_(p:U(p)=x) |p|'
+
+  - id: jacobian-vector-and-vector-jacobian-products
+    canonical_guide: optimization-and-learning-dynamics.md
+    anchor: jvps-and-vjps
+    convention: f maps R^n to R^m, v is a tangent in input coordinates, and u is a cotangent in output coordinates; reverse mode for a scalar output uses u=1.
+    expression: 'JVP_f(x;v)=J_f(x)v; VJP_f(x;u)=u^T J_f(x)'
+
+  - id: stop-gradient-derivative
+    canonical_guide: optimization-and-learning-dynamics.md
+    anchor: detachment-changes-the-derivative-program
+    convention: sg returns its argument in the forward pass and has derivative zero; therefore the visible value theta squared and the custom derivative theta differ from the ordinary derivative of theta squared.
+    expression: 'value(theta sg(theta))=theta^2; d(theta sg(theta))/dtheta=theta'
+
+  - id: score-function-gradient-estimator
+    canonical_guide: optimization-and-learning-dynamics.md
+    anchor: score-function-estimator
+    convention: q_theta has compatible parameter-independent support, derivative and integral may be exchanged, and f_theta may depend explicitly on theta.
+    expression: 'grad_theta E_q[f_theta(Z)] = E_q[f_theta(Z) grad_theta log q_theta(Z) + grad_theta f_theta(Z)]'
+
+  - id: pathwise-gradient-estimator
+    canonical_guide: optimization-and-learning-dynamics.md
+    anchor: pathwise-estimator
+    convention: Z=g_theta(epsilon), epsilon has a theta-independent law, the composed function is differentiable almost everywhere, and an integrable domination condition justifies expectation of the derivative.
+    expression: 'grad_theta E_epsilon[f_theta(g_theta(epsilon))] = E_epsilon[grad_z f_theta grad_theta g_theta + grad_theta f_theta]'
+
+  - id: bernoulli-straight-through-bias
+    canonical_guide: optimization-and-learning-dynamics.md
+    anchor: worked-discrete-estimator-unbiased-score-biased-straight-through
+    convention: Z is Bernoulli(p), f(Z)=Z squared equals Z on the discrete support, and the displayed surrogate uses dZ/dp=1; the true derivative is one while the surrogate expectation is 2p.
+    expression: 'd E[Z^2]/dp=1; E[g_ST]=E[2Z]=2p'
+
+  - id: global-gradient-norm-clipping
+    canonical_guide: optimization-and-learning-dynamics.md
+    anchor: clipping-has-multiple-meanings
+    convention: The norm is computed across every gradient leaf before one common scaling factor is applied; per-leaf clipping and pre-reduction distributed clipping are different operations.
+    expression: 'g_tilde = g min(1,c/(sqrt(sum_k ||g^(k)||_F^2)+delta))'
+
+  - id: fisher-local-kl-and-natural-step
+    canonical_guide: optimization-and-learning-dynamics.md
+    anchor: geometry-from-a-local-distributional-constraint
+    convention: The statistical family is locally regular on an identifiable tangent space, epsilon is a small KL trust-region radius, and F dagger is used because Fisher can be singular.
+    expression: 'KL(p_theta||p_(theta+Delta))=0.5 Delta^T F Delta+o(||Delta||^2); Delta_star=-sqrt(2 epsilon/(g^T F^dagger g)) F^dagger g'
+
+  - id: bilinear-gradient-game-radius
+    canonical_guide: optimization-and-learning-dynamics.md
+    anchor: worked-bilinear-game-why-gradients-rotate
+    convention: V(x,y)=xy is minimized in x and maximized in y with simultaneous Euler step size eta greater than zero; squared radius grows by 1+eta squared.
+    expression: 'x_plus=x-eta y; y_plus=y+eta x; x_plus^2+y_plus^2=(1+eta^2)(x^2+y^2)'
+
+  - id: em-free-energy-decomposition
+    canonical_guide: optimization-and-learning-dynamics.md
+    anchor: one-identity-organizes-the-chapter
+    convention: q has support compatible with the exact posterior; the KL term is from q to p_theta(z|x), so the free energy is a lower bound on log evidence.
+    expression: 'log p_theta(x)=F(q,theta)+KL(q(z)||p_theta(z|x)); F=E_q log p_theta(x,z)+H(q)'
+
+  - id: bernoulli-mixture-em-update
+    canonical_guide: optimization-and-learning-dynamics.md
+    anchor: worked-two-component-bernoulli-mixture
+    convention: Responsibilities are computed under the old two-component Bernoulli mixture; the updated weights use effective counts and the updated Bernoulli probabilities use responsibility-weighted successes.
+    expression: 'r_nk=pi_k mu_k^(x_n)(1-mu_k)^(1-x_n)/sum_j pi_j mu_j^(x_n)(1-mu_j)^(1-x_n); pi_k+=N_k/N; mu_k+=sum_n r_nk x_n/N_k'
+
+  - id: cross-entropy-elite-distribution-update
+    canonical_guide: optimization-and-learning-dynamics.md
+    anchor: estimation-of-distribution-algorithms
+    convention: Candidates are sampled from the current search distribution, w_i marks membership in the declared elite reward level set, and the next parameters maximize weighted search-distribution likelihood rather than data likelihood.
+    expression: 'psi_(t+1) in argmax_psi sum_i 1[R(a_i)>=gamma_t] log q_psi(a_i)'
+
+  - id: gaussian-evolution-strategy-gradient
+    canonical_guide: optimization-and-learning-dynamics.md
+    anchor: evolution-strategies
+    convention: epsilon is standard Gaussian, sigma is positive, and regularity permits the score identity; the derivative concerns the Gaussian-smoothed reward J_sigma.
+    expression: 'J_sigma(theta)=E[R(theta+sigma epsilon)]; grad J_sigma=(1/sigma) E[R(theta+sigma epsilon) epsilon]'
+
+  - id: determinantal-point-process-l-ensemble
+    canonical_guide: optimization-and-learning-dynamics.md
+    anchor: determinantal-point-processes
+    convention: The finite ground set has positive-semidefinite L, L_S is the principal submatrix indexed by S, and det(I+L) is the exact normalizer over all subsets.
+    expression: 'P(Y=S)=det(L_S)/det(I+L)'
+
+  - id: kantorovich-optimal-transport
+    canonical_guide: optimization-and-learning-dynamics.md
+    anchor: transport-begins-with-a-cost-and-two-marginals
+    convention: Pi(P,Q) is the set of joint probability measures with marginals P and Q and c is a nonnegative measurable cost; a generic cost does not automatically make the optimum a metric.
+    expression: 'OT_c(P,Q)=inf_(pi in Pi(P,Q)) integral c(x,y) dpi(x,y)'
+
+  - id: transport-forward-change-of-variables
+    canonical_guide: optimization-and-learning-dynamics.md
+    anchor: change-of-variables-has-a-fixed-direction
+    convention: T is a differentiable bijection with nonzero determinant almost everywhere, P has density p, and Q=T sharp P has density q relative to the corresponding base measures.
+    expression: 'q(T(x)) |det J_T(x)| = p(x)'
+
+  - id: wasserstein-p-distance
+    canonical_guide: optimization-and-learning-dynamics.md
+    anchor: wasserstein-distances
+    convention: The exponent p is any real number at least one and both laws have finite pth moments under the declared ground metric; otherwise the value may be infinite.
+    expression: 'W_p(P,Q)=(inf_(pi in Pi(P,Q)) integral ||x-y||^p dpi)^(1/p)'
+
+  - id: sinkhorn-debiased-divergence
+    canonical_guide: optimization-and-learning-dynamics.md
+    anchor: entropic-regularization
+    convention: OT_c_epsilon uses one fixed cost and entropic regularization convention for all three terms; self-cost subtraction corrects the regularized identity bias under the Sinkhorn-divergence construction.
+    expression: 'S_c_epsilon(P,Q)=OT_c_epsilon(P,Q)-0.5 OT_c_epsilon(P,P)-0.5 OT_c_epsilon(Q,Q)'
+
+  - id: benamou-brenier-dynamic-transport
+    canonical_guide: optimization-and-learning-dynamics.md
+    anchor: dynamic-transport-and-probability-paths
+    convention: The quadratic Euclidean dynamic formulation uses an absolutely continuous density path and velocity field satisfying the continuity equation with fixed endpoints under the theorem's regularity conditions.
+    expression: 'W_2^2(P_0,P_1)=inf_(rho,v) integral_0^1 integral ||v_t(x)||^2 rho_t(x) dx dt subject to partial_t rho+div(rho v)=0'
+
+  - id: gradient-five-field-contract
+    canonical_guide: gradients-and-geometry-in-generative-modeling.md
+    anchor: the-five-field-gradient-contract
+    convention: Every field is declared; changing the objective, differentiation variable, averaging law, geometry, or estimator can change the mathematical object even if architecture and optimizer names remain fixed.
+    expression: 'G=(objective, differentiation variable, averaging law, geometry, estimator or solver)'
+
+  - id: statistical-tangent-fisher-metric
+    canonical_guide: gradients-and-geometry-in-generative-modeling.md
+    anchor: a-tangent-vector-changes-a-law
+    convention: The family has regular parameter-independent support and square-integrable parameter scores; singular Fisher directions are interpreted on the identifiable tangent quotient.
+    expression: 'u_v(x)=v^T grad_theta log p_theta(x); g_theta(v,w)=E[u_v u_w]=v^T F(theta) w'
+
+  - id: exponential-family-natural-mean-duality
+    canonical_guide: gradients-and-geometry-in-generative-modeling.md
+    anchor: dual-coordinates
+    convention: q_eta is a minimal regular exponential family, mu is its mean parameter, and the objective is differentiable in both dual coordinate systems.
+    expression: 'mu=grad_eta A(eta); F_eta=grad_eta^2 A=Cov_q[T]; natural_grad_eta L=F_eta^(-1) grad_eta L=grad_mu L_tilde'
+
+  - id: conjugate-svi-natural-update
+    canonical_guide: gradients-and-geometry-in-generative-modeling.md
+    anchor: conjugate-svi-when-the-update-becomes-simple
+    convention: The model and mean-field variational family have the conjugate exponential-family structure of SVI and the scaled minibatch sufficient statistic is unbiased for the full-data statistic.
+    expression: 'natural_grad_lambda ELBO=lambda_hat-lambda; lambda_(t+1)=(1-rho_t)lambda_t+rho_t lambda_hat_t'
+
+  - id: autoregressive-conditional-fisher-sum
+    canonical_guide: gradients-and-geometry-in-generative-modeling.md
+    anchor: autoregressive-models-a-conditional-fisher-sum
+    convention: Every normalized conditional has regular support and zero conditional score mean under model-generated histories; shared network parameters can still make each summed Fisher contribution dense.
+    expression: 'F_AR(theta)=sum_t E_(X_<t~p_theta)[F_t(theta;X_<t)]'
+
+  - id: ebm-parameter-score-and-fisher
+    canonical_guide: gradients-and-geometry-in-generative-modeling.md
+    anchor: ebms-fisher-estimation-inherits-the-negative-phase-problem
+    convention: The normalized EBM has finite partition function and differentiable energy with justified differentiation under the model integral; all expectations are under equilibrium p_theta.
+    expression: 'grad_theta log p_theta(x)=-grad_theta E_theta(x)+E_p[grad_theta E_theta(X)]; F=Cov_p(grad_theta E_theta(X))'
+
+  - id: bilevel-implicit-response-gradient
+    canonical_guide: gradients-and-geometry-in-generative-modeling.md
+    anchor: game-unrolled-and-implicit-gradients-answer-different-questions
+    convention: phi star is a smooth isolated stationary solution of the inner objective and its phi-phi Hessian is nonsingular; finite unrolling does not automatically equal this derivative.
+    expression: 'd phi_star/d theta=-H_phi_phi^(-1) H_phi_theta; dJ/dtheta=partial_theta J-H_phi_theta^T H_phi_phi^(-T) partial_phi J'
+
+  - id: wasserstein-functional-gradient-flow
+    canonical_guide: gradients-and-geometry-in-generative-modeling.md
+    anchor: wasserstein-gradient-flow
+    convention: rho is an absolutely continuous probability path and the functional and domain satisfy the regularity and boundary conditions required by the formal W2 gradient-flow and minimizing-movement constructions.
+    expression: 'partial_t rho=div(rho grad(delta F/delta rho)); rho_(k+1) in argmin_rho {F[rho]+W_2^2(rho,rho_k)/(2 tau)}'
+
+  - id: free-energy-langevin-gradient-flow
+    canonical_guide: gradients-and-geometry-in-generative-modeling.md
+    anchor: worked-free-energy-flow-becomes-langevin-dynamics
+    convention: pi is proportional to exp(-V), rho has sufficient regularity and decay, and Langevin uses diffusion coefficient sqrt two so its Fokker-Planck equation has unit Laplacian.
+    expression: 'F[rho]=KL(rho||pi); partial_t rho=Delta rho+div(rho grad V); dX=-grad V dt+sqrt(2)dW'
+
+  - id: conditional-state-score-guidance
+    canonical_guide: gradients-and-geometry-in-generative-modeling.md
+    anchor: state-scores-energy-forces-and-guidance
+    convention: The time-indexed conditional density and likelihood are positive and differentiable at the evaluated state; scaling or approximating the likelihood term changes the exact conditional field.
+    expression: 'grad_x log p_t(x|y)=grad_x log p_t(x)+grad_x log p_t(y|x)'
+
+  - id: pathwise-transport-continuity-gradient
+    canonical_guide: gradients-and-geometry-in-generative-modeling.md
+    anchor: pathwise-gradients-are-transport-velocities
+    convention: The velocity solves the parameter-indexed continuity equation and density, test function, boundary, and integrability conditions justify integration by parts and differentiation under the integral.
+    expression: 'partial_theta q_theta+div_z(q_theta v_theta)=0; partial_theta E_q[f_theta]=E_q[grad_z f_theta^T v_theta+partial_theta f_theta]'
+
+  - id: stein-variational-rkhs-direction
+    canonical_guide: gradients-and-geometry-in-generative-modeling.md
+    anchor: stein-variational-gradients-move-an-interacting-particle-system
+    convention: The target score and kernel satisfy Stein boundary and RKHS regularity conditions; the expression is the population direction before finite-particle approximation.
+    expression: 'phi_star(dot)=E_(X~q)[k(X,dot) grad_X log p(X)+grad_X k(X,dot)]'
+
+  - id: categorical-natural-search-flow
+    canonical_guide: gradients-and-geometry-in-generative-modeling.md
+    anchor: worked-categorical-search-distribution
+    convention: q is an interior categorical search law, rewards are fixed per candidate, and the Fisher-Rao flow is expressed in probability-simplex coordinates.
+    expression: 'qdot_i=q_i(R_i-E_q[R]); sum_i qdot_i=0'
+
+  - id: expectation-gradient-master-identity
+    canonical_guide: gradients-and-geometry-in-generative-modeling.md
+    anchor: one-derivative-several-estimator-families
+    convention: q_phi has compatible parameter-independent support, f_phi may depend explicitly on phi, and differentiation may be exchanged with expectation; the pathwise form additionally requires a differentiable transform from parameter-free noise.
+    expression: 'grad_phi E_q[f_phi(Z)]=E_q[f_phi(Z) grad_phi log q_phi(Z)+grad_phi f_phi(Z)]=E_epsilon[grad_z f_phi(T_phi(epsilon)) grad_phi T_phi(epsilon)+grad_phi f_phi]'
+
+  - id: bernoulli-score-baseline-gradient
+    canonical_guide: gradients-and-geometry-in-generative-modeling.md
+    anchor: worked-bernoulli-estimator-exact-score-function-and-baseline
+    convention: Z is Bernoulli with q=sigmoid(phi), f(0)=0.2 and f(1)=1.4, and b is independent of the sampled Z conditional on its parents; a learned b is detached in the score surrogate unless correction terms are included.
+    expression: 'd E[f(Z)]/dphi=1.2 q(1-q)=E[(f(Z)-b)(Z-q)]'
+
+  - id: importance-weighted-multisample-bound
+    canonical_guide: gradients-and-geometry-in-generative-modeling.md
+    anchor: multi-sample-bounds-couple-objective-and-estimator
+    convention: z_1 through z_K are conditionally independent samples from q_phi(z|x), importance weights use a common p_theta(x,z), and finite positive K defines both the bound and its coupled normalized-weight gradients.
+    expression: 'L_K=E_[z_1:K~q_phi] log((1/K) sum_k p_theta(x,z_k)/q_phi(z_k|x))'
+
+  - id: continuous-ode-adjoint-sensitivity
+    canonical_guide: gradients-and-geometry-in-generative-modeling.md
+    anchor: solver-output-is-a-parameterized-computation
+    convention: xdot=f_theta(t,x), L=ell(x(T)), endpoints have no omitted explicit theta dependence, and smoothness permits the continuous adjoint derivation; a finite solver derivative may differ at nonzero tolerance.
+    expression: '-adot=(partial_x f_theta)^T a; a(T)=grad_x ell(x(T)); grad_theta L=integral_0^T a(t)^T partial_theta f_theta(t,x(t)) dt'
+
+  - id: trajectory-reward-score-gradient
+    canonical_guide: gradients-and-geometry-in-generative-modeling.md
+    anchor: reward-gradients-for-autoregressive-and-iterative-generators
+    convention: the complete trajectory is sampled on-policy from the displayed factorization, reward is integrable, transition supports are compatible, and b_t is a valid state-dependent baseline independent of the sampled next state conditional on x_t and c.
+    expression: 'grad_theta E[R]=E[sum_t (R-b_t(x_t,c)) grad_theta log p_theta(x_(t-1)|x_t,c)]'
+
+  - id: score-distillation-pullback-update
+    canonical_guide: gradients-and-geometry-in-generative-modeling.md
+    anchor: score-distillation-transfers-a-state-field-through-a-generator
+    convention: x=g_theta(z), the time and corruption law are declared, s_p is a teacher conditional state score, s_q is the declared source-score estimate when used, and stop-gradient prevents unintended differentiation through the supplied field.
+    expression: 'g_theta=E[J_theta g_theta(z)^T w(t)(s_q,t(x_t)-s_p,t(x_t|c))]; L_pseudo=stopgrad(v(x))^T x'
+
+  - id: gamma-poisson-posterior-update
+    canonical_guide: latent-variables-and-inference.md
+    anchor: a-finite-atlas-exact-conditioning-map-quadrature-and-laplace
+    convention: The Gamma distribution uses shape alpha and rate beta; a Gamma(2,1) prior and three Poisson observations summing to five yield posterior shape seven and rate four.
+    expression: 'lambda|y ~ Gamma(alpha_0+sum_i y_i, beta_0+N) = Gamma(7,4)'
+
+  - id: continuous-map-density-transform
+    canonical_guide: latent-variables-and-inference.md
+    anchor: map-depends-on-the-coordinate-used-for-a-continuous-density
+    convention: phi=log lambda and density transformation includes d lambda/d phi=exp(phi); the lambda-density mode and phi-density mode are defined relative to different reference elements.
+    expression: 'p_Phi(phi|y)=p_Lambda(exp(phi)|y) exp(phi) proportional exp(7 phi-4 exp(phi))'
+
+  - id: midpoint-posterior-quadrature
+    canonical_guide: latent-variables-and-inference.md
+    anchor: grid-quadrature-is-a-numerical-integral-not-a-density-family
+    convention: lambda_j=(j+1/2)h are midpoint nodes on a declared bounded interval and g is an unnormalized nonnegative posterior kernel; numerator and denominator share the same quadrature rule.
+    expression: 'E_hat[f(Lambda)|y] = sum_j h g(lambda_j) f(lambda_j) / sum_j h g(lambda_j)'
+
+  - id: laplace-local-gaussian
+    canonical_guide: latent-variables-and-inference.md
+    anchor: laplace-approximation-is-local-and-coordinate-sensitive
+    convention: z_hat is a regular local mode and the negative log-density Hessian at that mode is positive definite; the approximation is coordinate-dependent and supplies no general multimodal or boundary guarantee.
+    expression: 'p(z|x) approximately Normal(z_hat, [-Hessian_z log p(z_hat|x)]^(-1))'
+
+  - id: simulation-based-calibration-rank
+    canonical_guide: latent-variables-and-inference.md
+    anchor: layer-3-prior-predictive-simulation-based-calibration
+    convention: theta_tilde and data are drawn from the declared prior-predictive experiment, posterior draws are exchangeable with theta_tilde under exact computation, the scalar summary is continuous, and ties or correlated draws require the corresponding adjusted procedure.
+    expression: 'R=sum_m 1[theta^(m)<theta_tilde] is discrete Uniform({0,...,M}) under the stated SBC conditions'
+
+  - id: state-space-generative-joint-law
+    canonical_guide: filtering-and-smoothing-state-space.md
+    anchor: prerequisite-refresh
+    convention: The controls are fixed and declared, z_0 has the initial law, f_t is the Markov transition density or kernel, and g_t is the conditionally independent observation density; sums replace integrals for discrete states.
+    expression: 'p(z_0:T,y_1:T|u_1:T)=p(z_0) product_t f_t(z_t|z_(t-1),u_t) g_t(y_t|z_t,u_t)'
+
+  - id: exact-bayesian-filter-recursion
+    canonical_guide: filtering-and-smoothing-state-space.md
+    anchor: deriving-the-exact-bayesian-filter
+    convention: b_(t-1) is the normalized previous filter, prediction is absolutely integrable or summable, and ell_t is positive and finite on the observed event.
+    expression: 'b_(t|t-1)(z_t)=integral f_t(z_t|z_(t-1)) b_(t-1)(z_(t-1)) dz_(t-1); ell_t=integral g_t(y_t|z_t)b_(t|t-1)(z_t)dz_t; b_t=g_t b_(t|t-1)/ell_t'
+
+  - id: state-space-backward-smoothing-recursion
+    canonical_guide: filtering-and-smoothing-state-space.md
+    anchor: deriving-the-backward-smoothing-recursion
+    convention: The first-order state-space conditional independence holds and the one-step predictive density is positive wherever the next smoothed marginal has mass.
+    expression: 'p(z_t|y_1:T)=b_t(z_t) integral f_(t+1)(z_(t+1)|z_t) p(z_(t+1)|y_1:T)/b_(t+1|t)(z_(t+1)) dz_(t+1)'
+
+  - id: linear-gaussian-kalman-correction
+    canonical_guide: filtering-and-smoothing-state-space.md
+    anchor: correction-from-one-joint-gaussian
+    convention: The predictive state and observation form the displayed regular joint Gaussian, S_t is nonsingular, and code solves systems rather than explicitly forming S_t inverse.
+    expression: 'K_t=P_(t|t-1) C_t^T S_t^(-1); m_(t|t)=m_(t|t-1)+K_t e_t; P_(t|t)=P_(t|t-1)-K_t S_t K_t^T'
+
+  - id: kalman-predictive-log-likelihood
+    canonical_guide: filtering-and-smoothing-state-space.md
+    anchor: correction-from-one-joint-gaussian
+    convention: y_t is d_y dimensional, S_t is positive definite, and e_t is the innovation under the fixed linear-Gaussian model.
+    expression: 'log ell_t=-0.5[d_y log(2 pi)+log det S_t+e_t^T S_t^(-1)e_t]'
+
+  - id: rts-gaussian-smoother
+    canonical_guide: filtering-and-smoothing-state-space.md
+    anchor: rauchtungstriebel-smoothing
+    convention: Forward Kalman moments are available, P_(t+1|t) is solvable on the supported subspace, and the backward pass begins at the terminal filter.
+    expression: 'J_t=P_(t|t) A_(t+1)^T P_(t+1|t)^(-1); m_(t|T)=m_(t|t)+J_t(m_(t+1|T)-m_(t+1|t)); P_(t|T)=P_(t|t)+J_t(P_(t+1|T)-P_(t+1|t))J_t^T'
+
+  - id: gaussian-information-measurement-update
+    canonical_guide: filtering-and-smoothing-state-space.md
+    anchor: information-coordinates-and-factor-addition
+    convention: The prior covariance and observation covariance are nonsingular, Lambda=P inverse and eta=Lambda m, and conditionally independent observation factors are counted exactly once.
+    expression: 'Lambda_(t|t)=Lambda_(t|t-1)+C_t^T R_t^(-1) C_t; eta_(t|t)=eta_(t|t-1)+C_t^T R_t^(-1)(y_t-d_t)'
+
+  - id: joint-moment-gaussian-filter-update
+    canonical_guide: filtering-and-smoothing-state-space.md
+    anchor: joint-moment-gaussian-filtering
+    convention: The required transformed moments under the predictive Gaussian exist, S_y is nonsingular, and the result is exact only for the fitted joint Gaussian unless the original joint law is Gaussian.
+    expression: 'm=m_minus+C_zy S_y^(-1)(y-mu_y); P=P_minus-C_zy S_y^(-1) C_zy^T'
+
+  - id: adf-forward-kl-projection
+    canonical_guide: filtering-and-smoothing-state-space.md
+    anchor: assumed-density-filtering
+    convention: The locally updated law is normalized and has the sufficient-statistic moments required by the tractable exponential family; for Gaussian q the optimum mean and covariance equal those moments.
+    expression: 'q_t=argmin_(q in Q) KL(p_t_tilde||q); for Gaussian Q, m=E_p[X] and S=Cov_p[X]'
+
+  - id: gaussian-mixture-moment-collapse
+    canonical_guide: filtering-and-smoothing-state-space.md
+    anchor: switching-systems-and-gaussian-sum-filters
+    convention: Mixture weights are nonnegative and sum to one, and every component has finite mean m_k and covariance P_k.
+    expression: 'm=sum_k pi_k m_k; P=sum_k pi_k[P_k+(m_k-m)(m_k-m)^T]'
+
+  - id: normalized-filter-consistency-statistics
+    canonical_guide: filtering-and-smoothing-state-space.md
+    anchor: validation-starts-with-the-query
+    convention: The displayed chi-square reference laws require the correctly specified regular model, declared dimensions, nonsingular covariances, and appropriate handling of temporal dependence and repeated trajectories.
+    expression: 'NIS_t=e_t^T S_t^(-1)e_t; NEES_t=(z_t-m_(t|t))^T P_(t|t)^(-1)(z_t-m_(t|t))'
+
+  - id: marginal-map-query
+    canonical_guide: graphical-inference-and-message-passing.md
+    anchor: posterior-modes-answer-different-decision-problems
+    convention: A and B partition the variables, x_A is optimized after summing out x_B, and this query differs from both joint MPE and independent singleton marginal decisions.
+    expression: 'x_A_star=argmax_(x_A) sum_(x_B) p(x_A,x_B|y)'
+
+  - id: gaussian-information-message-update
+    canonical_guide: graphical-inference-and-message-passing.md
+    anchor: gaussian-messages-are-sparse-elimination-in-information-form
+    convention: J is a symmetric positive-definite pairwise Gaussian precision matrix, P_(i\\j) and q_(i\\j) collect node i local information plus all incoming messages except from j, and the scalar message is represented as exp(-0.5 P_(i->j) x_j^2 + q_(i->j) x_j) up to scale; an individual message precision may be negative while the assembled belief precision remains positive.
+    expression: 'P_(i->j)=-J_ij^2/P_(i\\j); q_(i->j)=-J_ij q_(i\\j)/P_(i\\j)'
+
+  - id: configuration-gumbel-max-sample
+    canonical_guide: graphical-inference-and-message-passing.md
+    anchor: randomized-optimization-when-a-map-oracle-becomes-a-sampler
+    convention: The finite configuration set has strictly positive unnormalized weights w(x), every complete configuration receives an independent standard Gumbel variable, and ties occur with probability zero; local-factor perturbations do not generically satisfy this construction.
+    expression: 'X_star=argmax_x [log w(x)+G_x], with independent G_x~Gumbel(0,1), implies P(X_star=x)=w(x)/sum_y w(y)'
+
+  - id: gaussian-local-perturbation-sample
+    canonical_guide: graphical-inference-and-message-passing.md
+    anchor: randomized-optimization-when-a-map-oracle-becomes-a-sampler
+    convention: J is symmetric positive definite, eta is exactly Normal(0,J), and the linear system is solved exactly; mismatched noise or a truncated solve adds sampler error.
+    expression: 'eta~Normal(0,J); X=J^(-1)(h+eta) implies X~Normal(J^(-1)h,J^(-1))'
+
+  - id: mean-field-cavi-coordinate-update
+    canonical_guide: latent-variables-and-inference.md
+    anchor: from-the-functional-optimum-to-coordinate-ascent-vi
+    convention: q factorizes over declared blocks, every other factor is held fixed, the expected log joint is finite on the factor support, and the exponential can be normalized; monotonicity is coordinate-local and does not imply global optimality.
+    expression: 'q_j_star(z_j) proportional exp(E_[q_(-j)] log p(x,z))'
+
+  - id: two-spin-mean-field-fixed-point
+    canonical_guide: latent-variables-and-inference.md
+    anchor: worked-finite-example-a-factorized-optimum-can-break-a-real-symmetry
+    convention: z_1 and z_2 take values minus or plus one, p is proportional to exp(J z_1 z_2), q is the product law with means m_1 and m_2, and each update exactly maximizes one factor with the other fixed.
+    expression: 'm_1 <- tanh(J m_2); m_2 <- tanh(J m_1); at J=1.6 the asymmetric fixed points are approximately plus or minus 0.890643'
+
+  - id: advi-transformed-elbo
+    canonical_guide: latent-variables-and-inference.md
+    anchor: advi-transforms-the-target-as-well-as-the-sample
+    convention: T is a differentiable bijection from unconstrained zeta to the constrained parameter space, its Jacobian determinant is nonzero on the supported interior, q_lambda is normalized in zeta coordinates, and boundary behavior is handled by the declared transform.
+    expression: 'L(lambda)=E_[q_lambda(zeta)] [log p(x,T(zeta)) + log |det J_T(zeta)| - log q_lambda(zeta)]'
+
+  - id: bbvi-elbo-score-gradient
+    canonical_guide: latent-variables-and-inference.md
+    anchor: score-function-estimator
+    convention: p does not share phi, q_phi has compatible parameter-independent support, differentiation may be exchanged with integration, and the zero-mean parameter score cancels the extra derivative of minus log q.
+    expression: 'grad_phi L=E_[q_phi] [(log p(x,z)-log q_phi(z)) grad_phi log q_phi(z)]'
+
+  - id: iwae-generative-parameter-gradient
+    canonical_guide: latent-variables-and-inference.md
+    anchor: the-same-weights-support-different-learning-objectives
+    convention: z_1 through z_K are sampled from q_phi(z|x), q does not share theta, all weights are positive and integrable, and differentiation may be exchanged with expectation; inference-parameter gradients require additional score or pathwise terms.
+    expression: 'grad_theta L_K=E[sum_k wtilde_k grad_theta log p_theta(x,z_k)]'
+
+  - id: expectation-propagation-site-update
+    canonical_guide: graphical-inference-and-message-passing.md
+    anchor: expectation-propagation-replaces-one-site-through-a-tilted-law
+    convention: q factorizes into tractable approximate sites, cavity division is defined, the tilted law normalizes with the required moments, and projection is forward KL into the declared exponential family; repeated site updates need not optimize one global forward KL.
+    expression: 'q_cavity proportional q/t_n; ptilde_n proportional f_n q_cavity; qproj=argmin_(r in Q) KL(ptilde_n||r); t_n_new proportional qproj/q_cavity'
+
+  - id: iid-monte-carlo-mean-variance-clt
+    canonical_guide: sampling-and-continuous-time.md
+    anchor: monte-carlo-begins-with-a-query
+    convention: X_1 through X_N are iid from pi, f is integrable for unbiasedness and has finite nonzero variance sigma_f squared for the displayed variance and central-limit statement; the normal interval is asymptotic.
+    expression: 'mu_hat_N=(1/N) sum_i f(X_i); E[mu_hat_N]=mu; Var(mu_hat_N)=sigma_f^2/N; sqrt(N)(mu_hat_N-mu) converges in distribution to Normal(0,sigma_f^2)'
+
+  - id: mcmc-long-run-variance-and-effective-sample-size
+    canonical_guide: sampling-and-continuous-time.md
+    anchor: correlated-draws-change-estimator-uncertainty
+    convention: The scalar observable along the chain is stationary with positive finite marginal variance gamma_0, its autocovariances satisfy conditions for the displayed long-run variance and Markov-chain central-limit approximation, and effective sample size is defined for this observable rather than for the chain universally.
+    expression: 'sigma_LR^2=gamma_0+2 sum_(k>=1) gamma_k; Var(mu_hat_N) approximately sigma_LR^2/N; tau_int=sigma_LR^2/gamma_0; N_eff=N/tau_int'
+
+  - id: markov-total-variation-mixing-time
+    canonical_guide: sampling-and-continuous-time.md
+    anchor: mixing-time-is-a-theorem-warmup-is-a-workflow
+    convention: K is a finite-state transition kernel with invariant probability pi; total variation includes the one-half L1 convention, and the displayed mixing time is worst-case over point-mass initial states for a fixed tolerance epsilon.
+    expression: 'TV(mu,nu)=sup_A |mu(A)-nu(A)|=0.5 ||mu-nu||_1; t_mix(epsilon)=min{t: sup_x TV(K^t(x,.),pi)<=epsilon}'
+
+  - id: bivariate-gaussian-gibbs-sweep
+    canonical_guide: sampling-and-continuous-time.md
+    anchor: worked-example-a-bivariate-gaussian-exposes-scalar-gibbs-slowdown
+    convention: The target is a centered unit-variance bivariate Gaussian with correlation rho strictly between minus one and one; a systematic sweep updates X from Y and then Y from the new X using independent standard-normal noises.
+    expression: 'X_new|Y=y ~ N(rho y,1-rho^2); Y_new=rho^2 Y + rho sqrt(1-rho^2) epsilon_1 + sqrt(1-rho^2) epsilon_2; Corr(Y_new,Y)=rho^2 at stationarity'
+
+  - id: mala-asymmetric-acceptance
+    canonical_guide: sampling-and-continuous-time.md
+    anchor: 5-langevin-algorithms
+    convention: The Euclidean target is differentiable and proportional to pi_tilde, eta is positive, and the proposal covariance and drift use the chapter convention with diffusion coefficient square root two; standard support and MH regularity conditions apply.
+    expression: 'q_eta(x_prime|x)=N(x+eta grad log pi(x),2 eta I); alpha=min(1, pi_tilde(x_prime) q_eta(x|x_prime)/(pi_tilde(x) q_eta(x_prime|x)))'
+
+  - id: hmc-mass-and-leapfrog-convention
+    canonical_guide: sampling-and-continuous-time.md
+    anchor: leapfrog-supplies-a-reversible-numerical-proposal
+    convention: M is symmetric positive definite and denotes the momentum covariance and mass matrix, p is drawn from N(0,M), E is differentiable, and a volume-preserving reversible leapfrog proposal is followed by the displayed Metropolis energy correction.
+    expression: 'H(x,p)=E(x)+0.5 p^T M^-1 p; p_half=p-0.5 epsilon grad E(x); x_prime=x+epsilon M^-1 p_half; p_prime=p_half-0.5 epsilon grad E(x_prime); alpha=min(1,exp(-H_prime+H))'
+
+  - id: reversible-jump-acceptance
+    canonical_guide: sampling-and-continuous-time.md
+    anchor: 9-transdimensional-and-structure-changing-mcmc
+    convention: Forward and reverse auxiliary variables make the augmented dimensions equal, T is a differentiable bijection between the augmented coordinates, target and proposal densities use their declared component base measures, and the absolute Jacobian determinant is evaluated in the forward direction shown.
+    expression: 'R_target=pi_tilde(m_prime,x_prime)/pi_tilde(m,x); R_move=r(m|m_prime)/r(m_prime|m); R_aux=q_reverse(u_prime|x_prime)/q_forward(u|x); J=|det d(x_prime,u_prime)/d(x,u)|; alpha=min(1,R_target R_move R_aux J)'
+
+  - id: parallel-tempering-swap-acceptance
+    canonical_guide: sampling-and-continuous-time.md
+    anchor: 10-annealing-and-tempering
+    convention: Replica i targets pi_tilde raised to beta_i, replica j targets pi_tilde raised to beta_j, both states lie in the same state space, and the symmetric swap proposal is corrected for the product target.
+    expression: 'log R_swap=(beta_i-beta_j)(log pi_tilde(x_j)-log pi_tilde(x_i)); alpha_swap=min(1,exp(log R_swap))'
+
+  - id: rejection-sampling-normalizer-acceptance
+    canonical_guide: sampling-and-continuous-time.md
+    anchor: rejection-sampling-exposes-its-normalizer
+    convention: pi=gamma/Z, q is normalized, gamma is nonnegative and integrable, and gamma(x) is bounded above by M q(x) everywhere for a finite M; the value one over M requires Z=1.
+    expression: 'accept if U<=gamma(X)/(M q(X)), with X~q and U~Uniform(0,1); P(accept)=Z/M and X|accept~pi'
+
+  - id: gaussian-rejection-dimensional-scaling
+    canonical_guide: sampling-and-continuous-time.md
+    anchor: worked-failure-case-a-harmless-scale-mismatch-becomes-exponential
+    convention: The normalized target is Normal(0,I_d), the proposal is Normal(0,sigma^2 I_d), and sigma is greater than one; the likelihood ratio is maximized at zero.
+    expression: 'pi(x)/q(x)=sigma^d exp[-0.5(1-sigma^(-2)) ||x||^2]; M=sigma^d; P(accept)=sigma^(-d)'
+
+  - id: monte-carlo-control-variate-optimum
+    canonical_guide: sampling-and-continuous-time.md
+    anchor: control-variates-make-correlation-explicit
+    convention: H has known finite expectation eta and positive finite variance, f has finite variance, and c is fixed independently of the evaluated draw unless coefficient-estimation effects are included.
+    expression: 'Y_c=f(X)-c(H(X)-eta); c_star=Cov(f,H)/Var(H)'
+
+  - id: antithetic-pair-variance
+    canonical_guide: sampling-and-continuous-time.md
+    anchor: antithetic-pairs-and-common-random-numbers-answer-different-questions
+    convention: Y_plus and Y_minus have the same mean mu and variance sigma squared, finite covariance, and correlation rho; marginal symmetry alone does not determine rho after a nonlinear map.
+    expression: 'Var((Y_plus+Y_minus)/2)=(sigma^2/2)(1+rho)'
+
+  - id: common-random-number-difference-variance
+    canonical_guide: sampling-and-continuous-time.md
+    anchor: antithetic-pairs-and-common-random-numbers-answer-different-questions
+    convention: The two finite-variance estimators are evaluated with their declared shared-randomness coupling; positive covariance helps the difference but need not change either marginal variance.
+    expression: 'Var(mu_hat_A-mu_hat_B)=Var(mu_hat_A)+Var(mu_hat_B)-2 Cov(mu_hat_A,mu_hat_B)'
+
+  - id: fixed-sample-average-objective
+    canonical_guide: sampling-and-continuous-time.md
+    anchor: fixed-randomness-creates-a-finite-optimization-problem
+    convention: epsilon_1 through epsilon_N are drawn once and then held fixed during optimization; the finite objective is deterministic conditional on them but differs randomly from its population expectation.
+    expression: 'L(theta)=E_epsilon[ell(theta;epsilon)]; L_hat_N(theta)=(1/N) sum_i ell(theta;epsilon_i)'
+
+  - id: multilevel-monte-carlo-telescope
+    canonical_guide: sampling-and-continuous-time.md
+    anchor: multilevel-estimators-couple-resolutions
+    convention: Y_0 through Y_L are integrable fidelity approximations defined on couplings that permit adjacent differences; the telescope targets E[Y_L], not an undeclared continuum limit.
+    expression: 'E[Y_L]=E[Y_0]+sum_(ell=1)^L E[Y_ell-Y_(ell-1)]'
+
+  - id: smc-feynman-kac-path-measure
+    canonical_guide: sequential-monte-carlo-and-particle-methods.md
+    anchor: the-feynmankac-construction
+    convention: M_0 is the initial law, M_s are forward Markov kernels, G_s are nonnegative measurable path potentials, Gamma_t is unnormalized, and Z_t=Gamma_t(1) is finite and positive.
+    expression: 'Gamma_t(dx_0:t)=M_0(dx_0)G_0(x_0) product_(s=1)^t M_s(x_(s-1),dx_s)G_s(x_0:s); Pi_t=Gamma_t/Z_t'
+
+  - id: smc-growing-space-incremental-weight
+    canonical_guide: sequential-monte-carlo-and-particle-methods.md
+    anchor: generic-growing-space-weight
+    convention: gamma_t and gamma_(t-1) use compatible path base measures, q_t covers the target-relevant extension support, and inherited cumulative weights are retained unless an unbiased resampling step resets them.
+    expression: 'w_t(x_0:t)=w_(t-1)(x_0:t-1) gamma_t(x_0:t)/(gamma_(t-1)(x_0:t-1) q_t(x_t|x_0:t-1))'
+
+  - id: particle-filter-incremental-weight
+    canonical_guide: sequential-monte-carlo-and-particle-methods.md
+    anchor: from-exact-bayes-recursion-to-particles
+    convention: f_t is the state transition, g_t the observation density, q_t an observation-aware proposal covering the filtering target support, and A_t^i indexes the selected ancestor under the chapter's resample-mutate-weight order.
+    expression: 'alpha_t^i=g_t(y_t|X_t^i) f_t(X_t^i|X_(t-1)^(A_t^i)) / q_t(X_t^i|X_(t-1)^(A_t^i),y_1:t)'
+
+  - id: particle-normalizer-product-estimator
+    canonical_guide: sequential-monte-carlo-and-particle-methods.md
+    anchor: normalizing-constant-estimate
+    convention: Z_hat_0=Z_0, resampling occurs at every displayed stage under the declared proper-weighting convention, and alpha_t are the post-mutation incremental weights before normalization.
+    expression: 'Z_hat_t=Z_hat_(t-1) (1/N) sum_i alpha_t^i'
+
+  - id: particle-resampling-offspring-and-ess
+    canonical_guide: sequential-monte-carlo-and-particle-methods.md
+    anchor: resampling-is-an-offspring-distribution
+    convention: Normalized weights are nonnegative and sum to one, offspring counts sum to N, and unbiased resampling has conditional mean NW_i; importance ESS summarizes only current observed weights.
+    expression: 'sum_i N_i=N; E[N_i|W]=N W_i; ESS_IS=1/sum_i W_i^2'
+
+  - id: locally-optimal-particle-proposal
+    canonical_guide: sequential-monte-carlo-and-particle-methods.md
+    anchor: the-locally-optimal-proposal
+    convention: The state-space transition and observation factors are evaluable, the predictive likelihood is finite and positive, and optimality means minimum conditional variance of the next incremental weight given one ancestor.
+    expression: 'q_t_star(x_t|x_(t-1),y_t)=g_t(y_t|x_t) f_t(x_t|x_(t-1))/p(y_t|x_(t-1)); alpha_t_star=p(y_t|x_(t-1))'
+
+  - id: particle-backward-trajectory-kernel
+    canonical_guide: sequential-monte-carlo-and-particle-methods.md
+    anchor: filtering-particles-are-not-automatically-smoothing-particles
+    convention: The stored stage-t weighted cloud approximates the filtering distribution, f_(t+1) is evaluable, and the denominator normalizes over every stored candidate with positive backward mass.
+    expression: 'P(B_t=i|B_(t+1)=j,particle_system) proportional W_t^i f_(t+1)(X_(t+1)^j|X_t^i)'
+
+  - id: static-smc-forward-backward-weight
+    canonical_guide: sequential-monte-carlo-and-particle-methods.md
+    anchor: fixed-dimensional-smc-samplers
+    convention: gamma_t are unnormalized targets on one state space, M_t is the forward mutation density or kernel, L_(t-1) is the declared artificial backward kernel, and all ratios use compatible support and base measures.
+    expression: 'alpha_t(x_(t-1),x_t)=gamma_t(x_t)L_(t-1)(x_t,x_(t-1))/(gamma_(t-1)(x_(t-1))M_t(x_(t-1),x_t))'
+
+  - id: smc-conditional-effective-sample-size
+    canonical_guide: sequential-monte-carlo-and-particle-methods.md
+    anchor: likelihood-tempering
+    convention: W_(t-1)^i are current normalized weights, u_i(beta) are nonnegative incremental weights for a candidate tempering step, and CESS diagnoses conditional reweighting rather than MCMC autocorrelation or global support.
+    expression: 'CESS(beta)=N (sum_i W_(t-1)^i u_i(beta))^2 / sum_i W_(t-1)^i u_i(beta)^2'
+
+  - id: smc-terminal-doob-twist
+    canonical_guide: sequential-monte-carlo-and-particle-methods.md
+    anchor: worked-terminal-twist
+    convention: h_t(x)=P(E|X_t=x) is finite and positive on traversed support and satisfies the backward recursion under f; approximate learned h requires normalization or importance correction.
+    expression: 'f^E(x_(t+1)|x_t)=f(x_(t+1)|x_t) h_(t+1)(x_(t+1))/h_t(x_t)'

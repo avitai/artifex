@@ -1,0 +1,1598 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="This chapter develops natural evolution strategies, a family-by-family gradient selection procedure, controlled comparisons, and an evidence map. Read it in the" name="description"/>
+<meta content="Mahdi Shafiei" name="author"/>
+<link href="https://docs.avitai.bio/artifex/user-guide/concepts/gradients-10-practice/" rel="canonical"/>
+<link href="../gradients-09-functional/" rel="prev"/>
+<link href="../gradients-and-geometry-in-generative-modeling/" rel="next"/>
+<link href="../../../assets/images/favicon.png" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.7.7" name="generator"/>
+<title>Gradients and Geometry 10 — Selection and Research Practice - Artifex</title>
+<link href="../../../assets/stylesheets/main.ec1eaa64.min.css" rel="stylesheet"/>
+<link href="../../../assets/stylesheets/palette.ab4e12ef.min.css" rel="stylesheet"/>
+<script src="../../../assets/vendor/iframe-worker/index.js"></script>
+<link href="../../../assets/_mkdocstrings.css" rel="stylesheet"/>
+<link href="../../../_static/extra.css" rel="stylesheet"/>
+<script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+<meta content="article" property="og:type"/>
+<meta content="The Artifex Generative Models Book" property="og:site_name"/>
+<meta content="Gradients and Geometry 10 — Selection and Research Practice" property="og:title"/>
+<meta content="This chapter develops natural evolution strategies, a family-by-family gradient selection procedure, controlled comparisons, and an evidence map. Read it in the" property="og:description"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/gradients-10-practice/" property="og:url"/>
+<meta content="2026-07-20" property="article:modified_time"/>
+<meta content="summary" name="twitter:card"/>
+<meta content="Gradients and Geometry 10 — Selection and Research Practice" name="twitter:title"/>
+<meta content="This chapter develops natural evolution strategies, a family-by-family gradient selection procedure, controlled comparisons, and an evidence map. Read it in the" name="twitter:description"/>
+<meta content="Generative models, Machine learning, Probabilistic modeling, advanced, specialization, canonical_chapter, gradient-practice, practitioner, researcher" name="keywords"/>
+<meta content="Gradients and Geometry 10 — Selection and Research Practice" name="citation_title"/>
+<meta content="Mahdi Shafiei" name="citation_author"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/gradients-10-practice/" name="citation_public_url"/>
+<meta content="en" name="citation_language"/>
+<meta content="Gradients and Geometry 10 — Selection and Research Practice" name="DC.title"/>
+<meta content="Mahdi Shafiei" name="DC.creator"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/gradients-10-practice/" name="DC.identifier"/>
+<meta content="Text.LearningResource" name="DC.type"/>
+<meta content="2026-07-20" name="DCTERMS.modified"/>
+<meta content="https://github.com/avitai/artifex/blob/main/LICENSE" name="DCTERMS.license"/>
+<meta content="advanced" name="DCTERMS.educationLevel"/>
+<meta content="practitioner, researcher" name="DCTERMS.audience"/>
+<link href="https://github.com/avitai/artifex/blob/main/LICENSE" rel="license"/>
+<script id="artifex-book-metadata" type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Chapter",
+  "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/gradients-10-practice/",
+  "url": "https://docs.avitai.bio/artifex/user-guide/concepts/gradients-10-practice/",
+  "name": "Gradients and Geometry 10 \u2014 Selection and Research Practice",
+  "description": "This chapter develops natural evolution strategies, a family-by-family gradient selection procedure, controlled comparisons, and an evidence map. Read it in the",
+  "identifier": "gradient-practice",
+  "inLanguage": "en",
+  "isAccessibleForFree": true,
+  "learningResourceType": "Canonical chapter",
+  "educationalLevel": "advanced",
+  "educationalUse": "specialization",
+  "audience": [
+    
+      {"@type": "EducationalAudience", "audienceType": "practitioner"},
+    
+      {"@type": "EducationalAudience", "audienceType": "researcher"}
+    
+  ],
+  "dateModified": "2026-07-20",
+  "keywords": ["Generative models", "Machine learning", "Probabilistic modeling", "advanced", "specialization", "canonical_chapter", "gradient-practice", "practitioner", "researcher"],
+  "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+  "author": [
+    
+      {"@type": "Person", "name": "Mahdi Shafiei"}
+    
+  ],
+  "isPartOf": {
+    "@type": "Book",
+    "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/#book",
+    "url": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/",
+    "name": "The Artifex Generative Models Book",
+    "bookEdition": "Living Web Edition",
+    "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+    "author": [
+      
+        {"@type": "Person", "name": "Mahdi Shafiei"}
+      
+    ]
+  }
+}
+</script>
+<link href="../../../assets/vendor/katex/katex.min.css" id="artifex-katex-stylesheet" integrity="sha384-UA8juhPf75SzzAMA/4fo3yOU7sBJ0om7SCD2GHq0fZqZco6tr1UCV7nUbk9J90JM" rel="stylesheet"/>
+<script defer="" integrity="sha384-T/0lMUdJpd2S1ZHtRiofG3htU3xPCrFVeAQ1UUE2TJwlEJSV5NUwn30kP28n238E" src="../../../assets/vendor/mermaid/mermaid.min.js"></script>
+<script defer="" src="../../../assets/vendor/katex/katex-shadow.js"></script>
+<script defer="" src="../../../javascripts/mermaid-math.js"></script>
+<script defer="" src="../../../javascripts/mathjax.js"></script>
+<script defer="" integrity="sha384-OrHfGTnIbkl0do3N76qW/uWr38o91N05sbSPuYBPLH+hG8X/dNSrjZf3AGjzrCwC" src="../../../assets/vendor/mathjax/tex-mml-chtml.js"></script>
+</head>
+<body data-md-color-accent="amber" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#gradients-and-geometry-10-selection-and-research-practice">
+          Skip to content
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header md-header--shadow" data-md-component="header">
+<nav aria-label="Header" class="md-header__inner md-grid">
+<a aria-label="Artifex" class="md-header__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            Artifex
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+            
+              Gradients and Geometry 10 — Selection and Research Practice
+            
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-label="Switch to dark mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: light)" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_1" hidden="" title="Switch to dark mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+<input aria-label="Switch to light mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-primary="indigo" data-md-color-scheme="slate" id="__palette_1" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_0" hidden="" title="Switch to light mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+</form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div aria-label="Search" class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Search" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="Search" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="Search" class="md-search__options">
+<a aria-label="Share" class="md-search__icon md-icon" data-clipboard="" data-clipboard-text="" data-md-component="search-share" href="javascript:void(0)" tabindex="-1" title="Share">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"></path></svg>
+</a>
+<button aria-label="Clear" class="md-search__icon md-icon" tabindex="-1" title="Clear" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            Initializing search
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Navigation" class="md-nav md-nav--primary" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="Artifex" class="md-nav__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+    Artifex
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../..">
+<span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../getting-started/installation/">
+<span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Generative Models Book
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Generative Models Book
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    
+  
+    Start Here — The Landscape
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../first-course-01-generative-systems/">
+<span class="md-ellipsis">
+    
+  
+    First Course — New to Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../probability-01-objects/">
+<span class="md-ellipsis">
+    
+  
+    Foundations
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../autoregressive-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Model Families
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_5" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_5" id="__nav_3_5_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Connections and Compositions
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_5_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_5">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Connections and Compositions
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_5_1" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_5_1" id="__nav_3_5_1_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Gradients and Geometry in Generative Modeling
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_5_1_label" class="md-nav" data-md-level="3">
+<label class="md-nav__title" for="__nav_3_5_1">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Gradients and Geometry in Generative Modeling
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../gradients-01-taxonomy/">
+<span class="md-ellipsis">
+    
+  
+    1. Gradient Taxonomy
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../gradients-02-natural-geometry/">
+<span class="md-ellipsis">
+    
+  
+    2. Natural Gradients
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../gradients-03-variational/">
+<span class="md-ellipsis">
+    
+  
+    3. Exponential Families and VI
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../gradients-04-estimators/">
+<span class="md-ellipsis">
+    
+  
+    4. Gradient Estimators
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../gradients-05-computation/">
+<span class="md-ellipsis">
+    
+  
+    5. Model-Scale Computation
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../gradients-06-model-applications/">
+<span class="md-ellipsis">
+    
+  
+    6. Likelihood, Latent, and Energy Models
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../gradients-07-implicit-games/">
+<span class="md-ellipsis">
+    
+  
+    7. Implicit Models and Games
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../gradients-08-processes/">
+<span class="md-ellipsis">
+    
+  
+    8. Generative Processes and Teachers
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../gradients-09-functional/">
+<span class="md-ellipsis">
+    
+  
+    9. Functional and Distributional Gradients
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
+    
+  
+    10. Selection and Research Practice
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
+<span class="md-ellipsis">
+    
+  
+    10. Selection and Research Practice
+  
+
+    
+  </span>
+</a>
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#10-search-distributions-method-selection-and-research-practice">
+<span class="md-ellipsis">
+      
+        10. Search Distributions, Method Selection, and Research Practice
+      
+    </span>
+</a>
+<nav aria-label="10. Search Distributions, Method Selection, and Research Practice" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-10-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 10 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#natural-evolution-strategies-move-a-search-law">
+<span class="md-ellipsis">
+      
+        Natural evolution strategies move a search law
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-categorical-search-distribution">
+<span class="md-ellipsis">
+      
+        Worked categorical search distribution
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#a-family-by-family-decision-table">
+<span class="md-ellipsis">
+      
+        A family-by-family decision table
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#selection-procedure">
+<span class="md-ellipsis">
+      
+        Selection procedure
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#controlled-comparison-protocol">
+<span class="md-ellipsis">
+      
+        Controlled comparison protocol
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#evidence-map-and-open-questions">
+<span class="md-ellipsis">
+      
+        Evidence map and open questions
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#independent-practice-and-assessment-map-selection-and-research-evidence">
+<span class="md-ellipsis">
+      
+        Independent practice and assessment map: selection and research evidence
+      
+    </span>
+</a>
+<nav aria-label="Independent practice and assessment map: selection and research evidence" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#feedback-contract-selection-and-research-evidence">
+<span class="md-ellipsis">
+      
+        Feedback contract: selection and research evidence
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#outcome-to-task-alignment-selection-and-research-evidence">
+<span class="md-ellipsis">
+      
+        Outcome-to-task alignment: selection and research evidence
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#volume-synthesis-and-retrieval-practice">
+<span class="md-ellipsis">
+      
+        Volume synthesis and retrieval practice
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#further-reading">
+<span class="md-ellipsis">
+      
+        Further reading
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../gradients-and-geometry-in-generative-modeling/">
+<span class="md-ellipsis">
+    
+  
+    Continuous View (All Chapters)
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../density-latent-energy-01-objects/">
+<span class="md-ellipsis">
+    
+  
+    Density, Latent, Energy, and Score
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../probability-paths-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Probability Paths and Stochastic Transport
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../general-markov-01-operators/">
+<span class="md-ellipsis">
+    
+  
+    General Markov Generators
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../few-step-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Transitions and Few-Step Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../geometric-01-symmetry/">
+<span class="md-ellipsis">
+    
+  
+    Geometric and Equivariant Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../representations-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Representations and Multimodal Systems
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../steering-01-targets/">
+<span class="md-ellipsis">
+    
+  
+    Conditioning, Steering, Constraints, and Selection
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../world-models-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    World Models and Causal Simulators
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../landscape-01-copulas/">
+<span class="md-ellipsis">
+    
+  
+    Extended Generative Landscape
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../normalization-01-queries/">
+<span class="md-ellipsis">
+    
+  
+    Research Practice
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../models/vae-guide/">
+<span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/core/base/">
+<span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../examples/overview/">
+<span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../zoo/">
+<span class="md-ellipsis">
+    
+  
+    Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../training/overview/">
+<span class="md-ellipsis">
+    
+  
+    Training
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../data/overview/">
+<span class="md-ellipsis">
+    
+  
+    Data &amp; Modalities
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../inference/overview/">
+<span class="md-ellipsis">
+    
+  
+    Inference &amp; Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../benchmarks/">
+<span class="md-ellipsis">
+    
+  
+    Evaluation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../guides/extensions/">
+<span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../extensions/">
+<span class="md-ellipsis">
+    
+  
+    Advanced Topics
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../cli/">
+<span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../community/contributing/">
+<span class="md-ellipsis">
+    
+  
+    Community
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/configs/protein-extension/">
+<span class="md-ellipsis">
+    
+  
+    Reference Library
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#10-search-distributions-method-selection-and-research-practice">
+<span class="md-ellipsis">
+      
+        10. Search Distributions, Method Selection, and Research Practice
+      
+    </span>
+</a>
+<nav aria-label="10. Search Distributions, Method Selection, and Research Practice" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-10-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 10 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#natural-evolution-strategies-move-a-search-law">
+<span class="md-ellipsis">
+      
+        Natural evolution strategies move a search law
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-categorical-search-distribution">
+<span class="md-ellipsis">
+      
+        Worked categorical search distribution
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#a-family-by-family-decision-table">
+<span class="md-ellipsis">
+      
+        A family-by-family decision table
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#selection-procedure">
+<span class="md-ellipsis">
+      
+        Selection procedure
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#controlled-comparison-protocol">
+<span class="md-ellipsis">
+      
+        Controlled comparison protocol
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#evidence-map-and-open-questions">
+<span class="md-ellipsis">
+      
+        Evidence map and open questions
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#independent-practice-and-assessment-map-selection-and-research-evidence">
+<span class="md-ellipsis">
+      
+        Independent practice and assessment map: selection and research evidence
+      
+    </span>
+</a>
+<nav aria-label="Independent practice and assessment map: selection and research evidence" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#feedback-contract-selection-and-research-evidence">
+<span class="md-ellipsis">
+      
+        Feedback contract: selection and research evidence
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#outcome-to-task-alignment-selection-and-research-evidence">
+<span class="md-ellipsis">
+      
+        Outcome-to-task alignment: selection and research evidence
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#volume-synthesis-and-retrieval-practice">
+<span class="md-ellipsis">
+      
+        Volume synthesis and retrieval practice
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#further-reading">
+<span class="md-ellipsis">
+      
+        Further reading
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<nav aria-label="Breadcrumb" class="md-path">
+<ol class="md-path__list">
+<li class="md-path__item">
+<a class="md-path__link" href="../../..">
+<span class="md-ellipsis">
+    Home
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    Generative Models Book
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../gradients-01-taxonomy/">
+<span class="md-ellipsis">
+    Connections and Compositions
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../gradients-01-taxonomy/">
+<span class="md-ellipsis">
+    Gradients and Geometry in Generative Modeling
+  </span>
+</a>
+</li>
+</ol>
+</nav>
+<article class="md-content__inner md-typeset">
+<h1 id="gradients-and-geometry-10-selection-and-research-practice">Gradients and Geometry 10 — Selection and Research Practice<a class="headerlink" href="#gradients-and-geometry-10-selection-and-research-practice" title="Permanent link">¤</a></h1><aside aria-label="Learning path" class="admonition abstract artifex-learning-path"><p class="admonition-title">Learning path</p><p><strong>Required knowledge</strong></p><ul class="artifex-learning-path__links" data-learning-path-role="required"><li><a href="../gradients-06-model-applications/">Gradients and Geometry 6 — Likelihood, Latent, and Energy Models</a></li><li><a href="../gradients-07-implicit-games/">Gradients and Geometry 7 — Implicit Models and Games</a></li><li><a href="../gradients-09-functional/">Gradients and Geometry 9 — Functional and Distributional Gradients</a></li></ul><p><strong>Readiness check:</strong> can you explain the central object and reproduce one worked example from each required chapter? If not, follow its link before continuing.</p><p><strong>Newly unlocked in the default route</strong></p><p>No immediate successor names this page as its final required prerequisite. Continue through the book navigation or the chapter's cross-links.</p></aside>
+<p>This chapter develops natural evolution strategies, a family-by-family gradient selection procedure, controlled comparisons, and an evidence map. Read it in the <a href="../gradients-and-geometry-in-generative-modeling/#10-search-distributions-method-selection-and-research-practice">complete guide</a> for uninterrupted flow.</p>
+<h2 id="10-search-distributions-method-selection-and-research-practice">10. Search Distributions, Method Selection, and Research Practice<a class="headerlink" href="#10-search-distributions-method-selection-and-research-practice" title="Permanent link">¤</a></h2>
+<h3 id="chapter-10-prerequisites-and-learning-objectives">Chapter 10 prerequisites and learning objectives<a class="headerlink" href="#chapter-10-prerequisites-and-learning-objectives" title="Permanent link">¤</a></h3>
+<p><strong>Prerequisites.</strong> Evolution strategies, generative evaluation, and controlled
+comparisons.</p>
+<p>By the end, you should be able to:</p>
+<ol>
+<li><strong>O1 — Derive a search-law natural gradient:</strong> identify the score, Fisher,
+   reward centering, and simplex or covariance motion.</li>
+<li><strong>O2 — Keep search and data laws separate:</strong> state which distribution is
+   geometrically preconditioned and what candidate is ultimately returned.</li>
+<li><strong>O3 — Select a method systematically:</strong> answer the objective, variable,
+   expectation, derivative, estimator, geometry, update, and validation
+   questions in order.</li>
+<li><strong>O4 — Design controlled comparisons:</strong> match data, architecture, budget,
+   precision, parameter groups, and hyperparameter search.</li>
+<li><strong>O5 — Interpret evidence maturity:</strong> distinguish established identities,
+   method-specific peer-reviewed results, and open research claims.</li>
+<li><strong>O6 — Transfer the complete contract:</strong> design and audit a gradient method
+   for a new generative family, modality, or black-box design problem.</li>
+</ol>
+<h3 id="natural-evolution-strategies-move-a-search-law">Natural evolution strategies move a search law<a class="headerlink" href="#natural-evolution-strategies-move-a-search-law" title="Permanent link">¤</a></h3>
+<p>Let <span class="arithmatex">\(q_\psi(a)\)</span> be a distribution over candidate model parameters,
+architectures, prompts, molecules, or other design objects, and let <span class="arithmatex">\(R(a)\)</span> be a
+black-box reward. The search objective is</p>
+<div class="arithmatex">\[
+J(\psi)=\mathbb E_{A\sim q_\psi}[R(A)].
+\]</div>
+<p>Its Fisher and natural gradient are</p>
+<div class="arithmatex">\[
+F_q(\psi)
+=\mathbb E_{q_\psi}
+[\nabla_\psi\log q_\psi(A)\nabla_\psi\log q_\psi(A)^\top],
+\qquad
+\widetilde\nabla_\psi J
+=F_q(\psi)^\dagger
+\mathbb E_{q_\psi}[R(A)\nabla_\psi\log q_\psi(A)].
+\]</div>
+<p>This is the central construction in
+<a href="https://www.jmlr.org/papers/v15/wierstra14a.html">Natural Evolution Strategies</a>.
+The Fisher belongs to the <strong>search distribution</strong>. It says nothing directly
+about the Fisher geometry of the data distribution produced by a selected
+candidate.</p>
+<h3 id="worked-categorical-search-distribution">Worked categorical search distribution<a class="headerlink" href="#worked-categorical-search-distribution" title="Permanent link">¤</a></h3>
+<p>Suppose three candidate generator designs have search probabilities</p>
+<div class="arithmatex">\[
+q=(0.5,0.3,0.2)
+\]</div>
+<p>and exact rewards <span class="arithmatex">\(R=(1,4,0)\)</span>. The mean reward is <span class="arithmatex">\(\bar R=1.7\)</span>. The categorical
+Fisher--Rao natural flow in probability coordinates has replicator form</p>
+<div class="arithmatex">\[
+\dot q_i=q_i(R_i-\bar R),
+\]</div>
+<p>giving</p>
+<div class="arithmatex">\[
+\dot q=(-0.35,0.69,-0.34).
+\]</div>
+<p>The components sum to zero, preserving total mass infinitesimally. A step of
+<span class="arithmatex">\(0.1\)</span> gives <span class="arithmatex">\(q^+=(0.465,0.369,0.166)\)</span>, which remains in the simplex. With noisy
+rewards, rank shaping, baselines, entropy control, and covariance adaptation
+define different finite algorithms.</p>
+<h3 id="a-family-by-family-decision-table">A family-by-family decision table<a class="headerlink" href="#a-family-by-family-decision-table" title="Permanent link">¤</a></h3>
+<div class="md-typeset__table book-table-container"><table id="tbl-gradients-and-geometry-in-generative-modeling-a-family-by-family-decision-table"><caption class="book-object-caption"><span class="book-object-number">Table GRAD.4.</span> A family-by-family decision table</caption>
+<thead>
+<tr>
+<th>Setting</th>
+<th>Primary gradient object</th>
+<th>Main obstacle</th>
+<th>Defensible route</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Exponential-family MLE</td>
+<td>parameter or natural gradient of likelihood</td>
+<td>singular or boundary mean map</td>
+<td>minimal coordinates and declared Fisher geometry</td>
+</tr>
+<tr>
+<td>Conjugate VI</td>
+<td>natural gradient of a variational factor</td>
+<td>stochastic sufficient statistics</td>
+<td>SVI natural-coordinate averaging</td>
+</tr>
+<tr>
+<td>Amortized VAE</td>
+<td>pathwise/score parameter estimator; optional posterior natural gradient</td>
+<td>shared parameters and multiple metrics</td>
+<td>declare estimator target, block, and averaging law</td>
+</tr>
+<tr>
+<td>AR likelihood</td>
+<td>joint or teacher-forced parameter gradient</td>
+<td>long shared computation and huge Fisher</td>
+<td>exact backpropagation plus qualified FVP/GGN/K-FAC</td>
+</tr>
+<tr>
+<td>Normalizing flow</td>
+<td>exact likelihood parameter gradient</td>
+<td>Jacobian numerics and dense curvature</td>
+<td>direct model sampling plus structured solve when justified</td>
+</tr>
+<tr>
+<td>EBM</td>
+<td>parameter likelihood gradient and state score</td>
+<td>negative-phase mixing and normalization</td>
+<td>separate training moments from sampler state gradients</td>
+</tr>
+<tr>
+<td>GAN/implicit generator</td>
+<td>game field, unrolled derivative, or divergence pullback</td>
+<td>coupled dynamics and often singular endpoint law</td>
+<td>declare player schedule and any bilevel or OT geometry</td>
+</tr>
+<tr>
+<td>Diffusion/flow model</td>
+<td>regression parameter gradient, state score, or path functional gradient</td>
+<td>several inequivalent time-indexed objects</td>
+<td>name variable, time law, weighting, and sampler role</td>
+</tr>
+<tr>
+<td>Guided generation</td>
+<td>state gradient of log likelihood, reward, or constraint</td>
+<td>approximate and scaled guidance changes the target</td>
+<td>state the conditional identity and finite guidance rule</td>
+</tr>
+<tr>
+<td>Particle inference</td>
+<td>functional/Stein/Wasserstein field</td>
+<td>finite particles, kernels, and inner transport solves</td>
+<td>report geometry and interacting-particle approximation</td>
+</tr>
+<tr>
+<td>Black-box design search</td>
+<td>score or natural gradient of a search law</td>
+<td>reward noise and distribution collapse</td>
+<td>NES with exploration diagnostics</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="selection-procedure">Selection procedure<a class="headerlink" href="#selection-procedure" title="Permanent link">¤</a></h3>
+<p>Before adopting any gradient method, answer in order:</p>
+<ol>
+<li><strong>Objective:</strong> which scalar functional, game field, conditional score, or
+   outer query is differentiated?</li>
+<li><strong>Variable:</strong> parameters, latent/state coordinates, a function, a particle
+   map, a density, or a search distribution?</li>
+<li><strong>Expectation:</strong> which data, model, posterior, path, or search law defines
+   the population derivative?</li>
+<li><strong>Exact derivative:</strong> what regularity, support, inner-solution, or boundary
+   assumptions make it valid?</li>
+<li><strong>Estimator:</strong> reverse AD, pathwise, score-function, relaxation, unrolling,
+   implicit solve, particle average, or finite difference?</li>
+<li><strong>Geometry:</strong> Euclidean, Fisher--Rao, GGN, manifold, Wasserstein, Sinkhorn,
+   RKHS, or another declared metric?</li>
+<li><strong>Finite update:</strong> what preconditioner, game schedule, damping, clipping,
+   trust radius, timestep weighting, and numerical solver changes the ideal
+   vector?</li>
+<li><strong>Validation:</strong> is estimator bias/variance measured, does predicted geometry
+   match actual movement, and does held-out generative behavior improve at
+   matched compute?</li>
+</ol>
+<p>If the objective or differentiation variable cannot be answered, the word
+“gradient” is an analogy rather than an executable method specification.</p>
+<figure class="book-figure" id="fig-gradients-and-geometry-in-generative-modeling-selection-procedure"><pre class="mermaid"><code>flowchart TB
+    accTitle: From a proposed gradient method to an evidence-backed generative claim
+    accDescr: Method selection proceeds through the target, variable, averaging law, exact derivative, estimator, geometry, and finite update. Validation then separates derivative correctness, geometric fidelity, optimization behavior, and held-out generative quality. A failure routes back to the earliest invalid contract field.
+    O[Objective or game query] --&gt; V[Typed differentiation variable]
+    V --&gt; L[Averaging or path law]
+    L --&gt; D[Exact derivative and assumptions]
+    D --&gt; E[Estimator or implicit solve]
+    E --&gt; G[Geometry or constraint]
+    G --&gt; U[Finite update]
+    U --&gt; C1[Derivative-program checks]
+    C1 --&gt; C2[Predicted versus measured law movement]
+    C2 --&gt; C3[Matched-compute optimization comparison]
+    C3 --&gt; C4[Held-out generative evaluation]</code></pre><figcaption class="book-object-caption"><span class="book-object-number">Figure GRAD.11.</span> From a proposed gradient method to an evidence-backed generative claim</figcaption></figure>
+<h3 id="controlled-comparison-protocol">Controlled comparison protocol<a class="headerlink" href="#controlled-comparison-protocol" title="Permanent link">¤</a></h3>
+<p>Compare against strong first-order and structured baselines using matched data,
+architecture, initialization distribution, global batch, precision, parameter
+groups, training examples or tokens, and hyperparameter-search budget. Report:</p>
+<ul>
+<li>objective and held-out likelihood or family-appropriate quality metrics;</li>
+<li>gradient, preconditioned direction, and actual update norms;</li>
+<li>predicted and measured KL or declared divergence movement;</li>
+<li>curvature samples, solve residual, damping fraction, and factor staleness;</li>
+<li>wall-clock, peak memory, communication, and energy;</li>
+<li>instability, skipped-step, and restart counts; and</li>
+<li>uncertainty across seeds.</li>
+</ul>
+<p>A faster fall in training objective does not establish better density
+estimation, sampling, calibration, diversity, or compute efficiency.</p>
+<h3 id="evidence-map-and-open-questions">Evidence map and open questions<a class="headerlink" href="#evidence-map-and-open-questions" title="Permanent link">¤</a></h3>
+<p><strong>Established.</strong> Reverse/forward differentiation, score-function and pathwise
+identities, Fisher--Rao local geometry, exponential-family duality, conjugate SVI
+natural updates, state scores, Langevin/Fokker--Planck correspondence, and exact
+infinitesimal invariance have mature foundations under their stated conditions.</p>
+<p><strong>Peer-reviewed research.</strong> Implicit/pathwise estimators broaden variational
+families; SVGD, neural JKO schemes, and scalable Wasserstein flows provide
+functional or distributional constructions; K-FAC and FANG provide structured
+parameter-metric approximations; unrolling and extragradient-style methods alter
+game derivatives and dynamics; Sinkhorn natural gradient supplies a
+transport-based implicit-generator construction; the ELBO natural-gradient and
+time-varying-generator studies sharpen specific geometric connections; and the
+gradient-regularized natural-gradient study evaluates its variants on declared
+tasks.</p>
+<p>None of these results yields a family-independent ranking over gradient
+estimators, AdamW, Shampoo, K-FAC, natural-gradient VI, functional flows,
+transport pullbacks, guidance rules, and game optimizers. Important research
+questions include:</p>
+<ul>
+<li>scalable model-Fisher estimation for large sequence generators without
+  silently switching to the empirical Fisher;</li>
+<li>geometries for singular implicit laws that remain stable in high dimension;</li>
+<li>joint metrics and convergent finite algorithms for coupled adversarial games;</li>
+<li>metrics that respect diffusion or flow path semantics and timestep weighting;</li>
+<li>natural-gradient methods for structured discrete and manifold-valued laws;</li>
+<li>low-variance unbiased gradients for discrete, branching, and long stochastic
+  generative computations;</li>
+<li>stable hypergradients through learned samplers and approximate inner
+  inference without hiding truncation bias;</li>
+<li>interaction among damping, normalization layers, parameter symmetries, and
+  distributed optimizer state; and</li>
+<li>evaluation that connects predicted local law movement to downstream sample
+  quality and uncertainty.</li>
+</ul>
+<h3 id="independent-practice-and-assessment-map-selection-and-research-evidence">Independent practice and assessment map: selection and research evidence<a class="headerlink" href="#independent-practice-and-assessment-map-selection-and-research-evidence" title="Permanent link">¤</a></h3>
+<p>The final assessment asks for complete executable specifications and evidence
+boundaries. Method names receive no credit unless their target objects and
+finite approximations are recoverable.</p>
+<ol>
+<li><strong>P1.1 — Predict before computing: derive categorical NES motion.</strong> <em>Type: derive · Difficulty: core · Typical time: 12 min.</em> A search distribution over three candidates has <span class="arithmatex">\(p=(0.5,0.3,0.2)\)</span> and deterministic rewards <span class="arithmatex">\(R=(1,2,0)\)</span>. Predict which candidate gains mass, then compute expected reward and the natural-gradient ascent motion of probabilities. Verify mass conservation.</li>
+<li><strong>P1.2 — Separate search and generated-data laws.</strong> <em>Type: explain · Difficulty: foundation · Typical time: 8 min.</em> An NES searches over diffusion hyperparameters and returns one generator. Identify the law whose Fisher NES uses, the law used to evaluate image quality, and why improving one objective does not establish Fisher-natural training of the returned generator.</li>
+<li><strong>P1.3 — Complete a method-selection card.</strong> <em>Type: design · Difficulty: core · Typical time: 15 min.</em> For natural-gradient fine-tuning of an autoregressive language model, fill all eight selection fields: objective, variable, expectation, exact derivative, estimator, geometry, finite update, and validation. Include the context-law choice.</li>
+<li><strong>P1.4 — Design a controlled comparison.</strong> <em>Type: design · Difficulty: stretch · Typical time: 17 min.</em> Compare AdamW, diagonal empirical-Fisher scaling, and matrix-free model-Fisher natural gradient. Specify matched resources, method-specific tuning, diagnostics, uncertainty, and stopping rules.</li>
+<li><strong>P1.5 — Classify evidence maturity.</strong> <em>Type: diagnose · Difficulty: core · Typical time: 11 min.</em> Classify each statement as an established identity, method-specific peer-reviewed result, or unsupported generalization: (a) regular-model KL has local Fisher Hessian; (b) K-FAC uses Kronecker-factored blocks; © K-FAC always improves diffusion sample quality; (d) a particular Sinkhorn pullback was evaluated for implicit generators; (e) every pseudo-loss field integrates to a divergence.</li>
+<li><strong>P1.6 — Transfer the complete contract.</strong> <em>Type: transfer · Difficulty: stretch · Typical time: 22 min.</em> Design a gradient method for a black-box protein generator with discrete sequences, a learned structural simulator, and a non-differentiable wet-lab reward. Choose training or search laws, estimator, geometry, constraints, finite algorithm, and a staged evidence plan from exact fixtures to prospective evaluation.</li>
+</ol>
+<h4 id="feedback-contract-selection-and-research-evidence">Feedback contract: selection and research evidence<a class="headerlink" href="#feedback-contract-selection-and-research-evidence" title="Permanent link">¤</a></h4>
+<div class="md-typeset__table book-table-container"><table id="tbl-gradients-and-geometry-in-generative-modeling-feedback-contract-selection-and-research-evidence-1"><caption class="book-object-caption"><span class="book-object-number">Table GRAD.32.</span> Feedback contract: selection and research evidence — table 1</caption>
+<thead>
+<tr>
+<th>Task</th>
+<th>Evidence of success</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>P1.1</td>
+<td>Replicator-like probability motion has correct rewards, signs, and zero total mass change.</td>
+</tr>
+<tr>
+<td>P1.2</td>
+<td>Search-distribution geometry and generated-data evaluation are different probability objects.</td>
+</tr>
+<tr>
+<td>P1.3</td>
+<td>All eight fields form a coherent AR update with a declared context law.</td>
+</tr>
+<tr>
+<td>P1.4</td>
+<td>Compute and tuning budgets are matched while numerical and generative diagnostics remain method-specific.</td>
+</tr>
+<tr>
+<td>P1.5</td>
+<td>Mathematical identities, bounded empirical findings, and universal claims receive different evidence labels.</td>
+</tr>
+<tr>
+<td>P1.6</td>
+<td>The transfer design is executable, constraint-aware, and follows a staged validation ladder.</td>
+</tr>
+</tbody>
+</table></div>
+<details class="tip">
+<summary>Graduated hints for P1</summary>
+<div class="md-typeset__table book-table-container"><table id="tbl-gradients-and-geometry-in-generative-modeling-feedback-contract-selection-and-research-evidence-2"><caption class="book-object-caption"><span class="book-object-number">Table GRAD.33.</span> Feedback contract: selection and research evidence — table 2</caption>
+<thead>
+<tr>
+<th>Task</th>
+<th>Hint 1 — Direction</th>
+<th>Hint 2 — Setup</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>P1.1</td>
+<td>On a categorical simplex, natural ascent moves mass according to centered reward.</td>
+<td>Use <span class="arithmatex">\(\dot p_i=p_i(R_i-\bar R)\)</span>.</td>
+</tr>
+<tr>
+<td>P1.2</td>
+<td>The candidate index or hyperparameter vector is sampled before images are generated.</td>
+<td>One Fisher concerns <span class="arithmatex">\(q_\psi(a)\)</span>; image metrics concern the returned generator's data law.</td>
+</tr>
+<tr>
+<td>P1.3</td>
+<td>Teacher-forced data histories and free-running model histories define different curvature averages.</td>
+<td>Keep the likelihood gradient estimator and Fisher-vector-product sampler separately declared.</td>
+</tr>
+<tr>
+<td>P1.4</td>
+<td>Equal epochs are not equal compute when curvature solves add work.</td>
+<td>Match examples/tokens and wall-clock views; allocate comparable tuning budgets and report both.</td>
+</tr>
+<tr>
+<td>P1.5</td>
+<td>“Always” and “every” are warning signs unless a theorem really has that scope.</td>
+<td>Link the object and conditions in (a), and the declared experimental method in (b) and (d).</td>
+</tr>
+<tr>
+<td>P1.6</td>
+<td>A non-differentiable wet-lab reward naturally suggests a search or trajectory score estimator.</td>
+<td>Stage exact toy enumeration, simulator validation, retrospective assays, and prospective blinded tests.</td>
+</tr>
+</tbody>
+</table></div>
+</details>
+<h4 id="outcome-to-task-alignment-selection-and-research-evidence">Outcome-to-task alignment: selection and research evidence<a class="headerlink" href="#outcome-to-task-alignment-selection-and-research-evidence" title="Permanent link">¤</a></h4>
+<div class="md-typeset__table book-table-container"><table id="tbl-gradients-and-geometry-in-generative-modeling-outcome-to-task-alignment-selection-and-research-evidence"><caption class="book-object-caption"><span class="book-object-number">Table GRAD.34.</span> Outcome-to-task alignment: selection and research evidence</caption>
+<thead>
+<tr>
+<th>Learning objective</th>
+<th>Independently assessed by</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>O1 — Derive a search-law natural gradient</td>
+<td>P1.1</td>
+</tr>
+<tr>
+<td>O2 — Keep search and data laws separate</td>
+<td>P1.2</td>
+</tr>
+<tr>
+<td>O3 — Select a method systematically</td>
+<td>P1.3, P1.6</td>
+</tr>
+<tr>
+<td>O4 — Design controlled comparisons</td>
+<td>P1.4</td>
+</tr>
+<tr>
+<td>O5 — Interpret evidence maturity</td>
+<td>P1.5</td>
+</tr>
+<tr>
+<td>O6 — Transfer the complete contract</td>
+<td>P1.6</td>
+</tr>
+</tbody>
+</table></div>
+<details class="success">
+<summary>Complete solutions to P1</summary>
+<ol>
+<li><strong>P1.1.</strong> <span class="arithmatex">\(\bar R=0.5(1)+0.3(2)+0.2(0)=1.1\)</span>. Natural ascent on the categorical law gives <span class="arithmatex">\(\dot p=p\odot(R-\bar R)=(-0.05,0.27,-0.22)\)</span>. The entries sum to zero, so total probability is conserved; the highest-reward candidate gains mass. <strong>Check.</strong> A finite step still needs positivity-preserving coordinates or a mirror/exponential update.</li>
+<li><strong>P1.2.</strong> NES uses the Fisher of the search law <span class="arithmatex">\(q_\psi(a)\)</span> over hyperparameters or candidate parameter vectors. Image quality is evaluated under the generated-data law <span class="arithmatex">\(p_a(x)\)</span> for sampled or selected <span class="arithmatex">\(a\)</span>. Optimizing <span class="arithmatex">\(\mathbb E_{q_\psi}[R(a)]\)</span> naturally in search space can select a better candidate, but it does not precondition that candidate's internal training gradient by the Fisher of <span class="arithmatex">\(p_a(x)\)</span>. <strong>Check.</strong> The two laws can have different sample spaces and dimensions.</li>
+<li><strong>P1.3.</strong> One complete card is: negative token log likelihood; model parameters <span class="arithmatex">\(\theta\)</span>; either model-generated histories for the exact joint Fisher or explicitly data histories for teacher-forced conditional curvature; exact reverse-AD likelihood derivative under fixed support; minibatch gradient; matrix-free model-Fisher score/GGN product under the chosen law; damped CG plus trust scaling and accepted finite update; JVP/VJP tests, residual, predicted/measured KL, held-out perplexity and generation metrics, compute, memory, and seeds. <strong>Rubric.</strong> Calling data-history curvature the exact joint-model Fisher loses credit.</li>
+<li><strong>P1.4.</strong> Use identical data order, architecture, initialization distribution, global batch, precision, parameter groups, and evaluation cadence. Report both matched tokens/examples and matched wall-clock because matrix-free solves add cost. Give each method an equal, documented tuning budget over its learning rates and method-specific damping/rank/solve parameters. Track objective, held-out likelihood, generation quality/diversity, update norms, predicted/measured KL, residuals, damping fraction, time, memory, failures, and confidence intervals over seeds. Predeclare budget and instability stopping rules. <strong>Rubric.</strong> Equal hyperparameters are not required; equal opportunity and resources are.</li>
+<li><strong>P1.5.</strong> (a) is an established local identity under regular dominated-family conditions. (b) is the defining structured approximation in a peer-reviewed method, with scope limited to its construction. © is an unsupported universal empirical generalization. (d) is a method-specific peer-reviewed construction and evaluation. (e) is false in general; a pseudo-loss can install a nonconservative field. <strong>Check.</strong> Evidence maturity follows the breadth of the claim, not the prestige of a method name.</li>
+<li><strong>P1.6.</strong> One defensible plan treats sequence proposals as a categorical autoregressive policy or a higher-level search law, uses likelihood-ratio reward gradients/NES with centered baselines for wet-lab reward, and uses differentiable structural-simulator gradients only for an explicitly separate surrogate objective. Geometry can be Fisher--Rao on the sequence/search law; constraints use masked actions or a declared constrained mirror update. The finite loop specifies proposal temperature, off-policy reuse, simulator version, acquisition rule, assay budget, and safety filters. Validate gradients by exact enumeration on tiny alphabets, estimator bias/SNR in a calibrated simulator, structural predictions on held-out assays, retrospective reward optimization, then prospective blinded wet-lab batches with uncertainty and failure reporting. <strong>Rubric.</strong> Simulator gradients are not presented as derivatives of the wet-lab outcome without a validated causal/measurement bridge.</li>
+</ol>
+</details>
+<h3 id="volume-synthesis-and-retrieval-practice">Volume synthesis and retrieval practice<a class="headerlink" href="#volume-synthesis-and-retrieval-practice" title="Permanent link">¤</a></h3>
+<p>There is no single “generative-model gradient.” Parameter derivatives train
+objectives; Monte Carlo rules estimate them; state scores and forces move
+samples; game fields coordinate competing players; hypergradients propagate
+through inner algorithms; functional gradients move maps or measures; and
+natural gradients transform parameter derivatives under a declared statistical
+metric. A complete method names the target, variable, law, geometry, estimator,
+finite algorithm, and validation protocol. Connections among these gradients
+are useful only when the conversion preserves those typed fields.</p>
+<details class="question">
+<summary>Retrieval questions</summary>
+<ol>
+<li>In NES, which distribution supplies the Fisher?</li>
+<li>What is the first question to ask about a proposed natural-gradient GAN
+   optimizer?</li>
+<li>Which measurements distinguish a good linear solve from a good geometric
+   model?</li>
+<li>Why is there no single “natural gradient for a VAE” without qualifiers?</li>
+<li>Why is a diffusion score not the parameter gradient used to train its
+   score network?</li>
+</ol>
+<p><strong>Solutions.</strong> (1) The search distribution over candidates. (2) Which
+generator-side law or divergence defines the metric. (3) Solve residual
+checks numerical accuracy; predicted-versus-measured law divergence and
+held-out generative metrics check geometric and task relevance. (4) A VAE
+contains distinct generative-joint, observed-marginal, and variational-
+conditional families with different Fishers. (5) The score differentiates a
+log density with respect to state; training differentiates a score-matching
+loss with respect to network parameters.</p>
+</details>
+<h2 id="further-reading">Further reading<a class="headerlink" href="#further-reading" title="Permanent link">¤</a></h2>
+<ul>
+<li>Amari, <a href="https://proceedings.neurips.cc/paper/1997/file/ff49cc40a8890e6a60f40ff3026d2730-Paper.pdf">Natural Gradient Works Efficiently in Learning</a>.</li>
+<li>Martens, <a href="https://jmlr.org/papers/v21/17-678.html">New Insights and Perspectives on the Natural Gradient Method</a>.</li>
+<li>Hoffman et al., <a href="https://www.jmlr.org/papers/v14/hoffman13a.html">Stochastic Variational Inference</a>.</li>
+<li>Martens and Grosse, <a href="https://proceedings.mlr.press/v37/martens15.html">Optimizing Neural Networks with Kronecker-factored Approximate Curvature</a>.</li>
+<li>Grosse and Salakhutdinov, <a href="https://proceedings.mlr.press/v37/grosse15.html">Scaling Up Natural Gradient by Sparsely Factorizing the Inverse Fisher Matrix</a>.</li>
+<li>Kunstner, Balles, and Hennig, <a href="https://arxiv.org/abs/1905.12558">Limitations of the Empirical Fisher Approximation</a>.</li>
+<li>Lin, Khan, and Schmidt, <a href="https://proceedings.mlr.press/v97/lin19b.html">Natural-Gradient VI with Mixture Approximations</a>.</li>
+<li>Wierstra et al., <a href="https://www.jmlr.org/papers/v15/wierstra14a.html">Natural Evolution Strategies</a>.</li>
+<li>Shen et al., <a href="https://proceedings.neurips.cc/paper/2020/hash/122e27d57ae8ecb37f3f1da67abb33cb-Abstract.html">Sinkhorn Natural Gradient for Generative Models</a>.</li>
+<li>Ay, van Oostrum, and Datar, <a href="https://www.jmlr.org/papers/v26/24-0606.html">The Natural Gradient of the ELBO</a>.</li>
+<li>Liu, Wang, and Wang, <a href="https://proceedings.mlr.press/v286/liu25g.html">Guiding Time-Varying Generative Models on an Exponential-Family Manifold</a>.</li>
+<li>Dash et al., <a href="https://openreview.net/forum?id=fffAxw0cPm">Gradient-Regularized Natural Gradients</a>.</li>
+<li>Mohamed et al., <a href="https://www.jmlr.org/papers/v21/19-346.html">Monte Carlo Gradient Estimation in Machine Learning</a>.</li>
+<li>Rainforth et al., <a href="https://proceedings.mlr.press/v80/rainforth18b.html">Tighter Variational Bounds Are Not Necessarily Better</a>.</li>
+<li>Tucker et al., <a href="https://openreview.net/forum?id=HkG3e205K7">Doubly Reparameterized Gradient Estimators</a>.</li>
+<li>Grathwohl et al., <a href="https://openreview.net/forum?id=SyzKd1bCW">Optimizing Control Variates for Black-Box Gradient Estimation</a>.</li>
+<li>Dong, Mnih, and Tucker, <a href="https://proceedings.neurips.cc/paper/2020/hash/d880e783834172e5ebd1868d84463d93-Abstract.html">DisARM</a>.</li>
+<li>Bauer and Mnih, <a href="https://proceedings.mlr.press/v139/bauer21a.html">Generalized Doubly Reparameterized Gradient Estimators</a>.</li>
+<li>Foerster et al., <a href="https://proceedings.mlr.press/v80/foerster18a.html">DiCE</a>.</li>
+<li>Figurnov, Mohamed, and Mnih, <a href="https://proceedings.neurips.cc/paper_files/paper/2018/hash/92c8c96e4c37100777c7190b76d28233-Abstract.html">Implicit Reparameterization Gradients</a>.</li>
+<li>Jankowiak and Obermeyer, <a href="https://proceedings.mlr.press/v80/jankowiak18a.html">Pathwise Derivatives Beyond the Reparameterization Trick</a>.</li>
+<li>Hyvärinen, <a href="https://jmlr.org/papers/v6/hyvarinen05a.html">Estimation of Non-Normalized Models by Score Matching</a>.</li>
+<li>Liu and Wang, <a href="https://proceedings.neurips.cc/paper/2016/hash/b3ba8f1bee1238a2f37603d90b58898d-Abstract.html">Stein Variational Gradient Descent</a>.</li>
+<li>Metz et al., <a href="https://openreview.net/forum?id=BydrOIcle">Unrolled Generative Adversarial Networks</a>.</li>
+<li>Fan et al., <a href="https://proceedings.mlr.press/v162/fan22d.html">Variational Wasserstein Gradient Flow</a>.</li>
+<li>Choi, Choi, and Kang, <a href="https://proceedings.mlr.press/v235/choi24a.html">Scalable Wasserstein Gradient Flow for Generative Modeling</a>.</li>
+<li>Dhariwal and Nichol, <a href="https://proceedings.neurips.cc/paper/2021/hash/49ad23d1ec9fa4bd8d77d02681df5cfa-Abstract.html">Classifier Guidance for Diffusion</a>.</li>
+<li>Li et al., <a href="https://proceedings.mlr.press/v118/li20a.html">Scalable Gradients and Variational Inference for Stochastic Differential Equations</a>.</li>
+<li>Corenflos et al., <a href="https://proceedings.mlr.press/v139/corenflos21a.html">Differentiable Particle Filtering via Entropy-Regularized Optimal Transport</a>.</li>
+<li>Poole et al., <a href="https://dreamfusion3d.github.io/">DreamFusion and Score Distillation Sampling</a>.</li>
+<li>Yin et al., <a href="https://proceedings.neurips.cc/paper_files/paper/2024/hash/54dcf25318f9de5a7a01f0a4125c541e-Abstract-Conference.html">Improved Distribution Matching Distillation</a>.</li>
+<li>Luo et al., <a href="https://proceedings.neurips.cc/paper_files/paper/2024/hash/d107ca794d83c8242e357e6a43a068f4-Abstract-Conference.html">Score Implicit Matching</a>.</li>
+</ul>
+<p><strong>Next:</strong> use this geometry map when comparing family objectives in
+<a href="../density-latent-energy-relationships/">Density, Latent, Energy, and Score Relationships</a>
+and when comparing path metrics in
+<a href="../probability-paths-and-stochastic-transport/">Probability Paths and Stochastic Transport</a>.</p>
+<hr/>
+<p><strong>Previous:</strong> <a href="../gradients-09-functional/">9. Functional and Distributional Gradients</a> · <strong>Continue:</strong> <a href="../density-latent-energy-relationships/">Density, Latent, Energy, and Score Relationships</a> · <a href="../gradients-and-geometry-in-generative-modeling/">Complete guide</a></p>
+</article>
+</div>
+<script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  Back to top
+</button>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+<div class="md-social">
+<a class="md-social__link" href="https://github.com/avitai/artifex" rel="noopener" target="_blank" title="github.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</a>
+<a class="md-social__link" href="https://pypi.org/project/avitai-artifex/" rel="noopener" target="_blank" title="pypi.org">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-66.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.3v101.8c0 29 25.2 46 53.4 54.3 33.8 9.9 66.3 11.7 106.8 0 26.9-7.8 53.4-23.5 53.4-54.3v-40.7H226.2v-13.6h160.2c31.1 0 42.6-21.7 53.4-54.2 11.2-33.5 10.7-65.7 0-108.6M286.2 444.7a20.4 20.4 0 1 1 0-40.7 20.4 20.4 0 1 1 0 40.7M167.8 248.1h106.8c29.7 0 53.4-24.5 53.4-54.3V91.9c0-29-24.4-50.7-53.4-55.6-35.8-5.9-74.7-5.6-106.8.1-45.2 8-53.4 24.7-53.4 55.6v40.7h106.9v13.6h-147c-31.1 0-58.3 18.7-66.8 54.2-9.8 40.7-10.2 66.1 0 108.6 7.6 31.6 25.7 54.2 56.8 54.2H101v-48.8c0-35.3 30.5-66.4 66.8-66.4m-6.6-183.4a20.4 20.4 0 1 1 0 40.8 20.4 20.4 0 1 1 0-40.8"></path></svg>
+</a>
+<a class="md-social__link" href="https://twitter.com/mahdi_shafiei" rel="noopener" target="_blank" title="twitter.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M459.4 151.7c.3 4.5.3 9.1.3 13.6 0 138.7-105.6 298.6-298.6 298.6-59.5 0-114.7-17.2-161.1-47.1 8.4 1 16.6 1.3 25.3 1.3 49.1 0 94.2-16.6 130.3-44.8-46.1-1-84.8-31.2-98.1-72.8 6.5 1 13 1.6 19.8 1.6 9.4 0 18.8-1.3 27.6-3.6-48.1-9.7-84.1-52-84.1-103v-1.3c14 7.8 30.2 12.7 47.4 13.3-28.3-18.8-46.8-51-46.8-87.4 0-19.5 5.2-37.4 14.3-53C87.4 130.8 165 172.4 252.1 176.9c-1.6-7.8-2.6-15.9-2.6-24C249.5 95.1 296.3 48 354.4 48c30.2 0 57.5 12.7 76.7 33.1 23.7-4.5 46.5-13.3 66.6-25.3-7.8 24.4-24.4 44.8-46.1 57.8 21.1-2.3 41.6-8.1 60.4-16.2-14.3 20.8-32.2 39.3-52.6 54.3"></path></svg>
+</a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.path", "navigation.top", "navigation.prune", "toc.follow", "search.highlight", "search.share", "search.suggest", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "content.mermaid"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+<script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+<script src="../../../javascripts/reading-layout.js"></script>
+</body>
+</html>

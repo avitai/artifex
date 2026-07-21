@@ -1,0 +1,1590 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="This chapter covers modular mechanism changes, soft and policy interventions, unit-level counterfactual generation, action-conditioned world models, and high-" name="description"/>
+<meta content="Mahdi Shafiei" name="author"/>
+<link href="https://docs.avitai.bio/artifex/user-guide/concepts/causal-generative-04-counterfactuals/" rel="canonical"/>
+<link href="../causal-generative-03-families/" rel="prev"/>
+<link href="../causal-generative-05-discovery/" rel="next"/>
+<link href="../../../assets/images/favicon.png" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.7.7" name="generator"/>
+<title>Causal Generative Models 4 — Mechanism Shift and Counterfactuals - Artifex</title>
+<link href="../../../assets/stylesheets/main.ec1eaa64.min.css" rel="stylesheet"/>
+<link href="../../../assets/stylesheets/palette.ab4e12ef.min.css" rel="stylesheet"/>
+<script src="../../../assets/vendor/iframe-worker/index.js"></script>
+<link href="../../../assets/_mkdocstrings.css" rel="stylesheet"/>
+<link href="../../../_static/extra.css" rel="stylesheet"/>
+<script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+<meta content="article" property="og:type"/>
+<meta content="The Artifex Generative Models Book" property="og:site_name"/>
+<meta content="Causal Generative Models 4 — Mechanism Shift and Counterfactuals" property="og:title"/>
+<meta content="This chapter covers modular mechanism changes, soft and policy interventions, unit-level counterfactual generation, action-conditioned world models, and high-" property="og:description"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/causal-generative-04-counterfactuals/" property="og:url"/>
+<meta content="2026-07-19" property="article:modified_time"/>
+<meta content="summary" name="twitter:card"/>
+<meta content="Causal Generative Models 4 — Mechanism Shift and Counterfactuals" name="twitter:title"/>
+<meta content="This chapter covers modular mechanism changes, soft and policy interventions, unit-level counterfactual generation, action-conditioned world models, and high-" name="twitter:description"/>
+<meta content="Generative models, Machine learning, Probabilistic modeling, advanced, specialization, canonical_chapter, causal-generative-counterfactuals, practitioner, researcher" name="keywords"/>
+<meta content="Causal Generative Models 4 — Mechanism Shift and Counterfactuals" name="citation_title"/>
+<meta content="Mahdi Shafiei" name="citation_author"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/causal-generative-04-counterfactuals/" name="citation_public_url"/>
+<meta content="en" name="citation_language"/>
+<meta content="Causal Generative Models 4 — Mechanism Shift and Counterfactuals" name="DC.title"/>
+<meta content="Mahdi Shafiei" name="DC.creator"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/causal-generative-04-counterfactuals/" name="DC.identifier"/>
+<meta content="Text.LearningResource" name="DC.type"/>
+<meta content="2026-07-19" name="DCTERMS.modified"/>
+<meta content="https://github.com/avitai/artifex/blob/main/LICENSE" name="DCTERMS.license"/>
+<meta content="advanced" name="DCTERMS.educationLevel"/>
+<meta content="practitioner, researcher" name="DCTERMS.audience"/>
+<link href="https://github.com/avitai/artifex/blob/main/LICENSE" rel="license"/>
+<script id="artifex-book-metadata" type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Chapter",
+  "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/causal-generative-04-counterfactuals/",
+  "url": "https://docs.avitai.bio/artifex/user-guide/concepts/causal-generative-04-counterfactuals/",
+  "name": "Causal Generative Models 4 \u2014 Mechanism Shift and Counterfactuals",
+  "description": "This chapter covers modular mechanism changes, soft and policy interventions, unit-level counterfactual generation, action-conditioned world models, and high-",
+  "identifier": "causal-generative-counterfactuals",
+  "inLanguage": "en",
+  "isAccessibleForFree": true,
+  "learningResourceType": "Canonical chapter",
+  "educationalLevel": "advanced",
+  "educationalUse": "specialization",
+  "audience": [
+    
+      {"@type": "EducationalAudience", "audienceType": "practitioner"},
+    
+      {"@type": "EducationalAudience", "audienceType": "researcher"}
+    
+  ],
+  "dateModified": "2026-07-19",
+  "keywords": ["Generative models", "Machine learning", "Probabilistic modeling", "advanced", "specialization", "canonical_chapter", "causal-generative-counterfactuals", "practitioner", "researcher"],
+  "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+  "author": [
+    
+      {"@type": "Person", "name": "Mahdi Shafiei"}
+    
+  ],
+  "isPartOf": {
+    "@type": "Book",
+    "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/#book",
+    "url": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/",
+    "name": "The Artifex Generative Models Book",
+    "bookEdition": "Living Web Edition",
+    "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+    "author": [
+      
+        {"@type": "Person", "name": "Mahdi Shafiei"}
+      
+    ]
+  }
+}
+</script>
+<link href="../../../assets/vendor/katex/katex.min.css" id="artifex-katex-stylesheet" integrity="sha384-UA8juhPf75SzzAMA/4fo3yOU7sBJ0om7SCD2GHq0fZqZco6tr1UCV7nUbk9J90JM" rel="stylesheet"/>
+<script defer="" integrity="sha384-T/0lMUdJpd2S1ZHtRiofG3htU3xPCrFVeAQ1UUE2TJwlEJSV5NUwn30kP28n238E" src="../../../assets/vendor/mermaid/mermaid.min.js"></script>
+<script defer="" src="../../../assets/vendor/katex/katex-shadow.js"></script>
+<script defer="" src="../../../javascripts/mermaid-math.js"></script>
+<script defer="" src="../../../javascripts/mathjax.js"></script>
+<script defer="" integrity="sha384-OrHfGTnIbkl0do3N76qW/uWr38o91N05sbSPuYBPLH+hG8X/dNSrjZf3AGjzrCwC" src="../../../assets/vendor/mathjax/tex-mml-chtml.js"></script>
+</head>
+<body data-md-color-accent="amber" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#causal-generative-models-4-mechanism-shift-and-counterfactuals">
+          Skip to content
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header md-header--shadow" data-md-component="header">
+<nav aria-label="Header" class="md-header__inner md-grid">
+<a aria-label="Artifex" class="md-header__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            Artifex
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+            
+              Causal Generative Models 4 — Mechanism Shift and Counterfactuals
+            
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-label="Switch to dark mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: light)" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_1" hidden="" title="Switch to dark mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+<input aria-label="Switch to light mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-primary="indigo" data-md-color-scheme="slate" id="__palette_1" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_0" hidden="" title="Switch to light mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+</form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div aria-label="Search" class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Search" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="Search" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="Search" class="md-search__options">
+<a aria-label="Share" class="md-search__icon md-icon" data-clipboard="" data-clipboard-text="" data-md-component="search-share" href="javascript:void(0)" tabindex="-1" title="Share">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"></path></svg>
+</a>
+<button aria-label="Clear" class="md-search__icon md-icon" tabindex="-1" title="Clear" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            Initializing search
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Navigation" class="md-nav md-nav--primary" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="Artifex" class="md-nav__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+    Artifex
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../..">
+<span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../getting-started/installation/">
+<span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Generative Models Book
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Generative Models Book
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    
+  
+    Start Here — The Landscape
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../first-course-01-generative-systems/">
+<span class="md-ellipsis">
+    
+  
+    First Course — New to Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../probability-01-objects/">
+<span class="md-ellipsis">
+    
+  
+    Foundations
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_4" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_4" id="__nav_3_4_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Model Families
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_4_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_4">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Model Families
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../autoregressive-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Autoregressive Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../vae-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Variational Autoencoders
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gan-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Generative Adversarial Networks
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../ebm-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Energy-Based Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../diffusion-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Diffusion Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../flow-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Normalizing Flows and Flow Matching
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../probabilistic-circuits-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Probabilistic Circuits
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../tensor-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Tensor-Network and Born Probability Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../implicit-generators-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Implicit Generators Beyond GANs
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../discrete-iterative-01-masked/">
+<span class="md-ellipsis">
+    
+  
+    Discrete Iterative Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../bayesian-flow-networks-01-story/">
+<span class="md-ellipsis">
+    
+  
+    Bayesian Flow Networks
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gflownets-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Generative Flow Networks
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../bnp-01-random-measures/">
+<span class="md-ellipsis">
+    
+  
+    Bayesian Nonparametric Random-Measure Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../stochastic-process-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Stochastic-Process and Function-Space Generators
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../point-processes-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Point Processes and Random Finite Sets
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../random-graphs-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Random Graphs and Relational Generators
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../copula-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Copula Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../grammar-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Probabilistic Grammars and Program Derivations
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_4_19" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_4_19" id="__nav_3_4_19_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Causal Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_4_19_label" class="md-nav" data-md-level="3">
+<label class="md-nav__title" for="__nav_3_4_19">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Causal Generative Models
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../causal-generative-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    1. Structural Semantics
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../causal-generative-02-identifiability/">
+<span class="md-ellipsis">
+    
+  
+    2. Identifiability and Representation
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../causal-generative-03-families/">
+<span class="md-ellipsis">
+    
+  
+    3. Deep Structural Generators
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
+    
+  
+    4. Mechanism Shift and Counterfactuals
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
+<span class="md-ellipsis">
+    
+  
+    4. Mechanism Shift and Counterfactuals
+  
+
+    
+  </span>
+</a>
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#4-mechanism-shift-counterfactual-generation-and-causal-world-models">
+<span class="md-ellipsis">
+      
+        4. Mechanism Shift, Counterfactual Generation, and Causal World Models
+      
+    </span>
+</a>
+<nav aria-label="4. Mechanism Shift, Counterfactual Generation, and Causal World Models" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-4-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 4 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#independent-causal-mechanisms">
+<span class="md-ellipsis">
+      
+        Independent causal mechanisms
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#soft-stochastic-and-policy-interventions">
+<span class="md-ellipsis">
+      
+        Soft, stochastic, and policy interventions
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#interventional-marginals-do-not-fix-counterfactual-coupling">
+<span class="md-ellipsis">
+      
+        Interventional Marginals Do Not Fix Counterfactual Coupling
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#counterfactual-image-or-trajectory-generation">
+<span class="md-ellipsis">
+      
+        Counterfactual image or trajectory generation
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-mechanism-shift-example">
+<span class="md-ellipsis">
+      
+        Worked mechanism-shift example
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#temporal-models-and-actions">
+<span class="md-ellipsis">
+      
+        Temporal models and actions
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mediation-transport-and-longitudinal-policy-boundaries">
+<span class="md-ellipsis">
+      
+        Mediation, transport, and longitudinal policy boundaries
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#counterfactual-fairness-and-high-stakes-use">
+<span class="md-ellipsis">
+      
+        Counterfactual fairness and high-stakes use
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#failure-modes">
+<span class="md-ellipsis">
+      
+        Failure modes
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-4-retrieval-questions">
+<span class="md-ellipsis">
+      
+        Chapter 4 retrieval Questions
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#independent-practice-and-assessment-map-mechanism-shifts-and-counterfactuals">
+<span class="md-ellipsis">
+      
+        Independent practice and assessment map: mechanism shifts and counterfactuals
+      
+    </span>
+</a>
+<nav aria-label="Independent practice and assessment map: mechanism shifts and counterfactuals" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#feedback-contract-mechanism-shifts-and-counterfactuals">
+<span class="md-ellipsis">
+      
+        Feedback contract: mechanism shifts and counterfactuals
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#outcome-to-task-alignment-mechanism-shifts-and-counterfactuals">
+<span class="md-ellipsis">
+      
+        Outcome-to-task alignment: mechanism shifts and counterfactuals
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-4-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 4 synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../causal-generative-05-discovery/">
+<span class="md-ellipsis">
+    
+  
+    5. Discovery and Graph Posteriors
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../causal-generative-06-practice/">
+<span class="md-ellipsis">
+    
+  
+    6. Evaluation and Research
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../causal-generative-models-explained/">
+<span class="md-ellipsis">
+    
+  
+    Continuous View (All Chapters)
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../new-families-frontier-evidence/">
+<span class="md-ellipsis">
+    
+  
+    Research Evidence Ledger
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gradients-01-taxonomy/">
+<span class="md-ellipsis">
+    
+  
+    Connections and Compositions
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../normalization-01-queries/">
+<span class="md-ellipsis">
+    
+  
+    Research Practice
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../models/vae-guide/">
+<span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/core/base/">
+<span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../examples/overview/">
+<span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../zoo/">
+<span class="md-ellipsis">
+    
+  
+    Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../training/overview/">
+<span class="md-ellipsis">
+    
+  
+    Training
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../data/overview/">
+<span class="md-ellipsis">
+    
+  
+    Data &amp; Modalities
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../inference/overview/">
+<span class="md-ellipsis">
+    
+  
+    Inference &amp; Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../benchmarks/">
+<span class="md-ellipsis">
+    
+  
+    Evaluation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../guides/extensions/">
+<span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../extensions/">
+<span class="md-ellipsis">
+    
+  
+    Advanced Topics
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../cli/">
+<span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../community/contributing/">
+<span class="md-ellipsis">
+    
+  
+    Community
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/configs/protein-extension/">
+<span class="md-ellipsis">
+    
+  
+    Reference Library
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#4-mechanism-shift-counterfactual-generation-and-causal-world-models">
+<span class="md-ellipsis">
+      
+        4. Mechanism Shift, Counterfactual Generation, and Causal World Models
+      
+    </span>
+</a>
+<nav aria-label="4. Mechanism Shift, Counterfactual Generation, and Causal World Models" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-4-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 4 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#independent-causal-mechanisms">
+<span class="md-ellipsis">
+      
+        Independent causal mechanisms
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#soft-stochastic-and-policy-interventions">
+<span class="md-ellipsis">
+      
+        Soft, stochastic, and policy interventions
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#interventional-marginals-do-not-fix-counterfactual-coupling">
+<span class="md-ellipsis">
+      
+        Interventional Marginals Do Not Fix Counterfactual Coupling
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#counterfactual-image-or-trajectory-generation">
+<span class="md-ellipsis">
+      
+        Counterfactual image or trajectory generation
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-mechanism-shift-example">
+<span class="md-ellipsis">
+      
+        Worked mechanism-shift example
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#temporal-models-and-actions">
+<span class="md-ellipsis">
+      
+        Temporal models and actions
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mediation-transport-and-longitudinal-policy-boundaries">
+<span class="md-ellipsis">
+      
+        Mediation, transport, and longitudinal policy boundaries
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#counterfactual-fairness-and-high-stakes-use">
+<span class="md-ellipsis">
+      
+        Counterfactual fairness and high-stakes use
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#failure-modes">
+<span class="md-ellipsis">
+      
+        Failure modes
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-4-retrieval-questions">
+<span class="md-ellipsis">
+      
+        Chapter 4 retrieval Questions
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#independent-practice-and-assessment-map-mechanism-shifts-and-counterfactuals">
+<span class="md-ellipsis">
+      
+        Independent practice and assessment map: mechanism shifts and counterfactuals
+      
+    </span>
+</a>
+<nav aria-label="Independent practice and assessment map: mechanism shifts and counterfactuals" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#feedback-contract-mechanism-shifts-and-counterfactuals">
+<span class="md-ellipsis">
+      
+        Feedback contract: mechanism shifts and counterfactuals
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#outcome-to-task-alignment-mechanism-shifts-and-counterfactuals">
+<span class="md-ellipsis">
+      
+        Outcome-to-task alignment: mechanism shifts and counterfactuals
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-4-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 4 synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<nav aria-label="Breadcrumb" class="md-path">
+<ol class="md-path__list">
+<li class="md-path__item">
+<a class="md-path__link" href="../../..">
+<span class="md-ellipsis">
+    Home
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    Generative Models Book
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../autoregressive-01-foundations/">
+<span class="md-ellipsis">
+    Model Families
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../causal-generative-01-semantics/">
+<span class="md-ellipsis">
+    Causal Generative Models
+  </span>
+</a>
+</li>
+</ol>
+</nav>
+<article class="md-content__inner md-typeset">
+<h1 id="causal-generative-models-4-mechanism-shift-and-counterfactuals">Causal Generative Models 4 — Mechanism Shift and Counterfactuals<a class="headerlink" href="#causal-generative-models-4-mechanism-shift-and-counterfactuals" title="Permanent link">¤</a></h1><aside aria-label="Learning path" class="admonition abstract artifex-learning-path"><p class="admonition-title">Learning path</p><p><strong>Required knowledge</strong></p><ul class="artifex-learning-path__links" data-learning-path-role="required"><li><a href="../causal-generative-03-families/">Causal Generative Models 3 — Deep Structural Generators</a></li></ul><p><strong>Readiness check:</strong> can you explain the central object and reproduce one worked example from each required chapter? If not, follow its link before continuing.</p><p><strong>Newly unlocked in the default route</strong></p><ul class="artifex-learning-path__links" data-learning-path-role="unlocks"><li><a href="../causal-generative-05-discovery/">Causal Generative Models 5 — Discovery and Graph Posteriors</a></li></ul></aside>
+<p>This chapter covers modular mechanism changes, soft and policy interventions, unit-level counterfactual generation, action-conditioned world models, and high-stakes failure modes. For uninterrupted reading, use the <a href="../causal-generative-models-explained/#4-mechanism-shift-counterfactual-generation-and-causal-world-models">complete guide</a>.</p>
+<h2 id="4-mechanism-shift-counterfactual-generation-and-causal-world-models">4. Mechanism Shift, Counterfactual Generation, and Causal World Models<a class="headerlink" href="#4-mechanism-shift-counterfactual-generation-and-causal-world-models" title="Permanent link">¤</a></h2>
+<h3 id="chapter-4-prerequisites-and-learning-objectives">Chapter 4 prerequisites and learning objectives<a class="headerlink" href="#chapter-4-prerequisites-and-learning-objectives" title="Permanent link">¤</a></h3>
+<p><strong>Prerequisites.</strong> Chapters 1–3, domain shift, and sequential decision processes.</p>
+<p>By the end, you should be able to:</p>
+<ol>
+<li><strong>O1 — Specify intervention type:</strong> distinguish atomic, soft, stochastic,
+   mechanism, and history-dependent policy interventions.</li>
+<li><strong>O2 — Separate population shift from unit coupling:</strong> explain why complete
+   interventional marginals do not determine individual counterfactuals.</li>
+<li><strong>O3 — Execute abduction–action–prediction:</strong> retain factual exogenous state
+   and regenerate exactly the descendants of the changed mechanism.</li>
+<li><strong>O4 — Audit causal edits and world models:</strong> test composition,
+   effectiveness, descendant response, non-descendant invariance, support, and
+   planner exploitation.</li>
+<li><strong>O5 — Distinguish related advanced queries:</strong> keep mediation, transport,
+   longitudinal policies, and counterfactual fairness tied to their own
+   identification assumptions.</li>
+<li><strong>O6 — Design safe shift studies:</strong> expose uncertainty, population scope,
+   off-policy support, and high-stakes governance limits.</li>
+</ol>
+<h3 id="independent-causal-mechanisms">Independent causal mechanisms<a class="headerlink" href="#independent-causal-mechanisms" title="Permanent link">¤</a></h3>
+<p>The independent-causal-mechanisms principle treats the generative process as modules whose changes can be localized. If environment <span class="arithmatex">\(e\)</span> changes only mechanism <span class="arithmatex">\(k\)</span>,</p>
+<div class="arithmatex">\[
+p^{(e)}(x)=p^{(e)}(x_k\mid x_{\operatorname{pa}(k)})
+\prod_{i\ne k}p(x_i\mid x_{\operatorname{pa}(i)}).
+\]</div>
+<p>This is stronger than ordinary domain adaptation. A global covariance shift need not correspond to one changed causal module; multiple mechanisms, selection, measurement, or the population itself may change.</p>
+<p>Mechanism labels enable targeted adaptation: retain invariant modules, relearn the changed one, and recompute descendants. If the graph or changed mechanism is wrong, modular adaptation can be worse than an unstructured predictor.</p>
+<p>Independent causal mechanisms is a principle/inductive bias, not a theorem that mechanisms are statistically independent parameters in every real system. Shared physical constraints, population changes, or measurement pipelines can move several observed conditionals together.</p>
+<h3 id="soft-stochastic-and-policy-interventions">Soft, stochastic, and policy interventions<a class="headerlink" href="#soft-stochastic-and-policy-interventions" title="Permanent link">¤</a></h3>
+<p>An atomic intervention sets <span class="arithmatex">\(X:=x\)</span>. A <strong>soft intervention</strong> changes the conditional mechanism without fixing a value:</p>
+<div class="arithmatex">\[
+p(x\mid \operatorname{pa}(x))
+\longrightarrow
+\tilde p(x\mid \operatorname{pa}(x)).
+\]</div>
+<p>Policy interventions assign actions as a function of history. Stochastic interventions replace a mechanism by a distribution. Transporting effects across environments requires stating which mechanisms and populations are invariant.</p>
+<p>Dynamic policies may depend only on information available before action. Conditioning a policy on future observations defines an impossible intervention. For continuous treatments, shift or modified-treatment policies can have better overlap than atomic values, but their identification still depends on the graph, selection, and support.</p>
+<h3 id="interventional-marginals-do-not-fix-counterfactual-coupling">Interventional Marginals Do Not Fix Counterfactual Coupling<a class="headerlink" href="#interventional-marginals-do-not-fix-counterfactual-coupling" title="Permanent link">¤</a></h3>
+<p>Suppose a randomized study identifies</p>
+<div class="arithmatex">\[
+P(Y_0=1)=P(Y_1=1)=\tfrac12.
+\]</div>
+<p>One SCM coupling can make <span class="arithmatex">\(Y_1=Y_0\)</span> for every unit; another can make <span class="arithmatex">\(Y_1=1-Y_0\)</span>. Both have identical factual and interventional marginals. In the first, no unit changes; in the second, every unit changes. Thus even perfect regime-specific generative models do not identify individual treatment effects unless the cross-world coupling is constrained.</p>
+<p><a href="https://proceedings.mlr.press/v202/nasr-esfahany23a.html">Counterfactual identifiability of bijective causal models</a> gives positive results for specified bijective mechanism classes and causal structures, including some hidden-confounding settings. The conclusion is class-specific: bijectivity and structural assumptions supply information absent from arbitrary interventional marginals.</p>
+<h3 id="counterfactual-image-or-trajectory-generation">Counterfactual image or trajectory generation<a class="headerlink" href="#counterfactual-image-or-trajectory-generation" title="Permanent link">¤</a></h3>
+<p>A defensible counterfactual pipeline contains four auditable objects:</p>
+<ol>
+<li>a factual measurement model;</li>
+<li>an abducted posterior over unit-specific exogenous state;</li>
+<li>an explicit intervention on a causal variable/mechanism;</li>
+<li>a decoder that propagates the changed latent causes while retaining non-descendant information.</li>
+</ol>
+<p>The output should satisfy factual reconstruction when no action is applied, respect known invariances, change descendants appropriately, and preserve variables outside the intervention's causal scope. Perceptual realism checks only whether the sample lies near an image manifold; it does not verify the causal change.</p>
+<p>The factual and counterfactual worlds share abducted unit state. The population
+intervention branch does not.</p>
+<figure class="book-figure" id="fig-causal-generative-models-explained-counterfactual-image-or-trajectory-generation"><pre class="mermaid"><code>%%{init: {'themeCSS': '.nodeLabel p { color: #111827 !important; } .flowchart-link { stroke: #78879a !important; stroke-width: 2px !important; } marker path { fill: #78879a !important; stroke: #78879a !important; }'}}%%
+flowchart TB
+    accTitle: Factual, unit-counterfactual, and population-intervention branches
+    accDescr: Factual evidence updates a posterior over unit exogenous state. Replaying the factual mechanisms checks composition, while replacing one mechanism and retaining the same state yields a model-based unit counterfactual. Sampling fresh exogenous state after replacement yields a population intervention instead.
+    E["Factual evidence&lt;br/&gt;&amp;nbsp;$$x_{obs}$$"] --&gt; A["Abduction&lt;br/&gt;&amp;nbsp;$$p(u\mid x_{obs})$$"]
+    A --&gt; F["Replay factual mechanisms&lt;br/&gt;composition check"]
+    A --&gt; C["Replace target mechanism&lt;br/&gt;retain the same&amp;nbsp;$$u$$"]
+    C --&gt; U["Unit counterfactual&lt;br/&gt;regenerate descendants"]
+    I["Replace target mechanism"] --&gt; R["Draw fresh&amp;nbsp;$$u\sim p_U$$"]
+    R --&gt; P["Population intervention&lt;br/&gt;new regime sample"]</code></pre><figcaption class="book-object-caption"><span class="book-object-number">Figure CAUSAL.6.</span> Factual, unit-counterfactual, and population-intervention branches</figcaption></figure>
+<p>Counterfactual <strong>composition</strong> checks that applying the factual action reconstructs the factual outcome; <strong>effectiveness</strong> checks that the target mechanism took the requested value; <strong>minimality</strong> is meaningful only relative to the graph and metric. A minimal pixel edit can be causally wrong, while a valid intervention can require large descendant changes.</p>
+<h3 id="worked-mechanism-shift-example">Worked mechanism-shift example<a class="headerlink" href="#worked-mechanism-shift-example" title="Permanent link">¤</a></h3>
+<p>Let demand <span class="arithmatex">\(D\)</span>, price <span class="arithmatex">\(P\)</span>, and sales <span class="arithmatex">\(S\)</span> obey</p>
+<div class="arithmatex">\[
+D=U_D,
+\qquad
+P=f_P(D,U_P),
+\qquad
+S=f_S(D,P,U_S).
+\]</div>
+<p>Historical data reflects a pricing policy <span class="arithmatex">\(f_P\)</span>. A new pricing policy is a mechanism intervention <span class="arithmatex">\(f_P\to\tilde f_P\)</span>, not conditioning the old data on prices that happened to equal the new values. To simulate the policy:</p>
+<div class="arithmatex">\[
+D\sim p_D,
+\quad P=\tilde f_P(D,U_P),
+\quad S=f_S(D,P,U_S).
+\]</div>
+<p>A regression <span class="arithmatex">\(p(S\mid P)\)</span> may be biased because demand affects both price and sales. A generator that reproduces historical <span class="arithmatex">\((P,S)\)</span> pairs can inherit the same bias.</p>
+<p>For an individual store-day, abduction additionally conditions on the observed demand, pricing disturbance, and sales disturbance. Reusing those disturbances under <span class="arithmatex">\(\tilde f_P\)</span> answers the model's unit counterfactual; resampling them produces the new-policy population. These are both useful but different simulation products.</p>
+<h3 id="temporal-models-and-actions">Temporal models and actions<a class="headerlink" href="#temporal-models-and-actions" title="Permanent link">¤</a></h3>
+<p>A causal world model distinguishes state, observation, action, and exogenous disturbance:</p>
+<div class="arithmatex">\[
+S_{t+1}=f(S_t,A_t,U_{t+1}),
+\qquad
+O_t=g(S_t,V_t).
+\]</div>
+<p>Planning queries the transition system under a policy intervention on <span class="arithmatex">\(A_t\)</span>. A predictive video model trained on passive trajectories may conflate agent actions, hidden policies, camera motion, and environmental dynamics. Good next-frame prediction does not ensure correct response to novel actions.</p>
+<p>Long-horizon generation compounds epistemic model error and aleatoric uncertainty. Planning can exploit model errors, so evaluation needs held-out interventions, uncertainty calibration, and policy-aware stress tests—not only rendered realism.</p>
+<p>Off-policy data also reflect a behavior policy that controls which state-action regions are observed. A generative transition model cannot validate a novel policy where coverage is absent merely by producing plausible rollouts. Conservative planning, uncertainty sets, online intervention, or a trusted simulator may be needed.</p>
+<h3 id="mediation-transport-and-longitudinal-policy-boundaries">Mediation, transport, and longitudinal policy boundaries<a class="headerlink" href="#mediation-transport-and-longitudinal-policy-boundaries" title="Permanent link">¤</a></h3>
+<p>These advanced queries all modify or compare mechanisms, but they are not
+interchangeable:</p>
+<ul>
+<li><strong>Mediation</strong> decomposes effects through a mediator. Natural direct and
+  indirect effects use cross-world counterfactuals such as <span class="arithmatex">\(Y_{a,M_{a'}}\)</span> and
+  require assumptions beyond identifying <span class="arithmatex">\(p(Y\mid do(A=a))\)</span>. Interventional
+  analogues avoid some cross-world objects but answer different questions.</li>
+<li><strong>Transport</strong> moves a causal answer across populations or environments. It
+  requires a selection/population model and declarations of which mechanisms,
+  baseline distributions, and measurement processes change. Reweighting alone
+  cannot repair an unmeasured change in the outcome mechanism.</li>
+<li><strong>Longitudinal policy evaluation</strong> replaces a sequence of treatment
+  mechanisms with a rule using only past information. Identification by the
+  longitudinal g-formula or related g-methods requires sequential
+  exchangeability, consistency, positivity at every history, and correct
+  treatment/confounder timing. A sequence generator trained under one behavior
+  policy does not create missing action support.</li>
+</ul>
+<p>Hernán and Robins's <a href="https://miguelhernan.org/whatifbook">longitudinal route</a>
+develops these g-methods in depth. This volume's narrower obligation is to keep
+the estimand upstream of the neural trajectory model and to report when a
+generated scenario is only model-based.</p>
+<h3 id="counterfactual-fairness-and-high-stakes-use">Counterfactual fairness and high-stakes use<a class="headerlink" href="#counterfactual-fairness-and-high-stakes-use" title="Permanent link">¤</a></h3>
+<p>Counterfactual fairness asks whether a decision would remain appropriately invariant under a modeled intervention on a protected attribute for the same unit. The answer depends on contested choices: which descendants carry unfair influence, how the protected attribute is represented, and whether the SCM is credible. A photorealistic counterfactual of a patient, applicant, or person is not evidence that the unobserved alternative is medically or socially valid.</p>
+<p>In healthcare and science, counterfactual generators should expose uncertainty and sensitivity to plausible graphs/mechanisms. They should not fabricate certainty for unidentifiable individual outcomes. Prospective or interventional validation is much stronger than agreement with another observational predictor.</p>
+<h3 id="failure-modes">Failure modes<a class="headerlink" href="#failure-modes" title="Permanent link">¤</a></h3>
+<ul>
+<li><strong>Conditioning–intervention confusion:</strong> treating filtered observational samples as manipulated outcomes.</li>
+<li><strong>Fresh-noise counterfactuals:</strong> generating a new plausible person instead of the same unit under a changed action.</li>
+<li><strong>Leakage:</strong> the decoder recovers the intervention target from supposedly invariant latents.</li>
+<li><strong>Off-support action:</strong> the intervention enters a region with no data or violated positivity.</li>
+<li><strong>Descendant freezing:</strong> preserving variables that should change after intervention.</li>
+<li><strong>Non-descendant drift:</strong> altering background attributes unrelated to the intervention.</li>
+<li><strong>Measurement reification:</strong> treating a proxy or annotation as the causal construct itself.</li>
+<li><strong>World-model exploitation:</strong> a planner finds unrealistic high-reward trajectories caused by model error.</li>
+</ul>
+<h3 id="chapter-4-retrieval-questions">Chapter 4 retrieval Questions<a class="headerlink" href="#chapter-4-retrieval-questions" title="Permanent link">¤</a></h3>
+<ol>
+<li>Why can two models match every <span class="arithmatex">\(p(Y\mid do(X=x))\)</span> and disagree on individual effects?</li>
+<li>What distinguishes a mechanism shift from ordinary covariate shift?</li>
+<li>Why is perceptual minimality not a causal validation metric by itself?</li>
+</ol>
+<details class="success">
+<summary>Complete solutions</summary>
+<ol>
+<li>Interventional marginals do not specify the cross-world joint coupling of potential outcomes for the same unit.</li>
+<li>A mechanism shift declares which structural conditional changes while others remain invariant; a covariance change need not localize this way.</li>
+<li>Causal descendants may need large changes, and a small edit can preserve the very confounded association the intervention should break.</li>
+</ol>
+</details>
+<h3 id="independent-practice-and-assessment-map-mechanism-shifts-and-counterfactuals">Independent practice and assessment map: mechanism shifts and counterfactuals<a class="headerlink" href="#independent-practice-and-assessment-map-mechanism-shifts-and-counterfactuals" title="Permanent link">¤</a></h3>
+<p>Attempt each task before opening its hints. Every answer must state whether it
+targets a new population draw, the same factual unit, or a transported policy.</p>
+<ol>
+<li><strong>P1.1 — Predict before computing: classify the action.</strong> <em>Type: predict · Difficulty: foundation · Typical time: 7 min.</em> Classify <span class="arithmatex">\(X:=3\)</span>, replacing <span class="arithmatex">\(p(X\mid PA_X)\)</span> by <span class="arithmatex">\(\tilde p\)</span>, drawing <span class="arithmatex">\(X\)</span> from a new randomized law, and assigning <span class="arithmatex">\(A_t=\pi(H_t)\)</span> as atomic, soft/mechanism, stochastic, or policy interventions. State what happens to incoming arrows in each case.</li>
+<li><strong>P1.2 — Expose a hidden coupling choice.</strong> <em>Type: compare · Difficulty: core · Typical time: 9 min.</em> With <span class="arithmatex">\(P(Y_0=1)=P(Y_1=1)=1/2\)</span>, construct one coupling where nobody changes and one where everybody changes. Compute <span class="arithmatex">\(P(Y_1\ne Y_0)\)</span> under both.</li>
+<li><strong>P1.3 — Execute a policy mechanism shift.</strong> <em>Type: derive · Difficulty: core · Typical time: 12 min.</em> Let <span class="arithmatex">\(D=U_D\)</span>, <span class="arithmatex">\(P=D+U_P\)</span>, and <span class="arithmatex">\(S=2D-P+U_S\)</span>. A factual store-day has <span class="arithmatex">\((D,P,S)=(2,3,4)\)</span>. Replace pricing by <span class="arithmatex">\(P:=D/2\)</span>. Compute the same-day counterfactual sales and the new-policy population mean when <span class="arithmatex">\(E[D]=1\)</span> and <span class="arithmatex">\(E[U_S]=0\)</span>.</li>
+<li><strong>P1.4 — Audit a counterfactual image.</strong> <em>Type: evaluate · Difficulty: core · Typical time: 13 min.</em> A model changes a lesion label while leaving every other pixel nearly fixed. Design tests for factual composition, effectiveness, descendants, non-descendants, diversity under abducted uncertainty, and graph misspecification. Explain why pixel minimality can fail.</li>
+<li><strong>P1.5 — Diagnose a longitudinal policy.</strong> <em>Type: diagnose · Difficulty: stretch · Typical time: 15 min.</em> A proposed treatment policy uses tomorrow's biomarker to choose today's dose, and historical data never assigned the high dose after a severe current biomarker. Identify the timing and support violations and state what a trajectory generator cannot repair.</li>
+<li><strong>P1.6 — Transfer to high-stakes fairness.</strong> <em>Type: design · Difficulty: stretch · Typical time: 18 min.</em> Specify a counterfactual-fairness audit for a decision system without treating a generated alternate person as ground truth. Include the protected-attribute intervention, disputed descendants, plausible SCM set, sensitivity analysis, and governance response.</li>
+</ol>
+<h4 id="feedback-contract-mechanism-shifts-and-counterfactuals">Feedback contract: mechanism shifts and counterfactuals<a class="headerlink" href="#feedback-contract-mechanism-shifts-and-counterfactuals" title="Permanent link">¤</a></h4>
+<div class="md-typeset__table book-table-container"><table id="tbl-causal-generative-models-explained-feedback-contract-mechanism-shifts-and-counterfactuals-1"><caption class="book-object-caption"><span class="book-object-number">Table CAUSAL.16.</span> Feedback contract: mechanism shifts and counterfactuals — table 1</caption>
+<thead>
+<tr>
+<th>Task</th>
+<th>Evidence of success</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>P1.1</td>
+<td>Each replacement law is classified by what mechanism is changed and what parent dependence remains.</td>
+</tr>
+<tr>
+<td>P1.2</td>
+<td>Identical regime marginals coexist with change probabilities zero and one.</td>
+</tr>
+<tr>
+<td>P1.3</td>
+<td>Factual disturbances are retained for the unit answer and averaged for the population answer.</td>
+</tr>
+<tr>
+<td>P1.4</td>
+<td>Causal-scope tests are not reduced to realism or pixel distance.</td>
+</tr>
+<tr>
+<td>P1.5</td>
+<td>Future-information leakage and absent history-specific action support are diagnosed separately.</td>
+</tr>
+<tr>
+<td>P1.6</td>
+<td>Fairness is reported as model- and policy-conditional with sensitivity, not a factual alternate biography.</td>
+</tr>
+</tbody>
+</table></div>
+<details class="tip">
+<summary>Graduated hints for P1</summary>
+<div class="md-typeset__table book-table-container"><table id="tbl-causal-generative-models-explained-feedback-contract-mechanism-shifts-and-counterfactuals-2"><caption class="book-object-caption"><span class="book-object-number">Table CAUSAL.17.</span> Feedback contract: mechanism shifts and counterfactuals — table 2</caption>
+<thead>
+<tr>
+<th>Task</th>
+<th>Hint 1 — Direction</th>
+<th>Hint 2 — Setup</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>P1.1</td>
+<td>Ask whether the replacement fixes a value, changes a conditional, randomizes, or maps history to action.</td>
+<td>An atomic intervention removes all parent dependence; a soft policy may retain declared parent/history dependence.</td>
+</tr>
+<tr>
+<td>P1.2</td>
+<td>Use the two response-type tables with mass on equal or opposite pairs.</td>
+<td>Put half on <span class="arithmatex">\((0,0)\)</span> and <span class="arithmatex">\((1,1)\)</span>, then compare with half on <span class="arithmatex">\((0,1)\)</span> and <span class="arithmatex">\((1,0)\)</span>.</td>
+</tr>
+<tr>
+<td>P1.3</td>
+<td>First abduct the sales disturbance.</td>
+<td><span class="arithmatex">\(U_S=S-2D+P\)</span>; the new pricing mechanism discards <span class="arithmatex">\(U_P\)</span>.</td>
+</tr>
+<tr>
+<td>P1.4</td>
+<td>Organize tests by graph role, not pixel region.</td>
+<td>Compare target, descendants, non-descendants, and the no-action reconstruction under several plausible graphs.</td>
+</tr>
+<tr>
+<td>P1.5</td>
+<td>A policy may use only pre-action history.</td>
+<td>Check positivity conditional on the exact history used by the policy.</td>
+</tr>
+<tr>
+<td>P1.6</td>
+<td>Protected attributes and legitimate/unfair pathways are modeling choices.</td>
+<td>Report conclusions across a set of defensible path policies and SCMs.</td>
+</tr>
+</tbody>
+</table></div>
+</details>
+<h4 id="outcome-to-task-alignment-mechanism-shifts-and-counterfactuals">Outcome-to-task alignment: mechanism shifts and counterfactuals<a class="headerlink" href="#outcome-to-task-alignment-mechanism-shifts-and-counterfactuals" title="Permanent link">¤</a></h4>
+<div class="md-typeset__table book-table-container"><table id="tbl-causal-generative-models-explained-outcome-to-task-alignment-mechanism-shifts-and-counterfactuals"><caption class="book-object-caption"><span class="book-object-number">Table CAUSAL.18.</span> Outcome-to-task alignment: mechanism shifts and counterfactuals</caption>
+<thead>
+<tr>
+<th>Learning objective</th>
+<th>Independently assessed by</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>O1 — Specify intervention type</td>
+<td>P1.1, P1.3, P1.5</td>
+</tr>
+<tr>
+<td>O2 — Separate population shift from unit coupling</td>
+<td>P1.2, P1.3</td>
+</tr>
+<tr>
+<td>O3 — Execute abduction–action–prediction</td>
+<td>P1.3, P1.4</td>
+</tr>
+<tr>
+<td>O4 — Audit causal edits and world models</td>
+<td>P1.4, P1.5</td>
+</tr>
+<tr>
+<td>O5 — Distinguish related advanced queries</td>
+<td>P1.5, P1.6</td>
+</tr>
+<tr>
+<td>O6 — Design safe shift studies</td>
+<td>P1.4, P1.5, P1.6</td>
+</tr>
+</tbody>
+</table></div>
+<details class="success">
+<summary>Complete solutions to P1</summary>
+<ol>
+<li><strong>P1.1.</strong> <span class="arithmatex">\(X:=3\)</span> is atomic and removes all incoming arrows. Replacing <span class="arithmatex">\(p(X\mid PA_X)\)</span> by another parent-indexed kernel is a soft/mechanism intervention and retains only the parent dependence declared by that kernel. Drawing from a new parent-free randomized law is stochastic and removes the original incoming mechanism. <span class="arithmatex">\(A_t=\pi(H_t)\)</span> is a policy intervention that replaces treatment assignment while retaining allowed dependence on pre-action history. <strong>Check.</strong> “Soft” and “stochastic” describe replacement mechanisms, not ordinary conditioning.</li>
+<li><strong>P1.2.</strong> Put mass <span class="arithmatex">\(1/2\)</span> on each of <span class="arithmatex">\((Y_0,Y_1)=(0,0),(1,1)\)</span>; then <span class="arithmatex">\(P(Y_1\ne Y_0)=0\)</span>. Alternatively put mass <span class="arithmatex">\(1/2\)</span> on <span class="arithmatex">\((0,1),(1,0)\)</span>; both marginals remain Bernoulli<span class="arithmatex">\((1/2)\)</span> but <span class="arithmatex">\(P(Y_1\ne Y_0)=1\)</span>. <strong>Check.</strong> Even complete two-regime marginals do not choose between these couplings.</li>
+<li><strong>P1.3.</strong> Factual <span class="arithmatex">\(U_S=4-2(2)+3=3\)</span>. The new policy gives <span class="arithmatex">\(P=2/2=1\)</span>, so same-day <span class="arithmatex">\(S=2(2)-1+3=6\)</span>. For a fresh population draw, <span class="arithmatex">\(E[S]=2E[D]-E[D/2]+E[U_S]=2-1/2=3/2\)</span>. <strong>Check.</strong> <span class="arithmatex">\(U_P\)</span> is not reused because the pricing mechanism itself was replaced; <span class="arithmatex">\(U_S\)</span> is reused only for the unit query.</li>
+<li><strong>P1.4.</strong> No-action replay must reconstruct the factual image; the intervention must change the causal lesion variable; known downstream anatomy/measurements should respond; non-descendants should remain stable; posterior samples should express abductive uncertainty; and results should be repeated across plausible graphs and inversion methods. Pixel minimality fails when real descendants require large coordinated changes or when a tiny edit leaves a confounded proxy intact. <strong>Rubric.</strong> Realism is supplementary evidence only.</li>
+<li><strong>P1.5.</strong> Tomorrow's biomarker violates temporal admissibility because it is unavailable when today's action is chosen. The absent high-dose/severe-history cell violates sequential positivity, so the policy response in that region is extrapolation. A trajectory generator can encode a parametric guess but cannot create identifying information or validated support. <strong>Check.</strong> Good-looking rollouts do not turn a future-conditioned rule into an implementable policy.</li>
+<li><strong>P1.6.</strong> Define the protected variable and intervention, enumerate which descendants are prohibited, permitted, or disputed pathways, and evaluate the decision under each plausible SCM using retained unit state. Report the distribution and sensitivity of fairness conclusions rather than one generated image. Escalate unstable or off-support cases to abstention/domain review, document stakeholder choices, and prohibit individual adverse decisions based only on model counterfactuals. <strong>Rubric.</strong> Full credit treats fairness semantics as a governed causal specification.</li>
+</ol>
+</details>
+<h3 id="chapter-4-synthesis">Chapter 4 synthesis<a class="headerlink" href="#chapter-4-synthesis" title="Permanent link">¤</a></h3>
+<p>Mechanism modularity gives causal generators their promise under distribution shift. Counterfactuals demand factual abduction and shared exogenous state; world models demand action-aware transition semantics. Chapter 5 turns from a known structure to the harder task of learning causal structure and distributions over structures.</p>
+<details class="question">
+<summary>Why is preserving the same random seed insufficient?</summary>
+<p>A sampler seed is an implementation detail. It represents unit-specific exogenous state only if the model defines that coupling and the inversion/abduction procedure identifies the relevant noise.</p>
+</details>
+<p><a href="../causal-generative-models-explained/#5-causal-discovery-bayesian-structure-learning-and-gflownets">Continue continuously</a>, or use the <a href="./">Chapter 4 stopping-point view</a>.</p>
+<hr/>
+<p><strong>Previous:</strong> <a href="../causal-generative-03-families/">3. Deep Structural Generators</a> · <strong>Continue:</strong> <a href="../causal-generative-05-discovery/">5. Discovery and Graph Posteriors</a> · <a href="../causal-generative-models-explained/">Complete guide</a></p>
+</article>
+</div>
+<script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  Back to top
+</button>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+<div class="md-social">
+<a class="md-social__link" href="https://github.com/avitai/artifex" rel="noopener" target="_blank" title="github.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</a>
+<a class="md-social__link" href="https://pypi.org/project/avitai-artifex/" rel="noopener" target="_blank" title="pypi.org">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-66.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.3v101.8c0 29 25.2 46 53.4 54.3 33.8 9.9 66.3 11.7 106.8 0 26.9-7.8 53.4-23.5 53.4-54.3v-40.7H226.2v-13.6h160.2c31.1 0 42.6-21.7 53.4-54.2 11.2-33.5 10.7-65.7 0-108.6M286.2 444.7a20.4 20.4 0 1 1 0-40.7 20.4 20.4 0 1 1 0 40.7M167.8 248.1h106.8c29.7 0 53.4-24.5 53.4-54.3V91.9c0-29-24.4-50.7-53.4-55.6-35.8-5.9-74.7-5.6-106.8.1-45.2 8-53.4 24.7-53.4 55.6v40.7h106.9v13.6h-147c-31.1 0-58.3 18.7-66.8 54.2-9.8 40.7-10.2 66.1 0 108.6 7.6 31.6 25.7 54.2 56.8 54.2H101v-48.8c0-35.3 30.5-66.4 66.8-66.4m-6.6-183.4a20.4 20.4 0 1 1 0 40.8 20.4 20.4 0 1 1 0-40.8"></path></svg>
+</a>
+<a class="md-social__link" href="https://twitter.com/mahdi_shafiei" rel="noopener" target="_blank" title="twitter.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M459.4 151.7c.3 4.5.3 9.1.3 13.6 0 138.7-105.6 298.6-298.6 298.6-59.5 0-114.7-17.2-161.1-47.1 8.4 1 16.6 1.3 25.3 1.3 49.1 0 94.2-16.6 130.3-44.8-46.1-1-84.8-31.2-98.1-72.8 6.5 1 13 1.6 19.8 1.6 9.4 0 18.8-1.3 27.6-3.6-48.1-9.7-84.1-52-84.1-103v-1.3c14 7.8 30.2 12.7 47.4 13.3-28.3-18.8-46.8-51-46.8-87.4 0-19.5 5.2-37.4 14.3-53C87.4 130.8 165 172.4 252.1 176.9c-1.6-7.8-2.6-15.9-2.6-24C249.5 95.1 296.3 48 354.4 48c30.2 0 57.5 12.7 76.7 33.1 23.7-4.5 46.5-13.3 66.6-25.3-7.8 24.4-24.4 44.8-46.1 57.8 21.1-2.3 41.6-8.1 60.4-16.2-14.3 20.8-32.2 39.3-52.6 54.3"></path></svg>
+</a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.path", "navigation.top", "navigation.prune", "toc.follow", "search.highlight", "search.share", "search.suggest", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "content.mermaid"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+<script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+<script src="../../../javascripts/reading-layout.js"></script>
+</body>
+</html>

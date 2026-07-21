@@ -1,0 +1,727 @@
+schema_version: 1
+created: 2026-07-14
+verified_through: 2026-07-16
+
+purpose: >-
+  Record the semantic and evidential review used to decide whether a candidate
+  belongs in the Generative Models Book as a distinct model family, an expanded
+  existing family, a component of another family, or a non-family framework.
+  This ledger governs classification and placement; it is not instructional
+  prose and does not replace primary sources.
+
+admission_gate:
+  required:
+    - a distinct generative object or semantics, not only a reusable component
+    - a declared training, inference, or sampling interface
+    - non-duplication with an existing family at the same abstraction level
+    - sufficient primary evidence to define assumptions and failure modes
+    - enough mature material for a coherent standalone treatment
+    - an explicit placement in the curriculum dependency graph
+
+decision_statuses:
+  accepted_new_standalone: >-
+    The object is missing from the current family map, passes every admission
+    requirement, and receives an immediate canonical chapter plus a scheduled
+    complete volume.
+  accepted_existing_expand: >-
+    The object already has canonical coverage and passes the standalone-family
+    gate, but its complete-volume expansion remains a separately validated
+    checkpoint.
+  retained_in_existing: >-
+    The candidate is valuable but is accurately represented inside an existing
+    family or cross-cutting volume.
+  merged_with_admitted_family: >-
+    The candidate is a meaningful special case whose separate treatment would
+    duplicate a broader admitted family.
+  not_a_family: >-
+    The candidate is an architecture, objective, estimator, sampler, inference
+    workflow, computational substrate, or system composition rather than a
+    distinct generative model family.
+
+relationship_labels:
+  - algebraic_equivalence
+  - distributional_or_dynamical_equivalence
+  - population_optimum_correspondence
+  - shared_estimator_or_objective
+  - implementation_analogy
+  - hybrid_composition
+
+semantic_comparison_basis:
+  - id: autoregressive
+    defining_semantics: Locally normalized chain-rule factorization over a declared ordering.
+  - id: latent_variable
+    defining_semantics: Directed joint over observed and latent variables with marginalization and posterior inference.
+  - id: implicit_generator
+    defining_semantics: Pushforward or simulator with sample access but no ordinary tractable output density.
+  - id: normalized_flow
+    defining_semantics: Invertible transformation or continuous transport with declared density semantics.
+  - id: energy_based
+    defining_semantics: Unnormalized density or constraint through a scalar energy and partition function.
+  - id: probabilistic_circuit
+    defining_semantics: Normalized sum/product computation with tractable queries under structural constraints.
+  - id: discrete_iterative
+    defining_semantics: Repeated transition on a discrete corrupted or masked state.
+  - id: bayesian_flow_network
+    defining_semantics: Bayesian distribution-parameter updates coupled to output distributions.
+  - id: gflownet
+    defining_semantics: Constructive state-action flow whose terminal law is proportional to reward.
+  - id: stochastic_process
+    defining_semantics: Consistent probability law over functions or trajectories through finite-dimensional marginals.
+  - id: causal_generative
+    defining_semantics: Structural mechanisms supporting observational, interventional, and counterfactual queries under assumptions.
+  - id: general_markov_generator
+    defining_semantics: Distribution or evolution specified by a valid transition kernel or infinitesimal generator.
+  - id: geometric_equivariant
+    defining_semantics: Cross-cutting symmetry and base-measure contract applied to several model families.
+
+declared_non_family_abstractions:
+  - id: quantum_substrate
+    defining_semantics: Hardware and computational substrate whose probability construction must be named separately.
+
+candidates:
+  - id: bayesian_nonparametric_random_measures
+    display_name: Bayesian nonparametric random-measure models
+    decision: accepted_new_standalone
+    canonical_definition: >-
+      A prior and generative law over an infinite-dimensional object such as a
+      random probability measure, exchangeable partition, or feature allocation,
+      with finite-data realizations and a separately declared likelihood.
+    nearest_existing: [latent_variable, stochastic_process, probabilistic_circuit]
+    non_duplication: >-
+      A Dirichlet process randomizes the mixing measure itself and induces a
+      projectively consistent partition law. Fixed-dimensional latent models do
+      not supply unbounded partitions or feature allocations, while function-space
+      processes generate indexed function values rather than random measures or
+      combinatorial allocations. Circuit tractability is a representation
+      property, not a random-measure prior.
+    primary_evidence:
+      - title: A Bayesian Analysis of Some Nonparametric Problems
+        year: 1973
+        maturity: peer_reviewed_foundation
+        url: https://doi.org/10.1214/aos/1176342360
+        supports: Dirichlet-process finite-partition semantics.
+      - title: Infinite Latent Feature Models and the Indian Buffet Process
+        year: 2005
+        maturity: peer_reviewed_canonical
+        url: https://proceedings.neurips.cc/paper/2005/hash/2ef35a8b78b572a47f56846acbeef5d3-Abstract.html
+        supports: Exchangeable feature allocations distinct from partitions.
+      - title: Inconsistency of Pitman-Yor Process Mixtures for the Number of Components
+        year: 2014
+        maturity: peer_reviewed_limit
+        url: https://jmlr.org/papers/v15/miller14a.html
+        supports: Cluster-count inconsistency despite useful density modeling.
+      - title: Neural Clustering Processes
+        year: 2020
+        maturity: peer_reviewed_method
+        url: https://proceedings.mlr.press/v119/pakman20a.html
+        supports: Amortized partition inference separated from the model prior.
+      - title: Covariate-Dependent Hierarchical Dirichlet Processes
+        year: 2026
+        maturity: peer_reviewed_research
+        url: https://www.jmlr.org/papers/v27/25-0668.html
+        supports: Current covariate-dependent random-measure modeling.
+    pedagogy_layers:
+      orientation: Finite predictive-urn example distinguishing a new cluster from an existing cluster.
+      formalism: Random-measure definition, finite partitions, stick breaking, partitions, and feature allocations.
+      practice: Collapsed, slice, SMC, variational, and amortized posterior computation with diagnostics.
+      research: Consistency, identifiability, dependent random measures, scaling, and primary-evidence boundaries.
+    relationships:
+      - label: hybrid_composition
+        with: latent_variable
+        statement: A random mixing measure composes with a component likelihood to form a mixture model.
+      - label: implementation_analogy
+        with: stochastic_process
+        statement: Both are infinite-dimensional priors, but their generated objects and consistency requirements differ.
+    prerequisites: [probability-generative-modeling, classical-generative-models, latent-variables-inference]
+    current_destination:
+      guide: bayesian-nonparametric-models-explained.md
+      source_sections:
+        - bnp-random-measures
+        - bnp-partitions-mixtures
+        - bnp-feature-allocations
+        - bnp-hierarchies
+        - bnp-inference
+        - bnp-evaluation
+      projections:
+        - bnp-01-random-measures.md
+        - bnp-02-partitions-mixtures.md
+        - bnp-03-feature-allocations.md
+        - bnp-04-hierarchies.md
+        - bnp-05-inference.md
+        - bnp-06-evaluation.md
+      orientation_guide: extended-generative-model-landscape.md
+      orientation_section: landscape-bnp
+      orientation_projection: landscape-07-bnp.md
+    standalone_volume_status: validated
+
+  - id: point_processes_random_finite_sets
+    display_name: Point processes and random finite sets
+    decision: accepted_new_standalone
+    canonical_definition: >-
+      A probability law on locally finite counting measures or finite sets whose
+      realization jointly determines cardinality, locations or times, and marks.
+    nearest_existing: [autoregressive, stochastic_process, discrete_iterative, general_markov_generator]
+    non_duplication: >-
+      Event count, no-event survival, and reference-measure semantics are part of
+      the modeled object. An autoregressive event history is one factorization;
+      a random function is not an event configuration; add/thin diffusion is one
+      sampler; and a general Markov generator does not by itself define the
+      point-process target law.
+    primary_evidence:
+      - title: The Neural Hawkes Process
+        year: 2017
+        maturity: peer_reviewed_canonical
+        url: https://proceedings.neurips.cc/paper_files/paper/2017/hash/6463c88460bd63bbe256e495c63aa40b-Abstract.html
+        supports: Neural history-dependent marked intensities.
+      - title: Point Process Flows
+        year: 2020
+        maturity: peer_reviewed_method
+        url: https://openreview.net/forum?id=HygOjhEYDH
+        supports: Intensity-free conditional inter-event distributions.
+      - title: Add and Thin
+        year: 2023
+        maturity: peer_reviewed_method
+        url: https://proceedings.neurips.cc/paper_files/paper/2023/hash/b1d9c7e7bd265d81aae8d74a7a6bd7f1-Abstract-Conference.html
+        supports: Configuration-level noising and denoising by point addition and thinning.
+      - title: Foundation Inference Models for Point Processes
+        year: 2026
+        maturity: peer_reviewed_research
+        url: https://openreview.net/forum?id=h9HwUAODFP
+        supports: In-context amortized inference without changing process semantics.
+      - title: EarthquakeNPP
+        year: 2026
+        maturity: peer_reviewed_counterevidence
+        url: https://openreview.net/forum?id=dIcNAg6ZuZ
+        supports: Leakage-corrected comparison showing the continuing importance of classical domain baselines.
+    pedagogy_layers:
+      orientation: Homogeneous Poisson count and conditional-location example.
+      formalism: Counting measures, intensities, compensators, set densities, marks, and survival likelihood.
+      practice: Hazard inversion, thinning, spectral DPP sampling, residual checks, and calibration.
+      research: Neural parameterizations, configuration diffusion, identifiability, causal restraint, and domain counterevidence.
+    relationships:
+      - label: hybrid_composition
+        with: autoregressive
+        statement: Conditional event-time factorizations are autoregressive models over a point-process state space.
+      - label: hybrid_composition
+        with: discrete_iterative
+        statement: Add/thin transitions can parameterize iterative generation of event configurations.
+      - label: implementation_analogy
+        with: stochastic_process
+        statement: Both index random behavior by time or space, but counts and functions are different random objects.
+    prerequisites: [probability-generative-modeling, sampling-continuous-time, autoregressive-complete]
+    current_destination:
+      guide: point-processes-and-random-finite-sets.md
+      source_sections:
+        - point-process-semantics
+        - point-process-temporal
+        - point-process-spatial-sets
+        - point-process-inference
+        - point-process-simulation
+        - point-process-neural-evaluation
+      projections:
+        - point-processes-01-semantics.md
+        - point-processes-02-temporal.md
+        - point-processes-03-spatial-sets.md
+        - point-processes-04-inference.md
+        - point-processes-05-simulation.md
+        - point-processes-06-neural-evaluation.md
+      orientation_guide: extended-generative-model-landscape.md
+      orientation_section: landscape-point-processes
+      orientation_projection: landscape-08-point-processes.md
+    standalone_volume_status: validated
+
+  - id: random_graph_relational_models
+    display_name: Random-graph and relational models
+    decision: accepted_new_standalone
+    canonical_definition: >-
+      A probability law on labeled or unlabeled relational structures, including
+      node count, attributes, topology, and an explicit invariance or labeling
+      convention.
+    nearest_existing: [autoregressive, latent_variable, discrete_iterative, geometric_equivariant, causal_generative]
+    non_duplication: >-
+      A graph is the generated random object, while autoregression, latent
+      variables, diffusion, and equivariant networks are possible
+      parameterizations. Relabeling, isomorphism-class mass, exchangeability,
+      sparsity, and graph sampling are not supplied by those parameterizations.
+      A relational graph law also does not imply causal-graph semantics.
+    primary_evidence:
+      - title: Stochastic Blockmodels
+        year: 1983
+        maturity: peer_reviewed_foundation
+        url: https://doi.org/10.1016/0378-8733(83)90021-7
+        supports: Latent-class random graph semantics.
+      - title: Sparse Graphs Using Exchangeable Random Measures
+        year: 2017
+        maturity: peer_reviewed_foundation
+        url: https://ora.ox.ac.uk/objects/uuid%3A59b7ca2f-b372-4334-875e-fca1c63e387d
+        supports: Sparse exchangeable graph-process construction.
+      - title: GraphRNN
+        year: 2018
+        maturity: peer_reviewed_method
+        url: https://proceedings.mlr.press/v80/you18a.html
+        supports: Autoregressive graph generation as a family composition.
+      - title: DiGress
+        year: 2023
+        maturity: peer_reviewed_method
+        url: https://openreview.net/forum?id=UaAD-Nu86WX
+        supports: Discrete diffusion on categorical node and edge states.
+      - title: HOG-Diff
+        year: 2026
+        maturity: peer_reviewed_research
+        url: https://openreview.net/forum?id=FZJow6BWiM
+        supports: Higher-order topology-aware guidance for graph diffusion.
+    pedagogy_layers:
+      orientation: Three-node labeled-versus-unlabeled probability example.
+      formalism: SBM, latent-position, graphon, exchangeability, sparsity, and automorphism semantics.
+      practice: Ordering, permutation marginalization, invariant metrics, constraints, and graph sampling.
+      research: Sparse projective laws, higher-order structure, scientific validity, and causal-graph boundaries.
+    relationships:
+      - label: hybrid_composition
+        with: autoregressive
+        statement: A graph ordering can support an autoregressive node-edge factorization.
+      - label: hybrid_composition
+        with: discrete_iterative
+        statement: Graph diffusion refines a graph-valued state through categorical transitions.
+      - label: implementation_analogy
+        with: geometric_equivariant
+        statement: Equivariance can parameterize a graph law but does not by itself define or normalize it.
+    prerequisites: [probability-generative-modeling, classical-generative-models, geometric-equivariant-complete]
+    current_destination:
+      guide: random-graphs-and-relational-generators.md
+      source_sections:
+        - random-graph-semantics
+        - random-graph-classical
+        - random-graph-inference
+        - random-graph-neural
+        - random-graph-iterative
+        - random-graph-evaluation
+      projections:
+        - random-graphs-01-semantics.md
+        - random-graphs-02-classical.md
+        - random-graphs-03-inference.md
+        - random-graphs-04-neural.md
+        - random-graphs-05-iterative.md
+        - random-graphs-06-evaluation.md
+      orientation_guide: extended-generative-model-landscape.md
+      orientation_section: landscape-random-graphs
+      orientation_projection: landscape-09-random-graphs.md
+    standalone_volume_status: validated
+
+  - id: copula_models
+    display_name: Copula models
+    decision: accepted_existing_expand
+    canonical_definition: >-
+      A joint distribution constructed from an independently specified
+      dependence distribution on the unit hypercube and declared marginals.
+    nearest_existing: [normalized_flow, latent_variable]
+    non_duplication: >-
+      Uniform-marginal constraints, Sklar factorization, and tail-dependence
+      queries are probability semantics rather than an invertible architecture
+      or latent-variable factorization. Flows and diffusion can parameterize a
+      copula only when they preserve the required marginals.
+    primary_evidence:
+      - title: Fonctions de repartition a n dimensions et leurs marges (original and English translation)
+        year: 1959
+        maturity: established_foundation
+        url: https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4198458
+        supports: The linked 2023 archival record reproduces the 1959 paper and an English translation of its joint-CDF decomposition theorem.
+      - title: Diffusion and Flow-based Copulas
+        year: 2026
+        maturity: peer_reviewed_research
+        url: https://openreview.net/forum?id=YrX77XRgku
+        supports: Marginal-preserving neural transport for dependence modeling.
+    pedagogy_layers:
+      orientation: Binary variables with equal marginals and different dependence.
+      formalism: Sklar theorem, density factorization, uniqueness, and tail dependence.
+      practice: Vines, conditional simulation, mixed marginals, and calibration.
+      research: Marginal-preserving neural processes and high-dimensional dependence evaluation.
+    relationships:
+      - label: hybrid_composition
+        with: normalized_flow
+        statement: A constrained flow can parameterize the copula while separate models provide marginals.
+    prerequisites: [probability-generative-modeling, objectives-statistical-distances]
+    current_destination:
+      canonical_guide: copula-models-explained.md
+      source_sections:
+        - copula-semantics
+        - copula-classical
+        - copula-inference
+        - copula-vines
+        - copula-neural
+        - copula-evaluation
+      projections:
+        - copula-01-semantics.md
+        - copula-02-classical.md
+        - copula-03-inference.md
+        - copula-04-vines.md
+        - copula-05-neural.md
+        - copula-06-evaluation.md
+      orientation_guide: extended-generative-model-landscape.md
+      orientation_section: landscape-copulas
+      orientation_projection: landscape-01-copulas.md
+    standalone_volume_status: validated
+
+  - id: probabilistic_grammars_and_program_derivations
+    display_name: Probabilistic grammars and structured derivation models
+    decision: accepted_existing_expand
+    canonical_definition: >-
+      A normalized or otherwise explicitly weighted distribution over recursive
+      derivations whose execution or yield produces a structured observation.
+    nearest_existing: [autoregressive, latent_variable, probabilistic_circuit, gflownet]
+    non_duplication: >-
+      Derivation equivalence, recursion, syntax, and dynamic-programming queries
+      are part of the model semantics. A left-to-right yield factorization, a
+      latent parse, a compiled circuit, or a constructive policy may implement
+      related queries without eliminating the grammar-level object.
+    primary_evidence:
+      - title: Applying probabilistic measures to abstract languages
+        year: 1973
+        maturity: peer_reviewed_foundation
+        url: https://doi.org/10.1109/T-C.1973.223746
+        supports: Consistency and termination semantics for probabilistic grammars.
+      - title: The estimation of stochastic context-free grammars using the Inside-Outside algorithm
+        year: 1990
+        maturity: peer_reviewed_foundation
+        url: https://doi.org/10.1016/0885-2308(90)90022-X
+        supports: Dynamic-programming marginalization and EM for hidden derivations.
+      - title: Semiring parsing
+        year: 1999
+        maturity: peer_reviewed_foundation
+        url: https://aclanthology.org/J99-4004/
+        supports: Algebraic separation of recognition, marginal, Viterbi, and expectation queries.
+      - title: Compound Probabilistic Context-Free Grammars for Grammar Induction
+        year: 2019
+        maturity: peer_reviewed_method
+        url: https://aclanthology.org/P19-1228
+        supports: Neural latent-variable extension of probabilistic grammar semantics.
+      - title: A Foundation Model for Molecular Grammar
+        year: 2025
+        maturity: peer_reviewed_method
+        url: https://proceedings.mlr.press/v267/sun25aa.html
+        supports: Current grammar learning and transfer for structured molecular generation.
+      - title: Grammar-Constrained Decoding for Structured NLP Tasks without Finetuning
+        year: 2023
+        maturity: peer_reviewed_method
+        url: https://aclanthology.org/2023.emnlp-main.674/
+        supports: Formal-language constraints as a sampler composition rather than a new family.
+    pedagogy_layers:
+      orientation: Finite ambiguous grammar with derivation and string probabilities.
+      formalism: Rule normalization, derivation trees, yields, ambiguity, and inside-outside recursions.
+      practice: Parsing, sampling, constraints, neural parameterization, and numerical stability.
+      research: Identifiability, grammar induction, program synthesis, and hybrid constructive policies.
+    relationships:
+      - label: algebraic_equivalence
+        with: probabilistic_circuit
+        statement: Dynamic programs for bounded grammars can compile to equivalent sum-product computations.
+      - label: hybrid_composition
+        with: gflownet
+        statement: A grammar can define the constructive state graph on which a GFlowNet acts.
+    prerequisites: [probability-generative-modeling, classical-generative-models, autoregressive-complete]
+    current_destination:
+      canonical_guide: probabilistic-grammars-and-program-derivations.md
+      source_sections:
+        - grammar-semantics
+        - grammar-inference
+        - grammar-learning
+        - grammar-programs
+        - grammar-hybrids
+        - grammar-evaluation
+      projections:
+        - grammar-01-semantics.md
+        - grammar-02-inference.md
+        - grammar-03-learning.md
+        - grammar-04-programs.md
+        - grammar-05-hybrids.md
+        - grammar-06-evaluation.md
+      orientation_guide: extended-generative-model-landscape.md
+      orientation_section: landscape-constructive
+      orientation_projection: landscape-06-constructive.md
+    standalone_volume_status: validated
+
+  - id: tensor_network_born_probability_models
+    display_name: Tensor-network and Born probability models
+    decision: accepted_existing_expand
+    canonical_definition: >-
+      A normalized probability table represented by nonnegative tensor
+      contractions or by the squared magnitude of a contracted amplitude.
+    nearest_existing: [probabilistic_circuit, autoregressive, quantum_substrate]
+    non_duplication: >-
+      Bond dimension, contraction graph, amplitude phase, and contraction
+      complexity determine expressivity and queries. These semantics are not
+      equivalent to generic circuit decomposability or an autoregressive neural
+      architecture, and a Born model can be classical without quantum hardware.
+    primary_evidence:
+      - title: Tensor Networks for Probabilistic Sequence Modeling
+        year: 2021
+        maturity: peer_reviewed_method
+        url: https://proceedings.mlr.press/v130/miller21a.html
+        supports: Tensor-network probability models and sequence queries.
+    pedagogy_layers:
+      orientation: Small binary matrix-product probability calculation.
+      formalism: Nonnegative tables, amplitudes, Born normalization, bond dimension, and contraction order.
+      practice: Exact marginals, conditional sampling, complexity, gradients, and ordering sensitivity.
+      research: Expressivity-tractability trade-offs, hybrid neural tensors, and evidence for computational advantage.
+    relationships:
+      - label: algebraic_equivalence
+        with: probabilistic_circuit
+        statement: Restricted contraction graphs can encode equivalent sum-product computations.
+      - label: implementation_analogy
+        with: quantum_substrate
+        statement: Born probabilities use amplitude-squared semantics without requiring quantum execution.
+    prerequisites: [probability-generative-modeling, probabilistic-circuits-complete]
+    current_destination:
+      canonical_guide: tensor-network-and-born-probability-models.md
+      source_sections:
+        - tensor-semantics
+        - tensor-mps
+        - tensor-inference
+        - tensor-learning
+        - tensor-connections
+        - tensor-evaluation
+      projections:
+        - tensor-01-semantics.md
+        - tensor-02-mps.md
+        - tensor-03-inference.md
+        - tensor-04-learning.md
+        - tensor-05-connections.md
+        - tensor-06-evaluation.md
+      orientation_guide: extended-generative-model-landscape.md
+      orientation_section: landscape-tensors
+      orientation_projection: landscape-04-tensors.md
+    standalone_volume_status: validated
+
+  - id: generative_stochastic_networks
+    display_name: Generative stochastic networks
+    decision: retained_in_existing
+    canonical_definition: A learned Markov transition intended to have the data distribution as its stationary law.
+    nearest_existing: [general_markov_generator, energy_based, discrete_iterative]
+    non_duplication: >-
+      The stationary-transition perspective is pedagogically important, but its
+      model, ergodicity, mixing, and conditional-update semantics are fully
+      contained by the general Markov-generator framework and the canonical GSN
+      chapter.
+    primary_evidence:
+      - title: Deep Generative Stochastic Networks Trainable by Backprop
+        year: 2014
+        maturity: peer_reviewed_canonical
+        url: https://proceedings.mlr.press/v32/bengio14.html
+        supports: Consistency and ergodicity conditions for learned denoising transitions.
+    pedagogy_layers:
+      orientation: Two-state stationary-chain example.
+      formalism: Transition kernels, invariant laws, and compatibility.
+      practice: Mixing and off-manifold diagnostics.
+      research: Denoising-score connections and conditional-update validity.
+    relationships:
+      - label: distributional_or_dynamical_equivalence
+        with: general_markov_generator
+        statement: A GSN is a discrete-time Markov generator under the same invariant-law and ergodicity assumptions.
+    destination: extended-generative-model-landscape.md#2-generative-stochastic-networks-and-learned-stationary-chains
+
+  - id: probabilistic_programming
+    display_name: Probabilistic programming
+    decision: not_a_family
+    canonical_definition: A composition language for random choices, observations, control flow, and inference over execution traces.
+    nearest_existing: [latent_variable, energy_based, causal_generative, stochastic_process]
+    non_duplication: >-
+      A probabilistic program can express many admitted families and can pair one
+      model with several inference algorithms; the language does not determine a
+      unique factorization, target law, objective, or sampler.
+    primary_evidence:
+      - title: Automatic Differentiation Variational Inference
+        year: 2017
+        maturity: peer_reviewed_method
+        url: https://jmlr.org/papers/v18/16-107.html
+        supports: Separation of program-defined model and generic approximate inference.
+    pedagogy_layers:
+      orientation: Trace from sample and observe statements.
+      formalism: Trace joint and unnormalized posterior weight.
+      practice: Inference selection, dynamic support, and gradient constraints.
+      research: Inference compilation and probabilistic-program synthesis.
+    relationships:
+      - label: hybrid_composition
+        with: latent_variable
+        statement: A program can express a latent-variable model and attach an inference engine.
+    destination: extended-generative-model-landscape.md#3-probabilistic-programming
+
+  - id: quantum_generative_umbrella
+    display_name: Quantum generative models as an umbrella
+    decision: not_a_family
+    canonical_definition: A computational substrate or system umbrella containing several distinct probability constructions and hybrids.
+    nearest_existing: [tensor_network_born_probability_models, implicit_generator, energy_based]
+    non_duplication: >-
+      A circuit Born machine defines an amplitude-squared law, while a quantum
+      GAN is an adversarial hybrid and a quantum Boltzmann machine is an energy
+      model. Hardware execution alone does not make these one family.
+    primary_evidence:
+      - title: Quantum Circuit Born Machines
+        year: 2019
+        maturity: peer_reviewed_method
+        url: https://www.nature.com/articles/s41534-019-0157-8
+        supports: A specific Born-law construction rather than a universal quantum family.
+    pedagogy_layers:
+      orientation: Measurement distribution of a one-qubit state.
+      formalism: Circuit state, measurement basis, and finite-shot law.
+      practice: Gradients, noise, data loading, and readout cost.
+      research: Advantage claims under matched classical baselines and hardware budgets.
+    relationships:
+      - label: hybrid_composition
+        with: implicit_generator
+        statement: Quantum circuits can supply a generator or critic component in an adversarial system.
+    destination: extended-generative-model-landscape.md#5-quantum-generative-models
+
+  - id: neural_cellular_automata
+    display_name: Neural cellular automata
+    decision: not_a_family
+    canonical_definition: A shared local transition architecture on a grid or graph.
+    nearest_existing: [general_markov_generator, implicit_generator]
+    non_duplication: >-
+      The architecture becomes a generative model only after declaring a seed or
+      latent distribution, update randomness, stopping time, boundary conditions,
+      and observation map; different declarations induce different families.
+    primary_evidence:
+      - title: Growing Neural Cellular Automata
+        year: 2020
+        maturity: technical_demonstration
+        url: https://distill.pub/2020/growing-ca/
+        supports: Differentiable local growth as an architecture and transition process.
+    pedagogy_layers:
+      orientation: Local growth from a seed.
+      formalism: State, neighborhood, transition, randomness, and observation map.
+      practice: Rollout stability, asynchronous updates, scaling, and damage tests.
+      research: Stochastic laws, attractors, morphogenesis, and constraint enforcement.
+    relationships:
+      - label: hybrid_composition
+        with: general_markov_generator
+        statement: A stochastic NCA transition can be a Markov kernel inside a declared generative construction.
+    destination: extended-generative-model-landscape.md#6-grammars-programs-and-neural-cellular-generators
+
+  - id: simulation_based_inference
+    display_name: Simulation-based inference
+    decision: not_a_family
+    canonical_definition: An inference workflow for approximating likelihoods, posteriors, likelihood ratios, or proposals when a simulator is available.
+    nearest_existing: [implicit_generator, latent_variable, normalized_flow]
+    non_duplication: >-
+      The simulator supplies the generative model; neural posterior, likelihood,
+      ratio, and score estimators answer different inference queries. The workflow
+      does not define one new generative law.
+    primary_evidence:
+      - title: Simulation-based inference methods for statistical and machine learning
+        year: 2024
+        maturity: peer_reviewed_synthesis
+        url: https://doi.org/10.1214/24-STS949
+        supports: Query-level taxonomy of simulator-based inference methods.
+    pedagogy_layers:
+      orientation: Simulator with an intractable likelihood and an observed summary.
+      formalism: Prior, simulator, posterior, ratio, and proposal targets.
+      practice: Calibration, simulation budgets, sequential proposals, and coverage.
+      research: Misspecification, amortization, diagnostics, and differentiable simulators.
+    relationships:
+      - label: hybrid_composition
+        with: normalized_flow
+        statement: A normalizing flow can parameterize an approximate posterior without becoming the simulator family.
+    destination: latent-variables-and-inference.md
+
+  - id: generic_graph_neural_generator
+    display_name: Generic graph neural generator
+    decision: merged_with_admitted_family
+    canonical_definition: A graph-valued system whose specific probability construction and sampler must be named.
+    nearest_existing: [random_graph_relational_models, geometric_equivariant]
+    non_duplication: >-
+      GNN, graph Transformer, and equivariant message-passing backbones are
+      architectures. AR graph models, graph VAEs, graph flows, graph EBMs,
+      graph diffusion, and graph GFlowNets remain compositions with the admitted
+      random-graph family.
+    primary_evidence:
+      - title: DiGress
+        year: 2023
+        maturity: peer_reviewed_method
+        url: https://openreview.net/forum?id=UaAD-Nu86WX
+        supports: One discrete-diffusion composition on graph states.
+    pedagogy_layers:
+      orientation: Graph output versus probability law distinction.
+      formalism: Invariance, labeling, node count, and sampler declaration.
+      practice: Architectural and probability-level diagnostics.
+      research: Equivariant expressivity and graph-distribution evaluation.
+    relationships:
+      - label: hybrid_composition
+        with: random_graph_relational_models
+        statement: The architecture parameterizes a declared random-graph law or transition.
+    destination: extended-generative-model-landscape.md#9-random-graph-and-relational-generators
+
+  - id: latent_factor_and_state_space_models
+    display_name: Latent-factor and state-space models
+    decision: retained_in_existing
+    canonical_definition: Directed latent-variable models with static factors or Markovian latent trajectories.
+    nearest_existing: [latent_variable, stochastic_process]
+    non_duplication: >-
+      These are already canonical classical and latent-variable families; neural
+      parameterizations and scalable inference extend them without creating an
+      absent top-level family.
+    primary_evidence:
+      - title: A New Approach to Linear Filtering and Prediction Problems
+        year: 1960
+        maturity: peer_reviewed_foundation
+        url: https://doi.org/10.1115/1.3662552
+        supports: Linear-Gaussian state-space generation and recursive inference.
+    pedagogy_layers:
+      orientation: Scalar latent factor and finite hidden-state trajectory.
+      formalism: Joint factorization, conditional independence, and marginalization.
+      practice: EM, filtering, smoothing, variational, and sequential Monte Carlo inference.
+      research: Nonlinear dynamics, identifiability, long-horizon uncertainty, and world-model composition.
+    relationships:
+      - label: hybrid_composition
+        with: stochastic_process
+        statement: A latent state-space law can induce a stochastic process over observations.
+    destination: classical-generative-models.md
+
+  - id: foundation_model
+    display_name: Foundation model
+    decision: not_a_family
+    canonical_definition: A scale, training, and reuse regime spanning multiple architectures and probabilistic constructions.
+    nearest_existing: [autoregressive, latent_variable, discrete_iterative, implicit_generator]
+    non_duplication: >-
+      Pretraining scale, modality breadth, and downstream adaptation do not
+      determine a unique density, factorization, objective, or sampler.
+    primary_evidence:
+      - title: On the Opportunities and Risks of Foundation Models
+        year: 2021
+        maturity: technical_report
+        url: https://arxiv.org/abs/2108.07258
+        supports: Foundation model as a deployment and reuse category.
+    pedagogy_layers:
+      orientation: Same Transformer backbone under causal and masked objectives.
+      formalism: Separation of system regime from generative law.
+      practice: Data, adaptation, evaluation, and compute accounting.
+      research: Scaling, transfer, contamination, and system-level evidence.
+    relationships:
+      - label: implementation_analogy
+        with: autoregressive
+        statement: Many language foundation models are autoregressive, but the terms are not synonyms.
+    destination: generative-models-unified.md#the-eight-layers-of-a-generative-system
+
+decision_summary:
+  accepted_new_standalone:
+    - bayesian_nonparametric_random_measures
+    - point_processes_random_finite_sets
+    - random_graph_relational_models
+  accepted_existing_expand:
+    - copula_models
+    - probabilistic_grammars_and_program_derivations
+    - tensor_network_born_probability_models
+  retained_or_merged:
+    - generative_stochastic_networks
+    - generic_graph_neural_generator
+    - latent_factor_and_state_space_models
+  not_a_family:
+    - probabilistic_programming
+    - quantum_generative_umbrella
+    - neural_cellular_automata
+    - simulation_based_inference
+    - foundation_model
+
+maintenance_contract:
+  - Re-run the gate when a candidate acquires materially different probability semantics or tractable queries.
+  - Do not change a decision because one architecture, benchmark, vendor system, or sampler becomes popular.
+  - Verify time-sensitive evidence and venue status before every book release.
+  - Preserve the distinction between immediate canonical coverage and completion of a standalone volume.
+  - Add every accepted family to the cross-family coverage matrix and prerequisite-aware navigation.

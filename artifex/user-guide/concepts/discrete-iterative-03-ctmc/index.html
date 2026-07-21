@@ -1,0 +1,1481 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="This chapter develops generator matrices, reverse rates, discrete density ratios, score entropy, and absorbing-mask processes. It adds global cycle-" name="description"/>
+<meta content="Mahdi Shafiei" name="author"/>
+<link href="https://docs.avitai.bio/artifex/user-guide/concepts/discrete-iterative-03-ctmc/" rel="canonical"/>
+<link href="../discrete-iterative-02-diffusion/" rel="prev"/>
+<link href="../discrete-iterative-04-flow/" rel="next"/>
+<link href="../../../assets/images/favicon.png" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.7.7" name="generator"/>
+<title>Discrete Iterative Generation 3 — CTMCs and Ratios - Artifex</title>
+<link href="../../../assets/stylesheets/main.ec1eaa64.min.css" rel="stylesheet"/>
+<link href="../../../assets/stylesheets/palette.ab4e12ef.min.css" rel="stylesheet"/>
+<script src="../../../assets/vendor/iframe-worker/index.js"></script>
+<link href="../../../assets/_mkdocstrings.css" rel="stylesheet"/>
+<link href="../../../_static/extra.css" rel="stylesheet"/>
+<script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+<meta content="article" property="og:type"/>
+<meta content="The Artifex Generative Models Book" property="og:site_name"/>
+<meta content="Discrete Iterative Generation 3 — CTMCs and Ratios" property="og:title"/>
+<meta content="This chapter develops generator matrices, reverse rates, discrete density ratios, score entropy, and absorbing-mask processes. It adds global cycle-" property="og:description"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/discrete-iterative-03-ctmc/" property="og:url"/>
+<meta content="2026-07-18" property="article:modified_time"/>
+<meta content="summary" name="twitter:card"/>
+<meta content="Discrete Iterative Generation 3 — CTMCs and Ratios" name="twitter:title"/>
+<meta content="This chapter develops generator matrices, reverse rates, discrete density ratios, score entropy, and absorbing-mask processes. It adds global cycle-" name="twitter:description"/>
+<meta content="Generative models, Machine learning, Probabilistic modeling, research, specialization, canonical_chapter, discrete-iterative-ctmc, practitioner, researcher" name="keywords"/>
+<meta content="Discrete Iterative Generation 3 — CTMCs and Ratios" name="citation_title"/>
+<meta content="Mahdi Shafiei" name="citation_author"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/discrete-iterative-03-ctmc/" name="citation_public_url"/>
+<meta content="en" name="citation_language"/>
+<meta content="Discrete Iterative Generation 3 — CTMCs and Ratios" name="DC.title"/>
+<meta content="Mahdi Shafiei" name="DC.creator"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/discrete-iterative-03-ctmc/" name="DC.identifier"/>
+<meta content="Text.LearningResource" name="DC.type"/>
+<meta content="2026-07-18" name="DCTERMS.modified"/>
+<meta content="https://github.com/avitai/artifex/blob/main/LICENSE" name="DCTERMS.license"/>
+<meta content="research" name="DCTERMS.educationLevel"/>
+<meta content="practitioner, researcher" name="DCTERMS.audience"/>
+<link href="https://github.com/avitai/artifex/blob/main/LICENSE" rel="license"/>
+<script id="artifex-book-metadata" type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Chapter",
+  "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/discrete-iterative-03-ctmc/",
+  "url": "https://docs.avitai.bio/artifex/user-guide/concepts/discrete-iterative-03-ctmc/",
+  "name": "Discrete Iterative Generation 3 \u2014 CTMCs and Ratios",
+  "description": "This chapter develops generator matrices, reverse rates, discrete density ratios, score entropy, and absorbing-mask processes. It adds global cycle-",
+  "identifier": "discrete-iterative-ctmc",
+  "inLanguage": "en",
+  "isAccessibleForFree": true,
+  "learningResourceType": "Canonical chapter",
+  "educationalLevel": "research",
+  "educationalUse": "specialization",
+  "audience": [
+    
+      {"@type": "EducationalAudience", "audienceType": "practitioner"},
+    
+      {"@type": "EducationalAudience", "audienceType": "researcher"}
+    
+  ],
+  "dateModified": "2026-07-18",
+  "keywords": ["Generative models", "Machine learning", "Probabilistic modeling", "research", "specialization", "canonical_chapter", "discrete-iterative-ctmc", "practitioner", "researcher"],
+  "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+  "author": [
+    
+      {"@type": "Person", "name": "Mahdi Shafiei"}
+    
+  ],
+  "isPartOf": {
+    "@type": "Book",
+    "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/#book",
+    "url": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/",
+    "name": "The Artifex Generative Models Book",
+    "bookEdition": "Living Web Edition",
+    "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+    "author": [
+      
+        {"@type": "Person", "name": "Mahdi Shafiei"}
+      
+    ]
+  }
+}
+</script>
+<link href="../../../assets/vendor/katex/katex.min.css" id="artifex-katex-stylesheet" integrity="sha384-UA8juhPf75SzzAMA/4fo3yOU7sBJ0om7SCD2GHq0fZqZco6tr1UCV7nUbk9J90JM" rel="stylesheet"/>
+<script defer="" integrity="sha384-T/0lMUdJpd2S1ZHtRiofG3htU3xPCrFVeAQ1UUE2TJwlEJSV5NUwn30kP28n238E" src="../../../assets/vendor/mermaid/mermaid.min.js"></script>
+<script defer="" src="../../../assets/vendor/katex/katex-shadow.js"></script>
+<script defer="" src="../../../javascripts/mermaid-math.js"></script>
+<script defer="" src="../../../javascripts/mathjax.js"></script>
+<script defer="" integrity="sha384-OrHfGTnIbkl0do3N76qW/uWr38o91N05sbSPuYBPLH+hG8X/dNSrjZf3AGjzrCwC" src="../../../assets/vendor/mathjax/tex-mml-chtml.js"></script>
+</head>
+<body data-md-color-accent="amber" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#discrete-iterative-generation-3-ctmcs-and-ratios">
+          Skip to content
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header md-header--shadow" data-md-component="header">
+<nav aria-label="Header" class="md-header__inner md-grid">
+<a aria-label="Artifex" class="md-header__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            Artifex
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+            
+              Discrete Iterative Generation 3 — CTMCs and Ratios
+            
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-label="Switch to dark mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: light)" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_1" hidden="" title="Switch to dark mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+<input aria-label="Switch to light mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-primary="indigo" data-md-color-scheme="slate" id="__palette_1" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_0" hidden="" title="Switch to light mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+</form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div aria-label="Search" class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Search" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="Search" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="Search" class="md-search__options">
+<a aria-label="Share" class="md-search__icon md-icon" data-clipboard="" data-clipboard-text="" data-md-component="search-share" href="javascript:void(0)" tabindex="-1" title="Share">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"></path></svg>
+</a>
+<button aria-label="Clear" class="md-search__icon md-icon" tabindex="-1" title="Clear" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            Initializing search
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Navigation" class="md-nav md-nav--primary" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="Artifex" class="md-nav__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+    Artifex
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../..">
+<span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../getting-started/installation/">
+<span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Generative Models Book
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Generative Models Book
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    
+  
+    Start Here — The Landscape
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../first-course-01-generative-systems/">
+<span class="md-ellipsis">
+    
+  
+    First Course — New to Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../probability-01-objects/">
+<span class="md-ellipsis">
+    
+  
+    Foundations
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_4" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_4" id="__nav_3_4_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Model Families
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_4_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_4">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Model Families
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../autoregressive-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Autoregressive Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../vae-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Variational Autoencoders
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gan-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Generative Adversarial Networks
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../ebm-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Energy-Based Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../diffusion-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Diffusion Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../flow-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Normalizing Flows and Flow Matching
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../probabilistic-circuits-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Probabilistic Circuits
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../tensor-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Tensor-Network and Born Probability Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../implicit-generators-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Implicit Generators Beyond GANs
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_4_10" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_4_10" id="__nav_3_4_10_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Discrete Iterative Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_4_10_label" class="md-nav" data-md-level="3">
+<label class="md-nav__title" for="__nav_3_4_10">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Discrete Iterative Generation
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../discrete-iterative-01-masked/">
+<span class="md-ellipsis">
+    
+  
+    1. Masked Refinement
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../discrete-iterative-02-diffusion/">
+<span class="md-ellipsis">
+    
+  
+    2. Denoising Diffusion
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
+    
+  
+    3. CTMCs and Ratios
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
+<span class="md-ellipsis">
+    
+  
+    3. CTMCs and Ratios
+  
+
+    
+  </span>
+</a>
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#3-continuous-time-markov-chains-and-discrete-scores">
+<span class="md-ellipsis">
+      
+        3. Continuous-Time Markov Chains and Discrete Scores
+      
+    </span>
+</a>
+<nav aria-label="3. Continuous-Time Markov Chains and Discrete Scores" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-3-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 3 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#reverse-time-rates">
+<span class="md-ellipsis">
+      
+        Reverse-Time Rates
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#discrete-score-and-score-entropy">
+<span class="md-ellipsis">
+      
+        Discrete Score and Score Entropy
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#local-ratios-must-agree-around-cycles">
+<span class="md-ellipsis">
+      
+        Local ratios must agree around cycles
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#sampling-gillespie-and-tau-leaping">
+<span class="md-ellipsis">
+      
+        Sampling: Gillespie and Tau-Leaping
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#absorbing-mask-ctmc">
+<span class="md-ellipsis">
+      
+        Absorbing-Mask CTMC
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#boundary-and-support-issues">
+<span class="md-ellipsis">
+      
+        Boundary and Support Issues
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-two-state-reverse-ctmc">
+<span class="md-ellipsis">
+      
+        Worked two-state reverse CTMC
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-3-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 3 Synthesis
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#independent-practice-and-assessment-map-rates-ratios-and-solvers">
+<span class="md-ellipsis">
+      
+        Independent practice and assessment map: rates, ratios, and solvers
+      
+    </span>
+</a>
+<nav aria-label="Independent practice and assessment map: rates, ratios, and solvers" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#p1-turn-an-edge-field-into-an-audited-ctmc-sampler">
+<span class="md-ellipsis">
+      
+        P1 — Turn an edge field into an audited CTMC sampler
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../discrete-iterative-04-flow/">
+<span class="md-ellipsis">
+    
+  
+    4. Flow and Order
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../discrete-iterative-05-modalities/">
+<span class="md-ellipsis">
+    
+  
+    5. Modalities and Comparison
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../discrete-iterative-06-practice/">
+<span class="md-ellipsis">
+    
+  
+    6. Practice and Research
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../discrete-iterative-generation-explained/">
+<span class="md-ellipsis">
+    
+  
+    Continuous View (All Chapters)
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../bayesian-flow-networks-01-story/">
+<span class="md-ellipsis">
+    
+  
+    Bayesian Flow Networks
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gflownets-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Generative Flow Networks
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../bnp-01-random-measures/">
+<span class="md-ellipsis">
+    
+  
+    Bayesian Nonparametric Random-Measure Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../stochastic-process-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Stochastic-Process and Function-Space Generators
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../point-processes-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Point Processes and Random Finite Sets
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../random-graphs-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Random Graphs and Relational Generators
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../copula-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Copula Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../grammar-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Probabilistic Grammars and Program Derivations
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../causal-generative-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Causal Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../new-families-frontier-evidence/">
+<span class="md-ellipsis">
+    
+  
+    Research Evidence Ledger
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gradients-01-taxonomy/">
+<span class="md-ellipsis">
+    
+  
+    Connections and Compositions
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../normalization-01-queries/">
+<span class="md-ellipsis">
+    
+  
+    Research Practice
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../models/vae-guide/">
+<span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/core/base/">
+<span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../examples/overview/">
+<span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../zoo/">
+<span class="md-ellipsis">
+    
+  
+    Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../training/overview/">
+<span class="md-ellipsis">
+    
+  
+    Training
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../data/overview/">
+<span class="md-ellipsis">
+    
+  
+    Data &amp; Modalities
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../inference/overview/">
+<span class="md-ellipsis">
+    
+  
+    Inference &amp; Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../benchmarks/">
+<span class="md-ellipsis">
+    
+  
+    Evaluation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../guides/extensions/">
+<span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../extensions/">
+<span class="md-ellipsis">
+    
+  
+    Advanced Topics
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../cli/">
+<span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../community/contributing/">
+<span class="md-ellipsis">
+    
+  
+    Community
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/configs/protein-extension/">
+<span class="md-ellipsis">
+    
+  
+    Reference Library
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#3-continuous-time-markov-chains-and-discrete-scores">
+<span class="md-ellipsis">
+      
+        3. Continuous-Time Markov Chains and Discrete Scores
+      
+    </span>
+</a>
+<nav aria-label="3. Continuous-Time Markov Chains and Discrete Scores" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-3-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 3 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#reverse-time-rates">
+<span class="md-ellipsis">
+      
+        Reverse-Time Rates
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#discrete-score-and-score-entropy">
+<span class="md-ellipsis">
+      
+        Discrete Score and Score Entropy
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#local-ratios-must-agree-around-cycles">
+<span class="md-ellipsis">
+      
+        Local ratios must agree around cycles
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#sampling-gillespie-and-tau-leaping">
+<span class="md-ellipsis">
+      
+        Sampling: Gillespie and Tau-Leaping
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#absorbing-mask-ctmc">
+<span class="md-ellipsis">
+      
+        Absorbing-Mask CTMC
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#boundary-and-support-issues">
+<span class="md-ellipsis">
+      
+        Boundary and Support Issues
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-two-state-reverse-ctmc">
+<span class="md-ellipsis">
+      
+        Worked two-state reverse CTMC
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-3-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 3 Synthesis
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#independent-practice-and-assessment-map-rates-ratios-and-solvers">
+<span class="md-ellipsis">
+      
+        Independent practice and assessment map: rates, ratios, and solvers
+      
+    </span>
+</a>
+<nav aria-label="Independent practice and assessment map: rates, ratios, and solvers" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#p1-turn-an-edge-field-into-an-audited-ctmc-sampler">
+<span class="md-ellipsis">
+      
+        P1 — Turn an edge field into an audited CTMC sampler
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<nav aria-label="Breadcrumb" class="md-path">
+<ol class="md-path__list">
+<li class="md-path__item">
+<a class="md-path__link" href="../../..">
+<span class="md-ellipsis">
+    Home
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    Generative Models Book
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../autoregressive-01-foundations/">
+<span class="md-ellipsis">
+    Model Families
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../discrete-iterative-01-masked/">
+<span class="md-ellipsis">
+    Discrete Iterative Generation
+  </span>
+</a>
+</li>
+</ol>
+</nav>
+<article class="md-content__inner md-typeset">
+<h1 id="discrete-iterative-generation-3-ctmcs-and-ratios">Discrete Iterative Generation 3 — CTMCs and Ratios<a class="headerlink" href="#discrete-iterative-generation-3-ctmcs-and-ratios" title="Permanent link">¤</a></h1><aside aria-label="Learning path" class="admonition abstract artifex-learning-path"><p class="admonition-title">Learning path</p><p><strong>Required knowledge</strong></p><ul class="artifex-learning-path__links" data-learning-path-role="required"><li><a href="../discrete-iterative-02-diffusion/">Discrete Iterative Generation 2 — Denoising Diffusion</a></li><li><a href="../sampling-and-continuous-time/">Sampling and Continuous-Time Generative Mathematics</a></li></ul><p><strong>Readiness check:</strong> can you explain the central object and reproduce one worked example from each required chapter? If not, follow its link before continuing.</p><p><strong>Newly unlocked in the default route</strong></p><ul class="artifex-learning-path__links" data-learning-path-role="unlocks"><li><a href="../discrete-iterative-04-flow/">Discrete Iterative Generation 4 — Flow and Order</a></li><li><a href="../bayesian-flow-networks-01-story/">Bayesian Flow Networks 1 — Generative Story</a></li><li><a href="../bayesian-flow-networks-explained/">Bayesian Flow Networks Explained</a></li></ul></aside>
+<p>This chapter develops generator matrices, reverse rates, discrete density ratios, score entropy, and absorbing-mask processes. It adds global cycle-compatibility tests, an exact uniformization derivation, Poisson-truncation control, and oracle interventions that separate estimator, support, clipping, parallelization, and numerical errors. For uninterrupted reading, use the <a href="../discrete-iterative-generation-explained/#3-continuous-time-markov-chains-and-discrete-scores">complete guide</a>.</p>
+<h2 id="3-continuous-time-markov-chains-and-discrete-scores">3. Continuous-Time Markov Chains and Discrete Scores<a class="headerlink" href="#3-continuous-time-markov-chains-and-discrete-scores" title="Permanent link">¤</a></h2>
+<h3 id="chapter-3-prerequisites-and-learning-objectives">Chapter 3 prerequisites and learning objectives<a class="headerlink" href="#chapter-3-prerequisites-and-learning-objectives" title="Permanent link">¤</a></h3>
+<p>This chapter assumes the forward equation for finite Markov chains and basic continuous-time probability. After completing it, you should be able to:</p>
+<ol>
+<li>derive reverse jump rates by equating probability flux;</li>
+<li>explain why a discrete score is indexed by an allowed transition rather than by a numeric token coordinate;</li>
+<li>test whether local edge ratios can arise from one globally compatible distribution;</li>
+<li>derive uniformization and distinguish it from Euler stepping, event simulation, and tau-leaping;</li>
+<li>analyze absorbing endpoints, support, and initialization mismatch; and</li>
+<li>separate ratio-estimation, numerical, parallelization, clipping, and initialization errors.</li>
+</ol>
+<p>A CTMC does not “move continuously between tokens.” Its state is piecewise constant and changes at random jump times. Continuous time describes the clock and instantaneous rate law, not a Euclidean interpolation between category IDs.</p>
+<p>A time-dependent CTMC uses generator matrix <span class="arithmatex">\(R_t\)</span> with</p>
+<div class="arithmatex">\[
+R_t(i,j)\ge0\quad(i\ne j),
+\qquad
+R_t(i,i)=-\sum_{j\ne i}R_t(i,j).
+\]</div>
+<p>For row probability vector <span class="arithmatex">\(p_t\)</span>, the forward master equation is</p>
+<div class="arithmatex">\[
+\frac{dp_t}{dt}=p_tR_t.
+\]</div>
+<p>For a short interval <span class="arithmatex">\(\Delta t\)</span>, transition probability is approximately <span class="arithmatex">\(I+\Delta tR_t\)</span>, provided the step is small enough. Matrix exponentials give exact transitions for constant rates but are infeasible on enormous joint state spaces.</p>
+<p>The diagonal constraint has a probabilistic meaning. From state <span class="arithmatex">\(i\)</span>, the probability of no jump during a short interval is
+<span class="arithmatex">\(1-\Delta t\sum_{j\ne i}R_t(i,j)+o(\Delta t)\)</span>, while the probability of jumping to <span class="arithmatex">\(j\)</span> is <span class="arithmatex">\(\Delta tR_t(i,j)+o(\Delta t)\)</span>. A learned matrix with a positive off-diagonal entry but an independently predicted diagonal need not conserve probability.</p>
+<figure class="book-figure" id="fig-discrete-iterative-generation-explained-chapter-3-prerequisites-and-learning-objectives"><pre class="mermaid"><code>flowchart TB
+    P["Noisy marginal&amp;nbsp;$$p_t$$"] --&gt; S["Edge ratios&amp;nbsp;$$s_t(x,y)=p_t(y)/p_t(x)$$"]
+    F["Known forward rates&amp;nbsp;$$R_t(x,y)$$"] --&gt; B["Reverse off-diagonal rates"]
+    S --&gt; B
+    B --&gt; D["Set diagonal to negative exit-rate sum"]
+    D --&gt; K["Choose a numerical transition kernel"]
+    K --&gt; O["Executed sampler law"]</code></pre><figcaption class="book-object-caption"><span class="book-object-number">Figure DISC.9.</span> Chapter 3 prerequisites and learning objectives</figcaption></figure>
+<p>This factorization is a debugging tool. A ratio estimator can be correct while a coarse numerical kernel is wrong, and a normalized numerical kernel can faithfully simulate incorrectly estimated rates. The output law belongs to the whole composition.</p>
+<h3 id="reverse-time-rates">Reverse-Time Rates<a class="headerlink" href="#reverse-time-rates" title="Permanent link">¤</a></h3>
+<p>If the forward process can jump from <span class="arithmatex">\(i\)</span> to <span class="arithmatex">\(j\)</span>, the reverse rate from <span class="arithmatex">\(j\)</span> to <span class="arithmatex">\(i\)</span> depends on the marginal density ratio:</p>
+<div class="arithmatex">\[
+\bar R_t(j,i)=R_t(i,j)\frac{p_t(i)}{p_t(j)},
+\qquad i\ne j,
+\]</div>
+<p>when <span class="arithmatex">\(p_t(j)&gt;0\)</span>. This ratio is the discrete counterpart of the score information used in continuous diffusion. It is not a gradient with respect to token IDs.</p>
+<p>The formula follows from local flux. Forward trajectories carry probability from <span class="arithmatex">\(i\)</span> to <span class="arithmatex">\(j\)</span> at instantaneous rate
+<span class="arithmatex">\(p_t(i)R_t(i,j)\)</span>. Viewed backward, the same trajectory segment leaves <span class="arithmatex">\(j\)</span> for <span class="arithmatex">\(i\)</span>, so</p>
+<div class="arithmatex">\[
+p_t(j)\bar R_t(j,i)=p_t(i)R_t(i,j).
+\]</div>
+<p>Dividing by <span class="arithmatex">\(p_t(j)\)</span> gives the off-diagonal reverse rate; its diagonal is then set to the negative sum of reverse exit rates. This is a time-reversal identity, not a detailed-balance assumption. Detailed balance would additionally assert equality of opposing fluxes for a stationary distribution and would make the stationary forward and reverse generators coincide.</p>
+<h3 id="discrete-score-and-score-entropy">Discrete Score and Score Entropy<a class="headerlink" href="#discrete-score-and-score-entropy" title="Permanent link">¤</a></h3>
+<p>On a state graph, a discrete score can be represented by ratios between neighboring states:</p>
+<div class="arithmatex">\[
+s_t(x,y)=\frac{p_t(y)}{p_t(x)}.
+\]</div>
+<p><a href="https://proceedings.mlr.press/v235/lou24a.html">SEDD</a> develops score entropy, an objective for estimating such ratios in discrete diffusion. The method avoids pretending categorical labels live in Euclidean space. Ratio parameterization, neighbor structure, and rate kernel jointly define the model.</p>
+<p>For a positive distribution <span class="arithmatex">\(p\)</span>, positive estimator <span class="arithmatex">\(s_\theta(x,y)\)</span>, and nonnegative edge weights <span class="arithmatex">\(w_{xy}\)</span>, score entropy can be written</p>
+<div class="arithmatex">\[
+\mathcal L_{\mathrm{SE}}
+=\mathbb E_{x\sim p}\sum_{y\ne x}w_{xy}
+\left[
+s_\theta(x,y)
+-\frac{p(y)}{p(x)}\log s_\theta(x,y)
++K\!\left(\frac{p(y)}{p(x)}\right)
+\right],
+\]</div>
+<p>where <span class="arithmatex">\(K(a)=a(\log a-1)\)</span> is independent of <span class="arithmatex">\(\theta\)</span>. For every edge with positive weight, the pointwise population minimizer is
+<span class="arithmatex">\(s^*(x,y)=p(y)/p(x)\)</span>. The ratio-containing display defines the divergence but is not directly computable from data samples. The implicit equivalent, up to a constant, is</p>
+<div class="arithmatex">\[
+\mathbb E_{x\sim p}\sum_{y\ne x}
+\left[w_{xy}s_\theta(x,y)-w_{yx}\log s_\theta(y,x)\right].
+\]</div>
+<p>On enormous spaces even this neighbor sum can be expensive. Denoising score entropy instead uses known forward transition probabilities conditioned on <span class="arithmatex">\(x_0\)</span>, yielding a Monte Carlo objective whose population target is the noisy marginal ratio. The equality depends on the corruption kernel and support assumptions; “ratio model” alone does not establish it.</p>
+<h3 id="local-ratios-must-agree-around-cycles">Local ratios must agree around cycles<a class="headerlink" href="#local-ratios-must-agree-around-cycles" title="Permanent link">¤</a></h3>
+<p>If positive edge values really equal ratios from one distribution, they obey</p>
+<div class="arithmatex">\[
+s(x,y)s(y,x)=1
+\]</div>
+<p>and, for every directed cycle <span class="arithmatex">\(x_0\to x_1\to\cdots\to x_m=x_0\)</span>,</p>
+<div class="arithmatex">\[
+\prod_{k=0}^{m-1}s(x_k,x_{k+1})=1.
+\]</div>
+<p>The product telescopes because each probability appears once in the numerator and once in the denominator. Conversely, on a connected graph, positive reciprocal edge ratios whose product is one on every cycle define vertex weights up to one global scale: choose a root weight, multiply ratios along a path, and use cycle consistency to prove path independence before normalizing.</p>
+<p>This gives a finite-state compatibility test analogous to Chapter 1's conditional-compatibility test. A neural ratio field can be positive on every edge and still fail it. Multiplying such estimates into rates produces a valid CTMC after the diagonal is repaired, but not necessarily the exact time reversal of any single claimed marginal law.</p>
+<h3 id="sampling-gillespie-and-tau-leaping">Sampling: Gillespie and Tau-Leaping<a class="headerlink" href="#sampling-gillespie-and-tau-leaping" title="Permanent link">¤</a></h3>
+<p>The exact stochastic simulation algorithm samples a waiting time from the total exit rate and then chooses one jump. On a factorized high-dimensional process this can require many events. <strong>Tau-leaping</strong> advances a finite interval by sampling several approximately independent events using rates frozen or approximated over the interval.</p>
+<p>Large leaps reduce sequential steps but increase error through simultaneous changes and stale rates. Adaptive steps use total rates, uncertainty, or error estimates. A claim of “32 steps” must state whether a step permits one event, multiple coordinate jumps, correctors, or model reevaluation.</p>
+<p>Four commonly conflated samplers are:</p>
+<ul>
+<li><strong>Gillespie/event simulation:</strong> sample one exact waiting time and event for the current finite-rate CTMC; exact between model-rate changes but potentially many events;</li>
+<li><strong>uniformization:</strong> dominate exit rates by <span class="arithmatex">\(\Lambda\)</span>, sample Poisson event counts, and use the stochastic kernel <span class="arithmatex">\(I+R/\Lambda\)</span>; exact for a fixed finite generator when implemented without truncation;</li>
+<li><strong>Euler stepping:</strong> use <span class="arithmatex">\(I+hR_t\)</span> once per grid interval, requiring <span class="arithmatex">\(h\)</span> small enough for nonnegative probabilities;</li>
+<li><strong>tau-leaping:</strong> freeze or approximate rates over an interval and allow multiple events, reducing network calls at a discretization cost.</li>
+</ul>
+<p>For a fixed finite generator <span class="arithmatex">\(R\)</span>, choose <span class="arithmatex">\(\Lambda\ge\max_i[-R(i,i)]\)</span> and define</p>
+<div class="arithmatex">\[
+P=I+\frac{R}{\Lambda}.
+\]</div>
+<p><span class="arithmatex">\(P\)</span> is row-stochastic, and the exact transition semigroup admits the uniformization identity</p>
+<div class="arithmatex">\[
+e^{tR}
+=e^{-\Lambda t}\sum_{n=0}^{\infty}
+\frac{(\Lambda t)^n}{n!}P^n
+=\mathbb E_{N\sim\operatorname{Poisson}(\Lambda t)}[P^N].
+\]</div>
+<p>Thus uniformization changes the clock representation, not the target process. Truncating the sum after <span class="arithmatex">\(M\)</span> terms introduces at most the omitted Poisson-tail mass in row-wise total variation. Time-varying learned rates require interval-wise domination or another solver analysis; the fixed-generator identity cannot simply be reused across an interval in which <span class="arithmatex">\(R_t\)</span> changes.</p>
+<p>Model reevaluation frequency is distinct from simulated event count. A tau leap may generate many coordinate changes from one network call; an event simulator may reuse the same rates for several events only when the rate law permits it.</p>
+<div class="md-typeset__table book-table-container"><table id="tbl-discrete-iterative-generation-explained-sampling-gillespie-and-tau-leaping"><caption class="book-object-caption"><span class="book-object-number">Table DISC.13.</span> Sampling: Gillespie and Tau-Leaping</caption>
+<thead>
+<tr>
+<th>Approximation boundary</th>
+<th>Controlled experiment</th>
+<th>Residual interpretation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ratio estimation</td>
+<td>replace the network with exact finite-state ratios</td>
+<td>removes estimator error only</td>
+</tr>
+<tr>
+<td>terminal initialization</td>
+<td>initialize from the exact finite-time marginal</td>
+<td>removes reference mismatch only</td>
+</tr>
+<tr>
+<td>time discretization</td>
+<td>refine the time grid while holding rates fixed</td>
+<td>convergence implicates the solver</td>
+</tr>
+<tr>
+<td>simultaneous-coordinate factorization</td>
+<td>permit one coordinate event at a time</td>
+<td>isolates parallel leap error</td>
+</tr>
+<tr>
+<td>clipping or rate caps</td>
+<td>compare capped and uncapped exact-ratio runs</td>
+<td>measures the intervention's changed law</td>
+</tr>
+<tr>
+<td>Poisson truncation</td>
+<td>raise the uniformization cutoff and track tail mass</td>
+<td>bounds a specific numerical approximation</td>
+</tr>
+</tbody>
+</table></div>
+<p>These interventions need not add linearly. They are nevertheless more informative than labeling every discrepancy “score error.”</p>
+<h3 id="absorbing-mask-ctmc">Absorbing-Mask CTMC<a class="headerlink" href="#absorbing-mask-ctmc" title="Permanent link">¤</a></h3>
+<p>If each token jumps to a mask at rate <span class="arithmatex">\(\beta(t)\)</span> and never leaves it in forward time, then survival probability is</p>
+<div class="arithmatex">\[
+P(x_t=x_0)=\exp\left(-\int_0^t\beta(s)ds\right).
+\]</div>
+<p>Reverse time unmasking uses learned ratios/posteriors. Several coordinates can be unmasked per numerical step, connecting CTMC diffusion to masked iterative generation. The probabilistic construction clarifies transition rates that a heuristic confidence schedule leaves implicit.</p>
+<p>Pure absorbing corruption has a singular endpoint: all mass eventually reaches the mask state. Analyses may use finite terminal time, early stopping, or a surrogate initialization near the point mass. These devices are part of the theorem and implementation. Treating the terminal point mass as a full-support prior can make a KL expression infinite or reverse ratios undefined.</p>
+<h3 id="boundary-and-support-issues">Boundary and Support Issues<a class="headerlink" href="#boundary-and-support-issues" title="Permanent link">¤</a></h3>
+<p>Ratios are undefined when the denominator probability is zero. Forward corruption is chosen to make relevant states reachable and ratios estimable. Clipping ratios stabilizes computation but changes reverse rates; report it as sampler/model approximation.</p>
+<h3 id="worked-two-state-reverse-ctmc">Worked two-state reverse CTMC<a class="headerlink" href="#worked-two-state-reverse-ctmc" title="Permanent link">¤</a></h3>
+<p>Let</p>
+<div class="arithmatex">\[
+R=\begin{bmatrix}-1&amp;1\\1&amp;-1\end{bmatrix},
+\qquad p_0=(0.8,0.2).
+\]</div>
+<p>The forward marginal is</p>
+<div class="arithmatex">\[
+p_t=\left(0.5+0.3e^{-2t},\;0.5-0.3e^{-2t}\right).
+\]</div>
+<p>At <span class="arithmatex">\(t=(\log2)/2\)</span>, <span class="arithmatex">\(p_t=(0.65,0.35)\)</span>. The reverse rate from current state 0 to previous state 1 is</p>
+<div class="arithmatex">\[
+\bar R_t(0,1)=R(1,0)\frac{p_t(1)}{p_t(0)}
+=\frac{0.35}{0.65}\approx0.538.
+\]</div>
+<p>The opposing reverse rate is <span class="arithmatex">\(0.65/0.35\approx1.857\)</span>. Although the forward rates are symmetric, the time-reversed rates at this nonstationary marginal are not. At stationarity <span class="arithmatex">\(p=(0.5,0.5)\)</span>, both reverse rates return to 1.</p>
+<p>This example separates three objects: <span class="arithmatex">\(R\)</span> is known forward corruption, the marginal ratio changes with time, and <span class="arithmatex">\(\bar R_t\)</span> is the generative rate. A network usually estimates the middle object and the implementation constructs the third.</p>
+<h3 id="chapter-3-synthesis">Chapter 3 Synthesis<a class="headerlink" href="#chapter-3-synthesis" title="Permanent link">¤</a></h3>
+<p>CTMCs replace discrete transition matrices with instantaneous rates. Reverse rates require marginal density ratios, and numerical sampling introduces event-discretization error. Chapter 4 compares these constructions with order-agnostic and discrete flow-matching views.</p>
+<h3 id="independent-practice-and-assessment-map-rates-ratios-and-solvers">Independent practice and assessment map: rates, ratios, and solvers<a class="headerlink" href="#independent-practice-and-assessment-map-rates-ratios-and-solvers" title="Permanent link">¤</a></h3>
+<h4 id="p1-turn-an-edge-field-into-an-audited-ctmc-sampler">P1 — Turn an edge field into an audited CTMC sampler<a class="headerlink" href="#p1-turn-an-edge-field-into-an-audited-ctmc-sampler" title="Permanent link">¤</a></h4>
+<p>For P1.1, make the qualitative prediction before calculating the reverse rates.</p>
+<ol>
+<li><strong>P1.1 — Predict before computing.</strong> For the symmetric two-state forward generator in the worked example and a marginal with <span class="arithmatex">\(p_t(0)&gt;p_t(1)\)</span>, predict which reverse direction has the larger rate. Then derive both rates.</li>
+<li><strong>P1.2 — Conserve probability.</strong> Given off-diagonal rates <span class="arithmatex">\(R(0,1)=2\)</span>, <span class="arithmatex">\(R(0,2)=1\)</span>, <span class="arithmatex">\(R(1,0)=3\)</span>, <span class="arithmatex">\(R(1,2)=0\)</span>, <span class="arithmatex">\(R(2,0)=1\)</span>, and <span class="arithmatex">\(R(2,1)=1\)</span>, construct the full generator and verify the infinitesimal row sums.</li>
+<li><strong>P1.3 — Test global compatibility.</strong> On a triangle, let <span class="arithmatex">\(s(a,b)=2\)</span>, <span class="arithmatex">\(s(b,c)=3\)</span>, and <span class="arithmatex">\(s(c,a)=1/5\)</span>, with reciprocal reverse edges. Decide whether these ratios can come from one positive distribution and repair the final ratio if not.</li>
+<li><strong>P1.4 — Uniformize exactly.</strong> Uniformize the generator from P1.2 with the smallest legal integer <span class="arithmatex">\(\Lambda\)</span>. Write <span class="arithmatex">\(P\)</span>, verify it is stochastic, and give the Poisson-tail expression controlling truncation after <span class="arithmatex">\(M\)</span> virtual jumps.</li>
+<li><strong>P1.5 — Audit support.</strong> Explain why starting an absorbing reverse process from an approximate full-support law can invalidate a theorem stated for an exact mask point mass, and why the opposite KL direction may be infinite.</li>
+<li><strong>P1.6 — Transfer to a molecule-edit graph.</strong> Define legal CTMC edges for a constrained molecular state space. Specify an oracle intervention that separates learned-ratio error from tau-leaping error without silently projecting invalid states.</li>
+</ol>
+<h5 id="outcome-to-task-alignment-rates-ratios-and-solvers">Outcome-to-task alignment: rates, ratios, and solvers<a class="headerlink" href="#outcome-to-task-alignment-rates-ratios-and-solvers" title="Permanent link">¤</a></h5>
+<div class="md-typeset__table book-table-container"><table id="tbl-discrete-iterative-generation-explained-outcome-to-task-alignment-rates-ratios-and-solvers"><caption class="book-object-caption"><span class="book-object-number">Table DISC.14.</span> Outcome-to-task alignment: rates, ratios, and solvers</caption>
+<thead>
+<tr>
+<th>Learning objective</th>
+<th>Independently assessed by</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>O1 — Derive reverse rates; evidence is a directional prediction and flux calculation</td>
+<td>P1.1</td>
+</tr>
+<tr>
+<td>O2 — Interpret a graph-indexed score; evidence is a legal state-graph construction</td>
+<td>P1.6</td>
+</tr>
+<tr>
+<td>O3 — Test global ratio compatibility; evidence is a reciprocal and cycle-product audit</td>
+<td>P1.3</td>
+</tr>
+<tr>
+<td>O4 — Derive and classify uniformization; evidence is a generator-to-kernel derivation plus truncation bound</td>
+<td>P1.4</td>
+</tr>
+<tr>
+<td>O5 — Analyze support and initialization; evidence is a KL-direction and endpoint analysis</td>
+<td>P1.5</td>
+</tr>
+<tr>
+<td>O6 — Separate error sources; evidence is probability conservation and an oracle-controlled sampler experiment</td>
+<td>P1.2, P1.6</td>
+</tr>
+</tbody>
+</table></div>
+<details class="success">
+<summary>Complete solutions to P1</summary>
+<ol>
+<li>The reverse rate from the lower-probability current state 1 toward previous state 0 is larger: <span class="arithmatex">\(\bar R_t(1,0)=p_t(0)/p_t(1)\)</span>. The opposite rate is <span class="arithmatex">\(p_t(1)/p_t(0)\)</span>; for <span class="arithmatex">\((0.65,0.35)\)</span> they are approximately <span class="arithmatex">\(1.857\)</span> and <span class="arithmatex">\(0.538\)</span>.</li>
+<li>The diagonal is the negative exit-rate sum, giving <span class="arithmatex">\(R=\begin{bmatrix}-3&amp;2&amp;1\\3&amp;-3&amp;0\\1&amp;1&amp;-2\end{bmatrix}\)</span>. Every row sums to zero, so <span class="arithmatex">\(I+hR\)</span> has row sums one wherever <span class="arithmatex">\(h\)</span> is small enough to keep all entries nonnegative.</li>
+<li>The cycle product is <span class="arithmatex">\(2\times3\times(1/5)=6/5\ne1\)</span>, so no such distribution exists. Set <span class="arithmatex">\(s(c,a)=1/6\)</span>; then relative weights can be reconstructed consistently.</li>
+<li>The largest exit rate is 3, so <span class="arithmatex">\(\Lambda=3\)</span> and <span class="arithmatex">\(P=I+R/3=\begin{bmatrix}0&amp;2/3&amp;1/3\\1&amp;0&amp;0\\1/3&amp;1/3&amp;1/3\end{bmatrix}\)</span>. The omitted mass is <span class="arithmatex">\(\Pr[N&gt;M]\)</span> for <span class="arithmatex">\(N\sim\operatorname{Poisson}(3t)\)</span>.</li>
+<li>The initialization changes the starting law, so a guarantee conditioned on the exact endpoint no longer applies without a stability bound. Moreover, <span class="arithmatex">\(D_{\mathrm{KL}}(q\|\delta_m)\)</span> is infinite whenever <span class="arithmatex">\(q\)</span> puts positive mass outside the mask state.</li>
+<li>Use only chemically legal single edits as edges and assign illegal edits zero rate. Replace learned ratios with exact ratios on a small enumerated molecule graph, then compare event simulation with progressively refined tau leaps. Do not project invalid proposals: projection would introduce a third transition law.</li>
+</ol>
+</details>
+<details class="question">
+<summary>Retrieval questions</summary>
+<ol>
+<li>Why does the reverse-rate formula not require detailed balance?</li>
+<li>What is the population minimizer of score entropy on an edge <span class="arithmatex">\((x,y)\)</span>?</li>
+<li>Which CTMC simulation method uses <span class="arithmatex">\(I+R/\Lambda\)</span> and a Poisson clock?</li>
+<li>Why can an absorbing endpoint make a naive KL guarantee ill-defined?</li>
+<li>Is a discrete score the gradient of log probability with respect to an integer token ID?</li>
+</ol>
+</details>
+<details class="success">
+<summary>Complete solutions</summary>
+<ol>
+<li>It equates forward and backward probability flux for the same local trajectory segment at the current marginal; stationarity and equality of opposing forward fluxes are unnecessary.</li>
+<li><span class="arithmatex">\(s^*(x,y)=p(y)/p(x)\)</span> when the distribution and edge weight have the required positive support.</li>
+<li>Uniformization. Without rate truncation or Poisson truncation it exactly simulates a fixed finite generator dominated by <span class="arithmatex">\(\Lambda\)</span>.</li>
+<li>The terminal law is a point mass, so comparing a broader law against it in the wrong KL direction encounters zero support. Finite time, early stopping, or a surrogate law must be stated.</li>
+<li>No. The score is a ratio or difference on specified state-graph edges; numeric token IDs have no intrinsic Euclidean geometry.</li>
+</ol>
+</details>
+<p>Chapter 4 keeps the same conservation equation but changes the design question: rather than beginning with a prescribed corruption and reversing it, choose a probability path and learn a posterior or probability velocity that transports a reference law to data.</p>
+<hr/>
+<p><strong>Navigate:</strong> <a href="../discrete-iterative-02-diffusion/">← Discrete Diffusion</a> · <a href="../discrete-iterative-04-flow/">4. Discrete Flow Matching →</a> · <a href="../discrete-iterative-generation-explained/">Complete guide</a></p>
+</article>
+</div>
+<script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  Back to top
+</button>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+<div class="md-social">
+<a class="md-social__link" href="https://github.com/avitai/artifex" rel="noopener" target="_blank" title="github.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</a>
+<a class="md-social__link" href="https://pypi.org/project/avitai-artifex/" rel="noopener" target="_blank" title="pypi.org">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-66.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.3v101.8c0 29 25.2 46 53.4 54.3 33.8 9.9 66.3 11.7 106.8 0 26.9-7.8 53.4-23.5 53.4-54.3v-40.7H226.2v-13.6h160.2c31.1 0 42.6-21.7 53.4-54.2 11.2-33.5 10.7-65.7 0-108.6M286.2 444.7a20.4 20.4 0 1 1 0-40.7 20.4 20.4 0 1 1 0 40.7M167.8 248.1h106.8c29.7 0 53.4-24.5 53.4-54.3V91.9c0-29-24.4-50.7-53.4-55.6-35.8-5.9-74.7-5.6-106.8.1-45.2 8-53.4 24.7-53.4 55.6v40.7h106.9v13.6h-147c-31.1 0-58.3 18.7-66.8 54.2-9.8 40.7-10.2 66.1 0 108.6 7.6 31.6 25.7 54.2 56.8 54.2H101v-48.8c0-35.3 30.5-66.4 66.8-66.4m-6.6-183.4a20.4 20.4 0 1 1 0 40.8 20.4 20.4 0 1 1 0-40.8"></path></svg>
+</a>
+<a class="md-social__link" href="https://twitter.com/mahdi_shafiei" rel="noopener" target="_blank" title="twitter.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M459.4 151.7c.3 4.5.3 9.1.3 13.6 0 138.7-105.6 298.6-298.6 298.6-59.5 0-114.7-17.2-161.1-47.1 8.4 1 16.6 1.3 25.3 1.3 49.1 0 94.2-16.6 130.3-44.8-46.1-1-84.8-31.2-98.1-72.8 6.5 1 13 1.6 19.8 1.6 9.4 0 18.8-1.3 27.6-3.6-48.1-9.7-84.1-52-84.1-103v-1.3c14 7.8 30.2 12.7 47.4 13.3-28.3-18.8-46.8-51-46.8-87.4 0-19.5 5.2-37.4 14.3-53C87.4 130.8 165 172.4 252.1 176.9c-1.6-7.8-2.6-15.9-2.6-24C249.5 95.1 296.3 48 354.4 48c30.2 0 57.5 12.7 76.7 33.1 23.7-4.5 46.5-13.3 66.6-25.3-7.8 24.4-24.4 44.8-46.1 57.8 21.1-2.3 41.6-8.1 60.4-16.2-14.3 20.8-32.2 39.3-52.6 54.3"></path></svg>
+</a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.path", "navigation.top", "navigation.prune", "toc.follow", "search.highlight", "search.share", "search.suggest", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "content.mermaid"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+<script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+<script src="../../../javascripts/reading-layout.js"></script>
+</body>
+</html>

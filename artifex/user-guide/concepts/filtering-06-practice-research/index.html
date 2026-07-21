@@ -1,0 +1,1451 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="This chapter connects non-Gaussian and learned inference to a query-specific validation and method-selection protocol. Read it continuously in the complete" name="description"/>
+<meta content="Mahdi Shafiei" name="author"/>
+<link href="https://docs.avitai.bio/artifex/user-guide/concepts/filtering-06-practice-research/" rel="canonical"/>
+<link href="../filtering-05-projection-ensemble/" rel="prev"/>
+<link href="../filtering-and-smoothing-state-space/" rel="next"/>
+<link href="../../../assets/images/favicon.png" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.7.7" name="generator"/>
+<title>Filtering 6 — Particles, Learning, Validation, and Method Choice - Artifex</title>
+<link href="../../../assets/stylesheets/main.ec1eaa64.min.css" rel="stylesheet"/>
+<link href="../../../assets/stylesheets/palette.ab4e12ef.min.css" rel="stylesheet"/>
+<script src="../../../assets/vendor/iframe-worker/index.js"></script>
+<link href="../../../assets/_mkdocstrings.css" rel="stylesheet"/>
+<link href="../../../_static/extra.css" rel="stylesheet"/>
+<script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+<meta content="article" property="og:type"/>
+<meta content="The Artifex Generative Models Book" property="og:site_name"/>
+<meta content="Filtering 6 — Particles, Learning, Validation, and Method Choice" property="og:title"/>
+<meta content="This chapter connects non-Gaussian and learned inference to a query-specific validation and method-selection protocol. Read it continuously in the complete" property="og:description"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/filtering-06-practice-research/" property="og:url"/>
+<meta content="2026-07-15" property="article:modified_time"/>
+<meta content="summary" name="twitter:card"/>
+<meta content="Filtering 6 — Particles, Learning, Validation, and Method Choice" name="twitter:title"/>
+<meta content="This chapter connects non-Gaussian and learned inference to a query-specific validation and method-selection protocol. Read it continuously in the complete" name="twitter:description"/>
+<meta content="Generative models, Machine learning, Probabilistic modeling, advanced, specialization, canonical_chapter, filtering-practice-research, practitioner, researcher" name="keywords"/>
+<meta content="Filtering 6 — Particles, Learning, Validation, and Method Choice" name="citation_title"/>
+<meta content="Mahdi Shafiei" name="citation_author"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/filtering-06-practice-research/" name="citation_public_url"/>
+<meta content="en" name="citation_language"/>
+<meta content="Filtering 6 — Particles, Learning, Validation, and Method Choice" name="DC.title"/>
+<meta content="Mahdi Shafiei" name="DC.creator"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/filtering-06-practice-research/" name="DC.identifier"/>
+<meta content="Text.LearningResource" name="DC.type"/>
+<meta content="2026-07-15" name="DCTERMS.modified"/>
+<meta content="https://github.com/avitai/artifex/blob/main/LICENSE" name="DCTERMS.license"/>
+<meta content="advanced" name="DCTERMS.educationLevel"/>
+<meta content="practitioner, researcher" name="DCTERMS.audience"/>
+<link href="https://github.com/avitai/artifex/blob/main/LICENSE" rel="license"/>
+<script id="artifex-book-metadata" type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Chapter",
+  "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/filtering-06-practice-research/",
+  "url": "https://docs.avitai.bio/artifex/user-guide/concepts/filtering-06-practice-research/",
+  "name": "Filtering 6 \u2014 Particles, Learning, Validation, and Method Choice",
+  "description": "This chapter connects non-Gaussian and learned inference to a query-specific validation and method-selection protocol. Read it continuously in the complete",
+  "identifier": "filtering-practice-research",
+  "inLanguage": "en",
+  "isAccessibleForFree": true,
+  "learningResourceType": "Canonical chapter",
+  "educationalLevel": "advanced",
+  "educationalUse": "specialization",
+  "audience": [
+    
+      {"@type": "EducationalAudience", "audienceType": "practitioner"},
+    
+      {"@type": "EducationalAudience", "audienceType": "researcher"}
+    
+  ],
+  "dateModified": "2026-07-15",
+  "keywords": ["Generative models", "Machine learning", "Probabilistic modeling", "advanced", "specialization", "canonical_chapter", "filtering-practice-research", "practitioner", "researcher"],
+  "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+  "author": [
+    
+      {"@type": "Person", "name": "Mahdi Shafiei"}
+    
+  ],
+  "isPartOf": {
+    "@type": "Book",
+    "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/#book",
+    "url": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/",
+    "name": "The Artifex Generative Models Book",
+    "bookEdition": "Living Web Edition",
+    "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+    "author": [
+      
+        {"@type": "Person", "name": "Mahdi Shafiei"}
+      
+    ]
+  }
+}
+</script>
+<script defer="" src="../../../javascripts/mathjax.js"></script>
+<script defer="" integrity="sha384-OrHfGTnIbkl0do3N76qW/uWr38o91N05sbSPuYBPLH+hG8X/dNSrjZf3AGjzrCwC" src="../../../assets/vendor/mathjax/tex-mml-chtml.js"></script>
+</head>
+<body data-md-color-accent="amber" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#filtering-6-particles-learning-validation-and-method-choice">
+          Skip to content
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header md-header--shadow" data-md-component="header">
+<nav aria-label="Header" class="md-header__inner md-grid">
+<a aria-label="Artifex" class="md-header__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            Artifex
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+            
+              Filtering 6 — Particles, Learning, Validation, and Method Choice
+            
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-label="Switch to dark mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: light)" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_1" hidden="" title="Switch to dark mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+<input aria-label="Switch to light mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-primary="indigo" data-md-color-scheme="slate" id="__palette_1" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_0" hidden="" title="Switch to light mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+</form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div aria-label="Search" class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Search" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="Search" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="Search" class="md-search__options">
+<a aria-label="Share" class="md-search__icon md-icon" data-clipboard="" data-clipboard-text="" data-md-component="search-share" href="javascript:void(0)" tabindex="-1" title="Share">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"></path></svg>
+</a>
+<button aria-label="Clear" class="md-search__icon md-icon" tabindex="-1" title="Clear" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            Initializing search
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Navigation" class="md-nav md-nav--primary" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="Artifex" class="md-nav__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+    Artifex
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../..">
+<span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../getting-started/installation/">
+<span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Generative Models Book
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Generative Models Book
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    
+  
+    Start Here — The Landscape
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../first-course-01-generative-systems/">
+<span class="md-ellipsis">
+    
+  
+    First Course — New to Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Foundations
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_3_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Foundations
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../probability-01-objects/">
+<span class="md-ellipsis">
+    
+  
+    1. Probability and Generative Modeling
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../classical-01-latent-foundations/">
+<span class="md-ellipsis">
+    
+  
+    2. Classical Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../bayesian-learning-01-object/">
+<span class="md-ellipsis">
+    
+  
+    3. Bayesian Learning and Model Assessment
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../inference-01-objects-and-queries/">
+<span class="md-ellipsis">
+    
+  
+    4. Latent Variables and Inference
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../objectives-01-discrepancies/">
+<span class="md-ellipsis">
+    
+  
+    5. Objectives and Statistical Distances
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../information-coding-01-measures/">
+<span class="md-ellipsis">
+    
+  
+    6. Information, Coding, and Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../graphical-models-01-directed/">
+<span class="md-ellipsis">
+    
+  
+    7. Graphical Models and Structured Probability
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../message-passing-01-factor-graphs/">
+<span class="md-ellipsis">
+    
+  
+    8. Graphical Inference and Message Passing
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_3_9" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_3_9" id="__nav_3_3_9_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    9. Filtering and Smoothing for State-Space Generators
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_3_9_label" class="md-nav" data-md-level="3">
+<label class="md-nav__title" for="__nav_3_3_9">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    9. Filtering and Smoothing for State-Space Generators
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../filtering-01-bayes-recursions/">
+<span class="md-ellipsis">
+    
+  
+    1. Bayesian Recursions and Information Sets
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../filtering-02-kalman/">
+<span class="md-ellipsis">
+    
+  
+    2. Linear-Gaussian Filtering
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../filtering-03-smoothing/">
+<span class="md-ellipsis">
+    
+  
+    3. Smoothing, Sampling, and Information Forms
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../filtering-04-nonlinear-gaussian/">
+<span class="md-ellipsis">
+    
+  
+    4. Nonlinear Gaussian Approximations
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../filtering-05-projection-ensemble/">
+<span class="md-ellipsis">
+    
+  
+    5. Projection, Mixture, Ensemble, and Robust Filters
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
+    
+  
+    6. Particles, Learning, Validation, and Method Choice
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
+<span class="md-ellipsis">
+    
+  
+    6. Particles, Learning, Validation, and Method Choice
+  
+
+    
+  </span>
+</a>
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#6-particles-learning-validation-and-method-choice">
+<span class="md-ellipsis">
+      
+        6. Particles, Learning, Validation, and Method Choice
+      
+    </span>
+</a>
+<nav aria-label="6. Particles, Learning, Validation, and Method Choice" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-6-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 6 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#beyond-a-single-gaussian">
+<span class="md-ellipsis">
+      
+        Beyond a single Gaussian
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#differentiating-through-a-filter">
+<span class="md-ellipsis">
+      
+        Differentiating through a filter
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#learned-analytic-structure-and-expressive-beliefs">
+<span class="md-ellipsis">
+      
+        Learned analytic structure and expressive beliefs
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#a-current-smoothing-direction">
+<span class="md-ellipsis">
+      
+        A current smoothing direction
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#validation-starts-with-the-query">
+<span class="md-ellipsis">
+      
+        Validation starts with the query
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-method-selection-audit">
+<span class="md-ellipsis">
+      
+        Worked method-selection audit
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#decision-table">
+<span class="md-ellipsis">
+      
+        Decision table
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-6-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 6 synthesis
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-6-retrieval-practice">
+<span class="md-ellipsis">
+      
+        Chapter 6 retrieval practice
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#primary-reading">
+<span class="md-ellipsis">
+      
+        Primary reading
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../filtering-and-smoothing-state-space/">
+<span class="md-ellipsis">
+    
+  
+    Continuous View (All Chapters)
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../sampling-01-monte-carlo/">
+<span class="md-ellipsis">
+    
+  
+    10. Sampling and Continuous Time
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../smc-01-targets/">
+<span class="md-ellipsis">
+    
+  
+    11. Sequential Monte Carlo and Particle Methods
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../optimization-01-differentiation/">
+<span class="md-ellipsis">
+    
+  
+    12. Optimization and Learning Dynamics
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../generative-models-notation/">
+<span class="md-ellipsis">
+    
+  
+    13. Canonical Notation
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../autoregressive-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Model Families
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gradients-01-taxonomy/">
+<span class="md-ellipsis">
+    
+  
+    Connections and Compositions
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../normalization-01-queries/">
+<span class="md-ellipsis">
+    
+  
+    Research Practice
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../models/vae-guide/">
+<span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/core/base/">
+<span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../examples/overview/">
+<span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../zoo/">
+<span class="md-ellipsis">
+    
+  
+    Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../training/overview/">
+<span class="md-ellipsis">
+    
+  
+    Training
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../data/overview/">
+<span class="md-ellipsis">
+    
+  
+    Data &amp; Modalities
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../inference/overview/">
+<span class="md-ellipsis">
+    
+  
+    Inference &amp; Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../benchmarks/">
+<span class="md-ellipsis">
+    
+  
+    Evaluation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../guides/extensions/">
+<span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../extensions/">
+<span class="md-ellipsis">
+    
+  
+    Advanced Topics
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../cli/">
+<span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../community/contributing/">
+<span class="md-ellipsis">
+    
+  
+    Community
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/configs/protein-extension/">
+<span class="md-ellipsis">
+    
+  
+    Reference Library
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#6-particles-learning-validation-and-method-choice">
+<span class="md-ellipsis">
+      
+        6. Particles, Learning, Validation, and Method Choice
+      
+    </span>
+</a>
+<nav aria-label="6. Particles, Learning, Validation, and Method Choice" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-6-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 6 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#beyond-a-single-gaussian">
+<span class="md-ellipsis">
+      
+        Beyond a single Gaussian
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#differentiating-through-a-filter">
+<span class="md-ellipsis">
+      
+        Differentiating through a filter
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#learned-analytic-structure-and-expressive-beliefs">
+<span class="md-ellipsis">
+      
+        Learned analytic structure and expressive beliefs
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#a-current-smoothing-direction">
+<span class="md-ellipsis">
+      
+        A current smoothing direction
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#validation-starts-with-the-query">
+<span class="md-ellipsis">
+      
+        Validation starts with the query
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-method-selection-audit">
+<span class="md-ellipsis">
+      
+        Worked method-selection audit
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#decision-table">
+<span class="md-ellipsis">
+      
+        Decision table
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-6-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 6 synthesis
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-6-retrieval-practice">
+<span class="md-ellipsis">
+      
+        Chapter 6 retrieval practice
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#primary-reading">
+<span class="md-ellipsis">
+      
+        Primary reading
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<nav aria-label="Breadcrumb" class="md-path">
+<ol class="md-path__list">
+<li class="md-path__item">
+<a class="md-path__link" href="../../..">
+<span class="md-ellipsis">
+    Home
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    Generative Models Book
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../probability-01-objects/">
+<span class="md-ellipsis">
+    Foundations
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../filtering-01-bayes-recursions/">
+<span class="md-ellipsis">
+    9. Filtering and Smoothing for State-Space Generators
+  </span>
+</a>
+</li>
+</ol>
+</nav>
+<article class="md-content__inner md-typeset">
+<h1 id="filtering-6-particles-learning-validation-and-method-choice">Filtering 6 — Particles, Learning, Validation, and Method Choice<a class="headerlink" href="#filtering-6-particles-learning-validation-and-method-choice" title="Permanent link">¤</a></h1><aside aria-label="Learning path" class="admonition abstract artifex-learning-path"><p class="admonition-title">Learning path</p><p><strong>Required knowledge</strong></p><ul class="artifex-learning-path__links" data-learning-path-role="required"><li><a href="../filtering-05-projection-ensemble/">Filtering 5 — Projection, Mixture, Ensemble, and Robust Filters</a></li></ul><p><strong>Readiness check:</strong> can you explain the central object and reproduce one worked example from each required chapter? If not, follow its link before continuing.</p><p><strong>Newly unlocked in the default route</strong></p><p>No immediate successor names this page as its final required prerequisite. Continue through the book navigation or the chapter's cross-links.</p></aside>
+<p>This chapter connects non-Gaussian and learned inference to a query-specific
+validation and method-selection protocol. Read it continuously in the <a href="../filtering-and-smoothing-state-space/#6-particles-learning-validation-and-method-choice">complete
+guide</a>.</p>
+<h2 id="6-particles-learning-validation-and-method-choice">6. Particles, Learning, Validation, and Method Choice<a class="headerlink" href="#6-particles-learning-validation-and-method-choice" title="Permanent link">¤</a></h2>
+<h3 id="chapter-6-prerequisites-and-learning-objectives">Chapter 6 prerequisites and learning objectives<a class="headerlink" href="#chapter-6-prerequisites-and-learning-objectives" title="Permanent link">¤</a></h3>
+<p><strong>Prerequisites.</strong> Chapters 1–5, importance sampling, SMC, variational
+inference, MCMC, automatic differentiation, and proper scoring rules.</p>
+<p><strong>Learning objectives.</strong> Compare state-space inference by target and returned
+representation; separate differentiable learning from finite-filter
+correctness; validate means, uncertainty, paths, evidence, and compute; place
+recent learned and control-based filters at the right abstraction layer; and
+choose a method with an auditable approximation ledger.</p>
+<h3 id="beyond-a-single-gaussian">Beyond a single Gaussian<a class="headerlink" href="#beyond-a-single-gaussian" title="Permanent link">¤</a></h3>
+<p>The Bayesian recursion can be approximated with several representations:</p>
+<div class="md-typeset__table book-table-container"><table id="tbl-filtering-and-smoothing-state-space-beyond-a-single-gaussian"><caption class="book-object-caption"><span class="book-object-number">Table FILTER.5.</span> Beyond a single Gaussian</caption>
+<thead>
+<tr>
+<th>Representation</th>
+<th>Update mechanism</th>
+<th>Principal strength</th>
+<th>Principal failure</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>grid or basis</td>
+<td>numerical integration and normalized tables</td>
+<td>transparent multimodality in very low dimension</td>
+<td>state-space resolution grows exponentially with dimension</td>
+</tr>
+<tr>
+<td>weighted particles</td>
+<td>proposal, importance correction, and optional resampling</td>
+<td>flexible nonlinear and non-Gaussian beliefs</td>
+<td>weight and ancestral degeneracy; severe dimension dependence</td>
+</tr>
+<tr>
+<td>structured variational path</td>
+<td>optimize a declared family over <span class="arithmatex">\(z_{0:T}\)</span></td>
+<td>scalable amortization and global smoothing objectives</td>
+<td>family, amortization, and optimization gaps</td>
+</tr>
+<tr>
+<td>trajectory MCMC</td>
+<td>invariant transitions over states and possibly parameters</td>
+<td>asymptotically exact expectations under kernel conditions</td>
+<td>mixing and long-path geometry can be poor</td>
+</tr>
+<tr>
+<td>expectation propagation</td>
+<td>revise local approximate factors by moment projection</td>
+<td>can reuse local structure and two-sided information</td>
+<td>convergence and positive-definiteness are not generic</td>
+</tr>
+<tr>
+<td>learned deterministic belief</td>
+<td>recurrent or set-valued state update</td>
+<td>low-latency amortized computation</td>
+<td>may not define a normalized posterior or calibrated uncertainty</td>
+</tr>
+</tbody>
+</table></div>
+<p>The <a href="../sampling-and-continuous-time/#4-gibbs-blocks-and-auxiliary-variables">canonical MCMC chapter</a>
+owns invariance, blocked versus scalar updates, warmup, and MCSE. In this
+chapter, trajectory MCMC specializes those rules to a coupled latent path,
+where one-site updates can deteriorate as sequence length grows.</p>
+<p>Particle filtering, resampling, proposal design, particle smoothing, and
+particle MCMC are derived in the <a href="../sequential-monte-carlo-and-particle-methods/">Sequential Monte Carlo and Particle Methods
+foundation</a>. The <a href="../stochastic-process-generators-explained/#particle-filtering-without-hiding-the-proposal">stochastic-process
+chapter</a>
+specializes the construction to irregular-time and continuous-transition laws,
+while <a href="../latent-variables-and-inference/#6-sequential-monte-carlo">Latent Variables and
+Inference</a> compares
+particle objectives with other posterior approximations. The key boundary here
+is that resampling improves current weight allocation while coalescing
+ancestral paths. A filter can estimate the current state well and still give
+poor early-time smoothing trajectories.</p>
+<p>Rao–Blackwellized filters integrate a tractable conditional submodel exactly
+and sample the remainder. This reduces Monte Carlo variance when the
+decomposition is valid; it does not make the sampled variables exact or erase
+particle-support requirements.</p>
+<h3 id="differentiating-through-a-filter">Differentiating through a filter<a class="headerlink" href="#differentiating-through-a-filter" title="Permanent link">¤</a></h3>
+<p>A differentiable filter is a parameterized computation. Gradients can update
+transition, observation, proposal, representation, or initialization
+parameters using supervised state loss, predictive likelihood, an ELBO, an SMC
+bound, or another declared objective. These objectives need not have the same
+population optimum.</p>
+<p>For a deterministic Kalman recursion, reverse-mode differentiation targets the
+finite sequence of solves and updates actually executed. Near-singular
+covariances, adaptive jitter, clipping, stopped gradients, or custom
+factorizations become part of that derivative program.</p>
+<p>For particles, resampling introduces discrete ancestor choices.
+Straight-through, soft-resampling, score-function, transport, marginalization,
+and stopped-resampling estimators have different bias and variance. End-to-end
+differentiability therefore does not prove that the gradient is unbiased for
+the exact state-space likelihood.</p>
+<p><a href="https://doi.org/10.15607/RSS.2018.XIV.001">Differentiable Particle Filters</a>
+demonstrate one algorithm-prior construction with learned motion and
+measurement components. A 2025 peer-reviewed
+<a href="https://doi.org/10.1016/j.sigpro.2025.109998">learned mixture proposal and transition method</a>
+provides another. Their experimental results belong to the named objectives,
+data, representations, particle counts, and baselines—not to differentiable
+filtering as a universal ranking.</p>
+<h3 id="learned-analytic-structure-and-expressive-beliefs">Learned analytic structure and expressive beliefs<a class="headerlink" href="#learned-analytic-structure-and-expressive-beliefs" title="Permanent link">¤</a></h3>
+<p>Learned filters occupy several distinct design points:</p>
+<ul>
+<li>a neural transition or observation map inside EKF, UKF, or a moment filter;</li>
+<li>an encoder that emits parameters of one Gaussian or mixture belief;</li>
+<li>an invertible map that preserves a declared tractable calculation;</li>
+<li>a learned proposal inside an importance-corrected particle filter; or</li>
+<li>a recurrent belief representation trained only for a downstream query.</li>
+</ul>
+<p>The 2025 ICML <a href="https://proceedings.mlr.press/v267/tarumi25a.html">Deep Bayesian
+Filter</a> introduces an
+additional latent variable, constrains latent transition structure, and learns
+an inverse observation operator so that its stated recursive computation is
+analytic within that construction. This is a <strong>hybrid system composition</strong>:
+learned structure is designed around a tractable posterior interface. It does
+not establish that every learned latent coordinate has a Gaussian true
+posterior or identifiable physical meaning.</p>
+<p>As of the verification date, <a href="https://openreview.net/forum?id=krF62hkrfR">Neural Bayesian
+Filtering</a> is a revised submission,
+not peer-reviewed evidence, for embedding and tracking multimodal beliefs. It
+is useful as a <strong>preprint research direction</strong> only; its status and experiments
+must not be narrated as a settled field result.</p>
+<h3 id="a-current-smoothing-direction">A current smoothing direction<a class="headerlink" href="#a-current-smoothing-direction" title="Permanent link">¤</a></h3>
+<p>A 2026 peer-reviewed <a href="https://proceedings.mlr.press/v331/vantilborgh26a.html">probabilistic optimal-control representation of
+smoothing</a> represents a
+posterior trajectory law through the closed-loop behavior of a synthetic
+controlled system and reports equally weighted forward trajectories under its
+constructed policy. This is a <strong>distributional correspondence under the
+paper's construction</strong>, not an algebraic identity between every smoother and
+every control problem. The policy approximation, particle representation,
+dynamic-programming computation, and model-learning experiment retain their
+own errors and compute ledger.</p>
+<p>A June 2026 <a href="https://arxiv.org/abs/2606.31137">Bayesian-filtering approach to learned Lagrangian
+dynamics</a> is a <strong>preprint</strong> example of joint
+physical-model and state learning with Gaussian-approximation filters. It is
+included to mark a research interface—structured mechanics plus approximate
+filtering—not as evidence of broad superiority or mature reproduction.</p>
+<h3 id="validation-starts-with-the-query">Validation starts with the query<a class="headerlink" href="#validation-starts-with-the-query" title="Permanent link">¤</a></h3>
+<p>No single residual plot validates a filter. Use a ladder:</p>
+<ol>
+<li><strong>Algebraic oracle.</strong> Compare with enumeration or dense Gaussian
+   conditioning on a tiny model.</li>
+<li><strong>Limiting cases.</strong> Recover the linear model from nonlinear code; skip an
+   absent observation; test nearly noiseless and uninformative observations;
+   verify that permuting equivalent independent sensor factors changes no
+   exact result.</li>
+<li><strong>Simulation calibration.</strong> Draw states and observations from the declared
+   model, then measure coverage, rank behavior, and path statistics.</li>
+<li><strong>Predictive checks.</strong> Evaluate held-out log predictive density or another
+   proper score, calibration by horizon, and residual dependence.</li>
+<li><strong>Application queries.</strong> Test the downstream forecast, event probability,
+   control cost, or scientific functional, not only state RMSE.</li>
+<li><strong>Model criticism.</strong> Check whether simulated observations resemble relevant
+   real-data structure. Inference calibration under a simulator does not
+   validate the simulator.</li>
+</ol>
+<p>For a <span class="arithmatex">\(d_y\)</span>-dimensional linear-Gaussian innovation, the normalized innovation
+squared is</p>
+<div class="arithmatex">\[
+\operatorname{NIS}_t=e_t^\top S_t^{-1}e_t.
+\]</div>
+<p>Under the correctly specified regular model it has a <span class="arithmatex">\(\chi^2_{d_y}\)</span> marginal
+law, with additional dependence considerations for a time series. If true
+states are available in simulation, the normalized estimation error squared is</p>
+<div class="arithmatex">\[
+\operatorname{NEES}_t
+=(z_t-m_{t\mid t})^\top
+P_{t\mid t}^{-1}(z_t-m_{t\mid t}),
+\]</div>
+<p>with an analogous <span class="arithmatex">\(\chi^2_{d_z}\)</span> reference under its assumptions. Repeated
+time points from one trajectory are not independent replicates. Tune-on-test
+inflation can make these diagnostics look calibrated without producing a
+generalizing model.</p>
+<p>Also record:</p>
+<ul>
+<li>innovation mean, autocorrelation, tail behavior, and condition-specific
+  structure;</li>
+<li>marginal and simultaneous coverage across horizons;</li>
+<li>effective sample size, unique ancestors, mode occupancy, and path diversity
+  for particles;</li>
+<li>covariance symmetry, factorization failures, minimum eigenvalues, and jitter;</li>
+<li>convergence residuals and initialization sensitivity for iterated methods;</li>
+<li>predictive likelihood with the exact approximation status of each
+  normalizer; and</li>
+<li>wall-clock time, peak memory, model evaluations, linear solves,
+  factorizations, particles or sigma points, sequential depth, and hardware.</li>
+</ul>
+<h3 id="worked-method-selection-audit">Worked method-selection audit<a class="headerlink" href="#worked-method-selection-audit" title="Permanent link">¤</a></h3>
+<p>Suppose a two-dimensional tracking simulator has a bearing-only observation.
+A single measurement admits two separated range hypotheses, but repeated motion
+usually resolves the ambiguity. A defensible study would:</p>
+<ol>
+<li>enumerate or grid a reduced two-step instance as a reference;</li>
+<li>compare EKF, sigma-point, Gaussian mixture, and particle filters with matched
+   transition and observation models;</li>
+<li>report current-state RMSE <strong>and</strong> posterior mass on both range hypotheses;</li>
+<li>evaluate path samples after the ambiguity resolves;</li>
+<li>repeat under clean data, outliers, altered motion, and particle or mixture
+   budgets; and</li>
+<li>distinguish model calls and wall time from nominal update count.</li>
+</ol>
+<p>An EKF can have good mean RMSE after resolution while being overconfident
+during ambiguity. A particle filter can preserve both modes yet suffer ancestor
+collapse. A mixture filter can work well until pruning deletes the eventual
+correct branch. These are different failure mechanisms, so one aggregate RMSE
+cannot select the method.</p>
+<h3 id="decision-table">Decision table<a class="headerlink" href="#decision-table" title="Permanent link">¤</a></h3>
+<div class="md-typeset__table book-table-container"><table id="tbl-filtering-and-smoothing-state-space-decision-table"><caption class="book-object-caption"><span class="book-object-number">Table FILTER.6.</span> Decision table</caption>
+<thead>
+<tr>
+<th>Problem evidence</th>
+<th>Reasonable starting point</th>
+<th>Required challenge test</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>verified linear-Gaussian model, moderate dense state</td>
+<td>square-root Kalman filter and RTS smoother</td>
+<td>dense batch Gaussian oracle and condition-number sweep</td>
+</tr>
+<tr>
+<td>sparse precision or many independent sensors</td>
+<td>information or factor-graph form</td>
+<td>fill-in, double counting, and rank handling</td>
+</tr>
+<tr>
+<td>mild local nonlinearity with good initialization</td>
+<td>EKF or iterated EKF/EKS</td>
+<td>broad-prior and alternate-initialization tests</td>
+</tr>
+<tr>
+<td>smooth nonlinear moments, one mode plausible</td>
+<td>sigma-point, cubature, or quadrature Gaussian filter</td>
+<td>multimodal and coordinate counterexamples</td>
+</tr>
+<tr>
+<td>high-dimensional simulator with useful covariance locality</td>
+<td>EnKF</td>
+<td>localization/inflation sensitivity and nonlinear posterior reference</td>
+</tr>
+<tr>
+<td>a few persistent regimes or hypotheses</td>
+<td>Gaussian-sum or switching approximation</td>
+<td>component growth, pruning loss, and mode recovery</td>
+</tr>
+<tr>
+<td>strongly non-Gaussian low-dimensional state</td>
+<td>grid, particles, mixtures, or flow belief</td>
+<td>support, mode occupancy, and path degeneracy</td>
+</tr>
+<tr>
+<td>tractable conditional substructure</td>
+<td>Rao–Blackwellized particle or hybrid message method</td>
+<td>verify the exact conditional and sampled remainder separately</td>
+</tr>
+<tr>
+<td>repeated related sequences with latency constraints</td>
+<td>amortized or learned filter plus reference inference</td>
+<td>shift, calibration, and objective-mismatch tests</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="chapter-6-synthesis">Chapter 6 synthesis<a class="headerlink" href="#chapter-6-synthesis" title="Permanent link">¤</a></h3>
+<p>Filtering and smoothing are posterior queries over a state-space generator.
+Exact Gaussian closure, projection, deterministic quadrature, ensembles,
+mixtures, variational paths, particles, learned beliefs, and control-based
+representations place approximation in different locations. A research-quality
+comparison identifies that location, validates the query at finite compute,
+and separates inference error from model misspecification.</p>
+<h3 id="chapter-6-retrieval-practice">Chapter 6 retrieval practice<a class="headerlink" href="#chapter-6-retrieval-practice" title="Permanent link">¤</a></h3>
+<ol>
+<li>Why does differentiating through a particle filter not by itself produce an
+   unbiased likelihood gradient?</li>
+<li>What does NIS test under its ideal reference model, and what does it not
+   establish?</li>
+<li>Why can a low current-state RMSE coexist with a poor smoother?</li>
+<li>Which evidence label applies to the June 2026 learned-Lagrangian filtering
+   work?</li>
+<li>What must be matched before comparing EnKF, mixture, and particle filters?</li>
+</ol>
+<details class="success">
+<summary>Complete solutions</summary>
+<ol>
+<li>Resampling and other discrete or stopped operations require a declared estimator; straight-through, relaxed, score-function, and stopped gradients target different finite programs and can be biased for the exact likelihood.</li>
+<li>It tests innovation scale relative to <span class="arithmatex">\(S_t\)</span> under the declared regular model; it does not prove temporal independence, model adequacy, path calibration, or real-data correctness.</li>
+<li>Resampling or projection can preserve the latest marginal while destroying ancestral diversity and cross-time dependence.</li>
+<li>Preprint. It is a timely research direction, not peer-reviewed or independently reproduced evidence.</li>
+<li>The generative transition and observation laws, data, information set, representation, compute budget, initialization, tuning access, metrics, and approximation/evidence protocol.</li>
+</ol>
+</details>
+<h2 id="primary-reading">Primary reading<a class="headerlink" href="#primary-reading" title="Permanent link">¤</a></h2>
+<ul>
+<li><a href="https://doi.org/10.1115/1.3662552">Kalman (1960), <em>A New Approach to Linear Filtering and Prediction
+  Problems</em></a> — exact recursive linear-Gaussian filtering foundations.</li>
+<li><a href="https://doi.org/10.2514/3.3166">Rauch, Tung, and Striebel (1965), <em>Maximum Likelihood Estimates of Linear
+  Dynamic Systems</em></a> — the backward Gaussian smoother.</li>
+<li><a href="https://doi.org/10.1093/biomet/81.3.541">Carter and Kohn (1994), <em>On Gibbs Sampling for State Space
+  Models</em></a> — blocked state-path simulation in Bayesian state-space inference.</li>
+<li><a href="https://doi.org/10.1109/JPROC.2003.823141">Julier and Uhlmann (2004), <em>Unscented Filtering and Nonlinear
+  Estimation</em></a> — deterministic sigma-point filtering.</li>
+<li><a href="https://doi.org/10.1109/TAC.2009.2019800">Arasaratnam and Haykin (2009), <em>Cubature Kalman
+  Filters</em></a> — spherical–radial cubature and square-root construction.</li>
+<li><a href="https://doi.org/10.1029/94JC00572">Evensen (1994), <em>Sequential Data Assimilation with a Nonlinear
+  Quasi-Geostrophic Model</em></a> — ensemble forecast-error statistics.</li>
+<li><a href="https://doi.org/10.1109/TAC.2020.2976316">Särkkä and García-Fernández (2021), <em>Temporal Parallelization of Bayesian
+  Smoothers</em></a> — associative scan formulations.</li>
+<li><a href="https://tminka.github.io/papers/ep/">Minka (2001/2004), <em>Expectation Propagation for Approximate Bayesian
+  Inference</em></a> — corrected primary record for ADF and EP.</li>
+<li><a href="https://proceedings.mlr.press/v267/tarumi25a.html">Tarumi, Fukuda, and Maeda (2025), <em>Deep Bayesian Filter for Bayes-Faithful
+  Data Assimilation</em></a> — learned structure around an analytic recursive interface.</li>
+<li><a href="https://proceedings.mlr.press/v331/vantilborgh26a.html">Vantilborgh et al. (2026), <em>Efficient State and Parameter Estimation of
+  Nonlinear State-Space Models through Probabilistic Optimal
+  Control</em></a> — a peer-reviewed smoothing representation through synthetic control.</li>
+</ul>
+<p>The continuous path and particle route continues in <a href="../stochastic-process-generators-explained/#4-latent-dynamics-neural-sdes-and-path-measures">Stochastic-Process
+Generators</a>.
+The controlled-decision route continues in <a href="../world-models-and-causal-simulators/#the-five-component-loop-for-planning">World Models and Causal
+Simulators</a>.</p>
+<p><a href="../generative-models-unified/#how-to-read-this-volume">Return to the Generative Modeling
+Landscape</a>, or use the
+<a href="./">Chapter 6 stopping-point view</a>.</p>
+<hr/>
+<p><strong>Previous:</strong> <a href="../filtering-05-projection-ensemble/">5. Projection, Mixture, Ensemble, and Robust Filters</a> · <a href="../filtering-and-smoothing-state-space/">Complete guide</a> · <a href="../generative-models-unified/#how-to-read-this-volume">Landscape</a></p>
+</article>
+</div>
+<script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  Back to top
+</button>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+<div class="md-social">
+<a class="md-social__link" href="https://github.com/avitai/artifex" rel="noopener" target="_blank" title="github.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</a>
+<a class="md-social__link" href="https://pypi.org/project/avitai-artifex/" rel="noopener" target="_blank" title="pypi.org">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-66.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.3v101.8c0 29 25.2 46 53.4 54.3 33.8 9.9 66.3 11.7 106.8 0 26.9-7.8 53.4-23.5 53.4-54.3v-40.7H226.2v-13.6h160.2c31.1 0 42.6-21.7 53.4-54.2 11.2-33.5 10.7-65.7 0-108.6M286.2 444.7a20.4 20.4 0 1 1 0-40.7 20.4 20.4 0 1 1 0 40.7M167.8 248.1h106.8c29.7 0 53.4-24.5 53.4-54.3V91.9c0-29-24.4-50.7-53.4-55.6-35.8-5.9-74.7-5.6-106.8.1-45.2 8-53.4 24.7-53.4 55.6v40.7h106.9v13.6h-147c-31.1 0-58.3 18.7-66.8 54.2-9.8 40.7-10.2 66.1 0 108.6 7.6 31.6 25.7 54.2 56.8 54.2H101v-48.8c0-35.3 30.5-66.4 66.8-66.4m-6.6-183.4a20.4 20.4 0 1 1 0 40.8 20.4 20.4 0 1 1 0-40.8"></path></svg>
+</a>
+<a class="md-social__link" href="https://twitter.com/mahdi_shafiei" rel="noopener" target="_blank" title="twitter.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M459.4 151.7c.3 4.5.3 9.1.3 13.6 0 138.7-105.6 298.6-298.6 298.6-59.5 0-114.7-17.2-161.1-47.1 8.4 1 16.6 1.3 25.3 1.3 49.1 0 94.2-16.6 130.3-44.8-46.1-1-84.8-31.2-98.1-72.8 6.5 1 13 1.6 19.8 1.6 9.4 0 18.8-1.3 27.6-3.6-48.1-9.7-84.1-52-84.1-103v-1.3c14 7.8 30.2 12.7 47.4 13.3-28.3-18.8-46.8-51-46.8-87.4 0-19.5 5.2-37.4 14.3-53C87.4 130.8 165 172.4 252.1 176.9c-1.6-7.8-2.6-15.9-2.6-24C249.5 95.1 296.3 48 354.4 48c30.2 0 57.5 12.7 76.7 33.1 23.7-4.5 46.5-13.3 66.6-25.3-7.8 24.4-24.4 44.8-46.1 57.8 21.1-2.3 41.6-8.1 60.4-16.2-14.3 20.8-32.2 39.3-52.6 54.3"></path></svg>
+</a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.path", "navigation.top", "navigation.prune", "toc.follow", "search.highlight", "search.share", "search.suggest", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "content.mermaid"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+<script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+<script src="../../../javascripts/reading-layout.js"></script>
+</body>
+</html>

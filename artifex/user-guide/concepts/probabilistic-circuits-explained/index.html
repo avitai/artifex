@@ -1,0 +1,3406 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="Probabilistic circuits (PCs) represent a probability distribution as a directed acyclic computation graph whose leaves are simple distributions and whose" name="description"/>
+<meta content="Mahdi Shafiei" name="author"/>
+<link href="https://docs.avitai.bio/artifex/user-guide/concepts/probabilistic-circuits-explained/" rel="canonical"/>
+<link href="../probabilistic-circuits-06-practice/" rel="prev"/>
+<link href="../tensor-01-semantics/" rel="next"/>
+<link href="../../../assets/images/favicon.png" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.7.7" name="generator"/>
+<title>Probabilistic Circuits Explained - Artifex</title>
+<link href="../../../assets/stylesheets/main.ec1eaa64.min.css" rel="stylesheet"/>
+<link href="../../../assets/stylesheets/palette.ab4e12ef.min.css" rel="stylesheet"/>
+<script src="../../../assets/vendor/iframe-worker/index.js"></script>
+<link href="../../../assets/_mkdocstrings.css" rel="stylesheet"/>
+<link href="../../../_static/extra.css" rel="stylesheet"/>
+<script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+<meta content="article" property="og:type"/>
+<meta content="The Artifex Generative Models Book" property="og:site_name"/>
+<meta content="Probabilistic Circuits Explained" property="og:title"/>
+<meta content="Probabilistic circuits (PCs) represent a probability distribution as a directed acyclic computation graph whose leaves are simple distributions and whose" property="og:description"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/probabilistic-circuits-explained/" property="og:url"/>
+<meta content="2026-07-12" property="article:modified_time"/>
+<meta content="summary" name="twitter:card"/>
+<meta content="Probabilistic Circuits Explained" name="twitter:title"/>
+<meta content="Probabilistic circuits (PCs) represent a probability distribution as a directed acyclic computation graph whose leaves are simple distributions and whose" name="twitter:description"/>
+<meta content="Generative models, Machine learning, Probabilistic modeling, core, reference, continuous_view, probabilistic-circuits-complete, newcomer, practitioner, researcher" name="keywords"/>
+<meta content="Probabilistic Circuits Explained" name="citation_title"/>
+<meta content="Mahdi Shafiei" name="citation_author"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/probabilistic-circuits-explained/" name="citation_public_url"/>
+<meta content="en" name="citation_language"/>
+<meta content="Probabilistic Circuits Explained" name="DC.title"/>
+<meta content="Mahdi Shafiei" name="DC.creator"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/probabilistic-circuits-explained/" name="DC.identifier"/>
+<meta content="Text.LearningResource" name="DC.type"/>
+<meta content="2026-07-12" name="DCTERMS.modified"/>
+<meta content="https://github.com/avitai/artifex/blob/main/LICENSE" name="DCTERMS.license"/>
+<meta content="core" name="DCTERMS.educationLevel"/>
+<meta content="newcomer, practitioner, researcher" name="DCTERMS.audience"/>
+<link href="https://github.com/avitai/artifex/blob/main/LICENSE" rel="license"/>
+<script id="artifex-book-metadata" type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Chapter",
+  "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/probabilistic-circuits-explained/",
+  "url": "https://docs.avitai.bio/artifex/user-guide/concepts/probabilistic-circuits-explained/",
+  "name": "Probabilistic Circuits Explained",
+  "description": "Probabilistic circuits (PCs) represent a probability distribution as a directed acyclic computation graph whose leaves are simple distributions and whose",
+  "identifier": "probabilistic-circuits-complete",
+  "inLanguage": "en",
+  "isAccessibleForFree": true,
+  "learningResourceType": "Continuous volume",
+  "educationalLevel": "core",
+  "educationalUse": "reference",
+  "audience": [
+    
+      {"@type": "EducationalAudience", "audienceType": "newcomer"},
+    
+      {"@type": "EducationalAudience", "audienceType": "practitioner"},
+    
+      {"@type": "EducationalAudience", "audienceType": "researcher"}
+    
+  ],
+  "dateModified": "2026-07-12",
+  "keywords": ["Generative models", "Machine learning", "Probabilistic modeling", "core", "reference", "continuous_view", "probabilistic-circuits-complete", "newcomer", "practitioner", "researcher"],
+  "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+  "author": [
+    
+      {"@type": "Person", "name": "Mahdi Shafiei"}
+    
+  ],
+  "isPartOf": {
+    "@type": "Book",
+    "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/#book",
+    "url": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/",
+    "name": "The Artifex Generative Models Book",
+    "bookEdition": "Living Web Edition",
+    "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+    "author": [
+      
+        {"@type": "Person", "name": "Mahdi Shafiei"}
+      
+    ]
+  }
+}
+</script>
+<link href="../../../assets/vendor/katex/katex.min.css" id="artifex-katex-stylesheet" integrity="sha384-UA8juhPf75SzzAMA/4fo3yOU7sBJ0om7SCD2GHq0fZqZco6tr1UCV7nUbk9J90JM" rel="stylesheet"/>
+<script defer="" integrity="sha384-T/0lMUdJpd2S1ZHtRiofG3htU3xPCrFVeAQ1UUE2TJwlEJSV5NUwn30kP28n238E" src="../../../assets/vendor/mermaid/mermaid.min.js"></script>
+<script defer="" src="../../../assets/vendor/katex/katex-shadow.js"></script>
+<script defer="" src="../../../javascripts/mermaid-math.js"></script>
+<script defer="" src="../../../javascripts/mathjax.js"></script>
+<script defer="" integrity="sha384-OrHfGTnIbkl0do3N76qW/uWr38o91N05sbSPuYBPLH+hG8X/dNSrjZf3AGjzrCwC" src="../../../assets/vendor/mathjax/tex-mml-chtml.js"></script>
+<meta content="noindex,follow" name="robots"/>
+</head>
+<body data-md-color-accent="amber" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#probabilistic-circuits-explained">
+          Skip to content
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header md-header--shadow" data-md-component="header">
+<nav aria-label="Header" class="md-header__inner md-grid">
+<a aria-label="Artifex" class="md-header__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            Artifex
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+            
+              Probabilistic Circuits Explained
+            
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-label="Switch to dark mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: light)" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_1" hidden="" title="Switch to dark mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+<input aria-label="Switch to light mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-primary="indigo" data-md-color-scheme="slate" id="__palette_1" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_0" hidden="" title="Switch to light mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+</form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div aria-label="Search" class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Search" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="Search" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="Search" class="md-search__options">
+<a aria-label="Share" class="md-search__icon md-icon" data-clipboard="" data-clipboard-text="" data-md-component="search-share" href="javascript:void(0)" tabindex="-1" title="Share">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"></path></svg>
+</a>
+<button aria-label="Clear" class="md-search__icon md-icon" tabindex="-1" title="Clear" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            Initializing search
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Navigation" class="md-nav md-nav--primary" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="Artifex" class="md-nav__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+    Artifex
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../..">
+<span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../getting-started/installation/">
+<span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Generative Models Book
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Generative Models Book
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    
+  
+    Start Here — The Landscape
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../first-course-01-generative-systems/">
+<span class="md-ellipsis">
+    
+  
+    First Course — New to Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../probability-01-objects/">
+<span class="md-ellipsis">
+    
+  
+    Foundations
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_4" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_4" id="__nav_3_4_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Model Families
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_4_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_4">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Model Families
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../autoregressive-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Autoregressive Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../vae-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Variational Autoencoders
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gan-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Generative Adversarial Networks
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../ebm-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Energy-Based Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../diffusion-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Diffusion Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../flow-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Normalizing Flows and Flow Matching
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_4_7" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_4_7" id="__nav_3_4_7_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Probabilistic Circuits
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_4_7_label" class="md-nav" data-md-level="3">
+<label class="md-nav__title" for="__nav_3_4_7">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Probabilistic Circuits
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../probabilistic-circuits-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    1. Semantics
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../probabilistic-circuits-02-properties/">
+<span class="md-ellipsis">
+    
+  
+    2. Structural Properties
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../probabilistic-circuits-03-inference/">
+<span class="md-ellipsis">
+    
+  
+    3. Exact Inference
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../probabilistic-circuits-04-learning/">
+<span class="md-ellipsis">
+    
+  
+    4. Parameter and Structure Learning
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../probabilistic-circuits-05-hybrids/">
+<span class="md-ellipsis">
+    
+  
+    5. Deep and Hybrid Circuits
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../probabilistic-circuits-06-practice/">
+<span class="md-ellipsis">
+    
+  
+    6. Evaluation and Research
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
+    
+  
+    Continuous View (All Chapters)
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
+<span class="md-ellipsis">
+    
+  
+    Continuous View (All Chapters)
+  
+
+    
+  </span>
+</a>
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#1-from-arithmetic-expression-to-probability-model">
+<span class="md-ellipsis">
+      
+        1. From Arithmetic Expression to Probability Model
+      
+    </span>
+</a>
+<nav aria-label="1. From Arithmetic Expression to Probability Model" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-1-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 1 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#three-different-uses-of-tractable">
+<span class="md-ellipsis">
+      
+        Three different uses of “tractable”
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#a-running-four-variable-circuit">
+<span class="md-ellipsis">
+      
+        A Running Four-Variable Circuit
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#circuits-spns-and-compiled-models">
+<span class="md-ellipsis">
+      
+        Circuits, SPNs, and Compiled Models
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-example-normalize-and-evaluate-a-two-variable-circuit">
+<span class="md-ellipsis">
+      
+        Worked example: normalize and evaluate a two-variable circuit
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#independent-practice-and-assessment-map-probabilistic-circuit-semantics">
+<span class="md-ellipsis">
+      
+        Independent practice and assessment map: probabilistic-circuit semantics
+      
+    </span>
+</a>
+<nav aria-label="Independent practice and assessment map: probabilistic-circuit semantics" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#p1-build-and-falsify-a-finite-probabilistic-circuit">
+<span class="md-ellipsis">
+      
+        P1 — Build and falsify a finite probabilistic circuit
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-1-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 1 Synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#2-structural-properties-and-their-guarantees">
+<span class="md-ellipsis">
+      
+        2. Structural Properties and Their Guarantees
+      
+    </span>
+</a>
+<nav aria-label="2. Structural Properties and Their Guarantees" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-2-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 2 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#smoothness">
+<span class="md-ellipsis">
+      
+        Smoothness
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#decomposability">
+<span class="md-ellipsis">
+      
+        Decomposability
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#determinism">
+<span class="md-ellipsis">
+      
+        Determinism
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#structured-decomposability">
+<span class="md-ellipsis">
+      
+        Structured Decomposability
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#property-to-query-map">
+<span class="md-ellipsis">
+      
+        Property-to-Query Map
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#why-the-marginal-recursion-works">
+<span class="md-ellipsis">
+      
+        Why the marginal recursion works
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#semirings-reusing-the-graph-for-new-queries">
+<span class="md-ellipsis">
+      
+        Semirings: Reusing the Graph for New Queries
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-example-audit-properties-before-choosing-an-algorithm">
+<span class="md-ellipsis">
+      
+        Worked example: audit properties before choosing an algorithm
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#independent-practice-and-assessment-map-circuit-properties">
+<span class="md-ellipsis">
+      
+        Independent practice and assessment map: circuit properties
+      
+    </span>
+</a>
+<nav aria-label="Independent practice and assessment map: circuit properties" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#p1-derive-a-property-to-query-guarantee">
+<span class="md-ellipsis">
+      
+        P1 — Derive a property-to-query guarantee
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-2-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 2 Synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#3-exact-inference-by-upward-and-downward-passes">
+<span class="md-ellipsis">
+      
+        3. Exact Inference by Upward and Downward Passes
+      
+    </span>
+</a>
+<nav aria-label="3. Exact Inference by Upward and Downward Passes" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-3-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 3 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#marginalization-as-leaf-substitution">
+<span class="md-ellipsis">
+      
+        Marginalization as Leaf Substitution
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-example-marginal-and-conditional-query">
+<span class="md-ellipsis">
+      
+        Worked Example: Marginal and Conditional Query
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#sampling">
+<span class="md-ellipsis">
+      
+        Sampling
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#derivatives-and-responsibilities">
+<span class="md-ellipsis">
+      
+        Derivatives and Responsibilities
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#marginal-map-is-a-warning-case">
+<span class="md-ellipsis">
+      
+        Marginal MAP Is a Warning Case
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#beyond-marginals-expectations-and-circuit-operations">
+<span class="md-ellipsis">
+      
+        Beyond marginals: expectations and circuit operations
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#independent-practice-and-assessment-map-exact-circuit-inference">
+<span class="md-ellipsis">
+      
+        Independent practice and assessment map: exact circuit inference
+      
+    </span>
+</a>
+<nav aria-label="Independent practice and assessment map: exact circuit inference" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#p1-reconcile-upward-downward-and-sampling-calculations">
+<span class="md-ellipsis">
+      
+        P1 — Reconcile upward, downward, and sampling calculations
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-3-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 3 Synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#4-parameter-and-structure-learning">
+<span class="md-ellipsis">
+      
+        4. Parameter and Structure Learning
+      
+    </span>
+</a>
+<nav aria-label="4. Parameter and Structure Learning" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-4-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 4 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#parameter-learning-with-fixed-structure">
+<span class="md-ellipsis">
+      
+        Parameter Learning with Fixed Structure
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#identifiability-redundancy-and-regularization">
+<span class="md-ellipsis">
+      
+        Identifiability, redundancy, and regularization
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#structure-learning">
+<span class="md-ellipsis">
+      
+        Structure Learning
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#regular-structures-and-einsum-networks">
+<span class="md-ellipsis">
+      
+        Regular Structures and Einsum Networks
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-example-a-small-em-update">
+<span class="md-ellipsis">
+      
+        Worked example: a small EM update
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#generalization-and-overfitting">
+<span class="md-ellipsis">
+      
+        Generalization and Overfitting
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#independent-practice-and-assessment-map-circuit-learning">
+<span class="md-ellipsis">
+      
+        Independent practice and assessment map: circuit learning
+      
+    </span>
+</a>
+<nav aria-label="Independent practice and assessment map: circuit learning" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#p1-audit-a-fixed-and-learned-structure-training-pipeline">
+<span class="md-ellipsis">
+      
+        P1 — Audit a fixed- and learned-structure training pipeline
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-4-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 4 Synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#5-expressivity-deep-circuits-and-hybrids">
+<span class="md-ellipsis">
+      
+        5. Expressivity, Deep Circuits, and Hybrids
+      
+    </span>
+</a>
+<nav aria-label="5. Expressivity, Deep Circuits, and Hybrids" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-5-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 5 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#the-expressivitytractability-trade-off">
+<span class="md-ellipsis">
+      
+        The Expressivity–Tractability Trade-off
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#neural-leaves-and-conditional-circuits">
+<span class="md-ellipsis">
+      
+        Neural Leaves and Conditional Circuits
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#flow-and-circuit-hybrids">
+<span class="md-ellipsis">
+      
+        Flow and Circuit Hybrids
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#distillation-from-deep-generative-models">
+<span class="md-ellipsis">
+      
+        Distillation from Deep Generative Models
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#structured-and-relational-domains">
+<span class="md-ellipsis">
+      
+        Structured and Relational Domains
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#connections-to-other-families">
+<span class="md-ellipsis">
+      
+        Connections to Other Families
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#logical-tensor-network-and-causal-views">
+<span class="md-ellipsis">
+      
+        Logical, tensor-network, and causal views
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-example-a-flow-leaf-that-preserves-likelihood-but-loses-a-query">
+<span class="md-ellipsis">
+      
+        Worked example: a flow leaf that preserves likelihood but loses a query
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#independent-practice-and-assessment-map-deep-and-hybrid-circuits">
+<span class="md-ellipsis">
+      
+        Independent practice and assessment map: deep and hybrid circuits
+      
+    </span>
+</a>
+<nav aria-label="Independent practice and assessment map: deep and hybrid circuits" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#p1-preserve-or-reject-a-hybrids-query-guarantees">
+<span class="md-ellipsis">
+      
+        P1 — Preserve or reject a hybrid's query guarantees
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-5-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 5 Synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#6-evaluation-deployment-and-research-directions">
+<span class="md-ellipsis">
+      
+        6. Evaluation, Deployment, and Research Directions
+      
+    </span>
+</a>
+<nav aria-label="6. Evaluation, Deployment, and Research Directions" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#capstone-objectives">
+<span class="md-ellipsis">
+      
+        Capstone objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#when-a-probabilistic-circuit-is-a-strong-choice">
+<span class="md-ellipsis">
+      
+        When a Probabilistic Circuit Is a Strong Choice
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#evaluation-matrix">
+<span class="md-ellipsis">
+      
+        Evaluation Matrix
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#production-checklist">
+<span class="md-ellipsis">
+      
+        Production Checklist
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#benchmark-the-compiled-artifact-not-the-family-name">
+<span class="md-ellipsis">
+      
+        Benchmark the compiled artifact, not the family name
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#a-query-first-selection-procedure">
+<span class="md-ellipsis">
+      
+        A query-first selection procedure
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#research-directions">
+<span class="md-ellipsis">
+      
+        Research Directions
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#peer-reviewed-research-checkpoints">
+<span class="md-ellipsis">
+      
+        Peer-Reviewed Research Checkpoints
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#research-exercises">
+<span class="md-ellipsis">
+      
+        Research Exercises
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#cumulative-worked-study-clinical-records-with-arbitrary-missingness">
+<span class="md-ellipsis">
+      
+        Cumulative worked study: clinical records with arbitrary missingness
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#independent-practice-and-assessment-map-circuit-evaluation-and-research">
+<span class="md-ellipsis">
+      
+        Independent practice and assessment map: circuit evaluation and research
+      
+    </span>
+</a>
+<nav aria-label="Independent practice and assessment map: circuit evaluation and research" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#p1-defend-an-end-to-end-probabilistic-circuit-system">
+<span class="md-ellipsis">
+      
+        P1 — Defend an end-to-end probabilistic-circuit system
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#primary-reading-trail">
+<span class="md-ellipsis">
+      
+        Primary Reading Trail
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#final-synthesis">
+<span class="md-ellipsis">
+      
+        Final Synthesis
+      
+    </span>
+</a>
+<nav aria-label="Final Synthesis" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#source-tracing-checklist">
+<span class="md-ellipsis">
+      
+        Source-tracing checklist
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../tensor-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Tensor-Network and Born Probability Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../implicit-generators-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Implicit Generators Beyond GANs
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../discrete-iterative-01-masked/">
+<span class="md-ellipsis">
+    
+  
+    Discrete Iterative Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../bayesian-flow-networks-01-story/">
+<span class="md-ellipsis">
+    
+  
+    Bayesian Flow Networks
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gflownets-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Generative Flow Networks
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../bnp-01-random-measures/">
+<span class="md-ellipsis">
+    
+  
+    Bayesian Nonparametric Random-Measure Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../stochastic-process-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Stochastic-Process and Function-Space Generators
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../point-processes-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Point Processes and Random Finite Sets
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../random-graphs-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Random Graphs and Relational Generators
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../copula-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Copula Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../grammar-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Probabilistic Grammars and Program Derivations
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../causal-generative-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Causal Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../new-families-frontier-evidence/">
+<span class="md-ellipsis">
+    
+  
+    Research Evidence Ledger
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gradients-01-taxonomy/">
+<span class="md-ellipsis">
+    
+  
+    Connections and Compositions
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../normalization-01-queries/">
+<span class="md-ellipsis">
+    
+  
+    Research Practice
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../models/vae-guide/">
+<span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/core/base/">
+<span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../examples/overview/">
+<span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../zoo/">
+<span class="md-ellipsis">
+    
+  
+    Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../training/overview/">
+<span class="md-ellipsis">
+    
+  
+    Training
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../data/overview/">
+<span class="md-ellipsis">
+    
+  
+    Data &amp; Modalities
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../inference/overview/">
+<span class="md-ellipsis">
+    
+  
+    Inference &amp; Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../benchmarks/">
+<span class="md-ellipsis">
+    
+  
+    Evaluation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../guides/extensions/">
+<span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../extensions/">
+<span class="md-ellipsis">
+    
+  
+    Advanced Topics
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../cli/">
+<span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../community/contributing/">
+<span class="md-ellipsis">
+    
+  
+    Community
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/configs/protein-extension/">
+<span class="md-ellipsis">
+    
+  
+    Reference Library
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#1-from-arithmetic-expression-to-probability-model">
+<span class="md-ellipsis">
+      
+        1. From Arithmetic Expression to Probability Model
+      
+    </span>
+</a>
+<nav aria-label="1. From Arithmetic Expression to Probability Model" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-1-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 1 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#three-different-uses-of-tractable">
+<span class="md-ellipsis">
+      
+        Three different uses of “tractable”
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#a-running-four-variable-circuit">
+<span class="md-ellipsis">
+      
+        A Running Four-Variable Circuit
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#circuits-spns-and-compiled-models">
+<span class="md-ellipsis">
+      
+        Circuits, SPNs, and Compiled Models
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-example-normalize-and-evaluate-a-two-variable-circuit">
+<span class="md-ellipsis">
+      
+        Worked example: normalize and evaluate a two-variable circuit
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#independent-practice-and-assessment-map-probabilistic-circuit-semantics">
+<span class="md-ellipsis">
+      
+        Independent practice and assessment map: probabilistic-circuit semantics
+      
+    </span>
+</a>
+<nav aria-label="Independent practice and assessment map: probabilistic-circuit semantics" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#p1-build-and-falsify-a-finite-probabilistic-circuit">
+<span class="md-ellipsis">
+      
+        P1 — Build and falsify a finite probabilistic circuit
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-1-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 1 Synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#2-structural-properties-and-their-guarantees">
+<span class="md-ellipsis">
+      
+        2. Structural Properties and Their Guarantees
+      
+    </span>
+</a>
+<nav aria-label="2. Structural Properties and Their Guarantees" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-2-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 2 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#smoothness">
+<span class="md-ellipsis">
+      
+        Smoothness
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#decomposability">
+<span class="md-ellipsis">
+      
+        Decomposability
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#determinism">
+<span class="md-ellipsis">
+      
+        Determinism
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#structured-decomposability">
+<span class="md-ellipsis">
+      
+        Structured Decomposability
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#property-to-query-map">
+<span class="md-ellipsis">
+      
+        Property-to-Query Map
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#why-the-marginal-recursion-works">
+<span class="md-ellipsis">
+      
+        Why the marginal recursion works
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#semirings-reusing-the-graph-for-new-queries">
+<span class="md-ellipsis">
+      
+        Semirings: Reusing the Graph for New Queries
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-example-audit-properties-before-choosing-an-algorithm">
+<span class="md-ellipsis">
+      
+        Worked example: audit properties before choosing an algorithm
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#independent-practice-and-assessment-map-circuit-properties">
+<span class="md-ellipsis">
+      
+        Independent practice and assessment map: circuit properties
+      
+    </span>
+</a>
+<nav aria-label="Independent practice and assessment map: circuit properties" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#p1-derive-a-property-to-query-guarantee">
+<span class="md-ellipsis">
+      
+        P1 — Derive a property-to-query guarantee
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-2-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 2 Synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#3-exact-inference-by-upward-and-downward-passes">
+<span class="md-ellipsis">
+      
+        3. Exact Inference by Upward and Downward Passes
+      
+    </span>
+</a>
+<nav aria-label="3. Exact Inference by Upward and Downward Passes" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-3-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 3 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#marginalization-as-leaf-substitution">
+<span class="md-ellipsis">
+      
+        Marginalization as Leaf Substitution
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-example-marginal-and-conditional-query">
+<span class="md-ellipsis">
+      
+        Worked Example: Marginal and Conditional Query
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#sampling">
+<span class="md-ellipsis">
+      
+        Sampling
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#derivatives-and-responsibilities">
+<span class="md-ellipsis">
+      
+        Derivatives and Responsibilities
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#marginal-map-is-a-warning-case">
+<span class="md-ellipsis">
+      
+        Marginal MAP Is a Warning Case
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#beyond-marginals-expectations-and-circuit-operations">
+<span class="md-ellipsis">
+      
+        Beyond marginals: expectations and circuit operations
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#independent-practice-and-assessment-map-exact-circuit-inference">
+<span class="md-ellipsis">
+      
+        Independent practice and assessment map: exact circuit inference
+      
+    </span>
+</a>
+<nav aria-label="Independent practice and assessment map: exact circuit inference" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#p1-reconcile-upward-downward-and-sampling-calculations">
+<span class="md-ellipsis">
+      
+        P1 — Reconcile upward, downward, and sampling calculations
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-3-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 3 Synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#4-parameter-and-structure-learning">
+<span class="md-ellipsis">
+      
+        4. Parameter and Structure Learning
+      
+    </span>
+</a>
+<nav aria-label="4. Parameter and Structure Learning" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-4-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 4 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#parameter-learning-with-fixed-structure">
+<span class="md-ellipsis">
+      
+        Parameter Learning with Fixed Structure
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#identifiability-redundancy-and-regularization">
+<span class="md-ellipsis">
+      
+        Identifiability, redundancy, and regularization
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#structure-learning">
+<span class="md-ellipsis">
+      
+        Structure Learning
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#regular-structures-and-einsum-networks">
+<span class="md-ellipsis">
+      
+        Regular Structures and Einsum Networks
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-example-a-small-em-update">
+<span class="md-ellipsis">
+      
+        Worked example: a small EM update
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#generalization-and-overfitting">
+<span class="md-ellipsis">
+      
+        Generalization and Overfitting
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#independent-practice-and-assessment-map-circuit-learning">
+<span class="md-ellipsis">
+      
+        Independent practice and assessment map: circuit learning
+      
+    </span>
+</a>
+<nav aria-label="Independent practice and assessment map: circuit learning" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#p1-audit-a-fixed-and-learned-structure-training-pipeline">
+<span class="md-ellipsis">
+      
+        P1 — Audit a fixed- and learned-structure training pipeline
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-4-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 4 Synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#5-expressivity-deep-circuits-and-hybrids">
+<span class="md-ellipsis">
+      
+        5. Expressivity, Deep Circuits, and Hybrids
+      
+    </span>
+</a>
+<nav aria-label="5. Expressivity, Deep Circuits, and Hybrids" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-5-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 5 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#the-expressivitytractability-trade-off">
+<span class="md-ellipsis">
+      
+        The Expressivity–Tractability Trade-off
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#neural-leaves-and-conditional-circuits">
+<span class="md-ellipsis">
+      
+        Neural Leaves and Conditional Circuits
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#flow-and-circuit-hybrids">
+<span class="md-ellipsis">
+      
+        Flow and Circuit Hybrids
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#distillation-from-deep-generative-models">
+<span class="md-ellipsis">
+      
+        Distillation from Deep Generative Models
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#structured-and-relational-domains">
+<span class="md-ellipsis">
+      
+        Structured and Relational Domains
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#connections-to-other-families">
+<span class="md-ellipsis">
+      
+        Connections to Other Families
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#logical-tensor-network-and-causal-views">
+<span class="md-ellipsis">
+      
+        Logical, tensor-network, and causal views
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-example-a-flow-leaf-that-preserves-likelihood-but-loses-a-query">
+<span class="md-ellipsis">
+      
+        Worked example: a flow leaf that preserves likelihood but loses a query
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#independent-practice-and-assessment-map-deep-and-hybrid-circuits">
+<span class="md-ellipsis">
+      
+        Independent practice and assessment map: deep and hybrid circuits
+      
+    </span>
+</a>
+<nav aria-label="Independent practice and assessment map: deep and hybrid circuits" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#p1-preserve-or-reject-a-hybrids-query-guarantees">
+<span class="md-ellipsis">
+      
+        P1 — Preserve or reject a hybrid's query guarantees
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-5-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 5 Synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#6-evaluation-deployment-and-research-directions">
+<span class="md-ellipsis">
+      
+        6. Evaluation, Deployment, and Research Directions
+      
+    </span>
+</a>
+<nav aria-label="6. Evaluation, Deployment, and Research Directions" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#capstone-objectives">
+<span class="md-ellipsis">
+      
+        Capstone objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#when-a-probabilistic-circuit-is-a-strong-choice">
+<span class="md-ellipsis">
+      
+        When a Probabilistic Circuit Is a Strong Choice
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#evaluation-matrix">
+<span class="md-ellipsis">
+      
+        Evaluation Matrix
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#production-checklist">
+<span class="md-ellipsis">
+      
+        Production Checklist
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#benchmark-the-compiled-artifact-not-the-family-name">
+<span class="md-ellipsis">
+      
+        Benchmark the compiled artifact, not the family name
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#a-query-first-selection-procedure">
+<span class="md-ellipsis">
+      
+        A query-first selection procedure
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#research-directions">
+<span class="md-ellipsis">
+      
+        Research Directions
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#peer-reviewed-research-checkpoints">
+<span class="md-ellipsis">
+      
+        Peer-Reviewed Research Checkpoints
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#research-exercises">
+<span class="md-ellipsis">
+      
+        Research Exercises
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#cumulative-worked-study-clinical-records-with-arbitrary-missingness">
+<span class="md-ellipsis">
+      
+        Cumulative worked study: clinical records with arbitrary missingness
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#independent-practice-and-assessment-map-circuit-evaluation-and-research">
+<span class="md-ellipsis">
+      
+        Independent practice and assessment map: circuit evaluation and research
+      
+    </span>
+</a>
+<nav aria-label="Independent practice and assessment map: circuit evaluation and research" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#p1-defend-an-end-to-end-probabilistic-circuit-system">
+<span class="md-ellipsis">
+      
+        P1 — Defend an end-to-end probabilistic-circuit system
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#primary-reading-trail">
+<span class="md-ellipsis">
+      
+        Primary Reading Trail
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#final-synthesis">
+<span class="md-ellipsis">
+      
+        Final Synthesis
+      
+    </span>
+</a>
+<nav aria-label="Final Synthesis" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#source-tracing-checklist">
+<span class="md-ellipsis">
+      
+        Source-tracing checklist
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<nav aria-label="Breadcrumb" class="md-path">
+<ol class="md-path__list">
+<li class="md-path__item">
+<a class="md-path__link" href="../../..">
+<span class="md-ellipsis">
+    Home
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    Generative Models Book
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../autoregressive-01-foundations/">
+<span class="md-ellipsis">
+    Model Families
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../probabilistic-circuits-01-semantics/">
+<span class="md-ellipsis">
+    Probabilistic Circuits
+  </span>
+</a>
+</li>
+</ol>
+</nav>
+<article class="md-content__inner md-typeset">
+<h1 id="probabilistic-circuits-explained">Probabilistic Circuits Explained<a class="headerlink" href="#probabilistic-circuits-explained" title="Permanent link">¤</a></h1><aside aria-label="Learning path" class="admonition abstract artifex-learning-path"><p class="admonition-title">Learning path</p><p><strong>Required knowledge</strong></p><ul class="artifex-learning-path__links" data-learning-path-role="required"><li><a href="../probability-and-generative-modeling/">Probability and Generative Modeling</a></li><li><a href="../classical-generative-models/">Classical Generative Models and Graphical Structure</a></li><li><a href="../latent-variables-and-inference/">Latent Variables and Inference</a></li><li><a href="../generative-models-notation/">Canonical Notation and Transformation Conventions</a></li></ul><p><strong>Readiness check:</strong> can you explain the central object and reproduce one worked example from each required chapter? If not, follow its link before continuing.</p><p><strong>Newly unlocked in the default route</strong></p><ul class="artifex-learning-path__links" data-learning-path-role="unlocks"><li><a href="../tensor-network-and-born-probability-models/">Tensor-Network and Born Probability Models</a></li><li><a href="../density-latent-energy-relationships/">Density, Latent, Energy, and Score Relationships</a></li><li><a href="../extended-generative-model-landscape/">Extended Generative Model Landscape</a></li></ul></aside>
+<p>Probabilistic circuits (PCs) represent a probability distribution as a directed acyclic computation graph whose leaves are simple distributions and whose internal nodes combine them by weighted sums and products. Their central design principle is unusual in modern generative modeling: <strong>make exact queries tractable by construction</strong>, then spend representational capacity inside that tractable language.</p>
+<p>This volume develops that principle from first evaluation to current deep and hybrid circuits. The canonical framework follows <a href="https://starai.cs.ucla.edu/papers/ProbCirc20.pdf">Choi, Vergari, and Van den Broeck's unified treatment</a>; modern systems and research claims are linked to primary papers.</p>
+<p><a href="../graphical-inference-and-message-passing/#4-junction-trees-and-reusable-exact-inference">Graphical Inference and Message Passing</a> derives how elimination and junction-tree computations can be retained as arithmetic circuits. This volume begins where that bridge ends: it treats a constrained circuit as the model representation and audits its query guarantees property by property.</p>
+<div class="admonition info">
+<p class="admonition-title">Evidence convention</p>
+<p>A tractability statement always names the query, structural properties, leaf assumptions, and complexity measure. <strong>Established</strong> marks algebraic results and mature algorithms; <strong>peer-reviewed research</strong> marks archival work; <strong>preprint</strong> marks non-archival research. The page metadata records the verification date. Benchmark claims remain tied to the reported circuit class, data, parameter count, query, and hardware.</p>
+</div>
+<div class="admonition info">
+<p class="admonition-title">How to read this book</p>
+<p><strong>Read continuously</strong> for the full argument. The numbered chapter pages are projections of the same source and provide stopping points without duplicating content.<br/>
+<strong>Beginner route:</strong> Chapters 1–3.<br/>
+<strong>Practitioner route:</strong> Chapters 1–5 plus the deployment checklist.<br/>
+<strong>Research route:</strong> all chapters, with special attention to which query requires which structural property.</p>
+</div>
+<figure class="book-figure" id="fig-probabilistic-circuits-explained-probabilistic-circuits-explained"><pre class="mermaid"><code>%%{init: {'themeCSS': '.nodeLabel p { color: #111827 !important; } .flowchart-link { stroke: #78879a !important; stroke-width: 2px !important; } marker path { fill: #78879a !important; stroke: #78879a !important; }'}}%%
+graph LR
+    S[Semantics and scopes] --&gt; P[Structural properties]
+    P --&gt; I[Exact inference]
+    I --&gt; L[Parameter and structure learning]
+    L --&gt; H[Deep and hybrid circuits]
+    H --&gt; R[Evaluation and research]</code></pre><figcaption class="book-object-caption"><span class="book-object-number">Figure PC.1.</span> Probabilistic Circuits Explained</figcaption></figure>
+<h2 id="1-from-arithmetic-expression-to-probability-model">1. From Arithmetic Expression to Probability Model<a class="headerlink" href="#1-from-arithmetic-expression-to-probability-model" title="Permanent link">¤</a></h2>
+<h3 id="chapter-1-prerequisites-and-learning-objectives">Chapter 1 prerequisites and learning objectives<a class="headerlink" href="#chapter-1-prerequisites-and-learning-objectives" title="Permanent link">¤</a></h3>
+<p>You should understand finite mixtures, factorized distributions, DAGs, and probability masses/densities with respect to a declared base measure. By the end, you should be able to:</p>
+<ol>
+<li>evaluate a sum/product circuit bottom-up and compute every node's scope;</li>
+<li>state sufficient conditions under which the root is normalized;</li>
+<li>interpret sum choices as discrete latent variables without expanding the DAG into a mixture tree;</li>
+<li>distinguish circuit evaluation, probabilistic validity, and query tractability; and</li>
+<li>construct and normalize a complete finite-state example.</li>
+</ol>
+<p>Consider variables <span class="arithmatex">\(X=(X_1,\ldots,X_D)\)</span>. A circuit is a DAG. Every node <span class="arithmatex">\(n\)</span> has a <strong>scope</strong> <span class="arithmatex">\(\operatorname{sc}(n)\)</span>: the variables on which its output depends.</p>
+<ul>
+<li>A <strong>leaf</strong> computes a tractable univariate or small multivariate mass/density, such as a Bernoulli, categorical, Gaussian, or histogram.</li>
+<li>A <strong>product node</strong> multiplies child values.</li>
+<li>A <strong>sum node</strong> computes a nonnegative weighted sum of child values.</li>
+</ul>
+<p>For input <span class="arithmatex">\(x\)</span>, write</p>
+<div class="arithmatex">\[
+v_n(x)=
+\begin{cases}
+p_n(x_{\operatorname{sc}(n)}) &amp; n\text{ is a leaf},\\
+\prod_{c\in\operatorname{ch}(n)}v_c(x) &amp; n\text{ is a product},\\
+\sum_{c\in\operatorname{ch}(n)}w_{nc}v_c(x) &amp; n\text{ is a sum}.
+\end{cases}
+\]</div>
+<p>When leaves are normalized, sum weights are nonnegative and normalized, and the graph satisfies the required scope constraints, the root computes a normalized distribution. Products express independence factorizations; sums express mixtures. Sharing subcircuits lets the DAG reuse distributions rather than expand into an exponentially large mixture tree.</p>
+<p>More precisely, a standard sufficient construction is <strong>smooth and decomposable</strong>: children of each sum have the same scope, and children of each product have disjoint scopes. If every leaf integrates to one over its scope and each sum's outgoing weights sum to one, induction over the DAG proves every node integrates to one over its scope. Without those conditions, a positive arithmetic circuit may still define a nonnegative function, but its partition function need not be one or tractable.</p>
+<p>The reference measure matters. Bernoulli and categorical leaves use counting measure; Gaussian leaves use Lebesgue measure. Mixing a mass and a density over the same variable without an explicit mixed measure is not a well-defined shortcut. Likewise, a missing-value sentinel is an observed category only if the model says so; otherwise missingness is a query operation that marginalizes an unobserved variable.</p>
+<h3 id="three-different-uses-of-tractable">Three different uses of “tractable”<a class="headerlink" href="#three-different-uses-of-tractable" title="Permanent link">¤</a></h3>
+<p>Keep three complexity claims separate:</p>
+<ol>
+<li><strong>Evaluation tractability:</strong> given a circuit and a complete assignment, one bottom-up pass evaluates its arithmetic function in <span class="arithmatex">\(O(|E|)\)</span> scalar node operations plus leaf cost.</li>
+<li><strong>Query tractability:</strong> a particular marginal, maximization, expectation, or circuit operation has a polynomial algorithm under stated properties.</li>
+<li><strong>Representation tractability:</strong> the target distribution admits a compact circuit satisfying those properties.</li>
+</ol>
+<p>The first can hold while the second fails, and both can hold while the third requires exponential circuit size. Learning adds a fourth question: whether data and optimization can discover the compact representation when one exists.</p>
+<p>A conceptual evaluator is short:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a href="#__codelineno-0-1" id="__codelineno-0-1" name="__codelineno-0-1"></a>for node in topological_order_from_leaves:
+</span><span id="__span-0-2"><a href="#__codelineno-0-2" id="__codelineno-0-2" name="__codelineno-0-2"></a>    if leaf(node): value[node] = leaf_value(node, observation_or_query)
+</span><span id="__span-0-3"><a href="#__codelineno-0-3" id="__codelineno-0-3" name="__codelineno-0-3"></a>    if product(node): value[node] = product(value[child] for child in children(node))
+</span><span id="__span-0-4"><a href="#__codelineno-0-4" id="__codelineno-0-4" name="__codelineno-0-4"></a>    if sum(node): value[node] = sum(weight[node, child] * value[child]
+</span><span id="__span-0-5"><a href="#__codelineno-0-5" id="__codelineno-0-5" name="__codelineno-0-5"></a>                                     for child in children(node))
+</span><span id="__span-0-6"><a href="#__codelineno-0-6" id="__codelineno-0-6" name="__codelineno-0-6"></a>return value[root]
+</span></code></pre></div>
+<p>Changing <code>leaf_value</code> from point evaluation to a leaf marginal turns the same graph into a marginal algorithm only when the structural proof in Chapter 2 applies.</p>
+<h3 id="a-running-four-variable-circuit">A Running Four-Variable Circuit<a class="headerlink" href="#a-running-four-variable-circuit" title="Permanent link">¤</a></h3>
+<p>Let <span class="arithmatex">\(X_1,X_2,X_3,X_4\)</span> be binary. Build two alternative decompositions of the same full scope:</p>
+<div class="arithmatex">\[
+C_A(X)=C_{12}^{A}(X_1,X_2)C_{34}^{A}(X_3,X_4),
+\]</div>
+<div class="arithmatex">\[
+C_B(X)=C_{12}^{B}(X_1,X_2)C_{34}^{B}(X_3,X_4),
+\]</div>
+<p>and mix them:</p>
+<div class="arithmatex">\[
+C(X)=\lambda C_A(X)+(1-\lambda)C_B(X).
+\]</div>
+<p>Inside either product branch, the two variable groups are independent. After mixing over the unobserved branch, they need not be marginally independent. This is the same “mixture of factorizations” mechanism that makes mixture models more expressive than any component.</p>
+<p>Introduce a latent branch variable <span class="arithmatex">\(H\in\{A,B\}\)</span>. Then</p>
+<div class="arithmatex">\[
+p(x)=\sum_h p(h)\,p(x_{1:2}\mid h)p(x_{3:4}\mid h).
+\]</div>
+<p>Nested sum nodes introduce several latent choices. Expanding all choices produces a mixture whose number of components can grow exponentially with depth, while shared subcircuits keep the representation and evaluation graph compact. This latent-variable view is useful for EM, but it does not imply every combination of local choices is reachable: DAG sharing and deterministic support constraints can couple which traces represent valid assignments.</p>
+<h3 id="circuits-spns-and-compiled-models">Circuits, SPNs, and Compiled Models<a class="headerlink" href="#circuits-spns-and-compiled-models" title="Permanent link">¤</a></h3>
+<p>The terminology overlaps several traditions:</p>
+<ul>
+<li><strong>sum-product networks</strong> emphasize learned deep sum/product DAGs;</li>
+<li><strong>arithmetic circuits</strong> may be compiled from Bayesian networks or logical theories;</li>
+<li><strong>probabilistic sentential decision diagrams</strong> combine logical and probabilistic structure;</li>
+<li><strong>Einsum Networks</strong> organize regular circuit computations into dense tensor operations.</li>
+</ul>
+<p>Probabilistic circuit is the umbrella representation. The graph is not merely a neural architecture: its structural constraints determine which probabilistic queries remain exact.</p>
+<div class="admonition warning">
+<p class="admonition-title">A positive sum/product network is not automatically tractable for every query</p>
+<p>Evaluating one complete assignment can be easy while marginal, MAP, entropy, or circuit-combination queries remain hard. State the circuit properties and query together.</p>
+</div>
+<h3 id="worked-example-normalize-and-evaluate-a-two-variable-circuit">Worked example: normalize and evaluate a two-variable circuit<a class="headerlink" href="#worked-example-normalize-and-evaluate-a-two-variable-circuit" title="Permanent link">¤</a></h3>
+<p>Let <span class="arithmatex">\(X,Y\in\{0,1\}\)</span> and</p>
+<div class="arithmatex">\[
+C(x,y)=0.6\,\operatorname{Bern}(x;0.8)\operatorname{Bern}(y;0.7)
++0.4\,\operatorname{Bern}(x;0.2)\operatorname{Bern}(y;0.1).
+\]</div>
+<p>Each product node is decomposable because one child has scope <span class="arithmatex">\(\{X\}\)</span> and the other <span class="arithmatex">\(\{Y\}\)</span>. The root sum is smooth because both products have scope <span class="arithmatex">\(\{X,Y\}\)</span>. Therefore</p>
+<div class="arithmatex">\[
+\sum_{x,y}C(x,y)=0.6(1)(1)+0.4(1)(1)=1.
+\]</div>
+<p>For <span class="arithmatex">\((x,y)=(1,1)\)</span>, the child products are <span class="arithmatex">\(0.8\cdot0.7=0.56\)</span> and <span class="arithmatex">\(0.2\cdot0.1=0.02\)</span>, so <span class="arithmatex">\(C(1,1)=0.344\)</span>. The arithmetic evaluation costs time linear in the circuit edges. That statement concerns this represented function; finding a compact circuit from data is a separate learning problem.</p>
+<div class="admonition failure">
+<p class="admonition-title">Counterexample: normalized parts, invalid product</p>
+<p>Let two normalized Bernoulli leaves both have scope <span class="arithmatex">\(\{X\}\)</span> and multiply them. The result is <span class="arithmatex">\(p_1(x)p_2(x)\)</span>, whose sum over <span class="arithmatex">\(x\)</span> is generally not one. Normalized children do not make a product normalized when scopes overlap.</p>
+</div>
+<h3 id="independent-practice-and-assessment-map-probabilistic-circuit-semantics">Independent practice and assessment map: probabilistic-circuit semantics<a class="headerlink" href="#independent-practice-and-assessment-map-probabilistic-circuit-semantics" title="Permanent link">¤</a></h3>
+<p>Work from scopes, leaf measures, and local normalization rather than from the
+graph's appearance. For every claimed probability or complexity result, show
+the induction or finite enumeration that makes it true.</p>
+<h4 id="p1-build-and-falsify-a-finite-probabilistic-circuit">P1 — Build and falsify a finite probabilistic circuit<a class="headerlink" href="#p1-build-and-falsify-a-finite-probabilistic-circuit" title="Permanent link">¤</a></h4>
+<ol>
+<li><strong>P1.1 — Predict before computing.</strong> Predict whether each statement is necessarily true: every nonnegative sum/product DAG is normalized; normalized leaves and normalized sum weights suffice even when product scopes overlap; linear-time point evaluation implies linear-time arbitrary marginalization; a smooth sum is a mixture over one common scope; DAG sharing preserves the represented function while reducing repeated computation; and an unobserved missing-value sentinel should always be assigned probability mass. For every false statement, name the missing structural, measure, or query assumption.</li>
+<li><strong>P1.2 — Scope and normalization ledger.</strong> Let <span class="arithmatex">\(C(x,y)=0.3\,\operatorname{Bern}(x;0.9)\operatorname{Bern}(y;0.2)+0.7\,\operatorname{Bern}(x;0.4)\operatorname{Bern}(y;0.8)\)</span>. Draw the leaf, product, and sum DAG; label every scope; evaluate all four assignments; verify their masses sum to one; and compute the root value at <span class="arithmatex">\((1,0)\)</span> in two independent ways. Give one overlapping-scope edit that keeps point evaluation easy but destroys the standard normalization proof.</li>
+<li><strong>P1.3 — Measure and missingness contract.</strong> Design a two-variable circuit for a nonnegative count and a positive continuous measurement. Declare counting and Lebesgue reference measures, leaf supports, units, and any support transform. Compare treating a missingness flag as an observed Bernoulli variable with marginalizing an unobserved measurement. Show why mixing a point mass and density on the same coordinate without a mixed reference measure is not a valid shortcut.</li>
+<li><strong>P1.4 — Latent traces and sharing.</strong> Interpret the root of P1.2 as a latent branch <span class="arithmatex">\(H\)</span>. Then construct <span class="arithmatex">\(0.4\,S(X,Y)p_A(Z)+0.6\,S(X,Y)p_B(Z)\)</span> with a shared normalized subcircuit <span class="arithmatex">\(S\)</span>. Expand it as a mixture tree and compare nodes, edges, values, and latent traces with the shared DAG. Generalize the trace count for <span class="arithmatex">\(L\)</span> nested binary sums and identify which combinations can disappear under deterministic support constraints.</li>
+<li><strong>P1.5 — Separate three tractability claims.</strong> Give one circuit that is easy to evaluate but not yet proved normalized, one normalized smooth/decomposable circuit with expensive multivariate leaf marginals, and one compact-query circuit class whose representation of a chosen target requires a large compiled graph. For each, state input size, query, leaf oracle, and complexity measure; reject any conclusion that moves from evaluation to validity, query tractability, representation size, or learnability without a proof.</li>
+<li><strong>P1.6 — Transfer.</strong> Transfer P1.2 to either zero-inflated event counts with exposure or circular sensor angles. Redefine support, base/reference measure, leaves, scopes, normalized sums, and required queries. Provide a finite or quadrature normalization oracle and explain which Bernoulli-circuit arguments survive unchanged and which must be replaced.</li>
+</ol>
+<h5 id="outcome-to-task-alignment-probabilistic-circuit-semantics">Outcome-to-task alignment: probabilistic-circuit semantics<a class="headerlink" href="#outcome-to-task-alignment-probabilistic-circuit-semantics" title="Permanent link">¤</a></h5>
+<div class="md-typeset__table book-table-container"><table id="tbl-probabilistic-circuits-explained-outcome-to-task-alignment-probabilistic-circuit-semantics"><caption class="book-object-caption"><span class="book-object-number">Table PC.5.</span> Outcome-to-task alignment for probabilistic-circuit semantics</caption>
+<thead>
+<tr>
+<th>Learning objective</th>
+<th>Independently assessed by</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>O1 — Evaluate a sum/product circuit bottom-up and compute every node's scope</td>
+<td>P1.2, P1.4</td>
+</tr>
+<tr>
+<td>O2 — State sufficient conditions under which the root is normalized</td>
+<td>P1.1, P1.2, P1.3, P1.6</td>
+</tr>
+<tr>
+<td>O3 — Interpret sum choices as discrete latent variables without expanding the DAG into a mixture tree</td>
+<td>P1.4</td>
+</tr>
+<tr>
+<td>O4 — Distinguish circuit evaluation, probabilistic validity, and query tractability</td>
+<td>P1.1, P1.3, P1.5</td>
+</tr>
+<tr>
+<td>O5 — Construct and normalize a complete finite-state example</td>
+<td>P1.2, P1.6</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="chapter-1-synthesis">Chapter 1 Synthesis<a class="headerlink" href="#chapter-1-synthesis" title="Permanent link">¤</a></h3>
+<p>A PC composes tractable leaf distributions with mixture and factorization operations. Normalization follows from explicit local conditions and an induction over scopes—not from drawing a sum/product DAG. The next chapter asks which additional properties preserve particular queries.</p>
+<details class="question">
+<summary>Retrieval practice: circuit semantics</summary>
+<ol>
+<li>What does a sum node mean probabilistically when it is normalized and smooth?</li>
+<li>Why must a normalized product's child scopes be disjoint in the standard construction?</li>
+<li>Does linear-time evaluation prove the circuit is a normalized distribution?</li>
+<li>What does DAG sharing save compared with expanding every latent trace?</li>
+</ol>
+<p><strong>Solutions.</strong> (1) A mixture over child distributions on the same variables. (2) Disjoint scopes let the integral factor into the product of child integrals without integrating the same variable twice. (3) No. Any arithmetic DAG can be evaluated; validity requires parameter, leaf, scope, and measure conditions. (4) It reuses identical subcomputations/subdistributions and can avoid an exponentially larger mixture tree.</p>
+</details>
+<p><strong>Bridge.</strong> Semantics tells us what function the graph computes. Chapter 2 turns structural properties into a query-by-query guarantee map. <a href="./#2-structural-properties-and-their-guarantees">Continue continuously</a> or open <a href="../probabilistic-circuits-02-properties/">Chapter 2</a>.</p>
+<h2 id="2-structural-properties-and-their-guarantees">2. Structural Properties and Their Guarantees<a class="headerlink" href="#2-structural-properties-and-their-guarantees" title="Permanent link">¤</a></h2>
+<p>The four most important properties answer different questions. None should be silently substituted for another.</p>
+<h3 id="chapter-2-prerequisites-and-learning-objectives">Chapter 2 prerequisites and learning objectives<a class="headerlink" href="#chapter-2-prerequisites-and-learning-objectives" title="Permanent link">¤</a></h3>
+<p>This chapter assumes the node and scope semantics from Chapter 1. By the end, you should be able to:</p>
+<ol>
+<li>audit smoothness, decomposability, determinism, and structured decomposability independently;</li>
+<li>prove the marginal-evaluation recursion for smooth decomposable circuits;</li>
+<li>explain why max-product is exact for appropriate deterministic circuits but not overlapping mixtures;</li>
+<li>distinguish ordinary, marginal, and query-specific determinism; and</li>
+<li>identify when operations between two circuits require compatible vtrees or can cause size blow-up.</li>
+</ol>
+<h3 id="smoothness">Smoothness<a class="headerlink" href="#smoothness" title="Permanent link">¤</a></h3>
+<p>A sum node is <strong>smooth</strong> when all children have the same scope:</p>
+<div class="arithmatex">\[
+\operatorname{sc}(c_i)=\operatorname{sc}(c_j)
+\quad\text{for all children }c_i,c_j.
+\]</div>
+<p>Then the sum mixes distributions over the same variables. Missing variables can sometimes be repaired by multiplying a branch by a normalized unit distribution, but the repair changes circuit size and must preserve other properties.</p>
+<h3 id="decomposability">Decomposability<a class="headerlink" href="#decomposability" title="Permanent link">¤</a></h3>
+<p>A product node is <strong>decomposable</strong> when its child scopes are pairwise disjoint:</p>
+<div class="arithmatex">\[
+\operatorname{sc}(c_i)\cap\operatorname{sc}(c_j)=\varnothing
+\quad(i\ne j).
+\]</div>
+<p>This makes marginalization distribute through products without double-counting a variable. Smoothness plus decomposability supports linear-time evaluation of marginals in the circuit size, assuming tractable leaf marginals.</p>
+<h3 id="determinism">Determinism<a class="headerlink" href="#determinism" title="Permanent link">¤</a></h3>
+<p>A sum node is <strong>deterministic</strong> when at most one child has nonzero value for any complete assignment. Its mixture components have disjoint support. Determinism turns summation over alternatives into mutually exclusive case analysis and enables additional queries, including tractable MPE and query-specific MAP transformations for appropriate circuit classes. It does not make arbitrary marginal MAP tractable.</p>
+<p>Determinism is a representational restriction. Ordinary soft mixtures are nondeterministic because several components can explain the same observation. Determinism may improve query tractability while requiring a larger circuit to represent a smooth overlapping density.</p>
+<p>Determinism can also be <strong>query-relative</strong>. A circuit may become deterministic after projecting onto a subset of variables, or be deterministic with respect to the variables maximized in a marginal-MAP query. This is often called marginal or <span class="arithmatex">\(Q\)</span>-determinism. The qualifier matters: exclusivity over complete assignments does not automatically survive marginalizing variables that distinguished the branches.</p>
+<h3 id="structured-decomposability">Structured Decomposability<a class="headerlink" href="#structured-decomposability" title="Permanent link">¤</a></h3>
+<p>Decomposable circuits may split scopes differently at different product nodes. A <strong>structured-decomposable</strong> circuit conforms to a shared hierarchical variable decomposition, commonly represented by a vtree. Compatible structure makes operations between circuits—products, expectations, logical compositions, and some causal queries—tractable because their partitions align.</p>
+<p><a href="https://proceedings.mlr.press/v138/dang20a.html">Strudel</a> is a primary example of learning structured-decomposable circuits. <a href="https://proceedings.mlr.press/v258/zhang25f.html">Restructuring Tractable Probabilistic Circuits</a> studies transforming a structured PC to conform to a target vtree, illustrating that circuit compatibility is an algorithmic problem rather than superficial graph formatting.</p>
+<p>A <strong>vtree</strong> is a binary tree whose leaves are variables. Each internal vtree node specifies a left/right split of a scope. A circuit respects the vtree when product decompositions follow those splits recursively. This restricts which context-specific factorizations can coexist compactly, but makes separately built circuits align for operations such as products and expectations.</p>
+<p>Sentential decision diagrams and probabilistic SDDs add logical decision structure, typically combining structured decomposability with determinism. Their tractability comes from the compiled logical/circuit properties, not from the name “decision diagram.” A vtree is therefore both an inductive bias and an interface contract.</p>
+<h3 id="property-to-query-map">Property-to-Query Map<a class="headerlink" href="#property-to-query-map" title="Permanent link">¤</a></h3>
+<div class="md-typeset__table book-table-container"><table id="tbl-probabilistic-circuits-explained-property-to-query-map"><caption class="book-object-caption"><span class="book-object-number">Table PC.1.</span> Property-to-Query Map</caption>
+<thead>
+<tr>
+<th>Query or operation</th>
+<th>Typical sufficient requirements</th>
+<th>Caveat</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Complete-assignment likelihood</td>
+<td>tractable leaves and arithmetic evaluation</td>
+<td>normalization still requires valid parameters/structure</td>
+</tr>
+<tr>
+<td>Marginal probability</td>
+<td>smooth + decomposable</td>
+<td>leaf marginals must be tractable</td>
+</tr>
+<tr>
+<td>Conditional probability</td>
+<td>tractable joint marginals and nonzero evidence</td>
+<td>ratio can be numerically unstable for rare evidence</td>
+</tr>
+<tr>
+<td>Exact sampling</td>
+<td>normalized smooth/decomposable generative circuit</td>
+<td>requires posterior branch probabilities under evidence for conditional sampling</td>
+</tr>
+<tr>
+<td>MPE</td>
+<td>determinism plus compatible max replacement in the circuit class</td>
+<td>marginal MAP is generally harder</td>
+</tr>
+<tr>
+<td>Entropy/cross-entropy/KL between circuits</td>
+<td>additional compatibility, often structured decomposability</td>
+<td>not guaranteed for arbitrary pairs of PCs</td>
+</tr>
+<tr>
+<td>Multiply circuits</td>
+<td>compatible decompositions or a compilation procedure</td>
+<td>product may blow up in size</td>
+</tr>
+</tbody>
+</table></div>
+<p>These are sufficient-condition summaries, not universal biconditionals. A particular non-smooth circuit may still answer a particular query cheaply; the structural properties give family-wide guarantees.</p>
+<h3 id="why-the-marginal-recursion-works">Why the marginal recursion works<a class="headerlink" href="#why-the-marginal-recursion-works" title="Permanent link">¤</a></h3>
+<p>Let <span class="arithmatex">\(M_n(E=e)\)</span> denote the integral of node <span class="arithmatex">\(n\)</span> over variables in its scope that are not observed. At a leaf, compute the declared leaf marginal. At a smooth sum,</p>
+<div class="arithmatex">\[
+M_n(e)=\sum_c w_{nc}M_c(e),
+\]</div>
+<p>because every child represents the same variables. At a decomposable product,</p>
+<div class="arithmatex">\[
+M_n(e)=\prod_c M_c(e),
+\]</div>
+<p>because disjoint child scopes allow the integral to factor. Applying these identities in topological order gives time linear in the represented circuit edges plus leaf-query costs. The proof does not say the circuit is small; a polynomial-time algorithm in an exponentially large compiled circuit is not a practical victory.</p>
+<h3 id="semirings-reusing-the-graph-for-new-queries">Semirings: Reusing the Graph for New Queries<a class="headerlink" href="#semirings-reusing-the-graph-for-new-queries" title="Permanent link">¤</a></h3>
+<p>Sum-product evaluation occurs over the ordinary <span class="arithmatex">\((+,\times)\)</span> semiring. Replacing operations can compute related quantities when the circuit properties justify the transformation:</p>
+<ul>
+<li>max-product for most-probable explanations;</li>
+<li>expectation semirings for moments or sufficient statistics;</li>
+<li>Boolean operations for logical support queries;</li>
+<li>automatic differentiation for all node/edge sensitivities in one upward/downward pass.</li>
+</ul>
+<p>The circuit is therefore both a distribution and a compiled dynamic program.</p>
+<p>Semiring replacement is not a license to swap operators blindly. Max-product gives exact MPE in a suitable deterministic, decomposable circuit because only one sum child contributes to any complete assignment. In a nondeterministic mixture, two branches can support the same assignment; replacing their sum by max discards probability mass and can change the maximizing assignment.</p>
+<h3 id="worked-example-audit-properties-before-choosing-an-algorithm">Worked example: audit properties before choosing an algorithm<a class="headerlink" href="#worked-example-audit-properties-before-choosing-an-algorithm" title="Permanent link">¤</a></h3>
+<p>Consider</p>
+<div class="arithmatex">\[
+C(X,Y)=\tfrac12[I(X=0)p_0(Y)+I(X=1)p_1(Y)]
++\tfrac12[I(X=0)q_0(Y)+I(X=1)q_1(Y)].
+\]</div>
+<p>Each bracket can be a deterministic sum over <span class="arithmatex">\(X\)</span>, and each indicator–<span class="arithmatex">\(Y\)</span> product is decomposable. The <strong>root</strong> sum is generally nondeterministic because both large children support <span class="arithmatex">\(X=0\)</span> and <span class="arithmatex">\(X=1\)</span>. Thus the circuit can be smooth and decomposable while failing determinism at one node. Marginals remain tractable; blindly replacing every sum with max is not justified.</p>
+<p>Now force the first root child to support only <span class="arithmatex">\(X=0\)</span> and the second only <span class="arithmatex">\(X=1\)</span>. The root becomes deterministic with respect to <span class="arithmatex">\(X\)</span>, enabling max over <span class="arithmatex">\(X\)</span> after summing <span class="arithmatex">\(Y\)</span> when the remaining structure satisfies the marginal-MAP conditions. The graph shape barely changed, but the query guarantee did.</p>
+<div class="admonition failure">
+<p class="admonition-title">Counterexample: compatible sizes are not free</p>
+<p>Two structured-decomposable circuits can each be compact under different vtrees. Multiplying them may require restructuring one or both, and the resulting compatible circuit can grow substantially. "Both inputs are tractable" does not imply every binary operation is linear in their original sizes.</p>
+</div>
+<h3 id="independent-practice-and-assessment-map-circuit-properties">Independent practice and assessment map: circuit properties<a class="headerlink" href="#independent-practice-and-assessment-map-circuit-properties" title="Permanent link">¤</a></h3>
+<p>Treat every property as a local, executable contract and every tractability
+claim as query-specific. A property name without its node set, variable set,
+and leaf assumptions is not a completed answer.</p>
+<h4 id="p1-derive-a-property-to-query-guarantee">P1 — Derive a property-to-query guarantee<a class="headerlink" href="#p1-derive-a-property-to-query-guarantee" title="Permanent link">¤</a></h4>
+<ol>
+<li><strong>P1.1 — Predict before computing.</strong> Predict whether each implication is valid: decomposable implies deterministic; smooth plus decomposable makes any leaf marginal cheap; complete-assignment determinism always survives marginalization; max-product is exact in every normalized PC; two compact structured PCs can always be multiplied with linear output size; and a vtree is only a visualization choice. For each failure, give the smallest counterexample or the missing qualifier.</li>
+<li><strong>P1.2 — Node-by-node property audit.</strong> Analyze <span class="arithmatex">\(C=0.5\,[I(X=0)p_0(Y)+I(X=1)p_1(Y)]r(Z)+0.5\,[I(X=0)q_0(Y)+I(X=1)q_1(Y)]s(Z)\)</span>. Compute every scope and audit smoothness, decomposability, and determinism at each internal node. Explain why the inner sums may be deterministic while the root is generally nondeterministic, and list the marginals and maximization queries justified by exactly those results.</li>
+<li><strong>P1.3 — Prove and break the marginal recursion.</strong> For P1.2, derive the upward marginal for evidence on <span class="arithmatex">\(Y\)</span> while <span class="arithmatex">\(X\)</span> and <span class="arithmatex">\(Z\)</span> are unobserved, first algebraically and then by complete finite enumeration for chosen Bernoulli leaves. Modify one product so two children contain <span class="arithmatex">\(Y\)</span> and show the precise equality in the factorized-integral proof that fails.</li>
+<li><strong>P1.4 — Determinism and the max/sum boundary.</strong> Construct a two-level circuit in which every complete assignment activates one child at each sum, and verify MPE by max-product and enumeration. Then hide a variable that distinguishes the branches and test whether determinism survives for the remaining maximized variables. If it does not, exhibit a marginal-MAP disagreement and state the query-specific determinism needed to repair the argument.</li>
+<li><strong>P1.5 — Vtree compatibility ledger.</strong> Draw vtrees <span class="arithmatex">\(((A,B),(C,D))\)</span> and <span class="arithmatex">\(((A,C),(B,D))\)</span> for two structured-decomposable circuits. Identify which product partitions align, what restructuring or compilation would be required before a circuit product or expectation, and which size quantity must be reported. Give a compatible control pair so the extra cost is attributable to structure rather than leaf complexity.</li>
+<li><strong>P1.6 — Transfer.</strong> Transfer the audit to either a weighted logical circuit for constrained configurations or a tensor contraction representing a four-variable probability table. Map logical cases or contraction factors to sums, products, scopes, and support; identify the property required by one marginal and one maximization query; and state where logical compilation size or tensor rank is not captured by ordinary PC edge count.</li>
+</ol>
+<h5 id="outcome-to-task-alignment-circuit-properties">Outcome-to-task alignment: circuit properties<a class="headerlink" href="#outcome-to-task-alignment-circuit-properties" title="Permanent link">¤</a></h5>
+<div class="md-typeset__table book-table-container"><table id="tbl-probabilistic-circuits-explained-outcome-to-task-alignment-circuit-properties"><caption class="book-object-caption"><span class="book-object-number">Table PC.6.</span> Outcome-to-task alignment for circuit structural properties</caption>
+<thead>
+<tr>
+<th>Learning objective</th>
+<th>Independently assessed by</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>O1 — Audit smoothness, decomposability, determinism, and structured decomposability independently</td>
+<td>P1.1, P1.2, P1.5</td>
+</tr>
+<tr>
+<td>O2 — Prove the marginal-evaluation recursion for smooth decomposable circuits</td>
+<td>P1.2, P1.3</td>
+</tr>
+<tr>
+<td>O3 — Explain why max-product is exact for appropriate deterministic circuits but not overlapping mixtures</td>
+<td>P1.1, P1.2, P1.4</td>
+</tr>
+<tr>
+<td>O4 — Distinguish ordinary, marginal, and query-specific determinism</td>
+<td>P1.1, P1.4</td>
+</tr>
+<tr>
+<td>O5 — Identify when operations between two circuits require compatible vtrees or can cause size blow-up</td>
+<td>P1.1, P1.5, P1.6</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="chapter-2-synthesis">Chapter 2 Synthesis<a class="headerlink" href="#chapter-2-synthesis" title="Permanent link">¤</a></h3>
+<p>Smoothness aligns mixture scopes; decomposability separates product scopes; determinism makes mixture branches exclusive for a stated variable set; structured decomposability aligns partitions across the graph or between circuits. Complexity is linear in the compiled representation, not necessarily in the original graphical model or data dimension. Chapter 3 uses these guarantees to execute exact queries.</p>
+<details class="question">
+<summary>Retrieval practice: structural properties</summary>
+<ol>
+<li>Does decomposability imply determinism?</li>
+<li>Which two properties suffice for the standard linear-time marginal recursion?</li>
+<li>Why can nondeterminism invalidate max-product MPE?</li>
+<li>What additional issue arises when multiplying two structured circuits?</li>
+</ol>
+<p><strong>Solutions.</strong> (1) No. Decomposability constrains products; determinism constrains sums. (2) Smoothness and decomposability, together with tractable leaf marginals. (3) Overlapping children can contribute jointly to one assignment, so max discards mass that the sum would combine. (4) Their variable decompositions must be compatible or be restructured/compiled, potentially increasing circuit size.</p>
+</details>
+<p><strong>Bridge.</strong> The property audit establishes which recursions are legal. Chapter 3 executes those recursions and separates complete MAP, marginal MAP, conditioning, sampling, and differentiation. <a href="./#3-exact-inference-by-upward-and-downward-passes">Continue continuously</a> or open <a href="../probabilistic-circuits-03-inference/">Chapter 3</a>.</p>
+<h2 id="3-exact-inference-by-upward-and-downward-passes">3. Exact Inference by Upward and Downward Passes<a class="headerlink" href="#3-exact-inference-by-upward-and-downward-passes" title="Permanent link">¤</a></h2>
+<h3 id="chapter-3-prerequisites-and-learning-objectives">Chapter 3 prerequisites and learning objectives<a class="headerlink" href="#chapter-3-prerequisites-and-learning-objectives" title="Permanent link">¤</a></h3>
+<p>This chapter assumes a smooth, decomposable normalized circuit unless a stronger property is stated. By the end, you should be able to:</p>
+<ol>
+<li>compute evidence, marginals, and conditionals with upward messages;</li>
+<li>sample unconditionally and conditionally using posterior sum-edge probabilities;</li>
+<li>derive downward sensitivities and normalized responsibilities;</li>
+<li>implement stable log-domain evaluation without confusing log-sum-exp with a new circuit semantics; and</li>
+<li>distinguish MPE from marginal MAP and recognize zero-evidence failure cases.</li>
+</ol>
+<h3 id="marginalization-as-leaf-substitution">Marginalization as Leaf Substitution<a class="headerlink" href="#marginalization-as-leaf-substitution" title="Permanent link">¤</a></h3>
+<p>For discrete indicator leaves, a complete assignment selects indicator values. To marginalize an unobserved variable, set all of its indicators to one. More generally, replace a leaf by its integral over unobserved coordinates. Smoothness and decomposability ensure the root then equals the desired marginal.</p>
+<p>For evidence <span class="arithmatex">\(e\)</span> on observed variables <span class="arithmatex">\(E\)</span>, compute <span class="arithmatex">\(C(e)=p(E=e)\)</span>. A conditional follows from</p>
+<div class="arithmatex">\[
+p(Q=q\mid E=e)=\frac{C(q,e)}{C(e)}.
+\]</div>
+<p>This is exact arithmetic inference, not amortized imputation. Numerical underflow remains possible, so log-space evaluation or scaled messages are important for deep circuits.</p>
+<p>In log space, product nodes add child log-values and sum nodes use</p>
+<div class="arithmatex">\[
+\log v_n=\operatorname{logsumexp}_c(\log w_{nc}+\log v_c).
+\]</div>
+<p>Zero-valued branches map to <span class="arithmatex">\(-\infty\)</span>. Conditional probabilities should be formed by subtracting log evidence and exponentiating only when needed. If <span class="arithmatex">\(C(e)=0\)</span>, the model conditional is undefined; clipping the denominator silently invents a different distribution.</p>
+<p>For a mixed query, each leaf needs an explicit interface:</p>
+<ul>
+<li>point mass or density for observed coordinates;</li>
+<li>integral over omitted coordinates;</li>
+<li>conditional sampler for unobserved coordinates given any observed coordinates in the same multivariate leaf; and</li>
+<li>optionally a maximizer and maximum value for MPE.</li>
+</ul>
+<p>Univariate normalized leaves make the marginal interface trivial: an unobserved leaf returns one. Multivariate leaves can be more expressive, but their internal marginal and conditional problems become part of total query cost.</p>
+<h3 id="worked-example-marginal-and-conditional-query">Worked Example: Marginal and Conditional Query<a class="headerlink" href="#worked-example-marginal-and-conditional-query" title="Permanent link">¤</a></h3>
+<p>Let a circuit over binary <span class="arithmatex">\(X,Y\)</span> be</p>
+<div class="arithmatex">\[
+p(x,y)=0.6\,p_A(x)p_A(y)+0.4\,p_B(x)p_B(y),
+\]</div>
+<p>with <span class="arithmatex">\(p_A(X=1)=0.8\)</span>, <span class="arithmatex">\(p_A(Y=1)=0.7\)</span>, <span class="arithmatex">\(p_B(X=1)=0.2\)</span>, and <span class="arithmatex">\(p_B(Y=1)=0.1\)</span>.</p>
+<p>The joint event is</p>
+<div class="arithmatex">\[
+p(X=1,Y=1)=0.6(0.8)(0.7)+0.4(0.2)(0.1)=0.344.
+\]</div>
+<p>Marginalizing <span class="arithmatex">\(X\)</span> means each branch's <span class="arithmatex">\(X\)</span> factor integrates to one:</p>
+<div class="arithmatex">\[
+p(Y=1)=0.6(0.7)+0.4(0.1)=0.46.
+\]</div>
+<p>Therefore</p>
+<div class="arithmatex">\[
+p(X=1\mid Y=1)=\frac{0.344}{0.46}\approx0.748.
+\]</div>
+<p>Although <span class="arithmatex">\(X\)</span> and <span class="arithmatex">\(Y\)</span> are independent within each product component, observing <span class="arithmatex">\(Y\)</span> updates the posterior mixture weight and therefore changes the distribution of <span class="arithmatex">\(X\)</span>.</p>
+<p>The posterior component weight for branch A is <span class="arithmatex">\(0.6(0.7)/0.46\approx0.913\)</span>. Conditional sampling first draws the branch from <span class="arithmatex">\((0.913,0.087)\)</span>, then samples <span class="arithmatex">\(X\)</span> from that branch's Bernoulli. This produces the same <span class="arithmatex">\(p(X\mid Y=1)\)</span> as the ratio calculation; it is not ancestral sampling from the original weights <span class="arithmatex">\((0.6,0.4)\)</span>.</p>
+<h3 id="sampling">Sampling<a class="headerlink" href="#sampling" title="Permanent link">¤</a></h3>
+<p>At a product node, sample every child because scopes are disjoint. At a sum node, sample one child according to its mixture weight for unconditional sampling. Under evidence, weights become posterior branch probabilities proportional to</p>
+<div class="arithmatex">\[
+w_{nc}\,v_c(e).
+\]</div>
+<p>Then recursively sample unobserved leaves conditioned on evidence. This yields exact conditional samples when the needed evaluations and leaf conditionals are exact.</p>
+<p>A robust conditional sampler performs one evidence pass, caches every child evidence value, then traverses top-down:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-1-1"><a href="#__codelineno-1-1" id="__codelineno-1-1" name="__codelineno-1-1"></a>values = upward_evidence_pass(e)
+</span><span id="__span-1-2"><a href="#__codelineno-1-2" id="__codelineno-1-2" name="__codelineno-1-2"></a>visit(root)
+</span><span id="__span-1-3"><a href="#__codelineno-1-3" id="__codelineno-1-3" name="__codelineno-1-3"></a>  product: visit every child
+</span><span id="__span-1-4"><a href="#__codelineno-1-4" id="__codelineno-1-4" name="__codelineno-1-4"></a>  sum: draw child c with probability weight[c] * values[c] / values[parent]
+</span><span id="__span-1-5"><a href="#__codelineno-1-5" id="__codelineno-1-5" name="__codelineno-1-5"></a>  leaf: draw missing coordinates from the leaf conditional
+</span></code></pre></div>
+<p>The quotient assumes <code>values[parent] &gt; 0</code>. For a DAG, one sampled trace visits the chosen descendants; cached upward values can be reused across samples, while random choices must remain independent unless coupled sampling is intended.</p>
+<h3 id="derivatives-and-responsibilities">Derivatives and Responsibilities<a class="headerlink" href="#derivatives-and-responsibilities" title="Permanent link">¤</a></h3>
+<p>Let the root value be <span class="arithmatex">\(C(x)\)</span>. A downward pass computes <span class="arithmatex">\(\partial C/\partial v_n\)</span> for every node. For an edge from sum node <span class="arithmatex">\(n\)</span> to child <span class="arithmatex">\(c\)</span>, its posterior responsibility is proportional to</p>
+<div class="arithmatex">\[
+\frac{\partial C}{\partial v_n}\,w_{nc}v_c(x).
+\]</div>
+<p>Automatic differentiation implements this calculation, but the probabilistic interpretation depends on the normalized circuit semantics. Gradients are not evidence of a valid posterior if the graph violates those semantics.</p>
+<p>For a normalized complete-data circuit, divide by the root value to obtain the expected use or <strong>flow</strong> of that edge under the posterior trace:</p>
+<div class="arithmatex">\[
+\gamma_{nc}(x)=\frac{1}{C(x)}
+\frac{\partial C(x)}{\partial v_n}\,w_{nc}v_c(x).
+\]</div>
+<p>Shared DAG nodes can receive flow from several parents, which is why the downward derivative is essential; a local softmax over one sum node is insufficient when the probability of reaching that node also depends on upstream choices.</p>
+<h3 id="marginal-map-is-a-warning-case">Marginal MAP Is a Warning Case<a class="headerlink" href="#marginal-map-is-a-warning-case" title="Permanent link">¤</a></h3>
+<p>MPE maximizes all unobserved variables. Marginal MAP maximizes some variables while summing out others:</p>
+<div class="arithmatex">\[
+\arg\max_y\sum_z p(y,z,e).
+\]</div>
+<p>Max and sum do not generally commute, so replacing every sum by max is wrong. Specialized transformations can solve cases on suitable PCs; see <a href="https://proceedings.mlr.press/v151/choi22b.html">Choi and Friedman's exact marginal-MAP transformations</a>. The lesson generalizes: “exact inference” is never one undifferentiated capability.</p>
+<p>For a concrete counterexample, let <span class="arithmatex">\(p(a,0)=0.30\)</span>, <span class="arithmatex">\(p(a,1)=0.30\)</span>, <span class="arithmatex">\(p(b,0)=0.39\)</span>, and <span class="arithmatex">\(p(b,1)=0.01\)</span>. MPE chooses <span class="arithmatex">\((b,0)\)</span> because <span class="arithmatex">\(0.39\)</span> is the largest complete-assignment mass. Marginal MAP over the first variable chooses <span class="arithmatex">\(a\)</span> because <span class="arithmatex">\(p(a)=0.60&gt;p(b)=0.40\)</span>. Maximizing before summing returns the wrong query.</p>
+<h3 id="beyond-marginals-expectations-and-circuit-operations">Beyond marginals: expectations and circuit operations<a class="headerlink" href="#beyond-marginals-expectations-and-circuit-operations" title="Permanent link">¤</a></h3>
+<p>Moments can be computed by expectation semirings or by combining the distribution circuit with a compatible function circuit. Entropy, cross-entropy, KL, products, quotients, and powers require operation-specific closure and compatibility conditions. The <a href="https://arxiv.org/abs/2102.06137">compositional atlas</a> supplies algorithms and hardness boundaries. It is incorrect to infer that because <span class="arithmatex">\(p(x)\)</span> and <span class="arithmatex">\(q(x)\)</span> are each tractable, <span class="arithmatex">\(D_{\mathrm{KL}}(p\|q)\)</span> is automatically tractable.</p>
+<h3 id="independent-practice-and-assessment-map-exact-circuit-inference">Independent practice and assessment map: exact circuit inference<a class="headerlink" href="#independent-practice-and-assessment-map-exact-circuit-inference" title="Permanent link">¤</a></h3>
+<p>Use a finite enumeration as an oracle for every optimized circuit pass. Report
+whether the requested result is a point value, marginal, conditional, sample,
+MPE assignment, marginal-MAP assignment, derivative, or expectation.</p>
+<h4 id="p1-reconcile-upward-downward-and-sampling-calculations">P1 — Reconcile upward, downward, and sampling calculations<a class="headerlink" href="#p1-reconcile-upward-downward-and-sampling-calculations" title="Permanent link">¤</a></h4>
+<ol>
+<li><strong>P1.1 — Predict before computing.</strong> Predict whether each procedure is valid: set every unobserved normalized univariate leaf to one; sample a sum child from prior weights after observing evidence; clip a zero evidence denominator and call the result exact; replace all sums by maxima for marginal MAP; interpret an automatic-differentiation edge gradient as a posterior responsibility in any arithmetic DAG; and compute KL from two individually tractable circuits without checking compatibility. Name the structural, normalization, or numerical condition behind every answer.</li>
+<li><strong>P1.2 — Upward evidence oracle.</strong> Let <span class="arithmatex">\(p(x,y)=0.25\,p_A(x)p_A(y)+0.75\,p_B(x)p_B(y)\)</span> with <span class="arithmatex">\(p_A(X=1)=0.9\)</span>, <span class="arithmatex">\(p_A(Y=1)=0.3\)</span>, <span class="arithmatex">\(p_B(X=1)=0.2\)</span>, and <span class="arithmatex">\(p_B(Y=1)=0.8\)</span>. Compute all four joint masses, <span class="arithmatex">\(p(X=1)\)</span>, <span class="arithmatex">\(p(X=1,Y=1)\)</span>, and <span class="arithmatex">\(p(Y=1\mid X=1)\)</span> by enumeration and by leaf substitution. Verify normalization and retain exact fractions or sufficient precision to expose a reduction error.</li>
+<li><strong>P1.3 — Conditional-sampling trace.</strong> For evidence <span class="arithmatex">\(X=1\)</span> in P1.2, compute the posterior branch probabilities, then derive the distribution used to sample <span class="arithmatex">\(Y\)</span>. Simulate or enumerate enough conditional draws to compare with the analytic conditional. Explain why drawing the branch from <span class="arithmatex">\((0.25,0.75)\)</span> would be ancestral sampling from the wrong conditional and specify which cached upward values are reusable across draws.</li>
+<li><strong>P1.4 — Downward responsibility check.</strong> Derive <span class="arithmatex">\(\partial C/\partial v_n\)</span> and the normalized edge flows for the root mixture in P1.2 at <span class="arithmatex">\((X,Y)=(1,1)\)</span>. Extend the graph so one subcircuit has two parents, compute its total downward sensitivity as the sum of both paths, and compare with automatic differentiation. Show why a local child softmax alone omits the probability of reaching the shared node.</li>
+<li><strong>P1.5 — Numerical and query failure suite.</strong> Implement or specify tests for log-sum-exp at extreme log weights, exactly zero evidence, rare nonzero evidence, and a marginal-MAP table whose MPE projection is wrong. For each case, state the expected log value, assignment, error type, and permitted behavior; distinguish an explicit smoothing model change from denominator clipping.</li>
+<li><strong>P1.6 — Transfer.</strong> Transfer the inference interface to a multivariate Gaussian leaf with one observed and one missing coordinate, or to a categorical sequence leaf with a constrained suffix. Define point evaluation, subset marginal, conditional sampler, and maximizer costs. Identify which parent-circuit queries remain exact and which become approximate or unavailable because of the new leaf.</li>
+</ol>
+<h5 id="outcome-to-task-alignment-exact-circuit-inference">Outcome-to-task alignment: exact circuit inference<a class="headerlink" href="#outcome-to-task-alignment-exact-circuit-inference" title="Permanent link">¤</a></h5>
+<div class="md-typeset__table book-table-container"><table id="tbl-probabilistic-circuits-explained-outcome-to-task-alignment-exact-circuit-inference"><caption class="book-object-caption"><span class="book-object-number">Table PC.7.</span> Outcome-to-task alignment for exact circuit inference</caption>
+<thead>
+<tr>
+<th>Learning objective</th>
+<th>Independently assessed by</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>O1 — Compute evidence, marginals, and conditionals with upward messages</td>
+<td>P1.1, P1.2, P1.5</td>
+</tr>
+<tr>
+<td>O2 — Sample unconditionally and conditionally using posterior sum-edge probabilities</td>
+<td>P1.1, P1.3, P1.6</td>
+</tr>
+<tr>
+<td>O3 — Derive downward sensitivities and normalized responsibilities</td>
+<td>P1.4</td>
+</tr>
+<tr>
+<td>O4 — Implement stable log-domain evaluation without confusing log-sum-exp with a new circuit semantics</td>
+<td>P1.1, P1.5</td>
+</tr>
+<tr>
+<td>O5 — Distinguish MPE from marginal MAP and recognize zero-evidence failure cases</td>
+<td>P1.1, P1.5, P1.6</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="chapter-3-synthesis">Chapter 3 Synthesis<a class="headerlink" href="#chapter-3-synthesis" title="Permanent link">¤</a></h3>
+<p>The circuit evaluates evidence upward, propagates sensitivities downward, and can reuse these computations for marginals, posterior branch weights, samples, and sufficient statistics. Exactness remains conditional on the query and compiled structure; numerical stability and zero-probability evidence remain runtime concerns. Chapter 4 asks how the graph and parameters are learned.</p>
+<details class="question">
+<summary>Retrieval practice: exact circuit inference</summary>
+<ol>
+<li>What replaces an unobserved normalized univariate leaf during marginalization?</li>
+<li>How does evidence change a sum node's sampling probabilities?</li>
+<li>Why does the downward pass matter in a DAG with shared subcircuits?</li>
+<li>Why is marginal MAP harder than MPE?</li>
+<li>What should code do when <span class="arithmatex">\(C(e)=0\)</span>?</li>
+</ol>
+<p><strong>Solutions.</strong> (1) Its integral, usually one. (2) Reweight each edge by its prior weight times the child evidence value, then normalize. (3) It aggregates the probability or sensitivity of reaching a shared node through all parents. (4) Maximization and summation do not commute, so local max replacements can optimize a different expression. (5) Report that the model conditional is undefined or use an explicitly documented smoothing/model change; do not hide it with denominator clipping.</p>
+</details>
+<p><strong>Bridge.</strong> Upward/downward messages expose latent sufficient statistics. Chapter 4 turns them into gradient, EM, and structure-learning procedures while keeping optimization claims distinct from inference guarantees. <a href="./#4-parameter-and-structure-learning">Continue continuously</a> or open <a href="../probabilistic-circuits-04-learning/">Chapter 4</a>.</p>
+<h2 id="4-parameter-and-structure-learning">4. Parameter and Structure Learning<a class="headerlink" href="#4-parameter-and-structure-learning" title="Permanent link">¤</a></h2>
+<h3 id="chapter-4-prerequisites-and-learning-objectives">Chapter 4 prerequisites and learning objectives<a class="headerlink" href="#chapter-4-prerequisites-and-learning-objectives" title="Permanent link">¤</a></h3>
+<p>You should understand mixture-model EM, maximum likelihood, softmax parameterization, and validation-based model selection. By the end, you should be able to:</p>
+<ol>
+<li>derive sum-edge EM updates from posterior circuit flows;</li>
+<li>compare EM, gradient, and minibatch updates without calling any of them universally stable;</li>
+<li>separate parameter count from effective circuit capacity and structure;</li>
+<li>explain recursive, random/regular, pruning/growing, and distillation-based structure learning; and</li>
+<li>audit distributed or tensorized scaling claims independently from probabilistic tractability.</li>
+</ol>
+<h3 id="parameter-learning-with-fixed-structure">Parameter Learning with Fixed Structure<a class="headerlink" href="#parameter-learning-with-fixed-structure" title="Permanent link">¤</a></h3>
+<p>For normalized sum weights, maximum likelihood can use projected/softmax gradient optimization or EM. In EM, latent branch choices receive posterior responsibilities in the E-step; the M-step normalizes expected edge counts:</p>
+<div class="arithmatex">\[
+w_{nc}^{\mathrm{new}}
+=\frac{\sum_{i=1}^{N}\gamma_{i,nc}}
+       {\sum_{c'}\sum_{i=1}^{N}\gamma_{i,nc'}}.
+\]</div>
+<p>Leaf parameters update from responsibility-weighted sufficient statistics. Dirichlet or other priors add pseudo-counts and regularization. Deterministic circuits can make branch assignments hard; nondeterministic circuits usually require soft responsibilities.</p>
+<p>The update follows from maximizing the expected complete-trace log likelihood. If <span class="arithmatex">\(N_{nc}=\sum_i\gamma_{i,nc}\)</span> is the expected count for edge <span class="arithmatex">\((n,c)\)</span>, the constrained problem</p>
+<div class="arithmatex">\[
+\max_{w_{n\cdot}}\sum_c N_{nc}\log w_{nc}
+\quad\text{subject to}\quad w_{nc}\ge0,\ \sum_c w_{nc}=1
+\]</div>
+<p>has solution <span class="arithmatex">\(w_{nc}=N_{nc}/\sum_{c'}N_{nc'}\)</span>. With a Dirichlet prior, pseudo-count conventions must be stated. If a sum node receives zero total flow, the maximum-likelihood update is undefined; retaining old weights, smoothing, pruning, or reinitializing are different algorithmic choices.</p>
+<p>Gradient learning often parameterizes <span class="arithmatex">\(w_{nc}=\operatorname{softmax}(a_n)_c\)</span>. It optimizes the observed-data log likelihood directly and composes naturally with neural leaves, but minibatch gradients can have high variance and redundant latent states can create flat or symmetric directions. EM's monotonic full-batch likelihood property under exact E/M steps does not transfer automatically to generalized, stochastic, truncated, or regularized EM.</p>
+<h3 id="identifiability-redundancy-and-regularization">Identifiability, redundancy, and regularization<a class="headerlink" href="#identifiability-redundancy-and-regularization" title="Permanent link">¤</a></h3>
+<p>Permuting latent sum children leaves the represented distribution unchanged. Duplicate children create continua of equivalent weights. Very narrow continuous leaves can produce pathological likelihood behavior, and unused subcircuits receive almost no posterior flow. These are model/optimization facts, not inference errors.</p>
+<p>Regularization choices target different failures:</p>
+<ul>
+<li>Dirichlet pseudo-counts discourage exactly zero mixture weights;</li>
+<li>entropy penalties can encourage or discourage diffuse routing;</li>
+<li>leaf priors or variance floors control degenerate local densities;</li>
+<li>pruning removes persistently low-flow edges;</li>
+<li>diversity or distillation terms may break redundant latent symmetry.</li>
+</ul>
+<p>Each changes the learned objective. Report it rather than describing the result simply as maximum likelihood.</p>
+<p>A fixed-structure full-batch EM iteration is:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-2-1"><a href="#__codelineno-2-1" id="__codelineno-2-1" name="__codelineno-2-1"></a>zero expected edge counts and leaf sufficient statistics
+</span><span id="__span-2-2"><a href="#__codelineno-2-2" id="__codelineno-2-2" name="__codelineno-2-2"></a>for observation x:
+</span><span id="__span-2-3"><a href="#__codelineno-2-3" id="__codelineno-2-3" name="__codelineno-2-3"></a>    run upward values and downward flows
+</span><span id="__span-2-4"><a href="#__codelineno-2-4" id="__codelineno-2-4" name="__codelineno-2-4"></a>    accumulate normalized posterior edge flows
+</span><span id="__span-2-5"><a href="#__codelineno-2-5" id="__codelineno-2-5" name="__codelineno-2-5"></a>    accumulate responsibility-weighted leaf statistics
+</span><span id="__span-2-6"><a href="#__codelineno-2-6" id="__codelineno-2-6" name="__codelineno-2-6"></a>normalize outgoing expected counts at every sum node
+</span><span id="__span-2-7"><a href="#__codelineno-2-7" id="__codelineno-2-7" name="__codelineno-2-7"></a>fit each leaf from its weighted sufficient statistics
+</span></code></pre></div>
+<p>The exact messages can be parallelized over observations, but the global normalization and parameter synchronization still have systems costs.</p>
+<p><strong>Peer-reviewed research:</strong> <a href="https://openreview.net/forum?id=GP4CwozHGi">Liu, Shao, and Van den Broeck (AISTATS 2026 Oral)</a> reinterpret full-batch PC EM as optimizing a first-order approximation regularized by a KL penalty on the distributional update. Their <em>anemone</em> minibatch method adaptively scales each parameter update by its contribution to batch likelihood, addressing the paper's diagnosis that ordinary minibatch EM/gradient updates can overfit the current minibatch. The reported language, image, and DNA improvements concern fixed circuit families and optimizer comparisons; they do not solve structure learning, initialization, or every hybrid continuous-latent circuit.</p>
+<h3 id="structure-learning">Structure Learning<a class="headerlink" href="#structure-learning" title="Permanent link">¤</a></h3>
+<p>Structure determines both expressivity and available queries. Common strategies include:</p>
+<ul>
+<li>recursively split data into clusters for sum nodes and variables into approximately independent groups for product nodes;</li>
+<li>start from a random or region-graph structure and optimize parameters;</li>
+<li>grow, prune, or locally restructure a circuit under a validation objective;</li>
+<li>compile from a graphical model, logical theory, or vtree;</li>
+<li>distill latent assignments or representations from a less tractable teacher.</li>
+</ul>
+<p>LearnSPN-style recursive learning is efficient but greedy. <a href="https://proceedings.mlr.press/v246/ghandi24a.html">SoftLearn</a> replaces hard routing during structure induction with soft clustering and analyzes the relation between learning and inference semantics. <a href="https://arxiv.org/abs/2211.12551">Sparse PCs via pruning and growing</a> show that nominally large dense structures can waste capacity and that learned sparsity matters.</p>
+<p>These strategies optimize different objects. Recursive partitioning makes irreversible local decisions. A fixed random region graph delegates structure to a prior and spends learning on parameters. Pruning/growing edits a superstructure. Distillation injects teacher-chosen latent organization. Comparing them requires matching parameter/edge budgets, leaf families, preprocessing, optimization steps, validation searches, and query requirements.</p>
+<h3 id="regular-structures-and-einsum-networks">Regular Structures and Einsum Networks<a class="headerlink" href="#regular-structures-and-einsum-networks" title="Permanent link">¤</a></h3>
+<p><a href="https://arxiv.org/abs/2004.06231">Einsum Networks</a> organize large numbers of circuit operations into dense tensor contractions. The probabilistic semantics still come from sum/product scopes; <code>einsum</code> is an efficient implementation strategy, not a new density family. Regular region graphs improve accelerator utilization but impose a structural prior on how variables interact.</p>
+<p><strong>Peer-reviewed research:</strong> <a href="https://proceedings.mlr.press/v286/seng25a.html">Scaling Probabilistic Circuits via Data Partitioning</a> introduces federated circuits for horizontal, vertical, and hybrid data partitions. Its UAI 2025 experiments address distributed learning and classification/density tasks. They do not imply that arbitrary advanced queries are communication-free, that privacy follows without a threat model, or that the learned global circuit has the same size as a centrally optimized alternative.</p>
+<h3 id="worked-example-a-small-em-update">Worked example: a small EM update<a class="headerlink" href="#worked-example-a-small-em-update" title="Permanent link">¤</a></h3>
+<p>Return to the two-component circuit from Chapter 3. For observation <span class="arithmatex">\((X=1,Y=1)\)</span>, component likelihoods are <span class="arithmatex">\(0.56\)</span> and <span class="arithmatex">\(0.02\)</span>. The posterior responsibility of component A is</p>
+<div class="arithmatex">\[
+\gamma_A=
+\frac{0.6(0.56)}{0.6(0.56)+0.4(0.02)}
+=\frac{0.336}{0.344}\approx0.977.
+\]</div>
+<p>One point should not drive a reliable update, but it shows the mechanism: exact upward evaluation supplies soft latent counts; normalized counts update mixture weights; weighted leaf statistics update distributions.</p>
+<p>With a second observation, sum the two posterior responsibilities before normalizing. Updating the root weight separately after each example is online/stochastic EM, not the displayed full-batch M-step; its order, step-size, and regularization affect the result.</p>
+<h3 id="generalization-and-overfitting">Generalization and Overfitting<a class="headerlink" href="#generalization-and-overfitting" title="Permanent link">¤</a></h3>
+<p>Exact training likelihood does not prevent overfitting. Circuits can memorize through narrow leaves, excessive mixtures, or near-deterministic partitions. Use held-out log likelihood, calibration, missing-data queries, sample quality, and circuit size. Structure search on a validation set introduces its own multiple-comparison bias.</p>
+<h3 id="independent-practice-and-assessment-map-circuit-learning">Independent practice and assessment map: circuit learning<a class="headerlink" href="#independent-practice-and-assessment-map-circuit-learning" title="Permanent link">¤</a></h3>
+<p>Keep the represented distribution, latent parameterization, optimizer,
+structure search, and execution system in separate columns. A likelihood change
+does not by itself identify which layer caused it.</p>
+<h4 id="p1-audit-a-fixed-and-learned-structure-training-pipeline">P1 — Audit a fixed- and learned-structure training pipeline<a class="headerlink" href="#p1-audit-a-fixed-and-learned-structure-training-pipeline" title="Permanent link">¤</a></h4>
+<ol>
+<li><strong>P1.1 — Predict before computing.</strong> Predict whether each claim follows: full-batch exact EM never decreases observed likelihood; the same guarantee holds for minibatch, truncated, regularized, or generalized EM; softmax weights remove latent-state non-identifiability; a tensorized circuit has a different probabilistic semantics; exact training likelihood prevents overfitting; and a distributed circuit automatically provides privacy. State the exact assumptions or missing experiment for every answer.</li>
+<li><strong>P1.2 — Complete one EM iteration.</strong> A two-child sum starts with equal weights. For three observations, the fixed child likelihood pairs are <span class="arithmatex">\((0.72,0.08)\)</span>, <span class="arithmatex">\((0.18,0.42)\)</span>, and <span class="arithmatex">\((0.10,0.50)\)</span>. Compute every posterior responsibility, expected edge count, and normalized M-step weight. Evaluate the observed log likelihood before and after the update, and explain which conclusion would cease to follow if the responsibilities were stale or minibatch-scaled.</li>
+<li><strong>P1.3 — Zero-flow and optimizer contract.</strong> Construct a sum node that receives zero total posterior flow. Compare retaining its weights, adding declared Dirichlet pseudo-counts, pruning, and reinitializing; write the objective or model change made by each. Then compare projected, softmax-gradient, full-batch EM, stochastic EM, and an adaptive minibatch method using matched initialization, data order, updates, precision, and stopping rules.</li>
+<li><strong>P1.4 — Capacity and identifiability falsification.</strong> Duplicate one child of a normalized mixture and derive the continuum of weights that leaves the represented distribution unchanged. Add a narrow continuous leaf and show how its likelihood can become pathological. Design separate diagnostics for parameter count, active edges, posterior flow, leaf scale, effective capacity, held-out likelihood, and calibration; do not attribute a flat direction to inference failure.</li>
+<li><strong>P1.5 — Controlled structure-learning comparison.</strong> Compare recursive data/variable splitting, a fixed random region graph, pruning/growing, and teacher distillation under matched edge/parameter budgets, leaf family, preprocessing, optimizer steps, and validation searches. Record irreversible decisions and search degrees of freedom, then design a nested-validation or held-out protocol that exposes adaptive overfitting.</li>
+<li><strong>P1.6 — Transfer.</strong> Transfer the pipeline from one centralized tabular dataset to either horizontally partitioned sensor records or vertically partitioned clinical variables. Declare the global probability object, local data access, synchronization, threat model, communication bytes, compilation time, peak memory, and supported queries. Separate a systems speedup from privacy, statistical equivalence, and preserved tractability.</li>
+</ol>
+<h5 id="outcome-to-task-alignment-circuit-learning">Outcome-to-task alignment: circuit learning<a class="headerlink" href="#outcome-to-task-alignment-circuit-learning" title="Permanent link">¤</a></h5>
+<div class="md-typeset__table book-table-container"><table id="tbl-probabilistic-circuits-explained-outcome-to-task-alignment-circuit-learning"><caption class="book-object-caption"><span class="book-object-number">Table PC.8.</span> Outcome-to-task alignment for circuit learning</caption>
+<thead>
+<tr>
+<th>Learning objective</th>
+<th>Independently assessed by</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>O1 — Derive sum-edge EM updates from posterior circuit flows</td>
+<td>P1.2, P1.3</td>
+</tr>
+<tr>
+<td>O2 — Compare EM, gradient, and minibatch updates without calling any of them universally stable</td>
+<td>P1.1, P1.2, P1.3</td>
+</tr>
+<tr>
+<td>O3 — Separate parameter count from effective circuit capacity and structure</td>
+<td>P1.4, P1.5</td>
+</tr>
+<tr>
+<td>O4 — Explain recursive, random/regular, pruning/growing, and distillation-based structure learning</td>
+<td>P1.5</td>
+</tr>
+<tr>
+<td>O5 — Audit distributed or tensorized scaling claims independently from probabilistic tractability</td>
+<td>P1.1, P1.6</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="chapter-4-synthesis">Chapter 4 Synthesis<a class="headerlink" href="#chapter-4-synthesis" title="Permanent link">¤</a></h3>
+<p>Fixed-structure learning resembles mixture-model EM or differentiable maximum likelihood. Structure learning chooses the independence and mixture decompositions that make exact inference possible. Tensorization and distributed partitioning change systems behavior, while the circuit properties still determine queries. Chapter 5 studies how neural and flow components enlarge that language without silently losing guarantees.</p>
+<details class="question">
+<summary>Retrieval practice: learning circuits</summary>
+<ol>
+<li>What quantity supplies an EM edge count?</li>
+<li>When does EM guarantee non-decreasing observed likelihood?</li>
+<li>Does GPU-friendly tensorization create tractability?</li>
+<li>Why is a structure learner's validation score optimistically biased after a large search?</li>
+<li>What does the 2026 anemone result not solve?</li>
+</ol>
+<p><strong>Solutions.</strong> (1) The sum of posterior edge-flow responsibilities over observations. (2) Under the standard full-batch assumptions with an exact E-step and an exact or improving M-step; stochastic/generalized/regularized variants need separate analysis. (3) No. It accelerates a circuit whose scopes already satisfy the properties. (4) The same validation set selected among many structures/hyperparameters, creating multiple-comparison/adaptive-overfitting bias. (5) It addresses fixed-structure parameter optimization, not structure discovery, initialization, all leaf families, or universal generalization.</p>
+</details>
+<p><strong>Bridge.</strong> Learning exposes where tractability can constrain fit. Chapter 5 examines hybrids and expressivity results that change the fit–tractability trade-off without transferring exactness to arbitrary encoders or decoders. <a href="./#5-expressivity-deep-circuits-and-hybrids">Continue continuously</a> or open <a href="../probabilistic-circuits-05-hybrids/">Chapter 5</a>.</p>
+<h2 id="5-expressivity-deep-circuits-and-hybrids">5. Expressivity, Deep Circuits, and Hybrids<a class="headerlink" href="#5-expressivity-deep-circuits-and-hybrids" title="Permanent link">¤</a></h2>
+<h3 id="chapter-5-prerequisites-and-learning-objectives">Chapter 5 prerequisites and learning objectives<a class="headerlink" href="#chapter-5-prerequisites-and-learning-objectives" title="Permanent link">¤</a></h3>
+<p>This chapter assumes the query/property map and learning procedures from Chapters 2–4. By the end, you should be able to:</p>
+<ol>
+<li>distinguish universal representability from polynomial-size expressive efficiency;</li>
+<li>explain why determinism or a fixed vtree can cause exponential size gaps;</li>
+<li>audit which variable retains exact density in neural, flow, autoencoding, and distilled hybrids;</li>
+<li>classify representation-learning and graph-circuit results by evidence maturity; and</li>
+<li>design a hybrid whose retained queries are stated before its benchmark claims.</li>
+</ol>
+<h3 id="the-expressivitytractability-trade-off">The Expressivity–Tractability Trade-off<a class="headerlink" href="#the-expressivitytractability-trade-off" title="Permanent link">¤</a></h3>
+<p>Circuit size is the price of exact queries. A distribution may have a compact neural sampler but require a very large circuit under determinism or a fixed vtree. Conversely, a circuit can compactly reuse repeated context-specific independence that a flat mixture expands exponentially.</p>
+<p>Claims that one circuit class “subsumes” another refer to representational size under specified constraints, not automatically easier training or better finite-data generalization. Query guarantees must be carried through the translation.</p>
+<p>The size issue survives approximation. <strong>Peer-reviewed research:</strong> <a href="https://proceedings.neurips.cc/paper_files/paper/2025/hash/3d5b603d631d595f56bc36b373458b27-Abstract-Conference.html">Leland and Choi, NeurIPS 2025</a> study approximation under <span class="arithmatex">\(f\)</span>-divergences, prove hardness for broad tractable-marginal model classes, and establish an exponential approximation-size separation between decomposable circuits and deterministic decomposable circuits. This does not say practical deterministic PCs are always large; it shows that allowing small approximation error does not erase worst-case expressivity costs.</p>
+<p><strong>Preprint research:</strong> <a href="https://arxiv.org/abs/2605.12940">Zhao et al., 2026</a> compare autoregressive PCs with Transformer language models. They identify probability-space convex-combination and fixed-routing bottlenecks, propose logit-space parameterization, and analyze vtree-aligned separation rank. As a May 2026 preprint, these results are an important hypothesis/theory checkpoint, not established evidence that one parameterization closes the language-modeling gap across scales.</p>
+<h3 id="neural-leaves-and-conditional-circuits">Neural Leaves and Conditional Circuits<a class="headerlink" href="#neural-leaves-and-conditional-circuits" title="Permanent link">¤</a></h3>
+<p>Leaves may be flexible tractable distributions whose parameters come from neural networks. Conditional PCs allow weights or leaf parameters to depend on context <span class="arithmatex">\(c\)</span>, producing <span class="arithmatex">\(p(x\mid c)\)</span>. For each fixed context, parameters must remain normalized and the circuit structure must preserve the query guarantees. <a href="https://arxiv.org/abs/1905.08550">Conditional SPNs</a> combine conditional density estimation with circuit structure.</p>
+<p>A neural feature extractor before the circuit changes the modeled variable if it is non-invertible. Exact likelihood in feature space is not exact likelihood of raw observations. If the encoder is invertible, its Jacobian must be included; if it is stochastic, the result becomes a latent-variable model with an inference problem.</p>
+<p><strong>Peer-reviewed research:</strong> <a href="https://openreview.net/forum?id=h8D75pVKja">Autoencoding Probabilistic Circuits</a>, accepted by TMLR in 2025, jointly model data and probabilistic embeddings, infer embeddings with circuit queries, and attach a neural decoder using differentiable sampling. The paper reports reconstruction and missing-data robustness for its protocols. The tractable PC encoder does not make every neural-decoder likelihood or raw-space posterior query exact; the complete hybrid must be decomposed into its circuit and neural claims.</p>
+<h3 id="flow-and-circuit-hybrids">Flow and Circuit Hybrids<a class="headerlink" href="#flow-and-circuit-hybrids" title="Permanent link">¤</a></h3>
+<p><a href="https://proceedings.mlr.press/v216/sidheekh23a.html">Probabilistic Flow Circuits</a> augment circuit components with normalizing flows. Decomposability remains necessary to keep the combined model tractable. A flow can make leaf or component densities flexible, while the circuit supplies mixtures, factorizations, and exact high-level queries.</p>
+<p>This is <strong>hybrid composition</strong>, not an algebraic equivalence between PCs and flows. The flow handles a change of variables; the circuit handles reuse of sum/product structure.</p>
+<p>If a flow leaf covers scope <span class="arithmatex">\(S\)</span>, its change-of-variables density must be evaluated and marginalized only for queries the leaf supports. A full-scope flow leaf can give a tractable complete density yet destroy cheap arbitrary-subset marginals. "Every leaf has a likelihood" is weaker than "every leaf answers the marginal interface required by the parent circuit."</p>
+<h3 id="distillation-from-deep-generative-models">Distillation from Deep Generative Models<a class="headerlink" href="#distillation-from-deep-generative-models" title="Permanent link">¤</a></h3>
+<p>A teacher VAE, flow, or other deep model can suggest latent assignments or synthetic data for circuit learning. <a href="https://arxiv.org/abs/2302.08086">Liu et al.</a> use Transformer-derived latent assignments and report substantial likelihood improvements over PCs trained without that supervision. Distillation does not transfer every teacher behavior or imply teacher dominance/reversal: conditioning, calibration, rare modes, and queries absent from the distillation loss require independent validation.</p>
+<h3 id="structured-and-relational-domains">Structured and Relational Domains<a class="headerlink" href="#structured-and-relational-domains" title="Permanent link">¤</a></h3>
+<p>Circuits extend beyond fixed image/tabular tensors. <a href="https://arxiv.org/abs/2408.07394">Sum-Product-Set Networks</a> combine set semantics with circuits for tree-structured graphs. Logical circuits represent constraints exactly; tensor-network views expose connections to low-rank decompositions. Each extension must define variable scope and normalization for variable-size objects.</p>
+<p>The Sum-Product-Set work and <a href="https://openreview.net/forum?id=518c1Y1taE">Probabilistic Graph Circuits</a> are <strong>preprint/workshop research</strong> as verified on 2026-07-12. Permutation invariance, graph validity, variable size, and tractable queries are separate requirements. Padding a graph into a fixed tensor can recover a conventional PC only if masks, node identity, and normalization semantics are explicit.</p>
+<p>The <a href="../random-graphs-and-relational-generators/">Random Graphs and Relational Generators</a> volume places probabilistic graph circuits beside classical random-graph laws and other neural compositions, and separates exact circuit queries from graph-isomorphism and variable-cardinality requirements.</p>
+<h3 id="connections-to-other-families">Connections to Other Families<a class="headerlink" href="#connections-to-other-families" title="Permanent link">¤</a></h3>
+<ul>
+<li><strong>Mixtures/VAEs:</strong> sum nodes are discrete latent choices; exact circuit inference replaces a learned approximate encoder when structure permits.</li>
+<li><strong>Autoregressive models:</strong> both can have exact likelihood, but AR models normalize local conditionals while PCs compile reusable mixture/factorization structure.</li>
+<li><strong>Flows:</strong> both can evaluate exact densities under constraints; flows use invertible geometry, PCs use algebraic structure.</li>
+<li><strong>EBMs:</strong> a normalized PC can be written as energy <span class="arithmatex">\(E=-\log p\)</span>, but generic EBM composition does not preserve circuit tractability.</li>
+<li><strong>GFlowNets:</strong> a circuit sampling trace is a constructive process, but ordinary circuit MLE and GFlowNet reward-proportional training are different objectives.</li>
+<li><strong>Tensor-network and Born models:</strong> fixing a contraction order produces a sum-product circuit, while squared amplitudes produce squared circuits with different marginalization costs. The <a href="../tensor-network-and-born-probability-models/#5-relationships-to-other-generative-model-families">complete tensor/Born volume</a> distinguishes circuit scopes and structural properties from MPS bond rank, gauges, and variable order.</li>
+<li><strong>Probabilistic grammars:</strong> an inside chart for one observation is an equivalent finite sum-product circuit under the chosen semiring; the recursive grammar is the reusable family-level specification, and cycles or unbounded length can prevent a finite tractable compilation. See <a href="../probabilistic-grammars-and-program-derivations/#packed-forests-and-circuit-compilation">Probabilistic Grammars and Program Derivations</a>.</li>
+</ul>
+<h3 id="logical-tensor-network-and-causal-views">Logical, tensor-network, and causal views<a class="headerlink" href="#logical-tensor-network-and-causal-views" title="Permanent link">¤</a></h3>
+<p>Indicator leaves and deterministic sums make a PC resemble a weighted logical case decomposition. Compiling a Boolean theory into a deterministic structured circuit can make weighted model counting and constrained probabilistic queries efficient in the compiled size. The compilation step may be expensive, and an inconsistent theory gives zero mass rather than a usable conditional.</p>
+<p>Products and sums also resemble tensor contractions and low-rank factorizations. Einsum Networks exploit this computational view, but tensor rank, circuit width, vtree, and probabilistic normalization are different notions. A fast contraction order does not by itself supply normalized leaves or query-compatible scopes.</p>
+<p><a href="../tensor-network-and-born-probability-models/">Tensor-Network and Born Probability Models</a> develops the other side of this relationship: nonnegative and amplitude-squared probability semantics, MPS canonical forms, exact conditional contractions, and the structural assumptions under which tensor factorizations and circuits support the same queries.</p>
+<p>Causal use requires another semantics layer. A joint observational PC can answer <span class="arithmatex">\(p(y\mid x)\)</span>; it does not identify <span class="arithmatex">\(p(y\mid\operatorname{do}(x))\)</span>. Causal circuits must encode or compose mechanisms and retain the structural properties required by the target interventional/counterfactual query. The relationship is hybrid system composition, not “tractable conditional equals causal effect.”</p>
+<h3 id="worked-example-a-flow-leaf-that-preserves-likelihood-but-loses-a-query">Worked example: a flow leaf that preserves likelihood but loses a query<a class="headerlink" href="#worked-example-a-flow-leaf-that-preserves-likelihood-but-loses-a-query" title="Permanent link">¤</a></h3>
+<p>Suppose a root mixture has two children, each a two-dimensional normalizing flow over <span class="arithmatex">\((X,Y)\)</span>. Complete density evaluation is tractable:</p>
+<div class="arithmatex">\[
+p(x,y)=\sum_{h=1}^2 w_h p_h(x,y).
+\]</div>
+<p>But the circuit query <span class="arithmatex">\(p(Y=y)=\sum_h w_h\int p_h(x,y)dx\)</span> is tractable only if each flow component supplies that marginal. A generic coupled two-dimensional flow does not. Replacing independent univariate leaves with a full-scope flow increased local expressivity while breaking the leaf marginal interface on which Chapter 3 relied.</p>
+<p>One repair is to use decomposable flow leaves over separate scopes; another is a special flow family with tractable required marginals; a third is approximate integration, which must be labeled approximate. The parent sum/product graph alone cannot restore a query the leaf cannot answer.</p>
+<div class="admonition failure">
+<p class="admonition-title">Counterexample: exact embeddings are not exact reconstructions</p>
+<p>A circuit may compute <span class="arithmatex">\(p(z\mid x_{\mathrm{obs}})\)</span> exactly while a neural decoder maps <span class="arithmatex">\(z\)</span> to a reconstruction. That output can be useful, but unless the decoder defines and supports the required normalized likelihood/inference operations, reconstruction is not an exact sample from a tractable raw-data conditional.</p>
+</div>
+<h3 id="independent-practice-and-assessment-map-deep-and-hybrid-circuits">Independent practice and assessment map: deep and hybrid circuits<a class="headerlink" href="#independent-practice-and-assessment-map-deep-and-hybrid-circuits" title="Permanent link">¤</a></h3>
+<p>Attach every exactness claim to a variable, measure, component interface, and
+query. Treat a neural, flow, logical, tensor, or causal component as an added
+contract rather than as a name that inherits all PC guarantees.</p>
+<h4 id="p1-preserve-or-reject-a-hybrids-query-guarantees">P1 — Preserve or reject a hybrid's query guarantees<a class="headerlink" href="#p1-preserve-or-reject-a-hybrids-query-guarantees" title="Permanent link">¤</a></h4>
+<ol>
+<li><strong>P1.1 — Predict before computing.</strong> Classify each claim as valid, assumption-bounded, or false: universal representability implies polynomial-size representation; a non-invertible encoder preserves raw-space exact likelihood; an invertible encoder needs no Jacobian when followed by a PC; a full-scope flow leaf with exact density automatically supports arbitrary marginals; distillation transfers every teacher conditional; a normalized PC written as <span class="arithmatex">\(-\log p\)</span> makes generic EBM composition tractable; and an observational conditional identifies an intervention. Name the missing size, measure, interface, evidence, or causal assumption.</li>
+<li><strong>P1.2 — Expressivity versus query cost.</strong> Construct a small overlapping mixture and a deterministic case decomposition for the same finite support. Count edges or cases, list the marginals and maximization queries each representation supports, and explain why one finite example does not prove or refute a worst-case size separation. State what an approximation theorem must specify about divergence, error, target class, and circuit restrictions.</li>
+<li><strong>P1.3 — Flow-leaf interface test.</strong> Replace the univariate leaves of a decomposable circuit first with independent one-dimensional flows and then with a coupled full-scope flow. For complete likelihood, one-coordinate marginal, conditional sampling, and circuit product, write the exact leaf method required. Implement or specify a Gaussian/affine control whose subset marginal is known and reject any hybrid configuration whose required method is absent.</li>
+<li><strong>P1.4 — Encoder/decoder density ledger.</strong> Compare four front ends: a fixed non-invertible encoder, an invertible flow encoder, a stochastic latent encoder, and a jointly modeled circuit embedding. For each, declare the variable with a normalized density, the Jacobian or inference term, reconstruction semantics, and supported raw-space conditionals. Design one test that catches the false promotion of exact feature-space inference to exact raw-space generation.</li>
+<li><strong>P1.5 — Relationship and evidence audit.</strong> Choose one circuit–flow result, one representation-learning result, and one expressivity result cited in the chapter. Record publication maturity, modeled variable, circuit properties, teacher/encoder/decoder, query set, size/compute budget, dataset/split, metric, uncertainty, and reproduction status. Classify each cross-family statement as algebraic identity, hybrid composition, representational comparison, empirical result, or unsupported equivalence.</li>
+<li><strong>P1.6 — Transfer.</strong> Transfer a tabular PC/flow hybrid to either permutation-invariant molecular sets or variable-size relational graphs. Redefine object support, cardinality law, symmetries, masks/identities, normalization, leaf interfaces, and validity queries. State which fixed-tensor circuit guarantees survive and which require set, graph, logical, or approximate machinery.</li>
+</ol>
+<h5 id="outcome-to-task-alignment-deep-and-hybrid-circuits">Outcome-to-task alignment: deep and hybrid circuits<a class="headerlink" href="#outcome-to-task-alignment-deep-and-hybrid-circuits" title="Permanent link">¤</a></h5>
+<div class="md-typeset__table book-table-container"><table id="tbl-probabilistic-circuits-explained-outcome-to-task-alignment-deep-and-hybrid-circuits"><caption class="book-object-caption"><span class="book-object-number">Table PC.9.</span> Outcome-to-task alignment for deep and hybrid circuits</caption>
+<thead>
+<tr>
+<th>Learning objective</th>
+<th>Independently assessed by</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>O1 — Distinguish universal representability from polynomial-size expressive efficiency</td>
+<td>P1.1, P1.2</td>
+</tr>
+<tr>
+<td>O2 — Explain why determinism or a fixed vtree can cause exponential size gaps</td>
+<td>P1.2</td>
+</tr>
+<tr>
+<td>O3 — Audit which variable retains exact density in neural, flow, autoencoding, and distilled hybrids</td>
+<td>P1.1, P1.3, P1.4</td>
+</tr>
+<tr>
+<td>O4 — Classify representation-learning and graph-circuit results by evidence maturity</td>
+<td>P1.5, P1.6</td>
+</tr>
+<tr>
+<td>O5 — Design a hybrid whose retained queries are stated before its benchmark claims</td>
+<td>P1.3, P1.4, P1.5, P1.6</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="chapter-5-synthesis">Chapter 5 Synthesis<a class="headerlink" href="#chapter-5-synthesis" title="Permanent link">¤</a></h3>
+<p>Deep and hybrid PCs increase local expressivity while circuit structure protects only the queries implemented by every component. Worst-case approximation lower bounds explain why extra tractability can require extra size. Every hybrid must say which variable has exact density, which constraints survive, and which costs move into leaves, encoders, decoders, or compilation.</p>
+<details class="question">
+<summary>Retrieval practice: expressivity and hybrids</summary>
+<ol>
+<li>What is expressive efficiency, and why is it different from universal approximation?</li>
+<li>Does exact likelihood after an arbitrary neural encoder apply to raw data?</li>
+<li>What interface must a leaf expose for arbitrary missing-data marginalization?</li>
+<li>What does the 2025 approximation-hardness result establish?</li>
+<li>How should the 2026 PC–LLM expressivity paper be labeled?</li>
+</ol>
+<p><strong>Solutions.</strong> (1) It asks how circuit size grows to represent or approximate a distribution under structural constraints; a class may be universal yet require exponentially large members. (2) No. A non-invertible encoder discards information/volume; an invertible encoder needs its Jacobian; a stochastic encoder creates latent inference. (3) Exact integrals/conditionals for the subsets requested by parent operations, not only complete density. (4) Worst-case hardness and size separations persist under bounded approximation error for the studied classes/divergences. (5) Preprint research, with assumptions and finite experiments separated from established results.</p>
+</details>
+<p><strong>Bridge.</strong> Hybrid expressivity is useful only when evaluated against the actual query workload and total compiled size. Chapter 6 turns those requirements into deployment, evidence, and research protocols. <a href="./#6-evaluation-deployment-and-research-directions">Continue continuously</a> or open <a href="../probabilistic-circuits-06-practice/">Chapter 6</a>.</p>
+<h2 id="6-evaluation-deployment-and-research-directions">6. Evaluation, Deployment, and Research Directions<a class="headerlink" href="#6-evaluation-deployment-and-research-directions" title="Permanent link">¤</a></h2>
+<h3 id="capstone-objectives">Capstone objectives<a class="headerlink" href="#capstone-objectives" title="Permanent link">¤</a></h3>
+<p>By the end, you should be able to:</p>
+<ol>
+<li>select a PC from a declared query workload;</li>
+<li>benchmark inference as a compiled system;</li>
+<li>distinguish exact arithmetic from calibration, robustness, causality, privacy, and correctness of the learned distribution;</li>
+<li>trace every research claim to its evidence maturity; and</li>
+<li>design an end-to-end study that tests both model quality and tractability.</li>
+</ol>
+<h3 id="when-a-probabilistic-circuit-is-a-strong-choice">When a Probabilistic Circuit Is a Strong Choice<a class="headerlink" href="#when-a-probabilistic-circuit-is-a-strong-choice" title="Permanent link">¤</a></h3>
+<p>Prefer a PC when the application repeatedly needs exact missing-data marginals, arbitrary evidence queries, conditionals, logical constraints, a tractable tabular density whose calibration is separately validated, or expectations that match a compatible circuit structure. They are especially compelling when query latency matters more than unconstrained perceptual sample quality.</p>
+<p>Do not choose a PC solely because “exact inference” sounds safer. A small misspecified circuit answers the wrong model exactly. High-dimensional raw perception may require large circuits, hybrid features, or a different family.</p>
+<p>Exactness also does not imply calibrated uncertainty or OOD robustness. <a href="https://openreview.net/forum?id=FMmjDoOsOG">Probabilistic Circuits That Know What They Don't Know</a> demonstrates overconfidence and distribution-shift failures in standard PCs, then studies tractable uncertainty estimation. The UAI 2023 result is evidence that uncertainty must be evaluated, not a guarantee that its proposed estimator repairs every shift.</p>
+<h3 id="evaluation-matrix">Evaluation Matrix<a class="headerlink" href="#evaluation-matrix" title="Permanent link">¤</a></h3>
+<div class="md-typeset__table book-table-container"><table id="tbl-probabilistic-circuits-explained-evaluation-matrix"><caption class="book-object-caption"><span class="book-object-number">Table PC.2.</span> Evaluation Matrix</caption>
+<thead>
+<tr>
+<th>Claim</th>
+<th>Evidence to report</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Exact likelihood</td>
+<td>normalization assumptions, base measure/units, data preprocessing, leaf densities, reduction and numerical precision</td>
+</tr>
+<tr>
+<td>Exact marginal/conditional</td>
+<td>structural properties, query type, numerical precision, evidence probability</td>
+</tr>
+<tr>
+<td>Fast inference</td>
+<td>circuit edges/nodes, query batch, hardware, compiled/tensorized implementation</td>
+</tr>
+<tr>
+<td>Good samples</td>
+<td>modality-specific metrics, human/task evaluation, memorization and coverage checks</td>
+</tr>
+<tr>
+<td>Missing-data robustness</td>
+<td>missingness mechanism, mask distribution, calibration, comparison with multiple imputation</td>
+</tr>
+<tr>
+<td>Compactness</td>
+<td>circuit size plus leaf/encoder parameters and peak memory</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="production-checklist">Production Checklist<a class="headerlink" href="#production-checklist" title="Permanent link">¤</a></h3>
+<ol>
+<li>Validate nonnegative normalized sum weights after serialization and quantization.</li>
+<li>Test smoothness, decomposability, determinism, and vtree conformity as executable contracts.</li>
+<li>Evaluate in log space or with scaling for deep circuits.</li>
+<li>Guard conditional queries when evidence probability is zero or extremely small.</li>
+<li>Version preprocessing, leaf support, variable ordering, and missing-value conventions.</li>
+<li>Benchmark the actual query mix; likelihood evaluation and conditional sampling have different costs.</li>
+<li>Trace hybrid feature transformations so “exact” is attached to the correct variable.</li>
+</ol>
+<h3 id="benchmark-the-compiled-artifact-not-the-family-name">Benchmark the compiled artifact, not the family name<a class="headerlink" href="#benchmark-the-compiled-artifact-not-the-family-name" title="Permanent link">¤</a></h3>
+<p>Circuit latency depends on more than node count. Record edges, active edges under determinism/evidence, leaf cost, tensor shapes, sparsity layout, batch size, dtype, compilation time, peak memory, device, and whether values are in probability or log space. Dense tensorization can execute nominally unused edges; sparse kernels can lose accelerator efficiency; a smaller irregular circuit can be slower than a larger regular one.</p>
+<p>Separate at least four workloads:</p>
+<div class="md-typeset__table book-table-container"><table id="tbl-probabilistic-circuits-explained-benchmark-the-compiled-artifact-not-the-family-name"><caption class="book-object-caption"><span class="book-object-number">Table PC.3.</span> Benchmark the compiled artifact, not the family name</caption>
+<thead>
+<tr>
+<th>Workload</th>
+<th>Dominant operations</th>
+<th>Additional report</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Complete likelihood</td>
+<td>one upward point-evaluation pass</td>
+<td>examples/second and per-example latency</td>
+</tr>
+<tr>
+<td>Arbitrary marginal batch</td>
+<td>upward passes with mask-dependent leaf values</td>
+<td>mask distribution, cache reuse, number of distinct masks</td>
+</tr>
+<tr>
+<td>Conditional sampling</td>
+<td>evidence pass plus repeated top-down traces</td>
+<td>samples per evidence case, leaf conditional cost</td>
+</tr>
+<tr>
+<td>Learning</td>
+<td>upward/downward passes and parameter synchronization</td>
+<td>examples/second, optimizer, structure-search and compile cost</td>
+</tr>
+</tbody>
+</table></div>
+<p>Amortized compilation may be appropriate for repeated queries but misleading for a one-off query. Report cold and warm paths when both matter.</p>
+<h3 id="a-query-first-selection-procedure">A query-first selection procedure<a class="headerlink" href="#a-query-first-selection-procedure" title="Permanent link">¤</a></h3>
+<ol>
+<li>Write the required queries and approximation tolerance.</li>
+<li>Choose the weakest structural properties that guarantee them.</li>
+<li>Select leaf interfaces and state-space semantics.</li>
+<li>estimate or measure circuit size under those restrictions;</li>
+<li>compare against AR, flow, VAE, graphical-model, or approximate-inference baselines on the same workload; and</li>
+<li>reject the circuit route if compilation/learning size overwhelms its query advantage.</li>
+</ol>
+<p>This avoids demanding determinism or structured compatibility “just in case,” which can pay an expressivity cost without serving a real query.</p>
+<h3 id="research-directions">Research Directions<a class="headerlink" href="#research-directions" title="Permanent link">¤</a></h3>
+<p>Research directions include structure restructuring, data partitioning at scale, soft structure induction, minibatch EM with distribution-aware regularization, flow/circuit hybrids, circuit distillation, causal compositions, and circuits over structured objects. Exactness claims remain property-specific. Scaling a model while preserving smoothness/decomposability is not the same as making MAP, arbitrary circuit products, or causal effects tractable.</p>
+<p>The primary-source audit covers peer-reviewed work on soft learning, restructuring, data-partition scaling, and anemone parameter learning. Search results without clear archival acceptance remain excluded or explicitly labeled; the page metadata records the audit date.</p>
+<p><a href="https://proceedings.mlr.press/v206/wang23o.html">Compositional probabilistic and causal inference</a> demonstrates how marginal determinism and structural formulations expand causal queries. Such results do not make observational PCs causal by default; the causal graph/mechanisms and identifiability assumptions remain necessary.</p>
+<h3 id="peer-reviewed-research-checkpoints">Peer-Reviewed Research Checkpoints<a class="headerlink" href="#peer-reviewed-research-checkpoints" title="Permanent link">¤</a></h3>
+<div class="md-typeset__table book-table-container"><table id="tbl-probabilistic-circuits-explained-peer-reviewed-research-checkpoints"><caption class="book-object-caption"><span class="book-object-number">Table PC.4.</span> Peer-Reviewed Research Checkpoints</caption>
+<thead>
+<tr>
+<th>Work</th>
+<th>Maturity</th>
+<th>What it changes</th>
+<th>What it does not establish</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://proceedings.mlr.press/v258/zhang25f.html">Restructuring Tractable Probabilistic Circuits</a></td>
+<td>Peer-reviewed research, AISTATS 2025</td>
+<td>Algorithms for conforming structured PCs to a target vtree</td>
+<td>Compatibility without circuit growth or universal efficient composition</td>
+</tr>
+<tr>
+<td><a href="https://proceedings.mlr.press/v286/seng25a.html">Scaling PCs via Data Partitioning</a></td>
+<td>Peer-reviewed research, UAI 2025</td>
+<td>Distributed/federated circuit learning across partition patterns</td>
+<td>Privacy without a threat model, or equal cost for every query</td>
+</tr>
+<tr>
+<td><a href="https://proceedings.neurips.cc/paper_files/paper/2025/hash/3d5b603d631d595f56bc36b373458b27-Abstract-Conference.html">Hardness of Approximating Distributions</a></td>
+<td>Peer-reviewed research, NeurIPS 2025</td>
+<td>Approximation hardness and deterministic/decomposable size separation</td>
+<td>That typical learned circuits always attain the worst case</td>
+</tr>
+<tr>
+<td><a href="https://openreview.net/forum?id=h8D75pVKja">Tractable Representation Learning with PCs</a></td>
+<td>Peer-reviewed research, TMLR 2025</td>
+<td>Autoencoding PC representation learning and missing-data experiments</td>
+<td>Exact neural-decoder likelihood or universal OOD robustness</td>
+</tr>
+<tr>
+<td><a href="https://openreview.net/forum?id=GP4CwozHGi">Rethinking PC Parameter Learning</a></td>
+<td>Peer-reviewed research, AISTATS 2026 Oral</td>
+<td>Distribution-aware view of EM and adaptive minibatch updates</td>
+<td>Structure learning, initialization, or universal optimizer dominance</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2605.12940">PC–LLM Expressivity Boundary</a></td>
+<td>Preprint, May 2026</td>
+<td>Probability/logit-output and fixed-routing expressivity analysis</td>
+<td>Archival consensus or a compute-matched large-scale family ranking</td>
+</tr>
+</tbody>
+</table></div>
+<p>Together, these results address circuit compatibility, effective capacity, distributed learning, representation learning, and parameter optimization. They do not support a narrative that PCs replaced unrestricted neural generators. The distinctive research target is a Pareto trade-off among circuit size, learned fit, query set, numerical/system cost, and evidence quality.</p>
+<h3 id="research-exercises">Research Exercises<a class="headerlink" href="#research-exercises" title="Permanent link">¤</a></h3>
+<ol>
+<li>Implement the Chapter 3 circuit and verify all four joint probabilities sum to one.</li>
+<li>Compute <span class="arithmatex">\(p(Y=1\mid X=0)\)</span> both by enumeration and circuit marginalization.</li>
+<li>Break decomposability by multiplying two children that both contain <span class="arithmatex">\(X\)</span>; show why setting <span class="arithmatex">\(X\)</span> leaves to one no longer performs correct marginalization.</li>
+<li>Compare hard and soft responsibilities for an overlapping two-component mixture.</li>
+<li>Design a circuit/flow hybrid and state precisely which likelihood and marginal queries remain exact.</li>
+</ol>
+<details class="success">
+<summary>Exercise sketches</summary>
+<ol>
+<li>Evaluate each assignment and sum; normalized leaves and mixture weights yield one.  </li>
+<li>Compute <span class="arithmatex">\(p(X=0,Y=1)/p(X=0)\)</span>; both procedures must agree.  </li>
+<li>The shared variable is integrated twice, so distributivity no longer represents one marginal integral.  </li>
+<li>Hard routing discards uncertainty; soft EM assigns fractional counts to both components.  </li>
+<li>Exactness requires normalized invertible flow components and circuit decomposability; cross-circuit operations need additional compatibility.</li>
+</ol>
+</details>
+<h3 id="cumulative-worked-study-clinical-records-with-arbitrary-missingness">Cumulative worked study: clinical records with arbitrary missingness<a class="headerlink" href="#cumulative-worked-study-clinical-records-with-arbitrary-missingness" title="Permanent link">¤</a></h3>
+<p>Suppose a hospital wants a joint model of demographics, laboratory values, diagnoses, and outcomes for imputation and cohort queries.</p>
+<ol>
+<li><strong>Semantics:</strong> declare categorical/counting and continuous/Lebesgue leaves, support transforms, units, and whether missingness indicators are modeled variables or query masks.</li>
+<li><strong>Query workload:</strong> list joint likelihood, <span class="arithmatex">\(p(\text{outcome}\mid e)\)</span>, arbitrary lab marginals, conditional sampling, and cohort expectations. Do not request MAP, entropy, or causal effects without checking their extra properties.</li>
+<li><strong>Structure:</strong> choose smooth/decomposable structure; require determinism only if its query benefit justifies size; choose a shared vtree when circuit products or policy/utility expectations are required.</li>
+<li><strong>Learning:</strong> split patients rather than rows to avoid leakage; compare EM/gradient/anemone under fixed structure; nest structure and hyperparameter selection inside validation; record zero-flow handling.</li>
+<li><strong>Evaluation:</strong> report held-out NLL in declared units, calibration, mask-pattern performance, multiple-imputation coverage, subgroup error, OOD shifts, circuit/leaf size, and query latency distributions.</li>
+<li><strong>Safety boundary:</strong> observational conditionals are not treatment effects. Privacy needs an explicit mechanism/threat model. Exact inference cannot compensate for selection bias, unmeasured confounding, or invalid missingness assumptions.</li>
+</ol>
+<p>This study demonstrates the book's central rule: first declare variables and queries, then choose properties and leaves, then learn and benchmark the complete compiled artifact.</p>
+<h3 id="independent-practice-and-assessment-map-circuit-evaluation-and-research">Independent practice and assessment map: circuit evaluation and research<a class="headerlink" href="#independent-practice-and-assessment-map-circuit-evaluation-and-research" title="Permanent link">¤</a></h3>
+<p>Choose a domain different from the worked clinical study. Bind the probability
+object, compiled representation, query workload, evidence claim, and deployment
+measurement in one falsifiable decision record.</p>
+<h4 id="p1-defend-an-end-to-end-probabilistic-circuit-system">P1 — Defend an end-to-end probabilistic-circuit system<a class="headerlink" href="#p1-defend-an-end-to-end-probabilistic-circuit-system" title="Permanent link">¤</a></h4>
+<ol>
+<li><strong>P1.1 — Predict before computing.</strong> Classify each statement as an algebraic guarantee, assumption-bounded guarantee, empirical claim, hybrid composition, or false inference: exact marginal arithmetic implies calibrated uncertainty; linear time in edges implies low latency; determinism is always worth its size cost; a compiled observational circuit identifies treatment effects; tensorization changes the modeled law; federated learning supplies privacy without a threat model; and a lower held-out NLL proves better arbitrary-missingness decisions. State the extra evidence required to strengthen each statement.</li>
+<li><strong>P1.2 — Query-first system design.</strong> For an industrial sensor fleet with irregular missing channels and repeated alarm queries, declare variables, supports, measures, missingness semantics, exact and approximate queries, tolerance, circuit properties, vtree or region structure, leaf interfaces, learning method, and zero-evidence policy. Compare the PC with at least two AR, flow, VAE, graphical-model, or imputation baselines on the same query workload and give a falsifiable selection rule.</li>
+<li><strong>P1.3 — Compiled-artifact benchmark.</strong> Design cold and warm benchmarks for complete likelihood, mask-dependent marginals, conditional sampling, and learning. Record nodes, edges, active edges, leaf cost, tensor shapes, sparsity, batch/mask distribution, dtype, compilation time, cache reuse, samples per evidence case, peak memory, device, latency quantiles, throughput, and energy or total compute. Include a finite enumerated circuit oracle and a matched dense/sparse implementation comparison.</li>
+<li><strong>P1.4 — Research evidence audit.</strong> Select three checkpoints from restructuring, data-partition scaling, approximation hardness, representation learning, parameter learning, or PC–LLM expressivity. Record exact theorem/claim, assumptions, circuit class, query, size measure, data/split, optimization/search budget, hardware, uncertainty, publication status/version, and independent reproduction. Rewrite each headline as the strongest protocol-bounded statement the record supports.</li>
+<li><strong>P1.5 — Transfer and safety boundary.</strong> Transfer the sensor system to either privacy-sensitive genomic cohorts or variable-size molecular configurations. Identify every change in support, measure, symmetry, missingness/selection mechanism, constraint logic, leaf interface, vtree, query, metric, baseline, privacy/causal assumption, and compiled-system cost. Route each unsupported exactness, calibration, privacy, fairness, or causal claim to a proof, executable oracle, controlled study, explicit limitation, or rejection.</li>
+</ol>
+<h5 id="outcome-to-task-alignment-circuit-evaluation-and-research">Outcome-to-task alignment: circuit evaluation and research<a class="headerlink" href="#outcome-to-task-alignment-circuit-evaluation-and-research" title="Permanent link">¤</a></h5>
+<div class="md-typeset__table book-table-container"><table id="tbl-probabilistic-circuits-explained-outcome-to-task-alignment-circuit-evaluation-and-research"><caption class="book-object-caption"><span class="book-object-number">Table PC.10.</span> Outcome-to-task alignment for circuit evaluation and research</caption>
+<thead>
+<tr>
+<th>Learning objective</th>
+<th>Independently assessed by</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>O1 — Select a PC from a declared query workload</td>
+<td>P1.1, P1.2, P1.5</td>
+</tr>
+<tr>
+<td>O2 — Benchmark inference as a compiled system</td>
+<td>P1.3, P1.5</td>
+</tr>
+<tr>
+<td>O3 — Distinguish exact arithmetic from calibration, robustness, causality, privacy, and correctness of the learned distribution</td>
+<td>P1.1, P1.2, P1.5</td>
+</tr>
+<tr>
+<td>O4 — Trace every research claim to its evidence maturity</td>
+<td>P1.1, P1.4</td>
+</tr>
+<tr>
+<td>O5 — Design an end-to-end study that tests both model quality and tractability</td>
+<td>P1.2, P1.3, P1.4, P1.5</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="primary-reading-trail">Primary Reading Trail<a class="headerlink" href="#primary-reading-trail" title="Permanent link">¤</a></h3>
+<ul>
+<li><a href="https://starai.cs.ucla.edu/papers/ProbCirc20.pdf">Choi, Vergari, and Van den Broeck, <em>Probabilistic Circuits: A Unifying Framework</em></a> — semantics, queries, and structural properties.</li>
+<li><a href="https://arxiv.org/abs/1202.3732">Poon and Domingos, <em>Sum-Product Networks</em></a> — foundational deep sum/product architecture.</li>
+<li><a href="https://arxiv.org/abs/2004.06231">Peharz et al., <em>Einsum Networks</em></a> — scalable tensorized circuits.</li>
+<li><a href="https://arxiv.org/abs/2102.06137">Vergari et al., <em>A Compositional Atlas of Tractable Circuit Operations</em></a> — property-driven closure and hardness for transformations and information-theoretic queries.</li>
+<li><a href="https://openreview.net/forum?id=GP4CwozHGi">Liu, Shao, and Van den Broeck, <em>Rethinking Probabilistic Circuit Parameter Learning</em></a> — AISTATS 2026 Oral; KL-regularized view of EM and adaptive minibatch updates.</li>
+<li><a href="https://proceedings.mlr.press/v138/dang20a.html">Dang, Vergari, and Van den Broeck, <em>Strudel</em></a> — structured-decomposable learning.</li>
+<li><a href="https://proceedings.mlr.press/v216/sidheekh23a.html">Sidheekh, Kersting, and Natarajan, <em>Probabilistic Flow Circuits</em></a> — flow/circuit composition.</li>
+<li><a href="https://proceedings.mlr.press/v258/zhang25f.html">Zhang et al., <em>Restructuring Tractable Probabilistic Circuits</em></a> — 2025 circuit compatibility and restructuring.</li>
+<li><a href="https://proceedings.mlr.press/v286/seng25a.html">Seng et al., <em>Scaling Probabilistic Circuits via Data Partitioning</em></a> — UAI 2025 distributed/federated learning construction.</li>
+<li><a href="https://proceedings.neurips.cc/paper_files/paper/2025/hash/3d5b603d631d595f56bc36b373458b27-Abstract-Conference.html">Leland and Choi, <em>On the Hardness of Approximating Distributions with Tractable Probabilistic Models</em></a> — approximation hardness and size separation.</li>
+<li><a href="https://openreview.net/forum?id=h8D75pVKja">Braun et al., <em>Tractable Representation Learning with Probabilistic Circuits</em></a> — TMLR 2025 autoencoding PCs.</li>
+<li><a href="https://arxiv.org/abs/2605.12940">Zhao et al., <em>The Expressivity Boundary of Probabilistic Circuits</em></a> — May 2026 preprint comparing autoregressive PCs and LLMs.</li>
+</ul>
+<h2 id="final-synthesis">Final Synthesis<a class="headerlink" href="#final-synthesis" title="Permanent link">¤</a></h2>
+<p>The <a href="../density-latent-energy-relationships/#2-normalized-constructions-autoregression-flows-and-circuits">density–latent–energy relationship guide</a> compares circuit normalization and exact marginalization with AR factorization, invertible flows, and monolithic energy networks.</p>
+<p>Probabilistic circuits trade unrestricted architecture for an algebra in which selected queries compile to exact dynamic programs. Leaves model local distributions, sums mix alternatives, products factor disjoint scopes, and graph sharing reuses computation. Smoothness, decomposability, determinism, and structured decomposability are separate tools with separate guarantees. Modern neural, flow, relational, and distilled circuits expand local capacity, but the central research discipline remains unchanged: <strong>name the query, state the structural properties, and measure the circuit size required to keep it tractable</strong>.</p>
+<details class="question">
+<summary>Cumulative retrieval practice: the complete circuit volume</summary>
+<ol>
+<li>Prove normalization of a smooth decomposable circuit by induction.</li>
+<li>Why is complexity linear in circuit size not the same as tractability in the original problem description?</li>
+<li>Which property justifies ordinary marginal recursion, and which additional property can justify max-product MPE?</li>
+<li>Derive a normalized sum-edge responsibility from an upward value and downward derivative.</li>
+<li>Give two ways a hybrid can retain complete density but lose arbitrary marginals.</li>
+<li>What does exact inference fail to guarantee about a deployed clinical model?</li>
+</ol>
+<p><strong>Solutions.</strong> (1) Leaves integrate to one; a decomposable product's integral factors into child integrals; a smooth normalized sum integrates to the weighted sum of ones. (2) compilation or structural restrictions may produce an exponentially large circuit. (3) Smoothness plus decomposability supports marginals; suitable determinism plus leaf maximization supports MPE. (4) Divide <span class="arithmatex">\((\partial C/\partial v_n)w_{nc}v_c\)</span> by the root value <span class="arithmatex">\(C(x)\)</span>. (5) A non-invertible neural encoder changes the modeled variable; a full-scope flow leaf may not expose subset marginals. (6) Calibration, causal validity, privacy, robustness, fairness, data representativeness, numerical safety, or that the learned distribution is correct.</p>
+</details>
+<h3 id="source-tracing-checklist">Source-tracing checklist<a class="headerlink" href="#source-tracing-checklist" title="Permanent link">¤</a></h3>
+<p>For every technical or research claim, record the circuit class; leaf family and base measure; smoothness, decomposability, determinism, and compatibility assumptions; query; complexity in nodes/edges and leaf cost; preprocessing; dataset/split/missingness; parameter and effective-edge counts; optimizer/structure search; hardware and compilation; metric and uncertainty; publication status/version; and independent reproduction. If a paper does not report an item, mark it unreported rather than inferring it.</p>
+<p>Next, continue to <a href="../implicit-generators-explained/">Implicit Generators Beyond GANs</a>, or compare exact circuit inference with the <a href="../latent-variables-and-inference/">latent-inference chapter</a> and <a href="../flow-explained/">normalizing-flow guide</a>.</p>
+<p>Return to <a href="../generative-models-unified/#coverage-matrix">The Generative Modeling Landscape</a>, and use the <a href="../new-families-frontier-evidence/#probabilistic-circuits">Generative-Family Research Evidence Ledger</a> for maturity boundaries.</p>
+</article>
+</div>
+<script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  Back to top
+</button>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+<div class="md-social">
+<a class="md-social__link" href="https://github.com/avitai/artifex" rel="noopener" target="_blank" title="github.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</a>
+<a class="md-social__link" href="https://pypi.org/project/avitai-artifex/" rel="noopener" target="_blank" title="pypi.org">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-66.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.3v101.8c0 29 25.2 46 53.4 54.3 33.8 9.9 66.3 11.7 106.8 0 26.9-7.8 53.4-23.5 53.4-54.3v-40.7H226.2v-13.6h160.2c31.1 0 42.6-21.7 53.4-54.2 11.2-33.5 10.7-65.7 0-108.6M286.2 444.7a20.4 20.4 0 1 1 0-40.7 20.4 20.4 0 1 1 0 40.7M167.8 248.1h106.8c29.7 0 53.4-24.5 53.4-54.3V91.9c0-29-24.4-50.7-53.4-55.6-35.8-5.9-74.7-5.6-106.8.1-45.2 8-53.4 24.7-53.4 55.6v40.7h106.9v13.6h-147c-31.1 0-58.3 18.7-66.8 54.2-9.8 40.7-10.2 66.1 0 108.6 7.6 31.6 25.7 54.2 56.8 54.2H101v-48.8c0-35.3 30.5-66.4 66.8-66.4m-6.6-183.4a20.4 20.4 0 1 1 0 40.8 20.4 20.4 0 1 1 0-40.8"></path></svg>
+</a>
+<a class="md-social__link" href="https://twitter.com/mahdi_shafiei" rel="noopener" target="_blank" title="twitter.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M459.4 151.7c.3 4.5.3 9.1.3 13.6 0 138.7-105.6 298.6-298.6 298.6-59.5 0-114.7-17.2-161.1-47.1 8.4 1 16.6 1.3 25.3 1.3 49.1 0 94.2-16.6 130.3-44.8-46.1-1-84.8-31.2-98.1-72.8 6.5 1 13 1.6 19.8 1.6 9.4 0 18.8-1.3 27.6-3.6-48.1-9.7-84.1-52-84.1-103v-1.3c14 7.8 30.2 12.7 47.4 13.3-28.3-18.8-46.8-51-46.8-87.4 0-19.5 5.2-37.4 14.3-53C87.4 130.8 165 172.4 252.1 176.9c-1.6-7.8-2.6-15.9-2.6-24C249.5 95.1 296.3 48 354.4 48c30.2 0 57.5 12.7 76.7 33.1 23.7-4.5 46.5-13.3 66.6-25.3-7.8 24.4-24.4 44.8-46.1 57.8 21.1-2.3 41.6-8.1 60.4-16.2-14.3 20.8-32.2 39.3-52.6 54.3"></path></svg>
+</a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.path", "navigation.top", "navigation.prune", "toc.follow", "search.highlight", "search.share", "search.suggest", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "content.mermaid"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+<script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+<script src="../../../javascripts/reading-layout.js"></script>
+</body>
+</html>

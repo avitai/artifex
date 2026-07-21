@@ -1,0 +1,2019 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="This chapter begins from one target and four computational routes, then develops Monte Carlo estimands, uncertainty, direct and weighted sampling, and variance-" name="description"/>
+<meta content="Mahdi Shafiei" name="author"/>
+<link href="https://docs.avitai.bio/artifex/user-guide/concepts/sampling-01-monte-carlo/" rel="canonical"/>
+<link href="../filtering-and-smoothing-state-space/" rel="prev"/>
+<link href="../sampling-02-markov-kernels/" rel="next"/>
+<link href="../../../assets/images/favicon.png" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.7.7" name="generator"/>
+<title>Sampling 1 — Monte Carlo Queries and Variance - Artifex</title>
+<link href="../../../assets/stylesheets/main.ec1eaa64.min.css" rel="stylesheet"/>
+<link href="../../../assets/stylesheets/palette.ab4e12ef.min.css" rel="stylesheet"/>
+<script src="../../../assets/vendor/iframe-worker/index.js"></script>
+<link href="../../../assets/_mkdocstrings.css" rel="stylesheet"/>
+<link href="../../../_static/extra.css" rel="stylesheet"/>
+<script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+<meta content="article" property="og:type"/>
+<meta content="The Artifex Generative Models Book" property="og:site_name"/>
+<meta content="Sampling 1 — Monte Carlo Queries and Variance" property="og:title"/>
+<meta content="This chapter begins from one target and four computational routes, then develops Monte Carlo estimands, uncertainty, direct and weighted sampling, and variance-" property="og:description"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/sampling-01-monte-carlo/" property="og:url"/>
+<meta content="2026-07-15" property="article:modified_time"/>
+<meta content="summary" name="twitter:card"/>
+<meta content="Sampling 1 — Monte Carlo Queries and Variance" name="twitter:title"/>
+<meta content="This chapter begins from one target and four computational routes, then develops Monte Carlo estimands, uncertainty, direct and weighted sampling, and variance-" name="twitter:description"/>
+<meta content="Generative models, Machine learning, Probabilistic modeling, foundation, required, canonical_chapter, sampling-monte-carlo, newcomer, practitioner, researcher" name="keywords"/>
+<meta content="Sampling 1 — Monte Carlo Queries and Variance" name="citation_title"/>
+<meta content="Mahdi Shafiei" name="citation_author"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/sampling-01-monte-carlo/" name="citation_public_url"/>
+<meta content="en" name="citation_language"/>
+<meta content="Sampling 1 — Monte Carlo Queries and Variance" name="DC.title"/>
+<meta content="Mahdi Shafiei" name="DC.creator"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/sampling-01-monte-carlo/" name="DC.identifier"/>
+<meta content="Text.LearningResource" name="DC.type"/>
+<meta content="2026-07-15" name="DCTERMS.modified"/>
+<meta content="https://github.com/avitai/artifex/blob/main/LICENSE" name="DCTERMS.license"/>
+<meta content="foundation" name="DCTERMS.educationLevel"/>
+<meta content="newcomer, practitioner, researcher" name="DCTERMS.audience"/>
+<link href="https://github.com/avitai/artifex/blob/main/LICENSE" rel="license"/>
+<script id="artifex-book-metadata" type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Chapter",
+  "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/sampling-01-monte-carlo/",
+  "url": "https://docs.avitai.bio/artifex/user-guide/concepts/sampling-01-monte-carlo/",
+  "name": "Sampling 1 \u2014 Monte Carlo Queries and Variance",
+  "description": "This chapter begins from one target and four computational routes, then develops Monte Carlo estimands, uncertainty, direct and weighted sampling, and variance-",
+  "identifier": "sampling-monte-carlo",
+  "inLanguage": "en",
+  "isAccessibleForFree": true,
+  "learningResourceType": "Canonical chapter",
+  "educationalLevel": "foundation",
+  "educationalUse": "required",
+  "audience": [
+    
+      {"@type": "EducationalAudience", "audienceType": "newcomer"},
+    
+      {"@type": "EducationalAudience", "audienceType": "practitioner"},
+    
+      {"@type": "EducationalAudience", "audienceType": "researcher"}
+    
+  ],
+  "dateModified": "2026-07-15",
+  "keywords": ["Generative models", "Machine learning", "Probabilistic modeling", "foundation", "required", "canonical_chapter", "sampling-monte-carlo", "newcomer", "practitioner", "researcher"],
+  "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+  "author": [
+    
+      {"@type": "Person", "name": "Mahdi Shafiei"}
+    
+  ],
+  "isPartOf": {
+    "@type": "Book",
+    "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/#book",
+    "url": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/",
+    "name": "The Artifex Generative Models Book",
+    "bookEdition": "Living Web Edition",
+    "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+    "author": [
+      
+        {"@type": "Person", "name": "Mahdi Shafiei"}
+      
+    ]
+  }
+}
+</script>
+<link href="../../../assets/vendor/katex/katex.min.css" id="artifex-katex-stylesheet" integrity="sha384-UA8juhPf75SzzAMA/4fo3yOU7sBJ0om7SCD2GHq0fZqZco6tr1UCV7nUbk9J90JM" rel="stylesheet"/>
+<script defer="" integrity="sha384-T/0lMUdJpd2S1ZHtRiofG3htU3xPCrFVeAQ1UUE2TJwlEJSV5NUwn30kP28n238E" src="../../../assets/vendor/mermaid/mermaid.min.js"></script>
+<script defer="" src="../../../assets/vendor/katex/katex-shadow.js"></script>
+<script defer="" src="../../../javascripts/mermaid-math.js"></script>
+<script defer="" src="../../../javascripts/mathjax.js"></script>
+<script defer="" integrity="sha384-OrHfGTnIbkl0do3N76qW/uWr38o91N05sbSPuYBPLH+hG8X/dNSrjZf3AGjzrCwC" src="../../../assets/vendor/mathjax/tex-mml-chtml.js"></script>
+</head>
+<body data-md-color-accent="amber" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#sampling-1-monte-carlo-queries-and-variance">
+          Skip to content
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header md-header--shadow" data-md-component="header">
+<nav aria-label="Header" class="md-header__inner md-grid">
+<a aria-label="Artifex" class="md-header__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            Artifex
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+            
+              Sampling 1 — Monte Carlo Queries and Variance
+            
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-label="Switch to dark mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: light)" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_1" hidden="" title="Switch to dark mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+<input aria-label="Switch to light mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-primary="indigo" data-md-color-scheme="slate" id="__palette_1" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_0" hidden="" title="Switch to light mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+</form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div aria-label="Search" class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Search" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="Search" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="Search" class="md-search__options">
+<a aria-label="Share" class="md-search__icon md-icon" data-clipboard="" data-clipboard-text="" data-md-component="search-share" href="javascript:void(0)" tabindex="-1" title="Share">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"></path></svg>
+</a>
+<button aria-label="Clear" class="md-search__icon md-icon" tabindex="-1" title="Clear" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            Initializing search
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Navigation" class="md-nav md-nav--primary" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="Artifex" class="md-nav__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+    Artifex
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../..">
+<span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../getting-started/installation/">
+<span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Generative Models Book
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Generative Models Book
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    
+  
+    Start Here — The Landscape
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../first-course-01-generative-systems/">
+<span class="md-ellipsis">
+    
+  
+    First Course — New to Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Foundations
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_3_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Foundations
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../probability-01-objects/">
+<span class="md-ellipsis">
+    
+  
+    1. Probability and Generative Modeling
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../classical-01-latent-foundations/">
+<span class="md-ellipsis">
+    
+  
+    2. Classical Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../bayesian-learning-01-object/">
+<span class="md-ellipsis">
+    
+  
+    3. Bayesian Learning and Model Assessment
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../inference-01-objects-and-queries/">
+<span class="md-ellipsis">
+    
+  
+    4. Latent Variables and Inference
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../objectives-01-discrepancies/">
+<span class="md-ellipsis">
+    
+  
+    5. Objectives and Statistical Distances
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../information-coding-01-measures/">
+<span class="md-ellipsis">
+    
+  
+    6. Information, Coding, and Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../graphical-models-01-directed/">
+<span class="md-ellipsis">
+    
+  
+    7. Graphical Models and Structured Probability
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../message-passing-01-factor-graphs/">
+<span class="md-ellipsis">
+    
+  
+    8. Graphical Inference and Message Passing
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../filtering-01-bayes-recursions/">
+<span class="md-ellipsis">
+    
+  
+    9. Filtering and Smoothing for State-Space Generators
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_3_10" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_3_10" id="__nav_3_3_10_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    10. Sampling and Continuous Time
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_3_10_label" class="md-nav" data-md-level="3">
+<label class="md-nav__title" for="__nav_3_3_10">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    10. Sampling and Continuous Time
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
+    
+  
+    1. Monte Carlo Queries and Variance
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
+<span class="md-ellipsis">
+    
+  
+    1. Monte Carlo Queries and Variance
+  
+
+    
+  </span>
+</a>
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#one-target-four-ways-to-reach-it">
+<span class="md-ellipsis">
+      
+        One Target, Four Ways to Reach It
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#learning-objectives">
+<span class="md-ellipsis">
+      
+        Learning Objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-map-and-canonical-continuations">
+<span class="md-ellipsis">
+      
+        Chapter Map and Canonical Continuations
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#monte-carlo-begins-with-a-query">
+<span class="md-ellipsis">
+      
+        Monte Carlo Begins with a Query
+      
+    </span>
+</a>
+<nav aria-label="Monte Carlo Begins with a Query" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#what-an-ordinary-monte-carlo-error-bar-assumes">
+<span class="md-ellipsis">
+      
+        What an ordinary Monte Carlo error bar assumes
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-finite-example-an-exact-answer-can-occur-by-accident">
+<span class="md-ellipsis">
+      
+        Worked finite example: an exact answer can occur by accident
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#1-direct-rejection-and-importance-sampling">
+<span class="md-ellipsis">
+      
+        1. Direct, Rejection, and Importance Sampling
+      
+    </span>
+</a>
+<nav aria-label="1. Direct, Rejection, and Importance Sampling" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#direct-sampling-is-a-pushforward-construction">
+<span class="md-ellipsis">
+      
+        Direct sampling is a pushforward construction
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#rejection-sampling-exposes-its-normalizer">
+<span class="md-ellipsis">
+      
+        Rejection sampling exposes its normalizer
+      
+    </span>
+</a>
+<nav aria-label="Rejection sampling exposes its normalizer" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-failure-case-a-harmless-scale-mismatch-becomes-exponential">
+<span class="md-ellipsis">
+      
+        Worked failure case: a harmless scale mismatch becomes exponential
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#importance-sampling-changes-the-output-object">
+<span class="md-ellipsis">
+      
+        Importance sampling changes the output object
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#coverage-is-non-negotiable">
+<span class="md-ellipsis">
+      
+        Coverage Is Non-Negotiable
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#the-output-object-constrains-the-query">
+<span class="md-ellipsis">
+      
+        The output object constrains the query
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#variance-reduction-and-randomness-design">
+<span class="md-ellipsis">
+      
+        Variance Reduction and Randomness Design
+      
+    </span>
+</a>
+<nav aria-label="Variance Reduction and Randomness Design" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#conditional-expectation-cannot-increase-variance">
+<span class="md-ellipsis">
+      
+        Conditional expectation cannot increase variance
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#control-variates-make-correlation-explicit">
+<span class="md-ellipsis">
+      
+        Control variates make correlation explicit
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#antithetic-pairs-and-common-random-numbers-answer-different-questions">
+<span class="md-ellipsis">
+      
+        Antithetic pairs and common random numbers answer different questions
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-example-one-symmetry-two-variance-reduction-views">
+<span class="md-ellipsis">
+      
+        Worked example: one symmetry, two variance-reduction views
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#deterministic-qmc-randomized-qmc-and-uncertainty">
+<span class="md-ellipsis">
+      
+        Deterministic QMC, randomized QMC, and uncertainty
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#fixed-randomness-creates-a-finite-optimization-problem">
+<span class="md-ellipsis">
+      
+        Fixed randomness creates a finite optimization problem
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#multilevel-estimators-couple-resolutions">
+<span class="md-ellipsis">
+      
+        Multilevel estimators couple resolutions
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#current-generative-applications-with-bounded-claims">
+<span class="md-ellipsis">
+      
+        Current generative applications, with bounded claims
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#monte-carlo-retrieval-practice">
+<span class="md-ellipsis">
+      
+        Monte Carlo retrieval practice
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#monte-carlo-synthesis">
+<span class="md-ellipsis">
+      
+        Monte Carlo synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../sampling-02-markov-kernels/">
+<span class="md-ellipsis">
+    
+  
+    2. Markov Kernels, Metropolis, and Gibbs
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../sampling-03-gradient-hamiltonian/">
+<span class="md-ellipsis">
+    
+  
+    3. Gradient, Hamiltonian, and Structure-Changing MCMC
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../sampling-04-tempering-transport/">
+<span class="md-ellipsis">
+    
+  
+    4. Tempering, Deterministic Transport, and SDEs
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../sampling-05-practice/">
+<span class="md-ellipsis">
+    
+  
+    5. Worked Samplers, Diagnostics, and Retrieval
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../sampling-and-continuous-time/">
+<span class="md-ellipsis">
+    
+  
+    Continuous View (All Chapters)
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../smc-01-targets/">
+<span class="md-ellipsis">
+    
+  
+    11. Sequential Monte Carlo and Particle Methods
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../optimization-01-differentiation/">
+<span class="md-ellipsis">
+    
+  
+    12. Optimization and Learning Dynamics
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../generative-models-notation/">
+<span class="md-ellipsis">
+    
+  
+    13. Canonical Notation
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../autoregressive-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Model Families
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gradients-01-taxonomy/">
+<span class="md-ellipsis">
+    
+  
+    Connections and Compositions
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../normalization-01-queries/">
+<span class="md-ellipsis">
+    
+  
+    Research Practice
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../models/vae-guide/">
+<span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/core/base/">
+<span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../examples/overview/">
+<span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../zoo/">
+<span class="md-ellipsis">
+    
+  
+    Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../training/overview/">
+<span class="md-ellipsis">
+    
+  
+    Training
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../data/overview/">
+<span class="md-ellipsis">
+    
+  
+    Data &amp; Modalities
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../inference/overview/">
+<span class="md-ellipsis">
+    
+  
+    Inference &amp; Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../benchmarks/">
+<span class="md-ellipsis">
+    
+  
+    Evaluation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../guides/extensions/">
+<span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../extensions/">
+<span class="md-ellipsis">
+    
+  
+    Advanced Topics
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../cli/">
+<span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../community/contributing/">
+<span class="md-ellipsis">
+    
+  
+    Community
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/configs/protein-extension/">
+<span class="md-ellipsis">
+    
+  
+    Reference Library
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#one-target-four-ways-to-reach-it">
+<span class="md-ellipsis">
+      
+        One Target, Four Ways to Reach It
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#learning-objectives">
+<span class="md-ellipsis">
+      
+        Learning Objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-map-and-canonical-continuations">
+<span class="md-ellipsis">
+      
+        Chapter Map and Canonical Continuations
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#monte-carlo-begins-with-a-query">
+<span class="md-ellipsis">
+      
+        Monte Carlo Begins with a Query
+      
+    </span>
+</a>
+<nav aria-label="Monte Carlo Begins with a Query" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#what-an-ordinary-monte-carlo-error-bar-assumes">
+<span class="md-ellipsis">
+      
+        What an ordinary Monte Carlo error bar assumes
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-finite-example-an-exact-answer-can-occur-by-accident">
+<span class="md-ellipsis">
+      
+        Worked finite example: an exact answer can occur by accident
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#1-direct-rejection-and-importance-sampling">
+<span class="md-ellipsis">
+      
+        1. Direct, Rejection, and Importance Sampling
+      
+    </span>
+</a>
+<nav aria-label="1. Direct, Rejection, and Importance Sampling" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#direct-sampling-is-a-pushforward-construction">
+<span class="md-ellipsis">
+      
+        Direct sampling is a pushforward construction
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#rejection-sampling-exposes-its-normalizer">
+<span class="md-ellipsis">
+      
+        Rejection sampling exposes its normalizer
+      
+    </span>
+</a>
+<nav aria-label="Rejection sampling exposes its normalizer" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-failure-case-a-harmless-scale-mismatch-becomes-exponential">
+<span class="md-ellipsis">
+      
+        Worked failure case: a harmless scale mismatch becomes exponential
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#importance-sampling-changes-the-output-object">
+<span class="md-ellipsis">
+      
+        Importance sampling changes the output object
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#coverage-is-non-negotiable">
+<span class="md-ellipsis">
+      
+        Coverage Is Non-Negotiable
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#the-output-object-constrains-the-query">
+<span class="md-ellipsis">
+      
+        The output object constrains the query
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#variance-reduction-and-randomness-design">
+<span class="md-ellipsis">
+      
+        Variance Reduction and Randomness Design
+      
+    </span>
+</a>
+<nav aria-label="Variance Reduction and Randomness Design" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#conditional-expectation-cannot-increase-variance">
+<span class="md-ellipsis">
+      
+        Conditional expectation cannot increase variance
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#control-variates-make-correlation-explicit">
+<span class="md-ellipsis">
+      
+        Control variates make correlation explicit
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#antithetic-pairs-and-common-random-numbers-answer-different-questions">
+<span class="md-ellipsis">
+      
+        Antithetic pairs and common random numbers answer different questions
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-example-one-symmetry-two-variance-reduction-views">
+<span class="md-ellipsis">
+      
+        Worked example: one symmetry, two variance-reduction views
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#deterministic-qmc-randomized-qmc-and-uncertainty">
+<span class="md-ellipsis">
+      
+        Deterministic QMC, randomized QMC, and uncertainty
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#fixed-randomness-creates-a-finite-optimization-problem">
+<span class="md-ellipsis">
+      
+        Fixed randomness creates a finite optimization problem
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#multilevel-estimators-couple-resolutions">
+<span class="md-ellipsis">
+      
+        Multilevel estimators couple resolutions
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#current-generative-applications-with-bounded-claims">
+<span class="md-ellipsis">
+      
+        Current generative applications, with bounded claims
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#monte-carlo-retrieval-practice">
+<span class="md-ellipsis">
+      
+        Monte Carlo retrieval practice
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#monte-carlo-synthesis">
+<span class="md-ellipsis">
+      
+        Monte Carlo synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<nav aria-label="Breadcrumb" class="md-path">
+<ol class="md-path__list">
+<li class="md-path__item">
+<a class="md-path__link" href="../../..">
+<span class="md-ellipsis">
+    Home
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    Generative Models Book
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../probability-01-objects/">
+<span class="md-ellipsis">
+    Foundations
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="./">
+<span class="md-ellipsis">
+    10. Sampling and Continuous Time
+  </span>
+</a>
+</li>
+</ol>
+</nav>
+<article class="md-content__inner md-typeset">
+<h1 id="sampling-1-monte-carlo-queries-and-variance">Sampling 1 — Monte Carlo Queries and Variance<a class="headerlink" href="#sampling-1-monte-carlo-queries-and-variance" title="Permanent link">¤</a></h1><aside aria-label="Learning path" class="admonition abstract artifex-learning-path"><p class="admonition-title">Learning path</p><p><strong>Required knowledge</strong></p><ul class="artifex-learning-path__links" data-learning-path-role="required"><li><a href="../probability-and-generative-modeling/">Probability and Generative Modeling</a></li><li><a href="../objectives-and-statistical-distances/">Objectives and Statistical Distances</a></li></ul><p><strong>Readiness check:</strong> can you explain the central object and reproduce one worked example from each required chapter? If not, follow its link before continuing.</p><p><strong>Newly unlocked in the default route</strong></p><ul class="artifex-learning-path__links" data-learning-path-role="unlocks"><li><a href="../sampling-02-markov-kernels/">Sampling 2 — Markov Kernels, Metropolis, and Gibbs</a></li></ul></aside>
+<p>This chapter begins from one target and four computational routes, then
+develops Monte Carlo estimands, uncertainty, direct and weighted sampling, and
+variance-reduction designs. For uninterrupted reading, use the <a href="../sampling-and-continuous-time/#one-target-four-ways-to-reach-it">continuous
+view</a>.</p>
+<h2 id="one-target-four-ways-to-reach-it">One Target, Four Ways to Reach It<a class="headerlink" href="#one-target-four-ways-to-reach-it" title="Permanent link">¤</a></h2>
+<p>Sampling methods differ in what they can access and what they return. Keep one
+target law <span class="arithmatex">\(\pi\)</span> fixed while comparing the routes:</p>
+<figure class="book-figure" id="fig-sampling-and-continuous-time-one-target-four-ways-to-reach-it"><pre class="mermaid"><code>flowchart LR
+    target["Target law&amp;nbsp;$$\pi$$"]
+    direct["Direct route&lt;br/&gt;transform known random draws"]
+    weighted["Weighted route&lt;br/&gt;propose from&amp;nbsp;$$q$$&amp;nbsp;and correct"]
+    chain["Markov route&lt;br/&gt;construct an invariant transition&amp;nbsp;$$K$$"]
+    transport["Transport route&lt;br/&gt;integrate a learned ODE or SDE"]
+    doutput["Independent target draws"]
+    woutput["Weighted particles or integral estimates"]
+    coutput["Correlated states"]
+    toutput["Numerically transported endpoint draws"]
+
+    target --&gt; direct --&gt; doutput
+    target --&gt; weighted --&gt; woutput
+    target --&gt; chain --&gt; coutput
+    target --&gt; transport --&gt; toutput</code></pre><figcaption class="book-object-caption"><span class="book-object-number">Figure SAMP.1.</span> One Target, Four Ways to Reach It</figcaption></figure>
+<p>The output boxes are deliberately different. A weighted proposal is not an
+independent target draw; a chain with the right invariant law may not have mixed;
+and an ODE endpoint inherits learned-field and solver error.</p>
+<div class="grid cards">
+<ul>
+<li>
+<p><span class="twemoji lg middle"><svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18 15a3 3 0 0 1 3 3 3 3 0 0 1-3 3 2.99 2.99 0 0 1-2.83-2H14v-2h1.17c.41-1.17 1.52-2 2.83-2m0 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m0-9a1.43 1.43 0 0 0 1.43-1.43 1.43 1.43 0 1 0-2.86 0A1.43 1.43 0 0 0 18 8m0-5.43a4 4 0 0 1 4 4C22 9.56 18 14 18 14s-4-4.44-4-7.43a4 4 0 0 1 4-4M8.83 17H10v2H8.83A2.99 2.99 0 0 1 6 21a3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V14h2v1.17c.85.3 1.53.98 1.83 1.83M6 17a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1M6 3a3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83V10H5V8.83A2.99 2.99 0 0 1 3 6a3 3 0 0 1 3-3m0 2a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m5 14v-2h2v2zm-4-6H5v-2h2z"></path></svg></span> <strong>Target error</strong></p>
+<hr/>
+<p>Does the mathematical procedure target the intended probability law?</p>
+</li>
+<li>
+<p><span class="twemoji lg middle"><svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M6 2h12v6l-4 4 4 4v6H6v-6l4-4-4-4zm10 14.5-4-4-4 4V20h8zm-4-5 4-4V4H8v3.5zM10 6h4v.75l-2 2-2-2z"></path></svg></span> <strong>Finite-compute error</strong></p>
+<hr/>
+<p>Are proposals degenerate, chains unmixed, or particles impoverished?</p>
+</li>
+<li>
+<p><span class="twemoji lg middle"><svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m3 14 .5.07L8.07 9.5a1.95 1.95 0 0 1 .52-1.91c.78-.79 2.04-.79 2.82 0 .53.52.7 1.26.52 1.91l2.57 2.57.5-.07c.18 0 .35 0 .5.07l3.57-3.57C19 8.35 19 8.18 19 8a2 2 0 0 1 2-2 2 2 0 0 1 2 2 2 2 0 0 1-2 2c-.18 0-.35 0-.5-.07l-3.57 3.57c.07.15.07.32.07.5a2 2 0 0 1-2 2 2 2 0 0 1-2-2l.07-.5-2.57-2.57c-.32.07-.68.07-1 0L4.93 15.5 5 16a2 2 0 0 1-2 2 2 2 0 0 1-2-2 2 2 0 0 1 2-2"></path></svg></span> <strong>Discretization error</strong></p>
+<hr/>
+<p>Does a finite step size change the stationary law or endpoint path?</p>
+</li>
+<li>
+<p><span class="twemoji lg middle"><svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M4 17V9H2V7h4v10zm18-2a2 2 0 0 1-2 2h-4v-2h4v-2h-2v-2h2V9h-4V7h4a2 2 0 0 1 2 2v1.5a1.5 1.5 0 0 1-1.5 1.5 1.5 1.5 0 0 1 1.5 1.5zm-8 0v2H8v-4a2 2 0 0 1 2-2h2V9H8V7h4a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2h-2v2z"></path></svg></span> <strong>Numerical error</strong></p>
+<hr/>
+<p>Do precision, tolerances, unstable ratios, or implementation details alter
+the calculation?</p>
+</li>
+</ul>
+</div>
+<h2 id="learning-objectives">Learning Objectives<a class="headerlink" href="#learning-objectives" title="Permanent link">¤</a></h2>
+<ul>
+<li>distinguish independent sampling, importance weighting, and Markov-chain sampling;</li>
+<li>separate a target law, a query, a random estimator, and its reported uncertainty;</li>
+<li>derive the iid Monte Carlo variance and state the conditions behind a normal
+  error interval;</li>
+<li>compare Rao–Blackwellization, control variates, antithetic coupling, common
+  random numbers, randomized quasi-Monte Carlo, and multilevel coupling;</li>
+<li>identify whether a procedure returns target draws, weighted particles, an expectation estimate, or a normalizing-constant estimate;</li>
+<li>distinguish time homogeneity, invariance, uniqueness, distributional convergence, path-average convergence, and finite mixing;</li>
+<li>derive Metropolis–Hastings acceptance and state its support requirements;</li>
+<li>construct Gibbs, blocked, collapsed, slice, and Metropolis-within-Gibbs
+  transitions without confusing acceptance with exploration;</li>
+<li>distinguish warmup, adaptation, initialization bias, retained sampling, and
+  a theoretical mixing time;</li>
+<li>derive HMC with one mass-matrix convention and interpret rank-normalized
+  split <span class="arithmatex">\(\widehat R\)</span>, bulk/tail ESS, MCSE, and divergences;</li>
+<li>separate exact-gradient MCMC from fixed-step and stochastic-gradient
+  approximations;</li>
+<li>explain dimension matching in reversible-jump MCMC and distinguish simulated
+  annealing from parallel tempering;</li>
+<li>explain why ULA has no acceptance rate;</li>
+<li>separate target-distribution error from discretization and mixing error;</li>
+<li>derive continuity and Fokker–Planck equations at a conceptual level;</li>
+<li>explain probability-flow ODEs, stochastic transport, and numerical NFE;</li>
+<li>identify which diagnostics apply to which sampler.</li>
+</ul>
+<h2 id="chapter-map-and-canonical-continuations">Chapter Map and Canonical Continuations<a class="headerlink" href="#chapter-map-and-canonical-continuations" title="Permanent link">¤</a></h2>
+<p>This chapter is the <strong>mathematical spine</strong> for sampling in the book. It owns
+the family-independent objects: a target law, a statistical query, a random or
+deterministic estimator, a transition kernel, a continuous-time process, and an
+error budget. Later chapters do not replace these definitions. They specialize
+them to a model family, state space, conditioning mechanism, or experimental
+claim.</p>
+<p>That division prevents two opposite mistakes. Copying the same foundation into
+every family chapter invites notation drift and contradictory assumptions.
+Moving every detail into Foundations would erase the model-specific questions
+that make a method useful. The rule is therefore:</p>
+<blockquote>
+<p>Derive a reusable mathematical contract here; derive its consequences again
+where a particular generative model changes the available objects,
+approximation, or failure mode.</p>
+</blockquote>
+<div class="admonition tip">
+<p class="admonition-title">A first pass needs only five questions</p>
+<p>If sampling is new, leave the continuation map closed. For each method ask:
+<strong>What distribution is the target? What does the procedure return? Which
+query will be estimated? What makes the answer exact or asymptotically
+valid? What can go wrong at finite compute?</strong> Follow the Beginner reading
+route at the top of the page, work the finite examples, and return to the
+map after Section 10.</p>
+</div>
+<details class="info">
+<summary>Open the canonical continuation map</summary>
+<p>Use this map to choose a deeper route. The first column names what is
+developed in this chapter. The second points to the book's canonical
+extended treatment rather than to a shorter duplicate.</p>
+<ul>
+<li>
+<p><strong>iid Monte Carlo, uncertainty, and variance reduction</strong> → continue to
+  <a href="../reproducibility-and-research-methods/#2-experimental-design-uncertainty-and-significance">experimental uncertainty</a>
+  and <a href="../generative-model-evaluation/#5-controlled-protocols-statistics-and-metric-gaming">evaluation statistics</a>
+  for independent units, repeated runs, metric uncertainty, and scientific
+  reporting.</p>
+</li>
+<li>
+<p><strong>Importance sampling, annealing, and weighted particles</strong> → continue to
+  <a href="../likelihood-and-normalizer-estimation/#2-importance-sampling-correctness-comes-from-the-ratio">Estimating Likelihoods and Normalizing Constants</a>
+  for self-normalization, AIS, SMC, bridge/path estimators, log bias, and
+  estimator-specific diagnostics.</p>
+</li>
+<li>
+<p><strong>Invariant kernels, Gibbs and Metropolis transitions, Langevin dynamics,
+  HMC, and convergence diagnostics</strong> → continue to <a href="../latent-variables-and-inference/#one-model-five-inference-regimes">latent-variable
+  inference</a>
+  for posterior-query semantics and learned proposals; <a href="../bayesian-learning-and-model-assessment/#centered-and-noncentered-parameterizations">Bayesian learning
+  and model assessment</a>
+  for hierarchical parameterizations; and <a href="../ebm-explained/#langevin-dynamics-mcmc-sampling">EBM training and Langevin
+  sampling</a> for
+  negative-phase estimation, replay buffers, finite-step bias, and
+  learned-energy diagnostics.</p>
+</li>
+<li>
+<p><strong>Discrete, blocked, collapsed, and transdimensional MCMC</strong> → continue to
+  <a href="../classical-generative-models/">classical generative models</a> for RBMs and
+  LDA, <a href="../bayesian-nonparametric-models-explained/#5-posterior-computation-without-infinity-theater">Bayesian nonparametric models</a>
+  for partition samplers, and <a href="../filtering-and-smoothing-state-space/#6-particles-learning-validation-and-method-choice">state-space inference</a>
+  for blocked trajectories and particle MCMC.</p>
+</li>
+<li>
+<p><strong>Particles as a time-indexed inference system</strong> → continue to
+  <a href="../filtering-and-smoothing-state-space/#6-particles-learning-validation-and-method-choice">filtering, smoothing, and state-space inference</a>
+  for sequential observations, particle filters, smoothing, parameter
+  learning, and degeneracy across time.</p>
+</li>
+<li>
+<p><strong>Semigroups, continuity equations, diffusions, and jump processes</strong> →
+  continue to <a href="../general-markov-generators/#1-semigroups-generators-and-forward-equations">General Markov Generators</a>
+  for generator operators, continuous-time Markov chains,
+  piecewise-deterministic processes, superposition, and mixed state spaces.</p>
+</li>
+<li>
+<p><strong>Probability-flow ODEs, reverse SDEs, and shared marginals</strong> → continue
+  to <a href="../probability-paths-and-stochastic-transport/#1-probability-paths-couplings-and-conservation">Probability Paths and Stochastic Transport</a>
+  for couplings, score diffusion, conditional paths, stochastic
+  interpolants, and precise relationship labels.</p>
+</li>
+<li>
+<p><strong>Deterministic transport and continuous change of density</strong> → continue
+  to <a href="../flow-explained/#continuous-time-flows-and-foundational-flow-matching">continuous normalizing flows and flow matching</a>
+  for learned vector fields, divergence estimators, conditional flow
+  matching, rectification, and likelihood computation.</p>
+</li>
+<li>
+<p><strong>Stochastic transport and numerical reverse-time simulation</strong> →
+  continue to <a href="../diffusion-explained/#mathematical-foundation">diffusion foundations</a>
+  and <a href="../diffusion-explained/#sampling-methods">diffusion sampling</a> for
+  denoising objectives, score parameterizations, schedules, DDPM/DDIM,
+  guidance, and diffusion-specific solvers.</p>
+</li>
+<li>
+<p><strong>Discrete continuous-time Markov chains and jump dynamics</strong> → continue
+  to <a href="../discrete-iterative-generation-explained/#3-continuous-time-markov-chains-and-discrete-scores">continuous-time discrete generation</a>
+  for discrete scores, rate matrices, masking processes, tau-leaping, and
+  order-agnostic refinement.</p>
+</li>
+<li>
+<p><strong>Finite-step approximation to a continuous process</strong> → continue to
+  <a href="../transitions-and-few-step-generation/#1-from-infinitesimal-dynamics-to-finite-transitions">Transitions and Few-Step Generation</a>
+  for consistency, flow maps, transition matching, continuous
+  autoregression, and distillation.</p>
+</li>
+<li>
+<p><strong>Target modification by likelihoods, rewards, or constraints</strong> →
+  continue to <a href="../conditioning-steering-and-constraints/#3-guidance-doob-transforms-and-twisted-sampling">Conditioning, Steering, Constraints, and Selection</a>
+  for Doob transforms, twisted kernels, constrained support, selection
+  laws, and guidance error.</p>
+</li>
+<li>
+<p><strong>Solver error, NFE, and finite-compute comparisons</strong> → continue to
+  <a href="../compute-and-controlled-comparisons/#3-inference-accounting-across-generative-families">inference accounting</a>
+  for wall-clock, memory, precision, active branches, equal-budget
+  comparison, and time to quality.</p>
+</li>
+</ul>
+</details>
+<p>The route is bidirectional. A reader may start from diffusion, an EBM, or a
+state-space model, follow a link here for the common theorem, and return to the
+family chapter for the applied derivation. Terms such as <em>score</em>, <em>energy</em>,
+<em>transition</em>, <em>particle</em>, and <em>flow</em> must retain their local mathematical role;
+similar-looking update equations do not by themselves establish equivalent
+models or samplers.</p>
+<h2 id="monte-carlo-begins-with-a-query">Monte Carlo Begins with a Query<a class="headerlink" href="#monte-carlo-begins-with-a-query" title="Permanent link">¤</a></h2>
+<p>A collection of random draws is not yet a statistical answer. Begin with the
+quantity to be computed. For a probability law <span class="arithmatex">\(\pi\)</span> and an integrable
+observable <span class="arithmatex">\(f\)</span>, the query</p>
+<div class="arithmatex">\[
+\mu=\mathbb E_{X\sim\pi}[f(X)]
+\]</div>
+<p>might represent a generated image's mean intensity, the probability that a
+sample satisfies a constraint, a posterior moment, an ELBO term, or a metric
+averaged over generator noise. If <span class="arithmatex">\(X_1,\ldots,X_N\)</span> are independent draws from
+<span class="arithmatex">\(\pi\)</span>, the ordinary Monte Carlo estimator is</p>
+<div class="arithmatex">\[
+\widehat\mu_N=\frac1N\sum_{i=1}^N f(X_i).
+\]</div>
+<p>When <span class="arithmatex">\(\sigma_f^2=\operatorname{Var}_\pi[f(X)]&lt;\infty\)</span>,</p>
+<div class="arithmatex">\[
+\mathbb E[\widehat\mu_N]=\mu,
+\qquad
+\operatorname{Var}(\widehat\mu_N)=\frac{\sigma_f^2}{N}.
+\]</div>
+<p>The <span class="arithmatex">\(N^{-1/2}\)</span> root-mean-square rate is a statement about the number of
+independent evaluations. It is <strong>not</strong> a dimension-free difficulty theorem:
+<span class="arithmatex">\(\sigma_f^2\)</span>, evaluation cost, tail behavior, and the number of samples needed
+to discover a rare region can all deteriorate with dimension.</p>
+<h3 id="what-an-ordinary-monte-carlo-error-bar-assumes">What an ordinary Monte Carlo error bar assumes<a class="headerlink" href="#what-an-ordinary-monte-carlo-error-bar-assumes" title="Permanent link">¤</a></h3>
+<p>The iid central limit theorem gives</p>
+<div class="arithmatex">\[
+\sqrt N\,(\widehat\mu_N-\mu)
+\xrightarrow{d}\mathcal N(0,\sigma_f^2)
+\]</div>
+<p>under finite-variance regularity. Estimate the variance with Bessel's
+correction,</p>
+<div class="arithmatex">\[
+s_f^2=\frac1{N-1}\sum_{i=1}^N
+\left(f(X_i)-\widehat\mu_N\right)^2,
+\qquad
+\widehat{\operatorname{SE}}(\widehat\mu_N)=\frac{s_f}{\sqrt N}.
+\]</div>
+<p>The familiar interval</p>
+<div class="arithmatex">\[
+\widehat\mu_N\ \pm\ z_{1-\alpha/2}\frac{s_f}{\sqrt N}
+\]</div>
+<p>is therefore asymptotic, not an exact finite-sample confidence interval. It can
+be badly calibrated for a small <span class="arithmatex">\(N\)</span>, infinite or very large variance, rare-event
+indicators, an adaptively chosen stopping time, or dependent samples treated as
+iid. For MCMC, use a dependence-aware long-run variance or effective sample
+size; for repeated randomized quasi-Monte Carlo, use independent
+randomizations; for a deterministic quadrature rule, there is no ordinary
+sampling variance to estimate.</p>
+<div class="admonition warning">
+<p class="admonition-title">Three errors that one standard error cannot combine</p>
+<p>Monte Carlo error is variation caused by finite random computation <strong>under
+a fixed mathematical target and observable</strong>. It does not measure model
+misspecification, learned-parameter uncertainty, dataset sampling error,
+discretization bias, or floating-point error. A defensible experiment names
+each error source and reports an estimator appropriate to it.</p>
+</div>
+<h3 id="worked-finite-example-an-exact-answer-can-occur-by-accident">Worked finite example: an exact answer can occur by accident<a class="headerlink" href="#worked-finite-example-an-exact-answer-can-occur-by-accident" title="Permanent link">¤</a></h3>
+<p>Let <span class="arithmatex">\(X\)</span> take values <span class="arithmatex">\(-1,0,2\)</span> with probabilities <span class="arithmatex">\(1/4,1/2,1/4\)</span>, and let
+<span class="arithmatex">\(f(X)=X^2\)</span>. Exact summation gives</p>
+<div class="arithmatex">\[
+\mu=\frac14(1)+\frac12(0)+\frac14(4)=\frac54,
+\]</div>
+<p>and</p>
+<div class="arithmatex">\[
+\sigma_f^2
+=\left[\frac14(1)+\frac14(16)\right]-\left(\frac54\right)^2
+=\frac{43}{16}.
+\]</div>
+<p>Suppose four independent draws happen to be <span class="arithmatex">\((2,0,-1,0)\)</span>. Their transformed
+values are <span class="arithmatex">\((4,0,1,0)\)</span>, so <span class="arithmatex">\(\widehat\mu_4=5/4\)</span>, exactly the true answer. But the
+estimated variance is <span class="arithmatex">\(s_f^2=43/12\)</span> and the estimated standard error is
+<span class="arithmatex">\(\sqrt{43/48}\approx0.946\)</span>. The point estimate's equality is a coincidence;
+the realized sample does not justify zero uncertainty. Repeating the experiment
+with fresh random streams tests Monte Carlo variability, while comparing with
+the finite exact sum tests correctness.</p>
+<h2 id="1-direct-rejection-and-importance-sampling">1. Direct, Rejection, and Importance Sampling<a class="headerlink" href="#1-direct-rejection-and-importance-sampling" title="Permanent link">¤</a></h2>
+<h3 id="direct-sampling-is-a-pushforward-construction">Direct sampling is a pushforward construction<a class="headerlink" href="#direct-sampling-is-a-pushforward-construction" title="Permanent link">¤</a></h3>
+<p>Direct ancestral sampling follows a normalized factorization. More generally,
+if <span class="arithmatex">\(U\)</span> has a tractable base law and <span class="arithmatex">\(T\)</span> is a measurable map, then
+<span class="arithmatex">\(X=T(U)\)</span> has the pushforward law <span class="arithmatex">\(T_\#p_U\)</span>. The map need not be invertible and
+need not provide a density. The <a href="../probability-and-generative-modeling/#probability-integral-transforms-need-an-atom-check">generalized inverse-CDF
+construction</a>
+is the scalar canonical example.</p>
+<p>For independent <span class="arithmatex">\(U_1,U_2\sim\operatorname{Uniform}(0,1)\)</span>, the Box–Muller
+construction</p>
+<div class="arithmatex">\[
+\begin{aligned}
+R&amp;=\sqrt{-2\log U_1}, &amp; \Theta&amp;=2\pi U_2,\\
+Z_1&amp;=R\cos\Theta, &amp; Z_2&amp;=R\sin\Theta
+\end{aligned}
+\]</div>
+<p>returns two independent standard Gaussian variables. If <span class="arithmatex">\(Z\sim\mathcal
+N(0,I)\)</span> and <span class="arithmatex">\(LL^T=\Sigma\)</span>, then <span class="arithmatex">\(X=\mu+LZ\)</span> has law
+<span class="arithmatex">\(\mathcal N(\mu,\Sigma)\)</span>. These constructions explain the probability map;
+a production random-number library may use a different Gaussian algorithm and
+must separately control uniform-generator quality, endpoint handling, precision,
+and factorization error.</p>
+<h3 id="rejection-sampling-exposes-its-normalizer">Rejection sampling exposes its normalizer<a class="headerlink" href="#rejection-sampling-exposes-its-normalizer" title="Permanent link">¤</a></h3>
+<p>Let the normalized target be <span class="arithmatex">\(\pi(x)=\gamma(x)/Z\)</span>, where <span class="arithmatex">\(\gamma\)</span> can be
+evaluated and <span class="arithmatex">\(Z\)</span> may be unknown. If a normalized proposal <span class="arithmatex">\(q\)</span> and finite
+constant <span class="arithmatex">\(M\)</span> satisfy</p>
+<div class="arithmatex">\[
+\gamma(x)\le Mq(x)
+\]</div>
+<p>everywhere, propose <span class="arithmatex">\(X\sim q\)</span>, draw <span class="arithmatex">\(U\sim\operatorname{Uniform}(0,1)\)</span>, and
+accept when</p>
+<div class="arithmatex">\[
+U\le\frac{\gamma(X)}{Mq(X)}.
+\]</div>
+<p>The accepted state has density <span class="arithmatex">\(\pi\)</span>, and the mean acceptance probability is</p>
+<div class="arithmatex">\[
+\mathbb P(\text{accept})
+=\int q(x)\frac{\gamma(x)}{Mq(x)}\,dx
+=\frac ZM.
+\]</div>
+<p>The frequently quoted value <span class="arithmatex">\(1/M\)</span> applies only when the envelope was written
+for an already normalized target, so that <span class="arithmatex">\(Z=1\)</span>. An invalid bound creates a
+biased sampler; silently clipping an acceptance probability above one does not
+repair it.</p>
+<h4 id="worked-failure-case-a-harmless-scale-mismatch-becomes-exponential">Worked failure case: a harmless scale mismatch becomes exponential<a class="headerlink" href="#worked-failure-case-a-harmless-scale-mismatch-becomes-exponential" title="Permanent link">¤</a></h4>
+<p>Take <span class="arithmatex">\(\pi=\mathcal N(0,I_d)\)</span> and
+<span class="arithmatex">\(q=\mathcal N(0,\sigma^2I_d)\)</span> with <span class="arithmatex">\(\sigma&gt;1\)</span>. Their density ratio is</p>
+<div class="arithmatex">\[
+\frac{\pi(x)}{q(x)}
+=\sigma^d\exp\!\left[-\frac12\left(1-\sigma^{-2}\right)
+\lVert x\rVert^2\right],
+\]</div>
+<p>so the tight rejection constant is <span class="arithmatex">\(M=\sigma^d\)</span> and the acceptance
+probability is <span class="arithmatex">\(\sigma^{-d}\)</span>. A one-percent scale mismatch gives
+<span class="arithmatex">\(1.01^{-1000}\approx4.77\times10^{-5}\)</span> in one thousand dimensions: about one
+accepted draw per twenty-one thousand proposals. The algebraic
+<span class="arithmatex">\(N^{-1/2}\)</span> Monte Carlo rate has not disappeared; the cost of obtaining each
+target draw has exploded.</p>
+<h3 id="importance-sampling-changes-the-output-object">Importance sampling changes the output object<a class="headerlink" href="#importance-sampling-changes-the-output-object" title="Permanent link">¤</a></h3>
+<p>Importance sampling estimates</p>
+<div class="arithmatex">\[
+\begin{aligned}
+w(x)&amp;=\frac{\tilde p(x)}{q(x)},\\
+\mathbb E_p[f(X)]
+&amp;=\frac{\mathbb E_q[w(X)f(X)]}
+{\mathbb E_q[w(X)]},
+\end{aligned}
+\]</div>
+<p>where <span class="arithmatex">\(\tilde p\)</span> may be unnormalized. Self-normalization introduces finite-sample bias but removes the unknown normalizer. Weight degeneracy is measured through effective sample size, not merely proposal count.</p>
+<h3 id="coverage-is-non-negotiable">Coverage Is Non-Negotiable<a class="headerlink" href="#coverage-is-non-negotiable" title="Permanent link">¤</a></h3>
+<p>If <span class="arithmatex">\(q(x)=0\)</span> in a region where <span class="arithmatex">\(p(x)|f(x)|&gt;0\)</span>, importance sampling cannot recover that contribution. Increasing the number of samples does not fix missing support. Even with full support, heavy-tailed weights may have infinite variance, making ordinary error bars unreliable.</p>
+<p>For normalized weights <span class="arithmatex">\(\bar w_i=w_i/\sum_jw_j\)</span>, the heuristic</p>
+<div class="arithmatex">\[
+\operatorname{ESS}=\frac{1}{\sum_i\bar w_i^2}
+\]</div>
+<p>summarizes concentration. It does not prove accurate tail probabilities or proposal coverage. Inspect log weights and repeat the estimate across independent runs.</p>
+<p>Rejection sampling returns independent exact draws when the envelope is valid. Importance sampling returns weighted proposals rather than independent target draws unless followed by resampling, which introduces dependence and duplication.</p>
+<h3 id="the-output-object-constrains-the-query">The output object constrains the query<a class="headerlink" href="#the-output-object-constrains-the-query" title="Permanent link">¤</a></h3>
+<p>Sampling procedures that use the same target density need not return interchangeable objects:</p>
+<div class="md-typeset__table book-table-container"><table id="tbl-sampling-and-continuous-time-the-output-object-constrains-the-query"><caption class="book-object-caption"><span class="book-object-number">Table SAMP.1.</span> The output object constrains the query</caption>
+<thead>
+<tr>
+<th>Procedure</th>
+<th>Immediate output</th>
+<th>Directly supports</th>
+<th>Does not provide automatically</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Direct or valid rejection sampling</td>
+<td>Independent target draws</td>
+<td>Sample statistics and expectations with ordinary Monte Carlo error</td>
+<td>Density values or an evidence estimate</td>
+</tr>
+<tr>
+<td>Ordinary importance sampling</td>
+<td>Independent proposal draws with unnormalized weights</td>
+<td>Unnormalized integrals and, when applicable, an unbiased normalizer estimate</td>
+<td>Independent target draws</td>
+</tr>
+<tr>
+<td>Self-normalized importance sampling</td>
+<td>Proposal draws with weights summing to one</td>
+<td>A finite weighted approximation to normalized expectations</td>
+<td>An unbiased finite-sample ratio estimator</td>
+</tr>
+<tr>
+<td>MCMC</td>
+<td>One or more correlated state paths</td>
+<td>Posterior expectations after initialization and mixing are controlled</td>
+<td>The target normalizer, independent draws, or a universal burn-in length</td>
+</tr>
+<tr>
+<td>SMC</td>
+<td>Weighted particles, ancestor indices, and incremental normalizer estimates</td>
+<td>Filtering, path-space expectations, and normalizer ratios under the chosen construction</td>
+<td>Recovery of a mode absent from every particle</td>
+</tr>
+</tbody>
+</table></div>
+<p>Resampling weighted proposals produces an unweighted empirical population, but finite resampling can duplicate high-weight states and discard low-weight ones. It is an approximation to the target population, not a conversion into exact independent draws. The <a href="../latent-variables-and-inference/#query-first-inference-map">query-first inference map</a> compares these outputs with exact inference and VI.</p>
+<p>For the full estimator algebra—ordinary and self-normalized importance
+sampling, proposal divergences, multiple proposals, AIS/SMC normalizer ratios,
+log-scale bias, and diagnostic contracts—continue to <a href="../likelihood-and-normalizer-estimation/#2-importance-sampling-correctness-comes-from-the-ratio">Estimating Likelihoods
+and Normalizing Constants</a>.</p>
+<p>Randomized optimization supplies another output class. Independent Gumbel
+noise for every complete finite configuration followed by an exact argmax gives
+an exact categorical sample, and matched local Gaussian perturbations followed
+by an exact quadratic solve give an exact Gaussian sample. Unary or factorwise
+Gumbels, relaxed argmax operations, truncated max-product, and finite-tolerance
+linear solves generally change that guarantee. The <a href="../graphical-inference-and-message-passing/#randomized-optimization-when-a-map-oracle-becomes-a-sampler">randomized-optimization
+derivation</a>
+states the perturbation field, dependence, solver, and correction contract.</p>
+<p>When the target is created from a base generator by a likelihood, reward,
+constraint, or verifier, the <a href="../conditioning-steering-and-constraints/">conditioning and steering
+volume</a> derives the returned laws of
+rejection, Doob guidance, SMC twisting, projection, and best-of-<span class="arithmatex">\(N\)</span> selection.
+Those mechanisms share sampling tools but do not share one finite output law.</p>
+<p>When the state is a random event configuration, the output contract must also
+include cardinality, empty windows, locations or times, marks, and stopping.
+<a href="../point-processes-and-random-finite-sets/#5-simulation-and-configuration-generation">Point Processes and Random Finite Sets</a>
+derives count–location sampling, inverse compensators, dominated thinning,
+branching, spectral DPP sampling, and configuration MCMC. These are distinct
+uses of the sampling foundations developed here.</p>
+<h2 id="variance-reduction-and-randomness-design">Variance Reduction and Randomness Design<a class="headerlink" href="#variance-reduction-and-randomness-design" title="Permanent link">¤</a></h2>
+<p>Variance reduction changes how a fixed expectation is estimated. It does not
+change the target distribution, create a new model family, or excuse an invalid
+sampler. The basic contract is</p>
+<div class="arithmatex">\[
+\mathbb E[\widehat\mu_{\mathrm{new}}]=\mu
+\]</div>
+<p>when unbiasedness is claimed, followed by a cost-matched comparison of
+variance, bias, and wall-clock work.</p>
+<div class="md-typeset__table book-table-container"><table id="tbl-sampling-and-continuous-time-variance-reduction-and-randomness-design"><caption class="book-object-caption"><span class="book-object-number">Table SAMP.2.</span> Variance Reduction and Randomness Design</caption>
+<thead>
+<tr>
+<th>Method</th>
+<th>Construction</th>
+<th>What must be checked</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Rao–Blackwellization</td>
+<td>Replace a random quantity by its conditional expectation given retained information</td>
+<td>The conditional expectation is exact or its approximation error is declared</td>
+</tr>
+<tr>
+<td>Control variate</td>
+<td>Subtract a correlated zero-mean quantity</td>
+<td>Its expectation is known and coefficient fitting does not reuse data in a way ignored by the error analysis</td>
+</tr>
+<tr>
+<td>Antithetic variables</td>
+<td>Couple correct marginals to induce negative covariance</td>
+<td>The transformed outputs, not merely the base noises, are negatively correlated</td>
+</tr>
+<tr>
+<td>Common random numbers</td>
+<td>Reuse base randomness across two systems</td>
+<td>It improves a <strong>difference</strong> only when the induced covariance has the helpful sign</td>
+</tr>
+<tr>
+<td>Stratification or RQMC</td>
+<td>Cover base-noise space more evenly</td>
+<td>Smoothness, effective dimension, transformation, randomization, and uncertainty protocol</td>
+</tr>
+<tr>
+<td>Fixed randomness / SAA</td>
+<td>Optimize one reusable finite-sample objective</td>
+<td>Convergence to that finite objective is not convergence to the population objective</td>
+</tr>
+<tr>
+<td>Multilevel coupling</td>
+<td>Telescope across resolutions and couple adjacent levels</td>
+<td>Cost, bias, and variance decay across levels, plus the finest-level target</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="conditional-expectation-cannot-increase-variance">Conditional expectation cannot increase variance<a class="headerlink" href="#conditional-expectation-cannot-increase-variance" title="Permanent link">¤</a></h3>
+<p>For a square-integrable estimator <span class="arithmatex">\(Y\)</span> and retained information <span class="arithmatex">\(S\)</span>, the law of total
+variance gives</p>
+<div class="arithmatex">\[
+\operatorname{Var}(Y)
+=\mathbb E[\operatorname{Var}(Y\mid S)]
++\operatorname{Var}(\mathbb E[Y\mid S]).
+\]</div>
+<p>Therefore <span class="arithmatex">\(\mathbb E[Y\mid S]\)</span> has the same expectation as <span class="arithmatex">\(Y\)</span> and no larger
+variance. Marginalizing a tractable discrete latent variable instead of
+sampling it, or summing over a local graphical-model state inside a larger
+estimator, are generative-model examples. Approximate marginalization does not
+inherit the exact guarantee.</p>
+<h3 id="control-variates-make-correlation-explicit">Control variates make correlation explicit<a class="headerlink" href="#control-variates-make-correlation-explicit" title="Permanent link">¤</a></h3>
+<p>Suppose <span class="arithmatex">\(H\)</span> has known expectation <span class="arithmatex">\(\eta\)</span>. For any fixed coefficient <span class="arithmatex">\(c\)</span>,</p>
+<div class="arithmatex">\[
+Y_c=f(X)-c\bigl(H(X)-\eta\bigr)
+\]</div>
+<p>has expectation <span class="arithmatex">\(\mu\)</span>. Its variance is minimized by</p>
+<div class="arithmatex">\[
+c^*=\frac{\operatorname{Cov}(f(X),H(X))}
+{\operatorname{Var}(H(X))},
+\]</div>
+<p>provided <span class="arithmatex">\(\operatorname{Var}(H)&gt;0\)</span>. A coefficient estimated on the same finite
+sample can alter small-sample bias and uncertainty; fit on independent data,
+cross-fit, or analyze the joint estimator. Baselines for score-function
+gradients are control variates specialized to a derivative query, as developed
+in <a href="../gradients-and-geometry-in-generative-modeling/#one-derivative-several-estimator-families">Gradients and Geometry</a>.</p>
+<h3 id="antithetic-pairs-and-common-random-numbers-answer-different-questions">Antithetic pairs and common random numbers answer different questions<a class="headerlink" href="#antithetic-pairs-and-common-random-numbers-answer-different-questions" title="Permanent link">¤</a></h3>
+<p>If <span class="arithmatex">\(Y^+\)</span> and <span class="arithmatex">\(Y^-\)</span> each have mean <span class="arithmatex">\(\mu\)</span> and variance <span class="arithmatex">\(\sigma^2\)</span>, the paired
+average has</p>
+<div class="arithmatex">\[
+\operatorname{Var}\!\left(\frac{Y^++Y^-}{2}\right)
+=\frac{\sigma^2}{2}\bigl(1+\rho\bigr),
+\qquad
+\rho=\operatorname{Corr}(Y^+,Y^-).
+\]</div>
+<p>The pair helps only when <span class="arithmatex">\(\rho&lt;0\)</span> and is worse than two independent draws when
+<span class="arithmatex">\(\rho&gt;0\)</span>. A symmetric base law makes <span class="arithmatex">\(Z\)</span> and <span class="arithmatex">\(-Z\)</span> valid marginals, but it does
+not prove that a nonlinear generator statistic <span class="arithmatex">\(f(G(Z))\)</span> and <span class="arithmatex">\(f(G(-Z))\)</span> are
+negatively correlated.</p>
+<p>Common random numbers instead compare two methods. If <span class="arithmatex">\(\widehat\mu_A\)</span> and
+<span class="arithmatex">\(\widehat\mu_B\)</span> share base randomness,</p>
+<div class="arithmatex">\[
+\operatorname{Var}(\widehat\mu_A-\widehat\mu_B)
+=\operatorname{Var}(\widehat\mu_A)
++\operatorname{Var}(\widehat\mu_B)
+-2\operatorname{Cov}(\widehat\mu_A,\widehat\mu_B).
+\]</div>
+<p>A positive covariance sharpens the paired difference even if neither marginal
+estimate becomes less variable. Report paired and unpaired designs explicitly.</p>
+<h3 id="worked-example-one-symmetry-two-variance-reduction-views">Worked example: one symmetry, two variance-reduction views<a class="headerlink" href="#worked-example-one-symmetry-two-variance-reduction-views" title="Permanent link">¤</a></h3>
+<p>Let <span class="arithmatex">\(X\sim\operatorname{Uniform}(0,1)\)</span> and estimate
+<span class="arithmatex">\(\mu=\mathbb E[X^2]=1/3\)</span>. Ordinary sampling has</p>
+<div class="arithmatex">\[
+\operatorname{Var}(X^2)=\frac15-\frac19=\frac4{45}.
+\]</div>
+<p>Because <span class="arithmatex">\(1-X\)</span> is also uniform, use the antithetic pair</p>
+<div class="arithmatex">\[
+A(X)=\frac{X^2+(1-X)^2}{2}=X^2-X+\frac12.
+\]</div>
+<p>Direct integration gives <span class="arithmatex">\(\mathbb E[A]=1/3\)</span> and
+<span class="arithmatex">\(\operatorname{Var}(A)=1/180\)</span>. By comparison, the average of two independent
+<span class="arithmatex">\(X^2\)</span> values has variance <span class="arithmatex">\(2/45\)</span>, eight times larger.</p>
+<p>The same estimator follows from the control variate <span class="arithmatex">\(H(X)=X\)</span> with known mean
+<span class="arithmatex">\(1/2\)</span>. Since</p>
+<div class="arithmatex">\[
+c^*=\frac{\operatorname{Cov}(X^2,X)}{\operatorname{Var}(X)}=1,
+\]</div>
+<p>the optimal controlled value is <span class="arithmatex">\(X^2-(X-1/2)=A(X)\)</span>. Antithetic coupling and a
+control variate are different constructions, but here a symmetry makes their
+estimators coincide.</p>
+<h3 id="deterministic-qmc-randomized-qmc-and-uncertainty">Deterministic QMC, randomized QMC, and uncertainty<a class="headerlink" href="#deterministic-qmc-randomized-qmc-and-uncertainty" title="Permanent link">¤</a></h3>
+<p>Write a target expectation as an integral over base noise,</p>
+<div class="arithmatex">\[
+\mu=\int_{[0,1]^d}h(u)\,du.
+\]</div>
+<p>Quasi-Monte Carlo (QMC) evaluates <span class="arithmatex">\(h\)</span> on a deterministic low-discrepancy point
+set <span class="arithmatex">\(u_{1:N}\)</span>. Its error can improve on ordinary Monte Carlo for suitable
+smoothness, variation, and effective dimension, but the deterministic estimate
+has no ordinary sampling standard error. Ambient dimension alone is not a
+complete predictor; the coordinate transformation and the dimensions that
+dominate variation matter.</p>
+<p>Randomized QMC (RQMC) applies a valid randomization that keeps each point
+marginally uniform while retaining low-discrepancy structure. With <span class="arithmatex">\(R\)</span>
+independent randomizations, compute one estimate <span class="arithmatex">\(\widehat\mu_N^{(r)}\)</span> per
+randomization and use variation <strong>across the <span class="arithmatex">\(R\)</span> independent estimates</strong> for an
+error assessment. Treating the <span class="arithmatex">\(N\)</span> dependent points within one scramble as iid
+would be incorrect. Favorable RQMC rates require regularity and are not a
+universal promise for discontinuous constraints, heavy tails, or high effective
+dimension.</p>
+<p>QMC has been applied to both score- and pathwise-gradient VI
+(<a href="https://proceedings.mlr.press/v80/buchholz18a.html">Buchholz, Wenzel, and Mandt, 2018</a>),
+while randomized QMC has been combined with quasi-Newton optimization
+(<a href="https://www.jmlr.org/papers/v22/21-0498.html">Liu and Owen, 2021</a>). These results establish
+method-specific improvements under their assumptions, not that low-discrepancy
+points dominate iid sampling for every generative objective.</p>
+<h3 id="fixed-randomness-creates-a-finite-optimization-problem">Fixed randomness creates a finite optimization problem<a class="headerlink" href="#fixed-randomness-creates-a-finite-optimization-problem" title="Permanent link">¤</a></h3>
+<p>Let a population objective be</p>
+<div class="arithmatex">\[
+L(\theta)=\mathbb E_{\epsilon}[\ell(\theta;\epsilon)].
+\]</div>
+<p>Sample-average approximation (SAA) fixes draws
+<span class="arithmatex">\(\epsilon_{1:N}\)</span> and optimizes</p>
+<div class="arithmatex">\[
+\widehat L_N(\theta)=\frac1N\sum_{i=1}^N
+\ell(\theta;\epsilon_i).
+\]</div>
+<p>The resulting objective is deterministic conditional on those draws, so line
+searches, stopping tests, Hessian-vector products, and quasi-Newton methods can
+be meaningful for the executed finite problem. A tiny optimization residual
+for <span class="arithmatex">\(\widehat L_N\)</span> does not show that <span class="arithmatex">\(\theta\)</span> optimizes <span class="arithmatex">\(L\)</span>. Validate with
+fresh random draws or increasing <span class="arithmatex">\(N\)</span>. <a href="https://www.jmlr.org/papers/v25/23-1015.html">Deterministic
+ADVI</a> applies this idea to a fixed
+Monte Carlo approximation of a mean-field variational objective; its
+favorable low-sample results have explicit posterior-family boundaries.</p>
+<h3 id="multilevel-estimators-couple-resolutions">Multilevel estimators couple resolutions<a class="headerlink" href="#multilevel-estimators-couple-resolutions" title="Permanent link">¤</a></h3>
+<p>When <span class="arithmatex">\(Y_0,\ldots,Y_L\)</span> approximate the same query at increasing fidelity,</p>
+<div class="arithmatex">\[
+\mathbb E[Y_L]
+=\mathbb E[Y_0]
++\sum_{\ell=1}^L
+\mathbb E[Y_\ell-Y_{\ell-1}].
+\]</div>
+<p>Multilevel Monte Carlo spends many cheap samples on coarse levels and fewer
+expensive samples on fine corrections. The identity is elementary; efficiency
+comes from coupling adjacent levels so that <span class="arithmatex">\(Y_\ell-Y_{\ell-1}\)</span> has small
+variance. In generative modeling, levels can represent solver grids,
+discretized stochastic paths, or nested inference computations. Estimating
+<span class="arithmatex">\(\mathbb E[Y_L]\)</span> without bias does not remove the gap between the finite
+<span class="arithmatex">\(Y_L\)</span> and a continuum target. <a href="https://www.jmlr.org/papers/v22/20-653.html">Multilevel VI
+variants</a> instead use related
+couplings to reduce gradient-estimation cost; their guarantee is tied to the
+declared hierarchy and optimization assumptions.</p>
+<h3 id="current-generative-applications-with-bounded-claims">Current generative applications, with bounded claims<a class="headerlink" href="#current-generative-applications-with-bounded-claims" title="Permanent link">¤</a></h3>
+<div class="admonition abstract">
+<p class="admonition-title">Evidence labels and scope</p>
+<ul>
+<li><strong>Peer-reviewed research — ICLR 2026:</strong> <a href="https://openreview.net/forum?id=fdLU72nQdr"><em>Quasi-Monte Carlo Methods Enable
+  Extremely Low-Dimensional Deep Generative Models</em></a>
+  uses randomized lattice
+  integration to approximate marginal likelihood in specialized one-, two-,
+  and three-dimensional deep latent-variable models. Its reported advantage
+  is a result for that low-dimensional regime; the method is
+  compute-intensive and is not a replacement for high-dimensional latent
+  inference.</li>
+<li><strong>Peer-reviewed research — ICLR 2026:</strong> <a href="https://iclr.cc/virtual/2026/poster/10011071"><em>Antithetic Noise in Diffusion
+  Models</em></a> reports negative
+  correlation for paired initial noises <span class="arithmatex">\(z\)</span> and
+  <span class="arithmatex">\(-z\)</span> across studied generators and uses it for uncertainty estimation.
+  Marginal validity follows from Gaussian symmetry; variance reduction for a
+  chosen statistic still depends on its measured output covariance. The
+  paper's approximate score-symmetry explanation remains a conjectural
+  interpretation, not a universal theorem about trained generators.</li>
+<li><strong>Peer-reviewed research — ICLR 2026:</strong> <a href="https://openreview.net/forum?id=Ahdsg2nkNH">multilevel control
+  functionals</a> combine learned
+  Stein control variates with multiple fidelities and include
+  variational-inference experiments. Their faster-rate analysis assumes
+  smoothness and a regime whose dimension is not too high.</li>
+</ul>
+</div>
+<p>These examples show why randomness design belongs in a generative-model book:
+it can change the cost and uncertainty of training, inference, evaluation, and
+scientific queries without changing the model family itself.</p>
+<h2 id="monte-carlo-retrieval-practice">Monte Carlo retrieval practice<a class="headerlink" href="#monte-carlo-retrieval-practice" title="Permanent link">¤</a></h2>
+<details class="question">
+<summary>Retrieval practice: direct, rejection, importance, and variance reduction</summary>
+<ol>
+<li>What must be declared before saying samples from an algorithm are “accurate”?</li>
+<li>Why does rejection sampling require a global envelope rather than good average proposal fit?</li>
+<li>What support condition is required for importance sampling?</li>
+<li>How do common random numbers reduce variance without changing either marginal estimator?</li>
+</ol>
+<p><strong>Solutions.</strong> (1) The target, query/estimand, approximation and randomness sources, budget, and error criterion. (2) Acceptance validity requires <span class="arithmatex">\(p(x)\le Mq(x)\)</span> everywhere relevant; one missed region invalidates the bound. (3) The proposal must be positive wherever the target-times-integrand contributes. (4) They correlate paired estimates so shared fluctuations cancel in their difference while preserving each run's marginal randomness.</p>
+</details>
+<h2 id="monte-carlo-synthesis">Monte Carlo synthesis<a class="headerlink" href="#monte-carlo-synthesis" title="Permanent link">¤</a></h2>
+<p>Sampling begins with a target and query, not an algorithm name. Direct,
+rejection, and importance methods trade tractability, support coverage, and
+weight or acceptance variance. Variance reduction redesigns randomness or uses
+known structure; it must be evaluated for the actual estimator rather than only
+for visually plausible samples.</p>
+<hr/>
+<p><strong>Continue:</strong> <a href="../sampling-02-markov-kernels/">2. Markov Kernels, Metropolis, and Gibbs</a> · <a href="../sampling-and-continuous-time/">Continuous view</a></p>
+</article>
+</div>
+<script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  Back to top
+</button>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+<div class="md-social">
+<a class="md-social__link" href="https://github.com/avitai/artifex" rel="noopener" target="_blank" title="github.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</a>
+<a class="md-social__link" href="https://pypi.org/project/avitai-artifex/" rel="noopener" target="_blank" title="pypi.org">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-66.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.3v101.8c0 29 25.2 46 53.4 54.3 33.8 9.9 66.3 11.7 106.8 0 26.9-7.8 53.4-23.5 53.4-54.3v-40.7H226.2v-13.6h160.2c31.1 0 42.6-21.7 53.4-54.2 11.2-33.5 10.7-65.7 0-108.6M286.2 444.7a20.4 20.4 0 1 1 0-40.7 20.4 20.4 0 1 1 0 40.7M167.8 248.1h106.8c29.7 0 53.4-24.5 53.4-54.3V91.9c0-29-24.4-50.7-53.4-55.6-35.8-5.9-74.7-5.6-106.8.1-45.2 8-53.4 24.7-53.4 55.6v40.7h106.9v13.6h-147c-31.1 0-58.3 18.7-66.8 54.2-9.8 40.7-10.2 66.1 0 108.6 7.6 31.6 25.7 54.2 56.8 54.2H101v-48.8c0-35.3 30.5-66.4 66.8-66.4m-6.6-183.4a20.4 20.4 0 1 1 0 40.8 20.4 20.4 0 1 1 0-40.8"></path></svg>
+</a>
+<a class="md-social__link" href="https://twitter.com/mahdi_shafiei" rel="noopener" target="_blank" title="twitter.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M459.4 151.7c.3 4.5.3 9.1.3 13.6 0 138.7-105.6 298.6-298.6 298.6-59.5 0-114.7-17.2-161.1-47.1 8.4 1 16.6 1.3 25.3 1.3 49.1 0 94.2-16.6 130.3-44.8-46.1-1-84.8-31.2-98.1-72.8 6.5 1 13 1.6 19.8 1.6 9.4 0 18.8-1.3 27.6-3.6-48.1-9.7-84.1-52-84.1-103v-1.3c14 7.8 30.2 12.7 47.4 13.3-28.3-18.8-46.8-51-46.8-87.4 0-19.5 5.2-37.4 14.3-53C87.4 130.8 165 172.4 252.1 176.9c-1.6-7.8-2.6-15.9-2.6-24C249.5 95.1 296.3 48 354.4 48c30.2 0 57.5 12.7 76.7 33.1 23.7-4.5 46.5-13.3 66.6-25.3-7.8 24.4-24.4 44.8-46.1 57.8 21.1-2.3 41.6-8.1 60.4-16.2-14.3 20.8-32.2 39.3-52.6 54.3"></path></svg>
+</a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.path", "navigation.top", "navigation.prune", "toc.follow", "search.highlight", "search.share", "search.suggest", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "content.mermaid"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+<script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+<script src="../../../javascripts/reading-layout.js"></script>
+</body>
+</html>

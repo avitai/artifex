@@ -1,0 +1,1605 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="This chapter derives the ELBO and CAVI, builds the VMP–SVI–BBVI–ADVI automation ladder, compares posterior families, and separates model mismatch, variational" name="description"/>
+<meta content="Mahdi Shafiei" name="author"/>
+<link href="https://docs.avitai.bio/artifex/user-guide/concepts/inference-02-variational/" rel="canonical"/>
+<link href="../inference-01-objects-and-queries/" rel="prev"/>
+<link href="../inference-03-estimators/" rel="next"/>
+<link href="../../../assets/images/favicon.png" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.7.7" name="generator"/>
+<title>Inference 2 — Variational Inference and Its Gaps - Artifex</title>
+<link href="../../../assets/stylesheets/main.ec1eaa64.min.css" rel="stylesheet"/>
+<link href="../../../assets/stylesheets/palette.ab4e12ef.min.css" rel="stylesheet"/>
+<script src="../../../assets/vendor/iframe-worker/index.js"></script>
+<link href="../../../assets/_mkdocstrings.css" rel="stylesheet"/>
+<link href="../../../_static/extra.css" rel="stylesheet"/>
+<script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+<meta content="article" property="og:type"/>
+<meta content="The Artifex Generative Models Book" property="og:site_name"/>
+<meta content="Inference 2 — Variational Inference and Its Gaps" property="og:title"/>
+<meta content="This chapter derives the ELBO and CAVI, builds the VMP–SVI–BBVI–ADVI automation ladder, compares posterior families, and separates model mismatch, variational" property="og:description"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/inference-02-variational/" property="og:url"/>
+<meta content="2026-07-15" property="article:modified_time"/>
+<meta content="summary" name="twitter:card"/>
+<meta content="Inference 2 — Variational Inference and Its Gaps" name="twitter:title"/>
+<meta content="This chapter derives the ELBO and CAVI, builds the VMP–SVI–BBVI–ADVI automation ladder, compares posterior families, and separates model mismatch, variational" name="twitter:description"/>
+<meta content="Generative models, Machine learning, Probabilistic modeling, foundation, required, canonical_chapter, inference-variational, newcomer, practitioner, researcher" name="keywords"/>
+<meta content="Inference 2 — Variational Inference and Its Gaps" name="citation_title"/>
+<meta content="Mahdi Shafiei" name="citation_author"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/inference-02-variational/" name="citation_public_url"/>
+<meta content="en" name="citation_language"/>
+<meta content="Inference 2 — Variational Inference and Its Gaps" name="DC.title"/>
+<meta content="Mahdi Shafiei" name="DC.creator"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/inference-02-variational/" name="DC.identifier"/>
+<meta content="Text.LearningResource" name="DC.type"/>
+<meta content="2026-07-15" name="DCTERMS.modified"/>
+<meta content="https://github.com/avitai/artifex/blob/main/LICENSE" name="DCTERMS.license"/>
+<meta content="foundation" name="DCTERMS.educationLevel"/>
+<meta content="newcomer, practitioner, researcher" name="DCTERMS.audience"/>
+<link href="https://github.com/avitai/artifex/blob/main/LICENSE" rel="license"/>
+<script id="artifex-book-metadata" type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Chapter",
+  "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/inference-02-variational/",
+  "url": "https://docs.avitai.bio/artifex/user-guide/concepts/inference-02-variational/",
+  "name": "Inference 2 \u2014 Variational Inference and Its Gaps",
+  "description": "This chapter derives the ELBO and CAVI, builds the VMP\u2013SVI\u2013BBVI\u2013ADVI automation ladder, compares posterior families, and separates model mismatch, variational",
+  "identifier": "inference-variational",
+  "inLanguage": "en",
+  "isAccessibleForFree": true,
+  "learningResourceType": "Canonical chapter",
+  "educationalLevel": "foundation",
+  "educationalUse": "required",
+  "audience": [
+    
+      {"@type": "EducationalAudience", "audienceType": "newcomer"},
+    
+      {"@type": "EducationalAudience", "audienceType": "practitioner"},
+    
+      {"@type": "EducationalAudience", "audienceType": "researcher"}
+    
+  ],
+  "dateModified": "2026-07-15",
+  "keywords": ["Generative models", "Machine learning", "Probabilistic modeling", "foundation", "required", "canonical_chapter", "inference-variational", "newcomer", "practitioner", "researcher"],
+  "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+  "author": [
+    
+      {"@type": "Person", "name": "Mahdi Shafiei"}
+    
+  ],
+  "isPartOf": {
+    "@type": "Book",
+    "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/#book",
+    "url": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/",
+    "name": "The Artifex Generative Models Book",
+    "bookEdition": "Living Web Edition",
+    "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+    "author": [
+      
+        {"@type": "Person", "name": "Mahdi Shafiei"}
+      
+    ]
+  }
+}
+</script>
+<script defer="" src="../../../javascripts/mathjax.js"></script>
+<script defer="" integrity="sha384-OrHfGTnIbkl0do3N76qW/uWr38o91N05sbSPuYBPLH+hG8X/dNSrjZf3AGjzrCwC" src="../../../assets/vendor/mathjax/tex-mml-chtml.js"></script>
+</head>
+<body data-md-color-accent="amber" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#inference-2-variational-inference-and-its-gaps">
+          Skip to content
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header md-header--shadow" data-md-component="header">
+<nav aria-label="Header" class="md-header__inner md-grid">
+<a aria-label="Artifex" class="md-header__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            Artifex
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+            
+              Inference 2 — Variational Inference and Its Gaps
+            
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-label="Switch to dark mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: light)" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_1" hidden="" title="Switch to dark mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+<input aria-label="Switch to light mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-primary="indigo" data-md-color-scheme="slate" id="__palette_1" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_0" hidden="" title="Switch to light mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+</form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div aria-label="Search" class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Search" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="Search" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="Search" class="md-search__options">
+<a aria-label="Share" class="md-search__icon md-icon" data-clipboard="" data-clipboard-text="" data-md-component="search-share" href="javascript:void(0)" tabindex="-1" title="Share">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"></path></svg>
+</a>
+<button aria-label="Clear" class="md-search__icon md-icon" tabindex="-1" title="Clear" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            Initializing search
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Navigation" class="md-nav md-nav--primary" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="Artifex" class="md-nav__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+    Artifex
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../..">
+<span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../getting-started/installation/">
+<span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Generative Models Book
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Generative Models Book
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    
+  
+    Start Here — The Landscape
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../first-course-01-generative-systems/">
+<span class="md-ellipsis">
+    
+  
+    First Course — New to Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Foundations
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_3_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Foundations
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../probability-01-objects/">
+<span class="md-ellipsis">
+    
+  
+    1. Probability and Generative Modeling
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../classical-01-latent-foundations/">
+<span class="md-ellipsis">
+    
+  
+    2. Classical Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../bayesian-learning-01-object/">
+<span class="md-ellipsis">
+    
+  
+    3. Bayesian Learning and Model Assessment
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_3_4" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_3_4" id="__nav_3_3_4_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    4. Latent Variables and Inference
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_3_4_label" class="md-nav" data-md-level="3">
+<label class="md-nav__title" for="__nav_3_3_4">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    4. Latent Variables and Inference
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../inference-01-objects-and-queries/">
+<span class="md-ellipsis">
+    
+  
+    1. Objects, Queries, and Local Approximations
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
+    
+  
+    2. Variational Inference and Its Gaps
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
+<span class="md-ellipsis">
+    
+  
+    2. Variational Inference and Its Gaps
+  
+
+    
+  </span>
+</a>
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#2-elbo-derivation">
+<span class="md-ellipsis">
+      
+        2. ELBO Derivation
+      
+    </span>
+</a>
+<nav aria-label="2. ELBO Derivation" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-2-chapter-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 2 chapter prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#bound-objective-and-estimator-are-different-objects">
+<span class="md-ellipsis">
+      
+        Bound, objective, and estimator are different objects
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#dataset-level-decomposition">
+<span class="md-ellipsis">
+      
+        Dataset-level decomposition
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#augmented-space-view-model-fit-and-inference-fit-are-separate">
+<span class="md-ellipsis">
+      
+        Augmented-space view: model fit and inference fit are separate
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#3-three-sources-of-inference-error">
+<span class="md-ellipsis">
+      
+        3. Three Sources of Inference Error
+      
+    </span>
+</a>
+<nav aria-label="3. Three Sources of Inference Error" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#variational-families-and-the-geometry-of-reverse-kl">
+<span class="md-ellipsis">
+      
+        Variational families and the geometry of reverse KL
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#from-the-functional-optimum-to-coordinate-ascent-vi">
+<span class="md-ellipsis">
+      
+        From the functional optimum to coordinate-ascent VI
+      
+    </span>
+</a>
+<nav aria-label="From the functional optimum to coordinate-ascent VI" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-finite-example-a-factorized-optimum-can-break-a-real-symmetry">
+<span class="md-ellipsis">
+      
+        Worked finite example: a factorized optimum can break a real symmetry
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#an-algorithm-ladder-bespoke-message-based-black-box-and-automatic">
+<span class="md-ellipsis">
+      
+        An algorithm ladder: bespoke, message based, black box, and automatic
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#advi-transforms-the-target-as-well-as-the-sample">
+<span class="md-ellipsis">
+      
+        ADVI transforms the target as well as the sample
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#richer-posterior-families-change-different-constraints">
+<span class="md-ellipsis">
+      
+        Richer posterior families change different constraints
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#flow-posterior-flow-proposal-and-transport-are-three-interfaces">
+<span class="md-ellipsis">
+      
+        Flow posterior, flow proposal, and transport are three interfaces
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-3-chapter-synthesis-and-bridge">
+<span class="md-ellipsis">
+      
+        Chapter 3 chapter synthesis and bridge
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../inference-03-estimators/">
+<span class="md-ellipsis">
+    
+  
+    3. Gradient Estimators
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../inference-04-weighted-sequential/">
+<span class="md-ellipsis">
+    
+  
+    4. Weighted and Sequential Monte Carlo
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../inference-05-amortized-simulation/">
+<span class="md-ellipsis">
+    
+  
+    5. Amortized and Simulation-Based Inference
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../inference-06-validation/">
+<span class="md-ellipsis">
+    
+  
+    6. Validation and Worked Comparisons
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../latent-variables-and-inference/">
+<span class="md-ellipsis">
+    
+  
+    Continuous View (All Chapters)
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../objectives-01-discrepancies/">
+<span class="md-ellipsis">
+    
+  
+    5. Objectives and Statistical Distances
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../information-coding-01-measures/">
+<span class="md-ellipsis">
+    
+  
+    6. Information, Coding, and Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../graphical-models-01-directed/">
+<span class="md-ellipsis">
+    
+  
+    7. Graphical Models and Structured Probability
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../message-passing-01-factor-graphs/">
+<span class="md-ellipsis">
+    
+  
+    8. Graphical Inference and Message Passing
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../filtering-01-bayes-recursions/">
+<span class="md-ellipsis">
+    
+  
+    9. Filtering and Smoothing for State-Space Generators
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../sampling-01-monte-carlo/">
+<span class="md-ellipsis">
+    
+  
+    10. Sampling and Continuous Time
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../smc-01-targets/">
+<span class="md-ellipsis">
+    
+  
+    11. Sequential Monte Carlo and Particle Methods
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../optimization-01-differentiation/">
+<span class="md-ellipsis">
+    
+  
+    12. Optimization and Learning Dynamics
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../generative-models-notation/">
+<span class="md-ellipsis">
+    
+  
+    13. Canonical Notation
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../autoregressive-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Model Families
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gradients-01-taxonomy/">
+<span class="md-ellipsis">
+    
+  
+    Connections and Compositions
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../normalization-01-queries/">
+<span class="md-ellipsis">
+    
+  
+    Research Practice
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../models/vae-guide/">
+<span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/core/base/">
+<span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../examples/overview/">
+<span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../zoo/">
+<span class="md-ellipsis">
+    
+  
+    Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../training/overview/">
+<span class="md-ellipsis">
+    
+  
+    Training
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../data/overview/">
+<span class="md-ellipsis">
+    
+  
+    Data &amp; Modalities
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../inference/overview/">
+<span class="md-ellipsis">
+    
+  
+    Inference &amp; Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../benchmarks/">
+<span class="md-ellipsis">
+    
+  
+    Evaluation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../guides/extensions/">
+<span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../extensions/">
+<span class="md-ellipsis">
+    
+  
+    Advanced Topics
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../cli/">
+<span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../community/contributing/">
+<span class="md-ellipsis">
+    
+  
+    Community
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/configs/protein-extension/">
+<span class="md-ellipsis">
+    
+  
+    Reference Library
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#2-elbo-derivation">
+<span class="md-ellipsis">
+      
+        2. ELBO Derivation
+      
+    </span>
+</a>
+<nav aria-label="2. ELBO Derivation" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-2-chapter-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 2 chapter prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#bound-objective-and-estimator-are-different-objects">
+<span class="md-ellipsis">
+      
+        Bound, objective, and estimator are different objects
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#dataset-level-decomposition">
+<span class="md-ellipsis">
+      
+        Dataset-level decomposition
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#augmented-space-view-model-fit-and-inference-fit-are-separate">
+<span class="md-ellipsis">
+      
+        Augmented-space view: model fit and inference fit are separate
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#3-three-sources-of-inference-error">
+<span class="md-ellipsis">
+      
+        3. Three Sources of Inference Error
+      
+    </span>
+</a>
+<nav aria-label="3. Three Sources of Inference Error" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#variational-families-and-the-geometry-of-reverse-kl">
+<span class="md-ellipsis">
+      
+        Variational families and the geometry of reverse KL
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#from-the-functional-optimum-to-coordinate-ascent-vi">
+<span class="md-ellipsis">
+      
+        From the functional optimum to coordinate-ascent VI
+      
+    </span>
+</a>
+<nav aria-label="From the functional optimum to coordinate-ascent VI" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-finite-example-a-factorized-optimum-can-break-a-real-symmetry">
+<span class="md-ellipsis">
+      
+        Worked finite example: a factorized optimum can break a real symmetry
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#an-algorithm-ladder-bespoke-message-based-black-box-and-automatic">
+<span class="md-ellipsis">
+      
+        An algorithm ladder: bespoke, message based, black box, and automatic
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#advi-transforms-the-target-as-well-as-the-sample">
+<span class="md-ellipsis">
+      
+        ADVI transforms the target as well as the sample
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#richer-posterior-families-change-different-constraints">
+<span class="md-ellipsis">
+      
+        Richer posterior families change different constraints
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#flow-posterior-flow-proposal-and-transport-are-three-interfaces">
+<span class="md-ellipsis">
+      
+        Flow posterior, flow proposal, and transport are three interfaces
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-3-chapter-synthesis-and-bridge">
+<span class="md-ellipsis">
+      
+        Chapter 3 chapter synthesis and bridge
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<nav aria-label="Breadcrumb" class="md-path">
+<ol class="md-path__list">
+<li class="md-path__item">
+<a class="md-path__link" href="../../..">
+<span class="md-ellipsis">
+    Home
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    Generative Models Book
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../probability-01-objects/">
+<span class="md-ellipsis">
+    Foundations
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../inference-01-objects-and-queries/">
+<span class="md-ellipsis">
+    4. Latent Variables and Inference
+  </span>
+</a>
+</li>
+</ol>
+</nav>
+<article class="md-content__inner md-typeset">
+<h1 id="inference-2-variational-inference-and-its-gaps">Inference 2 — Variational Inference and Its Gaps<a class="headerlink" href="#inference-2-variational-inference-and-its-gaps" title="Permanent link">¤</a></h1><aside aria-label="Learning path" class="admonition abstract artifex-learning-path"><p class="admonition-title">Learning path</p><p><strong>Required knowledge</strong></p><ul class="artifex-learning-path__links" data-learning-path-role="required"><li><a href="../inference-01-objects-and-queries/">Inference 1 — Objects, Queries, and Local Approximations</a></li></ul><p><strong>Readiness check:</strong> can you explain the central object and reproduce one worked example from each required chapter? If not, follow its link before continuing.</p><p><strong>Newly unlocked in the default route</strong></p><ul class="artifex-learning-path__links" data-learning-path-role="unlocks"><li><a href="../inference-03-estimators/">Inference 3 — Gradient Estimators</a></li></ul></aside>
+<p>This chapter derives the ELBO and CAVI, builds the VMP–SVI–BBVI–ADVI automation ladder, compares posterior families, and separates model mismatch, variational restriction, amortization, optimization, and estimator error. Read it continuously in the <a href="../latent-variables-and-inference/#2-elbo-derivation">complete guide</a>.</p>
+<h2 id="2-elbo-derivation">2. ELBO Derivation<a class="headerlink" href="#2-elbo-derivation" title="Permanent link">¤</a></h2>
+<h3 id="chapter-2-chapter-prerequisites-and-learning-objectives">Chapter 2 chapter prerequisites and learning objectives<a class="headerlink" href="#chapter-2-chapter-prerequisites-and-learning-objectives" title="Permanent link">¤</a></h3>
+<p>This chapter assumes the query and target distinctions from Chapter 1 and familiarity with KL divergence. By the end, you should be able to derive the ELBO, separate its functional from a finite estimator, decompose model and inference mismatch, diagnose approximation and amortization gaps, and distinguish a flow used as a variational posterior from the same map used as a corrected proposal or preconditioner.</p>
+<div class="admonition example">
+<p class="admonition-title">What problem is the ELBO solving?</p>
+<p>The evidence contains a hard log integral. The ELBO introduces a normalized
+distribution <span class="arithmatex">\(q(z)\)</span>, rewrites that log evidence as a computable expectation
+plus a nonnegative posterior KL, and then optimizes the computable part.
+The identity is exact; the approximation enters through the chosen <span class="arithmatex">\(q\)</span> and
+how well it is optimized.</p>
+</div>
+<p>Introduce any normalized <span class="arithmatex">\(q_\phi(z\mid x)\)</span> whose support covers the relevant posterior:</p>
+<div class="arithmatex">\[
+\log p_\theta(x)
+=\log\int q_\phi(z\mid x)
+\frac{p_\theta(x,z)}{q_\phi(z\mid x)}dz.
+\]</div>
+<p>Jensen's inequality gives</p>
+<div class="arithmatex">\[
+\log p_\theta(x)
+\ge
+\mathbb E_{q_\phi(z\mid x)}
+\left[\log p_\theta(x,z)-\log q_\phi(z\mid x)\right]
+\equiv\mathcal L_{\mathrm{ELBO}}.
+\]</div>
+<p>Adding and subtracting the posterior log density yields the exact gap:</p>
+<div class="arithmatex">\[
+\log p_\theta(x)
+=\mathcal L_{\mathrm{ELBO}}
++D_{\mathrm{KL}}\bigl(q_\phi(z\mid x)\|p_\theta(z\mid x)\bigr).
+\]</div>
+<p>Therefore the ELBO is tight exactly when <span class="arithmatex">\(q_\phi\)</span> equals the true posterior almost everywhere. Rewriting the joint gives the familiar VAE form:</p>
+<div class="arithmatex">\[
+\mathcal L_{\mathrm{ELBO}}
+=\mathbb E_q[\log p_\theta(x\mid z)]
+-D_{\mathrm{KL}}(q_\phi(z\mid x)\|p(z)).
+\]</div>
+<h3 id="bound-objective-and-estimator-are-different-objects">Bound, objective, and estimator are different objects<a class="headerlink" href="#bound-objective-and-estimator-are-different-objects" title="Permanent link">¤</a></h3>
+<p>Three layers are easy to conflate:</p>
+<ol>
+<li>The <strong>ELBO</strong> is a deterministic functional of <span class="arithmatex">\(p_\theta\)</span> and <span class="arithmatex">\(q_\phi\)</span>.</li>
+<li>The <strong>optimization objective</strong> may be the ELBO, a weighted modification such as a <span class="arithmatex">\(\beta\)</span>-objective, or a multi-sample bound.</li>
+<li>The <strong>estimator</strong> is the finite-sample computation used to estimate that objective and its gradient.</li>
+</ol>
+<p>Changing a minibatch size or number of latent samples changes estimator variance; it does not change the one-sample ELBO itself. Multiplying the KL term by <span class="arithmatex">\(\beta\ne1\)</span> changes the objective and generally means it is no longer the ordinary evidence lower bound for the original model.</p>
+<h3 id="dataset-level-decomposition">Dataset-level decomposition<a class="headerlink" href="#dataset-level-decomposition" title="Permanent link">¤</a></h3>
+<p>Define the empirical aggregate posterior <span class="arithmatex">\(q_\phi(z)=\frac1N\sum_n q_\phi(z\mid x_n)\)</span>. Averaging the per-example KL gives</p>
+<div class="arithmatex">\[
+\mathbb E_{p_{\mathcal D}(x)}D_{\mathrm{KL}}(q_\phi(z\mid x)\|p(z))
+=I_q(X;Z)+D_{\mathrm{KL}}(q_\phi(z)\|p(z)).
+\]</div>
+<p>The KL budget therefore pays both for information about the individual observation and for mismatch between the aggregate code distribution and the prior. This identity is central to rate–distortion analysis: reducing the KL indiscriminately can improve prior matching while erasing information needed for reconstruction.</p>
+<h3 id="augmented-space-view-model-fit-and-inference-fit-are-separate">Augmented-space view: model fit and inference fit are separate<a class="headerlink" href="#augmented-space-view-model-fit-and-inference-fit-are-separate" title="Permanent link">¤</a></h3>
+<p>For a data law <span class="arithmatex">\(p_{\mathcal D}(x)\)</span>, define the inference joint
+<span class="arithmatex">\(q_{\mathcal D,\phi}(x,z)=p_{\mathcal D}(x)q_\phi(z\mid x)\)</span>. When this joint and
+<span class="arithmatex">\(p_\theta(x,z)\)</span> have compatible reference measures and the required support,
+the average ELBO satisfies</p>
+<div class="arithmatex">\[
+\overline{\mathcal L}(\theta,\phi)
+=-H(p_{\mathcal D})
+-D_{\mathrm{KL}}\!\left(
+q_{\mathcal D,\phi}(x,z)\|p_\theta(x,z)
+\right).
+\]</div>
+<p>Applying the KL chain rule in the observed direction gives</p>
+<div class="arithmatex">\[
+\begin{aligned}
+D_{\mathrm{KL}}(q_{\mathcal D,\phi}(x,z)\|p_\theta(x,z))
+&amp;=D_{\mathrm{KL}}(p_{\mathcal D}(x)\|p_\theta(x))\\
+&amp;\quad+\mathbb E_{p_{\mathcal D}(x)}
+D_{\mathrm{KL}}(q_\phi(z\mid x)\|p_\theta(z\mid x)).
+\end{aligned}
+\]</div>
+<p>The first term is an observed-space <strong>model mismatch</strong>. The second is the
+average realized <strong>inference gap</strong>. Better inference can reduce the second term
+for a fixed model, but it cannot make an incorrect <span class="arithmatex">\(p_\theta(x)\)</span> correct.
+Likewise, a flexible model can fit <span class="arithmatex">\(p_{\mathcal D}(x)\)</span> while its amortized
+posterior remains inaccurate. The full derivation, graphical map, and a finite
+case with perfect reconstruction but incorrect prior samples appear in
+<a href="../vae-explained/#from-one-observation-to-two-joint-distributions">VAEs in augmented space</a>.</p>
+<div class="admonition warning">
+<p class="admonition-title">An empirical average is not automatically a continuous-distribution KL</p>
+<p>If <span class="arithmatex">\(p_{\mathcal D}\)</span> is represented by point masses while <span class="arithmatex">\(p_\theta\)</span> is a
+continuous density, the two are singular. The empirical ELBO average is
+still a valid training computation, but the displayed joint KL should be
+interpreted only after specifying a compatible population, dequantized, or
+noised data law. This is the same reference-measure issue that appears in
+continuous maximum likelihood.</p>
+</div>
+<h2 id="3-three-sources-of-inference-error">3. Three Sources of Inference Error<a class="headerlink" href="#3-three-sources-of-inference-error" title="Permanent link">¤</a></h2>
+<p>Let <span class="arithmatex">\(\mathcal L^*_{\mathcal Q}(x)\)</span> be the highest pointwise ELBO attainable in
+a declared local family <span class="arithmatex">\(\mathcal Q\)</span>. The posterior inference gap decomposes as</p>
+<div class="arithmatex">\[
+\begin{aligned}
+G_{\mathrm{inf}}(x)
+&amp;=\log p_\theta(x)-\mathcal L(\theta,\phi;x),\\
+G_{\mathrm{approx}}(x)
+&amp;=\log p_\theta(x)-\mathcal L^*_{\mathcal Q}(x),\\
+G_{\mathrm{amort}}(x)
+&amp;=\mathcal L^*_{\mathcal Q}(x)-\mathcal L(\theta,\phi;x),\\
+G_{\mathrm{inf}}(x)
+&amp;=G_{\mathrm{approx}}(x)+G_{\mathrm{amort}}(x).
+\end{aligned}
+\]</div>
+<p>This idealized split, studied directly by
+<a href="https://proceedings.mlr.press/v80/cremer18a.html">Cremer, Li, and Duvenaud</a>,
+assumes the best local value and trained amortized value are available. A
+practical error ledger should therefore keep four entries:</p>
+<ol>
+<li><strong>Model mismatch:</strong> <span class="arithmatex">\(p_\theta(x)\)</span> does not represent the data law. This is
+   outside the posterior inference gap.</li>
+<li><strong>Approximation gap:</strong> the chosen variational family cannot represent the
+   model posterior.</li>
+<li><strong>Amortization gap:</strong> a shared inference map fails to return the best member
+   of that family for a particular observation. Whether it can close this gap
+   depends on model structure and the function's inputs, not only network width
+   (<a href="https://proceedings.mlr.press/v244/margossian24a.html">Margossian and Blei, 2024</a>).</li>
+<li><strong>Estimation and optimization error:</strong> finite samples, noisy gradients,
+   numerical error, or incomplete optimization miss the intended objective or
+   its best amortized parameters.</li>
+</ol>
+<p>A more expressive posterior can reduce the approximation gap while increasing optimization difficulty. Per-example refinement can reduce amortization error at additional inference cost.</p>
+<h3 id="variational-families-and-the-geometry-of-reverse-kl">Variational families and the geometry of reverse KL<a class="headerlink" href="#variational-families-and-the-geometry-of-reverse-kl" title="Permanent link">¤</a></h3>
+<p>A mean-field approximation assumes</p>
+<div class="arithmatex">\[
+q(z)=\prod_{j=1}^{d}q_j(z_j).
+\]</div>
+<p>It is computationally attractive but cannot represent posterior dependence. Full-covariance Gaussians restore linear dependence at <span class="arithmatex">\(O(d^2)\)</span> storage and often <span class="arithmatex">\(O(d^3)\)</span> factorization cost. Structured mean-field retains selected graphical dependencies. Normalizing-flow posteriors transform a tractable base density through invertible maps, while hierarchical and auxiliary-variable approximations introduce additional latent layers.</p>
+<p>Standard variational inference minimizes <span class="arithmatex">\(D_{\mathrm{KL}}(q\|p)\)</span> because that is the gap in the ELBO. Reverse KL heavily penalizes placing mass where the posterior has very low density, but it does not directly penalize missing a separated mode. In a bimodal posterior, a unimodal <span class="arithmatex">\(q\)</span> may concentrate on one mode rather than average across the low-density valley. This is a property of the direction <em>and</em> the restricted family—not a theorem that every reverse-KL optimization always selects exactly one mode.</p>
+<div class="admonition example">
+<p class="admonition-title">Counterexample: a small ELBO gap is query-dependent evidence</p>
+<p>If two posterior approximations have similar ELBOs, they can still differ substantially on a rare-event probability or tail expectation. The ELBO controls a KL divergence, not every downstream functional uniformly. Validate the posterior against the queries you will actually use.</p>
+</div>
+<h3 id="from-the-functional-optimum-to-coordinate-ascent-vi">From the functional optimum to coordinate-ascent VI<a class="headerlink" href="#from-the-functional-optimum-to-coordinate-ascent-vi" title="Permanent link">¤</a></h3>
+<p>Mean field is more than a covariance restriction: it creates a reusable
+coordinate update. Hold every factor except <span class="arithmatex">\(q_j\)</span> fixed and write
+<span class="arithmatex">\(q_{-j}(z_{-j})=\prod_{k\ne j}q_k(z_k)\)</span>. The terms of the ELBO that depend on
+<span class="arithmatex">\(q_j\)</span> are</p>
+<div class="arithmatex">\[
+\mathcal L(q_j)
+=\int q_j(z_j)
+\left(
+\mathbb E_{q_{-j}}[\log p(x,z)]
+-\log q_j(z_j)
+\right)dz_j
++\text{constant}.
+\]</div>
+<p>Normalizing the exponential of the expected log joint gives the functional
+optimum</p>
+<div class="arithmatex">\[
+\boxed{
+q_j^*(z_j)
+\propto
+\exp\!\left\{
+\mathbb E_{q_{-j}}[\log p(x,z)]
+\right\}.
+}
+\]</div>
+<p>This is <strong>coordinate-ascent variational inference</strong> (CAVI). In a conditionally
+conjugate exponential-family model, the expectation often reduces to an update
+of natural parameters or sufficient statistics. The same local algebra can be
+organized as <a href="../graphical-inference-and-message-passing/#nearby-methods-are-not-synonyms">variational message passing</a>.
+An exact coordinate maximization cannot decrease the ELBO, but that statement
+does not imply a unique fixed point, a global optimum, or an accurate posterior.
+Parallel stale-coordinate updates, damping, approximate expectations, and
+finite numerical solves define different algorithms and need their own
+convergence analysis. The classical CAVI and stochastic-VI constructions are
+developed in <a href="https://www.jmlr.org/papers/v14/hoffman13a.html">Hoffman et al.</a>,
+and the local message organization in
+<a href="https://www.jmlr.org/papers/v6/winn05a.html">Winn and Bishop</a>.</p>
+<h4 id="worked-finite-example-a-factorized-optimum-can-break-a-real-symmetry">Worked finite example: a factorized optimum can break a real symmetry<a class="headerlink" href="#worked-finite-example-a-factorized-optimum-can-break-a-real-symmetry" title="Permanent link">¤</a></h4>
+<p>Let <span class="arithmatex">\(z_1,z_2\in\{-1,+1\}\)</span> and</p>
+<div class="arithmatex">\[
+p(z_1,z_2)
+=\frac{1}{4\cosh J}
+\exp(Jz_1z_2),
+\qquad J=1.6.
+\]</div>
+<p>The exact law is unchanged when both signs flip. Consequently
+<span class="arithmatex">\(\mathbb E_p[Z_1]=\mathbb E_p[Z_2]=0\)</span>, while</p>
+<div class="arithmatex">\[
+\Pr_p(Z_1=Z_2)
+=\frac{e^J}{e^J+e^{-J}}
+\approx0.96083,
+\qquad
+\mathbb E_p[Z_1Z_2]=\tanh J\approx0.92167.
+\]</div>
+<p>Parameterize a product approximation by
+<span class="arithmatex">\(m_j=\mathbb E_q[Z_j]\)</span>. The coordinate update above becomes</p>
+<div class="arithmatex">\[
+m_1\leftarrow\tanh(Jm_2),
+\qquad
+m_2\leftarrow\tanh(Jm_1).
+\]</div>
+<p>Starting at <span class="arithmatex">\(m_1=m_2=0\)</span> stays at the symmetric fixed point, which represents
+neither positive correlation nor either high-probability diagonal pair.
+Starting with a small common positive or negative perturbation converges to
+<span class="arithmatex">\(m_1=m_2\approx\pm0.89064\)</span>. Those asymmetric solutions have a higher ELBO than
+the zero solution, yet invent nonzero singleton means even though the exact
+marginals are balanced. They also approximate the correlation by
+<span class="arithmatex">\(m_1m_2\approx0.79325\)</span>, below the exact <span class="arithmatex">\(0.92167\)</span>.</p>
+<p>The optimizer did not create a numerical accident. Reverse KL plus an
+independence restriction prefers one coherent diagonal region over a product
+law that spreads mass onto the low-probability off-diagonal states. Different
+initializations expose different fixed points; exact coordinate updates do not
+remove family error.</p>
+<h3 id="an-algorithm-ladder-bespoke-message-based-black-box-and-automatic">An algorithm ladder: bespoke, message based, black box, and automatic<a class="headerlink" href="#an-algorithm-ladder-bespoke-message-based-black-box-and-automatic" title="Permanent link">¤</a></h3>
+<p>“Variational inference” names an optimization principle, not one implementation.</p>
+<div class="md-typeset__table book-table-container"><table id="tbl-latent-variables-and-inference-an-algorithm-ladder-bespoke-message-based-black-box-and-automatic"><caption class="book-object-caption"><span class="book-object-number">Table INFER.6.</span> An algorithm ladder: bespoke, message based, black box, and automatic</caption>
+<thead>
+<tr>
+<th>Construction</th>
+<th>What the system needs</th>
+<th>What is reused or automated</th>
+<th>What remains the researcher's responsibility</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Analytic CAVI</td>
+<td>Expected log-joint terms for each factor</td>
+<td>Closed-form coordinate updates</td>
+<td>Factorization, derivation, schedule, initialization, and local optima</td>
+</tr>
+<tr>
+<td>Variational message passing</td>
+<td>A supported factor graph, often conjugate exponential-family structure</td>
+<td>Local natural-parameter messages</td>
+<td>Model-specific nonconjugate factors, approximation structure, and convergence</td>
+</tr>
+<tr>
+<td>Stochastic VI</td>
+<td>Unbiased minibatch estimates of global sufficient statistics or gradients</td>
+<td>Dataset scaling and stochastic optimization</td>
+<td>Global/local separation, subsampling law, local solves, and step schedule</td>
+</tr>
+<tr>
+<td>Black-box VI (BBVI)</td>
+<td>Samples and model/guide log densities, plus valid score gradients</td>
+<td>Model-independent Monte Carlo gradient assembly</td>
+<td>Guide family, variance reduction, support, optimization, and diagnostics</td>
+</tr>
+<tr>
+<td>Automatic-differentiation VI (ADVI)</td>
+<td>A differentiable log joint and valid constraint transforms</td>
+<td>Unconstraining, a default Gaussian guide, autodiff, and pathwise optimization</td>
+<td>Parameterization, guide adequacy, multimodality, discrete variables, and validation</td>
+</tr>
+<tr>
+<td>Amortized VI</td>
+<td>A task distribution and inference network</td>
+<td>Repeated local inference through one learned map</td>
+<td>Coverage of the task distribution and approximation/amortization gaps</td>
+</tr>
+</tbody>
+</table></div>
+<p>In global/local models, a minibatch estimate is unbiased only after the
+subsampling distribution and scaling match the full-data sum. Local latent
+parameters may still require an inner optimization for every selected record.
+Replacing that inner optimum by a fixed number of steps changes the estimator;
+calling the outer method SVI does not make the result unbiased automatically.</p>
+<h3 id="advi-transforms-the-target-as-well-as-the-sample">ADVI transforms the target as well as the sample<a class="headerlink" href="#advi-transforms-the-target-as-well-as-the-sample" title="Permanent link">¤</a></h3>
+<p>Suppose a model parameter <span class="arithmatex">\(\theta\)</span> lives in a constrained space and a
+differentiable bijection <span class="arithmatex">\(T:\mathbb R^d\to\Theta\)</span> maps an unconstrained
+<span class="arithmatex">\(\zeta\)</span> to <span class="arithmatex">\(\theta=T(\zeta)\)</span>. The transformed joint density is</p>
+<div class="arithmatex">\[
+\begin{aligned}
+\log p_T(x,\zeta)
+&amp;=\log p(x,T(\zeta))\\
+&amp;\quad+\log\left|\det J_T(\zeta)\right|.
+\end{aligned}
+\]</div>
+<p>ADVI chooses a tractable <span class="arithmatex">\(q_\lambda(\zeta)\)</span>—commonly a diagonal or full-rank
+Gaussian—samples <span class="arithmatex">\(\zeta=\mu+L\epsilon\)</span> with
+<span class="arithmatex">\(\epsilon\sim\mathcal N(0,I)\)</span>, and optimizes</p>
+<div class="arithmatex">\[
+\begin{aligned}
+\mathcal L(\lambda)
+&amp;=\mathbb E_{q_\lambda(\zeta)}\!\left[
+\log p_T(x,\zeta)\right.\\
+&amp;\qquad\left.-\log q_\lambda(\zeta)
+\right].
+\end{aligned}
+\]</div>
+<p>The Jacobian term is part of the transformed target, not an optional
+regularizer. Invertibility is required here because ADVI changes coordinates
+and evaluates the resulting density. A generic pathwise derivative only needs
+a differentiable parameter-to-sample construction under its regularity
+conditions; it does <strong>not</strong> require every sampling map to be invertible.</p>
+<p>Automatic differentiation removes hand-derived gradients, not posterior
+geometry. A diagonal Gaussian cannot encode dependence; a full-rank Gaussian
+uses quadratic covariance storage and a factorization whose dense cost can be
+cubic in dimension; neither represents separated modes. Centered versus
+noncentered model parameterizations can also make the same posterior much
+easier or harder to optimize. These boundaries are explicit in the original
+<a href="https://www.jmlr.org/papers/v18/16-107.html">ADVI formulation</a>; mixture
+extensions change the family and estimator rather than making Gaussian ADVI
+universally multimodal
+(<a href="https://proceedings.mlr.press/v130/morningstar21b.html">Morningstar et al.</a>).</p>
+<p>Randomness design is a separate axis from the guide family. Fresh iid draws,
+deterministic low-discrepancy points, independently randomized QMC scrambles,
+or a fixed sample-average objective can all estimate or optimize related
+variational quantities while carrying different uncertainty and convergence
+contracts. <a href="../sampling-and-continuous-time/#variance-reduction-and-randomness-design">Sampling and Continuous-Time
+Mathematics</a>
+derives those distinctions. In particular, deterministic ADVI optimizes a
+fixed finite Monte Carlo objective rather than changing the posterior family,
+and ICLR 2026 quasi-Monte Carlo latent-variable models use randomized numerical
+integration for specialized very low-dimensional latent marginals rather than
+introducing a general replacement for posterior inference.</p>
+<h3 id="richer-posterior-families-change-different-constraints">Richer posterior families change different constraints<a class="headerlink" href="#richer-posterior-families-change-different-constraints" title="Permanent link">¤</a></h3>
+<div class="md-typeset__table book-table-container"><table id="tbl-latent-variables-and-inference-richer-posterior-families-change-different-constraints"><caption class="book-object-caption"><span class="book-object-number">Table INFER.7.</span> Richer posterior families change different constraints</caption>
+<thead>
+<tr>
+<th>Family</th>
+<th>Dependence or geometry gained</th>
+<th>Additional requirement or failure mode</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Structured mean field</td>
+<td>Retains selected chains, trees, blocks, or conditional dependencies</td>
+<td>Structure must match the posterior query; inference inside a block may still be expensive</td>
+</tr>
+<tr>
+<td>Full/low-rank Gaussian</td>
+<td>Adds dense or selected linear dependence</td>
+<td>Still unimodal; covariance conditioning and parameterization matter</td>
+</tr>
+<tr>
+<td>Mixture</td>
+<td>Represents separated regions</td>
+<td>Component collapse, label symmetry, discrete assignment gradients, and expensive scoring</td>
+</tr>
+<tr>
+<td>Hierarchical or auxiliary guide</td>
+<td>Produces richer marginals through extra latent variables</td>
+<td>The marginal guide entropy may become intractable; an auxiliary bound can introduce another gap</td>
+</tr>
+<tr>
+<td>Normalizing-flow guide</td>
+<td>Warps a tractable base through an evaluable transformation</td>
+<td>Topology, direction, Jacobian cost, and numerical inversion constrain the family</td>
+</tr>
+<tr>
+<td>Implicit guide</td>
+<td>Allows a flexible sampler without a tractable density</td>
+<td>The ordinary ELBO contains <span class="arithmatex">\(-\log q\)</span> and is not directly evaluable; ratio, score, kernel, or adversarial alternatives define different objectives</td>
+</tr>
+<tr>
+<td>Particle or MCMC-refined guide</td>
+<td>Represents multimodality or corrects a proposal asymptotically</td>
+<td>Weight degeneracy, mixing, differentiating resampling/acceptance, and finite compute remain</td>
+</tr>
+</tbody>
+</table></div>
+<p>No row dominates the others. A structured Gaussian can be better than a more
+expressive generic flow when the posterior is a long correlated trajectory;
+a mixture can preserve modes that a single continuous bijection cannot create
+from a connected base support. As one current example,
+<a href="https://openreview.net/forum?id=lomAtGpQ6n">radial-transport VI</a>
+(<strong>Peer-reviewed research</strong>, AISTATS 2026) augments Gaussian VI by optimizing a
+radial profile and proves results under its stated radial and regularity
+conditions. It is evidence for a useful missing geometry, not a universal
+replacement for structured, multimodal, or simulation-based inference.</p>
+<h3 id="flow-posterior-flow-proposal-and-transport-are-three-interfaces">Flow posterior, flow proposal, and transport are three interfaces<a class="headerlink" href="#flow-posterior-flow-proposal-and-transport-are-three-interfaces" title="Permanent link">¤</a></h3>
+<p>Suppose a conditional bijection turns <span class="arithmatex">\(U\sim r(u\mid x)\)</span> into <span class="arithmatex">\(Z=f_\phi(U;x)\)</span> and makes <span class="arithmatex">\(q_\phi(z\mid x)\)</span> tractable. That fact does not yet say how <span class="arithmatex">\(Z\)</span> will be used. The outer inference procedure determines the contract:</p>
+<div class="md-typeset__table book-table-container"><table id="tbl-latent-variables-and-inference-flow-posterior-flow-proposal-and-transport-are-three-interfaces"><caption class="book-object-caption"><span class="book-object-number">Table INFER.8.</span> Flow posterior, flow proposal, and transport are three interfaces</caption>
+<thead>
+<tr>
+<th>Interface</th>
+<th>Returned object</th>
+<th>Computation after the flow</th>
+<th>What remains approximate</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Variational posterior</td>
+<td>Unweighted draws and expectations under <span class="arithmatex">\(q_\phi(z\mid x)\)</span></td>
+<td>Optimize an ELBO or another declared divergence/objective</td>
+<td><span class="arithmatex">\(q_\phi\)</span> may differ from <span class="arithmatex">\(p_\theta(z\mid x)\)</span> because of family, amortization, optimization, and model error</td>
+</tr>
+<tr>
+<td>Direct proposal</td>
+<td>Proposed states with evaluable <span class="arithmatex">\(q_\phi\)</span></td>
+<td>Apply importance/SMC weights or an MH acceptance ratio</td>
+<td>Finite-weight variance, finite-particle error, or chain mixing can remain severe; the correction addresses target mismatch only under its support and regularity conditions</td>
+</tr>
+<tr>
+<td>Transport preconditioner</td>
+<td>A target density expressed in base coordinates</td>
+<td>Run a valid invariant kernel on <span class="arithmatex">\(\gamma_U(u)=\gamma(f_\phi(u))\lvert\det J_f(u)\rvert\)</span>, then map states forward</td>
+<td>A poor map can leave difficult geometry and slow mixing, even though the invariant target is correct</td>
+</tr>
+</tbody>
+</table></div>
+<p>For an independent proposal, for example, the Metropolis–Hastings acceptance probability is</p>
+<div class="arithmatex">\[
+\alpha(z,z')
+=\min\!\left\{1,
+\frac{\gamma(z')q_\phi(z\mid x)}
+{\gamma(z)q_\phi(z'\mid x)}
+\right\}.
+\]</div>
+<p>The proposal parameters can be learned by VI, maximum likelihood on target samples, a variance-oriented objective, or another criterion. None of those training labels replaces the acceptance ratio. Likewise, a sample pushed through an approximate transport is a draw from <span class="arithmatex">\(q_\phi\)</span> until a valid weight or transition changes the statistical statement.</p>
+<p>Direction requirements also differ. Reparameterized VI needs fast base-to-posterior sampling and the density of those generated samples, motivating constructions such as <a href="https://proceedings.neurips.cc/paper/2016/hash/ddeebdeefdb7e7e7a697e1c3e3d8ef54-Abstract.html">inverse autoregressive flow</a>. A proposal used in an acceptance ratio may need densities at states supplied by the chain, so arbitrary-state scoring can matter. A transport-preconditioned chain needs the target and forward log-Jacobian in base coordinates, as in <a href="https://research.google/pubs/neutra-lizing-bad-geometry-in-hamiltonian-monte-carlo-using-neural-transport/">NeuTra HMC</a>.</p>
+<div class="admonition warning">
+<p class="admonition-title">Exact flow density is not exact posterior inference</p>
+<p>Invertibility proves that the induced <span class="arithmatex">\(q_\phi\)</span> is normalized and evaluable under the stated assumptions. It does not prove that <span class="arithmatex">\(q_\phi=p_\theta(z\mid x)\)</span>, that importance weights have tolerable variance, or that a transformed chain mixes. The <a href="../flow-explained/#one-bijection-three-probabilistic-roles">one-bijection, three-roles derivation</a> includes an affine-flow proposal whose density and inverse are exact while its asymptotic importance ESS fraction is only about <span class="arithmatex">\(4.50\times10^{-7}\)</span>.</p>
+</div>
+<details class="question">
+<summary>Retrieval practice: variational objectives and inference error</summary>
+<ol>
+<li>Which identity decomposes log evidence into an ELBO and a posterior KL gap?</li>
+<li>What changes when the variational family, optimizer, or Monte Carlo estimator changes?</li>
+<li>Why does a tighter computed bound not by itself prove a better generative model?</li>
+<li>How do model, approximation, optimization, and estimation error differ?</li>
+</ol>
+<p><strong>Solutions.</strong> (1) <span class="arithmatex">\(\log p(x)=\mathcal L(q)+D_{\mathrm{KL}}(q(z\mid x)\|p(z\mid x))\)</span>. (2) They change approximation capacity, the attained solution, or stochastic error respectively; only the model change alters the target joint law. (3) The bound can improve inference for the same model or favor a different training tradeoff without improving the desired predictive/sample query. (4) Model error is target misspecification, approximation error is the best-family gap, optimization error is failure to reach that best member, and estimation error comes from finite/noisy computation or data.</p>
+</details>
+<h3 id="chapter-3-chapter-synthesis-and-bridge">Chapter 3 chapter synthesis and bridge<a class="headerlink" href="#chapter-3-chapter-synthesis-and-bridge" title="Permanent link">¤</a></h3>
+<p>The ELBO is an exact identity whose optimization becomes approximate through the chosen family, coordinate or amortized parameterization, objective estimator, and optimizer. CAVI, VMP, SVI, BBVI, ADVI, and amortized VI automate different operations and inherit different support, geometry, stochasticity, and convergence boundaries. A normalized and tractable <span class="arithmatex">\(q\)</span> is not automatically the model posterior, and better inference cannot repair model misspecification. The next chapter asks how derivatives of variational and expectation objectives are estimated when latent states are sampled, enumerated, transformed, or relaxed.</p>
+<hr/>
+<p><strong>Previous:</strong> <a href="../inference-01-objects-and-queries/">1. Objects, Queries, and Local Approximations</a> · <strong>Continue:</strong> <a href="../inference-03-estimators/">3. Gradient Estimators</a> · <a href="../latent-variables-and-inference/">Complete guide</a></p>
+</article>
+</div>
+<script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  Back to top
+</button>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+<div class="md-social">
+<a class="md-social__link" href="https://github.com/avitai/artifex" rel="noopener" target="_blank" title="github.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</a>
+<a class="md-social__link" href="https://pypi.org/project/avitai-artifex/" rel="noopener" target="_blank" title="pypi.org">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-66.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.3v101.8c0 29 25.2 46 53.4 54.3 33.8 9.9 66.3 11.7 106.8 0 26.9-7.8 53.4-23.5 53.4-54.3v-40.7H226.2v-13.6h160.2c31.1 0 42.6-21.7 53.4-54.2 11.2-33.5 10.7-65.7 0-108.6M286.2 444.7a20.4 20.4 0 1 1 0-40.7 20.4 20.4 0 1 1 0 40.7M167.8 248.1h106.8c29.7 0 53.4-24.5 53.4-54.3V91.9c0-29-24.4-50.7-53.4-55.6-35.8-5.9-74.7-5.6-106.8.1-45.2 8-53.4 24.7-53.4 55.6v40.7h106.9v13.6h-147c-31.1 0-58.3 18.7-66.8 54.2-9.8 40.7-10.2 66.1 0 108.6 7.6 31.6 25.7 54.2 56.8 54.2H101v-48.8c0-35.3 30.5-66.4 66.8-66.4m-6.6-183.4a20.4 20.4 0 1 1 0 40.8 20.4 20.4 0 1 1 0-40.8"></path></svg>
+</a>
+<a class="md-social__link" href="https://twitter.com/mahdi_shafiei" rel="noopener" target="_blank" title="twitter.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M459.4 151.7c.3 4.5.3 9.1.3 13.6 0 138.7-105.6 298.6-298.6 298.6-59.5 0-114.7-17.2-161.1-47.1 8.4 1 16.6 1.3 25.3 1.3 49.1 0 94.2-16.6 130.3-44.8-46.1-1-84.8-31.2-98.1-72.8 6.5 1 13 1.6 19.8 1.6 9.4 0 18.8-1.3 27.6-3.6-48.1-9.7-84.1-52-84.1-103v-1.3c14 7.8 30.2 12.7 47.4 13.3-28.3-18.8-46.8-51-46.8-87.4 0-19.5 5.2-37.4 14.3-53C87.4 130.8 165 172.4 252.1 176.9c-1.6-7.8-2.6-15.9-2.6-24C249.5 95.1 296.3 48 354.4 48c30.2 0 57.5 12.7 76.7 33.1 23.7-4.5 46.5-13.3 66.6-25.3-7.8 24.4-24.4 44.8-46.1 57.8 21.1-2.3 41.6-8.1 60.4-16.2-14.3 20.8-32.2 39.3-52.6 54.3"></path></svg>
+</a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.path", "navigation.top", "navigation.prune", "toc.follow", "search.highlight", "search.share", "search.suggest", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "content.mermaid"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+<script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+<script src="../../../javascripts/reading-layout.js"></script>
+</body>
+</html>

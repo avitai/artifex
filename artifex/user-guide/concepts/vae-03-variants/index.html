@@ -1,0 +1,2929 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="This chapter studies objective reweighting, conditional and multimodal VAEs, missing-modality inference, semi-supervised labels, discrete latent estimators and" name="description"/>
+<meta content="Mahdi Shafiei" name="author"/>
+<link href="https://docs.avitai.bio/artifex/user-guide/concepts/vae-03-variants/" rel="canonical"/>
+<link href="../vae-02-training/" rel="prev"/>
+<link href="../vae-04-modern-latents/" rel="next"/>
+<link href="../../../assets/images/favicon.png" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.7.7" name="generator"/>
+<title>VAEs 3 — Variants and Failure Modes - Artifex</title>
+<link href="../../../assets/stylesheets/main.ec1eaa64.min.css" rel="stylesheet"/>
+<link href="../../../assets/stylesheets/palette.ab4e12ef.min.css" rel="stylesheet"/>
+<script src="../../../assets/vendor/iframe-worker/index.js"></script>
+<link href="../../../assets/_mkdocstrings.css" rel="stylesheet"/>
+<link href="../../../_static/extra.css" rel="stylesheet"/>
+<script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+<meta content="article" property="og:type"/>
+<meta content="The Artifex Generative Models Book" property="og:site_name"/>
+<meta content="VAEs 3 — Variants and Failure Modes" property="og:title"/>
+<meta content="This chapter studies objective reweighting, conditional and multimodal VAEs, missing-modality inference, semi-supervised labels, discrete latent estimators and" property="og:description"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/vae-03-variants/" property="og:url"/>
+<meta content="2026-07-14" property="article:modified_time"/>
+<meta content="summary" name="twitter:card"/>
+<meta content="VAEs 3 — Variants and Failure Modes" name="twitter:title"/>
+<meta content="This chapter studies objective reweighting, conditional and multimodal VAEs, missing-modality inference, semi-supervised labels, discrete latent estimators and" name="twitter:description"/>
+<meta content="Generative models, Machine learning, Probabilistic modeling, advanced, specialization, canonical_chapter, vae-variants, practitioner, researcher" name="keywords"/>
+<meta content="VAEs 3 — Variants and Failure Modes" name="citation_title"/>
+<meta content="Mahdi Shafiei" name="citation_author"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/vae-03-variants/" name="citation_public_url"/>
+<meta content="en" name="citation_language"/>
+<meta content="VAEs 3 — Variants and Failure Modes" name="DC.title"/>
+<meta content="Mahdi Shafiei" name="DC.creator"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/vae-03-variants/" name="DC.identifier"/>
+<meta content="Text.LearningResource" name="DC.type"/>
+<meta content="2026-07-14" name="DCTERMS.modified"/>
+<meta content="https://github.com/avitai/artifex/blob/main/LICENSE" name="DCTERMS.license"/>
+<meta content="advanced" name="DCTERMS.educationLevel"/>
+<meta content="practitioner, researcher" name="DCTERMS.audience"/>
+<link href="https://github.com/avitai/artifex/blob/main/LICENSE" rel="license"/>
+<script id="artifex-book-metadata" type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Chapter",
+  "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/vae-03-variants/",
+  "url": "https://docs.avitai.bio/artifex/user-guide/concepts/vae-03-variants/",
+  "name": "VAEs 3 \u2014 Variants and Failure Modes",
+  "description": "This chapter studies objective reweighting, conditional and multimodal VAEs, missing-modality inference, semi-supervised labels, discrete latent estimators and",
+  "identifier": "vae-variants",
+  "inLanguage": "en",
+  "isAccessibleForFree": true,
+  "learningResourceType": "Canonical chapter",
+  "educationalLevel": "advanced",
+  "educationalUse": "specialization",
+  "audience": [
+    
+      {"@type": "EducationalAudience", "audienceType": "practitioner"},
+    
+      {"@type": "EducationalAudience", "audienceType": "researcher"}
+    
+  ],
+  "dateModified": "2026-07-14",
+  "keywords": ["Generative models", "Machine learning", "Probabilistic modeling", "advanced", "specialization", "canonical_chapter", "vae-variants", "practitioner", "researcher"],
+  "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+  "author": [
+    
+      {"@type": "Person", "name": "Mahdi Shafiei"}
+    
+  ],
+  "isPartOf": {
+    "@type": "Book",
+    "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/#book",
+    "url": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/",
+    "name": "The Artifex Generative Models Book",
+    "bookEdition": "Living Web Edition",
+    "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+    "author": [
+      
+        {"@type": "Person", "name": "Mahdi Shafiei"}
+      
+    ]
+  }
+}
+</script>
+<link href="../../../assets/vendor/katex/katex.min.css" id="artifex-katex-stylesheet" integrity="sha384-UA8juhPf75SzzAMA/4fo3yOU7sBJ0om7SCD2GHq0fZqZco6tr1UCV7nUbk9J90JM" rel="stylesheet"/>
+<script defer="" integrity="sha384-T/0lMUdJpd2S1ZHtRiofG3htU3xPCrFVeAQ1UUE2TJwlEJSV5NUwn30kP28n238E" src="../../../assets/vendor/mermaid/mermaid.min.js"></script>
+<script defer="" src="../../../assets/vendor/katex/katex-shadow.js"></script>
+<script defer="" src="../../../javascripts/mermaid-math.js"></script>
+<script defer="" src="../../../javascripts/mathjax.js"></script>
+<script defer="" integrity="sha384-OrHfGTnIbkl0do3N76qW/uWr38o91N05sbSPuYBPLH+hG8X/dNSrjZf3AGjzrCwC" src="../../../assets/vendor/mathjax/tex-mml-chtml.js"></script>
+</head>
+<body data-md-color-accent="amber" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#vaes-3-variants-and-failure-modes">
+          Skip to content
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header md-header--shadow" data-md-component="header">
+<nav aria-label="Header" class="md-header__inner md-grid">
+<a aria-label="Artifex" class="md-header__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            Artifex
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+            
+              VAEs 3 — Variants and Failure Modes
+            
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-label="Switch to dark mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: light)" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_1" hidden="" title="Switch to dark mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+<input aria-label="Switch to light mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-primary="indigo" data-md-color-scheme="slate" id="__palette_1" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_0" hidden="" title="Switch to light mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+</form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div aria-label="Search" class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Search" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="Search" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="Search" class="md-search__options">
+<a aria-label="Share" class="md-search__icon md-icon" data-clipboard="" data-clipboard-text="" data-md-component="search-share" href="javascript:void(0)" tabindex="-1" title="Share">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"></path></svg>
+</a>
+<button aria-label="Clear" class="md-search__icon md-icon" tabindex="-1" title="Clear" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            Initializing search
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Navigation" class="md-nav md-nav--primary" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="Artifex" class="md-nav__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+    Artifex
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../..">
+<span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../getting-started/installation/">
+<span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Generative Models Book
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Generative Models Book
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    
+  
+    Start Here — The Landscape
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../first-course-01-generative-systems/">
+<span class="md-ellipsis">
+    
+  
+    First Course — New to Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../probability-01-objects/">
+<span class="md-ellipsis">
+    
+  
+    Foundations
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_4" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_4" id="__nav_3_4_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Model Families
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_4_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_4">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Model Families
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../autoregressive-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Autoregressive Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_4_2" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_4_2" id="__nav_3_4_2_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Variational Autoencoders
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_4_2_label" class="md-nav" data-md-level="3">
+<label class="md-nav__title" for="__nav_3_4_2">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Variational Autoencoders
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../vae-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    1. Foundations and ELBO
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../vae-02-training/">
+<span class="md-ellipsis">
+    
+  
+    2. Training and Diagnostics
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
+    
+  
+    3. Variants and Failure Modes
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
+<span class="md-ellipsis">
+    
+  
+    3. Variants and Failure Modes
+  
+
+    
+  </span>
+</a>
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#vae-variants">
+<span class="md-ellipsis">
+      
+        VAE Variants
+      
+    </span>
+</a>
+<nav aria-label="VAE Variants" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#vae-variants-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        VAE Variants: Prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#-vae-disentangled-representations">
+<span class="md-ellipsis">
+      
+        β-VAE: Disentangled Representations
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#beta-tcvae-and-factorvae-targeting-total-correlation">
+<span class="md-ellipsis">
+      
+        Beta-TCVAE and FactorVAE: Targeting Total Correlation
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#aggregate-posterior-objectives-infovae-mmd-vae-and-aae">
+<span class="md-ellipsis">
+      
+        Aggregate-Posterior Objectives: InfoVAE, MMD-VAE, and AAE
+      
+    </span>
+</a>
+<nav aria-label="Aggregate-Posterior Objectives: InfoVAE, MMD-VAE, and AAE" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mmd-vae-sample-the-distribution-you-claim-to-match">
+<span class="md-ellipsis">
+      
+        MMD-VAE: sample the distribution you claim to match
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#aae-an-adversarial-aggregate-matching-game">
+<span class="md-ellipsis">
+      
+        AAE: an adversarial aggregate-matching game
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-finite-counterexample-the-same-aggregate-different-information">
+<span class="md-ellipsis">
+      
+        Worked finite counterexample: the same aggregate, different information
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#conditional-vae-cvae">
+<span class="md-ellipsis">
+      
+        Conditional VAE (CVAE)
+      
+    </span>
+</a>
+<nav aria-label="Conditional VAE (CVAE)" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#conditional-generation-is-not-joint-multimodal-modeling">
+<span class="md-ellipsis">
+      
+        Conditional generation is not joint multimodal modeling
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#multimodal-vaes-and-missing-modalities">
+<span class="md-ellipsis">
+      
+        Multimodal VAEs and Missing Modalities
+      
+    </span>
+</a>
+<nav aria-label="Multimodal VAEs and Missing Modalities" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#which-elbo-is-being-optimized">
+<span class="md-ellipsis">
+      
+        Which ELBO is being optimized?
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#gaussian-likelihood-messages-the-product-update">
+<span class="md-ellipsis">
+      
+        Gaussian likelihood messages: the product update
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-two-modality-gaussian-model">
+<span class="md-ellipsis">
+      
+        Worked two-modality Gaussian model
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#do-not-count-the-prior-twice">
+<span class="md-ellipsis">
+      
+        Do not count the prior twice
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#poe-moe-mixtures-of-products-and-learned-aggregation">
+<span class="md-ellipsis">
+      
+        PoE, MoE, mixtures of products, and learned aggregation
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#the-observation-mask-is-part-of-the-problem">
+<span class="md-ellipsis">
+      
+        The observation mask is part of the problem
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#training-and-evaluation-contract">
+<span class="md-ellipsis">
+      
+        Training and evaluation contract
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#semi-supervised-vae-one-label-two-observation-states">
+<span class="md-ellipsis">
+      
+        Semi-Supervised VAE: One Label, Two Observation States
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#vector-quantized-vae-vq-vae">
+<span class="md-ellipsis">
+      
+        Vector Quantized VAE (VQ-VAE)
+      
+    </span>
+</a>
+<nav aria-label="Vector Quantized VAE (VQ-VAE)" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#a-probabilistic-statement-and-an-optimization-recipe">
+<span class="md-ellipsis">
+      
+        A probabilistic statement and an optimization recipe
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#ema-codebook-updates-are-online-clustering">
+<span class="md-ellipsis">
+      
+        EMA codebook updates are online clustering
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#the-general-discrete-gradient-problem">
+<span class="md-ellipsis">
+      
+        The general discrete-gradient problem
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#gumbelsoftmax-and-hard-straight-through-samples">
+<span class="md-ellipsis">
+      
+        Gumbel–Softmax and hard straight-through samples
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#choose-the-estimator-by-its-target">
+<span class="md-ellipsis">
+      
+        Choose the estimator by its target
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#learning-the-code-prior-changes-the-model">
+<span class="md-ellipsis">
+      
+        Learning the code prior changes the model
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#evaluate-four-layers-separately">
+<span class="md-ellipsis">
+      
+        Evaluate four layers separately
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#alternatives-and-current-research-boundaries">
+<span class="md-ellipsis">
+      
+        Alternatives and current research boundaries
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#applications">
+<span class="md-ellipsis">
+      
+        Applications
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#training-dynamics-and-common-challenges">
+<span class="md-ellipsis">
+      
+        Training Dynamics and Common Challenges
+      
+    </span>
+</a>
+<nav aria-label="Training Dynamics and Common Challenges" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#posterior-collapse">
+<span class="md-ellipsis">
+      
+        Posterior Collapse
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#blurry-reconstructions">
+<span class="md-ellipsis">
+      
+        Blurry Reconstructions
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#optimization-challenges">
+<span class="md-ellipsis">
+      
+        Optimization Challenges
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-diagnosis-collapse-or-legitimate-zero-rate">
+<span class="md-ellipsis">
+      
+        Worked diagnosis: collapse or legitimate zero rate?
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#independent-practice-and-assessment-map-variants">
+<span class="md-ellipsis">
+      
+        Independent practice and assessment map: variants
+      
+    </span>
+</a>
+<nav aria-label="Independent practice and assessment map: variants" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#p1-design-and-falsify-a-missing-modality-discrete-latent-vae">
+<span class="md-ellipsis">
+      
+        P1 — Design and falsify a missing-modality discrete-latent VAE
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-3-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 3 synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../vae-04-modern-latents/">
+<span class="md-ellipsis">
+    
+  
+    4. Hierarchies, Posteriors, and Codecs
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../vae-05-practice/">
+<span class="md-ellipsis">
+    
+  
+    5. Practice and Evaluation
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../vae-06-synthesis/">
+<span class="md-ellipsis">
+    
+  
+    6. Synthesis and Reading
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../vae-explained/">
+<span class="md-ellipsis">
+    
+  
+    Continuous View (All Chapters)
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gan-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Generative Adversarial Networks
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../ebm-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Energy-Based Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../diffusion-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Diffusion Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../flow-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Normalizing Flows and Flow Matching
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../probabilistic-circuits-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Probabilistic Circuits
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../tensor-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Tensor-Network and Born Probability Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../implicit-generators-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Implicit Generators Beyond GANs
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../discrete-iterative-01-masked/">
+<span class="md-ellipsis">
+    
+  
+    Discrete Iterative Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../bayesian-flow-networks-01-story/">
+<span class="md-ellipsis">
+    
+  
+    Bayesian Flow Networks
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gflownets-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Generative Flow Networks
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../bnp-01-random-measures/">
+<span class="md-ellipsis">
+    
+  
+    Bayesian Nonparametric Random-Measure Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../stochastic-process-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Stochastic-Process and Function-Space Generators
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../point-processes-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Point Processes and Random Finite Sets
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../random-graphs-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Random Graphs and Relational Generators
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../copula-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Copula Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../grammar-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Probabilistic Grammars and Program Derivations
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../causal-generative-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Causal Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../new-families-frontier-evidence/">
+<span class="md-ellipsis">
+    
+  
+    Research Evidence Ledger
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gradients-01-taxonomy/">
+<span class="md-ellipsis">
+    
+  
+    Connections and Compositions
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../normalization-01-queries/">
+<span class="md-ellipsis">
+    
+  
+    Research Practice
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../models/vae-guide/">
+<span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/core/base/">
+<span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../examples/overview/">
+<span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../zoo/">
+<span class="md-ellipsis">
+    
+  
+    Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../training/overview/">
+<span class="md-ellipsis">
+    
+  
+    Training
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../data/overview/">
+<span class="md-ellipsis">
+    
+  
+    Data &amp; Modalities
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../inference/overview/">
+<span class="md-ellipsis">
+    
+  
+    Inference &amp; Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../benchmarks/">
+<span class="md-ellipsis">
+    
+  
+    Evaluation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../guides/extensions/">
+<span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../extensions/">
+<span class="md-ellipsis">
+    
+  
+    Advanced Topics
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../cli/">
+<span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../community/contributing/">
+<span class="md-ellipsis">
+    
+  
+    Community
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/configs/protein-extension/">
+<span class="md-ellipsis">
+    
+  
+    Reference Library
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#vae-variants">
+<span class="md-ellipsis">
+      
+        VAE Variants
+      
+    </span>
+</a>
+<nav aria-label="VAE Variants" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#vae-variants-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        VAE Variants: Prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#-vae-disentangled-representations">
+<span class="md-ellipsis">
+      
+        β-VAE: Disentangled Representations
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#beta-tcvae-and-factorvae-targeting-total-correlation">
+<span class="md-ellipsis">
+      
+        Beta-TCVAE and FactorVAE: Targeting Total Correlation
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#aggregate-posterior-objectives-infovae-mmd-vae-and-aae">
+<span class="md-ellipsis">
+      
+        Aggregate-Posterior Objectives: InfoVAE, MMD-VAE, and AAE
+      
+    </span>
+</a>
+<nav aria-label="Aggregate-Posterior Objectives: InfoVAE, MMD-VAE, and AAE" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mmd-vae-sample-the-distribution-you-claim-to-match">
+<span class="md-ellipsis">
+      
+        MMD-VAE: sample the distribution you claim to match
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#aae-an-adversarial-aggregate-matching-game">
+<span class="md-ellipsis">
+      
+        AAE: an adversarial aggregate-matching game
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-finite-counterexample-the-same-aggregate-different-information">
+<span class="md-ellipsis">
+      
+        Worked finite counterexample: the same aggregate, different information
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#conditional-vae-cvae">
+<span class="md-ellipsis">
+      
+        Conditional VAE (CVAE)
+      
+    </span>
+</a>
+<nav aria-label="Conditional VAE (CVAE)" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#conditional-generation-is-not-joint-multimodal-modeling">
+<span class="md-ellipsis">
+      
+        Conditional generation is not joint multimodal modeling
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#multimodal-vaes-and-missing-modalities">
+<span class="md-ellipsis">
+      
+        Multimodal VAEs and Missing Modalities
+      
+    </span>
+</a>
+<nav aria-label="Multimodal VAEs and Missing Modalities" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#which-elbo-is-being-optimized">
+<span class="md-ellipsis">
+      
+        Which ELBO is being optimized?
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#gaussian-likelihood-messages-the-product-update">
+<span class="md-ellipsis">
+      
+        Gaussian likelihood messages: the product update
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-two-modality-gaussian-model">
+<span class="md-ellipsis">
+      
+        Worked two-modality Gaussian model
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#do-not-count-the-prior-twice">
+<span class="md-ellipsis">
+      
+        Do not count the prior twice
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#poe-moe-mixtures-of-products-and-learned-aggregation">
+<span class="md-ellipsis">
+      
+        PoE, MoE, mixtures of products, and learned aggregation
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#the-observation-mask-is-part-of-the-problem">
+<span class="md-ellipsis">
+      
+        The observation mask is part of the problem
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#training-and-evaluation-contract">
+<span class="md-ellipsis">
+      
+        Training and evaluation contract
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#semi-supervised-vae-one-label-two-observation-states">
+<span class="md-ellipsis">
+      
+        Semi-Supervised VAE: One Label, Two Observation States
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#vector-quantized-vae-vq-vae">
+<span class="md-ellipsis">
+      
+        Vector Quantized VAE (VQ-VAE)
+      
+    </span>
+</a>
+<nav aria-label="Vector Quantized VAE (VQ-VAE)" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#a-probabilistic-statement-and-an-optimization-recipe">
+<span class="md-ellipsis">
+      
+        A probabilistic statement and an optimization recipe
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#ema-codebook-updates-are-online-clustering">
+<span class="md-ellipsis">
+      
+        EMA codebook updates are online clustering
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#the-general-discrete-gradient-problem">
+<span class="md-ellipsis">
+      
+        The general discrete-gradient problem
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#gumbelsoftmax-and-hard-straight-through-samples">
+<span class="md-ellipsis">
+      
+        Gumbel–Softmax and hard straight-through samples
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#choose-the-estimator-by-its-target">
+<span class="md-ellipsis">
+      
+        Choose the estimator by its target
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#learning-the-code-prior-changes-the-model">
+<span class="md-ellipsis">
+      
+        Learning the code prior changes the model
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#evaluate-four-layers-separately">
+<span class="md-ellipsis">
+      
+        Evaluate four layers separately
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#alternatives-and-current-research-boundaries">
+<span class="md-ellipsis">
+      
+        Alternatives and current research boundaries
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#applications">
+<span class="md-ellipsis">
+      
+        Applications
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#training-dynamics-and-common-challenges">
+<span class="md-ellipsis">
+      
+        Training Dynamics and Common Challenges
+      
+    </span>
+</a>
+<nav aria-label="Training Dynamics and Common Challenges" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#posterior-collapse">
+<span class="md-ellipsis">
+      
+        Posterior Collapse
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#blurry-reconstructions">
+<span class="md-ellipsis">
+      
+        Blurry Reconstructions
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#optimization-challenges">
+<span class="md-ellipsis">
+      
+        Optimization Challenges
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-diagnosis-collapse-or-legitimate-zero-rate">
+<span class="md-ellipsis">
+      
+        Worked diagnosis: collapse or legitimate zero rate?
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#independent-practice-and-assessment-map-variants">
+<span class="md-ellipsis">
+      
+        Independent practice and assessment map: variants
+      
+    </span>
+</a>
+<nav aria-label="Independent practice and assessment map: variants" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#p1-design-and-falsify-a-missing-modality-discrete-latent-vae">
+<span class="md-ellipsis">
+      
+        P1 — Design and falsify a missing-modality discrete-latent VAE
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-3-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 3 synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<nav aria-label="Breadcrumb" class="md-path">
+<ol class="md-path__list">
+<li class="md-path__item">
+<a class="md-path__link" href="../../..">
+<span class="md-ellipsis">
+    Home
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    Generative Models Book
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../autoregressive-01-foundations/">
+<span class="md-ellipsis">
+    Model Families
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../vae-01-foundations/">
+<span class="md-ellipsis">
+    Variational Autoencoders
+  </span>
+</a>
+</li>
+</ol>
+</nav>
+<article class="md-content__inner md-typeset">
+<h1 id="vaes-3-variants-and-failure-modes">VAEs 3 — Variants and Failure Modes<a class="headerlink" href="#vaes-3-variants-and-failure-modes" title="Permanent link">¤</a></h1><aside aria-label="Learning path" class="admonition abstract artifex-learning-path"><p class="admonition-title">Learning path</p><p><strong>Required knowledge</strong></p><ul class="artifex-learning-path__links" data-learning-path-role="required"><li><a href="../vae-02-training/">VAEs 2 — Training and Diagnostics</a></li></ul><p><strong>Readiness check:</strong> can you explain the central object and reproduce one worked example from each required chapter? If not, follow its link before continuing.</p><p><strong>Newly unlocked in the default route</strong></p><ul class="artifex-learning-path__links" data-learning-path-role="unlocks"><li><a href="../vae-04-modern-latents/">VAEs 4 — Hierarchies, Posteriors, and Codecs</a></li></ul></aside>
+<p>This chapter studies objective reweighting, conditional and multimodal VAEs, missing-modality inference, semi-supervised labels, discrete latent estimators and codebooks, posterior collapse, and optimization diagnostics. For uninterrupted reading, use the <a href="../vae-explained/#vae-variants">complete guide</a>.</p>
+<h2 id="vae-variants">VAE Variants<a class="headerlink" href="#vae-variants" title="Permanent link">¤</a></h2>
+<h3 id="vae-variants-prerequisites-and-learning-objectives">VAE Variants: Prerequisites and learning objectives<a class="headerlink" href="#vae-variants-prerequisites-and-learning-objectives" title="Permanent link">¤</a></h3>
+<p>This chapter assumes the rate–distortion interpretation of the ELBO and the reduction audit from Chapter 2. By the end, you should be able to:</p>
+<ol>
+<li>identify exactly which term β-VAE, β-TCVAE, FactorVAE, InfoVAE, MMD-VAE, AAE, CVAE, and VQ-VAE modify;</li>
+<li>distinguish conditional factorization, aggregate-posterior independence, and semantic disentanglement;</li>
+<li>distinguish a conditional VAE from a joint multimodal latent-variable model;</li>
+<li>derive Gaussian product-of-experts updates for any observed-modality subset without counting the prior twice;</li>
+<li>write labeled and unlabeled bounds for a semi-supervised VAE;</li>
+<li>derive the VQ straight-through/codebook/commitment updates and diagnose codebook underuse;</li>
+<li>separate posterior collapse from a valid low-rate optimum;</li>
+<li>explain why matching <span class="arithmatex">\(q_\phi(z)\)</span> to <span class="arithmatex">\(p(z)\)</span> does not determine mutual information or per-example inference; and</li>
+<li>select interventions through controlled ablations rather than modality-wide hyperparameter rules.</li>
+</ol>
+<h3 id="-vae-disentangled-representations">β-VAE: Disentangled Representations<a class="headerlink" href="#-vae-disentangled-representations" title="Permanent link">¤</a></h3>
+<p>β-VAE (<a href="https://openreview.net/forum?id=Sy2fzU9gl">Higgins et al., 2017</a>) modifies the objective to encourage <strong>disentanglement</strong>, where individual latent dimensions capture independent factors of variation:</p>
+<div class="arithmatex">\[
+\mathcal{L}_{\beta} = \mathbb{E}_{q_\phi(z|x)}[\log p_\theta(x|z)] - \beta \cdot D_{\text{KL}}(q_\phi(z|x) \| p(z))
+\]</div>
+<p><strong>Effect of β:</strong></p>
+<ul>
+<li><strong>β = 1</strong>: Standard VAE (no additional emphasis on disentanglement)</li>
+<li><strong>β &gt; 1</strong>: Stronger rate penalty often reduces encoded information and can improve some disentanglement metrics on selected factorized datasets; neither independence nor semantic axes are guaranteed</li>
+<li><strong>β &lt; 1</strong>: Weaker rate penalty often improves reconstruction and latent usage, but moves away from the ordinary ELBO; its effect on semantic structure is empirical</li>
+</ul>
+<figure class="book-figure" id="fig-vae-explained--vae-disentangled-representations"><pre class="mermaid"><code>%%{init: {'themeCSS': '.nodeLabel p { color: #111827 !important; } .flowchart-link { stroke: #78879a !important; stroke-width: 2px !important; } marker path { fill: #78879a !important; stroke: #78879a !important; }'}}%%
+graph LR
+    subgraph "$$\beta\lt 1$$"
+        A1[Often lower distortion] --&gt; B1[Prior mismatch / higher rate can grow]
+    end
+
+    subgraph "$$\beta=1$$"
+        A2[Ordinary ELBO] --&gt; B2[Model-dependent representation]
+    end
+
+    subgraph "$$\beta\gt 1$$"
+        A3[Often higher distortion] --&gt; B3[Factor metrics may improve]
+    end
+
+    style A1 fill:#c8e6c9,color:#111827
+    style A3 fill:#ffccbc,color:#111827
+    style B3 fill:#c8e6c9,color:#111827</code></pre><figcaption class="book-object-caption"><span class="book-object-number">Figure VAE.6.</span> β-VAE: Disentangled Representations</figcaption></figure>
+<p>Use <span class="arithmatex">\(\beta=1\)</span> as the ordinary-ELBO baseline, then sweep values on a declared grid against reconstruction, rate, prior sampling, and the downstream representation metric. Values reported for dSprites or a text decoder are historical protocol points, not transferable image/text defaults. <a href="https://arxiv.org/abs/1804.03599">Burgess et al. (2018)</a> analyse capacity control and propose annealing a target capacity <span class="arithmatex">\(C\)</span>; this changes the optimization path and still requires identifiability assumptions.</p>
+<p><strong>Applications:</strong></p>
+<ul>
+<li><strong>Interpretable representations</strong> for analysis and visualization</li>
+<li><strong>Fairness research</strong> only when leakage, downstream harms, and affected-group metrics are explicitly tested; factorization does not remove sensitive information by construction</li>
+<li><strong>Controllable generation</strong> by manipulating specific latent factors</li>
+</ul>
+<h3 id="beta-tcvae-and-factorvae-targeting-total-correlation">Beta-TCVAE and FactorVAE: Targeting Total Correlation<a class="headerlink" href="#beta-tcvae-and-factorvae-targeting-total-correlation" title="Permanent link">¤</a></h3>
+<p>The expected per-example KL decomposes into mutual information, aggregate total correlation, and dimension-wise prior mismatch under the stated factorized prior. These components affect rate and representation differently; total correlation targets aggregate dependence, but no one term alone guarantees semantic disentanglement. Two variants emphasize it:</p>
+<ul>
+<li><strong>FactorVAE</strong> (<a href="https://arxiv.org/abs/1802.05983">Kim &amp; Mnih, 2018</a>) trains a discriminator to estimate the total correlation <span class="arithmatex">\(\mathrm{TC}(z) = D_{\mathrm{KL}}(q_\phi(z)\,\|\,\prod_j q_\phi(z_j))\)</span> and adds a <span class="arithmatex">\(\gamma\cdot\mathrm{TC}\)</span> penalty on top of the standard ELBO.</li>
+<li><strong>β-TCVAE</strong> (<a href="https://arxiv.org/abs/1802.04942">Chen et al., 2018</a>) decomposes the KL term in closed form into mutual information, total correlation, and dimension-wise KL, and re-weights only the TC component:</li>
+</ul>
+<div class="arithmatex">\[
+D_{\mathrm{KL}}(q_\phi(z\mid x)\|p(z)) = \underbrace{I_q(x;z)}_{\text{MI}} + \underbrace{D_{\mathrm{KL}}(q_\phi(z)\|\textstyle\prod_j q_\phi(z_j))}_{\text{TC}} + \underbrace{\sum_j D_{\mathrm{KL}}(q_\phi(z_j)\|p(z_j))}_{\text{dim-wise KL}}
+\]</div>
+<p>β-TCVAE reported favorable disentanglement–reconstruction trade-offs relative to its evaluated baselines, and introduced the <strong>Mutual Information Gap (MIG)</strong>. The estimator, dataset factors, hyperparameters, and random seeds are part of that empirical result.</p>
+<h3 id="aggregate-posterior-objectives-infovae-mmd-vae-and-aae">Aggregate-Posterior Objectives: InfoVAE, MMD-VAE, and AAE<a class="headerlink" href="#aggregate-posterior-objectives-infovae-mmd-vae-and-aae" title="Permanent link">¤</a></h3>
+<p>The ordinary expected prior KL charges two quantities at once:</p>
+<div class="arithmatex">\[
+\begin{aligned}
+&amp;\mathbb E_{p_{\mathcal D}(x)}
+D_{\mathrm{KL}}\!\left(q_\phi(z\mid x)\|p(z)\right)\\
+&amp;\quad=I_q(X;Z)
++D_{\mathrm{KL}}\!\left(q_\phi(z)\|p(z)\right).
+\end{aligned}
+\]</div>
+<p>An objective may therefore change the amount of information carried about each
+record without changing how strongly the aggregate code distribution is matched
+to the prior. <a href="https://ojs.aaai.org/index.php/AAAI/article/view/4538">InfoVAE</a>
+makes these controls explicit. Define the population reconstruction, expected
+conditional KL, and aggregate discrepancy as</p>
+<div class="arithmatex">\[
+\begin{aligned}
+R&amp;:=\mathbb E_{p_{\mathcal D}(x)q_\phi(z\mid x)}
+      [\log p_\theta(x\mid z)],\\
+K&amp;:=\mathbb E_{p_{\mathcal D}(x)}
+  D_{\mathrm{KL}}\!\left(q_\phi(z\mid x)\|p(z)\right),\\
+M&amp;:=D\!\left(q_\phi(z)\|p(z)\right).
+\end{aligned}
+\]</div>
+<p>One parameterization of the InfoVAE objective is then</p>
+<div class="arithmatex">\[
+\begin{aligned}
+\mathcal L_{\mathrm{InfoVAE}}
+={}&amp;R-(1-\alpha)K\\
+&amp;-(\alpha+\lambda-1)M.
+\end{aligned}
+\]</div>
+<p>Here <span class="arithmatex">\(D\)</span> is a chosen aggregate-distribution discrepancy. Setting
+<span class="arithmatex">\(\alpha=0\)</span> and <span class="arithmatex">\(\lambda=1\)</span> recovers the ordinary ELBO because the coefficient
+of <span class="arithmatex">\(D\)</span> becomes zero.
+Other coefficients generally define a different objective, not another bound on
+<span class="arithmatex">\(\log p_\theta(x)\)</span>. The population proposition in the InfoVAE paper assumes a
+strict divergence, <span class="arithmatex">\(\alpha&lt;1\)</span>, <span class="arithmatex">\(\lambda&gt;0\)</span>, a fixed bounded mutual information,
+and sufficiently expressive distributions. It does not guarantee the behavior
+of a finite discriminator, kernel estimator, neural family, or optimizer.</p>
+<h4 id="mmd-vae-sample-the-distribution-you-claim-to-match">MMD-VAE: sample the distribution you claim to match<a class="headerlink" href="#mmd-vae-sample-the-distribution-you-claim-to-match" title="Permanent link">¤</a></h4>
+<p>MMD-VAE replaces the intractable aggregate KL by maximum mean discrepancy.
+Given <span class="arithmatex">\(m\)</span> aggregate-posterior samples
+<span class="arithmatex">\(z_i\sim q_\phi(z)\)</span> and <span class="arithmatex">\(m\)</span> independent prior samples
+<span class="arithmatex">\(\tilde z_i\sim p(z)\)</span>, an unbiased squared-MMD estimator is</p>
+<div class="arithmatex">\[
+\begin{aligned}
+\widehat{\operatorname{MMD}}_{u}^{\,2}
+={}&amp;\frac{1}{m(m-1)}\\[-2pt]
+&amp;\quad\times\sum_{i\ne j}k(z_i,z_j)\\
+&amp;+\frac{1}{m(m-1)}\\[-2pt]
+&amp;\quad\times\sum_{i\ne j}k(\tilde z_i,\tilde z_j)\\
+&amp;-\frac{2}{m^2}
+\sum_{i,j}k(z_i,\tilde z_j).
+\end{aligned}
+\]</div>
+<p>To sample <span class="arithmatex">\(q_\phi(z)\)</span>, first sample a record and then sample
+<span class="arithmatex">\(z\sim q_\phi(z\mid x)\)</span>. Substituting posterior means <span class="arithmatex">\(\mu_\phi(x)\)</span> matches the
+distribution of deterministic means instead; it is a different target unless
+<span class="arithmatex">\(q_\phi(z\mid x)\)</span> is itself deterministic. A characteristic kernel makes the
+population MMD identify equality of the two distributions. Kernel choice,
+bandwidth, finite-batch estimator, and optimization still determine what signal
+the model receives. In particular, this unbiased finite-sample estimator can be
+negative even though population <span class="arithmatex">\(\operatorname{MMD}^2\)</span> is nonnegative.</p>
+<h4 id="aae-an-adversarial-aggregate-matching-game">AAE: an adversarial aggregate-matching game<a class="headerlink" href="#aae-an-adversarial-aggregate-matching-game" title="Permanent link">¤</a></h4>
+<p><a href="https://arxiv.org/abs/1511.05644">Adversarial Autoencoders</a> combine a
+reconstruction objective with a discriminator trained to distinguish samples
+from <span class="arithmatex">\(q_\phi(z)\)</span> and <span class="arithmatex">\(p(z)\)</span>. Under the original logistic game, an unrestricted
+population-optimal discriminator corresponds to Jensen–Shannon matching. A
+finite neural discriminator and alternating optimizer provide only an estimated
+training signal. An AAE can also use a deterministic encoder, so its name does
+not imply a Gaussian variational posterior or an ordinary ELBO. The required
+contract is the encoder distribution, reconstruction likelihood or distortion,
+adversarial loss, prior sampler, and update schedule.</p>
+<h4 id="worked-finite-counterexample-the-same-aggregate-different-information">Worked finite counterexample: the same aggregate, different information<a class="headerlink" href="#worked-finite-counterexample-the-same-aggregate-different-information" title="Permanent link">¤</a></h4>
+<p>Let <span class="arithmatex">\(X\)</span> and the prior <span class="arithmatex">\(Z\)</span> both be uniform on <span class="arithmatex">\(\{0,1\}\)</span>. Compare two encoders:</p>
+<ol>
+<li><strong>Record-preserving:</strong> <span class="arithmatex">\(q_A(z\mid x)=\mathbf 1[z=x]\)</span>.</li>
+<li><strong>Record-ignoring:</strong> <span class="arithmatex">\(q_B(z\mid x)=1/2\)</span> for both values of <span class="arithmatex">\(z\)</span> and every <span class="arithmatex">\(x\)</span>.</li>
+</ol>
+<p>Both have the exact aggregate <span class="arithmatex">\(q_A(z)=q_B(z)=p(z)\)</span>, so every strict aggregate
+discrepancy is zero. But</p>
+<div class="arithmatex">\[
+I_{q_A}(X;Z)=\log 2,
+\qquad
+I_{q_B}(X;Z)=0.
+\]</div>
+<p>Encoder A supports zero reconstruction NLL with the deterministic decoder
+<span class="arithmatex">\(x=z\)</span>. Under encoder B, the best decoder for this balanced population remains
+<span class="arithmatex">\(p(x\mid z)=1/2\)</span> and pays <span class="arithmatex">\(\log2\)</span> nats per record. Aggregate matching is thus
+neither a collapse cure nor a semantic-representation guarantee. It must be
+read together with reconstruction, mutual information, inference accuracy, and
+the intended downstream query.</p>
+<details class="question">
+<summary>Retrieval practice: aggregate-posterior objectives</summary>
+<ol>
+<li>Can <span class="arithmatex">\(D(q_\phi(z)\|p(z))=0\)</span> prove that <span class="arithmatex">\(Z\)</span> contains information about <span class="arithmatex">\(X\)</span>?</li>
+<li>Why is an MMD computed on posterior means generally not an estimator of MMD between <span class="arithmatex">\(q_\phi(z)\)</span> and <span class="arithmatex">\(p(z)\)</span>?</li>
+<li>When does the InfoVAE parameterization displayed above reduce to the ordinary ELBO?</li>
+<li>Does adversarial aggregate matching make an AAE a maximum-likelihood VAE?</li>
+</ol>
+<p><strong>Solutions.</strong> (1) No; the two binary encoders above have the same perfectly matched aggregate but mutual information <span class="arithmatex">\(\log2\)</span> and zero. (2) The aggregate posterior includes conditional sampling noise; posterior means define a different pushforward distribution unless the encoder is deterministic. (3) At <span class="arithmatex">\(\alpha=0\)</span> and <span class="arithmatex">\(\lambda=1\)</span>; the aggregate-discrepancy coefficient is then zero. (4) No. The reconstruction term, discriminator game, variational family, and finite optimization must be stated; ordinary ELBO and likelihood identities do not follow from the AAE label.</p>
+</details>
+<h3 id="conditional-vae-cvae">Conditional VAE (CVAE)<a class="headerlink" href="#conditional-vae-cvae" title="Permanent link">¤</a></h3>
+<p>Conditional VAEs (<a href="https://papers.nips.cc/paper/2015/hash/8d55a249e6baa5c06772297520da2051-Abstract.html">Sohn et al., 2015</a>) incorporate additional information <span class="arithmatex">\(y\)</span> (class labels, attributes, text descriptions) to enable controlled generation:</p>
+<div class="arithmatex">\[
+\begin{align}
+q_\phi(z|x, y) &amp;= \mathcal{N}(z; \mu_\phi(x, y), \sigma^2_\phi(x, y) \mathbf{I}) \\
+p_\theta(x|z, y) &amp;= \mathcal{N}(x; \mu_\theta(z, y), \sigma^2 \mathbf{I})
+\end{align}
+\]</div>
+<figure class="book-figure" id="fig-vae-explained-conditional-vae-cvae"><pre class="mermaid"><code>%%{init: {'themeCSS': '.nodeLabel p { color: #111827 !important; } .flowchart-link { stroke: #78879a !important; stroke-width: 2px !important; } marker path { fill: #78879a !important; stroke: #78879a !important; }'}}%%
+graph TD
+    A["Input&amp;nbsp;$$x$$"] --&gt; E["Encoder"]
+    B["Condition&amp;nbsp;$$y$$&amp;nbsp;(e.g., class label)"] --&gt; E
+    E --&gt; C["Latent&amp;nbsp;$$z$$"]
+    C --&gt; D["Decoder"]
+    B --&gt; D
+    D --&gt; F["Reconstruction&amp;nbsp;$$\hat{x}$$"]
+
+    style B fill:#fff9c4,color:#111827
+    style E fill:#f3e5f5,color:#111827
+    style D fill:#fff3e0,color:#111827</code></pre><figcaption class="book-object-caption"><span class="book-object-number">Figure VAE.7.</span> Conditional VAE (CVAE)</figcaption></figure>
+<p><strong>How conditioning works:</strong></p>
+<ul>
+<li><strong>Concatenation</strong>: Append <span class="arithmatex">\(y\)</span> to the input before encoding and to <span class="arithmatex">\(z\)</span> before decoding — simple but less expressive than feature-wise modulation.</li>
+<li><strong>Conditional Batch Normalization</strong> (<a href="https://arxiv.org/abs/1707.00683">De Vries et al., 2017</a>; <a href="https://arxiv.org/abs/1610.07629">Dumoulin et al., 2017</a>): Replace BN's affine parameters with <span class="arithmatex">\(y\)</span>-dependent values.</li>
+<li><strong>FiLM (Feature-wise Linear Modulation)</strong> (<a href="https://arxiv.org/abs/1709.07871">Perez et al., 2018</a>): Scale and shift each feature channel by <span class="arithmatex">\(y\)</span>-dependent <span class="arithmatex">\((\gamma, \beta)\)</span>. Used pervasively in modern conditional generators.</li>
+<li><strong>Cross-attention</strong>: For sequence/text conditions, attend from feature maps onto an encoded <span class="arithmatex">\(y\)</span> — the technique that powers Stable Diffusion's text-to-image conditioning.</li>
+</ul>
+<p><strong>Applications:</strong></p>
+<ul>
+<li><strong>Class-conditional generation</strong>: Generate specific digit classes in MNIST or specific ImageNet classes (<a href="https://arxiv.org/abs/1411.1784">Mirza &amp; Osindero, 2014</a>).</li>
+<li><strong>Attribute manipulation</strong>: Change hair color, age, expression in face images.</li>
+<li><strong>Multimodal conditional decoding</strong>: use a learned condition in encoder/decoder distributions. DALL·E 1's autoregressive prior over discrete image tokens and latent-diffusion systems are related hybrid pipelines, not examples of the basic CVAE objective.</li>
+</ul>
+<h4 id="conditional-generation-is-not-joint-multimodal-modeling">Conditional generation is not joint multimodal modeling<a class="headerlink" href="#conditional-generation-is-not-joint-multimodal-modeling" title="Permanent link">¤</a></h4>
+<p>A CVAE normally treats <span class="arithmatex">\(y\)</span> as supplied side information and models
+<span class="arithmatex">\(p_\theta(x\mid y)\)</span>. It need not define <span class="arithmatex">\(p(y)\)</span>, so it cannot by itself answer
+joint-density questions about <span class="arithmatex">\((x,y)\)</span> or generate <span class="arithmatex">\(y\)</span> unconditionally. A
+multimodal latent-variable model instead defines a joint law over all
+modalities. A semi-supervised model goes one step further: the same variable
+<span class="arithmatex">\(y\)</span> is observed in some records and latent in others.</p>
+<div class="md-typeset__table book-table-container"><table id="tbl-vae-explained-conditional-generation-is-not-joint-multimodal-modeling"><caption class="book-object-caption"><span class="book-object-number">Table VAE.4.</span> Conditional generation is not joint multimodal modeling</caption>
+<thead>
+<tr>
+<th>Goal</th>
+<th>Probabilistic object</th>
+<th>What must be available at generation or inference time?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Controlled generation</td>
+<td><span class="arithmatex">\(p_\theta(x\mid y)\)</span></td>
+<td>the condition <span class="arithmatex">\(y\)</span></td>
+</tr>
+<tr>
+<td>Joint multimodal generation</td>
+<td><span class="arithmatex">\(p_\theta(x^{(1)},\ldots,x^{(M)})\)</span></td>
+<td>no modality is necessarily supplied</td>
+</tr>
+<tr>
+<td>Cross-modal generation</td>
+<td><span class="arithmatex">\(p_\theta(x_T\mid x_S)\)</span></td>
+<td>an observed subset <span class="arithmatex">\(x_S\)</span>; targets <span class="arithmatex">\(T\)</span> are generated</td>
+</tr>
+<tr>
+<td>Semi-supervised classification and generation</td>
+<td><span class="arithmatex">\(p_\theta(x,y)\)</span></td>
+<td><span class="arithmatex">\(y\)</span> is observed for labeled records and inferred for unlabeled records</td>
+</tr>
+</tbody>
+</table></div>
+<p>Calling every one of these systems a “conditional VAE” hides different model,
+inference, and data contracts.</p>
+<h3 id="multimodal-vaes-and-missing-modalities">Multimodal VAEs and Missing Modalities<a class="headerlink" href="#multimodal-vaes-and-missing-modalities" title="Permanent link">¤</a></h3>
+<p>Let <span class="arithmatex">\(X=(X^{(1)},\ldots,X^{(M)})\)</span> denote <span class="arithmatex">\(M\)</span> modalities and let
+<span class="arithmatex">\(S\subseteq\{1,\ldots,M\}\)</span> index the modalities observed for one query. A
+shared-latent multimodal VAE commonly assumes</p>
+<div class="arithmatex">\[
+p_\theta(z,x^{(1:M)})
+=p(z)\prod_{m=1}^{M}p_{\theta_m}(x^{(m)}\mid z).
+\]</div>
+<p>The factorization says that the modalities are conditionally independent given
+the declared latent <span class="arithmatex">\(Z\)</span>. It does <strong>not</strong> say that raw modalities are marginally
+independent, nor does it guarantee that one shared latent captures
+modality-private variation. When private information matters, the model may
+need modality-specific latents <span class="arithmatex">\(u_m\)</span> in addition to <span class="arithmatex">\(z\)</span>.</p>
+<p>For observed modalities <span class="arithmatex">\(x_S\)</span> and target modalities
+<span class="arithmatex">\(T\subseteq\{1,\ldots,M\}\setminus S\)</span>, the model's cross-modal predictive
+distribution is</p>
+<div class="arithmatex">\[
+p_\theta(x_T\mid x_S)
+=\int\left[\prod_{m\in T}p_{\theta_m}(x^{(m)}\mid z)\right]
+p_\theta(z\mid x_S)\,dz.
+\]</div>
+<p>This is a distribution, not a single filled-in value. Its spread should retain
+ambiguity left unresolved by the observed modalities.</p>
+<h4 id="which-elbo-is-being-optimized">Which ELBO is being optimized?<a class="headerlink" href="#which-elbo-is-being-optimized" title="Permanent link">¤</a></h4>
+<p>Let <span class="arithmatex">\(q_{\phi,S}(z\mid x_S)\)</span> be an inference distribution that consumes only
+the observed subset. If a training record contains scored values for a set
+<span class="arithmatex">\(A\)</span> with <span class="arithmatex">\(S\subseteq A\)</span>, then</p>
+<div class="arithmatex">\[
+\mathcal B_{S\rightarrow A}(x_A)
+=\mathbb E_{q_{\phi,S}(z\mid x_S)}
+\left[\sum_{m\in A}\log p_{\theta_m}(x^{(m)}\mid z)\right]
+-D_{\mathrm{KL}}\!\left(q_{\phi,S}(z\mid x_S)\,\|\,p(z)\right).
+\]</div>
+<ul>
+<li>With <span class="arithmatex">\(A=S\)</span>, this is an ELBO for the observed-subset marginal
+  <span class="arithmatex">\(\log p_\theta(x_S)\)</span>.</li>
+<li>With a fully paired record and <span class="arithmatex">\(A=\{1,\ldots,M\}\)</span>, it is a joint-data ELBO
+  whose proposal is restricted to use <span class="arithmatex">\(x_S\)</span>. Training several such directions
+  teaches cross-generation.</li>
+<li>A missing target value cannot contribute its reconstruction likelihood merely
+  because a decoder could predict it; the value is unavailable for scoring.</li>
+<li>Modality weights <span class="arithmatex">\(\lambda_m\)</span> can balance gradients or encode utilities, but
+  arbitrary weights generally define a reweighted objective rather than the
+  ordinary joint-likelihood ELBO. Report them as part of the estimand.</li>
+</ul>
+<p>The <a href="https://proceedings.neurips.cc/paper_files/paper/2018/hash/1102a326d5f7c9e04fc3c89d0ede88c9-Abstract.html">MVAE construction</a>
+uses subset-based training so the encoders are exercised on incomplete inputs.
+An architecture that can syntactically omit an encoder is not thereby trained
+for every omission pattern.</p>
+<h4 id="gaussian-likelihood-messages-the-product-update">Gaussian likelihood messages: the product update<a class="headerlink" href="#gaussian-likelihood-messages-the-product-update" title="Permanent link">¤</a></h4>
+<p>Suppose the shared latent is <span class="arithmatex">\(d\)</span>-dimensional, with
+<span class="arithmatex">\(p(z)=\mathcal N(z;\mu_0,\Lambda_0^{-1})\)</span>. Let modality <span class="arithmatex">\(m\)</span> contribute the
+Gaussian-shaped likelihood message</p>
+<div class="arithmatex">\[
+e_m(z;x^{(m)})
+\propto
+\exp\!\left[-\frac12(z-r_m)^\top\Delta\Lambda_m(z-r_m)\right],
+\qquad \Delta\Lambda_m\succeq0.
+\]</div>
+<p>Under the shared-coordinate, conditional-independence, Gaussian-message, and
+positive-semidefinite-precision assumptions, the subset posterior</p>
+<div class="arithmatex">\[
+q_S(z)\propto p(z)\prod_{m\in S}e_m(z;x^{(m)})
+\]</div>
+<p>has natural parameters</p>
+<div class="arithmatex">\[
+\begin{aligned}
+\Lambda_S
+&amp;=\Lambda_0+\sum_{m\in S}\Delta\Lambda_m,\\
+\eta_S
+&amp;=\Lambda_0\mu_0+
+  \sum_{m\in S}\Delta\Lambda_m r_m,\\
+\Sigma_S&amp;=\Lambda_S^{-1},
+&amp;\mu_S&amp;=\Sigma_S\eta_S.
+\end{aligned}
+\]</div>
+<p>Omitting a missing modality means omitting its likelihood message. It does not
+mean inserting a zero observation. With no observed modalities, the result is
+the prior.</p>
+<h4 id="worked-two-modality-gaussian-model">Worked two-modality Gaussian model<a class="headerlink" href="#worked-two-modality-gaussian-model" title="Permanent link">¤</a></h4>
+<p>Consider the scalar model</p>
+<div class="arithmatex">\[
+\begin{aligned}
+Z&amp;\sim\mathcal N(0,1),\\
+X^{(1)}\mid Z=z&amp;\sim\mathcal N(z,1),\\
+X^{(2)}\mid Z=z&amp;\sim\mathcal N(z,4).
+\end{aligned}
+\]</div>
+<p>Suppose the realized observations are <span class="arithmatex">\(x^{(1)}=1\)</span> and <span class="arithmatex">\(x^{(2)}=-1\)</span>. The prior
+precision is <span class="arithmatex">\(1\)</span>. Modality 1 contributes precision <span class="arithmatex">\(1\)</span> and natural parameter
+<span class="arithmatex">\(1\)</span>; modality 2 contributes precision <span class="arithmatex">\(1/4\)</span> and natural parameter <span class="arithmatex">\(-1/4\)</span>.
+The four possible observation patterns therefore give:</p>
+<div class="md-typeset__table book-table-container"><table id="tbl-vae-explained-worked-two-modality-gaussian-model"><caption class="book-object-caption"><span class="book-object-number">Table VAE.5.</span> Worked two-modality Gaussian model</caption>
+<thead>
+<tr>
+<th><span class="arithmatex">\(S\)</span></th>
+<th style="text-align: right;"><span class="arithmatex">\(\Lambda_S\)</span></th>
+<th style="text-align: right;"><span class="arithmatex">\(\mu_S\)</span></th>
+<th style="text-align: right;"><span class="arithmatex">\(\Sigma_S\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="arithmatex">\(\varnothing\)</span></td>
+<td style="text-align: right;"><span class="arithmatex">\(1\)</span></td>
+<td style="text-align: right;"><span class="arithmatex">\(0\)</span></td>
+<td style="text-align: right;"><span class="arithmatex">\(1\)</span></td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(\{1\}\)</span></td>
+<td style="text-align: right;"><span class="arithmatex">\(2\)</span></td>
+<td style="text-align: right;"><span class="arithmatex">\(1/2\)</span></td>
+<td style="text-align: right;"><span class="arithmatex">\(1/2\)</span></td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(\{2\}\)</span></td>
+<td style="text-align: right;"><span class="arithmatex">\(5/4\)</span></td>
+<td style="text-align: right;"><span class="arithmatex">\(-1/5\)</span></td>
+<td style="text-align: right;"><span class="arithmatex">\(4/5\)</span></td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(\{1,2\}\)</span></td>
+<td style="text-align: right;"><span class="arithmatex">\(9/4\)</span></td>
+<td style="text-align: right;"><span class="arithmatex">\(1/3\)</span></td>
+<td style="text-align: right;"><span class="arithmatex">\(4/9\)</span></td>
+</tr>
+</tbody>
+</table></div>
+<p>The more precise first modality outweighs the conflicting second modality; the
+mean is not an unweighted average. Missing-modality prediction preserves both
+latent and decoder uncertainty:</p>
+<div class="arithmatex">\[
+\begin{aligned}
+X^{(2)}\mid X^{(1)}=1
+&amp;\sim\mathcal N\!\left(\frac12,\frac92\right),\\
+X^{(1)}\mid X^{(2)}=-1
+&amp;\sim\mathcal N\!\left(-\frac15,\frac95\right).
+\end{aligned}
+\]</div>
+<p>A point imputation would conceal this uncertainty and could make a many-valued
+cross-modal query appear deterministic.</p>
+<h4 id="do-not-count-the-prior-twice">Do not count the prior twice<a class="headerlink" href="#do-not-count-the-prior-twice" title="Permanent link">¤</a></h4>
+<p>The preceding <span class="arithmatex">\(e_m\)</span> are <strong>likelihood messages</strong>, not normalized unimodal
+posteriors. For exact single-modality posteriors under the same prior, Bayes'
+rule gives the identity</p>
+<div class="arithmatex">\[
+p(z\mid x_S)
+\propto
+p(z)^{1-|S|}\prod_{m\in S}p(z\mid x^{(m)}).
+\]</div>
+<p>If encoders instead output
+<span class="arithmatex">\(q_m(z\mid x^{(m)})\approx p(z\mid x^{(m)})\)</span>, the corresponding approximate
+aggregator is</p>
+<div class="arithmatex">\[
+\widetilde q_S(z)
+\propto
+p(z)^{1-|S|}\prod_{m\in S}q_m(z\mid x^{(m)}).
+\]</div>
+<p>For Gaussian posterior experts
+<span class="arithmatex">\(q_m=\mathcal N(\mu_m,\Lambda_m^{-1})\)</span>, this becomes</p>
+<div class="arithmatex">\[
+\begin{aligned}
+\Lambda_S
+&amp;=\sum_{m\in S}\Lambda_m-(|S|-1)\Lambda_0,\\
+\eta_S
+&amp;=\sum_{m\in S}\Lambda_m\mu_m
+  -(|S|-1)\Lambda_0\mu_0.
+\end{aligned}
+\]</div>
+<p>The resulting precision must remain positive definite. In the scalar example,
+the unimodal posteriors are
+<span class="arithmatex">\(q_1=\mathcal N(1/2,1/2)\)</span> and <span class="arithmatex">\(q_2=\mathcal N(-1/5,4/5)\)</span>. The corrected rule
+has precision <span class="arithmatex">\(2+5/4-1=9/4\)</span> and mean <span class="arithmatex">\(1/3\)</span>, agreeing with exact Bayes. The
+naive product <span class="arithmatex">\(p(z)q_1(z)q_2(z)\)</span> has precision <span class="arithmatex">\(17/4\)</span> and mean <span class="arithmatex">\(3/17\)</span>; it is
+spuriously overconfident because it includes the same prior three times.</p>
+<div class="admonition warning">
+<p class="admonition-title">Name the expert parameterization</p>
+<p>A formula of the form <span class="arithmatex">\(p(z)\prod_m q_m(z\mid x^{(m)})\)</span> is valid when the
+learned factors are intended as likelihood-like messages. If each factor is
+advertised as a complete unimodal posterior, the prior correction above is
+required. The symbol <span class="arithmatex">\(q_m\)</span> alone does not settle which object was learned.</p>
+</div>
+<h4 id="poe-moe-mixtures-of-products-and-learned-aggregation">PoE, MoE, mixtures of products, and learned aggregation<a class="headerlink" href="#poe-moe-mixtures-of-products-and-learned-aggregation" title="Permanent link">¤</a></h4>
+<p>There is no universally superior aggregation rule. Each encodes a different
+geometry and failure mode.</p>
+<div class="md-typeset__table book-table-container"><table id="tbl-vae-explained-poe-moe-mixtures-of-products-and-learned-aggregation"><caption class="book-object-caption"><span class="book-object-number">Table VAE.6.</span> PoE, MoE, mixtures of products, and learned aggregation</caption>
+<thead>
+<tr>
+<th>Aggregator</th>
+<th>Distributional effect</th>
+<th>Useful behavior</th>
+<th>Characteristic risk</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Product of likelihood experts</td>
+<td>Intersects evidence; Gaussian precision accumulates</td>
+<td>Confident agreement and modular subset inference</td>
+<td>One overconfident or contradictory expert can dominate; dependence can be counted as independent evidence</td>
+</tr>
+<tr>
+<td>Mixture of posterior experts</td>
+<td>Forms a weighted union <span class="arithmatex">\(\sum_m\pi_mq_m\)</span></td>
+<td>Retains alternative modes and weak experts</td>
+<td>Does not perform Bayesian evidence accumulation; a sample may follow only one expert</td>
+</tr>
+<tr>
+<td>Mixture of subset products</td>
+<td>Mixes PoE posteriors over modality subsets</td>
+<td>Trades conjunction against mode coverage</td>
+<td>All <span class="arithmatex">\(2^M\)</span> subsets are expensive without sampling or structure</td>
+</tr>
+<tr>
+<td>Learned set/dependence-aware aggregator</td>
+<td>Learns interactions and can be permutation invariant</td>
+<td>Can represent correlated, heterogeneous evidence</td>
+<td>Needs mask and dependence coverage; loses the closed-form Bayesian interpretation</td>
+</tr>
+</tbody>
+</table></div>
+<p><a href="https://proceedings.neurips.cc/paper_files/paper/2019/hash/0ae775a8cb3b499ad1fca944e6f5c836-Abstract.html">MMVAE</a>
+studies mixture aggregation, while
+<a href="https://openreview.net/forum?id=5Y21V0RDBV">MoPoE-VAE</a> mixes
+subset-specific products. Later work makes the assumptions more explicit:
+<a href="https://proceedings.mlr.press/v267/a-mancisidor25a.html">CoDE-VAE</a> models
+dependence among experts, and <a href="https://openreview.net/forum?id=mxHyYltMUa">HELVAE</a>
+places PoE and MoE inside a broader opinion-pooling view. These are
+<strong>peer-reviewed research results</strong>, not proofs that one aggregator wins for
+every modality, mask distribution, or query.</p>
+<h4 id="the-observation-mask-is-part-of-the-problem">The observation mask is part of the problem<a class="headerlink" href="#the-observation-mask-is-part-of-the-problem" title="Permanent link">¤</a></h4>
+<p>Let <span class="arithmatex">\(R\in\{0,1\}^M\)</span> record which modalities are observed. Three issues must not
+be conflated:</p>
+<div class="md-typeset__table book-table-container"><table id="tbl-vae-explained-the-observation-mask-is-part-of-the-problem"><caption class="book-object-caption"><span class="book-object-number">Table VAE.7.</span> The observation mask is part of the problem</caption>
+<thead>
+<tr>
+<th>Situation</th>
+<th>Statistical statement</th>
+<th>Consequence for a generator</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Designed mask or modality dropout</td>
+<td><span class="arithmatex">\(R\)</span> is chosen by the training protocol</td>
+<td>Robustness is learned only for masks and frequencies actually sampled</td>
+</tr>
+<tr>
+<td>Missing at random</td>
+<td>The mechanism can depend on observed values, but not on missing values after conditioning on what is observed</td>
+<td>Ignoring the mask mechanism in likelihood/Bayesian inference additionally requires the usual parameter-distinctness conditions</td>
+</tr>
+<tr>
+<td>Missing not at random</td>
+<td><span class="arithmatex">\(R\)</span> still depends on an unobserved value or latent cause after conditioning on observed data</td>
+<td>Modeling only <span class="arithmatex">\(p(x)\)</span> can give biased conditionals; model or sensitivity-analyze <span class="arithmatex">\(p(R\mid x,z)\)</span></td>
+</tr>
+</tbody>
+</table></div>
+<p>This is the generative-model consequence of the classical missing-data
+conditions in <a href="https://doi.org/10.1093/biomet/63.3.581">Rubin (1976)</a>. A zero,
+empty sequence, mask token, and unavailable sensor are different observations.
+The model must receive an unambiguous mask, and evaluation must preserve the
+deployment missingness mechanism rather than randomly deleting modalities by
+default.</p>
+<div class="admonition danger">
+<p class="admonition-title">Missing-modality robustness is trained, not inherited</p>
+<p>Training only <span class="arithmatex">\(q(z\mid x^{(1)},x^{(2)})\)</span> does not validate
+<span class="arithmatex">\(q(z\mid x^{(1)})\)</span> or <span class="arithmatex">\(q(z\mid x^{(2)})\)</span>. Exercise the intended subset
+encoders or mask-aware set encoder during training, or perform
+query-adaptive inference against the decoder at test time. Even then,
+extrapolation to unseen masks or a changed missingness mechanism remains an
+empirical claim.</p>
+</div>
+<p>The <a href="https://proceedings.mlr.press/v216/agarwal23a.html">query-adaptive inference approach</a>
+is an important alternative: optimize a posterior for the particular observed
+query using the trained decoder instead of assuming a fixed amortized encoder
+generalizes to every mask. It trades test-time optimization for less dependence
+on the encoder's training-mask support.</p>
+<h4 id="training-and-evaluation-contract">Training and evaluation contract<a class="headerlink" href="#training-and-evaluation-contract" title="Permanent link">¤</a></h4>
+<p>For a model intended to support arbitrary modality subsets:</p>
+<ol>
+<li>define the modeled joint, any shared/private latents, and the conditional-
+   independence assumptions;</li>
+<li>specify whether each encoder emits a likelihood message, posterior expert,
+   mixture component, or learned feature;</li>
+<li>sample training masks from a declared distribution, retaining full and
+   single-modality anchor cases when those queries matter;</li>
+<li>score only target values actually present in the training record and report
+   every modality likelihood scale or reweighting coefficient;</li>
+<li>separate paired, weakly paired, and unpaired records—marginal datasets alone
+   do not identify their coupling without additional assumptions;</li>
+<li>evaluate unconditional joint generation, reconstruction, every required
+   cross-generation direction, conditional diversity, calibration, and
+   performance by mask; and</li>
+<li>test contradictory inputs and modality ablations so a strong expert cannot
+   silently erase weaker modalities.</li>
+</ol>
+<p>Multimodal ELBOs can also suffer <strong>modality collapse</strong>, where optimization
+serves an easy or high-gradient modality while neglecting another. This is
+distinct from posterior collapse and should be diagnosed with per-modality
+likelihoods, gradient contributions, cross-generation, and intervention tests;
+see <a href="https://proceedings.mlr.press/v162/javaloy22a.html">Javaloy et al. (2022)</a>.</p>
+<h3 id="semi-supervised-vae-one-label-two-observation-states">Semi-Supervised VAE: One Label, Two Observation States<a class="headerlink" href="#semi-supervised-vae-one-label-two-observation-states" title="Permanent link">¤</a></h3>
+<p>Semi-supervised learning is not just a CVAE with some label vectors replaced by
+zeros. In the M2 model of
+<a href="https://proceedings.neurips.cc/paper_files/paper/2014/hash/6d42b1217a6996997ead5a8398c1f944-Abstract.html">Kingma et al. (2014)</a>,
+the label is a random variable in the generative model:</p>
+<div class="arithmatex">\[
+p_\theta(x,y,z)=p(y)p(z)p_\theta(x\mid y,z).
+\]</div>
+<p><strong>Labeled observation state.</strong> Both <span class="arithmatex">\(x\)</span> and <span class="arithmatex">\(y\)</span> are observed, while <span class="arithmatex">\(z\)</span> is
+latent.</p>
+<figure class="book-figure" id="fig-vae-explained-semi-supervised-vae-one-label-two-observation-states-1"><pre class="mermaid"><code>%%{init: {'themeCSS': '.nodeLabel p { color: #111827 !important; } .edgeLabel p { color: #111827 !important; background-color: #f8fafc !important; } .flowchart-link { stroke: #78879a !important; stroke-width: 2px !important; } marker path { fill: #78879a !important; stroke: #78879a !important; }'}}%%
+flowchart LR
+    yL["Observed&amp;nbsp;$$y$$"] --&gt; xL["Observed&amp;nbsp;$$x$$"]
+    zL(("Latent&amp;nbsp;$$z$$")) --&gt; xL
+    xL -. "$$q_\phi(z \mid x,y)$$" .-&gt; zL
+    yL -.-&gt; zL
+    style yL fill:#dbeafe,color:#111827
+    style xL fill:#dcfce7,color:#111827
+    style zL fill:#f3e8ff,color:#111827</code></pre><figcaption class="book-object-caption"><span class="book-object-number">Figure VAE.8.</span> Semi-Supervised VAE: One Label, Two Observation States — diagram 1</figcaption></figure>
+<p><strong>Unlabeled observation state.</strong> Only <span class="arithmatex">\(x\)</span> is observed; inference must represent
+uncertainty about both <span class="arithmatex">\(y\)</span> and <span class="arithmatex">\(z\)</span>.</p>
+<figure class="book-figure" id="fig-vae-explained-semi-supervised-vae-one-label-two-observation-states-2"><pre class="mermaid"><code>%%{init: {'themeCSS': '.nodeLabel p { color: #111827 !important; } .edgeLabel p { color: #111827 !important; background-color: #f8fafc !important; } .flowchart-link { stroke: #78879a !important; stroke-width: 2px !important; } marker path { fill: #78879a !important; stroke: #78879a !important; }'}}%%
+flowchart LR
+    yU(("Latent&amp;nbsp;$$y$$")) --&gt; xU["Observed&amp;nbsp;$$x$$"]
+    zU(("Latent&amp;nbsp;$$z$$")) --&gt; xU
+    xU -. "$$q_\phi(y \mid x)$$" .-&gt; yU
+    xU -. "$$q_\phi(z \mid x,y)$$" .-&gt; zU
+    yU -.-&gt; zU
+    style xU fill:#dcfce7,color:#111827
+    style yU fill:#fce7f3,color:#111827
+    style zU fill:#f3e8ff,color:#111827</code></pre><figcaption class="book-object-caption"><span class="book-object-number">Figure VAE.9.</span> Semi-Supervised VAE: One Label, Two Observation States — diagram 2</figcaption></figure>
+<p>Solid arrows show the generative graph; dotted arrows show variational
+inference. For a labeled pair <span class="arithmatex">\((x,y)\)</span>, use
+<span class="arithmatex">\(q_\phi(z\mid x,y)\)</span> and the bound</p>
+<div class="arithmatex">\[
+\mathcal B_L(x,y)
+=\mathbb E_{q_\phi(z\mid x,y)}[\log p_\theta(x\mid y,z)]
+-D_{\mathrm{KL}}\!\left(q_\phi(z\mid x,y)\,\|\,p(z)\right)
++\log p(y).
+\]</div>
+<p>For an unlabeled <span class="arithmatex">\(x\)</span>, introduce
+<span class="arithmatex">\(q_\phi(y,z\mid x)=q_\phi(y\mid x)q_\phi(z\mid x,y)\)</span>. When <span class="arithmatex">\(Y\)</span> is a small
+discrete label set, marginalize it exactly:</p>
+<div class="arithmatex">\[
+\mathcal B_U(x)
+=\sum_y q_\phi(y\mid x)\mathcal B_L(x,y)
++H\!\left[q_\phi(y\mid x)\right].
+\]</div>
+<p>The entropy term is not an optional confidence bonus; it comes from
+<span class="arithmatex">\(-\mathbb E_q\log q_\phi(y\mid x)\)</span> in the unlabeled ELBO. An auxiliary
+supervised term
+<span class="arithmatex">\(\alpha\log q_\phi(y\mid x)\)</span> is commonly added on labeled records because the
+generative bound alone may train the classifier weakly. Its coefficient changes
+the combined objective and must be reported.</p>
+<p>Two misconception checks follow directly:</p>
+<ul>
+<li>Replacing an unobserved label by <span class="arithmatex">\(\arg\max_y q(y\mid x)\)</span> is hard pseudo-
+  labeling, not exact marginalization; it discards class uncertainty and changes
+  the estimator.</li>
+<li>If the probability that a label is observed depends on the unobserved class
+  after conditioning on <span class="arithmatex">\(x\)</span>, the ordinary M2 objective does not repair that
+  selection mechanism. The label-observation process must be modeled or
+  sensitivity-analyzed.</li>
+</ul>
+<h3 id="vector-quantized-vae-vq-vae">Vector Quantized VAE (VQ-VAE)<a class="headerlink" href="#vector-quantized-vae-vq-vae" title="Permanent link">¤</a></h3>
+<p>VQ-VAE (<a href="https://proceedings.neurips.cc/paper/2017/hash/7a98af17e63a0ac09ce2e96d03992fbc-Abstract.html">van den Oord et al., 2017</a>)
+turns each continuous encoder vector into a finite index and its associated
+embedding. This creates two related but different latent objects:</p>
+<ul>
+<li>the <strong>index</strong> <span class="arithmatex">\(C_j\in\{1,\ldots,K\}\)</span>, which a categorical prior models; and</li>
+<li>the <strong>embedding</strong> <span class="arithmatex">\(E_{C_j}\in\mathbb R^d\)</span>, which the decoder consumes.</li>
+</ul>
+<p>For position <span class="arithmatex">\(j\)</span>, let <span class="arithmatex">\(A_j=E_\phi(x)_j\)</span> be the encoder output and let
+<span class="arithmatex">\(\mathcal C=\{e_1,\ldots,e_K\}\)</span> be the codebook. Squared-Euclidean nearest-
+neighbour quantization gives</p>
+<div class="arithmatex">\[
+\begin{aligned}
+c_j(x)
+&amp;=\arg\min_{k\in\{1,\ldots,K\}}
+  \lVert A_j-e_k\rVert_2^2,\\
+Z_{q,j}(x)&amp;=e_{c_j(x)},\\
+q_\phi(C_j=k\mid x)&amp;=\mathbf 1\{k=c_j(x)\}.
+\end{aligned}
+\]</div>
+<p>The tie rule, distance metric, feature normalization, and search approximation
+are part of this encoder. An index is not itself a point in Euclidean space:
+renaming every index while permuting the codebook leaves the codec unchanged,
+but can invalidate a separately trained prior that expects the old names.</p>
+<h4 id="a-probabilistic-statement-and-an-optimization-recipe">A probabilistic statement and an optimization recipe<a class="headerlink" href="#a-probabilistic-statement-and-an-optimization-recipe" title="Permanent link">¤</a></h4>
+<p>If every position has a uniform categorical prior
+<span class="arithmatex">\(p(C_j=k)=1/K\)</span> and the posterior above is deterministic, then</p>
+<div class="arithmatex">\[
+D_{\mathrm{KL}}\!\left(q_\phi(C_j\mid x)\,\|\,p(C_j)\right)
+=\log K.
+\]</div>
+<p>For <span class="arithmatex">\(T\)</span> positions with a factorized uniform prior, the KL is <span class="arithmatex">\(T\log K\)</span> and
+does not train the encoder. The reconstruction term is therefore the only
+data-dependent term in that elementary ELBO. The codebook and commitment terms
+below are auxiliary optimization terms; they should not be silently described
+as likelihood or KL terms.</p>
+<p>Define the straight-through decoder input</p>
+<div class="arithmatex">\[
+Z_{q,j}^{\mathrm{ST}}
+=A_j+\operatorname{sg}\!\left(e_{c_j}-A_j\right),
+\]</div>
+<p>where <span class="arithmatex">\(\operatorname{sg}\)</span> is identity in the forward pass and has zero
+derivative. The decoder sees <span class="arithmatex">\(e_{c_j}\)</span>, while automatic differentiation uses
+<span class="arithmatex">\(\partial Z_{q,j}^{\mathrm{ST}}/\partial A_j=I\)</span> and
+<span class="arithmatex">\(\partial Z_{q,j}^{\mathrm{ST}}/\partial e_{c_j}=0\)</span>. A common loss is</p>
+<div class="arithmatex">\[
+\begin{aligned}
+\mathcal J_{\mathrm{codec}}
+=&amp;-\log p_\theta\!\left(x\mid Z_q^{\mathrm{ST}}\right)\\
+&amp;+\alpha\sum_j
+  \left\lVert\operatorname{sg}(A_j)-e_{c_j}\right\rVert_2^2
++\beta\sum_j
+  \left\lVert A_j-\operatorname{sg}(e_{c_j})\right\rVert_2^2.
+\end{aligned}
+\]</div>
+<p>The first line may be a declared negative log likelihood or a reconstruction,
+perceptual, adversarial, or task loss. Only a normalized observation model makes
+it a likelihood. The second line contains, respectively, the codebook and
+commitment losses. Their coefficients depend on reduction axes, feature scale,
+and the other loss terms; values from one implementation are not universal.</p>
+<figure class="book-figure" id="fig-vae-explained-a-probabilistic-statement-and-an-optimization-recipe"><pre class="mermaid"><code>%%{init: {'themeCSS': '.nodeLabel p { color: #111827 !important; } .flowchart-link { stroke: #78879a !important; stroke-width: 2px !important; } marker path { fill: #78879a !important; stroke: #78879a !important; }'}}%%
+flowchart TD
+    X["Input&amp;nbsp;$$x$$"] --&gt; ENC["Encoder"]
+    ENC --&gt; A["Encoder vectors&amp;nbsp;$$A$$"]
+    A --&gt; Q["Nearest-code assignment"]
+    CB["Codebook"] --&gt; Q
+    Q --&gt; Z["Selected embeddings"]
+    Z --&gt; DEC["Decoder"]
+    DEC --&gt; REC["Reconstruction loss"]
+
+    REC -. "ordinary gradient" .-&gt; DEC
+    REC -. "straight-through copy" .-&gt; ENC
+    LCB["Codebook loss or EMA"] -. "selected-code update" .-&gt; CB
+    LCOM["Commitment loss"] -. "encoder update" .-&gt; ENC
+
+    style Q fill:#ffebee,color:#111827
+    style CB fill:#e1f5ff,color:#111827
+    style LCB fill:#fff9c4,color:#111827
+    style LCOM fill:#fff9c4,color:#111827</code></pre><figcaption class="book-object-caption"><span class="book-object-number">Figure VAE.10.</span> A probabilistic statement and an optimization recipe</figcaption></figure>
+<p>The dashed arrows are backward/update routes, not additional forward edges.
+Under this construction, reconstruction gradients update the decoder and are
+copied to the encoder; they do not update the codebook. The codebook loss or an
+EMA rule supplies the codebook update, and the commitment loss supplies an
+additional encoder update. A system that routes gradients differently is a
+different estimator and must say so.</p>
+<h4 id="ema-codebook-updates-are-online-clustering">EMA codebook updates are online clustering<a class="headerlink" href="#ema-codebook-updates-are-online-clustering" title="Permanent link">¤</a></h4>
+<p>The codebook-loss gradient pulls a selected vector toward the mean of its
+assigned encoder outputs. An exponential-moving-average implementation tracks
+the same sufficient statistics. Let <span class="arithmatex">\(n_k^{(t)}\)</span> and <span class="arithmatex">\(s_k^{(t)}\)</span> be the current
+minibatch count and sum for code <span class="arithmatex">\(k\)</span>:</p>
+<div class="arithmatex">\[
+n_k^{(t)}=\sum_j\mathbf 1\{c_j=k\},
+\qquad
+s_k^{(t)}=\sum_{j:c_j=k}A_j.
+\]</div>
+<p>With decay <span class="arithmatex">\(\gamma\in[0,1)\)</span>, update</p>
+<div class="arithmatex">\[
+\begin{aligned}
+N_k^{(t)}&amp;=\gamma N_k^{(t-1)}+(1-\gamma)n_k^{(t)},\\
+M_k^{(t)}&amp;=\gamma M_k^{(t-1)}+(1-\gamma)s_k^{(t)},\\
+e_k^{(t)}&amp;=\frac{M_k^{(t)}}{N_k^{(t)}}.
+\end{aligned}
+\]</div>
+<p>Implementations often smooth the denominator, bias-correct early iterates, or
+use the opposite convention for the number called “decay.” State the exact
+recurrence. In distributed training, counts and sums must be aggregated across
+replicas before every replica applies the same update.</p>
+<p><strong>Worked two-code example.</strong> Start with scalar codes <span class="arithmatex">\(e_1=0\)</span> and <span class="arithmatex">\(e_2=4\)</span>,
+statistics <span class="arithmatex">\((N_1,M_1)=(2,0)\)</span> and <span class="arithmatex">\((N_2,M_2)=(1,4)\)</span>, and decay
+<span class="arithmatex">\(\gamma=1/2\)</span>. A minibatch produces encoder values <span class="arithmatex">\(0.5,1.5,5.0\)</span>. Nearest-code
+assignment sends the first two values to code 1 and the last to code 2, so</p>
+<div class="md-typeset__table book-table-container"><table id="tbl-vae-explained-ema-codebook-updates-are-online-clustering"><caption class="book-object-caption"><span class="book-object-number">Table VAE.8.</span> EMA codebook updates are online clustering</caption>
+<thead>
+<tr>
+<th>Code</th>
+<th style="text-align: right;"><span class="arithmatex">\(n_k\)</span></th>
+<th style="text-align: right;"><span class="arithmatex">\(s_k\)</span></th>
+<th style="text-align: right;">New <span class="arithmatex">\(N_k\)</span></th>
+<th style="text-align: right;">New <span class="arithmatex">\(M_k\)</span></th>
+<th style="text-align: right;">New <span class="arithmatex">\(e_k\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td style="text-align: right;"><span class="arithmatex">\(2\)</span></td>
+<td style="text-align: right;"><span class="arithmatex">\(2\)</span></td>
+<td style="text-align: right;"><span class="arithmatex">\(2\)</span></td>
+<td style="text-align: right;"><span class="arithmatex">\(1\)</span></td>
+<td style="text-align: right;"><span class="arithmatex">\(0.5\)</span></td>
+</tr>
+<tr>
+<td>2</td>
+<td style="text-align: right;"><span class="arithmatex">\(1\)</span></td>
+<td style="text-align: right;"><span class="arithmatex">\(5\)</span></td>
+<td style="text-align: right;"><span class="arithmatex">\(1\)</span></td>
+<td style="text-align: right;"><span class="arithmatex">\(4.5\)</span></td>
+<td style="text-align: right;"><span class="arithmatex">\(4.5\)</span></td>
+</tr>
+</tbody>
+</table></div>
+<p>The update retains history: code 1 does not jump to the current batch mean
+<span class="arithmatex">\(1.0\)</span>. If a code receives no assignment, both its count and sum decay; their
+ratio does not move toward new data. EMA alone therefore does not revive a dead
+code. Reinitialization, split/merge rules, usage regularization, changed
+geometry, or a different quantizer must be evaluated as separate interventions.</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a href="#__codelineno-0-1" id="__codelineno-0-1" name="__codelineno-0-1"></a># Pseudocode: synchronized EMA update
+</span><span id="__span-0-2"><a href="#__codelineno-0-2" id="__codelineno-0-2" name="__codelineno-0-2"></a>assignment = nearest_code(encoder_vectors, codebook)
+</span><span id="__span-0-3"><a href="#__codelineno-0-3" id="__codelineno-0-3" name="__codelineno-0-3"></a>batch_count = count_by_code(assignment)
+</span><span id="__span-0-4"><a href="#__codelineno-0-4" id="__codelineno-0-4" name="__codelineno-0-4"></a>batch_sum = sum_vectors_by_code(encoder_vectors, assignment)
+</span><span id="__span-0-5"><a href="#__codelineno-0-5" id="__codelineno-0-5" name="__codelineno-0-5"></a>batch_count = all_reduce_sum(batch_count)
+</span><span id="__span-0-6"><a href="#__codelineno-0-6" id="__codelineno-0-6" name="__codelineno-0-6"></a>batch_sum = all_reduce_sum(batch_sum)
+</span><span id="__span-0-7"><a href="#__codelineno-0-7" id="__codelineno-0-7" name="__codelineno-0-7"></a>running_count = decay * running_count + (1 - decay) * batch_count
+</span><span id="__span-0-8"><a href="#__codelineno-0-8" id="__codelineno-0-8" name="__codelineno-0-8"></a>running_sum = decay * running_sum + (1 - decay) * batch_sum
+</span><span id="__span-0-9"><a href="#__codelineno-0-9" id="__codelineno-0-9" name="__codelineno-0-9"></a>codebook = running_sum / smoothed(running_count)
+</span></code></pre></div>
+<h4 id="the-general-discrete-gradient-problem">The general discrete-gradient problem<a class="headerlink" href="#the-general-discrete-gradient-problem" title="Permanent link">¤</a></h4>
+<p>VQ uses deterministic nearest-neighbour assignments, but a VAE may instead use
+a stochastic categorical posterior. Let</p>
+<div class="arithmatex">\[
+J(\phi)=\mathbb E_{C\sim q_\phi}[F_\phi(C)]
+=\sum_{c}q_\phi(c)F_\phi(c).
+\]</div>
+<p>Whenever differentiation and summation may be interchanged,</p>
+<div class="arithmatex">\[
+\nabla_\phi J
+=\mathbb E_q\!\left[
+  \nabla_\phi F_\phi(C)
+  +F_\phi(C)\nabla_\phi\log q_\phi(C)
+\right].
+\]</div>
+<p>This identity exposes the choices rather than claiming that discrete variables
+cannot be optimized with gradients.</p>
+<p><strong>Exact finite example.</strong> Let three categories have
+<span class="arithmatex">\(q=(0.2,0.5,0.3)\)</span> and losses <span class="arithmatex">\(F=(4,1,2)\)</span>. Then <span class="arithmatex">\(J=1.9\)</span>. If <span class="arithmatex">\(a\)</span> are the
+categorical logits, softmax differentiation gives</p>
+<div class="arithmatex">\[
+\frac{\partial J}{\partial a_k}=q_k(F_k-J),
+\qquad
+\nabla_aJ=(0.42,-0.45,0.03).
+\]</div>
+<p>These exact values are a useful unit-test oracle. Enumeration requires three
+decoder evaluations here, but a joint state of <span class="arithmatex">\(L\)</span> unrestricted categorical
+variables has <span class="arithmatex">\(K^L\)</span> configurations. Dynamic programming or local enumeration
+can still be exact when the factorization permits it.</p>
+<p>For sampled hard categories, the score-function estimator uses</p>
+<div class="arithmatex">\[
+\widehat g_{\mathrm{SF}}
+=\nabla_\phi F_\phi(C)
++\bigl(F_\phi(C)-b\bigr)\nabla_\phi\log q_\phi(C),
+\qquad C\sim q_\phi.
+\]</div>
+<p>A baseline <span class="arithmatex">\(b\)</span> that does not depend on the sampled category, conditional on the
+information already observed, leaves the expectation unchanged and can reduce
+variance. Learned baselines, leave-one-out baselines, Rao–Blackwellization,
+antithetic coupling, and relaxation-based control variates differ in cost and
+assumptions. <a href="https://proceedings.mlr.press/v32/mnih14.html">NVIL</a>,
+<a href="https://proceedings.mlr.press/v48/mnihb16.html">VIMCO</a>,
+<a href="https://proceedings.neurips.cc/paper/2017/hash/ebd6d2f5d60ff9afaeda1a81fc53e2d0-Abstract.html">REBAR</a>,
+and <a href="https://openreview.net/forum?id=SyzKd1bCW">RELAX</a> are representative
+constructions. “Unbiased” describes the named gradient target under its
+conditions; it does not mean low variance or low finite-compute error.</p>
+<h4 id="gumbelsoftmax-and-hard-straight-through-samples">Gumbel–Softmax and hard straight-through samples<a class="headerlink" href="#gumbelsoftmax-and-hard-straight-through-samples" title="Permanent link">¤</a></h4>
+<p>For categorical probabilities <span class="arithmatex">\(\pi_1,\ldots,\pi_K\)</span>, draw independent
+<span class="arithmatex">\(U_k\sim\operatorname{Uniform}(0,1)\)</span> and set
+<span class="arithmatex">\(G_k=-\log[-\log U_k]\)</span>. The Gumbel-max rule</p>
+<div class="arithmatex">\[
+H=\operatorname{onehot}\!\left(
+\arg\max_k\{\log\pi_k+G_k\}
+\right)
+\]</div>
+<p>is an exact categorical sample. The hard <code>argmax</code> remains nondifferentiable.
+<a href="https://openreview.net/pdf?id=rkE3y85ee">Gumbel–Softmax</a> and the
+<a href="https://arxiv.org/abs/1611.00712">Concrete distribution</a> replace it by a
+simplex-valued sample</p>
+<div class="arithmatex">\[
+Y_{\tau,k}
+=\frac{\exp[(\log\pi_k+G_k)/\tau]}
+       {\sum_{r=1}^{K}\exp[(\log\pi_r+G_r)/\tau]},
+\qquad \tau&gt;0.
+\]</div>
+<p>The decoder may consume the mixture <span class="arithmatex">\(\sum_kY_{\tau,k}e_k\)</span>, which permits a
+pathwise gradient. At finite temperature, however, the decoder is trained on
+interior simplex points rather than categorical vertices. It therefore
+optimizes a relaxed objective, not the original hard-discrete expectation.
+As <span class="arithmatex">\(\tau\)</span> decreases, samples concentrate near vertices, while derivatives carry
+a <span class="arithmatex">\(1/\tau\)</span> scale and saturate away from close competitions. Low temperature is
+not a free route to an unbiased, low-variance gradient.</p>
+<p>A hard-forward, soft-backward construction uses</p>
+<div class="arithmatex">\[
+Y_{\mathrm{ST}}
+=\operatorname{sg}(H-Y_\tau)+Y_\tau.
+\]</div>
+<p>The forward value is <span class="arithmatex">\(H\)</span> and the backward Jacobian is that of <span class="arithmatex">\(Y_\tau\)</span>. This
+removes the decoder's soft-input mismatch in the forward pass but does not make
+the gradient unbiased. Likewise, copying an identity derivative through a hard
+binary threshold is only a surrogate: if
+<span class="arithmatex">\(C\sim\operatorname{Bernoulli}(\sigma(a))\)</span> and <span class="arithmatex">\(F(C)=C\)</span>, the true derivative is
+<span class="arithmatex">\(\sigma(a)[1-\sigma(a)]\)</span>, whereas an identity straight-through rule returns
+<span class="arithmatex">\(1\)</span>. A straight-through estimator can work well without being the derivative
+of the declared discrete objective.</p>
+<h4 id="choose-the-estimator-by-its-target">Choose the estimator by its target<a class="headerlink" href="#choose-the-estimator-by-its-target" title="Permanent link">¤</a></h4>
+<div class="md-typeset__table book-table-container"><table id="tbl-vae-explained-choose-the-estimator-by-its-target"><caption class="book-object-caption"><span class="book-object-number">Table VAE.9.</span> Choose the estimator by its target</caption>
+<thead>
+<tr>
+<th>Method</th>
+<th>Forward latent</th>
+<th>Gradient target</th>
+<th>Main advantage</th>
+<th>Main limitation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Exact enumeration / variable elimination</td>
+<td>hard discrete</td>
+<td>exact finite sum</td>
+<td>no sampling variance or relaxation bias</td>
+<td>cost grows with support unless structure is exploited</td>
+</tr>
+<tr>
+<td>Score function with controls</td>
+<td>hard sampled discrete</td>
+<td>unbiased gradient of the declared expectation under regularity conditions</td>
+<td>black-box loss; no continuous extension required</td>
+<td>often high variance; controls and sample coupling matter</td>
+</tr>
+<tr>
+<td>Gumbel–Softmax / Concrete</td>
+<td>soft simplex</td>
+<td>pathwise gradient of a temperature-dependent relaxation</td>
+<td>simple, usually lower-variance differentiation</td>
+<td>biased for the hard objective; decoder sees off-vertex inputs</td>
+</tr>
+<tr>
+<td>Hard Gumbel straight-through</td>
+<td>hard forward, soft backward</td>
+<td>surrogate soft Jacobian</td>
+<td>hard decoder inputs with convenient backpropagation</td>
+<td>biased hybrid; sensitive to temperature and logit scale</td>
+</tr>
+<tr>
+<td>Nearest-neighbour VQ straight-through</td>
+<td>deterministic code index</td>
+<td>identity or chosen surrogate through assignment</td>
+<td>efficient tokenizer training</td>
+<td>no categorical uncertainty; codebook needs a separate update</td>
+</tr>
+<tr>
+<td>Coupled, antithetic, or learned-control estimators</td>
+<td>hard sampled discrete</td>
+<td>method-specific, often unbiased</td>
+<td>can reduce score-function variance</td>
+<td>extra evaluations, restrictions, and implementation complexity vary</td>
+</tr>
+</tbody>
+</table></div>
+<p>Estimator comparisons must match the objective, number of function evaluations,
+batch size, random-number coupling, wall-clock cost, and whether model and
+inference parameters use the same estimator. Lower training loss under a relaxed
+objective is not evidence of a better hard-discrete likelihood.</p>
+<h4 id="learning-the-code-prior-changes-the-model">Learning the code prior changes the model<a class="headerlink" href="#learning-the-code-prior-changes-the-model" title="Permanent link">¤</a></h4>
+<p>After fitting a codec, encode the training set into index sequences <span class="arithmatex">\(c(x)\)</span> and
+fit a prior by minimizing</p>
+<div class="arithmatex">\[
+\mathcal J_{\mathrm{prior}}(\psi)
+=-\mathbb E_{x\sim\mathcal D}\log p_\psi(c(x)).
+\]</div>
+<p>The resulting probabilistic generator is</p>
+<div class="arithmatex">\[
+p_{\psi,\theta}(x)
+=\sum_c p_\psi(c)\,p_\theta(x\mid e_c),
+\]</div>
+<p>when the decoder defines a normalized conditional distribution. With a
+deterministic renderer it is instead a pushforward sampler unless an observation
+model is added. An autoregressive, masked, diffusion, flow, or other categorical
+model can serve as <span class="arithmatex">\(p_\psi\)</span>; the family name does not follow from the codec.</p>
+<p>Training this prior after freezing the codec does <strong>not</strong> retroactively turn the
+first-stage reconstruction-plus-auxiliary loss into the joint ELBO for the
+learned prior. Joint fine-tuning is possible, but the prior loss reaches the
+encoder only through an explicitly declared estimator, and a moving tokenizer
+changes the prior's target data. Checkpoint compatibility therefore includes
+encoder, codebook, index ordering, latent shape, preprocessing, and decoder.</p>
+<h4 id="evaluate-four-layers-separately">Evaluate four layers separately<a class="headerlink" href="#evaluate-four-layers-separately" title="Permanent link">¤</a></h4>
+<div class="md-typeset__table book-table-container"><table id="tbl-vae-explained-evaluate-four-layers-separately"><caption class="book-object-caption"><span class="book-object-number">Table VAE.10.</span> Evaluate four layers separately</caption>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Required measurements</th>
+<th>What it diagnoses</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Codec reconstruction</td>
+<td>declared distortion/likelihood, perceptual or task metrics, latent shape, actual bitrate when applicable</td>
+<td>information lost before prior modeling</td>
+</tr>
+<tr>
+<td>Assignment and codebook</td>
+<td>quantization error, count histogram, utilization, entropy/perplexity, dead-code duration, stability across data and replicas</td>
+<td>whether nominal capacity is used and stable</td>
+</tr>
+<tr>
+<td>Frozen-code prior</td>
+<td>held-out token NLL/cross-entropy, calibration or conditional metrics, sampling cost</td>
+<td>how well <span class="arithmatex">\(p_\psi\)</span> models the fixed encoded-data distribution</td>
+</tr>
+<tr>
+<td>End-to-end generation</td>
+<td>decoded quality, coverage, memorization, conditional fidelity, decoder cost</td>
+<td>behavior of the complete prior–codec system</td>
+</tr>
+</tbody>
+</table></div>
+<p>For empirical code probabilities <span class="arithmatex">\(\widehat p_k=n_k/\sum_r n_r\)</span>, code
+perplexity is</p>
+<div class="arithmatex">\[
+\operatorname{PPL}_{\mathrm{code}}
+=\exp\!\left(-\sum_{k:\widehat p_k&gt;0}
+\widehat p_k\log\widehat p_k\right).
+\]</div>
+<p>It lies between <span class="arithmatex">\(1\)</span> and <span class="arithmatex">\(K\)</span>, but high perplexity alone is not quality: an
+encoder can use every code for noise, and a prior can still model the resulting
+sequence poorly. Conversely, a low perplexity can reflect genuinely low source
+entropy or harmful collapse. Compare it with reconstruction, conditional
+information, prior NLL, and interventions.</p>
+<h4 id="alternatives-and-current-research-boundaries">Alternatives and current research boundaries<a class="headerlink" href="#alternatives-and-current-research-boundaries" title="Permanent link">¤</a></h4>
+<ul>
+<li><a href="https://proceedings.iclr.cc/paper_files/paper/2024/hash/e2dd53601de57c773343a7cdf09fae1c-Abstract-Conference.html">Finite Scalar Quantization</a>
+  (<strong>Peer-reviewed research</strong>) constructs an implicit product codebook from
+  fixed scalar levels and removes learned nearest-neighbour code vectors. Its
+  reported robustness does not imply that every factorized code geometry is
+  suitable for every source or downstream prior.</li>
+<li><a href="https://nips.cc/virtual/2023/poster/70546">ReinMax</a> and
+  <a href="https://openreview.net/forum?id=crlvtnsyIT">Beyond ReinMax</a>
+  (<strong>Peer-reviewed research</strong>, with the latter accepted by TMLR in 2026) study
+  increasingly accurate or variance-controlled straight-through-family
+  estimators for stochastic discrete latents. Their benchmark results do not
+  make one estimator uniformly best across support size, hierarchy, and compute.</li>
+<li><a href="https://openreview.net/forum?id=eETr3lrOQB">VQ-Transplant</a> (ICLR 2026) and
+  <a href="https://openreview.net/forum?id=Y3cUZ8fNnu">IVQ</a> (ICML 2026) are
+  <strong>peer-reviewed research</strong> on efficient module replacement and structured
+  codebooks, respectively. They address codebook construction and adaptation,
+  not the general discrete-gradient problem.</li>
+<li>Diffusion-based categorical reparameterization
+  (<a href="https://openreview.net/forum?id=QSmLvGw9xB">Gourevitch et al., 2026</a>) is a
+  <strong>workshop paper</strong>. It belongs in the evidence map as a developing relaxation,
+  not as an established replacement for enumeration, score-function, or
+  Gumbel-based estimators.</li>
+</ul>
+<h4 id="applications">Applications<a class="headerlink" href="#applications" title="Permanent link">¤</a></h4>
+<ul>
+<li><strong>DALL·E 1</strong> (<a href="https://arxiv.org/abs/2102.12092">Ramesh et al., 2021</a>) uses
+  a transformer prior over discrete image codes. Later DALL·E systems should
+  not be inferred to use the same model from the shared product name.</li>
+<li><strong>Jukebox</strong> (<a href="https://arxiv.org/abs/2005.00341">Dhariwal et al., 2020</a>) uses
+  hierarchical VQ representations for raw audio and separate priors over their
+  code streams.</li>
+<li><strong>VQGAN</strong> (<a href="https://arxiv.org/abs/2012.09841">Esser et al., 2021</a>) combines
+  quantization with perceptual and adversarial codec losses and a transformer
+  prior. This is a hybrid objective, not evidence that quantization itself makes
+  reconstructions sharp.</li>
+<li><strong>Neural audio codecs</strong> use residual or grouped codebooks whose order,
+  bandwidth, and delayed generation patterns become part of the downstream
+  prior's factorization.</li>
+</ul>
+<hr/>
+<h2 id="training-dynamics-and-common-challenges">Training Dynamics and Common Challenges<a class="headerlink" href="#training-dynamics-and-common-challenges" title="Permanent link">¤</a></h2>
+<h3 id="posterior-collapse">Posterior Collapse<a class="headerlink" href="#posterior-collapse" title="Permanent link">¤</a></h3>
+<p><strong>What is it?</strong></p>
+<p>The encoder learns to ignore the input, producing latent codes that are essentially identical to the prior <span class="arithmatex">\(q_\phi(z|x) \approx p(z)\)</span>. The decoder learns to generate data without using latent information, defeating the purpose of the model.</p>
+<p><strong>Candidate diagnostics:</strong></p>
+<ul>
+<li>per-group KL and active-unit profiles across data rather than only a total scalar</li>
+<li>decoder sensitivity to replacing <span class="arithmatex">\(z\)</span> with a prior draw or posterior mean</li>
+<li>estimates of <span class="arithmatex">\(I_q(X;Z)\)</span> with estimator and bias limitations stated</li>
+<li>reconstruction and conditional-generation changes under latent interventions</li>
+</ul>
+<p><strong>Why does it happen?</strong></p>
+<p>Powerful autoregressive decoders (especially in text VAEs) can model <span class="arithmatex">\(p(x)\)</span> without needing latent information. The KL term drives encodings toward the prior, and if the decoder doesn't need <span class="arithmatex">\(z\)</span>, the KL term wins.</p>
+<figure class="book-figure" id="fig-vae-explained-posterior-collapse"><pre class="mermaid"><code>%%{init: {'themeCSS': '.nodeLabel p { color: #111827 !important; } .flowchart-link { stroke: #78879a !important; stroke-width: 2px !important; } marker path { fill: #78879a !important; stroke: #78879a !important; }'}}%%
+graph TD
+    A[Strong Decoder] --&gt; B{Can the decoder ignore&lt;br/&gt;the latent variable?}
+    B --&gt;|Yes| C[Ignores Latent Code]
+    B --&gt;|No| D[Uses Latent Code]
+    C --&gt; E[Posterior Collapse]
+    D --&gt; F["Latent is used&lt;br/&gt;(utility still must be tested)"]
+
+    G[KL Annealing] --&gt; D
+    H[Weak Decoder] --&gt; D
+    I[Free Bits] --&gt; D
+
+    style E fill:#ffccbc,color:#111827
+    style F fill:#c8e6c9,color:#111827</code></pre><figcaption class="book-object-caption"><span class="book-object-number">Figure VAE.11.</span> Posterior Collapse</figcaption></figure>
+<p><strong>Interventions to test with controlled ablations:</strong> no intervention has a universal effectiveness ranking. Its effect depends on the decoder, data, likelihood, latent grouping, optimiser, and evaluation target.</p>
+<ol>
+<li><strong>KL Annealing</strong>: Start with <span class="arithmatex">\(\beta=0\)</span> and ramp toward the intended objective so the encoder can become informative before receiving the full KL pressure.</li>
+<li><strong>Linear</strong> (<a href="https://arxiv.org/abs/1511.06349">Bowman et al., 2015</a>): <code>beta = min(1.0, step / warmup_steps)</code>. The warmup fraction is a protocol choice, not a transferable constant.</li>
+<li><strong>Cyclical</strong> (<a href="https://arxiv.org/abs/1903.10145">Fu et al., 2019</a>): repeat the 0→1 ramp. It improved the evaluated NLP settings in the original paper, but it changes the optimisation path and is not guaranteed to dominate a well-tuned monotonic schedule.</li>
+<li>
+<p><strong>Sigmoid / monotonic</strong> schedules are also common. Report the complete schedule and compare against training the target objective without annealing.</p>
+</li>
+<li>
+<p><strong>Free bits</strong> (<a href="https://arxiv.org/abs/1606.04934">Kingma et al., 2016</a>): make the objective insensitive to reducing a latent group's average KL below a chosen budget <span class="arithmatex">\(\lambda_g\)</span>:</p>
+<div class="arithmatex">\[
+\widetilde{\mathcal{L}}_{\mathrm{KL}}
+=\sum_g\max\!\left(
+\lambda_g,
+\mathbb E_{x\sim\mathcal D}
+D_{\mathrm{KL}}\!\left(q_\phi(z_g\mid x)\|p(z_g)\right)
+\right).
+\]</div>
+<p>A minibatch average usually estimates the data expectation. The floor removes the objective's incentive to shrink an already-small group KL; it does <strong>not</strong> force KL upward, guarantee <span class="arithmatex">\(\lambda_g\)</span> nats of mutual information <span class="arithmatex">\(I_q(X;Z_g)\)</span>, or guarantee that each coordinate is active. Report the unclamped KL and an information/active-unit diagnostic separately.</p>
+</li>
+<li>
+<p><strong>δ-VAE</strong> (<a href="https://arxiv.org/abs/1901.03416">Razavi et al., 2019</a>): replace the standard normal prior with a constrained family (e.g., AR-1 latent dynamics) that has a strict lower bound on KL, eliminating the collapsed solution from the optimisation landscape entirely.</p>
+</li>
+<li>
+<p><strong><span class="arithmatex">\(\beta\)</span>-VAE with <span class="arithmatex">\(\beta&lt;1\)</span></strong>: Reducing KL pressure can increase latent usage, but changes the rate–distortion operating point and no longer optimises the ordinary ELBO. Tune <span class="arithmatex">\(\beta\)</span> against a declared downstream objective; there is no modality-independent recommended range.</p>
+</li>
+<li>
+<p><strong>Word dropout</strong> (for text): Randomly replace some decoder inputs so the decoder cannot rely exclusively on autoregressive shortcuts. The corruption rate changes the conditional model and must be tuned and reported rather than copied as a universal percentage.</p>
+</li>
+<li>
+<p><strong>Changing decoder information access</strong>: reduce receptive field/capacity, add latent connections, or corrupt teacher-forced inputs. This can force latent use while worsening the observation model, so compare likelihood and downstream utility rather than calling weaker automatically healthier.</p>
+</li>
+</ol>
+<h3 id="blurry-reconstructions">Blurry Reconstructions<a class="headerlink" href="#blurry-reconstructions" title="Permanent link">¤</a></h3>
+<p><strong>Why it happens:</strong></p>
+<p>With fixed-variance Gaussian likelihood and a deterministic mean decoder, squared-error risk is minimized by the conditional mean. When <span class="arithmatex">\(z\)</span> leaves unresolved multimodal detail, that mean can average incompatible outcomes. Blur is therefore linked to the observation model, information bottleneck, architecture, and data—not to “VAEs” as an unavoidable family property.</p>
+<p><strong>Solutions:</strong></p>
+<ol>
+<li><strong>Perceptual Loss</strong> (<a href="https://arxiv.org/abs/1801.03924">LPIPS — Zhang et al., 2018</a>): Replace pixel-wise MSE with VGG/AlexNet feature matching.</li>
+<li>Significantly improves sharpness while maintaining structure.</li>
+<li>
+<p>Used in <strong>DFC-VAE</strong> (<a href="https://arxiv.org/abs/1610.00291">Hou et al., 2017</a>) and inside the SD-VAE training recipe.</p>
+</li>
+<li>
+<p><strong>Adversarial Training</strong>: Add a discriminator to penalise unrealistic outputs.</p>
+</li>
+<li><strong>VAE-GAN</strong> (<a href="https://arxiv.org/abs/1512.09300">Larsen et al., 2016</a>) is the canonical recipe.</li>
+<li>The Stable Diffusion VAE adds a <strong>PatchGAN</strong> (<a href="https://arxiv.org/abs/1611.07004">Isola et al., 2017</a>) discriminator on top of LPIPS + L1.</li>
+<li>
+<p>Combines reconstruction, KL, and adversarial losses.</p>
+</li>
+<li>
+<p><strong>Multi-scale SSIM</strong> (<a href="https://www.cns.nyu.edu/pub/eero/wang03b.pdf">Wang et al., 2003</a>): Structural-similarity loss across multiple resolutions, better correlated with perceptual quality than MSE.</p>
+</li>
+<li>
+<p><strong>VQ-VAE / VQGAN</strong> (<a href="https://arxiv.org/abs/1711.00937">van den Oord et al., 2017</a>; <a href="https://arxiv.org/abs/2012.09841">Esser et al., 2021</a>): Discrete latents and adversarial training together produce sharper outputs.</p>
+</li>
+<li>
+<p><strong>Learned Variance</strong>: Let the decoder predict per-pixel variance <span class="arithmatex">\(\sigma^2_\theta(z)\)</span> instead of using a fixed σ² — recovers a proper Gaussian likelihood and lets the model express its own uncertainty.</p>
+</li>
+</ol>
+<h3 id="optimization-challenges">Optimization Challenges<a class="headerlink" href="#optimization-challenges" title="Permanent link">¤</a></h3>
+<p><strong>NaN losses:</strong></p>
+<ul>
+<li>Match the decoder output parameterisation to the observation model: a Bernoulli likelihood uses logits; a bounded continuous or discretised likelihood needs its own valid parameterisation. Pixel scaling alone does not imply a sigmoid decoder.</li>
+<li>If clipping is justified, clip the norm of the complete gradient PyTree with <code>optax.clip_by_global_norm</code>; coordinate-wise <code>jnp.clip</code> changes gradient direction and is a different intervention.</li>
+<li>Parameterize either unconstrained <code>log_var</code> directly (with optional clipping) or a positive scale, <code>sigma = nnx.softplus(sigma_raw) + 1e-6</code>, followed by <code>log_var = 2 * jnp.log(sigma)</code>. Do <strong>not</strong> apply softplus to <code>log_var</code> itself: that unnecessarily forces the variance above one.</li>
+<li>Reduce learning rate if gradients explode</li>
+</ul>
+<p><strong>Loss not decreasing:</strong></p>
+<ul>
+<li>Verify loss signs: minimize negative ELBO</li>
+<li>Check that data range/support matches the declared observation distribution and decoder parameterization; there is no universal <code>[0,1]</code> or <code>[-1,1]</code> rule</li>
+<li>Ensure encoder-decoder dimension matching</li>
+<li>Monitor gradient norms and non-finite values relative to model size, optimiser, precision, and clipping rule. No universal healthy raw-norm interval transfers across architectures.</li>
+</ul>
+<p><strong>Imbalanced loss terms:</strong></p>
+<ul>
+<li>Reconstruction loss sums over many pixels; KL sums over few latent dimensions</li>
+<li>Choose and report a consistent reduction and objective weighting; changing from sums to means or introducing <span class="arithmatex">\(\beta\)</span> changes the rate–distortion target</li>
+</ul>
+<h3 id="worked-diagnosis-collapse-or-legitimate-zero-rate">Worked diagnosis: collapse or legitimate zero rate?<a class="headerlink" href="#worked-diagnosis-collapse-or-legitimate-zero-rate" title="Permanent link">¤</a></h3>
+<p>Suppose a conditional VAE predicts <span class="arithmatex">\(x\)</span> from a condition <span class="arithmatex">\(y\)</span> that already determines <span class="arithmatex">\(x\)</span> almost exactly. The decoder can achieve high conditional likelihood without <span class="arithmatex">\(z\)</span>, and the optimum may have <span class="arithmatex">\(q(z\mid x,y)=p(z\mid y)\)</span> with zero conditional rate. Calling this “posterior collapse” describes latent non-use but does not prove optimization failure. If the goal is diverse residual uncertainty given <span class="arithmatex">\(y\)</span>, evaluate multiple valid <span class="arithmatex">\(x\)</span> per condition, conditional coverage, and sensitivity to <span class="arithmatex">\(z\)</span>. If the data contain no residual variation, forcing positive KL only encodes nuisance information.</p>
+<h3 id="independent-practice-and-assessment-map-variants">Independent practice and assessment map: variants<a class="headerlink" href="#independent-practice-and-assessment-map-variants" title="Permanent link">¤</a></h3>
+<p>Treat each named variant as a change to a probability object, objective,
+estimator, or optimization route. A family name without that decomposition is
+not a complete answer.</p>
+<h4 id="p1-design-and-falsify-a-missing-modality-discrete-latent-vae">P1 — Design and falsify a missing-modality discrete-latent VAE<a class="headerlink" href="#p1-design-and-falsify-a-missing-modality-discrete-latent-vae" title="Permanent link">¤</a></h4>
+<p>Consider two scalar sensors with prior <span class="arithmatex">\(z\sim\mathcal N(0,1)\)</span> and likelihoods
+<span class="arithmatex">\(x_1\mid z\sim\mathcal N(z,1)\)</span> and
+<span class="arithmatex">\(x_2\mid z\sim\mathcal N(z,4)\)</span>. A second design quantizes an encoder output into
+a four-entry codebook and learns an autoregressive prior over code indices.</p>
+<ol>
+<li><strong>P1.1 — Predict before computing.</strong> Predict which sensor dominates the joint Gaussian posterior, whether exact aggregate matching <span class="arithmatex">\(q(z)=p(z)\)</span> fixes <span class="arithmatex">\(I(X;Z)\)</span>, and whether replacing the Gaussian latent by four codes eliminates latent underuse. Give a counterexample or missing condition for each claim.</li>
+<li><strong>P1.2 — Objective taxonomy.</strong> For <span class="arithmatex">\(\beta\)</span>-VAE, <span class="arithmatex">\(\beta\)</span>-TCVAE, FactorVAE, InfoVAE/MMD-VAE, AAE, CVAE, and VQ-VAE, identify the changed term, probability object, estimator, and intended diagnostic. Mark which objectives remain the ordinary ELBO and which semantic claims require extra assumptions.</li>
+<li><strong>P1.3 — Product-of-experts calculation.</strong> For observations <span class="arithmatex">\((x_1,x_2)=(1,2)\)</span>, calculate the exact Gaussian posterior precision, mean, and variance for each singleton subset and for both sensors. Derive the prior-correction formula when multiplying complete unimodal posteriors and show numerically what goes wrong if the prior is counted twice.</li>
+<li><strong>P1.4 — Semi-supervised bounds.</strong> Write separate labeled and unlabeled objectives for a model <span class="arithmatex">\(p(y)p(z)p_\theta(x\mid y,z)\)</span> with <span class="arithmatex">\(q_\phi(y\mid x)q_\phi(z\mid x,y)\)</span>. Identify where entropy/classification terms enter and why treating an unobserved label as a zero-valued observed label changes the model.</li>
+<li><strong>P1.5 — Discrete-update audit.</strong> For one encoder vector and four code entries, write nearest-code assignment, straight-through reconstruction, codebook, and commitment updates. Route gradients to encoder, decoder, and selected embedding; then design utilization, perplexity, dead-code, and learned-prior tests that distinguish codec failure from prior failure.</li>
+<li><strong>P1.6 — Collapse and intervention study.</strong> Construct matched ablations for KL annealing, free bits, weaker decoder information access, <span class="arithmatex">\(\beta&lt;1\)</span>, and a changed posterior family. Report unclamped rate, conditional coverage, prior samples, reconstructions, active units, and held-out bounds, and state which observation would support a legitimate zero-rate optimum.</li>
+<li><strong>P1.7 — Transfer.</strong> Move the two-sensor design to paired protein sequence and structure observations with informative missingness. Specify the joint versus conditional query, subset-training mask distribution, equivariance requirement, missingness sensitivity analysis, and evidence needed before claiming cross-modal robustness.</li>
+</ol>
+<h5 id="outcome-to-task-alignment-variants">Outcome-to-task alignment: variants<a class="headerlink" href="#outcome-to-task-alignment-variants" title="Permanent link">¤</a></h5>
+<div class="md-typeset__table book-table-container"><table id="tbl-vae-explained-outcome-to-task-alignment-variants"><caption class="book-object-caption"><span class="book-object-number">Table VAE.23.</span> Outcome-to-task alignment for VAE variants</caption>
+<thead>
+<tr>
+<th>Learning objective</th>
+<th>Independently assessed by</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>O1 — Locate the term changed by major VAE variants</td>
+<td>P1.2</td>
+</tr>
+<tr>
+<td>O2 — Separate conditional factorization, aggregate independence, and semantics</td>
+<td>P1.1, P1.2</td>
+</tr>
+<tr>
+<td>O3 — Distinguish conditional and joint multimodal VAEs</td>
+<td>P1.7</td>
+</tr>
+<tr>
+<td>O4 — Derive subset Gaussian product-of-experts updates</td>
+<td>P1.3</td>
+</tr>
+<tr>
+<td>O5 — Write labeled and unlabeled semi-supervised bounds</td>
+<td>P1.4</td>
+</tr>
+<tr>
+<td>O6 — Derive VQ updates and diagnose codebook underuse</td>
+<td>P1.1, P1.5</td>
+</tr>
+<tr>
+<td>O7 — Separate collapse from a valid low-rate optimum</td>
+<td>P1.6</td>
+</tr>
+<tr>
+<td>O8 — Explain what aggregate matching does not determine</td>
+<td>P1.1, P1.2</td>
+</tr>
+<tr>
+<td>O9 — Select interventions through controlled ablation</td>
+<td>P1.6</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="chapter-3-synthesis">Chapter 3 synthesis<a class="headerlink" href="#chapter-3-synthesis" title="Permanent link">¤</a></h3>
+<p>VAE variants change a specific probabilistic or optimization component: objective weights, aggregate-dependence penalties, conditioning, subset inference, label observability, or the latent alphabet. Aggregate-prior matching does not determine per-record information; InfoVAE coefficients, MMD kernels, and adversarial games state different estimator and objective contracts. A conditional model and a joint multimodal model answer different queries. Product aggregation is Bayesian only under its declared message and independence assumptions, while missing-modality robustness depends on the training-mask distribution. None of these variants supplies semantic factors or sharp output by name. Collapse is goal-relative, codebooks have their own utilization failures, and every intervention changes a rate, support, estimator, or decoder assumption that must be reported. For discrete latents, exact marginalization, score-function gradients, continuous relaxations, and straight-through rules target different quantities; codebook optimization and prior learning add further, separate contracts.</p>
+<details class="question">
+<summary>Retrieval practice: VAE variants and failures</summary>
+<ol>
+<li>Which three terms appear in the aggregate KL decomposition used by β-TCVAE?</li>
+<li>Does VQ eliminate every form of latent collapse?</li>
+<li>Why can zero KL be optimal in a well-specified conditional model?</li>
+<li>What does a larger <span class="arithmatex">\(\beta\)</span> directly penalize?</li>
+<li>Why is <span class="arithmatex">\(p(z)\prod_m q_m(z\mid x^{(m)})\)</span> generally wrong when each <span class="arithmatex">\(q_m\)</span> is already a complete unimodal posterior under <span class="arithmatex">\(p(z)\)</span>?</li>
+<li>In the worked Gaussian model, why does modality 1 pull the joint posterior more strongly than modality 2?</li>
+<li>What changes about <span class="arithmatex">\(Y\)</span> between a labeled and an unlabeled M2 record?</li>
+<li>Does random modality dropout establish robustness to informative sensor failure?</li>
+<li>Which VQ loss routes update the encoder, decoder, and selected codebook entry under the stated straight-through construction?</li>
+<li>Why does an EMA update fail to revive a code that never receives assignments?</li>
+<li>Does taking Gumbel–Softmax temperature toward zero guarantee an unbiased, low-variance gradient for the hard categorical objective?</li>
+<li>Why must codec reconstruction and the learned code prior be evaluated separately?</li>
+<li>Why can exact aggregate-prior matching coexist with either one bit or zero bits of information about an input?</li>
+</ol>
+<p><strong>Solutions.</strong> (1) Mutual information, aggregate total correlation, and dimension-wise prior mismatch. (2) No; codebook underuse and decoder insensitivity remain possible. (3) The condition or decoder may already explain all predictable variation, leaving no useful residual information for <span class="arithmatex">\(z\)</span>. (4) Expected posterior-to-prior KL/rate, not semantic entanglement directly. (5) Each unimodal posterior already contains one copy of the prior, so their product needs the correction <span class="arithmatex">\(p(z)^{1-|S|}\)</span>; multiplying by another prior double-counts it. (6) Its observation noise variance is smaller, so its likelihood message contributes precision <span class="arithmatex">\(1\)</span> rather than <span class="arithmatex">\(1/4\)</span>. (7) <span class="arithmatex">\(Y\)</span> is observed and conditioned on in the labeled bound, but latent and marginalized through <span class="arithmatex">\(q(y\mid x)\)</span> in the unlabeled bound. (8) No; it supports only the simulated mask distribution. Informative missingness can depend on unseen values or causes and may require an explicit mechanism or sensitivity analysis. (9) Reconstruction updates the decoder and is copied to the encoder; commitment updates the encoder; the codebook loss or EMA updates selected embeddings. (10) Its moving count and sum decay together, so their ratio receives no information about new regions; an explicit reset or changed assignment mechanism is required. (11) No. The relaxed sample approaches a vertex, but derivatives become ill-conditioned and the finite-temperature objective differs from the hard objective. (12) A codec can discard information even if the prior is perfect, while a strong codec can be paired with a poor prior; only separate measurements localize the failure.</p>
+<p><strong>Solution 13.</strong> Aggregate matching fixes only the marginal law of <span class="arithmatex">\(Z\)</span>; it does not fix the conditional coupling between <span class="arithmatex">\(X\)</span> and <span class="arithmatex">\(Z\)</span>, which determines mutual information.</p>
+</details>
+<p><strong>Bridge to Chapter 4.</strong> The next chapter increases posterior and prior expressiveness, stacks latent hierarchies, and embeds codecs inside modern pipelines. The central question becomes which “VAE” component remains probabilistic and which is simply an autoencoder interface.</p>
+<hr/>
+<hr/>
+<p><strong>Navigate:</strong> <a href="../vae-02-training/">← Training</a> · <a href="../vae-04-modern-latents/">4. Hierarchies, Posteriors, and Codecs →</a> · <a href="../vae-explained/#vae-variants">Complete guide</a></p>
+</article>
+</div>
+<script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  Back to top
+</button>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+<div class="md-social">
+<a class="md-social__link" href="https://github.com/avitai/artifex" rel="noopener" target="_blank" title="github.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</a>
+<a class="md-social__link" href="https://pypi.org/project/avitai-artifex/" rel="noopener" target="_blank" title="pypi.org">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-66.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.3v101.8c0 29 25.2 46 53.4 54.3 33.8 9.9 66.3 11.7 106.8 0 26.9-7.8 53.4-23.5 53.4-54.3v-40.7H226.2v-13.6h160.2c31.1 0 42.6-21.7 53.4-54.2 11.2-33.5 10.7-65.7 0-108.6M286.2 444.7a20.4 20.4 0 1 1 0-40.7 20.4 20.4 0 1 1 0 40.7M167.8 248.1h106.8c29.7 0 53.4-24.5 53.4-54.3V91.9c0-29-24.4-50.7-53.4-55.6-35.8-5.9-74.7-5.6-106.8.1-45.2 8-53.4 24.7-53.4 55.6v40.7h106.9v13.6h-147c-31.1 0-58.3 18.7-66.8 54.2-9.8 40.7-10.2 66.1 0 108.6 7.6 31.6 25.7 54.2 56.8 54.2H101v-48.8c0-35.3 30.5-66.4 66.8-66.4m-6.6-183.4a20.4 20.4 0 1 1 0 40.8 20.4 20.4 0 1 1 0-40.8"></path></svg>
+</a>
+<a class="md-social__link" href="https://twitter.com/mahdi_shafiei" rel="noopener" target="_blank" title="twitter.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M459.4 151.7c.3 4.5.3 9.1.3 13.6 0 138.7-105.6 298.6-298.6 298.6-59.5 0-114.7-17.2-161.1-47.1 8.4 1 16.6 1.3 25.3 1.3 49.1 0 94.2-16.6 130.3-44.8-46.1-1-84.8-31.2-98.1-72.8 6.5 1 13 1.6 19.8 1.6 9.4 0 18.8-1.3 27.6-3.6-48.1-9.7-84.1-52-84.1-103v-1.3c14 7.8 30.2 12.7 47.4 13.3-28.3-18.8-46.8-51-46.8-87.4 0-19.5 5.2-37.4 14.3-53C87.4 130.8 165 172.4 252.1 176.9c-1.6-7.8-2.6-15.9-2.6-24C249.5 95.1 296.3 48 354.4 48c30.2 0 57.5 12.7 76.7 33.1 23.7-4.5 46.5-13.3 66.6-25.3-7.8 24.4-24.4 44.8-46.1 57.8 21.1-2.3 41.6-8.1 60.4-16.2-14.3 20.8-32.2 39.3-52.6 54.3"></path></svg>
+</a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.path", "navigation.top", "navigation.prune", "toc.follow", "search.highlight", "search.share", "search.suggest", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "content.mermaid"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+<script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+<script src="../../../javascripts/reading-layout.js"></script>
+</body>
+</html>

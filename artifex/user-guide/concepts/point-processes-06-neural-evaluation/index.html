@@ -1,0 +1,1839 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="This chapter classifies neural point-process interfaces, reviews current evidence, and builds a configuration-level evaluation and comparison protocol. For" name="description"/>
+<meta content="Mahdi Shafiei" name="author"/>
+<link href="https://docs.avitai.bio/artifex/user-guide/concepts/point-processes-06-neural-evaluation/" rel="canonical"/>
+<link href="../point-processes-05-simulation/" rel="prev"/>
+<link href="../point-processes-and-random-finite-sets/" rel="next"/>
+<link href="../../../assets/images/favicon.png" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.7.7" name="generator"/>
+<title>Point Processes 6 — Neural Models and Evaluation - Artifex</title>
+<link href="../../../assets/stylesheets/main.ec1eaa64.min.css" rel="stylesheet"/>
+<link href="../../../assets/stylesheets/palette.ab4e12ef.min.css" rel="stylesheet"/>
+<script src="../../../assets/vendor/iframe-worker/index.js"></script>
+<link href="../../../assets/_mkdocstrings.css" rel="stylesheet"/>
+<link href="../../../_static/extra.css" rel="stylesheet"/>
+<script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+<meta content="article" property="og:type"/>
+<meta content="The Artifex Generative Models Book" property="og:site_name"/>
+<meta content="Point Processes 6 — Neural Models and Evaluation" property="og:title"/>
+<meta content="This chapter classifies neural point-process interfaces, reviews current evidence, and builds a configuration-level evaluation and comparison protocol. For" property="og:description"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/point-processes-06-neural-evaluation/" property="og:url"/>
+<meta content="2026-07-19" property="article:modified_time"/>
+<meta content="summary" name="twitter:card"/>
+<meta content="Point Processes 6 — Neural Models and Evaluation" name="twitter:title"/>
+<meta content="This chapter classifies neural point-process interfaces, reviews current evidence, and builds a configuration-level evaluation and comparison protocol. For" name="twitter:description"/>
+<meta content="Generative models, Machine learning, Probabilistic modeling, advanced, specialization, canonical_chapter, point-process-neural-evaluation, practitioner, researcher" name="keywords"/>
+<meta content="Point Processes 6 — Neural Models and Evaluation" name="citation_title"/>
+<meta content="Mahdi Shafiei" name="citation_author"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/point-processes-06-neural-evaluation/" name="citation_public_url"/>
+<meta content="en" name="citation_language"/>
+<meta content="Point Processes 6 — Neural Models and Evaluation" name="DC.title"/>
+<meta content="Mahdi Shafiei" name="DC.creator"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/point-processes-06-neural-evaluation/" name="DC.identifier"/>
+<meta content="Text.LearningResource" name="DC.type"/>
+<meta content="2026-07-19" name="DCTERMS.modified"/>
+<meta content="https://github.com/avitai/artifex/blob/main/LICENSE" name="DCTERMS.license"/>
+<meta content="advanced" name="DCTERMS.educationLevel"/>
+<meta content="practitioner, researcher" name="DCTERMS.audience"/>
+<link href="https://github.com/avitai/artifex/blob/main/LICENSE" rel="license"/>
+<script id="artifex-book-metadata" type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Chapter",
+  "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/point-processes-06-neural-evaluation/",
+  "url": "https://docs.avitai.bio/artifex/user-guide/concepts/point-processes-06-neural-evaluation/",
+  "name": "Point Processes 6 \u2014 Neural Models and Evaluation",
+  "description": "This chapter classifies neural point-process interfaces, reviews current evidence, and builds a configuration-level evaluation and comparison protocol. For",
+  "identifier": "point-process-neural-evaluation",
+  "inLanguage": "en",
+  "isAccessibleForFree": true,
+  "learningResourceType": "Canonical chapter",
+  "educationalLevel": "advanced",
+  "educationalUse": "specialization",
+  "audience": [
+    
+      {"@type": "EducationalAudience", "audienceType": "practitioner"},
+    
+      {"@type": "EducationalAudience", "audienceType": "researcher"}
+    
+  ],
+  "dateModified": "2026-07-19",
+  "keywords": ["Generative models", "Machine learning", "Probabilistic modeling", "advanced", "specialization", "canonical_chapter", "point-process-neural-evaluation", "practitioner", "researcher"],
+  "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+  "author": [
+    
+      {"@type": "Person", "name": "Mahdi Shafiei"}
+    
+  ],
+  "isPartOf": {
+    "@type": "Book",
+    "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/#book",
+    "url": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/",
+    "name": "The Artifex Generative Models Book",
+    "bookEdition": "Living Web Edition",
+    "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+    "author": [
+      
+        {"@type": "Person", "name": "Mahdi Shafiei"}
+      
+    ]
+  }
+}
+</script>
+<link href="../../../assets/vendor/katex/katex.min.css" id="artifex-katex-stylesheet" integrity="sha384-UA8juhPf75SzzAMA/4fo3yOU7sBJ0om7SCD2GHq0fZqZco6tr1UCV7nUbk9J90JM" rel="stylesheet"/>
+<script defer="" integrity="sha384-T/0lMUdJpd2S1ZHtRiofG3htU3xPCrFVeAQ1UUE2TJwlEJSV5NUwn30kP28n238E" src="../../../assets/vendor/mermaid/mermaid.min.js"></script>
+<script defer="" src="../../../assets/vendor/katex/katex-shadow.js"></script>
+<script defer="" src="../../../javascripts/mermaid-math.js"></script>
+<script defer="" src="../../../javascripts/mathjax.js"></script>
+<script defer="" integrity="sha384-OrHfGTnIbkl0do3N76qW/uWr38o91N05sbSPuYBPLH+hG8X/dNSrjZf3AGjzrCwC" src="../../../assets/vendor/mathjax/tex-mml-chtml.js"></script>
+</head>
+<body data-md-color-accent="amber" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#point-processes-6-neural-models-and-evaluation">
+          Skip to content
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header md-header--shadow" data-md-component="header">
+<nav aria-label="Header" class="md-header__inner md-grid">
+<a aria-label="Artifex" class="md-header__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            Artifex
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+            
+              Point Processes 6 — Neural Models and Evaluation
+            
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-label="Switch to dark mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: light)" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_1" hidden="" title="Switch to dark mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+<input aria-label="Switch to light mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-primary="indigo" data-md-color-scheme="slate" id="__palette_1" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_0" hidden="" title="Switch to light mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+</form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div aria-label="Search" class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Search" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="Search" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="Search" class="md-search__options">
+<a aria-label="Share" class="md-search__icon md-icon" data-clipboard="" data-clipboard-text="" data-md-component="search-share" href="javascript:void(0)" tabindex="-1" title="Share">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"></path></svg>
+</a>
+<button aria-label="Clear" class="md-search__icon md-icon" tabindex="-1" title="Clear" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            Initializing search
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Navigation" class="md-nav md-nav--primary" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="Artifex" class="md-nav__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+    Artifex
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../..">
+<span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../getting-started/installation/">
+<span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Generative Models Book
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Generative Models Book
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    
+  
+    Start Here — The Landscape
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../first-course-01-generative-systems/">
+<span class="md-ellipsis">
+    
+  
+    First Course — New to Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../probability-01-objects/">
+<span class="md-ellipsis">
+    
+  
+    Foundations
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_4" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_4" id="__nav_3_4_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Model Families
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_4_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_4">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Model Families
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../autoregressive-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Autoregressive Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../vae-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Variational Autoencoders
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gan-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Generative Adversarial Networks
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../ebm-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Energy-Based Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../diffusion-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Diffusion Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../flow-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Normalizing Flows and Flow Matching
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../probabilistic-circuits-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Probabilistic Circuits
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../tensor-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Tensor-Network and Born Probability Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../implicit-generators-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Implicit Generators Beyond GANs
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../discrete-iterative-01-masked/">
+<span class="md-ellipsis">
+    
+  
+    Discrete Iterative Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../bayesian-flow-networks-01-story/">
+<span class="md-ellipsis">
+    
+  
+    Bayesian Flow Networks
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gflownets-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Generative Flow Networks
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../bnp-01-random-measures/">
+<span class="md-ellipsis">
+    
+  
+    Bayesian Nonparametric Random-Measure Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../stochastic-process-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Stochastic-Process and Function-Space Generators
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_4_15" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_4_15" id="__nav_3_4_15_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Point Processes and Random Finite Sets
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_4_15_label" class="md-nav" data-md-level="3">
+<label class="md-nav__title" for="__nav_3_4_15">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Point Processes and Random Finite Sets
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../point-processes-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    1. Configuration Semantics
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../point-processes-02-temporal/">
+<span class="md-ellipsis">
+    
+  
+    2. Temporal Processes
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../point-processes-03-spatial-sets/">
+<span class="md-ellipsis">
+    
+  
+    3. Spatial Processes and Finite Sets
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../point-processes-04-inference/">
+<span class="md-ellipsis">
+    
+  
+    4. Learning and Inference
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../point-processes-05-simulation/">
+<span class="md-ellipsis">
+    
+  
+    5. Simulation and Generation
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
+    
+  
+    6. Neural Models and Evaluation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
+<span class="md-ellipsis">
+    
+  
+    6. Neural Models and Evaluation
+  
+
+    
+  </span>
+</a>
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#6-neural-models-evaluation-and-current-research">
+<span class="md-ellipsis">
+      
+        6. Neural Models, Evaluation, and Current Research
+      
+    </span>
+</a>
+<nav aria-label="6. Neural Models, Evaluation, and Current Research" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-6-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 6 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#neural-parameterizations-by-probabilistic-interface">
+<span class="md-ellipsis">
+      
+        Neural parameterizations by probabilistic interface
+      
+    </span>
+</a>
+<nav aria-label="Neural parameterizations by probabilistic interface" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#intensity-based-sequence-models">
+<span class="md-ellipsis">
+      
+        Intensity-based sequence models
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#intensity-free-conditional-distributions">
+<span class="md-ellipsis">
+      
+        Intensity-free conditional distributions
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#configuration-valued-models-and-a-score-limitation">
+<span class="md-ellipsis">
+      
+        Configuration-valued models and a score limitation
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#in-context-inference-and-constraint-aware-generation">
+<span class="md-ellipsis">
+      
+        In-context inference and constraint-aware generation
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#likelihood-is-necessary-but-not-sufficient">
+<span class="md-ellipsis">
+      
+        Likelihood is necessary but not sufficient
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#time-rescaling-and-residual-analysis">
+<span class="md-ellipsis">
+      
+        Time rescaling and residual analysis
+      
+    </span>
+</a>
+<nav aria-label="Time rescaling and residual analysis" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#complete-worked-diagnostic">
+<span class="md-ellipsis">
+      
+        Complete worked diagnostic
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#a-configuration-level-evaluation-matrix">
+<span class="md-ellipsis">
+      
+        A configuration-level evaluation matrix
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#from-a-score-to-a-defensible-claim">
+<span class="md-ellipsis">
+      
+        From a score to a defensible claim
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#controlled-comparison-protocol">
+<span class="md-ellipsis">
+      
+        Controlled comparison protocol
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#independent-practice-and-assessment-map-neural-models-and-evaluation">
+<span class="md-ellipsis">
+      
+        Independent practice and assessment map: neural models and evaluation
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#selection-guide">
+<span class="md-ellipsis">
+      
+        Selection guide
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#research-questions-that-remain-open">
+<span class="md-ellipsis">
+      
+        Research questions that remain open
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-6-misconception-checks">
+<span class="md-ellipsis">
+      
+        Chapter 6 misconception checks
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-6-retrieval-questions">
+<span class="md-ellipsis">
+      
+        Chapter 6 retrieval questions
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#synthesis-and-next-steps">
+<span class="md-ellipsis">
+      
+        Synthesis and next steps
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#primary-reading-trail">
+<span class="md-ellipsis">
+      
+        Primary reading trail
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../point-processes-and-random-finite-sets/">
+<span class="md-ellipsis">
+    
+  
+    Continuous View (All Chapters)
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../random-graphs-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Random Graphs and Relational Generators
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../copula-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Copula Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../grammar-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Probabilistic Grammars and Program Derivations
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../causal-generative-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Causal Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../new-families-frontier-evidence/">
+<span class="md-ellipsis">
+    
+  
+    Research Evidence Ledger
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gradients-01-taxonomy/">
+<span class="md-ellipsis">
+    
+  
+    Connections and Compositions
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../normalization-01-queries/">
+<span class="md-ellipsis">
+    
+  
+    Research Practice
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../models/vae-guide/">
+<span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/core/base/">
+<span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../examples/overview/">
+<span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../zoo/">
+<span class="md-ellipsis">
+    
+  
+    Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../training/overview/">
+<span class="md-ellipsis">
+    
+  
+    Training
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../data/overview/">
+<span class="md-ellipsis">
+    
+  
+    Data &amp; Modalities
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../inference/overview/">
+<span class="md-ellipsis">
+    
+  
+    Inference &amp; Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../benchmarks/">
+<span class="md-ellipsis">
+    
+  
+    Evaluation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../guides/extensions/">
+<span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../extensions/">
+<span class="md-ellipsis">
+    
+  
+    Advanced Topics
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../cli/">
+<span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../community/contributing/">
+<span class="md-ellipsis">
+    
+  
+    Community
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/configs/protein-extension/">
+<span class="md-ellipsis">
+    
+  
+    Reference Library
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#6-neural-models-evaluation-and-current-research">
+<span class="md-ellipsis">
+      
+        6. Neural Models, Evaluation, and Current Research
+      
+    </span>
+</a>
+<nav aria-label="6. Neural Models, Evaluation, and Current Research" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-6-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 6 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#neural-parameterizations-by-probabilistic-interface">
+<span class="md-ellipsis">
+      
+        Neural parameterizations by probabilistic interface
+      
+    </span>
+</a>
+<nav aria-label="Neural parameterizations by probabilistic interface" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#intensity-based-sequence-models">
+<span class="md-ellipsis">
+      
+        Intensity-based sequence models
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#intensity-free-conditional-distributions">
+<span class="md-ellipsis">
+      
+        Intensity-free conditional distributions
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#configuration-valued-models-and-a-score-limitation">
+<span class="md-ellipsis">
+      
+        Configuration-valued models and a score limitation
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#in-context-inference-and-constraint-aware-generation">
+<span class="md-ellipsis">
+      
+        In-context inference and constraint-aware generation
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#likelihood-is-necessary-but-not-sufficient">
+<span class="md-ellipsis">
+      
+        Likelihood is necessary but not sufficient
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#time-rescaling-and-residual-analysis">
+<span class="md-ellipsis">
+      
+        Time rescaling and residual analysis
+      
+    </span>
+</a>
+<nav aria-label="Time rescaling and residual analysis" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#complete-worked-diagnostic">
+<span class="md-ellipsis">
+      
+        Complete worked diagnostic
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#a-configuration-level-evaluation-matrix">
+<span class="md-ellipsis">
+      
+        A configuration-level evaluation matrix
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#from-a-score-to-a-defensible-claim">
+<span class="md-ellipsis">
+      
+        From a score to a defensible claim
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#controlled-comparison-protocol">
+<span class="md-ellipsis">
+      
+        Controlled comparison protocol
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#independent-practice-and-assessment-map-neural-models-and-evaluation">
+<span class="md-ellipsis">
+      
+        Independent practice and assessment map: neural models and evaluation
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#selection-guide">
+<span class="md-ellipsis">
+      
+        Selection guide
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#research-questions-that-remain-open">
+<span class="md-ellipsis">
+      
+        Research questions that remain open
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-6-misconception-checks">
+<span class="md-ellipsis">
+      
+        Chapter 6 misconception checks
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-6-retrieval-questions">
+<span class="md-ellipsis">
+      
+        Chapter 6 retrieval questions
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#synthesis-and-next-steps">
+<span class="md-ellipsis">
+      
+        Synthesis and next steps
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#primary-reading-trail">
+<span class="md-ellipsis">
+      
+        Primary reading trail
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<nav aria-label="Breadcrumb" class="md-path">
+<ol class="md-path__list">
+<li class="md-path__item">
+<a class="md-path__link" href="../../..">
+<span class="md-ellipsis">
+    Home
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    Generative Models Book
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../autoregressive-01-foundations/">
+<span class="md-ellipsis">
+    Model Families
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../point-processes-01-semantics/">
+<span class="md-ellipsis">
+    Point Processes and Random Finite Sets
+  </span>
+</a>
+</li>
+</ol>
+</nav>
+<article class="md-content__inner md-typeset">
+<h1 id="point-processes-6-neural-models-and-evaluation">Point Processes 6 — Neural Models and Evaluation<a class="headerlink" href="#point-processes-6-neural-models-and-evaluation" title="Permanent link">¤</a></h1><aside aria-label="Learning path" class="admonition abstract artifex-learning-path"><p class="admonition-title">Learning path</p><p><strong>Required knowledge</strong></p><ul class="artifex-learning-path__links" data-learning-path-role="required"><li><a href="../point-processes-05-simulation/">Point Processes 5 — Simulation and Generation</a></li></ul><p><strong>Readiness check:</strong> can you explain the central object and reproduce one worked example from each required chapter? If not, follow its link before continuing.</p><p><strong>Newly unlocked in the default route</strong></p><p>No immediate successor names this page as its final required prerequisite. Continue through the book navigation or the chapter's cross-links.</p></aside>
+<p>This chapter classifies neural point-process interfaces, reviews current evidence, and builds a configuration-level evaluation and comparison protocol. For uninterrupted reading, use the <a href="../point-processes-and-random-finite-sets/#6-neural-models-evaluation-and-current-research">complete guide</a>.</p>
+<h2 id="6-neural-models-evaluation-and-current-research">6. Neural Models, Evaluation, and Current Research<a class="headerlink" href="#6-neural-models-evaluation-and-current-research" title="Permanent link">¤</a></h2>
+<h3 id="chapter-6-prerequisites-and-learning-objectives">Chapter 6 prerequisites and learning objectives<a class="headerlink" href="#chapter-6-prerequisites-and-learning-objectives" title="Permanent link">¤</a></h3>
+<p>This chapter assumes the complete preceding volume and the evidence labels used
+throughout this book.</p>
+<p><strong>Numbered learning outcomes.</strong> After completing the chapter, you can:</p>
+<ol>
+<li><strong>O1 — Classify neural interfaces.</strong> Identify whether a network parameterizes intensity, cumulative hazard, next-event density, a latent field, a configuration transition, or amortized inference.</li>
+<li><strong>O2 — Track normalization obligations.</strong> State which integrals, determinants, stopping probabilities, or reverse-transition arguments remain after neural parameterization.</li>
+<li><strong>O3 — Diagnose temporal calibration.</strong> Apply time rescaling with its regularity, censoring, sample-size, marginal, and independence conditions.</li>
+<li><strong>O4 — Evaluate complete configurations.</strong> Test cardinality, empty space, temporal and spatial dependence, marks, rollouts, privacy, and computation rather than one next-event score.</li>
+<li><strong>O5 — Design controlled comparisons.</strong> Match windows, conditioning, reference measures, numerical accuracy, baselines, budgets, and leakage controls.</li>
+<li><strong>O6 — Bound research conclusions.</strong> Distinguish a peer-reviewed result, preprint claim, benchmark counterexample, and general family-level conclusion.</li>
+</ol>
+<h3 id="neural-parameterizations-by-probabilistic-interface">Neural parameterizations by probabilistic interface<a class="headerlink" href="#neural-parameterizations-by-probabilistic-interface" title="Permanent link">¤</a></h3>
+<p>“Neural point process” is an umbrella for several different constructions.</p>
+<div class="md-typeset__table book-table-container"><table id="tbl-point-processes-and-random-finite-sets-neural-parameterizations-by-probabilistic-interface"><caption class="book-object-caption"><span class="book-object-number">Table POINT.5.</span> Neural parameterizations by probabilistic interface</caption>
+<thead>
+<tr>
+<th>Interface</th>
+<th>What the network parameterizes</th>
+<th>Normalization burden</th>
+<th>Examples</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Conditional intensity</td>
+<td>nonnegative <span class="arithmatex">\(\lambda(t,m\mid\mathcal H_t)\)</span></td>
+<td>compensator integral</td>
+<td>RMTPP, Neural Hawkes, self-attentive/Transformer intensities</td>
+</tr>
+<tr>
+<td>Cumulative hazard</td>
+<td>monotone <span class="arithmatex">\(\Lambda(t\mid\mathcal H)\)</span></td>
+<td>derivative must be nonnegative; endpoint behavior matters</td>
+<td>fully neural cumulative-hazard models</td>
+</tr>
+<tr>
+<td>Next-event density or flow</td>
+<td>normalized gap/mark conditional</td>
+<td>terminal survival and stopping still required</td>
+<td>Point Process Flows, conditional normalizing flows</td>
+</tr>
+<tr>
+<td>Latent intensity</td>
+<td>random field or latent state driving events</td>
+<td>posterior marginalization</td>
+<td>neural Cox and latent-state point processes</td>
+</tr>
+<tr>
+<td>Configuration transition</td>
+<td>add, thin, birth, death, move, or score on sets</td>
+<td>reversal/matching and finite-window law</td>
+<td>Add and Thin and related configuration generators</td>
+</tr>
+<tr>
+<td>Amortized estimator</td>
+<td>maps observed configurations to process parameters or functions</td>
+<td>uncertainty and family coverage</td>
+<td>foundation inference models for point processes</td>
+</tr>
+</tbody>
+</table></div>
+<h4 id="intensity-based-sequence-models">Intensity-based sequence models<a class="headerlink" href="#intensity-based-sequence-models" title="Permanent link">¤</a></h4>
+<p><a href="https://doi.org/10.1145/2939672.2939875">RMTPP</a> uses a recurrent history embedding to parameterize timing and marks. <a href="https://proceedings.neurips.cc/paper_files/paper/2017/hash/6463c88460bd63bbe256e495c63aa40b-Abstract.html">Neural Hawkes</a> uses a continuous-time LSTM state with event-driven jumps and continuous decay. <a href="https://proceedings.mlr.press/v119/zhang20q.html">Self-Attentive Hawkes Process</a> replaces recurrent history aggregation with self-attention and time-aware encoding. These are architectural choices inside a declared intensity model; their names do not guarantee Hawkes branching semantics.</p>
+<p><a href="https://proceedings.neurips.cc/paper/2019/hash/39e4973ba3321b80f37d9b55f63ed8b8-Abstract.html">Fully Neural Network Based Models for General Temporal Point Processes</a> parameterize a monotone cumulative hazard so its derivative supplies the intensity and the compensator is evaluated directly. Monotonicity, positivity, differentiability, and tail behavior are structural constraints, not cosmetic activation choices.</p>
+<h4 id="intensity-free-conditional-distributions">Intensity-free conditional distributions<a class="headerlink" href="#intensity-free-conditional-distributions" title="Permanent link">¤</a></h4>
+<p><a href="https://openreview.net/forum?id=HygOjhEYDH">Point Process Flows</a> parameterizes conditional inter-event distributions using normalizing flows rather than choosing an intensity form. This can give normalized gap densities and reparameterized samples, but the model still needs a coherent mark law, observation-window convention, and terminal survival probability. “Intensity free” means the implementation does not use intensity as its primary parameterization; it does not remove point-process probability semantics.</p>
+<p>For space–time events, <a href="https://openreview.net/forum?id=XQQA6-So14">Neural Spatio-Temporal Point Processes</a> combine continuous-time neural dynamics and conditional spatial flows. Factorizing time and location can ease normalization, but it imposes an ordering of conditionals whose adequacy must be tested on joint spatial–temporal structure.</p>
+<h3 id="configuration-valued-models-and-a-score-limitation">Configuration-valued models and a score limitation<a class="headerlink" href="#configuration-valued-models-and-a-score-limitation" title="Permanent link">¤</a></h3>
+<p>Configuration transition models operate on the whole random finite set and can express parallel births, deaths, or moves. Their advantage over next-event factorization depends on cardinality accuracy, interaction recovery, simulation cost, and finite-step approximation—not parallelism alone.</p>
+<p><strong>Preprint.</strong> <a href="https://arxiv.org/abs/2512.04617">Score Matching for Estimating Finite Point Processes</a> formalizes scores relative to Janossy measures and shows an important boundary: a spatial score alone need not identify a general nonparametric finite point-process law because it can omit cardinality or survival information. The paper augments score matching with a survival-classification term. This is current preprint evidence, not a settled universal impossibility theorem for every restricted family or reference convention.</p>
+<h3 id="in-context-inference-and-constraint-aware-generation">In-context inference and constraint-aware generation<a class="headerlink" href="#in-context-inference-and-constraint-aware-generation" title="Permanent link">¤</a></h3>
+<p><strong>Peer-reviewed research.</strong> <a href="https://openreview.net/forum?id=h9HwUAODFP">FIM-PP</a>, accepted at ICLR 2026, amortizes inference of temporal point-process intensity functions from example sequences. It changes the inference interface: a pretrained estimator can adapt in context without per-dataset optimization. It does not change the underlying distinction among Poisson, Hawkes, renewal, or other target laws, and its uncertainty must be evaluated under family shift.</p>
+<p><strong>Peer-reviewed research.</strong> <a href="https://openreview.net/forum?id=8tjGapjQ5J">Forward-Chaining Temporal Point Process</a>, published as an ICML 2026 regular paper, combines continuous-time event generation with a latent symbolic state and differentiable multi-step rules for constraint-aware generation. Separate non-archival workshop versions also exist, so the venue claim here refers specifically to the linked regular-paper record. Constraint satisfaction, event-law calibration, and the validity of the rule layer are separate evaluation axes.</p>
+<p><strong>Peer-reviewed research.</strong> <a href="https://openreview.net/forum?id=M2KLWLHzX0">Towards Reliable Detection of Empty Space</a>, accepted at ICLR 2026, treats object detections as a marked spatial point process and emphasizes empty-space probabilities. It illustrates why evaluating only matched detected objects can ignore the probability assigned to regions containing no object.</p>
+<p><strong>Preprint/submission.</strong> Asynchronous diffusion and speculative multi-event proposals have also been proposed for temporal point processes. Until venue decisions, assumptions, and independent comparisons are established, they remain provisional compositions rather than canonical replacements for intensity, flow, or thinning methods.</p>
+<h3 id="likelihood-is-necessary-but-not-sufficient">Likelihood is necessary but not sufficient<a class="headerlink" href="#likelihood-is-necessary-but-not-sufficient" title="Permanent link">¤</a></h3>
+<p>Held-out point-process log likelihood must report:</p>
+<ul>
+<li>the observation window and boundary history;</li>
+<li>continuous-time or discretized reference measure;</li>
+<li>whether the terminal survival term is included;</li>
+<li>mark factorization and missing-mark treatment;</li>
+<li>compensator approximation and tolerance;</li>
+<li>normalization per event, per sequence, per unit exposure, or per area;</li>
+<li>treatment of empty sequences and zero-event windows.</li>
+</ul>
+<p>Per-event NLL can hide count errors by excluding empty windows. Per-window NLL can be dominated by exposure length. Report both when they answer different questions.</p>
+<h3 id="time-rescaling-and-residual-analysis">Time rescaling and residual analysis<a class="headerlink" href="#time-rescaling-and-residual-analysis" title="Permanent link">¤</a></h3>
+<p>For a correctly specified simple temporal point process under the standard regularity, completeness, and non-termination assumptions, transformed inter-event compensator increments</p>
+<div class="arithmatex">\[
+z_i=\int_{t_{i-1}}^{t_i}
+\lambda(s\mid\mathcal H_s)\,ds
+\]</div>
+<p>are iid <span class="arithmatex">\(\operatorname{Exp}(1)\)</span>, and</p>
+<div class="arithmatex">\[
+u_i=1-e^{-z_i}
+\]</div>
+<p>are iid uniform. The classical diagnostic is developed by <a href="https://doi.org/10.1162/08997660252741149">Brown et al. (2002)</a>. A 2025 <a href="https://doi.org/10.1162/neco_a_01745">generalized time-rescaling theorem</a> makes clear that terminating processes and incomplete realizations need additional treatment rather than automatic application of the standard theorem.</p>
+<h4 id="complete-worked-diagnostic">Complete worked diagnostic<a class="headerlink" href="#complete-worked-diagnostic" title="Permanent link">¤</a></h4>
+<p>Suppose a fitted model yields compensator increments</p>
+<div class="arithmatex">\[
+z=(0.2,\ 1.0,\ 2.0).
+\]</div>
+<p>Then</p>
+<div class="arithmatex">\[
+u=1-e^{-z}\approx(0.1813,\ 0.6321,\ 0.8647).
+\]</div>
+<p>These three values are consistent with the transformation but far too few for a useful uniformity or independence judgment. A responsible analysis pools comparable held-out sequences only when their conditioning and censoring conventions match, plots transformed residuals, tests serial dependence as well as marginal uniformity, and checks the terminal censored interval separately.</p>
+<p>Time rescaling is not an omnibus proof of correctness. A test can have low power, parameter fitting affects null distributions, and passing temporal residuals does not validate marks or spatial structure.</p>
+<h3 id="a-configuration-level-evaluation-matrix">A configuration-level evaluation matrix<a class="headerlink" href="#a-configuration-level-evaluation-matrix" title="Permanent link">¤</a></h3>
+<div class="md-typeset__table book-table-container"><table id="tbl-point-processes-and-random-finite-sets-a-configuration-level-evaluation-matrix"><caption class="book-object-caption"><span class="book-object-number">Table POINT.6.</span> A configuration-level evaluation matrix</caption>
+<thead>
+<tr>
+<th>Target property</th>
+<th>Suitable checks</th>
+<th>Common blind spot</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Cardinality</td>
+<td>count histogram, proper count score, empty-set probability</td>
+<td>conditioning on nonempty windows</td>
+</tr>
+<tr>
+<td>Temporal calibration</td>
+<td>time-rescaled residuals, interval coverage, count calibration over horizons</td>
+<td>testing only next-event mean error</td>
+</tr>
+<tr>
+<td>Spatial first order</td>
+<td>intensity maps, held-out regional counts</td>
+<td>confusing intensity with interaction</td>
+</tr>
+<tr>
+<td>Clustering or repulsion</td>
+<td>pair correlation, Ripley's <span class="arithmatex">\(K/L\)</span>, empty-space and nearest-neighbor functions</td>
+<td>matching only average density</td>
+</tr>
+<tr>
+<td>Marks</td>
+<td>proper scoring rules, class calibration, conditional mark diagnostics</td>
+<td>ignoring rare or missing marks</td>
+</tr>
+<tr>
+<td>Joint rollouts</td>
+<td>multi-horizon counts, burst/quiet-period duration, constraint validity</td>
+<td>teacher-forced evaluation only</td>
+</tr>
+<tr>
+<td>Memorization/privacy</td>
+<td>nearest-neighbor and membership analyses with exposure controls</td>
+<td>treating novel timestamps as novel sequences</td>
+</tr>
+<tr>
+<td>Computation</td>
+<td>training cost, likelihood quadrature, proposals, accepted events, wall time, memory</td>
+<td>reporting only network parameters</td>
+</tr>
+</tbody>
+</table></div>
+<p>Spatial summary statistics are not interchangeable. Ripley's <span class="arithmatex">\(K\)</span> compares expected neighbor counts across radii, pair correlation is a local second-order quantity, and empty-space/nearest-neighbor functions probe different aspects of gaps. Use simulation envelopes or calibrated tests under the fitted composite null, not isolated curves interpreted without uncertainty.</p>
+<h3 id="from-a-score-to-a-defensible-claim">From a score to a defensible claim<a class="headerlink" href="#from-a-score-to-a-defensible-claim" title="Permanent link">¤</a></h3>
+<figure class="book-figure" id="fig-point-processes-and-random-finite-sets-from-a-score-to-a-defensible-claim"><pre class="mermaid"><code>%%{init: {'themeCSS': '.nodeLabel p { color: #111827 !important; } .flowchart-link { stroke: #78879a !important; stroke-width: 2px !important; } marker path { fill: #78879a !important; stroke: #78879a !important; }'}}%%
+flowchart TB
+    L["Held-out likelihood&lt;br/&gt;with window and reference"] --&gt; C["Cardinality and empty-space&lt;br/&gt;calibration"]
+    C --&gt; D["Temporal, spatial, and mark&lt;br/&gt;dependence diagnostics"]
+    D --&gt; R["Free-running rollouts&lt;br/&gt;under matched conditioning"]
+    R --&gt; B["Strong domain baselines,&lt;br/&gt;leakage and budget controls"]
+    B --&gt; U["Uncertainty across datasets,&lt;br/&gt;seeds, and operating points"]
+    U --&gt; Q{"How broad is the evidence?"}
+    Q --&gt;|"one protocol"| P["Protocol-bounded conclusion"]
+    Q --&gt;|"replicated mechanisms"| F["Carefully scoped family claim"]</code></pre><figcaption class="book-object-caption"><span class="book-object-number">Figure POINT.9.</span> From a score to a defensible claim</figcaption></figure>
+<p>Moving downward adds a different falsification opportunity. No single rung can
+be substituted for all later ones: good NLL does not prove empty-space
+calibration, and one benchmark reversal does not rank model families universally.</p>
+<h3 id="controlled-comparison-protocol">Controlled comparison protocol<a class="headerlink" href="#controlled-comparison-protocol" title="Permanent link">¤</a></h3>
+<p>A fair family comparison matches:</p>
+<ol>
+<li>training windows, exposure, missingness, and marks;</li>
+<li>boundary histories and censoring treatment;</li>
+<li>conditioning information and external covariates;</li>
+<li>likelihood/reference conventions;</li>
+<li>parameter, active-compute, and sampling budgets;</li>
+<li>numerical accuracy for compensators, determinants, or chains;</li>
+<li>domain baselines and leakage controls;</li>
+<li>both predictive and generative metrics.</li>
+</ol>
+<p><a href="https://openreview.net/forum?id=dIcNAg6ZuZ">EarthquakeNPP</a>, published in TMLR in 2026, provides useful counterevidence: after correcting data leakage and evaluation issues, a classical ETAS baseline remained competitive with or better than evaluated neural point-process systems in that setting. The correct conclusion is bounded to its protocol and domain. It supports retaining strong mechanistic baselines, not declaring neural point processes generally ineffective.</p>
+<h3 id="independent-practice-and-assessment-map-neural-models-and-evaluation">Independent practice and assessment map: neural models and evaluation<a class="headerlink" href="#independent-practice-and-assessment-map-neural-models-and-evaluation" title="Permanent link">¤</a></h3>
+<p>Attempt each task before opening its hints. The typical time is a planning aid,
+not a speed target. Use the success criterion to decide whether to revise before
+reading the complete solution.</p>
+<ol>
+<li><strong>P1.1 — Classify before comparing.</strong> <em>Type: compare · Difficulty: foundation · Typical time: 10 min.</em> For a model that outputs a monotone cumulative hazard, a conditional gap normalizing flow, and an add–thin reverse kernel, name the probabilistic interface and the remaining normalization or correctness obligation for each.</li>
+<li><strong>P1.2 — Predict before computing.</strong> <em>Type: predict · Difficulty: core · Typical time: 8 min.</em> If two complete inter-event compensator increments are <span class="arithmatex">\((\log2,\log4)\)</span>, first predict which uniform transform is larger, then compute both exponential-to-uniform transforms. State two properties these values should satisfy across a sufficiently large correctly handled sample.</li>
+<li><strong>P1.3 — Expose an empty-window blind spot.</strong> <em>Type: derive · Difficulty: core · Typical time: 12 min.</em> Two unit windows contain zero and one event. Model A uses rate one in both; model B uses rate four in the empty window and rate one in the event window. Compute total log likelihood for each and show why a per-event score that discards empty windows cannot distinguish them.</li>
+<li><strong>P1.4 — Diagnose a false residual pass.</strong> <em>Type: diagnose · Difficulty: core · Typical time: 12 min.</em> A paper reports three transformed residuals near <span class="arithmatex">\((0.2,0.6,0.9)\)</span> and declares the model calibrated because they span <span class="arithmatex">\([0,1]\)</span>. Identify at least four missing checks or assumptions.</li>
+<li><strong>P1.5 — Design a controlled benchmark.</strong> <em>Type: design · Difficulty: stretch · Typical time: 20 min.</em> Compare a classical Hawkes/ETAS model, a neural intensity, and an intensity-free flow on marked space–time data. Specify splits, histories, likelihood units, numerical tolerances, generative diagnostics, compute budgets, and leakage controls.</li>
+<li><strong>P1.6 — Research transfer.</strong> <em>Type: research · Difficulty: stretch · Typical time: 20 min.</em> Using the linked FIM-PP, Forward-Chaining TPP, empty-space detector, score-matching preprint, and EarthquakeNPP records, write one supported sentence per source and one tempting conclusion that the combined evidence still does not justify.</li>
+</ol>
+<h5 id="feedback-contract-neural-models-and-evaluation">Feedback contract: neural models and evaluation<a class="headerlink" href="#feedback-contract-neural-models-and-evaluation" title="Permanent link">¤</a></h5>
+<div class="md-typeset__table book-table-container"><table id="tbl-point-processes-and-random-finite-sets-feedback-contract-neural-models-and-evaluation-1"><caption class="book-object-caption"><span class="book-object-number">Table POINT.23.</span> Feedback contract: neural models and evaluation — table 1</caption>
+<thead>
+<tr>
+<th>Task</th>
+<th>Evidence of success</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>P1.1</td>
+<td>Each architecture is tied to its probabilistic interface and a distinct remaining obligation.</td>
+</tr>
+<tr>
+<td>P1.2</td>
+<td>Both transformed values are exact and marginal uniformity is separated from independence.</td>
+</tr>
+<tr>
+<td>P1.3</td>
+<td>Window-level likelihood detects the bad empty-window rate while the deliberately truncated score does not.</td>
+</tr>
+<tr>
+<td>P1.4</td>
+<td>The response covers sample size, independence, censoring/termination, fitting effects, or untested marks/space.</td>
+</tr>
+<tr>
+<td>P1.5</td>
+<td>Every model receives matched information, units, numerical accuracy, budgets, diagnostics, and leakage controls.</td>
+</tr>
+<tr>
+<td>P1.6</td>
+<td>Every sentence is source-bounded and the rejected conclusion is broader than the cited evidence.</td>
+</tr>
+</tbody>
+</table></div>
+<details class="tip">
+<summary>Graduated hints for P1</summary>
+<div class="md-typeset__table book-table-container"><table id="tbl-point-processes-and-random-finite-sets-feedback-contract-neural-models-and-evaluation-2"><caption class="book-object-caption"><span class="book-object-number">Table POINT.24.</span> Feedback contract: neural models and evaluation — table 2</caption>
+<thead>
+<tr>
+<th>Task</th>
+<th>Hint 1 — Direction</th>
+<th>Hint 2 — Setup</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>P1.1</td>
+<td>Architecture names do not remove probability obligations.</td>
+<td>Ask about derivatives and tails, terminal survival, or the theorem connecting reverse transitions to the endpoint law.</td>
+</tr>
+<tr>
+<td>P1.2</td>
+<td>Apply <span class="arithmatex">\(u=1-e^{-z}\)</span>.</td>
+<td><span class="arithmatex">\(e^{-\log2}=1/2\)</span> and <span class="arithmatex">\(e^{-\log4}=1/4\)</span>.</td>
+</tr>
+<tr>
+<td>P1.3</td>
+<td>Include the integrated rate even when no event occurs.</td>
+<td>The empty-window log likelihoods are <span class="arithmatex">\(-1\)</span> and <span class="arithmatex">\(-4\)</span>; the event window contributes <span class="arithmatex">\(\log1-1\)</span>.</td>
+</tr>
+<tr>
+<td>P1.4</td>
+<td>A few spread-out points are not a goodness-of-fit procedure.</td>
+<td>Check iid uniformity, terminal censoring, parameter fitting, marks, space, and test power.</td>
+</tr>
+<tr>
+<td>P1.5</td>
+<td>Freeze a data and evaluation contract before tuning any family.</td>
+<td>Report per-window and per-event likelihood, empty counts, residuals, spatial pairs, marks, rollouts, and measured cost.</td>
+</tr>
+<tr>
+<td>P1.6</td>
+<td>Use each source's venue and abstract as the outer boundary.</td>
+<td>Separate method contribution, empirical result, formal limitation, and benchmark counterevidence.</td>
+</tr>
+</tbody>
+</table></div>
+</details>
+<h5 id="outcome-to-task-alignment-neural-models-and-evaluation">Outcome-to-task alignment: neural models and evaluation<a class="headerlink" href="#outcome-to-task-alignment-neural-models-and-evaluation" title="Permanent link">¤</a></h5>
+<div class="md-typeset__table book-table-container"><table id="tbl-point-processes-and-random-finite-sets-outcome-to-task-alignment-neural-models-and-evaluation"><caption class="book-object-caption"><span class="book-object-number">Table POINT.25.</span> Outcome-to-task alignment: neural models and evaluation</caption>
+<thead>
+<tr>
+<th>Learning objective</th>
+<th>Independently assessed by</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>O1 — Classify neural interfaces</td>
+<td>P1.1</td>
+</tr>
+<tr>
+<td>O2 — Track normalization obligations</td>
+<td>P1.1, P1.3</td>
+</tr>
+<tr>
+<td>O3 — Diagnose temporal calibration</td>
+<td>P1.2, P1.4</td>
+</tr>
+<tr>
+<td>O4 — Evaluate complete configurations</td>
+<td>P1.3, P1.4, P1.5</td>
+</tr>
+<tr>
+<td>O5 — Design controlled comparisons</td>
+<td>P1.5</td>
+</tr>
+<tr>
+<td>O6 — Bound research conclusions</td>
+<td>P1.6</td>
+</tr>
+</tbody>
+</table></div>
+<details class="success">
+<summary>Complete solutions to P1</summary>
+<ol>
+<li><strong>P1.1.</strong> The monotone network parameterizes cumulative hazard; its derivative must be nonnegative and its endpoint/tail behavior must define a valid event-or-survival law. The flow parameterizes a normalized next-gap density; marks and terminal stopping still need definitions. Add–thin parameterizes configuration transitions; the forward/reverse construction, endpoint law, and finite-step approximation must justify the sampler. <strong>Check.</strong> None of the three labels alone supplies every component of a finite-window law.</li>
+<li><strong>P1.2.</strong> The transforms are <span class="arithmatex">\(1-1/2=0.5\)</span> and <span class="arithmatex">\(1-1/4=0.75\)</span>. Across a sufficiently large sample handled under the theorem's conditions, transformed values should be marginally uniform and mutually independent. <strong>Check.</strong> Exact arithmetic for two values does not itself test either property.</li>
+<li><strong>P1.3.</strong> Model A gives <span class="arithmatex">\(-1+(\log1-1)=-2\)</span>. Model B gives <span class="arithmatex">\(-4+(\log1-1)=-5\)</span>. If the score drops empty windows and averages NLL only over the one observed event, both report <span class="arithmatex">\(1\)</span>. <strong>Check.</strong> The three-log-unit difference is entirely the empty-window survival penalty.</li>
+<li><strong>P1.4.</strong> Three values provide almost no power; visual span is not a uniformity test; independence/serial dependence was not checked; terminal censoring and possible process termination were ignored; fitting on the same data changes the null; and marks or spatial structure remain untested. <strong>Rubric.</strong> Full credit requires at least four distinct issues, including one theorem assumption and one untested law component.</li>
+<li><strong>P1.5.</strong> Freeze chronological and spatially separated train/validation/test windows, pre-window histories, exposure, marks, missingness, and covariates. Use the same continuous reference and report per-window plus per-event likelihood with quadrature/flow tolerances. Evaluate counts, empty space, time-rescaled dependence, spatial pairs, marks, and free rollouts; match parameter/active-compute/sampling budgets and report wall time. Deduplicate sequences, audit future and geographic leakage, and tune only on validation data. <strong>Rubric.</strong> Full credit requires every requested control and at least one strong domain baseline diagnostic.</li>
+<li><strong>P1.6.</strong> FIM-PP supports in-context amortized estimation within its evaluated process distribution; the regular ICML Forward-Chaining paper proposes a symbolic-state constraint interface; the ICLR empty-space paper shows a marked point-process treatment of undetected regions; the score-matching preprint identifies a Janossy/cardinality-related nonidentifiability and proposes survival classification; EarthquakeNPP reports that five tested neural systems did not beat ETAS in its leakage-corrected earthquake protocol. Together they do <strong>not</strong> prove that one neural interface is universally best—or that neural point processes universally fail. <strong>Rubric.</strong> Each sentence must preserve venue, scope, and empirical/theoretical status.</li>
+</ol>
+</details>
+<h3 id="selection-guide">Selection guide<a class="headerlink" href="#selection-guide" title="Permanent link">¤</a></h3>
+<div class="md-typeset__table book-table-container"><table id="tbl-point-processes-and-random-finite-sets-selection-guide"><caption class="book-object-caption"><span class="book-object-number">Table POINT.7.</span> Selection guide</caption>
+<thead>
+<tr>
+<th>Need</th>
+<th>Begin with</th>
+<th>Escalate when</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Independent events with varying exposure</td>
+<td>nonhomogeneous Poisson</td>
+<td>residual interaction remains</td>
+</tr>
+<tr>
+<td>Gap-based regularity or duration effects</td>
+<td>renewal or self-correcting model</td>
+<td>full history or marks matter</td>
+</tr>
+<tr>
+<td>Triggering and interpretable excitation</td>
+<td>linear marked Hawkes</td>
+<td>nonlinear history improves held-out law and calibration</td>
+</tr>
+<tr>
+<td>Latent environmental clustering</td>
+<td>Cox/LGCP</td>
+<td>posterior field cost or non-Gaussian structure dominates</td>
+</tr>
+<tr>
+<td>Explicit spatial inhibition</td>
+<td>Gibbs or DPP</td>
+<td>cardinality/geometry exceeds tractable kernel or energy form</td>
+</tr>
+<tr>
+<td>Unknown object count and tracking identity</td>
+<td>RFS/multi-object Bayes model</td>
+<td>learned representations improve matched, leakage-free protocols</td>
+</tr>
+<tr>
+<td>Flexible event history</td>
+<td>neural intensity or conditional flow</td>
+<td>a simpler mechanistic baseline fails controlled diagnostics</td>
+</tr>
+<tr>
+<td>Parallel configuration generation</td>
+<td>add–thin or configuration transitions</td>
+<td>demonstrated cardinality and interaction gains justify added complexity</td>
+</tr>
+<tr>
+<td>Rapid adaptation across process families</td>
+<td>amortized/in-context inference</td>
+<td>coverage and uncertainty under family shift are validated</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="research-questions-that-remain-open">Research questions that remain open<a class="headerlink" href="#research-questions-that-remain-open" title="Permanent link">¤</a></h3>
+<ul>
+<li>How can configuration generators preserve exact cardinality and empty-space semantics while reducing sequential sampling cost?</li>
+<li>Which neural parameterizations remain identifiable under missing events, latent exposure, and dependent censoring?</li>
+<li>How should uncertainty be calibrated for amortized point-process inference outside its training family?</li>
+<li>Can spatial and temporal residual tests be made powerful in high-dimensional marked spaces without learning the judge on contaminated data?</li>
+<li>Which invariances, conservation laws, and causal mechanisms should be built into scientific event generators?</li>
+<li>How can benchmarks prevent leakage while retaining realistic long histories, rare bursts, and domain-specific baselines?</li>
+</ul>
+<h3 id="chapter-6-misconception-checks">Chapter 6 misconception checks<a class="headerlink" href="#chapter-6-misconception-checks" title="Permanent link">¤</a></h3>
+<details class="question">
+<summary>If transformed residuals look uniform, is the fitted model correct?</summary>
+<p>No. Uniformity is one necessary implication under stated assumptions. Independence, terminal censoring, marks, spatial structure, test power, parameter estimation, and alternative misspecifications still matter.</p>
+</details>
+<details class="question">
+<summary>Does an in-context point-process model define a new generated-object family?</summary>
+<p>No. It is an inference architecture over a collection of point-process laws. The generated object remains a configuration; the family and reference conventions must still be stated.</p>
+</details>
+<h3 id="chapter-6-retrieval-questions">Chapter 6 retrieval questions<a class="headerlink" href="#chapter-6-retrieval-questions" title="Permanent link">¤</a></h3>
+<ol>
+<li>What distinguishes intensity, cumulative-hazard, and intensity-free neural models?</li>
+<li>Why can spatial score matching miss part of a finite point-process law?</li>
+<li>What two properties should be checked after time rescaling, in addition to terminal censoring?</li>
+<li>What is the bounded lesson of the EarthquakeNPP comparison?</li>
+</ol>
+<details class="success">
+<summary>Complete solutions</summary>
+<ol>
+<li>They directly parameterize different normalized interfaces: a local hazard requiring integration, a monotone integral whose derivative is the hazard, or a normalized next-gap distribution. Each still needs marks, stopping, and observation-window semantics.</li>
+<li>A location score can be invariant to cardinality-dependent factors and therefore fail to identify count or survival mass without an additional term or restricted family.</li>
+<li>The transformed increments should have the correct marginal distribution and be independent.</li>
+<li>Under its leakage-corrected earthquake protocol, the classical ETAS baseline remained essential and could outperform evaluated neural alternatives; this does not establish a universal ranking.</li>
+</ol>
+</details>
+<h3 id="synthesis-and-next-steps">Synthesis and next steps<a class="headerlink" href="#synthesis-and-next-steps" title="Permanent link">¤</a></h3>
+<p>Neural point-process methods differ by the probabilistic interface they parameterize: intensity, cumulative hazard, conditional density, latent field, configuration transition, or amortized estimator. Evaluation must return to the complete generated object—counts, empty space, times, locations, marks, dependence, boundaries, and computation. Continue to <a href="../autoregressive-explained/">Autoregressive Models</a> for sequential factorization, <a href="../general-markov-generators/">General Markov Generators</a> for configuration-valued jump dynamics, <a href="../likelihood-and-normalizer-estimation/">Likelihood and Normalizer Estimation</a> for difficult evidence calculations, and <a href="../generative-model-evaluation/">Generative Model Evaluation</a> for protocol design.</p>
+<p><a href="../point-processes-and-random-finite-sets/#chapter-map">Return to the chapter map</a> · <a href="./">Read this as a chapter</a></p>
+<h3 id="primary-reading-trail">Primary reading trail<a class="headerlink" href="#primary-reading-trail" title="Permanent link">¤</a></h3>
+<p><strong>Foundations and classical constructions</strong></p>
+<ul>
+<li><a href="https://doi.org/10.1093/biomet/58.1.83">Hawkes (1971), <em>Spectra of Some Self-Exciting and Mutually Exciting Point Processes</em></a> — linear excitation and spectral analysis.</li>
+<li><a href="https://doi.org/10.1016/0304-4149(79)90008-5">Isham and Westcott (1979), <em>A Self-Correcting Point Process</em></a> — inhibitory count regulation.</li>
+<li><a href="https://doi.org/10.1109/TIT.1981.1056305">Ogata (1981), <em>On Lewis' Simulation Method for Point Processes</em></a> — efficient conditional-intensity thinning.</li>
+<li><a href="https://doi.org/10.1111/1467-9469.00115">Møller, Syversveen, and Waagepetersen (1998), <em>Log Gaussian Cox Processes</em></a> — latent random spatial intensities.</li>
+<li><a href="https://doi.org/10.1561/2200000044">Kulesza and Taskar (2012), <em>Determinantal Point Processes for Machine Learning</em></a> — DPP probability, learning, and sampling.</li>
+<li><a href="https://doi.org/10.1162/08997660252741149">Brown et al. (2002), <em>The Time-Rescaling Theorem and Its Application to Neural Spike Train Data Analysis</em></a> — temporal goodness-of-fit diagnostics.</li>
+</ul>
+<p><strong>Neural and configuration methods</strong></p>
+<ul>
+<li><a href="https://doi.org/10.1145/2939672.2939875">Du et al. (2016), <em>Recurrent Marked Temporal Point Processes</em></a>.</li>
+<li><a href="https://proceedings.neurips.cc/paper_files/paper/2017/hash/6463c88460bd63bbe256e495c63aa40b-Abstract.html">Mei and Eisner (2017), <em>The Neural Hawkes Process</em></a>.</li>
+<li><a href="https://proceedings.neurips.cc/paper/2019/hash/39e4973ba3321b80f37d9b55f63ed8b8-Abstract.html">Omi, Ueda, and Aihara (2019), <em>Fully Neural Network Based Model for General Temporal Point Processes</em></a>.</li>
+<li><a href="https://openreview.net/forum?id=HygOjhEYDH">Shchur et al. (2020), <em>Intensity-Free Learning of Temporal Point Processes</em></a>.</li>
+<li><a href="https://openreview.net/forum?id=XQQA6-So14">Chen, Amos, and Nickel (2021), <em>Neural Spatio-Temporal Point Processes</em></a>.</li>
+<li><a href="https://proceedings.neurips.cc/paper_files/paper/2023/hash/b1d9c7e7bd265d81aae8d74a7a6bd7f1-Abstract-Conference.html">Lüdke et al. (2023), <em>Add and Thin: Diffusion for Temporal Point Processes</em></a>.</li>
+</ul>
+<p><strong>Current evidence</strong></p>
+<ul>
+<li><a href="https://openreview.net/forum?id=h9HwUAODFP">Lüdke et al. (2026), <em>In-Context Learning of Temporal Point Processes with Foundation Inference Models</em></a> — ICLR 2026.</li>
+<li><a href="https://openreview.net/forum?id=8tjGapjQ5J">Yang, Ren, and Li (2026), <em>Forward-Chaining Temporal Point Process</em></a> — ICML 2026.</li>
+<li><a href="https://openreview.net/forum?id=M2KLWLHzX0"><em>Towards Reliable Detection of Empty Space</em> (2026)</a> — ICLR 2026 marked spatial modeling.</li>
+<li><a href="https://openreview.net/forum?id=dIcNAg6ZuZ">Stockman et al. (2026), <em>EarthquakeNPP</em></a> — TMLR 2026 counterevidence and leakage-controlled evaluation.</li>
+<li><a href="https://arxiv.org/abs/2512.04617"><em>Score Matching for Estimating Finite Point Processes</em> (2025)</a> — preprint; Janossy-score identifiability boundary.</li>
+</ul>
+<p><strong>Book-length routes</strong></p>
+<ul>
+<li><a href="https://link.springer.com/book/10.1007/b97277">Daley and Vere-Jones, <em>An Introduction to the Theory of Point Processes, Volume I</em></a> — classical finite, temporal, marked, Cox, cluster, conditional-intensity, and likelihood foundations.</li>
+<li><a href="https://doi.org/10.1007/978-0-387-49835-5">Daley and Vere-Jones, <em>An Introduction to the Theory of Point Processes, Volume II</em></a> — random measures, Palm theory, predictability, and advanced spatial structure.</li>
+<li><a href="https://doi.org/10.1017/9781316104477">Last and Penrose, <em>Lectures on the Poisson Process</em></a> — rigorous Poisson, mapping, marking, thinning, Cox, and stochastic-geometry theory with exercises.</li>
+<li><a href="https://us.artechhouse.com/Statisical-Multisource-Multitarget-Information-Fusion-P1058.aspx">Mahler, <em>Statistical Multisource-Multitarget Information Fusion</em></a> — the finite-set-statistics route to multitarget Bayes models, set calculus, and RFS filtering.</li>
+<li><a href="https://doi.org/10.1007/978-3-032-20790-6">Schoenberg, <em>Space-Time Point Processes: An Applied Statistics Course</em></a> — a 2026 application-led route through modeling, estimation, residual diagnostics, forecasting, examples, and exercises.</li>
+</ul>
+<hr/>
+<p><strong>Previous:</strong> <a href="../point-processes-05-simulation/">5. Simulation and Generation</a> · <a href="../point-processes-and-random-finite-sets/">Complete guide</a> · <a href="../causal-generative-models-explained/">Next family: Causal Generative Models</a></p>
+</article>
+</div>
+<script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  Back to top
+</button>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+<div class="md-social">
+<a class="md-social__link" href="https://github.com/avitai/artifex" rel="noopener" target="_blank" title="github.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</a>
+<a class="md-social__link" href="https://pypi.org/project/avitai-artifex/" rel="noopener" target="_blank" title="pypi.org">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-66.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.3v101.8c0 29 25.2 46 53.4 54.3 33.8 9.9 66.3 11.7 106.8 0 26.9-7.8 53.4-23.5 53.4-54.3v-40.7H226.2v-13.6h160.2c31.1 0 42.6-21.7 53.4-54.2 11.2-33.5 10.7-65.7 0-108.6M286.2 444.7a20.4 20.4 0 1 1 0-40.7 20.4 20.4 0 1 1 0 40.7M167.8 248.1h106.8c29.7 0 53.4-24.5 53.4-54.3V91.9c0-29-24.4-50.7-53.4-55.6-35.8-5.9-74.7-5.6-106.8.1-45.2 8-53.4 24.7-53.4 55.6v40.7h106.9v13.6h-147c-31.1 0-58.3 18.7-66.8 54.2-9.8 40.7-10.2 66.1 0 108.6 7.6 31.6 25.7 54.2 56.8 54.2H101v-48.8c0-35.3 30.5-66.4 66.8-66.4m-6.6-183.4a20.4 20.4 0 1 1 0 40.8 20.4 20.4 0 1 1 0-40.8"></path></svg>
+</a>
+<a class="md-social__link" href="https://twitter.com/mahdi_shafiei" rel="noopener" target="_blank" title="twitter.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M459.4 151.7c.3 4.5.3 9.1.3 13.6 0 138.7-105.6 298.6-298.6 298.6-59.5 0-114.7-17.2-161.1-47.1 8.4 1 16.6 1.3 25.3 1.3 49.1 0 94.2-16.6 130.3-44.8-46.1-1-84.8-31.2-98.1-72.8 6.5 1 13 1.6 19.8 1.6 9.4 0 18.8-1.3 27.6-3.6-48.1-9.7-84.1-52-84.1-103v-1.3c14 7.8 30.2 12.7 47.4 13.3-28.3-18.8-46.8-51-46.8-87.4 0-19.5 5.2-37.4 14.3-53C87.4 130.8 165 172.4 252.1 176.9c-1.6-7.8-2.6-15.9-2.6-24C249.5 95.1 296.3 48 354.4 48c30.2 0 57.5 12.7 76.7 33.1 23.7-4.5 46.5-13.3 66.6-25.3-7.8 24.4-24.4 44.8-46.1 57.8 21.1-2.3 41.6-8.1 60.4-16.2-14.3 20.8-32.2 39.3-52.6 54.3"></path></svg>
+</a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.path", "navigation.top", "navigation.prune", "toc.follow", "search.highlight", "search.share", "search.suggest", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "content.mermaid"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+<script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+<script src="../../../javascripts/reading-layout.js"></script>
+</body>
+</html>

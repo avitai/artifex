@@ -1,0 +1,1477 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="This chapter connects random measures to exchangeable partitions, mixture models, predictive allocation, Pitman–Yor laws, and the limits of interpreting" name="description"/>
+<meta content="Mahdi Shafiei" name="author"/>
+<link href="https://docs.avitai.bio/artifex/user-guide/concepts/bnp-02-partitions-mixtures/" rel="canonical"/>
+<link href="../bnp-01-random-measures/" rel="prev"/>
+<link href="../bnp-03-feature-allocations/" rel="next"/>
+<link href="../../../assets/images/favicon.png" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.7.7" name="generator"/>
+<title>Bayesian Nonparametrics 2 — Partitions and Mixtures - Artifex</title>
+<link href="../../../assets/stylesheets/main.ec1eaa64.min.css" rel="stylesheet"/>
+<link href="../../../assets/stylesheets/palette.ab4e12ef.min.css" rel="stylesheet"/>
+<script src="../../../assets/vendor/iframe-worker/index.js"></script>
+<link href="../../../assets/_mkdocstrings.css" rel="stylesheet"/>
+<link href="../../../_static/extra.css" rel="stylesheet"/>
+<script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+<meta content="article" property="og:type"/>
+<meta content="The Artifex Generative Models Book" property="og:site_name"/>
+<meta content="Bayesian Nonparametrics 2 — Partitions and Mixtures" property="og:title"/>
+<meta content="This chapter connects random measures to exchangeable partitions, mixture models, predictive allocation, Pitman–Yor laws, and the limits of interpreting" property="og:description"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/bnp-02-partitions-mixtures/" property="og:url"/>
+<meta content="2026-07-18" property="article:modified_time"/>
+<meta content="summary" name="twitter:card"/>
+<meta content="Bayesian Nonparametrics 2 — Partitions and Mixtures" name="twitter:title"/>
+<meta content="This chapter connects random measures to exchangeable partitions, mixture models, predictive allocation, Pitman–Yor laws, and the limits of interpreting" name="twitter:description"/>
+<meta content="Generative models, Machine learning, Probabilistic modeling, advanced, specialization, canonical_chapter, bnp-partitions-mixtures, practitioner, researcher" name="keywords"/>
+<meta content="Bayesian Nonparametrics 2 — Partitions and Mixtures" name="citation_title"/>
+<meta content="Mahdi Shafiei" name="citation_author"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/bnp-02-partitions-mixtures/" name="citation_public_url"/>
+<meta content="en" name="citation_language"/>
+<meta content="Bayesian Nonparametrics 2 — Partitions and Mixtures" name="DC.title"/>
+<meta content="Mahdi Shafiei" name="DC.creator"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/bnp-02-partitions-mixtures/" name="DC.identifier"/>
+<meta content="Text.LearningResource" name="DC.type"/>
+<meta content="2026-07-18" name="DCTERMS.modified"/>
+<meta content="https://github.com/avitai/artifex/blob/main/LICENSE" name="DCTERMS.license"/>
+<meta content="advanced" name="DCTERMS.educationLevel"/>
+<meta content="practitioner, researcher" name="DCTERMS.audience"/>
+<link href="https://github.com/avitai/artifex/blob/main/LICENSE" rel="license"/>
+<script id="artifex-book-metadata" type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Chapter",
+  "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/bnp-02-partitions-mixtures/",
+  "url": "https://docs.avitai.bio/artifex/user-guide/concepts/bnp-02-partitions-mixtures/",
+  "name": "Bayesian Nonparametrics 2 \u2014 Partitions and Mixtures",
+  "description": "This chapter connects random measures to exchangeable partitions, mixture models, predictive allocation, Pitman\u2013Yor laws, and the limits of interpreting",
+  "identifier": "bnp-partitions-mixtures",
+  "inLanguage": "en",
+  "isAccessibleForFree": true,
+  "learningResourceType": "Canonical chapter",
+  "educationalLevel": "advanced",
+  "educationalUse": "specialization",
+  "audience": [
+    
+      {"@type": "EducationalAudience", "audienceType": "practitioner"},
+    
+      {"@type": "EducationalAudience", "audienceType": "researcher"}
+    
+  ],
+  "dateModified": "2026-07-18",
+  "keywords": ["Generative models", "Machine learning", "Probabilistic modeling", "advanced", "specialization", "canonical_chapter", "bnp-partitions-mixtures", "practitioner", "researcher"],
+  "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+  "author": [
+    
+      {"@type": "Person", "name": "Mahdi Shafiei"}
+    
+  ],
+  "isPartOf": {
+    "@type": "Book",
+    "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/#book",
+    "url": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/",
+    "name": "The Artifex Generative Models Book",
+    "bookEdition": "Living Web Edition",
+    "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+    "author": [
+      
+        {"@type": "Person", "name": "Mahdi Shafiei"}
+      
+    ]
+  }
+}
+</script>
+<link href="../../../assets/vendor/katex/katex.min.css" id="artifex-katex-stylesheet" integrity="sha384-UA8juhPf75SzzAMA/4fo3yOU7sBJ0om7SCD2GHq0fZqZco6tr1UCV7nUbk9J90JM" rel="stylesheet"/>
+<script defer="" integrity="sha384-T/0lMUdJpd2S1ZHtRiofG3htU3xPCrFVeAQ1UUE2TJwlEJSV5NUwn30kP28n238E" src="../../../assets/vendor/mermaid/mermaid.min.js"></script>
+<script defer="" src="../../../assets/vendor/katex/katex-shadow.js"></script>
+<script defer="" src="../../../javascripts/mermaid-math.js"></script>
+<script defer="" src="../../../javascripts/mathjax.js"></script>
+<script defer="" integrity="sha384-OrHfGTnIbkl0do3N76qW/uWr38o91N05sbSPuYBPLH+hG8X/dNSrjZf3AGjzrCwC" src="../../../assets/vendor/mathjax/tex-mml-chtml.js"></script>
+</head>
+<body data-md-color-accent="amber" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#bayesian-nonparametrics-2-partitions-and-mixtures">
+          Skip to content
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header md-header--shadow" data-md-component="header">
+<nav aria-label="Header" class="md-header__inner md-grid">
+<a aria-label="Artifex" class="md-header__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            Artifex
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+            
+              Bayesian Nonparametrics 2 — Partitions and Mixtures
+            
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-label="Switch to dark mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: light)" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_1" hidden="" title="Switch to dark mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+<input aria-label="Switch to light mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-primary="indigo" data-md-color-scheme="slate" id="__palette_1" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_0" hidden="" title="Switch to light mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+</form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div aria-label="Search" class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Search" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="Search" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="Search" class="md-search__options">
+<a aria-label="Share" class="md-search__icon md-icon" data-clipboard="" data-clipboard-text="" data-md-component="search-share" href="javascript:void(0)" tabindex="-1" title="Share">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"></path></svg>
+</a>
+<button aria-label="Clear" class="md-search__icon md-icon" tabindex="-1" title="Clear" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            Initializing search
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Navigation" class="md-nav md-nav--primary" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="Artifex" class="md-nav__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+    Artifex
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../..">
+<span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../getting-started/installation/">
+<span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Generative Models Book
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Generative Models Book
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    
+  
+    Start Here — The Landscape
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../first-course-01-generative-systems/">
+<span class="md-ellipsis">
+    
+  
+    First Course — New to Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../probability-01-objects/">
+<span class="md-ellipsis">
+    
+  
+    Foundations
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_4" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_4" id="__nav_3_4_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Model Families
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_4_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_4">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Model Families
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../autoregressive-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Autoregressive Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../vae-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Variational Autoencoders
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gan-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Generative Adversarial Networks
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../ebm-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Energy-Based Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../diffusion-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Diffusion Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../flow-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Normalizing Flows and Flow Matching
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../probabilistic-circuits-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Probabilistic Circuits
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../tensor-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Tensor-Network and Born Probability Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../implicit-generators-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Implicit Generators Beyond GANs
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../discrete-iterative-01-masked/">
+<span class="md-ellipsis">
+    
+  
+    Discrete Iterative Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../bayesian-flow-networks-01-story/">
+<span class="md-ellipsis">
+    
+  
+    Bayesian Flow Networks
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gflownets-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Generative Flow Networks
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_4_13" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_4_13" id="__nav_3_4_13_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Bayesian Nonparametric Random-Measure Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_4_13_label" class="md-nav" data-md-level="3">
+<label class="md-nav__title" for="__nav_3_4_13">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Bayesian Nonparametric Random-Measure Models
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../bnp-01-random-measures/">
+<span class="md-ellipsis">
+    
+  
+    1. Random Measures
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
+    
+  
+    2. Partitions and Mixtures
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
+<span class="md-ellipsis">
+    
+  
+    2. Partitions and Mixtures
+  
+
+    
+  </span>
+</a>
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#2-exchangeable-partitions-and-random-measure-mixtures">
+<span class="md-ellipsis">
+      
+        2. Exchangeable Partitions and Random-Measure Mixtures
+      
+    </span>
+</a>
+<nav aria-label="2. Exchangeable Partitions and Random-Measure Mixtures" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-2-definition-and-scope">
+<span class="md-ellipsis">
+      
+        Chapter 2 definition and scope
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-2-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 2 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#from-random-measure-to-mixture-density">
+<span class="md-ellipsis">
+      
+        From random measure to mixture density
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#the-partition-law">
+<span class="md-ellipsis">
+      
+        The partition law
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-partition-distribution-for-three-items">
+<span class="md-ellipsis">
+      
+        Worked partition distribution for three items
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#posterior-assignment-includes-the-likelihood">
+<span class="md-ellipsis">
+      
+        Posterior assignment includes the likelihood
+      
+    </span>
+</a>
+<nav aria-label="Posterior assignment includes the likelihood" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-betabernoulli-reassignment">
+<span class="md-ellipsis">
+      
+        Worked beta–Bernoulli reassignment
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#label-switching-and-the-inferential-object">
+<span class="md-ellipsis">
+      
+        Label switching and the inferential object
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#pitmanyor-and-other-partition-growth-laws">
+<span class="md-ellipsis">
+      
+        Pitman–Yor and other partition growth laws
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#density-estimation-is-not-component-count-recovery">
+<span class="md-ellipsis">
+      
+        Density estimation is not component-count recovery
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#connections-to-adjacent-families">
+<span class="md-ellipsis">
+      
+        Connections to adjacent families
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#independent-practice-and-assessment-map-partitions-and-mixtures">
+<span class="md-ellipsis">
+      
+        Independent practice and assessment map: partitions and mixtures
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-2-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 2 synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../bnp-03-feature-allocations/">
+<span class="md-ellipsis">
+    
+  
+    3. Features and Traits
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../bnp-04-hierarchies/">
+<span class="md-ellipsis">
+    
+  
+    4. Hierarchies and Dependence
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../bnp-05-inference/">
+<span class="md-ellipsis">
+    
+  
+    5. Posterior Computation
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../bnp-06-evaluation/">
+<span class="md-ellipsis">
+    
+  
+    6. Evaluation and Research
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../bayesian-nonparametric-models-explained/">
+<span class="md-ellipsis">
+    
+  
+    Continuous View (All Chapters)
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../stochastic-process-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Stochastic-Process and Function-Space Generators
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../point-processes-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Point Processes and Random Finite Sets
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../random-graphs-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Random Graphs and Relational Generators
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../copula-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Copula Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../grammar-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Probabilistic Grammars and Program Derivations
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../causal-generative-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Causal Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../new-families-frontier-evidence/">
+<span class="md-ellipsis">
+    
+  
+    Research Evidence Ledger
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gradients-01-taxonomy/">
+<span class="md-ellipsis">
+    
+  
+    Connections and Compositions
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../normalization-01-queries/">
+<span class="md-ellipsis">
+    
+  
+    Research Practice
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../models/vae-guide/">
+<span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/core/base/">
+<span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../examples/overview/">
+<span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../zoo/">
+<span class="md-ellipsis">
+    
+  
+    Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../training/overview/">
+<span class="md-ellipsis">
+    
+  
+    Training
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../data/overview/">
+<span class="md-ellipsis">
+    
+  
+    Data &amp; Modalities
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../inference/overview/">
+<span class="md-ellipsis">
+    
+  
+    Inference &amp; Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../benchmarks/">
+<span class="md-ellipsis">
+    
+  
+    Evaluation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../guides/extensions/">
+<span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../extensions/">
+<span class="md-ellipsis">
+    
+  
+    Advanced Topics
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../cli/">
+<span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../community/contributing/">
+<span class="md-ellipsis">
+    
+  
+    Community
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/configs/protein-extension/">
+<span class="md-ellipsis">
+    
+  
+    Reference Library
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#2-exchangeable-partitions-and-random-measure-mixtures">
+<span class="md-ellipsis">
+      
+        2. Exchangeable Partitions and Random-Measure Mixtures
+      
+    </span>
+</a>
+<nav aria-label="2. Exchangeable Partitions and Random-Measure Mixtures" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-2-definition-and-scope">
+<span class="md-ellipsis">
+      
+        Chapter 2 definition and scope
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-2-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 2 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#from-random-measure-to-mixture-density">
+<span class="md-ellipsis">
+      
+        From random measure to mixture density
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#the-partition-law">
+<span class="md-ellipsis">
+      
+        The partition law
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-partition-distribution-for-three-items">
+<span class="md-ellipsis">
+      
+        Worked partition distribution for three items
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#posterior-assignment-includes-the-likelihood">
+<span class="md-ellipsis">
+      
+        Posterior assignment includes the likelihood
+      
+    </span>
+</a>
+<nav aria-label="Posterior assignment includes the likelihood" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-betabernoulli-reassignment">
+<span class="md-ellipsis">
+      
+        Worked beta–Bernoulli reassignment
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#label-switching-and-the-inferential-object">
+<span class="md-ellipsis">
+      
+        Label switching and the inferential object
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#pitmanyor-and-other-partition-growth-laws">
+<span class="md-ellipsis">
+      
+        Pitman–Yor and other partition growth laws
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#density-estimation-is-not-component-count-recovery">
+<span class="md-ellipsis">
+      
+        Density estimation is not component-count recovery
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#connections-to-adjacent-families">
+<span class="md-ellipsis">
+      
+        Connections to adjacent families
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#independent-practice-and-assessment-map-partitions-and-mixtures">
+<span class="md-ellipsis">
+      
+        Independent practice and assessment map: partitions and mixtures
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-2-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 2 synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<nav aria-label="Breadcrumb" class="md-path">
+<ol class="md-path__list">
+<li class="md-path__item">
+<a class="md-path__link" href="../../..">
+<span class="md-ellipsis">
+    Home
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    Generative Models Book
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../autoregressive-01-foundations/">
+<span class="md-ellipsis">
+    Model Families
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../bnp-01-random-measures/">
+<span class="md-ellipsis">
+    Bayesian Nonparametric Random-Measure Models
+  </span>
+</a>
+</li>
+</ol>
+</nav>
+<article class="md-content__inner md-typeset">
+<h1 id="bayesian-nonparametrics-2-partitions-and-mixtures">Bayesian Nonparametrics 2 — Partitions and Mixtures<a class="headerlink" href="#bayesian-nonparametrics-2-partitions-and-mixtures" title="Permanent link">¤</a></h1><aside aria-label="Learning path" class="admonition abstract artifex-learning-path"><p class="admonition-title">Learning path</p><p><strong>Required knowledge</strong></p><ul class="artifex-learning-path__links" data-learning-path-role="required"><li><a href="../bnp-01-random-measures/">Bayesian Nonparametrics 1 — Random Measures</a></li></ul><p><strong>Readiness check:</strong> can you explain the central object and reproduce one worked example from each required chapter? If not, follow its link before continuing.</p><p><strong>Newly unlocked in the default route</strong></p><ul class="artifex-learning-path__links" data-learning-path-role="unlocks"><li><a href="../bnp-03-feature-allocations/">Bayesian Nonparametrics 3 — Features and Traits</a></li></ul></aside>
+<p>This chapter connects random measures to exchangeable partitions, mixture models, predictive allocation, Pitman–Yor laws, and the limits of interpreting occupied components as true cluster count. Read it continuously in the <a href="../bayesian-nonparametric-models-explained/#2-exchangeable-partitions-and-random-measure-mixtures">complete guide</a>.</p>
+<h2 id="2-exchangeable-partitions-and-random-measure-mixtures">2. Exchangeable Partitions and Random-Measure Mixtures<a class="headerlink" href="#2-exchangeable-partitions-and-random-measure-mixtures" title="Permanent link">¤</a></h2>
+<h3 id="chapter-2-definition-and-scope">Chapter 2 definition and scope<a class="headerlink" href="#chapter-2-definition-and-scope" title="Permanent link">¤</a></h3>
+<p>A partition places every item in exactly one unlabeled block. A random-measure mixture generates such a partition by letting observations share atom-valued component parameters. The partition prior, component likelihood, posterior partition, observation density, and scientific interpretation of a cluster are separate layers.</p>
+<h3 id="chapter-2-prerequisites-and-learning-objectives">Chapter 2 prerequisites and learning objectives<a class="headerlink" href="#chapter-2-prerequisites-and-learning-objectives" title="Permanent link">¤</a></h3>
+<p>This chapter assumes Chapter 1 and finite mixture models. By the end, you should be able to:</p>
+<ol>
+<li><strong>O1 — Derive</strong> the DP exchangeable partition probability function and account for partition multiplicities.</li>
+<li><strong>O2 — Separate</strong> the random measure, sample partition, observation likelihood, and posterior scientific claim.</li>
+<li><strong>O3 — Compute</strong> prior occupied-cluster growth and likelihood-weighted posterior reassignment.</li>
+<li><strong>O4 — Compare</strong> Dirichlet- and Pitman–Yor-process predictive rules and their growth implications.</li>
+<li><strong>O5 — Use</strong> label-invariant posterior summaries and decision losses.</li>
+<li><strong>O6 — Distinguish</strong> density estimation, observed-sample partitioning, and finite component-count recovery.</li>
+</ol>
+<p>Two equivalent marginalizations of the same model expose different structure.
+The bottom-row warning is the main interpretive boundary: a mixture component is
+part of a density representation before it is a claimed population.</p>
+<figure class="book-figure" id="fig-bayesian-nonparametric-models-explained-chapter-2-prerequisites-and-learning-objectives"><pre class="mermaid"><code>%%{init: {'themeCSS': '.nodeLabel p { color: #111827 !important; } .flowchart-link { stroke: #78879a !important; stroke-width: 2px !important; } marker path { fill: #78879a !important; stroke: #78879a !important; }'}}%%
+flowchart TB
+    G(("Random measure&amp;nbsp;$$G$$")) --&gt; TH["Shared atoms&amp;nbsp;$$\theta_i$$"]
+    TH --&gt; X["Observations&amp;nbsp;$$x_i$$&amp;nbsp;through&amp;nbsp;$$f$$"]
+    G --&gt;|"integrate out"| PI["Unlabeled partition&amp;nbsp;$$\Pi_n$$"]
+    PI --&gt;|"combine with predictive likelihood"| POST["Posterior partition"]
+    X --&gt; POST
+    POST --&gt; DENS["Density query"]
+    POST --&gt; PART["Partition decision"]
+    POST -. "does not by itself identify" .-&gt; POP["Finite scientific&lt;br/&gt;population count"]</code></pre><figcaption class="book-object-caption"><span class="book-object-number">Figure BNP.10.</span> Chapter 2 prerequisites and learning objectives</figcaption></figure>
+<h3 id="from-random-measure-to-mixture-density">From random measure to mixture density<a class="headerlink" href="#from-random-measure-to-mixture-density" title="Permanent link">¤</a></h3>
+<p>A Dirichlet-process mixture (DPM) is</p>
+<div class="arithmatex">\[
+G\sim\operatorname{DP}(\alpha,H),
+\qquad
+\theta_i\mid G\sim G,
+\qquad
+x_i\mid\theta_i\sim f(x_i\mid\theta_i).
+\]</div>
+<p>Using the stick representation,</p>
+<div class="arithmatex">\[
+p(x\mid G)=\sum_{k=1}^{\infty}\pi_k f(x\mid\phi_k).
+\]</div>
+<p>The almost-surely discrete <span class="arithmatex">\(G\)</span> supplies tied component parameters; the kernel <span class="arithmatex">\(f\)</span> determines the observation distribution around each atom. Changing <span class="arithmatex">\(f\)</span> can change smoothness, tail behavior, component overlap, identifiability, and posterior cluster count without changing the DP prior.</p>
+<h3 id="the-partition-law">The partition law<a class="headerlink" href="#the-partition-law" title="Permanent link">¤</a></h3>
+<p>Assume <span class="arithmatex">\(H\)</span> is diffuse. Integrating out <span class="arithmatex">\(G\)</span> gives the predictive allocation rule</p>
+<div class="arithmatex">\[
+\Pr(c_{n+1}=k\mid\Pi_n)=\frac{n_k}{\alpha+n},
+\qquad
+\Pr(c_{n+1}=\text{new}\mid\Pi_n)=\frac{\alpha}{\alpha+n},
+\]</div>
+<p>where <span class="arithmatex">\(n_k\)</span> is the size of occupied block <span class="arithmatex">\(k\)</span>. Multiplying these sequential factors yields the exchangeable partition probability function (EPPF)</p>
+<div class="arithmatex">\[
+\Pr(\Pi_n=\{B_1,\ldots,B_K\})
+=\frac{\alpha^K\Gamma(\alpha)}{\Gamma(\alpha+n)}
+\prod_{k=1}^{K}\Gamma(|B_k|).
+\]</div>
+<p>The right-hand side depends only on block sizes, not arrival order or arbitrary cluster labels. It assigns probability to a particular unlabeled partition. Summing over all partitions with the same size profile introduces combinatorial multiplicities.</p>
+<h3 id="worked-partition-distribution-for-three-items">Worked partition distribution for three items<a class="headerlink" href="#worked-partition-distribution-for-three-items" title="Permanent link">¤</a></h3>
+<p>Set <span class="arithmatex">\(\alpha=1\)</span>. For <span class="arithmatex">\(n=3\)</span>:</p>
+<ul>
+<li>the one-block partition <span class="arithmatex">\(\{123\}\)</span> has probability <span class="arithmatex">\(1/3\)</span>;</li>
+<li>each of <span class="arithmatex">\(\{12|3\}\)</span>, <span class="arithmatex">\(\{13|2\}\)</span>, and <span class="arithmatex">\(\{23|1\}\)</span> has probability <span class="arithmatex">\(1/6\)</span>, hence the size profile <span class="arithmatex">\((2,1)\)</span> has total probability <span class="arithmatex">\(1/2\)</span>;</li>
+<li>the all-singleton partition <span class="arithmatex">\(\{1|2|3\}\)</span> has probability <span class="arithmatex">\(1/6\)</span>.</li>
+</ul>
+<p>These probabilities sum to one. The expected number of occupied blocks is therefore</p>
+<div class="arithmatex">\[
+\mathbb E[K_3]
+=1\cdot\frac13+2\cdot\frac12+3\cdot\frac16
+=\frac{11}{6}.
+\]</div>
+<p>More generally,</p>
+<div class="arithmatex">\[
+\mathbb E[K_n]
+=\sum_{i=1}^{n}\frac{\alpha}{\alpha+i-1}.
+\]</div>
+<p>For fixed <span class="arithmatex">\(\alpha\)</span>, this grows logarithmically. The value depends on both <span class="arithmatex">\(n\)</span> and <span class="arithmatex">\(\alpha\)</span>; there is no dataset-independent conversion from concentration to “the number of clusters.”</p>
+<h3 id="posterior-assignment-includes-the-likelihood">Posterior assignment includes the likelihood<a class="headerlink" href="#posterior-assignment-includes-the-likelihood" title="Permanent link">¤</a></h3>
+<p>The predictive rule above is a <strong>prior</strong> over partitions before seeing the next <span class="arithmatex">\(x\)</span>. In a conjugate mixture, a collapsed reassignment for item <span class="arithmatex">\(i\)</span> has weights</p>
+<div class="arithmatex">\[
+\Pr(c_i=k\mid c_{-i},x_{1:n})
+\propto
+\begin{cases}
+n_{-i,k}\,m_k(x_i), &amp; k\text{ occupied},\\[3pt]
+\alpha\,m_0(x_i), &amp; k\text{ new},
+\end{cases}
+\]</div>
+<p>where <span class="arithmatex">\(m_k\)</span> is the posterior predictive under existing block <span class="arithmatex">\(k\)</span> and <span class="arithmatex">\(m_0\)</span> is the base-prior predictive. The count term and data-fit term play different roles.</p>
+<h4 id="worked-betabernoulli-reassignment">Worked beta–Bernoulli reassignment<a class="headerlink" href="#worked-betabernoulli-reassignment" title="Permanent link">¤</a></h4>
+<p>Let component success probabilities have prior <span class="arithmatex">\(\phi\sim\operatorname{Beta}(1,1)\)</span>. One occupied block contains two successes. Consider assigning a new failure <span class="arithmatex">\(x=0\)</span> with <span class="arithmatex">\(\alpha=1\)</span>.</p>
+<p>The existing-block failure predictive is <span class="arithmatex">\(1/4\)</span>, so its unnormalized weight is</p>
+<div class="arithmatex">\[
+2\times\frac14=\frac12.
+\]</div>
+<p>The new-block failure predictive is <span class="arithmatex">\(1/2\)</span>, so its unnormalized weight is</p>
+<div class="arithmatex">\[
+1\times\frac12=\frac12.
+\]</div>
+<p>The posterior assignment probabilities are equal. The partition prior alone would favor joining the existing block by <span class="arithmatex">\(2/3\)</span> to <span class="arithmatex">\(1/3\)</span>; the observed failure supplies exactly enough contrary likelihood evidence to balance the weights. “Rich get richer” is therefore an incomplete description of posterior clustering.</p>
+<h3 id="label-switching-and-the-inferential-object">Label switching and the inferential object<a class="headerlink" href="#label-switching-and-the-inferential-object" title="Permanent link">¤</a></h3>
+<p>Mixture labels are arbitrary. Relabeling every component leaves the likelihood unchanged, and a posterior sampler may move between symmetric labelings. Label-specific posterior means can therefore be meaningless. Useful label-invariant summaries include:</p>
+<ul>
+<li>the posterior co-clustering matrix <span class="arithmatex">\(S_{ij}=\Pr(c_i=c_j\mid x)\)</span>;</li>
+<li>a representative partition minimizing posterior expected variation of information or another declared loss;</li>
+<li>posterior distributions of functionals such as density, cluster size profile, or predictive probability;</li>
+<li>application-defined summaries attached to identifiable component features.</li>
+</ul>
+<p>An adjusted Rand index is appropriate in a simulation with known labels, not as a universal unsupervised score. A visually stable partition is not evidence that latent groups are scientifically real.</p>
+<h3 id="pitmanyor-and-other-partition-growth-laws">Pitman–Yor and other partition growth laws<a class="headerlink" href="#pitmanyor-and-other-partition-growth-laws" title="Permanent link">¤</a></h3>
+<p>A Pitman–Yor process introduces discount <span class="arithmatex">\(0\le d&lt;1\)</span> and strength <span class="arithmatex">\(\vartheta&gt;-d\)</span>:</p>
+<div class="arithmatex">\[
+\Pr(c_{n+1}=k\mid\Pi_n)
+=\frac{n_k-d}{\vartheta+n},
+\qquad
+\Pr(c_{n+1}=\text{new}\mid\Pi_n)
+=\frac{\vartheta+dK_n}{\vartheta+n}.
+\]</div>
+<p>The DP is the case <span class="arithmatex">\(d=0\)</span> with <span class="arithmatex">\(\vartheta=\alpha\)</span>. For <span class="arithmatex">\(0&lt;d&lt;1\)</span>, the occupied-block count typically grows on the order of <span class="arithmatex">\(n^d\)</span> under the prior rather than <span class="arithmatex">\(\log n\)</span>, and the induced frequencies have different tail behavior. This is a model choice, not a free robustness improvement. The discount changes small-cluster prevalence and unseen-species prediction and must be checked against the intended query.</p>
+<p>Normalized generalized-gamma and broader Poisson–Kingman models provide other random-mass and partition laws. Their predictive probabilities may require auxiliary variables or special functions. Sharing the phrase “infinite mixture” does not make their partition distributions or posterior algorithms equivalent.</p>
+<h3 id="density-estimation-is-not-component-count-recovery">Density estimation is not component-count recovery<a class="headerlink" href="#density-estimation-is-not-component-count-recovery" title="Permanent link">¤</a></h3>
+<p>Three targets are commonly collapsed:</p>
+<ol>
+<li>the observation density <span class="arithmatex">\(p(x)\)</span>;</li>
+<li>the partition of the observed sample;</li>
+<li>a finite number of data-generating populations or mixture components.</li>
+</ol>
+<p>Under stated regularity and support assumptions, Dirichlet mixtures of normals can have consistent density posteriors (<a href="https://doi.org/10.1214/aos/1018031105">Ghosal, Ghosh, and Ramamoorthi, 1999</a>). Yet <a href="https://jmlr.org/papers/v15/miller14a.html">Miller and Harrison (2014)</a> show that broad Dirichlet- and Pitman–Yor-process mixtures are inconsistent for the number of components when data come from many ordinary finite mixtures. Both statements can be true because they concern different functionals.</p>
+<p>If the scientific estimand is a finite component count, use a model that places a prior on that count and check its identifiability and consistency assumptions. A <a href="https://doi.org/10.1080/01621459.2016.1255636">mixture of finite mixtures</a> places <span class="arithmatex">\(K\sim p_K\)</span> before finite mixture weights and can retain restaurant-like computation without asserting that a DPM occupied-block count estimates <span class="arithmatex">\(K\)</span>.</p>
+<div class="admonition failure">
+<p class="admonition-title">Failure case: a narrow kernel manufactures clusters</p>
+<p>A DPM with a likelihood kernel much narrower than the true within-population distribution may use several nearby components to approximate one broad density feature. Better held-out density can then coexist with an increasing occupied-cluster count. Interpreting every occupied component as a distinct cell type, speaker, disease subtype, or physical regime changes a density approximation into an unsupported ontology.</p>
+</div>
+<h3 id="connections-to-adjacent-families">Connections to adjacent families<a class="headerlink" href="#connections-to-adjacent-families" title="Permanent link">¤</a></h3>
+<ul>
+<li>A finite mixture and a DPM share latent-mixture grammar; the mixing-measure prior and partition growth law differ.</li>
+<li>A VAE can use a random-measure prior, but an amortized encoder does not turn every VAE into a BNP model.</li>
+<li>An autoregressive clustering network may parameterize a posterior over partitions; it is an inference composition unless its generated partition law is declared as the model.</li>
+<li>A random graph may use a BNP partition for communities, while node-count, graph-exchangeability, and edge-law semantics still belong to the graph family.</li>
+</ul>
+<h3 id="independent-practice-and-assessment-map-partitions-and-mixtures">Independent practice and assessment map: partitions and mixtures<a class="headerlink" href="#independent-practice-and-assessment-map-partitions-and-mixtures" title="Permanent link">¤</a></h3>
+<ol>
+<li><strong>P1.1 — Predict before computing.</strong> In the beta–Bernoulli reassignment example, predict whether changing the candidate observation from failure to success makes the existing block more or less likely. Compute both unnormalized weights and the normalized probability of joining it.</li>
+<li><strong>P1.2 — EPPF normalization.</strong> For a DP with <span class="arithmatex">\(alpha=1\)</span> and <span class="arithmatex">\(n=3\)</span>, derive the probability of each unlabeled partition from the EPPF, group them by block-size profile, verify normalization, and compute <span class="arithmatex">\(\mathbb E[K_3]\)</span>.</li>
+<li><strong>P1.3 — Pitman–Yor comparison.</strong> With <span class="arithmatex">\(n=5\)</span>, block sizes <span class="arithmatex">\((3,2)\)</span>, discount <span class="arithmatex">\(d=1/2\)</span>, and strength <span class="arithmatex">\(\vartheta=1\)</span>, compute the two existing-block probabilities and the new-block probability. Compare them with a DP having <span class="arithmatex">\(\alpha=1\)</span>.</li>
+<li><strong>P1.4 — Label-invariant decision.</strong> Given posterior co-clustering probabilities <span class="arithmatex">\(S_{12}=0.9\)</span>, <span class="arithmatex">\(S_{13}=0.2\)</span>, and <span class="arithmatex">\(S_{23}=0.3\)</span>, explain why three marginal label modes do not define a coherent partition and name a valid route to a point decision.</li>
+<li><strong>P1.5 — Estimand boundary.</strong> Construct a case in which two narrow mixture components approximate one broad population well. State which evidence could validate density prediction and which additional assumptions/evidence would be needed to claim two populations.</li>
+<li><strong>P1.6 — Transfer.</strong> Design a species-discovery comparison between a DP and Pitman–Yor model. Hold the likelihood and data split fixed; declare the unseen-species query, prior-predictive growth check, rare-frequency calibration, computational budget, and a condition under which neither occupied count should be interpreted as a finite true count.</li>
+</ol>
+<h5 id="outcome-to-task-alignment-partitions-likelihoods-and-estimands">Outcome-to-task alignment: partitions, likelihoods, and estimands<a class="headerlink" href="#outcome-to-task-alignment-partitions-likelihoods-and-estimands" title="Permanent link">¤</a></h5>
+<div class="md-typeset__table book-table-container"><table id="tbl-bayesian-nonparametric-models-explained-outcome-to-task-alignment-partitions-likelihoods-and-estimands"><caption class="book-object-caption"><span class="book-object-number">Table BNP.13.</span> Outcome-to-task alignment: partitions, likelihoods, and estimands</caption>
+<thead>
+<tr>
+<th>Learning objective</th>
+<th>Independently assessed by</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>O1 — Derive and normalize the DP EPPF; evidence is the complete three-item enumeration</td>
+<td>P1.2</td>
+</tr>
+<tr>
+<td>O2 — Separate mixture layers and scientific interpretation; evidence is the estimand counterexample</td>
+<td>P1.5</td>
+</tr>
+<tr>
+<td>O3 — Compute growth and likelihood-weighted reassignment; evidence is the changed-observation update</td>
+<td>P1.1, P1.2</td>
+</tr>
+<tr>
+<td>O4 — Compare DP and Pitman–Yor prediction; evidence is the same-state numerical contrast</td>
+<td>P1.3, P1.6</td>
+</tr>
+<tr>
+<td>O5 — Use label-invariant summaries; evidence is a coherent decision procedure</td>
+<td>P1.4</td>
+</tr>
+<tr>
+<td>O6 — Separate density, partition, and count recovery; evidence is the counterexample and transfer protocol</td>
+<td>P1.5, P1.6</td>
+</tr>
+</tbody>
+</table></div>
+<details class="success">
+<summary>Complete solutions to P1</summary>
+<ol>
+<li>The existing block has two successes, so its next-success predictive is <span class="arithmatex">\(3/4\)</span> and its weight is <span class="arithmatex">\(2(3/4)=3/2\)</span>. A new block has predictive <span class="arithmatex">\(1/2\)</span> and weight <span class="arithmatex">\(1(1/2)=1/2\)</span>. The normalized existing-block probability is <span class="arithmatex">\((3/2)/(3/2+1/2)=3/4\)</span>, larger than for the failure because the likelihood now reinforces the count advantage.</li>
+<li>The EPPF gives <span class="arithmatex">\(1/3\)</span> for <span class="arithmatex">\(\{123\}\)</span>, <span class="arithmatex">\(1/6\)</span> for each of the three <span class="arithmatex">\((2,1)\)</span> partitions, and <span class="arithmatex">\(1/6\)</span> for <span class="arithmatex">\(\{1|2|3\}\)</span>. The profile totals are <span class="arithmatex">\(1/3,1/2,1/6\)</span>, which sum to one, and <span class="arithmatex">\(\mathbb E[K_3]=1/3+1+1/2=11/6\)</span>.</li>
+<li>The probabilities are <span class="arithmatex">\((3-1/2)/6=5/12\)</span>, <span class="arithmatex">\((2-1/2)/6=1/4\)</span>, and <span class="arithmatex">\((1+(1/2)2)/6=1/3\)</span>; they sum to one. The DP probabilities are <span class="arithmatex">\(3/6=1/2\)</span>, <span class="arithmatex">\(2/6=1/3\)</span>, and <span class="arithmatex">\(1/6\)</span>. Discounting shifts mass from both occupied blocks toward a new block and changes the relative small-block behavior.</li>
+<li>Marginal label names are arbitrary and can select mutually inconsistent events. Minimize posterior expected variation of information, Binder loss, or an application-specific loss over valid partitions using posterior co-clustering information; report uncertainty rather than treating the point action as truth.</li>
+<li>A broad unimodal population fitted with an underspread kernel may need two nearby components to reproduce its density. Held-out proper scores and posterior predictive tail/shape checks can support the density claim. Two populations additionally require an identifiable population model and independent scientific evidence such as external markers or interventions; occupied components alone do not suffice.</li>
+<li>Fit both priors with the same sampling model, preprocessing, held-out units, tuning allowance, and likelihood. Compare prior and posterior discovery curves, held-out new-type counts, rare-frequency calibration, proper predictive scores, and compute. If the data-generating population is not an identifiable finite mixture with a model for its count, neither <span class="arithmatex">\(K_n\)</span> is an estimator of one finite truth.</li>
+</ol>
+</details>
+<details class="question">
+<summary>Retrieval questions</summary>
+<ol>
+<li>Why is the CRP predictive rule exchangeable despite its sequential presentation?</li>
+<li>What term is missing from a posterior assignment rule that uses only <span class="arithmatex">\(n_k\)</span>?</li>
+<li>Can consistent density estimation certify the true number of mixture components?</li>
+<li>What changes when a DP is replaced by a Pitman–Yor prior with <span class="arithmatex">\(d&gt;0\)</span>?</li>
+</ol>
+</details>
+<details class="success">
+<summary>Complete solutions</summary>
+<ol>
+<li>Multiplying the predictive factors yields an EPPF depending only on the final unlabeled block sizes.</li>
+<li>The existing- or new-component posterior predictive likelihood of the observation.</li>
+<li>No. Density recovery, sample partitioning, and component-count recovery are different functionals with different consistency conditions.</li>
+<li>Existing blocks are discounted, new-block probability depends on <span class="arithmatex">\(K_n\)</span>, and prior occupied-block growth changes from logarithmic to a power-law order.</li>
+</ol>
+</details>
+<h3 id="chapter-2-synthesis">Chapter 2 synthesis<a class="headerlink" href="#chapter-2-synthesis" title="Permanent link">¤</a></h3>
+<p>Random-measure mixtures induce exchangeable partitions, but data enter assignments through the likelihood. Partition inference is label-invariant, and occupied blocks need not be scientific populations. Chapter 3 replaces the one-block-per-item constraint by sparse membership in multiple latent features.</p>
+<p><a href="../bayesian-nonparametric-models-explained/#3-feature-allocations-traits-and-completely-random-measures">Continue continuously</a>, or use the <a href="./">Chapter 2 stopping-point view</a>.</p>
+<hr/>
+<p><strong>Previous:</strong> <a href="../bnp-01-random-measures/">1. Random Measures</a> · <strong>Continue:</strong> <a href="../bnp-03-feature-allocations/">3. Features and Traits</a> · <a href="../bayesian-nonparametric-models-explained/">Complete guide</a></p>
+</article>
+</div>
+<script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  Back to top
+</button>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+<div class="md-social">
+<a class="md-social__link" href="https://github.com/avitai/artifex" rel="noopener" target="_blank" title="github.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</a>
+<a class="md-social__link" href="https://pypi.org/project/avitai-artifex/" rel="noopener" target="_blank" title="pypi.org">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-66.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.3v101.8c0 29 25.2 46 53.4 54.3 33.8 9.9 66.3 11.7 106.8 0 26.9-7.8 53.4-23.5 53.4-54.3v-40.7H226.2v-13.6h160.2c31.1 0 42.6-21.7 53.4-54.2 11.2-33.5 10.7-65.7 0-108.6M286.2 444.7a20.4 20.4 0 1 1 0-40.7 20.4 20.4 0 1 1 0 40.7M167.8 248.1h106.8c29.7 0 53.4-24.5 53.4-54.3V91.9c0-29-24.4-50.7-53.4-55.6-35.8-5.9-74.7-5.6-106.8.1-45.2 8-53.4 24.7-53.4 55.6v40.7h106.9v13.6h-147c-31.1 0-58.3 18.7-66.8 54.2-9.8 40.7-10.2 66.1 0 108.6 7.6 31.6 25.7 54.2 56.8 54.2H101v-48.8c0-35.3 30.5-66.4 66.8-66.4m-6.6-183.4a20.4 20.4 0 1 1 0 40.8 20.4 20.4 0 1 1 0-40.8"></path></svg>
+</a>
+<a class="md-social__link" href="https://twitter.com/mahdi_shafiei" rel="noopener" target="_blank" title="twitter.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M459.4 151.7c.3 4.5.3 9.1.3 13.6 0 138.7-105.6 298.6-298.6 298.6-59.5 0-114.7-17.2-161.1-47.1 8.4 1 16.6 1.3 25.3 1.3 49.1 0 94.2-16.6 130.3-44.8-46.1-1-84.8-31.2-98.1-72.8 6.5 1 13 1.6 19.8 1.6 9.4 0 18.8-1.3 27.6-3.6-48.1-9.7-84.1-52-84.1-103v-1.3c14 7.8 30.2 12.7 47.4 13.3-28.3-18.8-46.8-51-46.8-87.4 0-19.5 5.2-37.4 14.3-53C87.4 130.8 165 172.4 252.1 176.9c-1.6-7.8-2.6-15.9-2.6-24C249.5 95.1 296.3 48 354.4 48c30.2 0 57.5 12.7 76.7 33.1 23.7-4.5 46.5-13.3 66.6-25.3-7.8 24.4-24.4 44.8-46.1 57.8 21.1-2.3 41.6-8.1 60.4-16.2-14.3 20.8-32.2 39.3-52.6 54.3"></path></svg>
+</a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.path", "navigation.top", "navigation.prune", "toc.follow", "search.highlight", "search.share", "search.suggest", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "content.mermaid"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+<script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+<script src="../../../javascripts/reading-layout.js"></script>
+</body>
+</html>

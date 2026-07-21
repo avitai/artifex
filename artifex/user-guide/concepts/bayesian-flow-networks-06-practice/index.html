@@ -1,0 +1,1743 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="This chapter defines evaluation, debugging, failure-mode, evidence-maturity, and research-exercise contracts. For uninterrupted reading, use the complete guide." name="description"/>
+<meta content="Mahdi Shafiei" name="author"/>
+<link href="https://docs.avitai.bio/artifex/user-guide/concepts/bayesian-flow-networks-06-practice/" rel="canonical"/>
+<link href="../bayesian-flow-networks-05-relations/" rel="prev"/>
+<link href="../bayesian-flow-networks-explained/" rel="next"/>
+<link href="../../../assets/images/favicon.png" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.7.7" name="generator"/>
+<title>Bayesian Flow Networks 6 — Practice and Research - Artifex</title>
+<link href="../../../assets/stylesheets/main.ec1eaa64.min.css" rel="stylesheet"/>
+<link href="../../../assets/stylesheets/palette.ab4e12ef.min.css" rel="stylesheet"/>
+<script src="../../../assets/vendor/iframe-worker/index.js"></script>
+<link href="../../../assets/_mkdocstrings.css" rel="stylesheet"/>
+<link href="../../../_static/extra.css" rel="stylesheet"/>
+<script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+<meta content="article" property="og:type"/>
+<meta content="The Artifex Generative Models Book" property="og:site_name"/>
+<meta content="Bayesian Flow Networks 6 — Practice and Research" property="og:title"/>
+<meta content="This chapter defines evaluation, debugging, failure-mode, evidence-maturity, and research-exercise contracts. For uninterrupted reading, use the complete guide." property="og:description"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/bayesian-flow-networks-06-practice/" property="og:url"/>
+<meta content="2026-07-18" property="article:modified_time"/>
+<meta content="summary" name="twitter:card"/>
+<meta content="Bayesian Flow Networks 6 — Practice and Research" name="twitter:title"/>
+<meta content="This chapter defines evaluation, debugging, failure-mode, evidence-maturity, and research-exercise contracts. For uninterrupted reading, use the complete guide." name="twitter:description"/>
+<meta content="Generative models, Machine learning, Probabilistic modeling, research, specialization, canonical_chapter, bayesian-flow-networks-practice, practitioner, researcher" name="keywords"/>
+<meta content="Bayesian Flow Networks 6 — Practice and Research" name="citation_title"/>
+<meta content="Mahdi Shafiei" name="citation_author"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/bayesian-flow-networks-06-practice/" name="citation_public_url"/>
+<meta content="en" name="citation_language"/>
+<meta content="Bayesian Flow Networks 6 — Practice and Research" name="DC.title"/>
+<meta content="Mahdi Shafiei" name="DC.creator"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/bayesian-flow-networks-06-practice/" name="DC.identifier"/>
+<meta content="Text.LearningResource" name="DC.type"/>
+<meta content="2026-07-18" name="DCTERMS.modified"/>
+<meta content="https://github.com/avitai/artifex/blob/main/LICENSE" name="DCTERMS.license"/>
+<meta content="research" name="DCTERMS.educationLevel"/>
+<meta content="practitioner, researcher" name="DCTERMS.audience"/>
+<link href="https://github.com/avitai/artifex/blob/main/LICENSE" rel="license"/>
+<script id="artifex-book-metadata" type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Chapter",
+  "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/bayesian-flow-networks-06-practice/",
+  "url": "https://docs.avitai.bio/artifex/user-guide/concepts/bayesian-flow-networks-06-practice/",
+  "name": "Bayesian Flow Networks 6 \u2014 Practice and Research",
+  "description": "This chapter defines evaluation, debugging, failure-mode, evidence-maturity, and research-exercise contracts. For uninterrupted reading, use the complete guide.",
+  "identifier": "bayesian-flow-networks-practice",
+  "inLanguage": "en",
+  "isAccessibleForFree": true,
+  "learningResourceType": "Canonical chapter",
+  "educationalLevel": "research",
+  "educationalUse": "specialization",
+  "audience": [
+    
+      {"@type": "EducationalAudience", "audienceType": "practitioner"},
+    
+      {"@type": "EducationalAudience", "audienceType": "researcher"}
+    
+  ],
+  "dateModified": "2026-07-18",
+  "keywords": ["Generative models", "Machine learning", "Probabilistic modeling", "research", "specialization", "canonical_chapter", "bayesian-flow-networks-practice", "practitioner", "researcher"],
+  "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+  "author": [
+    
+      {"@type": "Person", "name": "Mahdi Shafiei"}
+    
+  ],
+  "isPartOf": {
+    "@type": "Book",
+    "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/#book",
+    "url": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/",
+    "name": "The Artifex Generative Models Book",
+    "bookEdition": "Living Web Edition",
+    "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+    "author": [
+      
+        {"@type": "Person", "name": "Mahdi Shafiei"}
+      
+    ]
+  }
+}
+</script>
+<link href="../../../assets/vendor/katex/katex.min.css" id="artifex-katex-stylesheet" integrity="sha384-UA8juhPf75SzzAMA/4fo3yOU7sBJ0om7SCD2GHq0fZqZco6tr1UCV7nUbk9J90JM" rel="stylesheet"/>
+<script defer="" integrity="sha384-T/0lMUdJpd2S1ZHtRiofG3htU3xPCrFVeAQ1UUE2TJwlEJSV5NUwn30kP28n238E" src="../../../assets/vendor/mermaid/mermaid.min.js"></script>
+<script defer="" src="../../../assets/vendor/katex/katex-shadow.js"></script>
+<script defer="" src="../../../javascripts/mermaid-math.js"></script>
+<script defer="" src="../../../javascripts/mathjax.js"></script>
+<script defer="" integrity="sha384-OrHfGTnIbkl0do3N76qW/uWr38o91N05sbSPuYBPLH+hG8X/dNSrjZf3AGjzrCwC" src="../../../assets/vendor/mathjax/tex-mml-chtml.js"></script>
+</head>
+<body data-md-color-accent="amber" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#bayesian-flow-networks-6-practice-and-research">
+          Skip to content
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header md-header--shadow" data-md-component="header">
+<nav aria-label="Header" class="md-header__inner md-grid">
+<a aria-label="Artifex" class="md-header__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            Artifex
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+            
+              Bayesian Flow Networks 6 — Practice and Research
+            
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-label="Switch to dark mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: light)" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_1" hidden="" title="Switch to dark mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+<input aria-label="Switch to light mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-primary="indigo" data-md-color-scheme="slate" id="__palette_1" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_0" hidden="" title="Switch to light mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+</form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div aria-label="Search" class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Search" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="Search" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="Search" class="md-search__options">
+<a aria-label="Share" class="md-search__icon md-icon" data-clipboard="" data-clipboard-text="" data-md-component="search-share" href="javascript:void(0)" tabindex="-1" title="Share">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"></path></svg>
+</a>
+<button aria-label="Clear" class="md-search__icon md-icon" tabindex="-1" title="Clear" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            Initializing search
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Navigation" class="md-nav md-nav--primary" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="Artifex" class="md-nav__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+    Artifex
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../..">
+<span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../getting-started/installation/">
+<span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Generative Models Book
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Generative Models Book
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    
+  
+    Start Here — The Landscape
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../first-course-01-generative-systems/">
+<span class="md-ellipsis">
+    
+  
+    First Course — New to Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../probability-01-objects/">
+<span class="md-ellipsis">
+    
+  
+    Foundations
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_4" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_4" id="__nav_3_4_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Model Families
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_4_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_4">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Model Families
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../autoregressive-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Autoregressive Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../vae-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Variational Autoencoders
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gan-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Generative Adversarial Networks
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../ebm-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Energy-Based Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../diffusion-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Diffusion Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../flow-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Normalizing Flows and Flow Matching
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../probabilistic-circuits-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Probabilistic Circuits
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../tensor-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Tensor-Network and Born Probability Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../implicit-generators-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Implicit Generators Beyond GANs
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../discrete-iterative-01-masked/">
+<span class="md-ellipsis">
+    
+  
+    Discrete Iterative Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_4_11" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_4_11" id="__nav_3_4_11_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Bayesian Flow Networks
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_4_11_label" class="md-nav" data-md-level="3">
+<label class="md-nav__title" for="__nav_3_4_11">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Bayesian Flow Networks
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../bayesian-flow-networks-01-story/">
+<span class="md-ellipsis">
+    
+  
+    1. Generative Story
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../bayesian-flow-networks-02-continuous/">
+<span class="md-ellipsis">
+    
+  
+    2. Continuous Data
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../bayesian-flow-networks-03-discrete/">
+<span class="md-ellipsis">
+    
+  
+    3. Discrete Data
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../bayesian-flow-networks-04-algorithms/">
+<span class="md-ellipsis">
+    
+  
+    4. Algorithms and Guidance
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../bayesian-flow-networks-05-relations/">
+<span class="md-ellipsis">
+    
+  
+    5. Connections to Diffusion and Flow
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
+    
+  
+    6. Practice and Research
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
+<span class="md-ellipsis">
+    
+  
+    6. Practice and Research
+  
+
+    
+  </span>
+</a>
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#6-evaluation-failure-modes-and-research-directions">
+<span class="md-ellipsis">
+      
+        6. Evaluation, Failure Modes, and Research Directions
+      
+    </span>
+</a>
+<nav aria-label="6. Evaluation, Failure Modes, and Research Directions" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#prerequisites-and-capstone-objectives">
+<span class="md-ellipsis">
+      
+        Prerequisites and capstone objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#evaluation-contract">
+<span class="md-ellipsis">
+      
+        Evaluation Contract
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#error-decomposition-by-controlled-replacement">
+<span class="md-ellipsis">
+      
+        Error decomposition by controlled replacement
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#failure-modes">
+<span class="md-ellipsis">
+      
+        Failure Modes
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#debugging-ladder">
+<span class="md-ellipsis">
+      
+        Debugging Ladder
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#modalities-and-research">
+<span class="md-ellipsis">
+      
+        Modalities and Research
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#established-and-peer-reviewed-research">
+<span class="md-ellipsis">
+      
+        Established and peer-reviewed research
+      
+    </span>
+</a>
+<nav aria-label="Established and peer-reviewed research" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#peer-reviewed-research-checkpoints">
+<span class="md-ellipsis">
+      
+        Peer-Reviewed Research Checkpoints
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#preprints-and-work-under-review">
+<span class="md-ellipsis">
+      
+        Preprints and Work Under Review
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#open-questions">
+<span class="md-ellipsis">
+      
+        Open Questions
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#cumulative-worked-study-a-symmetry-aware-crystal-bfn">
+<span class="md-ellipsis">
+      
+        Cumulative worked study: a symmetry-aware crystal BFN
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#independent-practice-and-assessment-map-evaluation-and-research">
+<span class="md-ellipsis">
+      
+        Independent practice and assessment map: evaluation and research
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#research-exercises">
+<span class="md-ellipsis">
+      
+        Research Exercises
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#source-tracing-checklist">
+<span class="md-ellipsis">
+      
+        Source-tracing checklist
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#primary-reading-trail">
+<span class="md-ellipsis">
+      
+        Primary Reading Trail
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#final-synthesis">
+<span class="md-ellipsis">
+      
+        Final Synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../bayesian-flow-networks-explained/">
+<span class="md-ellipsis">
+    
+  
+    Continuous View (All Chapters)
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gflownets-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Generative Flow Networks
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../bnp-01-random-measures/">
+<span class="md-ellipsis">
+    
+  
+    Bayesian Nonparametric Random-Measure Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../stochastic-process-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Stochastic-Process and Function-Space Generators
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../point-processes-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Point Processes and Random Finite Sets
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../random-graphs-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Random Graphs and Relational Generators
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../copula-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Copula Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../grammar-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Probabilistic Grammars and Program Derivations
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../causal-generative-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Causal Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../new-families-frontier-evidence/">
+<span class="md-ellipsis">
+    
+  
+    Research Evidence Ledger
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gradients-01-taxonomy/">
+<span class="md-ellipsis">
+    
+  
+    Connections and Compositions
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../normalization-01-queries/">
+<span class="md-ellipsis">
+    
+  
+    Research Practice
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../models/vae-guide/">
+<span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/core/base/">
+<span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../examples/overview/">
+<span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../zoo/">
+<span class="md-ellipsis">
+    
+  
+    Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../training/overview/">
+<span class="md-ellipsis">
+    
+  
+    Training
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../data/overview/">
+<span class="md-ellipsis">
+    
+  
+    Data &amp; Modalities
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../inference/overview/">
+<span class="md-ellipsis">
+    
+  
+    Inference &amp; Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../benchmarks/">
+<span class="md-ellipsis">
+    
+  
+    Evaluation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../guides/extensions/">
+<span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../extensions/">
+<span class="md-ellipsis">
+    
+  
+    Advanced Topics
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../cli/">
+<span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../community/contributing/">
+<span class="md-ellipsis">
+    
+  
+    Community
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/configs/protein-extension/">
+<span class="md-ellipsis">
+    
+  
+    Reference Library
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#6-evaluation-failure-modes-and-research-directions">
+<span class="md-ellipsis">
+      
+        6. Evaluation, Failure Modes, and Research Directions
+      
+    </span>
+</a>
+<nav aria-label="6. Evaluation, Failure Modes, and Research Directions" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#prerequisites-and-capstone-objectives">
+<span class="md-ellipsis">
+      
+        Prerequisites and capstone objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#evaluation-contract">
+<span class="md-ellipsis">
+      
+        Evaluation Contract
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#error-decomposition-by-controlled-replacement">
+<span class="md-ellipsis">
+      
+        Error decomposition by controlled replacement
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#failure-modes">
+<span class="md-ellipsis">
+      
+        Failure Modes
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#debugging-ladder">
+<span class="md-ellipsis">
+      
+        Debugging Ladder
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#modalities-and-research">
+<span class="md-ellipsis">
+      
+        Modalities and Research
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#established-and-peer-reviewed-research">
+<span class="md-ellipsis">
+      
+        Established and peer-reviewed research
+      
+    </span>
+</a>
+<nav aria-label="Established and peer-reviewed research" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#peer-reviewed-research-checkpoints">
+<span class="md-ellipsis">
+      
+        Peer-Reviewed Research Checkpoints
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#preprints-and-work-under-review">
+<span class="md-ellipsis">
+      
+        Preprints and Work Under Review
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#open-questions">
+<span class="md-ellipsis">
+      
+        Open Questions
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#cumulative-worked-study-a-symmetry-aware-crystal-bfn">
+<span class="md-ellipsis">
+      
+        Cumulative worked study: a symmetry-aware crystal BFN
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#independent-practice-and-assessment-map-evaluation-and-research">
+<span class="md-ellipsis">
+      
+        Independent practice and assessment map: evaluation and research
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#research-exercises">
+<span class="md-ellipsis">
+      
+        Research Exercises
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#source-tracing-checklist">
+<span class="md-ellipsis">
+      
+        Source-tracing checklist
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#primary-reading-trail">
+<span class="md-ellipsis">
+      
+        Primary Reading Trail
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#final-synthesis">
+<span class="md-ellipsis">
+      
+        Final Synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<nav aria-label="Breadcrumb" class="md-path">
+<ol class="md-path__list">
+<li class="md-path__item">
+<a class="md-path__link" href="../../..">
+<span class="md-ellipsis">
+    Home
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    Generative Models Book
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../autoregressive-01-foundations/">
+<span class="md-ellipsis">
+    Model Families
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../bayesian-flow-networks-01-story/">
+<span class="md-ellipsis">
+    Bayesian Flow Networks
+  </span>
+</a>
+</li>
+</ol>
+</nav>
+<article class="md-content__inner md-typeset">
+<h1 id="bayesian-flow-networks-6-practice-and-research">Bayesian Flow Networks 6 — Practice and Research<a class="headerlink" href="#bayesian-flow-networks-6-practice-and-research" title="Permanent link">¤</a></h1><aside aria-label="Learning path" class="admonition abstract artifex-learning-path"><p class="admonition-title">Learning path</p><p><strong>Required knowledge</strong></p><ul class="artifex-learning-path__links" data-learning-path-role="required"><li><a href="../bayesian-flow-networks-05-relations/">Bayesian Flow Networks 5 — Connections to Diffusion and Flow</a></li></ul><p><strong>Readiness check:</strong> can you explain the central object and reproduce one worked example from each required chapter? If not, follow its link before continuing.</p><p><strong>Newly unlocked in the default route</strong></p><p>No immediate successor names this page as its final required prerequisite. Continue through the book navigation or the chapter's cross-links.</p></aside>
+<p>This chapter defines evaluation, debugging, failure-mode, evidence-maturity, and research-exercise contracts. For uninterrupted reading, use the <a href="../bayesian-flow-networks-explained/#6-evaluation-failure-modes-and-research-directions">complete guide</a>.</p>
+<h2 id="6-evaluation-failure-modes-and-research-directions">6. Evaluation, Failure Modes, and Research Directions<a class="headerlink" href="#6-evaluation-failure-modes-and-research-directions" title="Permanent link">¤</a></h2>
+<h3 id="prerequisites-and-capstone-objectives">Prerequisites and capstone objectives<a class="headerlink" href="#prerequisites-and-capstone-objectives" title="Permanent link">¤</a></h3>
+<p>This chapter assumes all previous chapters and controlled experimental design. After completing it, you should be able to:</p>
+<ol>
+<li>decompose a BFN result into representation, belief family, network, schedule, solver, guidance, decoder, and evaluator;</li>
+<li>isolate belief, receiver/model, objective, finite-step, solver, endpoint, guidance, and observation-model error by controlled replacement;</li>
+<li>compare likelihood, realized compression, sample quality, validity, and latency without mixing protocols;</li>
+<li>design modality-specific symmetry, support, conditional-inference, and external-validation tests;</li>
+<li>classify original, peer-reviewed research, preprint, and interpretive claims by evidence maturity and scope; and</li>
+<li>transfer the full audit to a new scientific modality without treating benchmark success as domain validation.</li>
+</ol>
+<h3 id="evaluation-contract">Evaluation Contract<a class="headerlink" href="#evaluation-contract" title="Permanent link">¤</a></h3>
+<div class="md-typeset__table book-table-container"><table id="tbl-bayesian-flow-networks-explained-evaluation-contract"><caption class="book-object-caption"><span class="book-object-number">Table BFN.3.</span> Evaluation Contract</caption>
+<thead>
+<tr>
+<th>Claim</th>
+<th>Required evidence</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Competitive likelihood</td>
+<td>data type, discretization, exact/bound loss, reduction, preprocessing</td>
+</tr>
+<tr>
+<td>Fast generation</td>
+<td>step/NFE definition, solver, schedule, guidance branches, wall clock and hardware</td>
+</tr>
+<tr>
+<td>Better discrete modeling</td>
+<td>tokenizer/vocabulary, sequence length, conditional setting, likelihood semantics</td>
+</tr>
+<tr>
+<td>Compression</td>
+<td>theoretical codelength and realized coder bits reported separately</td>
+</tr>
+<tr>
+<td>Effective guidance</td>
+<td>property success, diversity, likelihood/quality degradation, calibration</td>
+</tr>
+<tr>
+<td>Structured validity</td>
+<td>validity, uniqueness, novelty, constraints, and representation invariance</td>
+</tr>
+</tbody>
+</table></div>
+<p>For continuous or discretized images, report preprocessing, observation/bin model, transmission loss, reconstruction term, and whether BPD is a bound. For sequences, report vocabulary, length law, padding/EOS semantics, unconditional versus conditional setting, and whether likelihood uses a finite-step or continuous-time objective. For molecules, proteins, and crystals, add symmetry, coordinate convention, relaxation/stability pipeline, validity, novelty, data leakage, and uncertainty in learned property evaluators.</p>
+<p>Sampling comparisons must distinguish original message updates, SDE/ODE solver NFEs, network calls used by guidance, final decoding, and external relaxation. “10 steps” can mean 10 receiver messages, 10 score evaluations, or 10 solver stages with multiple evaluations.</p>
+<h3 id="error-decomposition-by-controlled-replacement">Error decomposition by controlled replacement<a class="headerlink" href="#error-decomposition-by-controlled-replacement" title="Permanent link">¤</a></h3>
+<ul>
+<li><strong>belief-family error:</strong> factorized or misspecified <span class="arithmatex">\(p_I\)</span> cannot store needed uncertainty efficiently;</li>
+<li><strong>receiver/model error:</strong> <span class="arithmatex">\(p_O\)</span> induces a receiver different from the sender mixture under data;</li>
+<li><strong>continuous-time objective gap:</strong> the trained infinitesimal loss differs from the deployed finite-step bound;</li>
+<li><strong>solver/schedule error:</strong> large increments or numerical integration depart from the derived dynamics;</li>
+<li><strong>endpoint/observation error:</strong> terminal accuracy, truncation, bin masses, or measurement model mismatch data;</li>
+<li><strong>guidance/constraint error:</strong> conditional tilts, projections, or repairs change the receiver kernel;</li>
+<li><strong>representation error:</strong> tokenization, graph labeling, periodic coordinates, or codec discards structure.</li>
+</ul>
+<p>On a finite categorical problem, compute <span class="arithmatex">\(p_F\)</span> and sender/receiver densities exactly; replace the neural output by the exact conditional output to remove model error; then sweep step count and schedule. For a Gaussian mixture, compare direct flow marginals with sequential sender updates and compare the original sampler with a high-accuracy SDE/ODE reference. These interventions need not yield additive errors, but they locate the failing subsystem.</p>
+<figure class="book-figure" id="fig-bayesian-flow-networks-explained-error-decomposition-by-controlled-replacement"><pre class="mermaid"><code>%%{init: {'themeCSS': '.nodeLabel p { color: #111827 !important; } .flowchart-link { stroke: #78879a !important; stroke-width: 2px !important; } marker path { fill: #78879a !important; stroke: #78879a !important; }'}}%%
+flowchart TB
+    D["Real data and declared representation"] --&gt; B["Belief family and exact teacher flow"]
+    B --&gt; M["Learned output and receiver"]
+    M --&gt; O["Training objective and estimator"]
+    O --&gt; S["Finite schedule and numerical sampler"]
+    S --&gt; G["Guidance, constraints, and conditional inference"]
+    G --&gt; X["Decoder or terminal observation model"]
+    X --&gt; E["Task, systems, and scientific evaluation"]
+    OR["Oracle replacement"] -.-&gt; B
+    OR -.-&gt; M
+    OR -.-&gt; S
+    OR -.-&gt; X</code></pre><figcaption class="book-object-caption"><span class="book-object-number">Figure BFN.7.</span> Error decomposition by controlled replacement</figcaption></figure>
+<p>Replace one layer at a time and rerun downstream measurements. An oracle
+network with a poor discretization diagnoses a different problem from a
+realistic network with an exact finite-state sampler; reporting only the final
+score cannot distinguish them.</p>
+<div class="md-typeset__table book-table-container"><table id="tbl-bayesian-flow-networks-explained-error-decomposition-by-controlled-replacement"><caption class="book-object-caption"><span class="book-object-number">Table BFN.17.</span> Error decomposition by controlled replacement</caption>
+<thead>
+<tr>
+<th>Replacement</th>
+<th>Primarily tests</th>
+<th>Does it preserve the deployed law?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>exact finite-state <span class="arithmatex">\(p_O\)</span></td>
+<td>receiver/model approximation</td>
+<td>no; it creates an oracle reference law</td>
+</tr>
+<tr>
+<td>direct <span class="arithmatex">\(p_F\)</span> versus sequential sender updates</td>
+<td>update implementation and accuracy semigroup</td>
+<td>should agree on the teacher side if derivation/code are correct</td>
+</tr>
+<tr>
+<td>refined message grid at fixed <span class="arithmatex">\(\beta(1)\)</span></td>
+<td>coarse finite-step error and network off-grid behavior</td>
+<td>generally no at finite network/step count</td>
+</tr>
+<tr>
+<td>high-accuracy SDE/ODE integration</td>
+<td>numerical solver error in the derived coordinate</td>
+<td>approaches the derived dynamics, not necessarily the original message path</td>
+</tr>
+<tr>
+<td>exact bin-mass or categorical endpoint</td>
+<td>decoder/observation mismatch</td>
+<td>changes a mismatched deployed terminal law</td>
+</tr>
+<tr>
+<td>remove guidance/projection</td>
+<td>intervention effect</td>
+<td>deliberately compares different laws</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="failure-modes">Failure Modes<a class="headerlink" href="#failure-modes" title="Permanent link">¤</a></h3>
+<ul>
+<li><strong>Schedule mismatch:</strong> training samples cumulative accuracies not represented by the deployed step sequence.</li>
+<li><strong>Belief saturation:</strong> categorical logits or Gaussian precisions become numerically extreme.</li>
+<li><strong>Support lockout:</strong> zero categorical probabilities cannot recover under Bayes multiplication.</li>
+<li><strong>Factorized output error:</strong> too few iterations leave mutually dependent coordinates inconsistent.</li>
+<li><strong>Sender–receiver mismatch:</strong> implementation parameterizations differ, invalidating the loss/coding interpretation.</li>
+<li><strong>Discretization mismatch:</strong> continuous output is rounded differently from the evaluated bin likelihood.</li>
+<li><strong>Guidance distortion:</strong> property gradients or CFG overwhelm calibrated receiver dynamics.</li>
+<li><strong>Objective substitution:</strong> an implementation replaces the derived weighted MSE with convenient CE/MSE and retains the original likelihood claim.</li>
+<li><strong>Gauge mishandling:</strong> categorical latent logits drift in the all-ones direction or a latent-score theorem is applied directly to simplex probabilities.</li>
+<li><strong>Endpoint singularity:</strong> a solver evaluates <span class="arithmatex">\(t=0\)</span> or <span class="arithmatex">\(t=1\)</span> where its parameter conversion or reverse score is undefined.</li>
+<li><strong>Symmetry mismatch:</strong> periodic, rotational, permutation, or space-group equivalence is not preserved by the input family and update.</li>
+<li><strong>Evaluator shortcut:</strong> a protein/crystal property predictor rewards artifacts or training-set proximity rather than physical validity.</li>
+</ul>
+<h3 id="debugging-ladder">Debugging Ladder<a class="headerlink" href="#debugging-ladder" title="Permanent link">¤</a></h3>
+<ol>
+<li>Verify scalar conjugate updates against closed form.</li>
+<li>Verify categorical updates normalize and match direct Bayes calculations.</li>
+<li>Compare direct time-<span class="arithmatex">\(t\)</span> flow samples with sequential sender updates.</li>
+<li>Overfit a tiny dataset and inspect belief trajectories.</li>
+<li>Compare teacher-forced sender trajectories with free receiver trajectories.</li>
+<li>Sweep generation steps at fixed total accuracy.</li>
+<li>Evaluate independent seeds and condition slices.</li>
+<li>Compare original message sampling with a high-accuracy specialized solver using the same network.</li>
+<li>Test final decoding/binning independently of the flow.</li>
+<li>For structured data, apply symmetry transforms and verify equivariance/invariance numerically.</li>
+</ol>
+<h3 id="modalities-and-research">Modalities and Research<a class="headerlink" href="#modalities-and-research" title="Permanent link">¤</a></h3>
+<p>BFNs have been explored for images, character-level text, proteins, molecules, graphs, crystals, planning, periodic variables, and mixed discrete/continuous structures. The evidence maturity varies:</p>
+<ul>
+<li>the original general framework is a <strong>technical report/preprint</strong>;</li>
+<li>the SDE correspondence and fast solvers are <strong>peer-reviewed research</strong> work;</li>
+<li>application-specific results may be peer-reviewed, preprint, or under review and must be labeled individually.</li>
+</ul>
+<p>Graph and molecular systems must address permutation invariance, variable size, validity, and continuous geometry; a simplex over an adjacency tensor does not by itself solve graph isomorphism or chemical constraints. Geometric systems also need an input family whose support and update respect translations, rotations, periodic boundaries, or manifold topology. A network can be equivariant while its sender or endpoint observation model is not.</p>
+<h3 id="established-and-peer-reviewed-research">Established and peer-reviewed research<a class="headerlink" href="#established-and-peer-reviewed-research" title="Permanent link">¤</a></h3>
+<div class="md-typeset__table book-table-container"><table id="tbl-bayesian-flow-networks-explained-established-and-peer-reviewed-research"><caption class="book-object-caption"><span class="book-object-number">Table BFN.18.</span> Established and peer-reviewed research</caption>
+<thead>
+<tr>
+<th>Work</th>
+<th>Evidence used here</th>
+<th>Boundary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://arxiv.org/abs/2308.07037">Bayesian Flow Networks</a>, 2023</td>
+<td>canonical sender–receiver framework and losses</td>
+<td>technical report/preprint; original benchmark comparisons remain author evidence</td>
+</tr>
+<tr>
+<td><a href="https://proceedings.mlr.press/v235/xue24d.html">BFN–diffusion SDE correspondence</a>, ICML 2024</td>
+<td>mean/logit SDEs, DSM correspondence, specialized solvers</td>
+<td>derived coordinates, endpoint truncation, and finite-solver assumptions apply</td>
+</tr>
+<tr>
+<td><a href="https://openreview.net/forum?id=NSVtmmzeRB">GeoBFN</a>, ICLR 2024 Oral</td>
+<td>multimodal equivariant 3-D molecule generation</td>
+<td>molecule representations and reported benchmark protocols are domain-specific</td>
+</tr>
+<tr>
+<td><a href="https://openreview.net/forum?id=Lz0XW99tE0">CrysBFN</a>, ICLR 2025 Spotlight</td>
+<td>periodic Bayesian flow and entropy conditioning</td>
+<td>its periodic flow is not strictly additive in the canonical Euclidean sense</td>
+</tr>
+<tr>
+<td><a href="https://openreview.net/forum?id=OYUG5SCg6k">GraphBFN</a>, ICML 2025</td>
+<td>graph-spectrum/topological interpolation and flowback</td>
+<td>topology representation and graph benchmarks bound the claim</td>
+</tr>
+<tr>
+<td><a href="https://www.nature.com/articles/s41467-025-58250-2">ProtBFN</a>, Nature Communications 2025</td>
+<td>large protein-sequence BFN and SMC-based conditional generation</td>
+<td>baseline training data differ; predicted structure and sequence statistics are not wet-lab validation</td>
+</tr>
+<tr>
+<td><a href="https://proceedings.neurips.cc/paper_files/paper/2025/hash/0463ec87d0ac1e98a6cbe3d95d4e3e35-Abstract-Conference.html">Unified multimodal protein Bayesian flow</a>, NeurIPS 2025</td>
+<td>information-flow controls and hyperspherical orientation modeling</td>
+<td>task protocols and learned structural evaluators bound performance claims</td>
+</tr>
+<tr>
+<td><a href="https://proceedings.mlr.press/v267/lee25k.html">Multi-reward optimization with a BFN backbone</a>, ICML 2025</td>
+<td>derives direct preference optimization for multi-objective ligand generation</td>
+<td>reward models, normalization, and docking-style evaluation define the optimized target</td>
+</tr>
+<tr>
+<td><a href="https://proceedings.neurips.cc/paper_files/paper/2025/hash/b6d0df730c5976ad918bbf4fb30afe7d-Abstract-Conference.html">Controllable 3-D molecular generation with gradient integration</a>, NeurIPS 2025</td>
+<td>property-gradient integration and affinity/synthesis/selectivity evaluation</td>
+<td>computational property proxies and structure-based-design protocols bound the claim</td>
+</tr>
+<tr>
+<td><a href="https://proceedings.neurips.cc/paper_files/paper/2025/hash/ed2d394bc02c68ff24a39b59b25d4b66-Abstract-Conference.html">MOF-BFN</a>, NeurIPS 2025</td>
+<td>periodic, hierarchical metal--organic framework structure prediction</td>
+<td>building-block representation and material-validity pipeline are application-specific</td>
+</tr>
+<tr>
+<td><a href="https://proceedings.neurips.cc/paper_files/paper/2025/hash/0ea048312aa812b2711fe765a9e9ef05-Abstract-Conference.html">Geometric-algebra RNA BFN</a>, NeurIPS 2025</td>
+<td>fixed-backbone RNA inverse design with structure-aware representation</td>
+<td>benchmark sequence recovery and structure metrics are not experimental RNA validation</td>
+</tr>
+</tbody>
+</table></div>
+<p>The protein study is especially instructive: naively replacing receiver messages by sender messages at fixed coordinates did not recover the desired conditional distribution, so the authors used sequential Monte Carlo. “BFNs support arbitrary conditioning” therefore requires a specific inference algorithm, particles, resampling policy, and compute report.</p>
+<h4 id="peer-reviewed-research-checkpoints">Peer-Reviewed Research Checkpoints<a class="headerlink" href="#peer-reviewed-research-checkpoints" title="Permanent link">¤</a></h4>
+<ul>
+<li><a href="https://openreview.net/forum?id=N7hieduZYV">Periodic Bayesian Flow Networks with Additive Accuracy</a>, <strong>ICML 2026 regular</strong>, embeds a periodic scalar on the unit circle and performs Gaussian updates in the Cartesian embedding to restore additive accuracy. It is evidence for that representation and its crystal/light-field protocols, not a universal solution for manifolds.</li>
+<li><a href="https://www.nature.com/articles/s41524-026-02140-8">Symmetry-aware Bayesian Flow Networks</a>, <strong>npj Computational Materials 2026</strong>, incorporates crystallographic symmetry and property conditioning and reports protocol-specific stability and speed results. Space-group consistency and external stability predictors remain part of the evaluated system.</li>
+<li><a href="https://openreview.net/forum?id=py2NPbAdvH">Discrete Bayesian Sample Inference for Graph Generation</a>, <strong>ICLR 2026 Poster</strong>, develops a related Bayesian-sample-inference graph generator. It belongs in the broader Bayesian iterative family; containing or comparing with BFN does not make its one-shot method the canonical BFN sampler.</li>
+</ul>
+<h4 id="preprints-and-work-under-review">Preprints and Work Under Review<a class="headerlink" href="#preprints-and-work-under-review" title="Permanent link">¤</a></h4>
+<ul>
+<li><a href="https://arxiv.org/abs/2603.00751">General Proximal Flow Networks</a> replaces the KL/Bayesian proximal step by other divergences. This is <strong>Preprint</strong> evidence for a proposed generalization; only the KL case recovers the canonical update.</li>
+<li><a href="https://arxiv.org/abs/2601.22524">Variational Bayesian Flow Network for Graph Generation</a> uses structured Gaussian precisions and linear solves to couple node/edge beliefs. This is <strong>Preprint</strong> evidence; its geometry and empirical claims await peer-reviewed confirmation.</li>
+<li><a href="https://openreview.net/forum?id=n8qQPnalVW">Generative Modeling with Bayesian Sample Inference</a> is <strong>under review at TMLR</strong> and presents BFNs as a special case of a broader iterative Gaussian posterior framework. Until accepted, its theory and ImageNet comparisons remain preprint-level evidence.</li>
+</ul>
+<p>These developments extend the design space from one Euclidean conjugate family toward geometry-aware belief families, structured precisions, conditional inference, and alternative proximal updates. They do not establish that every such system retains the original codelength identity, accuracy semigroup, or SDE solver.</p>
+<p>The application literature now changes at least four independent design axes:</p>
+<div class="md-typeset__table book-table-container"><table id="tbl-bayesian-flow-networks-explained-preprints-and-work-under-review"><caption class="book-object-caption"><span class="book-object-number">Table BFN.19.</span> Preprints and Work Under Review</caption>
+<thead>
+<tr>
+<th>Axis</th>
+<th>Examples</th>
+<th>What must be re-established</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>belief geometry</td>
+<td>periodic coordinates, hyperspherical orientations, structured Gaussian precision</td>
+<td>support, normalization, update tractability, additive accuracy</td>
+</tr>
+<tr>
+<td>dependency architecture</td>
+<td>equivariant molecule/crystal networks, graph spectra, protein sequence models</td>
+<td>symmetry and whether factorized messages recover joint structure at the deployed step count</td>
+</tr>
+<tr>
+<td>conditional inference</td>
+<td>SMC, classifier-free or gradient guidance, reward optimization</td>
+<td>target distribution, particle/guidance cost, diversity, calibration</td>
+</tr>
+<tr>
+<td>terminal validation</td>
+<td>relaxation, docking, structure predictors, stability surrogates</td>
+<td>evaluator independence, uncertainty, leakage, and higher-fidelity or experimental confirmation</td>
+</tr>
+</tbody>
+</table></div>
+<p>This is why “uses a BFN” is not an adequate experimental description. Two
+systems can share the canonical categorical update while differing in all four
+rows that determine scientific validity and compute.</p>
+<h3 id="open-questions">Open Questions<a class="headerlink" href="#open-questions" title="Permanent link">¤</a></h3>
+<ul>
+<li>Which input families yield tractable updates for manifolds, rotations, and structured constraints?</li>
+<li>How should accuracy schedules be optimized jointly with finite-step solvers?</li>
+<li>Can joint/block output distributions reduce factorization error without losing simplicity?</li>
+<li>Which guidance transformations preserve a known target distribution?</li>
+<li>When does receiver codelength predict perceptual or task quality?</li>
+<li>How should BFNs compose discrete tokens and continuous coordinates in one calibrated process?</li>
+</ul>
+<h3 id="cumulative-worked-study-a-symmetry-aware-crystal-bfn">Cumulative worked study: a symmetry-aware crystal BFN<a class="headerlink" href="#cumulative-worked-study-a-symmetry-aware-crystal-bfn" title="Permanent link">¤</a></h3>
+<p>Consider a crystal representation containing atom count <span class="arithmatex">\(N\)</span>, categorical element types <span class="arithmatex">\(a_{1:N}\)</span>, periodic fractional coordinates <span class="arithmatex">\(u_{1:N}\in[0,1)^3\)</span>, lattice parameters <span class="arithmatex">\(\ell\)</span>, and a space-group label <span class="arithmatex">\(g\)</span>. A defensible BFN design declares one belief family per variable:</p>
+<ol>
+<li>categorical logit beliefs for <span class="arithmatex">\(N\)</span>, <span class="arithmatex">\(a\)</span>, and possibly <span class="arithmatex">\(g\)</span>;</li>
+<li>unit-circle embeddings <span class="arithmatex">\((\cos2\pi u,\sin2\pi u)\)</span> with Gaussian evidence for each periodic scalar;</li>
+<li>a constrained continuous parameterization for valid lattices;</li>
+<li>masks so padded sites do not receive ordinary atom evidence.</li>
+</ol>
+<p>The neural output must couple all modalities while respecting permutation of sites, periodic translations, and the declared space-group action. Direct training samples each belief state from its modality-specific <span class="arithmatex">\(p_F\)</span> at one common time or at explicitly calibrated modality times. The loss is a sum of derived modality integrands with justified weights—not an arbitrary average chosen after observing benchmark performance.</p>
+<p>During generation, each output belief produces a receiver message in its own sender family and every input belief is updated. If a predicted space group constrains allowed sites, either the transition law enforces that constraint or a post-hoc projection must be reported as a changed kernel. Final decoding maps probability beliefs to atom types and periodic embeddings back to coordinates, with degeneracy and wrap-around rules stated.</p>
+<p>Evaluation separates:</p>
+<ul>
+<li>validity before and after any relaxation;</li>
+<li>uniqueness and novelty against train/validation structures;</li>
+<li>distributional agreement in composition, density, space group, and lattice geometry;</li>
+<li>stability under the named surrogate and, where available, higher-fidelity calculations;</li>
+<li>equivariance/invariance tests under equivalent crystal descriptions;</li>
+<li>NFE, wall clock, hardware, relaxation cost, and guidance branches.</li>
+</ul>
+<p>Ablations replace the periodic belief by a naive Euclidean Gaussian, remove symmetry conditioning, vary receiver steps at fixed terminal accuracy, and compare the original message sampler with an SDE/ODE-derived solver. This isolates representation, network, and sampler contributions rather than crediting the family label for the whole system.</p>
+<h3 id="independent-practice-and-assessment-map-evaluation-and-research">Independent practice and assessment map: evaluation and research<a class="headerlink" href="#independent-practice-and-assessment-map-evaluation-and-research" title="Permanent link">¤</a></h3>
+<ol>
+<li><strong>P1.1 — Predict before computing.</strong> A scalar implementation passes every conjugate-update unit test but its learned output always predicts <span class="arithmatex">\(\hat x=0\)</span> for data near <span class="arithmatex">\(x=1\)</span>. Predict which rung of the oracle ladder fails first and whether increasing the number of receiver steps alone is guaranteed to repair it.</li>
+<li><strong>P1.2 — Controlled replacement.</strong> Design a two-by-two experiment crossing learned versus oracle <span class="arithmatex">\(p_O\)</span> with coarse versus refined schedules. For each cell, name the combined errors present and the comparison that isolates model error versus coarse-step error.</li>
+<li><strong>P1.3 — Protocol comparison.</strong> Audit the claim “our BFN is 20 times faster at 10 steps.” List the minimum model, solver, NFE, guidance, hardware, batch, endpoint, decoder, and external-relaxation disclosures needed to interpret it.</li>
+<li><strong>P1.4 — Conditional inference.</strong> A protein BFN must hold a motif fixed while sampling the remaining residues. Compare clamping, replacing receiver messages by sender messages at fixed sites, conditional-network training, and SMC. State why these mechanisms need not target the same conditional distribution.</li>
+<li><strong>P1.5 — Evidence classification.</strong> Classify four claims: the original BFN compression derivation, the ICML 2024 SDE theorem, a NeurIPS 2025 molecule benchmark, and an unreviewed non-KL proximal extension. For each, state one conclusion that its evidence does not establish.</li>
+<li><strong>P1.6 — Transfer.</strong> Specify an RNA inverse-design BFN study from representation through external validation. Include sequence and structure variables, symmetry/invariance, belief families, conditional target, oracle checks, leakage controls, compute, and a validation step beyond the training surrogate.</li>
+</ol>
+<h5 id="outcome-to-task-alignment-systems-and-research-evidence">Outcome-to-task alignment: systems and research evidence<a class="headerlink" href="#outcome-to-task-alignment-systems-and-research-evidence" title="Permanent link">¤</a></h5>
+<div class="md-typeset__table book-table-container"><table id="tbl-bayesian-flow-networks-explained-outcome-to-task-alignment-systems-and-research-evidence"><caption class="book-object-caption"><span class="book-object-number">Table BFN.20.</span> Outcome-to-task alignment: systems and research evidence</caption>
+<thead>
+<tr>
+<th>Learning objective</th>
+<th>Independently assessed by</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>O1 — Decompose the complete system; evidence is a full speed-claim and RNA-system ledger</td>
+<td>P1.3, P1.6</td>
+</tr>
+<tr>
+<td>O2 — Isolate error by controlled replacement; evidence is an oracle/schedule factorial experiment</td>
+<td>P1.1, P1.2</td>
+</tr>
+<tr>
+<td>O3 — Compare metrics without protocol mixing; evidence is a likelihood, quality, and systems disclosure audit</td>
+<td>P1.3</td>
+</tr>
+<tr>
+<td>O4 — Design modality and conditional-inference tests; evidence is a protein-conditioning comparison and RNA transfer</td>
+<td>P1.4, P1.6</td>
+</tr>
+<tr>
+<td>O5 — Classify evidence maturity and scope; evidence is a four-source claim boundary</td>
+<td>P1.5</td>
+</tr>
+<tr>
+<td>O6 — Transfer the audit without equating benchmark and domain validity; evidence is an end-to-end RNA study with external validation</td>
+<td>P1.6</td>
+</tr>
+</tbody>
+</table></div>
+<details class="success">
+<summary>Complete solutions to P1</summary>
+<ol>
+<li>The belief-update implementation passes, but the receiver/model rung fails before schedule or decoder evaluation: it emits evidence centered on the wrong output. More steps repeatedly query the same misspecified receiver and are not guaranteed to repair systematic error; they can reinforce it.</li>
+<li>Learned/coarse contains model plus coarse-step error; learned/refined retains model error with reduced discretization; oracle/coarse retains coarse-step error without learned-output error; oracle/refined is the numerical reference. Compare learned with oracle at a fixed schedule to isolate model contribution, and coarse with refined at a fixed output source to isolate schedule contribution. Interactions should be reported rather than assumed additive.</li>
+<li>Name the exact architecture/checkpoint and representation; original message, reverse-SDE, probability-flow-ODE, or specialized solver; whether one stage uses multiple network calls; conditional/unconditional guidance branches; batch size, precision, accelerator, and wall-clock measurement; <span class="arithmatex">\(\eta\)</span> and terminal initialization; final decoding; and relaxation or property-evaluator time. “Step” alone normalizes none of these.</li>
+<li>Clamping is a projection or fixed-state rule; sender substitution injects data-informed messages but does not generally derive the posterior over unobserved sites; a conditional network learns a declared conditional output; SMC targets a sequence of conditional/intermediate distributions using particles and resampling. Their kernels, approximation error, and compute differ, so conditional correctness must be derived and tested for each.</li>
+<li>The original derivation is primary preprint evidence for the sender--receiver/VAE identity, not proof of realized coder throughput. The ICML theorem is peer-reviewed evidence under its coordinate, truncation, and regularity assumptions, not equality of every finite sampler. The NeurIPS benchmark is peer-reviewed empirical evidence on its datasets and evaluators, not wet-lab or clinical validity. The proximal preprint is proposal-level evidence, not a peer-reviewed guarantee that non-KL updates retain additivity or coding semantics.</li>
+<li>Declare nucleotide sequence, backbone/geometry, length, and condition; use categorical beliefs for bases and a geometry-aware family for structure with rotation/translation and chain-index handling. Test direct versus sequential teacher flows, tiny exact receivers, equivariance, fixed-condition recovery, and oracle samplers. Split by homologous families to limit leakage, report all network/particle/relaxation compute, evaluate diversity and novelty, and validate selected designs with an independent structure/energy method or experiment rather than only the training predictor.</li>
+</ol>
+</details>
+<h3 id="research-exercises">Research Exercises<a class="headerlink" href="#research-exercises" title="Permanent link">¤</a></h3>
+<ol>
+<li>Derive the scalar Gaussian update by completing the square.</li>
+<li>Show that two Gaussian messages can be combined in either order.</li>
+<li>Implement the three-category Bayes update and test support lockout.</li>
+<li>Compare equal-time and equal-cumulative-accuracy discretizations.</li>
+<li>Apply logit guidance to a categorical output and measure entropy versus condition accuracy.</li>
+<li>Transform a Gaussian mean/precision state into the noisy coordinate used by an SDE derivation and list assumptions.</li>
+</ol>
+<details class="success">
+<summary>Exercise sketches</summary>
+<ol>
+<li>Write prior and message log densities as <span class="arithmatex">\(-\rho x^2/2+\rho\mu x\)</span> and <span class="arithmatex">\(-\alpha x^2/2+\alpha yx\)</span> plus constants. Adding them gives precision <span class="arithmatex">\(\rho+\alpha\)</span> and linear natural parameter <span class="arithmatex">\(\rho\mu+\alpha y\)</span>, hence the stated mean.</li>
+<li>After two messages the sufficient statistics are <span class="arithmatex">\(\rho_0+\alpha_1+\alpha_2\)</span> and <span class="arithmatex">\(\rho_0\mu_0+\alpha_1y_1+\alpha_2y_2\)</span>. Addition is commutative, so message order does not change the posterior.</li>
+<li>Evaluate <span class="arithmatex">\(\operatorname{softmax}(\log\theta+y)\)</span> in log space. If <span class="arithmatex">\(\theta_k=0\)</span>, then <span class="arithmatex">\(\log\theta_k=-\infty\)</span> and finite evidence cannot revive it. The canonical uniform prior avoids exact zeros; test underflow separately.</li>
+<li>For a chosen <span class="arithmatex">\(\beta(t)\)</span>, compare <span class="arithmatex">\(t_i=i/n\)</span> with <span class="arithmatex">\(t_i=\beta^{-1}(i\beta(1)/n)\)</span>. The second grid equalizes cumulative-accuracy increments but not necessarily numerical error or model uncertainty.</li>
+<li>Apply <span class="arithmatex">\(\log\pi_u+w(\log\pi_c-\log\pi_u)\)</span> followed by softmax. Sweep <span class="arithmatex">\(w\)</span> and report condition success, entropy, coverage, and support failures; extrapolation can sharpen or collapse outputs.</li>
+<li>Match the analytic marginal mean and covariance in the transformed coordinate, derive its forward SDE, convert the network predictor to the marginal score, state <span class="arithmatex">\([0,1-\eta]\)</span>, and compare finite solvers separately.</li>
+</ol>
+</details>
+<details class="question">
+<summary>Final retrieval questions</summary>
+<ol>
+<li>What six distributions/operators define the canonical BFN state and message process?</li>
+<li>Which properties justify direct time-<span class="arithmatex">\(t\)</span> training?</li>
+<li>Why can exact Bayes updates coexist with an approximate generator?</li>
+<li>What survives under the SDE correspondence, and what remains algorithm-specific?</li>
+<li>What must be re-proved for a geometric or proximal BFN extension?</li>
+</ol>
+</details>
+<details class="success">
+<summary>Complete retrieval solutions</summary>
+<ol>
+<li>Input <span class="arithmatex">\(p_I\)</span>, output <span class="arithmatex">\(p_O\)</span>, sender <span class="arithmatex">\(p_S\)</span>, receiver <span class="arithmatex">\(p_R\)</span>, Bayesian update/kernel <span class="arithmatex">\(h,p_U\)</span>, and Bayesian flow <span class="arithmatex">\(p_F\)</span>, together with the accuracy schedule.</li>
+<li>The marginalized update kernels have additive accuracy, so their semigroup collapses all earlier messages into <span class="arithmatex">\(p_U(\theta\mid\theta_0,x;\beta(t))\)</span>.</li>
+<li>Bayes is exact only inside the chosen input family for a sampled message. The neural receiver, factorization, finite schedule, solver, guidance, and observation model can still differ from data.</li>
+<li>The derived marginal SDE and population score/denoising correspondence survive in the specified coordinate. Endpoint initialization, solver discretization, finite network error, guidance, and NFE remain algorithm-specific.</li>
+<li>Support and normalization, update tractability, accuracy composition, receiver construction, loss/codelength identity, endpoint semantics, symmetry, and any claimed SDE or benchmark correspondence.</li>
+</ol>
+</details>
+<h3 id="source-tracing-checklist">Source-tracing checklist<a class="headerlink" href="#source-tracing-checklist" title="Permanent link">¤</a></h3>
+<p>For every BFN result, record:</p>
+<ol>
+<li>publication status, exact version, and verification date;</li>
+<li>input/output/sender families and whether accuracy is provably additive;</li>
+<li>schedule, terminal accuracy, endpoint truncation, time sampling, and loss weights;</li>
+<li>original message sampler versus specialized solver, NFE definition, guidance, and final decoding;</li>
+<li>observation model and whether likelihood is exact, a finite-step bound, or a continuous-time objective;</li>
+<li>dataset/split, representation, symmetry, conditioning, parameters, training compute, hardware, and wall clock;</li>
+<li>validity, novelty, memorization, learned-evaluator limitations, and independent reproduction status;</li>
+<li>for compression, the ideal KL cost and realized coder implementation separately.</li>
+</ol>
+<h3 id="primary-reading-trail">Primary Reading Trail<a class="headerlink" href="#primary-reading-trail" title="Permanent link">¤</a></h3>
+<ul>
+<li><a href="https://arxiv.org/abs/2308.07037">Graves et al., <em>Bayesian Flow Networks</em></a>.</li>
+<li><a href="https://proceedings.mlr.press/v235/xue24d.html">Xue et al., <em>Unifying Bayesian Flow Networks and Diffusion Models through SDEs</em></a>.</li>
+<li><a href="https://openreview.net/forum?id=NSVtmmzeRB">Song et al., <em>Unified Generative Modeling of 3D Molecules with Bayesian Flow Networks</em></a>.</li>
+<li><a href="https://openreview.net/forum?id=Lz0XW99tE0">Wu et al., <em>A Periodic Bayesian Flow for Material Generation</em></a>.</li>
+<li><a href="https://openreview.net/forum?id=OYUG5SCg6k">Song et al., <em>Smooth Interpolation for Improved Discrete Graph Generative Models</em></a> — peer-reviewed 2025 graph BFN work.</li>
+<li><a href="https://www.nature.com/articles/s41467-025-58250-2">Atkinson et al., <em>Protein Sequence Modelling with Bayesian Flow Networks</em></a>.</li>
+<li><a href="https://openreview.net/forum?id=N7hieduZYV">Lin et al., <em>Periodic Bayesian Flow Networks with Additive Accuracy</em></a>.</li>
+<li><a href="https://proceedings.mlr.press/v267/lee25k.html">Lee et al., <em>Enhancing Ligand Validity and Affinity in Structure-Based Drug Design with Multi-Reward Optimization</em></a>.</li>
+<li><a href="https://proceedings.neurips.cc/paper_files/paper/2025/hash/b6d0df730c5976ad918bbf4fb30afe7d-Abstract-Conference.html">Choi et al., <em>Controllable 3D Molecular Generation for Structure-Based Drug Design Through Bayesian Flow Networks and Gradient Integration</em></a>.</li>
+<li><a href="https://proceedings.neurips.cc/paper_files/paper/2025/hash/ed2d394bc02c68ff24a39b59b25d4b66-Abstract-Conference.html">Jiao et al., <em>MOF-BFN: Metal-Organic Frameworks Structure Prediction via Bayesian Flow Networks</em></a>.</li>
+<li><a href="https://proceedings.neurips.cc/paper_files/paper/2025/hash/0ea048312aa812b2711fe765a9e9ef05-Abstract-Conference.html">Wang et al., <em>Geometric Algebra-Enhanced Bayesian Flow Network for RNA Inverse Design</em></a>.</li>
+</ul>
+<h2 id="final-synthesis">Final Synthesis<a class="headerlink" href="#final-synthesis" title="Permanent link">¤</a></h2>
+<p>Bayesian Flow Networks make a probability distribution's parameters the generative state. Noisy sender messages and exact Bayesian updates define training flows; neural output distributions define receiver messages for generation. Gaussian precision and categorical log evidence provide concrete additive coordinates. Continuous BFNs admit diffusion/SDE correspondences under derived transformations, while discrete BFNs retain a distinctive simplex-valued belief view. A complete implementation must align input family, sender, receiver, update, accuracy schedule, loss, sampler, and final observation model.</p>
+<p>Continue with the GFlowNet volume, or compare BFNs with <a href="../discrete-iterative-generation-explained/">Discrete Iterative Generation</a> and <a href="../diffusion-explained/">Diffusion Models</a>.</p>
+<p>Return to <a href="../generative-models-unified/#coverage-matrix">The Generative Modeling Landscape</a>, and use the <a href="../new-families-frontier-evidence/#bayesian-flow-networks">Generative-Family Research Evidence Ledger</a> for maturity boundaries.</p>
+<hr/>
+<p><strong>Navigate:</strong> <a href="../bayesian-flow-networks-05-relations/">← Relations</a> · <a href="../generative-models-unified/">Return to curriculum map</a> · <a href="../bayesian-flow-networks-explained/">Complete guide</a></p>
+</article>
+</div>
+<script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  Back to top
+</button>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+<div class="md-social">
+<a class="md-social__link" href="https://github.com/avitai/artifex" rel="noopener" target="_blank" title="github.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</a>
+<a class="md-social__link" href="https://pypi.org/project/avitai-artifex/" rel="noopener" target="_blank" title="pypi.org">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-66.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.3v101.8c0 29 25.2 46 53.4 54.3 33.8 9.9 66.3 11.7 106.8 0 26.9-7.8 53.4-23.5 53.4-54.3v-40.7H226.2v-13.6h160.2c31.1 0 42.6-21.7 53.4-54.2 11.2-33.5 10.7-65.7 0-108.6M286.2 444.7a20.4 20.4 0 1 1 0-40.7 20.4 20.4 0 1 1 0 40.7M167.8 248.1h106.8c29.7 0 53.4-24.5 53.4-54.3V91.9c0-29-24.4-50.7-53.4-55.6-35.8-5.9-74.7-5.6-106.8.1-45.2 8-53.4 24.7-53.4 55.6v40.7h106.9v13.6h-147c-31.1 0-58.3 18.7-66.8 54.2-9.8 40.7-10.2 66.1 0 108.6 7.6 31.6 25.7 54.2 56.8 54.2H101v-48.8c0-35.3 30.5-66.4 66.8-66.4m-6.6-183.4a20.4 20.4 0 1 1 0 40.8 20.4 20.4 0 1 1 0-40.8"></path></svg>
+</a>
+<a class="md-social__link" href="https://twitter.com/mahdi_shafiei" rel="noopener" target="_blank" title="twitter.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M459.4 151.7c.3 4.5.3 9.1.3 13.6 0 138.7-105.6 298.6-298.6 298.6-59.5 0-114.7-17.2-161.1-47.1 8.4 1 16.6 1.3 25.3 1.3 49.1 0 94.2-16.6 130.3-44.8-46.1-1-84.8-31.2-98.1-72.8 6.5 1 13 1.6 19.8 1.6 9.4 0 18.8-1.3 27.6-3.6-48.1-9.7-84.1-52-84.1-103v-1.3c14 7.8 30.2 12.7 47.4 13.3-28.3-18.8-46.8-51-46.8-87.4 0-19.5 5.2-37.4 14.3-53C87.4 130.8 165 172.4 252.1 176.9c-1.6-7.8-2.6-15.9-2.6-24C249.5 95.1 296.3 48 354.4 48c30.2 0 57.5 12.7 76.7 33.1 23.7-4.5 46.5-13.3 66.6-25.3-7.8 24.4-24.4 44.8-46.1 57.8 21.1-2.3 41.6-8.1 60.4-16.2-14.3 20.8-32.2 39.3-52.6 54.3"></path></svg>
+</a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.path", "navigation.top", "navigation.prune", "toc.follow", "search.highlight", "search.share", "search.suggest", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "content.mermaid"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+<script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+<script src="../../../javascripts/reading-layout.js"></script>
+</body>
+</html>

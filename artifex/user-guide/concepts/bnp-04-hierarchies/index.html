@@ -1,0 +1,1488 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="This chapter develops shared-atom hierarchies, dependent random measures, normalized random-measure variants, and the distinct roles neural networks can play" name="description"/>
+<meta content="Mahdi Shafiei" name="author"/>
+<link href="https://docs.avitai.bio/artifex/user-guide/concepts/bnp-04-hierarchies/" rel="canonical"/>
+<link href="../bnp-03-feature-allocations/" rel="prev"/>
+<link href="../bnp-05-inference/" rel="next"/>
+<link href="../../../assets/images/favicon.png" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.7.7" name="generator"/>
+<title>Bayesian Nonparametrics 4 — Hierarchies and Dependence - Artifex</title>
+<link href="../../../assets/stylesheets/main.ec1eaa64.min.css" rel="stylesheet"/>
+<link href="../../../assets/stylesheets/palette.ab4e12ef.min.css" rel="stylesheet"/>
+<script src="../../../assets/vendor/iframe-worker/index.js"></script>
+<link href="../../../assets/_mkdocstrings.css" rel="stylesheet"/>
+<link href="../../../_static/extra.css" rel="stylesheet"/>
+<script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+<meta content="article" property="og:type"/>
+<meta content="The Artifex Generative Models Book" property="og:site_name"/>
+<meta content="Bayesian Nonparametrics 4 — Hierarchies and Dependence" property="og:title"/>
+<meta content="This chapter develops shared-atom hierarchies, dependent random measures, normalized random-measure variants, and the distinct roles neural networks can play" property="og:description"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/bnp-04-hierarchies/" property="og:url"/>
+<meta content="2026-07-18" property="article:modified_time"/>
+<meta content="summary" name="twitter:card"/>
+<meta content="Bayesian Nonparametrics 4 — Hierarchies and Dependence" name="twitter:title"/>
+<meta content="This chapter develops shared-atom hierarchies, dependent random measures, normalized random-measure variants, and the distinct roles neural networks can play" name="twitter:description"/>
+<meta content="Generative models, Machine learning, Probabilistic modeling, research, specialization, canonical_chapter, bnp-hierarchies, practitioner, researcher" name="keywords"/>
+<meta content="Bayesian Nonparametrics 4 — Hierarchies and Dependence" name="citation_title"/>
+<meta content="Mahdi Shafiei" name="citation_author"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/bnp-04-hierarchies/" name="citation_public_url"/>
+<meta content="en" name="citation_language"/>
+<meta content="Bayesian Nonparametrics 4 — Hierarchies and Dependence" name="DC.title"/>
+<meta content="Mahdi Shafiei" name="DC.creator"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/bnp-04-hierarchies/" name="DC.identifier"/>
+<meta content="Text.LearningResource" name="DC.type"/>
+<meta content="2026-07-18" name="DCTERMS.modified"/>
+<meta content="https://github.com/avitai/artifex/blob/main/LICENSE" name="DCTERMS.license"/>
+<meta content="research" name="DCTERMS.educationLevel"/>
+<meta content="practitioner, researcher" name="DCTERMS.audience"/>
+<link href="https://github.com/avitai/artifex/blob/main/LICENSE" rel="license"/>
+<script id="artifex-book-metadata" type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Chapter",
+  "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/bnp-04-hierarchies/",
+  "url": "https://docs.avitai.bio/artifex/user-guide/concepts/bnp-04-hierarchies/",
+  "name": "Bayesian Nonparametrics 4 \u2014 Hierarchies and Dependence",
+  "description": "This chapter develops shared-atom hierarchies, dependent random measures, normalized random-measure variants, and the distinct roles neural networks can play",
+  "identifier": "bnp-hierarchies",
+  "inLanguage": "en",
+  "isAccessibleForFree": true,
+  "learningResourceType": "Canonical chapter",
+  "educationalLevel": "research",
+  "educationalUse": "specialization",
+  "audience": [
+    
+      {"@type": "EducationalAudience", "audienceType": "practitioner"},
+    
+      {"@type": "EducationalAudience", "audienceType": "researcher"}
+    
+  ],
+  "dateModified": "2026-07-18",
+  "keywords": ["Generative models", "Machine learning", "Probabilistic modeling", "research", "specialization", "canonical_chapter", "bnp-hierarchies", "practitioner", "researcher"],
+  "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+  "author": [
+    
+      {"@type": "Person", "name": "Mahdi Shafiei"}
+    
+  ],
+  "isPartOf": {
+    "@type": "Book",
+    "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/#book",
+    "url": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/",
+    "name": "The Artifex Generative Models Book",
+    "bookEdition": "Living Web Edition",
+    "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+    "author": [
+      
+        {"@type": "Person", "name": "Mahdi Shafiei"}
+      
+    ]
+  }
+}
+</script>
+<link href="../../../assets/vendor/katex/katex.min.css" id="artifex-katex-stylesheet" integrity="sha384-UA8juhPf75SzzAMA/4fo3yOU7sBJ0om7SCD2GHq0fZqZco6tr1UCV7nUbk9J90JM" rel="stylesheet"/>
+<script defer="" integrity="sha384-T/0lMUdJpd2S1ZHtRiofG3htU3xPCrFVeAQ1UUE2TJwlEJSV5NUwn30kP28n238E" src="../../../assets/vendor/mermaid/mermaid.min.js"></script>
+<script defer="" src="../../../assets/vendor/katex/katex-shadow.js"></script>
+<script defer="" src="../../../javascripts/mermaid-math.js"></script>
+<script defer="" src="../../../javascripts/mathjax.js"></script>
+<script defer="" integrity="sha384-OrHfGTnIbkl0do3N76qW/uWr38o91N05sbSPuYBPLH+hG8X/dNSrjZf3AGjzrCwC" src="../../../assets/vendor/mathjax/tex-mml-chtml.js"></script>
+</head>
+<body data-md-color-accent="amber" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#bayesian-nonparametrics-4-hierarchies-and-dependence">
+          Skip to content
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header md-header--shadow" data-md-component="header">
+<nav aria-label="Header" class="md-header__inner md-grid">
+<a aria-label="Artifex" class="md-header__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            Artifex
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+            
+              Bayesian Nonparametrics 4 — Hierarchies and Dependence
+            
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-label="Switch to dark mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: light)" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_1" hidden="" title="Switch to dark mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+<input aria-label="Switch to light mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-primary="indigo" data-md-color-scheme="slate" id="__palette_1" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_0" hidden="" title="Switch to light mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+</form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div aria-label="Search" class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Search" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="Search" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="Search" class="md-search__options">
+<a aria-label="Share" class="md-search__icon md-icon" data-clipboard="" data-clipboard-text="" data-md-component="search-share" href="javascript:void(0)" tabindex="-1" title="Share">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"></path></svg>
+</a>
+<button aria-label="Clear" class="md-search__icon md-icon" tabindex="-1" title="Clear" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            Initializing search
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Navigation" class="md-nav md-nav--primary" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="Artifex" class="md-nav__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+    Artifex
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../..">
+<span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../getting-started/installation/">
+<span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Generative Models Book
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Generative Models Book
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    
+  
+    Start Here — The Landscape
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../first-course-01-generative-systems/">
+<span class="md-ellipsis">
+    
+  
+    First Course — New to Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../probability-01-objects/">
+<span class="md-ellipsis">
+    
+  
+    Foundations
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_4" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_4" id="__nav_3_4_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Model Families
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_4_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_4">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Model Families
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../autoregressive-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Autoregressive Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../vae-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Variational Autoencoders
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gan-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Generative Adversarial Networks
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../ebm-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Energy-Based Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../diffusion-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Diffusion Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../flow-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Normalizing Flows and Flow Matching
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../probabilistic-circuits-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Probabilistic Circuits
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../tensor-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Tensor-Network and Born Probability Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../implicit-generators-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Implicit Generators Beyond GANs
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../discrete-iterative-01-masked/">
+<span class="md-ellipsis">
+    
+  
+    Discrete Iterative Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../bayesian-flow-networks-01-story/">
+<span class="md-ellipsis">
+    
+  
+    Bayesian Flow Networks
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gflownets-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Generative Flow Networks
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_4_13" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_4_13" id="__nav_3_4_13_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Bayesian Nonparametric Random-Measure Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_4_13_label" class="md-nav" data-md-level="3">
+<label class="md-nav__title" for="__nav_3_4_13">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Bayesian Nonparametric Random-Measure Models
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../bnp-01-random-measures/">
+<span class="md-ellipsis">
+    
+  
+    1. Random Measures
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../bnp-02-partitions-mixtures/">
+<span class="md-ellipsis">
+    
+  
+    2. Partitions and Mixtures
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../bnp-03-feature-allocations/">
+<span class="md-ellipsis">
+    
+  
+    3. Features and Traits
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
+    
+  
+    4. Hierarchies and Dependence
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
+<span class="md-ellipsis">
+    
+  
+    4. Hierarchies and Dependence
+  
+
+    
+  </span>
+</a>
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#4-hierarchies-dependence-and-neural-composition">
+<span class="md-ellipsis">
+      
+        4. Hierarchies, Dependence, and Neural Composition
+      
+    </span>
+</a>
+<nav aria-label="4. Hierarchies, Dependence, and Neural Composition" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-4-definition-and-scope">
+<span class="md-ellipsis">
+      
+        Chapter 4 definition and scope
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-4-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 4 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#why-independent-group-priors-fail-to-share-atoms">
+<span class="md-ellipsis">
+      
+        Why independent group priors fail to share atoms
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#the-chinese-restaurant-franchise-view">
+<span class="md-ellipsis">
+      
+        The Chinese restaurant franchise view
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-shared-atom-update">
+<span class="md-ellipsis">
+      
+        Worked shared-atom update
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#hierarchical-and-dependent-are-not-synonyms">
+<span class="md-ellipsis">
+      
+        Hierarchical and dependent are not synonyms
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#current-dependent-measure-constructions">
+<span class="md-ellipsis">
+      
+        Current dependent-measure constructions
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#broader-normalized-random-measure-families">
+<span class="md-ellipsis">
+      
+        Broader normalized random-measure families
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#neural-networks-can-occupy-four-different-roles">
+<span class="md-ellipsis">
+      
+        Neural networks can occupy four different roles
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#relationship-audit">
+<span class="md-ellipsis">
+      
+        Relationship audit
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#independent-practice-and-assessment-map-hierarchy-and-dependence">
+<span class="md-ellipsis">
+      
+        Independent practice and assessment map: hierarchy and dependence
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-4-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 4 synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../bnp-05-inference/">
+<span class="md-ellipsis">
+    
+  
+    5. Posterior Computation
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../bnp-06-evaluation/">
+<span class="md-ellipsis">
+    
+  
+    6. Evaluation and Research
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../bayesian-nonparametric-models-explained/">
+<span class="md-ellipsis">
+    
+  
+    Continuous View (All Chapters)
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../stochastic-process-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Stochastic-Process and Function-Space Generators
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../point-processes-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Point Processes and Random Finite Sets
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../random-graphs-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Random Graphs and Relational Generators
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../copula-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Copula Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../grammar-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Probabilistic Grammars and Program Derivations
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../causal-generative-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Causal Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../new-families-frontier-evidence/">
+<span class="md-ellipsis">
+    
+  
+    Research Evidence Ledger
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gradients-01-taxonomy/">
+<span class="md-ellipsis">
+    
+  
+    Connections and Compositions
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../normalization-01-queries/">
+<span class="md-ellipsis">
+    
+  
+    Research Practice
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../models/vae-guide/">
+<span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/core/base/">
+<span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../examples/overview/">
+<span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../zoo/">
+<span class="md-ellipsis">
+    
+  
+    Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../training/overview/">
+<span class="md-ellipsis">
+    
+  
+    Training
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../data/overview/">
+<span class="md-ellipsis">
+    
+  
+    Data &amp; Modalities
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../inference/overview/">
+<span class="md-ellipsis">
+    
+  
+    Inference &amp; Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../benchmarks/">
+<span class="md-ellipsis">
+    
+  
+    Evaluation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../guides/extensions/">
+<span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../extensions/">
+<span class="md-ellipsis">
+    
+  
+    Advanced Topics
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../cli/">
+<span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../community/contributing/">
+<span class="md-ellipsis">
+    
+  
+    Community
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/configs/protein-extension/">
+<span class="md-ellipsis">
+    
+  
+    Reference Library
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#4-hierarchies-dependence-and-neural-composition">
+<span class="md-ellipsis">
+      
+        4. Hierarchies, Dependence, and Neural Composition
+      
+    </span>
+</a>
+<nav aria-label="4. Hierarchies, Dependence, and Neural Composition" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-4-definition-and-scope">
+<span class="md-ellipsis">
+      
+        Chapter 4 definition and scope
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-4-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 4 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#why-independent-group-priors-fail-to-share-atoms">
+<span class="md-ellipsis">
+      
+        Why independent group priors fail to share atoms
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#the-chinese-restaurant-franchise-view">
+<span class="md-ellipsis">
+      
+        The Chinese restaurant franchise view
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-shared-atom-update">
+<span class="md-ellipsis">
+      
+        Worked shared-atom update
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#hierarchical-and-dependent-are-not-synonyms">
+<span class="md-ellipsis">
+      
+        Hierarchical and dependent are not synonyms
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#current-dependent-measure-constructions">
+<span class="md-ellipsis">
+      
+        Current dependent-measure constructions
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#broader-normalized-random-measure-families">
+<span class="md-ellipsis">
+      
+        Broader normalized random-measure families
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#neural-networks-can-occupy-four-different-roles">
+<span class="md-ellipsis">
+      
+        Neural networks can occupy four different roles
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#relationship-audit">
+<span class="md-ellipsis">
+      
+        Relationship audit
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#independent-practice-and-assessment-map-hierarchy-and-dependence">
+<span class="md-ellipsis">
+      
+        Independent practice and assessment map: hierarchy and dependence
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-4-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 4 synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<nav aria-label="Breadcrumb" class="md-path">
+<ol class="md-path__list">
+<li class="md-path__item">
+<a class="md-path__link" href="../../..">
+<span class="md-ellipsis">
+    Home
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    Generative Models Book
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../autoregressive-01-foundations/">
+<span class="md-ellipsis">
+    Model Families
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../bnp-01-random-measures/">
+<span class="md-ellipsis">
+    Bayesian Nonparametric Random-Measure Models
+  </span>
+</a>
+</li>
+</ol>
+</nav>
+<article class="md-content__inner md-typeset">
+<h1 id="bayesian-nonparametrics-4-hierarchies-and-dependence">Bayesian Nonparametrics 4 — Hierarchies and Dependence<a class="headerlink" href="#bayesian-nonparametrics-4-hierarchies-and-dependence" title="Permanent link">¤</a></h1><aside aria-label="Learning path" class="admonition abstract artifex-learning-path"><p class="admonition-title">Learning path</p><p><strong>Required knowledge</strong></p><ul class="artifex-learning-path__links" data-learning-path-role="required"><li><a href="../bnp-03-feature-allocations/">Bayesian Nonparametrics 3 — Features and Traits</a></li></ul><p><strong>Readiness check:</strong> can you explain the central object and reproduce one worked example from each required chapter? If not, follow its link before continuing.</p><p><strong>Newly unlocked in the default route</strong></p><ul class="artifex-learning-path__links" data-learning-path-role="unlocks"><li><a href="../bnp-05-inference/">Bayesian Nonparametrics 5 — Posterior Computation</a></li></ul></aside>
+<p>This chapter develops shared-atom hierarchies, dependent random measures, normalized random-measure variants, and the distinct roles neural networks can play around them. Read it continuously in the <a href="../bayesian-nonparametric-models-explained/#4-hierarchies-dependence-and-neural-composition">complete guide</a>.</p>
+<h2 id="4-hierarchies-dependence-and-neural-composition">4. Hierarchies, Dependence, and Neural Composition<a class="headerlink" href="#4-hierarchies-dependence-and-neural-composition" title="Permanent link">¤</a></h2>
+<h3 id="chapter-4-definition-and-scope">Chapter 4 definition and scope<a class="headerlink" href="#chapter-4-definition-and-scope" title="Permanent link">¤</a></h3>
+<p>Hierarchical random measures share atoms and statistical strength across related groups. Dependent random measures let masses or atoms vary with a covariate, time, or known graph. Neural components can parameterize likelihoods or posterior algorithms inside either construction. These are three distinct compositions: hierarchy, stochastic dependence, and function approximation.</p>
+<h3 id="chapter-4-prerequisites-and-learning-objectives">Chapter 4 prerequisites and learning objectives<a class="headerlink" href="#chapter-4-prerequisites-and-learning-objectives" title="Permanent link">¤</a></h3>
+<p>This chapter assumes conditional independence, grouped data, Chapters 1–3, and the distinction between a model and an inference network. By the end, you should be able to:</p>
+<ol>
+<li><strong>O1 — Derive</strong> the HDP generative hierarchy and its conditional shared-atom update.</li>
+<li><strong>O2 — Explain</strong> why independent diffuse-base DPs do not share atoms whereas HDP children do.</li>
+<li><strong>O3 — Distinguish</strong> hierarchical sharing from covariate-, time-, or graph-indexed dependence.</li>
+<li><strong>O4 — Audit</strong> marginal validity, joint dependence, and causal overinterpretation in dependent random measures.</li>
+<li><strong>O5 — Classify</strong> a neural component as likelihood, random-measure map, amortized posterior, or hyperparameter learner.</li>
+<li><strong>O6 — Design</strong> a grouped or conditional BNP study with an explicit sharing query and matched baseline.</li>
+</ol>
+<p>Use the decision diagram before borrowing a familiar acronym. “HDP,”
+“dependent DP,” and “neural BNP” locate different modifications of the model or
+inference pipeline.</p>
+<figure class="book-figure" id="fig-bayesian-nonparametric-models-explained-chapter-4-prerequisites-and-learning-objectives"><pre class="mermaid"><code>%%{init: {'themeCSS': '.nodeLabel p { color: #111827 !important; } .flowchart-link { stroke: #78879a !important; stroke-width: 2px !important; } marker path { fill: #78879a !important; stroke: #78879a !important; }'}}%%
+flowchart TB
+    Q{"What is being shared&lt;br/&gt;or changed?"}
+    Q --&gt;|"one global atom catalog&lt;br/&gt;across groups"| H["Hierarchy: HDP /&lt;br/&gt;hierarchical CRM"]
+    Q --&gt;|"a distribution varies with index&amp;nbsp;$$s$$"| D["Dependent random measure&amp;nbsp;$$(G_s)$$"]
+    Q --&gt;|"a function is learned"| N{"Where is the network?"}
+    N --&gt; NM["Inside the model law"]
+    N --&gt; NI["Inside learning or inference"]
+    NM --&gt; L["Likelihood"]
+    NM --&gt; M["Measure map"]
+    NI --&gt; I["Posterior inference"]
+    NI --&gt; E["Hyperparameters"]
+    D -. "index is not an intervention" .-&gt; C["Causal claim requires&lt;br/&gt;an SCM + identification"]</code></pre><figcaption class="book-object-caption"><span class="book-object-number">Figure BNP.14.</span> Chapter 4 prerequisites and learning objectives</figcaption></figure>
+<h3 id="why-independent-group-priors-fail-to-share-atoms">Why independent group priors fail to share atoms<a class="headerlink" href="#why-independent-group-priors-fail-to-share-atoms" title="Permanent link">¤</a></h3>
+<p>Suppose group <span class="arithmatex">\(j\)</span> has a random mixing measure <span class="arithmatex">\(G_j\)</span>. If</p>
+<div class="arithmatex">\[
+G_j\overset{\mathrm{ind}}\sim\operatorname{DP}(\alpha,H)
+\]</div>
+<p>with diffuse <span class="arithmatex">\(H\)</span>, each <span class="arithmatex">\(G_j\)</span> is discrete, but two independent draws almost surely place their atoms at different locations. The groups can have similar prior distributions without sharing exact mixture components.</p>
+<p>The <a href="https://doi.org/10.1198/016214506000000302">hierarchical Dirichlet process</a> instead draws</p>
+<div class="arithmatex">\[
+G_0\sim\operatorname{DP}(\gamma,H),
+\qquad
+G_j\mid G_0\sim\operatorname{DP}(\alpha,G_0),
+\]</div>
+<p>followed by</p>
+<div class="arithmatex">\[
+\theta_{ji}\mid G_j\sim G_j,
+\qquad
+x_{ji}\mid\theta_{ji}\sim f(x_{ji}\mid\theta_{ji}).
+\]</div>
+<p>Because <span class="arithmatex">\(G_0\)</span> is discrete almost surely, every <span class="arithmatex">\(G_j\)</span> draws its atoms from the same countable global catalog. Group weights differ, while atom locations are shared.</p>
+<figure class="book-figure" id="fig-bayesian-nonparametric-models-explained-why-independent-group-priors-fail-to-share-atoms"><pre class="mermaid"><code>%%{init: {'themeCSS': '.nodeLabel p { color: #111827 !important; } .flowchart-link { stroke: #78879a !important; stroke-width: 2px !important; } marker path { fill: #78879a !important; stroke: #78879a !important; }'}}%%
+flowchart TB
+    H["Base measure&amp;nbsp;$$H$$"] --&gt; G0(("Global measure&amp;nbsp;$$G_0$$"))
+    gamma["Concentration&amp;nbsp;$$\gamma$$"] --&gt; G0
+    alpha["Group concentration&amp;nbsp;$$\alpha$$"]
+    subgraph groups["groups&amp;nbsp;$$j=1,\ldots,J$$"]
+        Gj(("Group measure&amp;nbsp;$$G_j$$"))
+        subgraph items["items&amp;nbsp;$$i=1,\ldots,n_j$$"]
+            theta(("Atom&amp;nbsp;$$\theta_{ji}$$"))
+            theta --&gt; x(("Observed&amp;nbsp;$$x_{ji}$$"))
+        end
+        Gj --&gt; theta
+    end
+    G0 --&gt; Gj
+    alpha --&gt; Gj
+    class x observed</code></pre><figcaption class="book-object-caption"><span class="book-object-number">Figure BNP.15.</span> Why independent group priors fail to share atoms</figcaption></figure>
+<p>In this plate diagram, circles denote random variables or measures, the filled
+<span class="arithmatex">\(x_{ji}\)</span> node is observed, and rectangles denote replicated groups and items.
+An arrow specifies a conditional distribution, not a causal effect. The visual
+roles follow the plate-notation key introduced in
+<a href="../classical-generative-models/#how-to-read-plate-notation">Classical Generative Models</a>.</p>
+<h3 id="the-chinese-restaurant-franchise-view">The Chinese restaurant franchise view<a class="headerlink" href="#the-chinese-restaurant-franchise-view" title="Permanent link">¤</a></h3>
+<p>Integrating group measures yields a nested partition representation. Items sit at group-specific tables; tables select global dishes; tables in different groups may serve the same dish. The auxiliary table variables make the sharing structure computationally convenient, but they are not necessarily scientific entities.</p>
+<p>The HDP is useful for grouped mixtures and shared topic catalogs. It does not by itself impose temporal persistence. An HDP hidden Markov model combines the shared-state measure with transition distributions; “sticky” variants add self-transition bias. The transition law and random-measure hierarchy are separate model decisions.</p>
+<h3 id="worked-shared-atom-update">Worked shared-atom update<a class="headerlink" href="#worked-shared-atom-update" title="Permanent link">¤</a></h3>
+<p>Condition on a two-atom global measure</p>
+<div class="arithmatex">\[
+G_0=0.6\delta_a+0.4\delta_b
+\]</div>
+<p>and let a group have <span class="arithmatex">\(G_j\sim\operatorname{DP}(4,G_0)\)</span>. If that group has observed three assignments to <span class="arithmatex">\(a\)</span> and one to <span class="arithmatex">\(b\)</span>, its posterior weights are</p>
+<div class="arithmatex">\[
+(G_j(a),G_j(b))\mid\theta_{j,1:4}
+\sim\operatorname{Dirichlet}(2.4+3,1.6+1).
+\]</div>
+<p>The next group-specific latent assignment chooses <span class="arithmatex">\(a\)</span> with probability</p>
+<div class="arithmatex">\[
+\frac{5.4}{5.4+2.6}=\frac{27}{40}=0.675.
+\]</div>
+<p>This calculation conditions on <span class="arithmatex">\(G_0\)</span>. A full HDP posterior also updates the uncertain global masses and atoms using evidence from every group.</p>
+<h3 id="hierarchical-and-dependent-are-not-synonyms">Hierarchical and dependent are not synonyms<a class="headerlink" href="#hierarchical-and-dependent-are-not-synonyms" title="Permanent link">¤</a></h3>
+<p>A hierarchy expresses conditional sharing through parent random measures. A <strong>dependent random measure</strong> is a collection <span class="arithmatex">\((G_s)_{s\in\mathcal S}\)</span> whose values are statistically coupled across an index such as time, space, treatment, or known graph. Desirable properties depend on the application:</p>
+<ul>
+<li>each marginal <span class="arithmatex">\(G_s\)</span> may or may not be a DP;</li>
+<li>atoms may be shared, move, appear, or disappear with <span class="arithmatex">\(s\)</span>;</li>
+<li>weights may be smooth, Markovian, graph-dependent, or only partially exchangeable;</li>
+<li>the construction must remain a valid jointly measurable collection of random measures.</li>
+</ul>
+<p>Calling <span class="arithmatex">\(s\)</span> a covariate does not make the dependence causal. It models observational variation in distributions unless interventions and structural mechanisms are added separately.</p>
+<h3 id="current-dependent-measure-constructions">Current dependent-measure constructions<a class="headerlink" href="#current-dependent-measure-constructions" title="Permanent link">¤</a></h3>
+<p>The following results establish particular constructions, not a universal ranking:</p>
+<div class="md-typeset__table book-table-container"><table id="tbl-bayesian-nonparametric-models-explained-current-dependent-measure-constructions"><caption class="book-object-caption"><span class="book-object-number">Table BNP.5.</span> Current dependent-measure constructions</caption>
+<thead>
+<tr>
+<th>Construction</th>
+<th>Evidence and generated structure</th>
+<th>Boundary of the result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://www.jmlr.org/papers/v25/23-1048.html">Graphical Dirichlet process</a></td>
+<td><strong>Peer-reviewed research (JMLR 2024):</strong> dependent group measures respect a declared DAG over nonexchangeable groups; multiple representations and posterior computation are derived</td>
+<td>the group DAG is assumed known and its Markov property is not automatically causal</td>
+</tr>
+<tr>
+<td><a href="https://proceedings.mlr.press/v286/tonekaboni25a.html">HDP-Flow</a></td>
+<td><strong>Peer-reviewed research (UAI 2025):</strong> HDP sharing is composed with flow-based state likelihoods and variational inference for two wearable time-series studies</td>
+<td>reported state-discovery and transfer results are protocol-specific; a flow likelihood does not make the HDP posterior exact</td>
+</tr>
+<tr>
+<td><a href="https://www.jmlr.org/papers/v27/25-0668.html">Covariate-dependent HDP</a></td>
+<td><strong>Peer-reviewed research (JMLR 2026):</strong> HDP and dependent-DP ideas are combined with mixed covariates; augmented MCMC is applied to scRNA-seq and calcium-imaging data</td>
+<td>the data augmentation addresses its normalized-weight computation; it does not establish universal identifiability, scaling, or cluster truth</td>
+</tr>
+</tbody>
+</table></div>
+<p>These examples show why a current curriculum needs both random-measure semantics and modern likelihood/inference composition. They do not justify replacing established finite-mixture or state-space baselines without a matched experiment.</p>
+<h3 id="broader-normalized-random-measure-families">Broader normalized random-measure families<a class="headerlink" href="#broader-normalized-random-measure-families" title="Permanent link">¤</a></h3>
+<p>Normalizing different CRMs changes the atom-frequency and partition law. The Dirichlet process is the normalized-gamma case; normalized inverse-Gaussian and normalized generalized-gamma processes provide other predictive behavior. Pitman–Yor and broader Poisson–Kingman constructions connect random ranked masses, exchangeable partitions, and species-sampling models.</p>
+<p>The choice matters when rare atoms, unseen species, vocabulary growth, or heavy frequency tails are part of the query. It also changes posterior computation. A closed-form CRP update cannot be assumed for every normalized CRM, and an auxiliary variable introduced for tractability becomes part of the inference algorithm rather than the random-measure definition.</p>
+<h3 id="neural-networks-can-occupy-four-different-roles">Neural networks can occupy four different roles<a class="headerlink" href="#neural-networks-can-occupy-four-different-roles" title="Permanent link">¤</a></h3>
+<div class="md-typeset__table book-table-container"><table id="tbl-bayesian-nonparametric-models-explained-neural-networks-can-occupy-four-different-roles"><caption class="book-object-caption"><span class="book-object-number">Table BNP.6.</span> Neural networks can occupy four different roles</caption>
+<thead>
+<tr>
+<th>Neural role</th>
+<th>Example</th>
+<th>What remains BNP</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>component likelihood</td>
+<td>a flow, Transformer, or decoder parameterizes <span class="arithmatex">\(f_\psi(x\mid\phi_k)\)</span></td>
+<td>the random measure and its induced allocation prior</td>
+</tr>
+<tr>
+<td>covariate-dependent mass/atom map</td>
+<td>a network maps context to weights, kernels, or atom parameters</td>
+<td>only if the resulting collection is a valid declared random-measure law</td>
+</tr>
+<tr>
+<td>amortized posterior</td>
+<td>a set network proposes partitions or features</td>
+<td>the target posterior under the separately specified BNP model</td>
+</tr>
+<tr>
+<td>empirical-Bayes hyperparameter map</td>
+<td>a network predicts <span class="arithmatex">\(\alpha,H\)</span>, or likelihood parameters</td>
+<td>a conditional/learned prior, whose training data and uncertainty must be reported</td>
+</tr>
+</tbody>
+</table></div>
+<p><a href="https://proceedings.mlr.press/v119/pakman20a.html">Neural Clustering Processes</a> learn reusable approximate posterior samplers over partitions from simulated labeled datasets. They change the inference interface, not the underlying DP or other clustering prior. Generalization is relative to the distribution of models and datasets used for training.</p>
+<div class="admonition warning">
+<p class="admonition-title">A permutation-invariant network is not an exchangeable probability model by itself</p>
+<p>Invariance of a deterministic set encoder means reordering inputs does not change its output. Exchangeability is a property of a normalized joint probability law across every finite sample size. A neural posterior proposal can be invariant while still being biased, incoherent across <span class="arithmatex">\(n\)</span>, or trained for a model whose prior is not BNP.</p>
+</div>
+<h3 id="relationship-audit">Relationship audit<a class="headerlink" href="#relationship-audit" title="Permanent link">¤</a></h3>
+<ul>
+<li><strong>Hybrid composition:</strong> HDP-Flow combines a random-measure hierarchy with flow likelihoods.</li>
+<li><strong>Implementation analogy:</strong> both random functions and dependent random measures are infinite-dimensional, but their finite-dimensional consistency objects differ.</li>
+<li><strong>Shared estimator pattern:</strong> variational truncation can be used for DP, HDP, and feature models without making their posteriors identical.</li>
+<li><strong>No causal equivalence:</strong> a group DAG or covariate-indexed measure represents dependence unless an SCM and identification assumptions are supplied.</li>
+</ul>
+<h3 id="independent-practice-and-assessment-map-hierarchy-and-dependence">Independent practice and assessment map: hierarchy and dependence<a class="headerlink" href="#independent-practice-and-assessment-map-hierarchy-and-dependence" title="Permanent link">¤</a></h3>
+<ol>
+<li><strong>P1.1 — Predict before computing.</strong> In the worked HDP update, predict whether doubling the group concentration from <span class="arithmatex">\(4\)</span> to <span class="arithmatex">\(8\)</span> while holding <span class="arithmatex">\(G_0\)</span> and the four assignments fixed moves the next-<span class="arithmatex">\(a\)</span> probability toward <span class="arithmatex">\(0.6\)</span> or toward the empirical <span class="arithmatex">\(3/4\)</span>. Compute the new probability.</li>
+<li><strong>P1.2 — Shared-atom derivation.</strong> Prove that two independent DP draws with diffuse <span class="arithmatex">\(H\)</span> almost surely do not share an atom, then identify the exact line in the HDP hierarchy that changes that conclusion.</li>
+<li><strong>P1.3 — Hierarchy/dependence classifier.</strong> For each of three systems—HDP groups, time-indexed smoothly varying weights, and a known-DAG graphical DP—name the index/parent structure, what is shared, the finite consistency requirement, and whether the edges are causal.</li>
+<li><strong>P1.4 — Neural-role audit.</strong> A set Transformer receives an entire dataset and outputs partition samples, while a flow maps component parameters to an observation density. Classify both networks and list the probability-law and calibration obligations that remain.</li>
+<li><strong>P1.5 — Evidence-boundary review.</strong> Choose one current dependent-measure row in the evidence table. Rewrite its claim as model, algorithm, data, metric, and validity scope; name one conclusion the cited study cannot establish by design.</li>
+<li><strong>P1.6 — Transfer.</strong> Design a three-hospital shared-phenotype model. Decide between exact shared atoms and smoothly changing phenotypes, specify the group/covariate structure, observation and batch likelihoods, new-hospital query, negative-transfer check, matched finite baseline, and external validation needed for a biological identity claim.</li>
+</ol>
+<h5 id="outcome-to-task-alignment-sharing-dependence-and-neural-roles">Outcome-to-task alignment: sharing, dependence, and neural roles<a class="headerlink" href="#outcome-to-task-alignment-sharing-dependence-and-neural-roles" title="Permanent link">¤</a></h5>
+<div class="md-typeset__table book-table-container"><table id="tbl-bayesian-nonparametric-models-explained-outcome-to-task-alignment-sharing-dependence-and-neural-roles"><caption class="book-object-caption"><span class="book-object-number">Table BNP.15.</span> Outcome-to-task alignment: sharing, dependence, and neural roles</caption>
+<thead>
+<tr>
+<th>Learning objective</th>
+<th>Independently assessed by</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>O1 — Derive the HDP and conditional update; evidence is a concentration-sensitivity calculation</td>
+<td>P1.1</td>
+</tr>
+<tr>
+<td>O2 — Explain shared atoms; evidence is the diffuse-base probability argument</td>
+<td>P1.2</td>
+</tr>
+<tr>
+<td>O3 — Separate hierarchy and indexed dependence; evidence is the three-system classifier</td>
+<td>P1.3, P1.6</td>
+</tr>
+<tr>
+<td>O4 — Audit validity and causal scope; evidence is explicit finite-consistency and noncausal boundaries</td>
+<td>P1.3, P1.5</td>
+</tr>
+<tr>
+<td>O5 — Classify neural roles; evidence is a two-network probability-object ledger</td>
+<td>P1.4</td>
+</tr>
+<tr>
+<td>O6 — Design a grouped BNP study; evidence is the hospital transfer and validation protocol</td>
+<td>P1.6</td>
+</tr>
+</tbody>
+</table></div>
+<details class="success">
+<summary>Complete solutions to P1</summary>
+<ol>
+<li>Greater concentration pulls the group measure toward <span class="arithmatex">\(G_0\)</span>. The updated parameters become <span class="arithmatex">\((8(0.6)+3,8(0.4)+1)=(7.8,4.2)\)</span>, so the next-<span class="arithmatex">\(a\)</span> probability is <span class="arithmatex">\(7.8/12=0.65\)</span>, between <span class="arithmatex">\(0.6\)</span> and the former <span class="arithmatex">\(0.675\)</span> and farther from the empirical <span class="arithmatex">\(0.75\)</span>.</li>
+<li>Each independent DP draw has countably many IID locations from diffuse <span class="arithmatex">\(H\)</span>. Every cross-draw pair coincides with probability zero, and a countable union of zero-probability coincidences is zero. In the HDP, <span class="arithmatex">\(G_j\mid G_0\sim\operatorname{DP}(\alpha,G_0)\)</span> uses the same discrete <span class="arithmatex">\(G_0\)</span> as every child base, so child atoms must come from its common catalog.</li>
+<li>HDP groups are conditionally linked through parent <span class="arithmatex">\(G_0\)</span> and share atom locations; restriction to fewer items/groups must agree with the hierarchy. Smooth time-indexed weights require a valid joint process across time and coherent finite time restrictions, not a parent–child hierarchy. A graphical DP encodes a declared group DAG and its Markov law. None of these arrows is causal without an SCM and identification assumptions.</li>
+<li>The set Transformer is amortized posterior inference; the flow is the component likelihood. The former must define normalized samples/parameters, respect label symmetry, be calibrated against the target posterior, and report simulator/deployment shift. The latter must define a normalized observation density and its Jacobian/support. Neither changes the BNP prior unless the model explicitly says so.</li>
+<li>For the covariate-dependent HDP row, for example, the model couples HDP and dependent-DP ideas over mixed covariates, augmented MCMC handles its normalized weights, and the paper studies scRNA-seq and calcium-imaging applications under its protocols. This supports validity and demonstrated use of that construction; it cannot establish causal dynamics, universal cluster truth, or superiority across all dependent measures and datasets.</li>
+<li>If phenotype parameters should be identical across hospitals, use an HDP/hierarchical CRM; if biology changes continuously with covariates, use a validated dependent-measure law and do not claim exact shared atoms. Include hospital and patient covariates, batch/noise terms, held-out-hospital prediction, shrinkage and rare-subgroup calibration, a no-sharing or finite hierarchical baseline, and external markers or interventions not used in fitting before naming biological identities.</li>
+</ol>
+</details>
+<details class="question">
+<summary>Retrieval questions</summary>
+<ol>
+<li>Why do independent DPs with diffuse <span class="arithmatex">\(H\)</span> fail to share exact atoms?</li>
+<li>What feature of <span class="arithmatex">\(G_0\)</span> lets HDP groups share a catalog?</li>
+<li>Is a dependent DP necessarily hierarchical?</li>
+<li>What must be named when a neural network is added to a BNP system?</li>
+</ol>
+</details>
+<details class="success">
+<summary>Complete solutions</summary>
+<ol>
+<li>Their independently sampled atom locations coincide with probability zero under diffuse <span class="arithmatex">\(H\)</span>.</li>
+<li>A DP draw <span class="arithmatex">\(G_0\)</span> is discrete, and each child DP uses that same discrete measure as its base.</li>
+<li>No. Dependence may be induced through covariate-indexed weights, atoms, kernels, Poisson measures, or other joint constructions without a parent–child DP hierarchy.</li>
+<li>Whether it parameterizes the likelihood, the random measure, an amortized posterior, or learned hyperparameters—and which probability law remains valid.</li>
+</ol>
+</details>
+<h3 id="chapter-4-synthesis">Chapter 4 synthesis<a class="headerlink" href="#chapter-4-synthesis" title="Permanent link">¤</a></h3>
+<p>Hierarchies share random atoms; dependent measures couple distributions across an index; neural components parameterize a declared part of the model or inference system. These operations compose but do not collapse. Chapter 5 asks how finite algorithms approximate or exactly transition within the resulting posterior.</p>
+<p><a href="../bayesian-nonparametric-models-explained/#5-posterior-computation-without-infinity-theater">Continue continuously</a>, or use the <a href="./">Chapter 4 stopping-point view</a>.</p>
+<hr/>
+<p><strong>Previous:</strong> <a href="../bnp-03-feature-allocations/">3. Features and Traits</a> · <strong>Continue:</strong> <a href="../bnp-05-inference/">5. Posterior Computation</a> · <a href="../bayesian-nonparametric-models-explained/">Complete guide</a></p>
+</article>
+</div>
+<script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  Back to top
+</button>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+<div class="md-social">
+<a class="md-social__link" href="https://github.com/avitai/artifex" rel="noopener" target="_blank" title="github.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</a>
+<a class="md-social__link" href="https://pypi.org/project/avitai-artifex/" rel="noopener" target="_blank" title="pypi.org">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-66.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.3v101.8c0 29 25.2 46 53.4 54.3 33.8 9.9 66.3 11.7 106.8 0 26.9-7.8 53.4-23.5 53.4-54.3v-40.7H226.2v-13.6h160.2c31.1 0 42.6-21.7 53.4-54.2 11.2-33.5 10.7-65.7 0-108.6M286.2 444.7a20.4 20.4 0 1 1 0-40.7 20.4 20.4 0 1 1 0 40.7M167.8 248.1h106.8c29.7 0 53.4-24.5 53.4-54.3V91.9c0-29-24.4-50.7-53.4-55.6-35.8-5.9-74.7-5.6-106.8.1-45.2 8-53.4 24.7-53.4 55.6v40.7h106.9v13.6h-147c-31.1 0-58.3 18.7-66.8 54.2-9.8 40.7-10.2 66.1 0 108.6 7.6 31.6 25.7 54.2 56.8 54.2H101v-48.8c0-35.3 30.5-66.4 66.8-66.4m-6.6-183.4a20.4 20.4 0 1 1 0 40.8 20.4 20.4 0 1 1 0-40.8"></path></svg>
+</a>
+<a class="md-social__link" href="https://twitter.com/mahdi_shafiei" rel="noopener" target="_blank" title="twitter.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M459.4 151.7c.3 4.5.3 9.1.3 13.6 0 138.7-105.6 298.6-298.6 298.6-59.5 0-114.7-17.2-161.1-47.1 8.4 1 16.6 1.3 25.3 1.3 49.1 0 94.2-16.6 130.3-44.8-46.1-1-84.8-31.2-98.1-72.8 6.5 1 13 1.6 19.8 1.6 9.4 0 18.8-1.3 27.6-3.6-48.1-9.7-84.1-52-84.1-103v-1.3c14 7.8 30.2 12.7 47.4 13.3-28.3-18.8-46.8-51-46.8-87.4 0-19.5 5.2-37.4 14.3-53C87.4 130.8 165 172.4 252.1 176.9c-1.6-7.8-2.6-15.9-2.6-24C249.5 95.1 296.3 48 354.4 48c30.2 0 57.5 12.7 76.7 33.1 23.7-4.5 46.5-13.3 66.6-25.3-7.8 24.4-24.4 44.8-46.1 57.8 21.1-2.3 41.6-8.1 60.4-16.2-14.3 20.8-32.2 39.3-52.6 54.3"></path></svg>
+</a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.path", "navigation.top", "navigation.prune", "toc.follow", "search.highlight", "search.share", "search.suggest", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "content.mermaid"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+<script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+<script src="../../../javascripts/reading-layout.js"></script>
+</body>
+</html>

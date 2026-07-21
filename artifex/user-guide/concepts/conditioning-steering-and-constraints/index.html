@@ -1,0 +1,2576 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="A generator answers a distributional or constructive question. A controlled generative system adds a second question: which outputs should be preferred," name="description"/>
+<meta content="Mahdi Shafiei" name="author"/>
+<link href="https://docs.avitai.bio/artifex/user-guide/concepts/conditioning-steering-and-constraints/" rel="canonical"/>
+<link href="../steering-06-composition/" rel="prev"/>
+<link href="../world-models-01-semantics/" rel="next"/>
+<link href="../../../assets/images/favicon.png" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.7.7" name="generator"/>
+<title>Conditioning, Steering, Constraints, and Selection - Artifex</title>
+<link href="../../../assets/stylesheets/main.ec1eaa64.min.css" rel="stylesheet"/>
+<link href="../../../assets/stylesheets/palette.ab4e12ef.min.css" rel="stylesheet"/>
+<script src="../../../assets/vendor/iframe-worker/index.js"></script>
+<link href="../../../assets/_mkdocstrings.css" rel="stylesheet"/>
+<link href="../../../_static/extra.css" rel="stylesheet"/>
+<script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+<meta content="article" property="og:type"/>
+<meta content="The Artifex Generative Models Book" property="og:site_name"/>
+<meta content="Conditioning, Steering, Constraints, and Selection" property="og:title"/>
+<meta content="A generator answers a distributional or constructive question. A controlled generative system adds a second question: which outputs should be preferred," property="og:description"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/conditioning-steering-and-constraints/" property="og:url"/>
+<meta content="2026-07-14" property="article:modified_time"/>
+<meta content="summary" name="twitter:card"/>
+<meta content="Conditioning, Steering, Constraints, and Selection" name="twitter:title"/>
+<meta content="A generator answers a distributional or constructive question. A controlled generative system adds a second question: which outputs should be preferred," name="twitter:description"/>
+<meta content="Generative models, Machine learning, Probabilistic modeling, research, reference, continuous_view, conditioning-steering-complete, practitioner, researcher" name="keywords"/>
+<meta content="Conditioning, Steering, Constraints, and Selection" name="citation_title"/>
+<meta content="Mahdi Shafiei" name="citation_author"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/conditioning-steering-and-constraints/" name="citation_public_url"/>
+<meta content="en" name="citation_language"/>
+<meta content="Conditioning, Steering, Constraints, and Selection" name="DC.title"/>
+<meta content="Mahdi Shafiei" name="DC.creator"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/conditioning-steering-and-constraints/" name="DC.identifier"/>
+<meta content="Text.LearningResource" name="DC.type"/>
+<meta content="2026-07-14" name="DCTERMS.modified"/>
+<meta content="https://github.com/avitai/artifex/blob/main/LICENSE" name="DCTERMS.license"/>
+<meta content="research" name="DCTERMS.educationLevel"/>
+<meta content="practitioner, researcher" name="DCTERMS.audience"/>
+<link href="https://github.com/avitai/artifex/blob/main/LICENSE" rel="license"/>
+<script id="artifex-book-metadata" type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Chapter",
+  "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/conditioning-steering-and-constraints/",
+  "url": "https://docs.avitai.bio/artifex/user-guide/concepts/conditioning-steering-and-constraints/",
+  "name": "Conditioning, Steering, Constraints, and Selection",
+  "description": "A generator answers a distributional or constructive question. A controlled generative system adds a second question: which outputs should be preferred,",
+  "identifier": "conditioning-steering-complete",
+  "inLanguage": "en",
+  "isAccessibleForFree": true,
+  "learningResourceType": "Continuous volume",
+  "educationalLevel": "research",
+  "educationalUse": "reference",
+  "audience": [
+    
+      {"@type": "EducationalAudience", "audienceType": "practitioner"},
+    
+      {"@type": "EducationalAudience", "audienceType": "researcher"}
+    
+  ],
+  "dateModified": "2026-07-14",
+  "keywords": ["Generative models", "Machine learning", "Probabilistic modeling", "research", "reference", "continuous_view", "conditioning-steering-complete", "practitioner", "researcher"],
+  "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+  "author": [
+    
+      {"@type": "Person", "name": "Mahdi Shafiei"}
+    
+  ],
+  "isPartOf": {
+    "@type": "Book",
+    "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/#book",
+    "url": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/",
+    "name": "The Artifex Generative Models Book",
+    "bookEdition": "Living Web Edition",
+    "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+    "author": [
+      
+        {"@type": "Person", "name": "Mahdi Shafiei"}
+      
+    ]
+  }
+}
+</script>
+<link href="../../../assets/vendor/katex/katex.min.css" id="artifex-katex-stylesheet" integrity="sha384-UA8juhPf75SzzAMA/4fo3yOU7sBJ0om7SCD2GHq0fZqZco6tr1UCV7nUbk9J90JM" rel="stylesheet"/>
+<script defer="" integrity="sha384-T/0lMUdJpd2S1ZHtRiofG3htU3xPCrFVeAQ1UUE2TJwlEJSV5NUwn30kP28n238E" src="../../../assets/vendor/mermaid/mermaid.min.js"></script>
+<script defer="" src="../../../assets/vendor/katex/katex-shadow.js"></script>
+<script defer="" src="../../../javascripts/mermaid-math.js"></script>
+<script defer="" src="../../../javascripts/mathjax.js"></script>
+<script defer="" integrity="sha384-OrHfGTnIbkl0do3N76qW/uWr38o91N05sbSPuYBPLH+hG8X/dNSrjZf3AGjzrCwC" src="../../../assets/vendor/mathjax/tex-mml-chtml.js"></script>
+<meta content="noindex,follow" name="robots"/>
+</head>
+<body data-md-color-accent="amber" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#conditioning-steering-constraints-and-selection">
+          Skip to content
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header md-header--shadow" data-md-component="header">
+<nav aria-label="Header" class="md-header__inner md-grid">
+<a aria-label="Artifex" class="md-header__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            Artifex
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+            
+              Conditioning, Steering, Constraints, and Selection
+            
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-label="Switch to dark mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: light)" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_1" hidden="" title="Switch to dark mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+<input aria-label="Switch to light mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-primary="indigo" data-md-color-scheme="slate" id="__palette_1" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_0" hidden="" title="Switch to light mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+</form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div aria-label="Search" class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Search" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="Search" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="Search" class="md-search__options">
+<a aria-label="Share" class="md-search__icon md-icon" data-clipboard="" data-clipboard-text="" data-md-component="search-share" href="javascript:void(0)" tabindex="-1" title="Share">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"></path></svg>
+</a>
+<button aria-label="Clear" class="md-search__icon md-icon" tabindex="-1" title="Clear" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            Initializing search
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Navigation" class="md-nav md-nav--primary" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="Artifex" class="md-nav__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+    Artifex
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../..">
+<span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../getting-started/installation/">
+<span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Generative Models Book
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Generative Models Book
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    
+  
+    Start Here — The Landscape
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../first-course-01-generative-systems/">
+<span class="md-ellipsis">
+    
+  
+    First Course — New to Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../probability-01-objects/">
+<span class="md-ellipsis">
+    
+  
+    Foundations
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../autoregressive-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Model Families
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_5" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_5" id="__nav_3_5_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Connections and Compositions
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_5_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_5">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Connections and Compositions
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gradients-01-taxonomy/">
+<span class="md-ellipsis">
+    
+  
+    Gradients and Geometry in Generative Modeling
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../density-latent-energy-01-objects/">
+<span class="md-ellipsis">
+    
+  
+    Density, Latent, Energy, and Score
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../probability-paths-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Probability Paths and Stochastic Transport
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../general-markov-01-operators/">
+<span class="md-ellipsis">
+    
+  
+    General Markov Generators
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../few-step-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Transitions and Few-Step Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../geometric-01-symmetry/">
+<span class="md-ellipsis">
+    
+  
+    Geometric and Equivariant Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../representations-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Representations and Multimodal Systems
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_5_8" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_5_8" id="__nav_3_5_8_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Conditioning, Steering, Constraints, and Selection
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_5_8_label" class="md-nav" data-md-level="3">
+<label class="md-nav__title" for="__nav_3_5_8">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Conditioning, Steering, Constraints, and Selection
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../steering-01-targets/">
+<span class="md-ellipsis">
+    
+  
+    1. Target Laws and Feasible Sets
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../steering-02-conditioning/">
+<span class="md-ellipsis">
+    
+  
+    2. Training-Time Conditioning
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../steering-03-guidance/">
+<span class="md-ellipsis">
+    
+  
+    3. Guidance, Doob Transforms, and SMC
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../steering-04-constraints/">
+<span class="md-ellipsis">
+    
+  
+    4. Hard Constraints and Formal Languages
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../steering-05-selection/">
+<span class="md-ellipsis">
+    
+  
+    5. Selection, Search, and Decisions
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../steering-06-composition/">
+<span class="md-ellipsis">
+    
+  
+    6. Retrieval and System Composition
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
+    
+  
+    Continuous View (All Chapters)
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
+<span class="md-ellipsis">
+    
+  
+    Continuous View (All Chapters)
+  
+
+    
+  </span>
+</a>
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#reader-orientation">
+<span class="md-ellipsis">
+      
+        Reader orientation
+      
+    </span>
+</a>
+<nav aria-label="Reader orientation" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#learning-contract">
+<span class="md-ellipsis">
+      
+        Learning contract
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#1-begin-with-the-target-not-the-steering-algorithm">
+<span class="md-ellipsis">
+      
+        1. Begin with the Target, Not the Steering Algorithm
+      
+    </span>
+</a>
+<nav aria-label="1. Begin with the Target, Not the Steering Algorithm" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-1-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 1 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#a-base-law-and-a-preference-factor">
+<span class="md-ellipsis">
+      
+        A base law and a preference factor
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-finite-target">
+<span class="md-ellipsis">
+      
+        Worked finite target
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#exact-bayesian-conditioning-is-one-special-case">
+<span class="md-ellipsis">
+      
+        Exact Bayesian conditioning is one special case
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#support-cannot-be-created-by-reweighting">
+<span class="md-ellipsis">
+      
+        Support cannot be created by reweighting
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#target-and-mechanism-register">
+<span class="md-ellipsis">
+      
+        Target-and-mechanism register
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-1-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 1 synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#2-training-time-conditioning-and-architectural-interfaces">
+<span class="md-ellipsis">
+      
+        2. Training-Time Conditioning and Architectural Interfaces
+      
+    </span>
+</a>
+<nav aria-label="2. Training-Time Conditioning and Architectural Interfaces" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-2-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 2 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#conditional-training-answers-a-data-law-question">
+<span class="md-ellipsis">
+      
+        Conditional training answers a data-law question
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-binary-conditional">
+<span class="md-ellipsis">
+      
+        Worked binary conditional
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#the-conditioning-carrier-is-an-architecture-choice">
+<span class="md-ellipsis">
+      
+        The conditioning carrier is an architecture choice
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#conditional-dropout-and-classifier-free-training">
+<span class="md-ellipsis">
+      
+        Conditional dropout and classifier-free training
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#missing-and-conflicting-conditions">
+<span class="md-ellipsis">
+      
+        Missing and conflicting conditions
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#conditioning-is-not-intervention">
+<span class="md-ellipsis">
+      
+        Conditioning is not intervention
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-2-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 2 synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#3-guidance-doob-transforms-and-twisted-sampling">
+<span class="md-ellipsis">
+      
+        3. Guidance, Doob Transforms, and Twisted Sampling
+      
+    </span>
+</a>
+<nav aria-label="3. Guidance, Doob Transforms, and Twisted Sampling" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-3-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 3 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#continuous-score-guidance">
+<span class="md-ellipsis">
+      
+        Continuous score guidance
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-finite-state-doob-transform">
+<span class="md-ellipsis">
+      
+        Worked finite-state Doob transform
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#discrete-guidance-needs-discrete-algebra">
+<span class="md-ellipsis">
+      
+        Discrete guidance needs discrete algebra
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#sequential-monte-carlo-and-twisting">
+<span class="md-ellipsis">
+      
+        Sequential Monte Carlo and twisting
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#guidance-error-budget">
+<span class="md-ellipsis">
+      
+        Guidance error budget
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-3-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 3 synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#4-hard-constraints-formal-languages-and-feasible-geometry">
+<span class="md-ellipsis">
+      
+        4. Hard Constraints, Formal Languages, and Feasible Geometry
+      
+    </span>
+</a>
+<nav aria-label="4. Hard Constraints, Formal Languages, and Feasible Geometry" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-4-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 4 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#rejection-gives-an-exact-conditional-law">
+<span class="md-ellipsis">
+      
+        Rejection gives an exact conditional law
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#local-token-masking-is-not-generally-global-conditioning">
+<span class="md-ellipsis">
+      
+        Local token masking is not generally global conditioning
+      
+    </span>
+</a>
+<nav aria-label="Local token masking is not generally global conditioning" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-prefix-counterexample">
+<span class="md-ellipsis">
+      
+        Worked prefix counterexample
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#projection-ensures-location-not-density">
+<span class="md-ellipsis">
+      
+        Projection ensures location, not density
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#feasibility-by-parameterization">
+<span class="md-ellipsis">
+      
+        Feasibility by parameterization
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#constraint-audit">
+<span class="md-ellipsis">
+      
+        Constraint audit
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-4-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 4 synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#5-reweighting-candidate-selection-search-and-decisions">
+<span class="md-ellipsis">
+      
+        5. Reweighting, Candidate Selection, Search, and Decisions
+      
+    </span>
+</a>
+<nav aria-label="5. Reweighting, Candidate Selection, Search, and Decisions" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-5-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 5 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#probabilistic-acceptance-and-resampling">
+<span class="md-ellipsis">
+      
+        Probabilistic acceptance and resampling
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#best-of-n-has-its-own-output-law">
+<span class="md-ellipsis">
+      
+        Best-of-\(N\) has its own output law
+      
+    </span>
+</a>
+<nav aria-label="Best-of-\(N\) has its own output law" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-binary-selection">
+<span class="md-ellipsis">
+      
+        Worked binary selection
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#search-is-not-sampling-unless-its-law-is-defined">
+<span class="md-ellipsis">
+      
+        Search is not sampling unless its law is defined
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#minimum-bayes-risk-is-a-decision-rule">
+<span class="md-ellipsis">
+      
+        Minimum Bayes risk is a decision rule
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#compute-and-evidence-contract">
+<span class="md-ellipsis">
+      
+        Compute and evidence contract
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-5-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 5 synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#6-retrieval-and-composed-generative-systems">
+<span class="md-ellipsis">
+      
+        6. Retrieval and Composed Generative Systems
+      
+    </span>
+</a>
+<nav aria-label="6. Retrieval and Composed Generative Systems" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-6-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 6 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#retrieval-changes-the-conditioning-path">
+<span class="md-ellipsis">
+      
+        Retrieval changes the conditioning path
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-retrieval-mixture">
+<span class="md-ellipsis">
+      
+        Worked retrieval mixture
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#retrieved-evidence-is-not-automatically-true-evidence">
+<span class="md-ellipsis">
+      
+        Retrieved evidence is not automatically true evidence
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#filters-and-fallbacks-also-define-the-output-law">
+<span class="md-ellipsis">
+      
+        Filters and fallbacks also define the output law
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#end-to-end-component-ledger">
+<span class="md-ellipsis">
+      
+        End-to-end component ledger
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#evidence-map-through-2026">
+<span class="md-ellipsis">
+      
+        Evidence map through 2026
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#research-checklist">
+<span class="md-ellipsis">
+      
+        Research checklist
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-6-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 6 synthesis
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#primary-reading-trail">
+<span class="md-ellipsis">
+      
+        Primary reading trail
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../world-models-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    World Models and Causal Simulators
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../landscape-01-copulas/">
+<span class="md-ellipsis">
+    
+  
+    Extended Generative Landscape
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../normalization-01-queries/">
+<span class="md-ellipsis">
+    
+  
+    Research Practice
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../models/vae-guide/">
+<span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/core/base/">
+<span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../examples/overview/">
+<span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../zoo/">
+<span class="md-ellipsis">
+    
+  
+    Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../training/overview/">
+<span class="md-ellipsis">
+    
+  
+    Training
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../data/overview/">
+<span class="md-ellipsis">
+    
+  
+    Data &amp; Modalities
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../inference/overview/">
+<span class="md-ellipsis">
+    
+  
+    Inference &amp; Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../benchmarks/">
+<span class="md-ellipsis">
+    
+  
+    Evaluation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../guides/extensions/">
+<span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../extensions/">
+<span class="md-ellipsis">
+    
+  
+    Advanced Topics
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../cli/">
+<span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../community/contributing/">
+<span class="md-ellipsis">
+    
+  
+    Community
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/configs/protein-extension/">
+<span class="md-ellipsis">
+    
+  
+    Reference Library
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#reader-orientation">
+<span class="md-ellipsis">
+      
+        Reader orientation
+      
+    </span>
+</a>
+<nav aria-label="Reader orientation" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#learning-contract">
+<span class="md-ellipsis">
+      
+        Learning contract
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#1-begin-with-the-target-not-the-steering-algorithm">
+<span class="md-ellipsis">
+      
+        1. Begin with the Target, Not the Steering Algorithm
+      
+    </span>
+</a>
+<nav aria-label="1. Begin with the Target, Not the Steering Algorithm" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-1-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 1 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#a-base-law-and-a-preference-factor">
+<span class="md-ellipsis">
+      
+        A base law and a preference factor
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-finite-target">
+<span class="md-ellipsis">
+      
+        Worked finite target
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#exact-bayesian-conditioning-is-one-special-case">
+<span class="md-ellipsis">
+      
+        Exact Bayesian conditioning is one special case
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#support-cannot-be-created-by-reweighting">
+<span class="md-ellipsis">
+      
+        Support cannot be created by reweighting
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#target-and-mechanism-register">
+<span class="md-ellipsis">
+      
+        Target-and-mechanism register
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-1-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 1 synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#2-training-time-conditioning-and-architectural-interfaces">
+<span class="md-ellipsis">
+      
+        2. Training-Time Conditioning and Architectural Interfaces
+      
+    </span>
+</a>
+<nav aria-label="2. Training-Time Conditioning and Architectural Interfaces" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-2-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 2 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#conditional-training-answers-a-data-law-question">
+<span class="md-ellipsis">
+      
+        Conditional training answers a data-law question
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-binary-conditional">
+<span class="md-ellipsis">
+      
+        Worked binary conditional
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#the-conditioning-carrier-is-an-architecture-choice">
+<span class="md-ellipsis">
+      
+        The conditioning carrier is an architecture choice
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#conditional-dropout-and-classifier-free-training">
+<span class="md-ellipsis">
+      
+        Conditional dropout and classifier-free training
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#missing-and-conflicting-conditions">
+<span class="md-ellipsis">
+      
+        Missing and conflicting conditions
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#conditioning-is-not-intervention">
+<span class="md-ellipsis">
+      
+        Conditioning is not intervention
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-2-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 2 synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#3-guidance-doob-transforms-and-twisted-sampling">
+<span class="md-ellipsis">
+      
+        3. Guidance, Doob Transforms, and Twisted Sampling
+      
+    </span>
+</a>
+<nav aria-label="3. Guidance, Doob Transforms, and Twisted Sampling" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-3-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 3 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#continuous-score-guidance">
+<span class="md-ellipsis">
+      
+        Continuous score guidance
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-finite-state-doob-transform">
+<span class="md-ellipsis">
+      
+        Worked finite-state Doob transform
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#discrete-guidance-needs-discrete-algebra">
+<span class="md-ellipsis">
+      
+        Discrete guidance needs discrete algebra
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#sequential-monte-carlo-and-twisting">
+<span class="md-ellipsis">
+      
+        Sequential Monte Carlo and twisting
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#guidance-error-budget">
+<span class="md-ellipsis">
+      
+        Guidance error budget
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-3-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 3 synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#4-hard-constraints-formal-languages-and-feasible-geometry">
+<span class="md-ellipsis">
+      
+        4. Hard Constraints, Formal Languages, and Feasible Geometry
+      
+    </span>
+</a>
+<nav aria-label="4. Hard Constraints, Formal Languages, and Feasible Geometry" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-4-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 4 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#rejection-gives-an-exact-conditional-law">
+<span class="md-ellipsis">
+      
+        Rejection gives an exact conditional law
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#local-token-masking-is-not-generally-global-conditioning">
+<span class="md-ellipsis">
+      
+        Local token masking is not generally global conditioning
+      
+    </span>
+</a>
+<nav aria-label="Local token masking is not generally global conditioning" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-prefix-counterexample">
+<span class="md-ellipsis">
+      
+        Worked prefix counterexample
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#projection-ensures-location-not-density">
+<span class="md-ellipsis">
+      
+        Projection ensures location, not density
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#feasibility-by-parameterization">
+<span class="md-ellipsis">
+      
+        Feasibility by parameterization
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#constraint-audit">
+<span class="md-ellipsis">
+      
+        Constraint audit
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-4-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 4 synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#5-reweighting-candidate-selection-search-and-decisions">
+<span class="md-ellipsis">
+      
+        5. Reweighting, Candidate Selection, Search, and Decisions
+      
+    </span>
+</a>
+<nav aria-label="5. Reweighting, Candidate Selection, Search, and Decisions" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-5-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 5 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#probabilistic-acceptance-and-resampling">
+<span class="md-ellipsis">
+      
+        Probabilistic acceptance and resampling
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#best-of-n-has-its-own-output-law">
+<span class="md-ellipsis">
+      
+        Best-of-\(N\) has its own output law
+      
+    </span>
+</a>
+<nav aria-label="Best-of-\(N\) has its own output law" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-binary-selection">
+<span class="md-ellipsis">
+      
+        Worked binary selection
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#search-is-not-sampling-unless-its-law-is-defined">
+<span class="md-ellipsis">
+      
+        Search is not sampling unless its law is defined
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#minimum-bayes-risk-is-a-decision-rule">
+<span class="md-ellipsis">
+      
+        Minimum Bayes risk is a decision rule
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#compute-and-evidence-contract">
+<span class="md-ellipsis">
+      
+        Compute and evidence contract
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-5-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 5 synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#6-retrieval-and-composed-generative-systems">
+<span class="md-ellipsis">
+      
+        6. Retrieval and Composed Generative Systems
+      
+    </span>
+</a>
+<nav aria-label="6. Retrieval and Composed Generative Systems" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-6-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 6 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#retrieval-changes-the-conditioning-path">
+<span class="md-ellipsis">
+      
+        Retrieval changes the conditioning path
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-retrieval-mixture">
+<span class="md-ellipsis">
+      
+        Worked retrieval mixture
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#retrieved-evidence-is-not-automatically-true-evidence">
+<span class="md-ellipsis">
+      
+        Retrieved evidence is not automatically true evidence
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#filters-and-fallbacks-also-define-the-output-law">
+<span class="md-ellipsis">
+      
+        Filters and fallbacks also define the output law
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#end-to-end-component-ledger">
+<span class="md-ellipsis">
+      
+        End-to-end component ledger
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#evidence-map-through-2026">
+<span class="md-ellipsis">
+      
+        Evidence map through 2026
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#research-checklist">
+<span class="md-ellipsis">
+      
+        Research checklist
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-6-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 6 synthesis
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#primary-reading-trail">
+<span class="md-ellipsis">
+      
+        Primary reading trail
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<nav aria-label="Breadcrumb" class="md-path">
+<ol class="md-path__list">
+<li class="md-path__item">
+<a class="md-path__link" href="../../..">
+<span class="md-ellipsis">
+    Home
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    Generative Models Book
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../gradients-01-taxonomy/">
+<span class="md-ellipsis">
+    Connections and Compositions
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../steering-01-targets/">
+<span class="md-ellipsis">
+    Conditioning, Steering, Constraints, and Selection
+  </span>
+</a>
+</li>
+</ol>
+</nav>
+<article class="md-content__inner md-typeset">
+<h1 id="conditioning-steering-constraints-and-selection">Conditioning, Steering, Constraints, and Selection<a class="headerlink" href="#conditioning-steering-constraints-and-selection" title="Permanent link">¤</a></h1><aside aria-label="Learning path" class="admonition abstract artifex-learning-path"><p class="admonition-title">Learning path</p><p><strong>Required knowledge</strong></p><ul class="artifex-learning-path__links" data-learning-path-role="required"><li><a href="../probability-and-generative-modeling/">Probability and Generative Modeling</a></li><li><a href="../objectives-and-statistical-distances/">Objectives and Statistical Distances</a></li><li><a href="../sampling-and-continuous-time/">Sampling and Continuous-Time Generative Mathematics</a></li><li><a href="../autoregressive-explained/">Autoregressive Models Explained</a></li><li><a href="../diffusion-explained/">Diffusion Models Explained</a></li><li><a href="../discrete-iterative-generation-explained/">Discrete Iterative Generation Explained</a></li></ul><p><strong>Readiness check:</strong> can you explain the central object and reproduce one worked example from each required chapter? If not, follow its link before continuing.</p><p><strong>Newly unlocked in the default route</strong></p><p>No immediate successor names this page as its final required prerequisite. Continue through the book navigation or the chapter's cross-links.</p></aside>
+<p>A generator answers a distributional or constructive question. A controlled generative system adds a second question: which outputs should be preferred, observed, ruled out, or selected? Those two questions are easy to collapse. Conditioning can define a new probability law during training; guidance can approximate a conditional law during sampling; projection can enforce feasibility while changing density; a verifier can select one candidate without changing the base model; and retrieval can change the system input without changing model parameters.</p>
+<p>This volume supplies one vocabulary for these mechanisms across autoregressive, diffusion, flow, energy, discrete-iterative, latent-variable, and constructive generators. It treats probability semantics as optional but explicit: exact conditional laws are distinguished from heuristic steering, and deterministic constraints are treated as feasible-set operations when no probability law is claimed.</p>
+<div class="admonition info">
+<p class="admonition-title">Reading routes</p>
+<p><strong>Entry after prerequisites:</strong> Chapters 1–2 and the finite examples in Chapters 4–5.</p>
+<p><strong>Practitioner:</strong> Chapters 1–5, including compute and diagnostic tables.</p>
+<p><strong>Research:</strong> read continuously, rederive both change-of-measure examples, and audit the evidence boundaries in Chapter 6.</p>
+</div>
+<h2 id="reader-orientation">Reader orientation<a class="headerlink" href="#reader-orientation" title="Permanent link">¤</a></h2>
+<h3 id="learning-contract">Learning contract<a class="headerlink" href="#learning-contract" title="Permanent link">¤</a></h3>
+<p>By the end, you should be able to define a target law separately from the mechanism used to reach it; distinguish training-time conditioning, inference-time guidance, exact conditioning, hard feasibility, selection, and retrieval; derive continuous score guidance and a finite-state Doob transform; explain why local token masking need not sample the globally conditioned base law; compute the output law of rejection and best-of-<span class="arithmatex">\(N\)</span> selection; and evaluate a composed system without attributing every effect to its base generator.</p>
+<figure class="book-figure" id="fig-conditioning-steering-and-constraints-learning-contract"><pre class="mermaid"><code>%%{init: {'themeCSS': '.nodeLabel p { color: #111827 !important; } .flowchart-link { stroke: #78879a !important; stroke-width: 2px !important; } marker path { fill: #78879a !important; stroke: #78879a !important; }'}}%%
+flowchart LR
+    B[Base generator] --&gt; T[Declared target]
+    T --&gt; C[Train a conditional model]
+    T --&gt; G[Guide or twist a sampler]
+    T --&gt; H[Enforce a hard constraint]
+    T --&gt; S[Generate and select]
+    R[Retrieved or external context] --&gt; C
+    R --&gt; G
+    C --&gt; O[System output]
+    G --&gt; O
+    H --&gt; O
+    S --&gt; O
+
+    style B fill:#e1f5ff,color:#111827
+    style T fill:#fff3cd,color:#111827
+    style O fill:#c8e6c9,color:#111827</code></pre><figcaption class="book-object-caption"><span class="book-object-number">Figure STEER.1.</span> Learning contract</figcaption></figure>
+<p>The arrows name alternative compositions, not an instruction to use every component.</p>
+<h2 id="1-begin-with-the-target-not-the-steering-algorithm">1. Begin with the Target, Not the Steering Algorithm<a class="headerlink" href="#1-begin-with-the-target-not-the-steering-algorithm" title="Permanent link">¤</a></h2>
+<h3 id="chapter-1-prerequisites-and-learning-objectives">Chapter 1 prerequisites and learning objectives<a class="headerlink" href="#chapter-1-prerequisites-and-learning-objectives" title="Permanent link">¤</a></h3>
+<p>You should know conditional probability and normalized versus unnormalized densities. By the end, you should be able to write the desired endpoint law, identify its support and normalizer, and state whether a proposed algorithm targets it exactly, approximately, or not at all.</p>
+<h3 id="a-base-law-and-a-preference-factor">A base law and a preference factor<a class="headerlink" href="#a-base-law-and-a-preference-factor" title="Permanent link">¤</a></h3>
+<p>Let <span class="arithmatex">\(p_0(x\mid c)\)</span> be a base conditional generator and let <span class="arithmatex">\(w(x,c)\ge 0\)</span> be a measurable preference, likelihood, reward factor, or feasibility weight. When</p>
+<div class="arithmatex">\[
+0&lt;Z(c)=\mathbb E_{p_0(\cdot\mid c)}[w(X,c)]&lt;\infty,
+\]</div>
+<p>the reweighted target is</p>
+<div class="arithmatex">\[
+\pi(x\mid c)=\frac{p_0(x\mid c)w(x,c)}{Z(c)}.
+\]</div>
+<p>This equation defines a probability law. It does not say how to sample it. Rejection sampling, importance resampling, MCMC, a Doob transform, sequential Monte Carlo, fine-tuning, or a separately trained conditional model may approximate or realize the target under different assumptions and costs.</p>
+<p>A common soft preference uses <span class="arithmatex">\(w(x,c)=\exp\{\beta r(x,c)\}\)</span>. The inverse temperature <span class="arithmatex">\(\beta\)</span> changes the target, not only sampler aggressiveness. A hard feasible event <span class="arithmatex">\(F_c\)</span> uses <span class="arithmatex">\(w(x,c)=\mathbf 1\{x\in F_c\}\)</span> and is defined only when <span class="arithmatex">\(p_0(F_c\mid c)&gt;0\)</span>.</p>
+<h3 id="worked-finite-target">Worked finite target<a class="headerlink" href="#worked-finite-target" title="Permanent link">¤</a></h3>
+<p>Suppose the base law on <span class="arithmatex">\((a,b,d)\)</span> is <span class="arithmatex">\((0.6,0.3,0.1)\)</span> and the preference factors are <span class="arithmatex">\((1,2,4)\)</span>. The unnormalized masses are</p>
+<div class="arithmatex">\[
+(0.6,0.6,0.4),\qquad Z=1.6,
+\]</div>
+<p>so the target is</p>
+<div class="arithmatex">\[
+\pi=(0.375,0.375,0.25).
+\]</div>
+<p>The rare base outcome <span class="arithmatex">\(d\)</span> becomes more likely, but it does not become the mode. Reporting only the reward ranking would miss the interaction between base mass and preference.</p>
+<h3 id="exact-bayesian-conditioning-is-one-special-case">Exact Bayesian conditioning is one special case<a class="headerlink" href="#exact-bayesian-conditioning-is-one-special-case" title="Permanent link">¤</a></h3>
+<p>If <span class="arithmatex">\(w(x,c)=p(y\mid x,c)\)</span> is a valid observation likelihood, then</p>
+<div class="arithmatex">\[
+\pi(x\mid y,c)=\frac{p_0(x\mid c)p(y\mid x,c)}{p(y\mid c)}
+\]</div>
+<p>is an exact posterior under the declared joint model. A discriminative score, aesthetic predictor, simulator loss, or human-preference reward is not automatically a likelihood. It can still define an exponential tilt, but the resulting law should be called a reward-tilted or energy-reweighted target rather than a posterior unless a joint observation model is specified.</p>
+<h3 id="support-cannot-be-created-by-reweighting">Support cannot be created by reweighting<a class="headerlink" href="#support-cannot-be-created-by-reweighting" title="Permanent link">¤</a></h3>
+<p>If <span class="arithmatex">\(p_0(A\mid c)=0\)</span>, then every absolutely continuous reweighting of <span class="arithmatex">\(p_0\)</span> also assigns <span class="arithmatex">\(A\)</span> zero probability. A reward cannot recover modes absent from the base support. Approximate neural models complicate empirical support tests, but the mathematical boundary remains: selection and reweighting redistribute existing mass. A method that introduces mutation, external proposals, retrieval, or a new decoder is changing the proposal mechanism as well.</p>
+<h3 id="target-and-mechanism-register">Target-and-mechanism register<a class="headerlink" href="#target-and-mechanism-register" title="Permanent link">¤</a></h3>
+<div class="md-typeset__table book-table-container"><table id="tbl-conditioning-steering-and-constraints-target-and-mechanism-register"><caption class="book-object-caption"><span class="book-object-number">Table STEER.1.</span> Target-and-mechanism register</caption>
+<thead>
+<tr>
+<th>Claim</th>
+<th>Required declaration</th>
+<th>Common category error</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Conditional sampling</td>
+<td>joint or conditional law and evidence/event</td>
+<td>calling an arbitrary reward a likelihood</td>
+</tr>
+<tr>
+<td>Reward steering</td>
+<td>base law, reward, temperature, normalizer semantics</td>
+<td>implying the base model itself was retrained</td>
+</tr>
+<tr>
+<td>Hard feasibility</td>
+<td>feasible set, tolerance, and base support overlap</td>
+<td>equating projection with conditional sampling</td>
+</tr>
+<tr>
+<td>Candidate selection</td>
+<td>proposal, candidate count, scorer, tie rule</td>
+<td>reporting the selected item as a base-model draw</td>
+</tr>
+<tr>
+<td>Retrieval composition</td>
+<td>corpus/index, retriever, context rule, generator</td>
+<td>treating retrieved text as verified evidence</td>
+</tr>
+</tbody>
+</table></div>
+<div class="admonition failure">
+<p class="admonition-title">A high score is not evidence of target correctness</p>
+<p>Even if an algorithm maximizes <span class="arithmatex">\(r(x,c)\)</span> exactly, the reward can be misspecified, exploitable, shifted, or causally irrelevant. Optimization error and target error are separate. Prospective measurement is required when the score stands in for a real scientific or human outcome.</p>
+</div>
+<details class="question">
+<summary>Retrieval practice: target semantics</summary>
+<ol>
+<li>Which quantity normalizes a reward-tilted law?</li>
+<li>Can reweighting place mass outside the base support?</li>
+<li>When is a preference factor a likelihood?</li>
+</ol>
+<p><strong>Solutions.</strong> (1) <span class="arithmatex">\(Z(c)=\mathbb E_{p_0}[w(X,c)]\)</span>. (2) No, not without changing the proposal or state construction. (3) When it is part of a declared joint observation model with the required normalization and support semantics.</p>
+</details>
+<h3 id="chapter-1-synthesis">Chapter 1 synthesis<a class="headerlink" href="#chapter-1-synthesis" title="Permanent link">¤</a></h3>
+<p>Write the target before the algorithm. This separates what the system should sample from how finite computation tries to reach it.</p>
+<p><strong>Bridge to Chapter 2.</strong> The first way to reach a target is to train a model that conditions on the relevant information directly.</p>
+<h2 id="2-training-time-conditioning-and-architectural-interfaces">2. Training-Time Conditioning and Architectural Interfaces<a class="headerlink" href="#2-training-time-conditioning-and-architectural-interfaces" title="Permanent link">¤</a></h2>
+<h3 id="chapter-2-prerequisites-and-learning-objectives">Chapter 2 prerequisites and learning objectives<a class="headerlink" href="#chapter-2-prerequisites-and-learning-objectives" title="Permanent link">¤</a></h3>
+<p>You should know conditional maximum likelihood and neural network inputs. By the end, you should be able to separate conditional probability semantics from the architecture carrying the condition, identify missing-condition shifts, and keep observational conditioning distinct from intervention.</p>
+<h3 id="conditional-training-answers-a-data-law-question">Conditional training answers a data-law question<a class="headerlink" href="#conditional-training-answers-a-data-law-question" title="Permanent link">¤</a></h3>
+<p>Given paired observations <span class="arithmatex">\((X,C)\sim p_{\text{data}}\)</span>, conditional maximum likelihood minimizes</p>
+<div class="arithmatex">\[
+\mathcal L(\theta)
+=-\mathbb E_{p_{\text{data}}(x,c)}\log p_\theta(x\mid c).
+\]</div>
+<p>At the population optimum with sufficient capacity and identifiable support, the model conditional matches the observational conditional. That statement does not select an architecture and does not imply performance for conditions absent from the training law.</p>
+<p>For an implicit generator <span class="arithmatex">\(X=G_\theta(Z,C)\)</span> or an iterative denoiser, the conditional law may be trained through adversarial, score, flow, reconstruction, or other objectives. The condition still names information supplied to the generator; the objective determines which population property is matched.</p>
+<h3 id="worked-binary-conditional">Worked binary conditional<a class="headerlink" href="#worked-binary-conditional" title="Permanent link">¤</a></h3>
+<p>Let <span class="arithmatex">\(C\in\{0,1\}\)</span> be uniform and</p>
+<div class="arithmatex">\[
+p(X=1\mid C=0)=0.1,
+\qquad
+p(X=1\mid C=1)=0.8.
+\]</div>
+<p>The unconditional probability is <span class="arithmatex">\(p(X=1)=0.45\)</span>. A model that ignores <span class="arithmatex">\(C\)</span> can fit this marginal perfectly while failing both conditional queries. Marginal sample quality therefore cannot validate conditional control.</p>
+<h3 id="the-conditioning-carrier-is-an-architecture-choice">The conditioning carrier is an architecture choice<a class="headerlink" href="#the-conditioning-carrier-is-an-architecture-choice" title="Permanent link">¤</a></h3>
+<div class="md-typeset__table book-table-container"><table id="tbl-conditioning-steering-and-constraints-the-conditioning-carrier-is-an-architecture-choice"><caption class="book-object-caption"><span class="book-object-number">Table STEER.2.</span> The conditioning carrier is an architecture choice</caption>
+<thead>
+<tr>
+<th>Interface</th>
+<th>Mechanism</th>
+<th>Main practical trade-off</th>
+<th>What it does not establish</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Concatenation or additive embedding</td>
+<td>append condition features to state/token features</td>
+<td>simple, but can bottleneck rich context</td>
+<td>calibration or causal semantics</td>
+</tr>
+<tr>
+<td>Feature-wise modulation</td>
+<td>condition predicts scale/shift or adaptive normalization parameters</td>
+<td>efficient global control; layer placement matters</td>
+<td>that every spatial/token detail is represented</td>
+</tr>
+<tr>
+<td>Cross-attention</td>
+<td>generated states query a context sequence</td>
+<td>flexible alignment with quadratic or sparse attention cost</td>
+<td>faithful use of the retrieved/encoded context</td>
+</tr>
+<tr>
+<td>Adapter or control branch</td>
+<td>separate module injects residual features</td>
+<td>modular tuning and reuse</td>
+<td>preservation of the base distribution</td>
+</tr>
+<tr>
+<td>Prefix or in-context tokens</td>
+<td>encode control in the modeled sequence</td>
+<td>uses the same sequence interface</td>
+<td>that instructions are constraints rather than evidence</td>
+</tr>
+</tbody>
+</table></div>
+<p>The same cross-attention block can parameterize an autoregressive conditional, a diffusion score, a flow velocity, or a VAE decoder. Shared architecture is an implementation analogy, not a family equivalence.</p>
+<h3 id="conditional-dropout-and-classifier-free-training">Conditional dropout and classifier-free training<a class="headerlink" href="#conditional-dropout-and-classifier-free-training" title="Permanent link">¤</a></h3>
+<p>Classifier-free guidance commonly trains conditional and condition-dropped predictions in one network. Let <span class="arithmatex">\(M\)</span> be the dropout indicator. The training distribution contains <span class="arithmatex">\((X,C,M)\)</span>, and the unconditional branch is learned from examples in which the condition is replaced by a null representation. The null token, dropout probability, data distribution, and parameter sharing affect both estimates. The method does not magically recover a separately optimal unconditional model.</p>
+<h3 id="missing-and-conflicting-conditions">Missing and conflicting conditions<a class="headerlink" href="#missing-and-conflicting-conditions" title="Permanent link">¤</a></h3>
+<p>A multimodal system may receive any subset <span class="arithmatex">\(C_S\)</span> of available modalities. Robust missing-modality generation requires training on a declared subset distribution or a valid inference rule; replacing an unseen modality by zeros is an architectural convention, not marginalization. When conditions conflict, the system needs a priority, likelihood, energy, or arbitration rule. Cross-attention alone supplies none.</p>
+<h3 id="conditioning-is-not-intervention">Conditioning is not intervention<a class="headerlink" href="#conditioning-is-not-intervention" title="Permanent link">¤</a></h3>
+<p>An observational conditional <span class="arithmatex">\(p(x\mid C=c)\)</span> can reflect confounding, selection, and reverse causation. An interventional law <span class="arithmatex">\(p(x\mid\operatorname{do}(C=c))\)</span> replaces a causal mechanism. They agree only under causal assumptions. A prompt, class label, or property predictor can offer useful control without identifying an intervention.</p>
+<div class="admonition failure">
+<p class="admonition-title">Condition leakage can make control look stronger than it is</p>
+<p>If condition text, target labels, or near-duplicate references leak across the train/test split, a model can retrieve or copy instead of generalizing. Evaluate held-out sources and condition combinations, measure diversity at fixed condition, and audit whether the condition uniquely identifies a training item.</p>
+</div>
+<details class="question">
+<summary>Retrieval practice: conditional interfaces</summary>
+<ol>
+<li>Can a model match <span class="arithmatex">\(p(x)\)</span> while failing <span class="arithmatex">\(p(x\mid c)\)</span>?</li>
+<li>Does cross-attention define the conditional objective?</li>
+<li>Does a null condition equal exact marginalization over conditions?</li>
+</ol>
+<p><strong>Solutions.</strong> (1) Yes; the binary example does exactly that. (2) No; it is an architecture interface. (3) Not automatically; it is learned under the condition-dropout protocol and shared parameterization.</p>
+</details>
+<h3 id="chapter-2-synthesis">Chapter 2 synthesis<a class="headerlink" href="#chapter-2-synthesis" title="Permanent link">¤</a></h3>
+<p>Conditional training changes the learned map or law; the carrier only determines how information enters. Evaluation must condition on the same variables and support used by the claim.</p>
+<p><strong>Bridge to Chapter 3.</strong> When retraining is unavailable or a new condition arrives after training, the sampler itself can be changed.</p>
+<h2 id="3-guidance-doob-transforms-and-twisted-sampling">3. Guidance, Doob Transforms, and Twisted Sampling<a class="headerlink" href="#3-guidance-doob-transforms-and-twisted-sampling" title="Permanent link">¤</a></h2>
+<h3 id="chapter-3-prerequisites-and-learning-objectives">Chapter 3 prerequisites and learning objectives<a class="headerlink" href="#chapter-3-prerequisites-and-learning-objectives" title="Permanent link">¤</a></h3>
+<p>You should know scores, Markov transitions, and importance weights. By the end, you should be able to derive the continuous conditional-score identity, construct a finite-state Doob transform, and distinguish an exact change of measure from a finite guidance approximation.</p>
+<h3 id="continuous-score-guidance">Continuous score guidance<a class="headerlink" href="#continuous-score-guidance" title="Permanent link">¤</a></h3>
+<p>For a noisy state <span class="arithmatex">\(X_t\)</span> and condition <span class="arithmatex">\(Y=y\)</span>, Bayes' rule gives</p>
+<div class="arithmatex">\[
+\log p_t(x\mid y)
+=\log p_t(x)+\log p_t(y\mid x)-\log p_t(y).
+\]</div>
+<p>Differentiating with respect to <span class="arithmatex">\(x\)</span> yields the exact identity</p>
+<div class="arithmatex">\[
+\nabla_x\log p_t(x\mid y)
+=\nabla_x\log p_t(x)+\nabla_x\log p_t(y\mid x).
+\]</div>
+<p>Classifier guidance substitutes learned approximations for both terms. The classifier must operate at the sampler's noise levels, and its gradient is only as reliable as its calibration and off-distribution behavior.</p>
+<p>This is a state-space derivative used during sampling, not the parameter
+gradient that trained either network. See <a href="../gradients-and-geometry-in-generative-modeling/#9-state-scores-functional-gradients-and-distributional-flows">State Scores, Functional Gradients,
+and Distributional Flows</a>
+for the state/parameter distinction and the geometry of the resulting flow.</p>
+<p>One common classifier-free convention is</p>
+<div class="arithmatex">\[
+s_{\text{cfg}}(x,t,c)
+=s_u(x,t)+w\bigl(s_c(x,t,c)-s_u(x,t)\bigr).
+\]</div>
+<p>Here <span class="arithmatex">\(w=0\)</span> returns the unconditional estimate and <span class="arithmatex">\(w=1\)</span> returns the conditional estimate. Other libraries shift the scale by one, so the formula must accompany every value. For <span class="arithmatex">\(w&gt;1\)</span>, this extrapolates the score estimates. It often changes alignment, fidelity, and diversity, but it should not be described as exact sampling from <span class="arithmatex">\(p(x\mid c)^w p(x)^{1-w}\)</span> for an arbitrary finite DDPM or DDIM sampler. <a href="https://machinelearning.apple.com/research/classifier-free-guidance">Bradley and Nakkiran (TMLR 2025)</a> show that the finite-sampler interpretation is more subtle and depends on the dynamics.</p>
+<h3 id="worked-finite-state-doob-transform">Worked finite-state Doob transform<a class="headerlink" href="#worked-finite-state-doob-transform" title="Permanent link">¤</a></h3>
+<p>Let a Markov state <span class="arithmatex">\(S\)</span> transition to terminal outcomes <span class="arithmatex">\(a,b\)</span> with</p>
+<div class="arithmatex">\[
+K(a\mid S)=0.8,
+\qquad
+K(b\mid S)=0.2.
+\]</div>
+<p>Suppose evidence <span class="arithmatex">\(Y\)</span> has likelihoods <span class="arithmatex">\(p(Y\mid a)=0.25\)</span> and <span class="arithmatex">\(p(Y\mid b)=1\)</span>. Define the backward information function <span class="arithmatex">\(h(x)=p(Y\mid x)\)</span>. The conditioned transition is</p>
+<div class="arithmatex">\[
+K^h(x'\mid S)
+=\frac{K(x'\mid S)h(x')}
+{\sum_z K(z\mid S)h(z)}.
+\]</div>
+<p>Both unnormalized branches have mass <span class="arithmatex">\(0.2\)</span>, so <span class="arithmatex">\(K^h(a\mid S)=K^h(b\mid S)=0.5\)</span>. The rare base branch becomes equally likely because it is four times as compatible with the evidence.</p>
+<p>For a multi-step process, <span class="arithmatex">\(h_t(x)=\mathbb E[w(X_T)\mid X_t=x]\)</span> carries future compatibility. For a continuous-time jump process with off-diagonal rates <span class="arithmatex">\(q_t(x,x')\)</span>, the ideal transformed rates are</p>
+<div class="arithmatex">\[
+q_t^h(x,x')=q_t(x,x')\frac{h_t(x')}{h_t(x)},
+\qquad x'\ne x,
+\]</div>
+<p>with the diagonal chosen so rows sum to zero. The construction is exact when <span class="arithmatex">\(h_t\)</span> is exact and regularity/support conditions hold. A learned guide approximates this future-value function.</p>
+<h3 id="discrete-guidance-needs-discrete-algebra">Discrete guidance needs discrete algebra<a class="headerlink" href="#discrete-guidance-needs-discrete-algebra" title="Permanent link">¤</a></h3>
+<p>Replacing a finite difference by a continuous gradient can produce large error when a single jump changes a token, edge, or category. <a href="https://iclr.cc/virtual/2026/poster/10009901">Discrete Guidance Matching</a>, an ICLR 2026 paper, derives target transition rates for discrete flow matching and trains the needed guidance object. Its exactness claim concerns the derived rate given the paper's learned quantities and assumptions; network error and time discretization remain.</p>
+<h3 id="sequential-monte-carlo-and-twisting">Sequential Monte Carlo and twisting<a class="headerlink" href="#sequential-monte-carlo-and-twisting" title="Permanent link">¤</a></h3>
+<p>SMC maintains weighted particles rather than one guided trajectory. A proposal transition <span class="arithmatex">\(M_t\)</span> and incremental potential <span class="arithmatex">\(G_t\)</span> define weights that correct proposal bias. Resampling concentrates compute on promising partial states but introduces ancestry collapse. With correct weights and increasing particle count under standard assumptions, SMC can approximate a declared Feynman--Kac target; finite particles do not make every output an exact conditional draw.</p>
+<p>The complete <a href="../sequential-monte-carlo-and-particle-methods/#6-learning-twisting-evaluation-and-research">particle-method
+foundation</a>
+derives learned twists, resampling-gradient choices, finite-particle evaluation,
+and their relationship to Doob transforms. This section retains the
+conditioning-specific interpretation: the potential and backward value must be
+tied to the desired endpoint law or reward-tilted target.</p>
+<p><a href="https://openreview.net/forum?id=r9s3Gbxz7g">Twisted Diffusion Sampler</a> applies this principle to conditional diffusion. <a href="https://openreview.net/forum?id=xoXn62FzD0">Syntactic and Semantic Control via SMC</a>, published at ICLR 2025, applies programmable potentials to language generation. Report particles, proposal, resampling schedule, lookahead/twist approximation, reward evaluations, and terminal correction.</p>
+<h3 id="guidance-error-budget">Guidance error budget<a class="headerlink" href="#guidance-error-budget" title="Permanent link">¤</a></h3>
+<div class="md-typeset__table book-table-container"><table id="tbl-conditioning-steering-and-constraints-guidance-error-budget"><caption class="book-object-caption"><span class="book-object-number">Table STEER.3.</span> Guidance error budget</caption>
+<thead>
+<tr>
+<th>Error source</th>
+<th>Diagnostic</th>
+<th>Possible consequence</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Base model error</td>
+<td>unconditional held-out and sample diagnostics</td>
+<td>missing target support before guidance</td>
+</tr>
+<tr>
+<td>Guide or likelihood error</td>
+<td>calibration and held-out conditional tests by noise/time</td>
+<td>wrong direction or reward exploitation</td>
+</tr>
+<tr>
+<td>Value/lookahead approximation</td>
+<td>oracle small-state comparison or more lookahead</td>
+<td>myopic trajectories and particle collapse</td>
+</tr>
+<tr>
+<td>Numerical discretization</td>
+<td>step/NFE refinement at fixed models</td>
+<td>biased endpoint despite correct fields</td>
+</tr>
+<tr>
+<td>Finite particles/candidates</td>
+<td>repeated runs and particle-count sweep</td>
+<td>high variance and lost modes</td>
+</tr>
+<tr>
+<td>Aggressive scale</td>
+<td>guidance curve, diversity, constraint, and artifact audits</td>
+<td>overconcentration or off-support states</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Peer-reviewed research:</strong> ICLR 2026 papers on <a href="https://openreview.net/forum?id=cpdHmRtx7d">Monte Carlo correction for diffusion guidance</a>, <a href="https://openreview.net/forum?id=1FEm5JLpvg">projected coupled diffusion</a>, and <a href="https://openreview.net/forum?id=N1RYhOg6ib">exact discrete flow guidance</a> provide current method-specific evidence. None establishes one universal guide across state spaces, rewards, or finite samplers.</p>
+<details class="question">
+<summary>Retrieval practice: guidance</summary>
+<ol>
+<li>Which term changes the unconditional score into a conditional score?</li>
+<li>What does <span class="arithmatex">\(h_t(x)\)</span> represent?</li>
+<li>Why does SMC need weights even when its proposal is learned?</li>
+</ol>
+<p><strong>Solutions.</strong> (1) <span class="arithmatex">\(\nabla_x\log p_t(y\mid x)\)</span>. (2) Future evidence or terminal-weight compatibility conditional on the current state. (3) The proposal generally differs from the target transition; weights record the likelihood/potential and proposal correction.</p>
+</details>
+<h3 id="chapter-3-synthesis">Chapter 3 synthesis<a class="headerlink" href="#chapter-3-synthesis" title="Permanent link">¤</a></h3>
+<p>Guidance is a change-of-measure problem. Exact identities define the target correction; learned fields, finite transitions, and finite particles determine whether the deployed sampler realizes it.</p>
+<p><strong>Bridge to Chapter 4.</strong> Soft guidance changes relative mass. Hard constraints additionally require every returned object to belong to a feasible set or formal language.</p>
+<h2 id="4-hard-constraints-formal-languages-and-feasible-geometry">4. Hard Constraints, Formal Languages, and Feasible Geometry<a class="headerlink" href="#4-hard-constraints-formal-languages-and-feasible-geometry" title="Permanent link">¤</a></h2>
+<h3 id="chapter-4-prerequisites-and-learning-objectives">Chapter 4 prerequisites and learning objectives<a class="headerlink" href="#chapter-4-prerequisites-and-learning-objectives" title="Permanent link">¤</a></h3>
+<p>You should know conditional probability, token factorization, and change of variables. By the end, you should be able to distinguish feasibility from distribution preservation, explain the global suffix-mass correction for constrained decoding, and audit projection- and map-based constraints.</p>
+<h3 id="rejection-gives-an-exact-conditional-law">Rejection gives an exact conditional law<a class="headerlink" href="#rejection-gives-an-exact-conditional-law" title="Permanent link">¤</a></h3>
+<p>If <span class="arithmatex">\(X\sim p_0\)</span> and the algorithm accepts exactly when <span class="arithmatex">\(X\in F\)</span>, then accepted samples follow</p>
+<div class="arithmatex">\[
+p_0(x\mid F)=\frac{p_0(x)\mathbf 1_F(x)}{p_0(F)}.
+\]</div>
+<p>The expected proposal count is <span class="arithmatex">\(1/p_0(F)\)</span>. Rejection is exact but can be unusable for rare constraints. If an approximate filter has false accepts or false rejects, the returned law is conditioned on the filter decision, not the true event.</p>
+<h3 id="local-token-masking-is-not-generally-global-conditioning">Local token masking is not generally global conditioning<a class="headerlink" href="#local-token-masking-is-not-generally-global-conditioning" title="Permanent link">¤</a></h3>
+<p>Let <span class="arithmatex">\(A\)</span> be a generated prefix and <span class="arithmatex">\(F\)</span> the event that the final sequence belongs to a formal language. The exact constrained next-token law is</p>
+<div class="arithmatex">\[
+p(x_t\mid A,F)
+\propto p(x_t\mid A)
+\underbrace{p(F\mid A,x_t)}_{\text{valid-completion mass}}.
+\]</div>
+<p>A grammar mask often replaces the suffix mass by a binary viability test: allow a token if at least one valid completion exists. That guarantees syntactic feasibility when the parser and termination rules are correct, but it preserves the base model's <em>globally conditioned</em> law only when the surviving completion-mass factors are equal or are computed explicitly.</p>
+<h4 id="worked-prefix-counterexample">Worked prefix counterexample<a class="headerlink" href="#worked-prefix-counterexample" title="Permanent link">¤</a></h4>
+<p>The first token is <span class="arithmatex">\(A\)</span> with probability <span class="arithmatex">\(0.9\)</span> and <span class="arithmatex">\(B\)</span> with probability <span class="arithmatex">\(0.1\)</span>. Both prefixes can be completed validly, but</p>
+<div class="arithmatex">\[
+p(F\mid A)=0.1,
+\qquad
+p(F\mid B)=1.
+\]</div>
+<p>Binary viability masking leaves first-token probabilities <span class="arithmatex">\((0.9,0.1)\)</span>. Exact conditioning uses masses <span class="arithmatex">\((0.09,0.10)\)</span> and therefore gives</p>
+<div class="arithmatex">\[
+p(A\mid F)=\frac{9}{19},
+\qquad
+p(B\mid F)=\frac{10}{19}.
+\]</div>
+<p>Both algorithms return valid sequences; they target different laws.</p>
+<p>Finite-state automata, context-free parsers, dynamic programming, and tractable auxiliary models can supply increasingly informative suffix masses. <a href="https://proceedings.neurips.cc/paper_files/paper/2024/hash/d15c16cf5619a2b1606da5fc88e3f1a9-Abstract-Conference.html">Ctrl-G</a> combines an autoregressive language model with an auxiliary HMM and logical automata. <a href="https://iclr.cc/virtual/2026/poster/10011297">Constrained Decoding of Diffusion LLMs</a> extends formal-language viability to arbitrary-order infilling. Their guarantees apply to the declared grammar/automaton and algorithm, not semantic truth or program correctness.</p>
+<p>The complete <a href="../probabilistic-grammars-and-program-derivations/#autoregressive-yield-models-plus-formal-constraints">Probabilistic Grammars and Program Derivations</a> volume derives the locally masked law, gives a finite counterexample to global-conditional preservation, and separates grammar support from program typing, execution, and task correctness.</p>
+<h3 id="projection-ensures-location-not-density">Projection ensures location, not density<a class="headerlink" href="#projection-ensures-location-not-density" title="Permanent link">¤</a></h3>
+<p>For Euclidean projection</p>
+<div class="arithmatex">\[
+\Pi_F(x)=\arg\min_{y\in F}\|y-x\|,
+\]</div>
+<p><span class="arithmatex">\(\Pi_F(X)\)</span> lies in <span class="arithmatex">\(F\)</span> when the projection is exact and <span class="arithmatex">\(F\)</span> is nonempty. Its distribution is the pushforward <span class="arithmatex">\((\Pi_F)_\#p_0\)</span>, generally not <span class="arithmatex">\(p_0(\cdot\mid F)\)</span>. A large outside region can collapse onto one boundary face, creating atoms and distorting density. Approximate or nonunique projection also needs a tolerance and tie rule.</p>
+<p>Projection can still be the correct engineering goal when feasibility matters more than conditional-law fidelity. Report both constraint violation and distributional distortion.</p>
+<h3 id="feasibility-by-parameterization">Feasibility by parameterization<a class="headerlink" href="#feasibility-by-parameterization" title="Permanent link">¤</a></h3>
+<p>Suppose a differentiable bijection <span class="arithmatex">\(g:\mathbb R^d\to\operatorname{int}(F)\)</span> maps an unconstrained latent <span class="arithmatex">\(U\)</span> into the feasible interior. Then <span class="arithmatex">\(X=g(U)\)</span> is feasible and, when dimensions match,</p>
+<div class="arithmatex">\[
+\log p_X(x)=\log p_U(g^{-1}(x))
++\log\left|\det J_{g^{-1}}(x)\right|.
+\]</div>
+<p>The map changes geometry and may exclude boundary mass. Nonconvex or disconnected sets may require charts, mixtures, discrete components, or rejection. <a href="https://openreview.net/forum?id=vxq1OnaAMq">Gauge Flow Matching</a>, ICLR 2026, develops a gauge-map construction for declared convex and related sets; its feasibility and approximation results inherit the paper's set and map assumptions.</p>
+<h3 id="constraint-audit">Constraint audit<a class="headerlink" href="#constraint-audit" title="Permanent link">¤</a></h3>
+<div class="md-typeset__table book-table-container"><table id="tbl-conditioning-steering-and-constraints-constraint-audit"><caption class="book-object-caption"><span class="book-object-number">Table STEER.4.</span> Constraint audit</caption>
+<thead>
+<tr>
+<th>Mechanism</th>
+<th>Feasibility statement</th>
+<th>Distribution statement</th>
+<th>Compute risk</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Exact rejection</td>
+<td>every accepted sample passes <span class="arithmatex">\(F\)</span></td>
+<td>exact <span class="arithmatex">\(p_0(\cdot\mid F)\)</span></td>
+<td><span class="arithmatex">\(1/p_0(F)\)</span> proposals on average</td>
+</tr>
+<tr>
+<td>Token/parser mask</td>
+<td>every completed sequence satisfies represented syntax</td>
+<td>locally renormalized law unless suffix mass is exact</td>
+<td>parser state and vocabulary intersection</td>
+</tr>
+<tr>
+<td>Projection</td>
+<td>output lies in <span class="arithmatex">\(F\)</span> to solver tolerance</td>
+<td>pushforward under projection</td>
+<td>iterative projection and boundary collapse</td>
+</tr>
+<tr>
+<td>Feasible map</td>
+<td>output lies in map range</td>
+<td>change-of-variables or manifold law</td>
+<td>inverse/Jacobian and chart coverage</td>
+</tr>
+<tr>
+<td>Penalty guidance</td>
+<td>no hard guarantee at finite penalty</td>
+<td>reward-tilted approximation</td>
+<td>scale tuning and gradient error</td>
+</tr>
+<tr>
+<td>Constrained MCMC/SMC</td>
+<td>target-dependent asymptotic or particle claim</td>
+<td>exact only under kernel/weight assumptions</td>
+<td>mixing, particles, constraint evaluations</td>
+</tr>
+</tbody>
+</table></div>
+<div class="admonition failure">
+<p class="admonition-title">Zero measured violation can conceal the wrong constraint</p>
+<p>A syntax checker can certify JSON grammar while required fields are false. A physics residual can be zero under an incorrect discretization. A molecular valence check can miss synthesis feasibility. Validate the formal constraint implementation independently and keep semantic, causal, and prospective criteria separate.</p>
+</div>
+<details class="question">
+<summary>Retrieval practice: hard constraints and feasible geometry</summary>
+<ol>
+<li>Why does local token masking not necessarily sample the globally conditioned base law?</li>
+<li>What distribution does rejection sampling produce when acceptance depends on the candidate?</li>
+<li>How can projection enforce feasibility while distorting density?</li>
+<li>Which property must a constrained continuous sampler preserve in addition to pointwise feasibility?</li>
+</ol>
+<p><strong>Solutions.</strong> (1) A prefix-local mask can remove or reweight future completion paths without accounting for their total base probability. (2) The base/proposal law reweighted by acceptance probability and renormalized. (3) A many-to-one map accumulates mass according to preimage geometry/Jacobians and can create boundary concentrations. (4) The intended measure or invariant/conditional law on the feasible set, with boundary, tangent, and numerical behavior specified.</p>
+</details>
+<h3 id="chapter-4-synthesis">Chapter 4 synthesis<a class="headerlink" href="#chapter-4-synthesis" title="Permanent link">¤</a></h3>
+<p>Feasibility is a support property; conditional sampling is a probability-law property. A method may guarantee either, both under assumptions, or neither.</p>
+<p><strong>Bridge to Chapter 5.</strong> When constraints are soft or evaluation is available only after completion, systems often generate a pool and select among candidates.</p>
+<h2 id="5-reweighting-candidate-selection-search-and-decisions">5. Reweighting, Candidate Selection, Search, and Decisions<a class="headerlink" href="#5-reweighting-candidate-selection-search-and-decisions" title="Permanent link">¤</a></h2>
+<h3 id="chapter-5-prerequisites-and-learning-objectives">Chapter 5 prerequisites and learning objectives<a class="headerlink" href="#chapter-5-prerequisites-and-learning-objectives" title="Permanent link">¤</a></h3>
+<p>You should know sampling and order statistics. By the end, you should be able to derive rejection and best-of-<span class="arithmatex">\(N\)</span> output laws, separate posterior decisions from posterior samples, and account for verifier and search compute.</p>
+<h3 id="probabilistic-acceptance-and-resampling">Probabilistic acceptance and resampling<a class="headerlink" href="#probabilistic-acceptance-and-resampling" title="Permanent link">¤</a></h3>
+<p>If <span class="arithmatex">\(X\sim p_0\)</span> is accepted with probability <span class="arithmatex">\(a(X)\in[0,1]\)</span>, then the accepted law is</p>
+<div class="arithmatex">\[
+q_a(x)=\frac{p_0(x)a(x)}{\mathbb E_{p_0}[a(X)]}.
+\]</div>
+<p>Choosing <span class="arithmatex">\(a(x)=w(x)/M\)</span> with <span class="arithmatex">\(M\ge\sup_x w(x)\)</span> realizes the target proportional to <span class="arithmatex">\(p_0w\)</span>. Unknown or loose <span class="arithmatex">\(M\)</span> makes rejection inefficient. Clipping an invalid ratio changes the target.</p>
+<p>Importance resampling draws a finite candidate pool, assigns weights, and resamples. It approaches the tilted target under standard support and moment assumptions as pool size grows, but finite self-normalization and candidate coverage remain part of the estimator.</p>
+<h3 id="best-of-n-has-its-own-output-law">Best-of-<span class="arithmatex">\(N\)</span> has its own output law<a class="headerlink" href="#best-of-n-has-its-own-output-law" title="Permanent link">¤</a></h3>
+<p>Draw <span class="arithmatex">\(X_1,\ldots,X_N\overset{iid}{\sim}p_0\)</span> and return the candidate with largest scalar reward <span class="arithmatex">\(R=r(X)\)</span>. If rewards are continuous with CDF <span class="arithmatex">\(F_R\)</span>, the selected density is</p>
+<div class="arithmatex">\[
+q_N(x)=N p_0(x)F_R(r(x))^{N-1}.
+\]</div>
+<p>This is an order-statistic transformation, not generally an exponential tilt. Ties need an explicit rule.</p>
+<h4 id="worked-binary-selection">Worked binary selection<a class="headerlink" href="#worked-binary-selection" title="Permanent link">¤</a></h4>
+<p>Let a base generator return a satisfactory candidate with probability <span class="arithmatex">\(0.2\)</span>. If every satisfactory candidate outranks every unsatisfactory one, best-of-three succeeds unless all three fail:</p>
+<div class="arithmatex">\[
+p(\text{satisfactory output})=1-0.8^3=0.488.
+\]</div>
+<p>Selection more than doubles the success rate, but it uses three generator calls plus scoring and still fails on 51.2% of requests. If the verifier has false positives, increasing <span class="arithmatex">\(N\)</span> can increase the chance of selecting an exploit.</p>
+<p><a href="https://aclanthology.org/2025.naacl-long.472/">Regularized Best-of-<span class="arithmatex">\(N\)</span> with MBR</a> gives peer-reviewed evidence about reward overoptimization in its language-model protocols. The lesson is broader than that benchmark: candidate count changes both compute and exposure to scorer error.</p>
+<h3 id="search-is-not-sampling-unless-its-law-is-defined">Search is not sampling unless its law is defined<a class="headerlink" href="#search-is-not-sampling-unless-its-law-is-defined" title="Permanent link">¤</a></h3>
+<p>Beam search, tree search, iterative refinement, and verifier-guided exploration return objects according to an algorithmic decision rule. Beam search approximates a high-probability sequence under length and pruning conventions; it is not an ancestral sample. A randomized search has a distribution, but it is determined by proposal, branching, pruning, score, stopping, and tie-breaking together.</p>
+<p>At ICLR 2026, <a href="https://openreview.net/forum?id=TD9jC48sts">GuidedSampling</a> studies an exploration-then-generation procedure for diverse language-model candidates, and <a href="https://iclr.cc/virtual/2026/poster/10008045">self-speculative decoding for any-subset autoregressive models</a> studies lossless acceleration under a different factorization. These are distinct component claims: one changes the candidate procedure, while the other seeks to preserve a target joint under an acceptance/correction mechanism.</p>
+<h3 id="minimum-bayes-risk-is-a-decision-rule">Minimum Bayes risk is a decision rule<a class="headerlink" href="#minimum-bayes-risk-is-a-decision-rule" title="Permanent link">¤</a></h3>
+<p>Given posterior or model law <span class="arithmatex">\(p(y\mid c)\)</span> and loss <span class="arithmatex">\(\ell(a,y)\)</span>, minimum Bayes risk chooses</p>
+<div class="arithmatex">\[
+a^*=\arg\min_a\mathbb E_{Y\sim p(\cdot\mid c)}[\ell(a,Y)].
+\]</div>
+<p>The result is an action minimizing expected loss, not necessarily a draw from <span class="arithmatex">\(p\)</span>. Monte Carlo MBR adds sampling and finite-candidate error. This distinction matters in translation, summarization, molecular design, and planning: a good decision can be atypical under the predictive distribution, and a calibrated predictive distribution can still be paired with a poor loss.</p>
+<h3 id="compute-and-evidence-contract">Compute and evidence contract<a class="headerlink" href="#compute-and-evidence-contract" title="Permanent link">¤</a></h3>
+<p>Report:</p>
+<ul>
+<li>base generator calls and emitted tokens or NFE;</li>
+<li>candidate count, dependence, temperature, and stopping rule;</li>
+<li>scorer/verifier identity, training data, calibration, and calls;</li>
+<li>search width/depth, pruning, backtracking, and cache reuse;</li>
+<li>constraint checks, simulator/tool calls, and wall-clock hardware;</li>
+<li>selected-score and independently measured outcome distributions; and</li>
+<li>diversity and coverage before and after selection.</li>
+</ul>
+<div class="admonition failure">
+<p class="admonition-title">Selection creates a new evaluation distribution</p>
+<p>Evaluating only the winning candidate conditions on the scorer and search. The selected set can be much easier, more duplicated, or more reward-hacked than raw generations. Preserve raw candidates and measure selection uplift, false-selection rate, and outcome calibration under the selected distribution.</p>
+</div>
+<details class="question">
+<summary>Retrieval practice: selection</summary>
+<ol>
+<li>Is best-of-<span class="arithmatex">\(N\)</span> generally an exponential reward tilt?</li>
+<li>What is the expected proposal count for hard-event rejection?</li>
+<li>Is an MBR output a posterior sample?</li>
+</ol>
+<p><strong>Solutions.</strong> (1) No; its law is an order-statistic transformation. (2) <span class="arithmatex">\(1/p_0(F)\)</span>. (3) No; it is a decision minimizing expected loss.</p>
+</details>
+<h3 id="chapter-5-synthesis">Chapter 5 synthesis<a class="headerlink" href="#chapter-5-synthesis" title="Permanent link">¤</a></h3>
+<p>Selection can improve a measured outcome without changing the base model, but it creates a new output law and a new attack surface at the verifier.</p>
+<p><strong>Bridge to Chapter 6.</strong> Real systems also retrieve context, call tools, apply filters, and route among generators. Their evidence must be assigned to the correct component.</p>
+<h2 id="6-retrieval-and-composed-generative-systems">6. Retrieval and Composed Generative Systems<a class="headerlink" href="#6-retrieval-and-composed-generative-systems" title="Permanent link">¤</a></h2>
+<h3 id="chapter-6-prerequisites-and-learning-objectives">Chapter 6 prerequisites and learning objectives<a class="headerlink" href="#chapter-6-prerequisites-and-learning-objectives" title="Permanent link">¤</a></h3>
+<p>You should understand conditional models and system evaluation. By the end, you should be able to write retrieval as a random system component, distinguish provenance from truth, and design component-level plus end-to-end evaluations.</p>
+<h3 id="retrieval-changes-the-conditioning-path">Retrieval changes the conditioning path<a class="headerlink" href="#retrieval-changes-the-conditioning-path" title="Permanent link">¤</a></h3>
+<p>Let a retriever sample or select context <span class="arithmatex">\(R\sim q_\eta(r\mid c,\mathcal I)\)</span> from index <span class="arithmatex">\(\mathcal I\)</span>, and let the generator use <span class="arithmatex">\(p_\theta(x\mid c,r)\)</span>. The system output law is</p>
+<div class="arithmatex">\[
+p_{\text{sys}}(x\mid c,\mathcal I)
+=\sum_r q_\eta(r\mid c,\mathcal I)
+p_\theta(x\mid c,r),
+\]</div>
+<p>with an integral for continuous retrieval state. Changing the corpus, index version, embedding model, filters, top-<span class="arithmatex">\(k\)</span>, reranker, or context formatting changes the system even when <span class="arithmatex">\(\theta\)</span> is frozen.</p>
+<p><a href="https://proceedings.neurips.cc/paper/2020/hash/6b493230-Abstract.html">Retrieval-Augmented Generation</a> established a trainable composition of parametric generation and nonparametric memory for knowledge-intensive NLP. The composition pattern now appears across text, code, images, audio, scientific design, and personalized generation, but each modality needs its own retrieval unit, rights, leakage, and alignment evaluation.</p>
+<h3 id="worked-retrieval-mixture">Worked retrieval mixture<a class="headerlink" href="#worked-retrieval-mixture" title="Permanent link">¤</a></h3>
+<p>A retriever returns a relevant document with probability <span class="arithmatex">\(0.8\)</span>. The generator answers correctly with probability <span class="arithmatex">\(0.9\)</span> given a relevant document and <span class="arithmatex">\(0.2\)</span> otherwise. Then</p>
+<div class="arithmatex">\[
+p(\text{correct})=0.8(0.9)+0.2(0.2)=0.76.
+\]</div>
+<p>Improving the generator's relevant-context accuracy to <span class="arithmatex">\(0.95\)</span> raises the system to <span class="arithmatex">\(0.80\)</span>. Improving retrieval recall to <span class="arithmatex">\(0.9\)</span> while retaining the original generator raises it to <span class="arithmatex">\(0.83\)</span>. A system-only score cannot attribute the error without the conditional breakdown.</p>
+<h3 id="retrieved-evidence-is-not-automatically-true-evidence">Retrieved evidence is not automatically true evidence<a class="headerlink" href="#retrieved-evidence-is-not-automatically-true-evidence" title="Permanent link">¤</a></h3>
+<p>Retrieval can provide source text and updateable memory, but a retrieved passage may be irrelevant, stale, malicious, contradictory, copyrighted, private, or misquoted. A citation can point to a source that does not support the generated claim. Evaluate retrieval recall/precision, answer attribution, source entailment, temporal validity, and abstention separately.</p>
+<h3 id="filters-and-fallbacks-also-define-the-output-law">Filters and fallbacks also define the output law<a class="headerlink" href="#filters-and-fallbacks-also-define-the-output-law" title="Permanent link">¤</a></h3>
+<p>If a filter accepts generated <span class="arithmatex">\(X\)</span> with probability <span class="arithmatex">\(a(X,c)\)</span> and the system retries until acceptance, the visible law is proportional to <span class="arithmatex">\(p_\theta(x\mid c)a(x,c)\)</span>. If instead it returns a fixed refusal after the first rejection, the law includes an atom at the refusal. Routing to a fallback model creates a mixture whose weights depend on the router. These choices affect calibration, demographic performance, latency, and auditability.</p>
+<h3 id="end-to-end-component-ledger">End-to-end component ledger<a class="headerlink" href="#end-to-end-component-ledger" title="Permanent link">¤</a></h3>
+<div class="md-typeset__table book-table-container"><table id="tbl-conditioning-steering-and-constraints-end-to-end-component-ledger"><caption class="book-object-caption"><span class="book-object-number">Table STEER.5.</span> End-to-end component ledger</caption>
+<thead>
+<tr>
+<th>Component</th>
+<th>Local question</th>
+<th>End-to-end failure it can cause</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Base generator</td>
+<td>does it cover and score the needed domain?</td>
+<td>absent support or uncalibrated proposals</td>
+</tr>
+<tr>
+<td>Condition encoder</td>
+<td>does it preserve relevant control information?</td>
+<td>ignored or distorted conditions</td>
+</tr>
+<tr>
+<td>Retriever/index</td>
+<td>does it return permitted, current, relevant evidence?</td>
+<td>stale, leaked, or adversarial context</td>
+</tr>
+<tr>
+<td>Guide/constraint</td>
+<td>does it target the declared law or feasible set?</td>
+<td>off-target mass or invalid outputs</td>
+</tr>
+<tr>
+<td>Verifier/reranker</td>
+<td>does score predict the real outcome after selection?</td>
+<td>reward hacking and diversity collapse</td>
+</tr>
+<tr>
+<td>Filter/router</td>
+<td>what is rejected, retried, or redirected?</td>
+<td>hidden distribution shift and unequal service</td>
+</tr>
+<tr>
+<td>Decoder/codec</td>
+<td>what information and support are lost?</td>
+<td>irrecoverable detail or invalid reconstruction</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="evidence-map-through-2026">Evidence map through 2026<a class="headerlink" href="#evidence-map-through-2026" title="Permanent link">¤</a></h3>
+<div class="md-typeset__table book-table-container"><table id="tbl-conditioning-steering-and-constraints-evidence-map-through-2026"><caption class="book-object-caption"><span class="book-object-number">Table STEER.6.</span> Evidence map through 2026</caption>
+<thead>
+<tr>
+<th>Component direction</th>
+<th>Evidence maturity</th>
+<th>Bounded conclusion</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Exact discrete flow guidance</td>
+<td>ICLR 2026 peer-reviewed</td>
+<td>exact target-rate derivation under the method's modeled guidance quantities; finite learning/discretization still matter</td>
+</tr>
+<tr>
+<td>Context-free constraints for diffusion LLMs</td>
+<td>ICLR 2026 peer-reviewed</td>
+<td>formal-language viability for arbitrary-order infilling under the represented grammar; not semantic correctness</td>
+</tr>
+<tr>
+<td>Gauge flow matching</td>
+<td>ICLR 2026 peer-reviewed</td>
+<td>feasibility and approximation results for declared set classes and maps; not universal constrained sampling</td>
+</tr>
+<tr>
+<td>Projected coupled diffusion</td>
+<td>ICLR 2026 peer-reviewed</td>
+<td>one training-free composition for joint constraints in tested domains; projection can still change the target law</td>
+</tr>
+<tr>
+<td>Latent-denoising tokenizers</td>
+<td>ICLR 2026 peer-reviewed</td>
+<td>downstream-aligned tokenizer training improved the named models/protocols; no task-independent tokenizer optimum</td>
+</tr>
+<tr>
+<td>Doob-oriented training-free adaptation</td>
+<td>2026 preprint</td>
+<td>a developing diffusion adaptation construction for generic rewards under its assumptions; not established field-wide dominance</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="research-checklist">Research checklist<a class="headerlink" href="#research-checklist" title="Permanent link">¤</a></h3>
+<ol>
+<li>Write the base law, target law or feasible set, and returned output law separately.</li>
+<li>State which component is trained, frozen, retrieved, optimized, or sampled.</li>
+<li>Test support overlap before increasing guidance or search compute.</li>
+<li>Compare exact small-state calculations with approximate algorithms where possible.</li>
+<li>Sweep guide scale, particles, candidates, constraint tolerance, and retrieval depth.</li>
+<li>Evaluate the scorer or verifier under the selected distribution, not only raw data.</li>
+<li>Preserve component logs needed to reproduce the composed output.</li>
+<li>Verify real outcomes prospectively when rewards or simulators are proxies.</li>
+</ol>
+<details class="question">
+<summary>Cumulative retrieval practice</summary>
+<ol>
+<li>Which formula describes a stochastic retriever followed by a conditional generator?</li>
+<li>Does a valid citation prove the generated sentence follows from it?</li>
+<li>Why can a retrying safety filter alter calibration?</li>
+<li>Which relationship label describes a retriever, codec, generator, guide, and verifier in one product?</li>
+</ol>
+<p><strong>Solutions.</strong> (1) Marginalize <span class="arithmatex">\(q_\eta(r\mid c,\mathcal I)p_\theta(x\mid c,r)\)</span> over retrieval state. (2) No; source entailment and validity must be checked. (3) The visible law is reweighted by acceptance and may omit or overrepresent different regions. (4) Hybrid system composition.</p>
+</details>
+<h3 id="chapter-6-synthesis">Chapter 6 synthesis<a class="headerlink" href="#chapter-6-synthesis" title="Permanent link">¤</a></h3>
+<p>A controlled generative system is a composition of probability laws, deterministic maps, approximate inference, decisions, and external state. Scientific attribution requires naming the output law of each step and measuring both component and end-to-end behavior.</p>
+<p><strong>Next steps.</strong> Return to the <a href="../generative-models-unified/#the-eight-layers-of-a-generative-system">eight system layers</a>, then study <a href="../representations-and-multimodal-systems/">representations</a>, <a href="../sampling-and-continuous-time/">sampling</a>, <a href="../generative-model-evaluation/">evaluation</a>, and the owning family guide for the component you intend to change.</p>
+<h3 id="primary-reading-trail">Primary reading trail<a class="headerlink" href="#primary-reading-trail" title="Permanent link">¤</a></h3>
+<ul>
+<li><a href="https://proceedings.neurips.cc/paper/2021/hash/49ad23d1ec9fa4bd8d77d02681df5cfa-Abstract.html">Dhariwal and Nichol, <em>Diffusion Models Beat GANs on Image Synthesis</em></a> — classifier guidance.</li>
+<li><a href="https://arxiv.org/abs/2207.12598">Ho and Salimans, <em>Classifier-Free Diffusion Guidance</em></a> — shared conditional/unconditional score estimation and guidance.</li>
+<li><a href="https://openreview.net/forum?id=r9s3Gbxz7g">Wu et al., <em>Practical and Asymptotically Exact Conditional Sampling in Diffusion Models</em></a> — twisted SMC for diffusion conditioning.</li>
+<li><a href="https://proceedings.neurips.cc/paper_files/paper/2024/hash/d15c16cf5619a2b1606da5fc88e3f1a9-Abstract-Conference.html">Zhang et al., <em>Adaptable Logical Control for Large Language Models</em></a> — auxiliary tractable models and logical constraints.</li>
+<li><a href="https://openreview.net/forum?id=xoXn62FzD0">Loula et al., <em>Syntactic and Semantic Control of Large Language Models via SMC</em></a> — programmable controlled generation with particles.</li>
+<li><a href="https://proceedings.neurips.cc/paper/2020/hash/6b493230-Abstract.html">Lewis et al., <em>Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks</em></a> — retrieval/generator composition.</li>
+<li><a href="https://iclr.cc/virtual/2026/poster/10009901">Wan et al., <em>Discrete Guidance Matching</em></a> — exact-rate construction for discrete flow guidance.</li>
+<li><a href="https://iclr.cc/virtual/2026/poster/10011297">Mündler, Dekoninck, and Vechev, <em>Constrained Decoding of Diffusion LLMs with Context-Free Grammars</em></a> — arbitrary-order formal constraints.</li>
+<li><a href="https://openreview.net/forum?id=vxq1OnaAMq">Li, Liang, and Chen, <em>Gauge Flow Matching</em></a> — feasible mapping for constrained flow matching.</li>
+</ul>
+</article>
+</div>
+<script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  Back to top
+</button>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+<div class="md-social">
+<a class="md-social__link" href="https://github.com/avitai/artifex" rel="noopener" target="_blank" title="github.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</a>
+<a class="md-social__link" href="https://pypi.org/project/avitai-artifex/" rel="noopener" target="_blank" title="pypi.org">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-66.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.3v101.8c0 29 25.2 46 53.4 54.3 33.8 9.9 66.3 11.7 106.8 0 26.9-7.8 53.4-23.5 53.4-54.3v-40.7H226.2v-13.6h160.2c31.1 0 42.6-21.7 53.4-54.2 11.2-33.5 10.7-65.7 0-108.6M286.2 444.7a20.4 20.4 0 1 1 0-40.7 20.4 20.4 0 1 1 0 40.7M167.8 248.1h106.8c29.7 0 53.4-24.5 53.4-54.3V91.9c0-29-24.4-50.7-53.4-55.6-35.8-5.9-74.7-5.6-106.8.1-45.2 8-53.4 24.7-53.4 55.6v40.7h106.9v13.6h-147c-31.1 0-58.3 18.7-66.8 54.2-9.8 40.7-10.2 66.1 0 108.6 7.6 31.6 25.7 54.2 56.8 54.2H101v-48.8c0-35.3 30.5-66.4 66.8-66.4m-6.6-183.4a20.4 20.4 0 1 1 0 40.8 20.4 20.4 0 1 1 0-40.8"></path></svg>
+</a>
+<a class="md-social__link" href="https://twitter.com/mahdi_shafiei" rel="noopener" target="_blank" title="twitter.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M459.4 151.7c.3 4.5.3 9.1.3 13.6 0 138.7-105.6 298.6-298.6 298.6-59.5 0-114.7-17.2-161.1-47.1 8.4 1 16.6 1.3 25.3 1.3 49.1 0 94.2-16.6 130.3-44.8-46.1-1-84.8-31.2-98.1-72.8 6.5 1 13 1.6 19.8 1.6 9.4 0 18.8-1.3 27.6-3.6-48.1-9.7-84.1-52-84.1-103v-1.3c14 7.8 30.2 12.7 47.4 13.3-28.3-18.8-46.8-51-46.8-87.4 0-19.5 5.2-37.4 14.3-53C87.4 130.8 165 172.4 252.1 176.9c-1.6-7.8-2.6-15.9-2.6-24C249.5 95.1 296.3 48 354.4 48c30.2 0 57.5 12.7 76.7 33.1 23.7-4.5 46.5-13.3 66.6-25.3-7.8 24.4-24.4 44.8-46.1 57.8 21.1-2.3 41.6-8.1 60.4-16.2-14.3 20.8-32.2 39.3-52.6 54.3"></path></svg>
+</a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.path", "navigation.top", "navigation.prune", "toc.follow", "search.highlight", "search.share", "search.suggest", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "content.mermaid"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+<script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+<script src="../../../javascripts/reading-layout.js"></script>
+</body>
+</html>

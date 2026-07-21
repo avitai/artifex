@@ -1,0 +1,1370 @@
+schema_version: 1
+created: 2026-07-14
+last_updated: 2026-07-15
+current_verification_cutoff: 2026-07-15
+
+purpose: >-
+  Record the review of generative architectures, objectives, estimators,
+  samplers, representations, conditioning mechanisms, evaluation methods,
+  post-training procedures, and system compositions. This ledger prevents a
+  reusable component from being mislabeled as a model family and prevents a
+  generic machine-learning technique from entering the book without a direct
+  generative role.
+
+governing_gate:
+  required_fields:
+    - canonical definition and abstraction layer
+    - missing capability or verified existing coverage
+    - primary evidence and maturity
+    - family-independent and family-specific assumptions
+    - one canonical owner and explicit cross-links
+    - mechanism, consequences, failures, evaluation, and compute
+    - beginner, formal, practice, and research pedagogy layers
+
+audit_scope:
+  current_primary_search:
+    venues:
+      - ICLR 2026 official program and OpenReview records
+      - ICML 2026 and PMLR records where applicable
+      - NeurIPS, TMLR, ACL, NAACL, CVPR, and canonical journal records
+    topics:
+      - conditioning, guidance, Doob transforms, and posterior sampling
+      - hard constraints, grammars, feasible maps, and projection
+      - candidate selection, search, verifiers, and test-time compute
+      - retrieval and composed generative systems
+      - topology-changing flows and learned representations
+      - quantization and tokenizer-prior co-design
+      - probing protocols, representation similarity, and auxiliary feature alignment
+      - autoregressive block proposals, visual token consistency, and dynamic patchification
+      - exact and approximate filtering, smoothing, differentiable filters, and current state-space inference
+      - Gaussian belief propagation, perturb-and-MAP, perturb-and-solve, Gumbel processes, and learned message passing
+      - CAVI, VMP, SVI, BBVI, ADVI, EP, weighted bounds, wake-sleep, and current posterior-family research
+      - Monte Carlo uncertainty, randomized QMC, sample-average approximation, coupled estimators, and current generative applications
+      - adaptive, pseudo-marginal, blocked, Hamiltonian, stochastic-gradient, transdimensional, tempered, and transport-assisted MCMC
+      - particle filtering, SMC samplers, resampling theory, particle smoothing, PMCMC, learned proposals, differentiable resampling, twists, and generator control
+
+classification_contract:
+  architecture: parameterizes a model object, target, transition, or inference map
+  objective_or_loss: defines a population target or optimization surrogate
+  estimator: approximates an objective, expectation, gradient, or normalizer
+  sampler: produces draws or approximate draws from a declared target
+  representation: changes the state coordinates, alphabet, support, or codec interface
+  conditioning: supplies observed context or a target event to a model or sampler
+  inference: answers a posterior, evidence, latent, or conditional query
+  model_selection: chooses a probabilistic structure or structural equivalence class under a declared score, test, prior, and data regime
+  evaluation: estimates a named property of a model or composed system
+  post_training: changes behavior after base training through additional optimization or selection
+  system_composition: combines independently identifiable model and non-model components
+  non_family_rule: >-
+    Reuse across families is evidence that a component needs a cross-cutting
+    owner, not evidence that it defines a new probability family.
+
+summary:
+  candidates_reviewed: 28
+  accepted_new_or_expanded: 14
+  merged_into_existing: 11
+  rejected_as_out_of_scope_or_non_specific: 3
+  canonical_volumes_added:
+    - conditioning-steering-and-constraints.md
+    - likelihood-and-normalizer-estimation.md
+    - graphical-inference-and-message-passing.md
+    - filtering-and-smoothing-state-space.md
+    - sequential-monte-carlo-and-particle-methods.md
+  projections_added: 30
+  scientific_correction: >-
+    Autoregressive hard masking now states that prefixwise renormalization need
+    not equal the base full-sequence law conditioned on final validity; exact
+    global conditioning also needs valid-completion mass.
+
+candidates:
+  - id: target_reweighting_and_tilting
+    name: Target reweighting, likelihood conditioning, and exponential tilting
+    abstraction_layer: objective_or_loss
+    canonical_definition: >-
+      Given base law p0 and nonnegative integrable factor w, define the target
+      pi(x|c)=p0(x|c)w(x,c)/E_p0[w(X,c)]. This defines a law but not an algorithm.
+    gap: >-
+      Rewards, energies, likelihoods, constraints, and guidance appeared across
+      family guides without one target-first change-of-measure contract.
+    decision: accepted
+    rationale: >-
+      The component directly determines what controlled generation should
+      sample and prevents arbitrary scores from being called posteriors.
+    canonical_owner: conditioning-steering-and-constraints.md#1-begin-with-the-target-not-the-steering-algorithm
+    cross_links:
+      - objectives-and-statistical-distances.md#10-composite-objectives-and-identifiability
+      - sampling-and-continuous-time.md#1-direct-rejection-and-importance-sampling
+      - generative-models-unified.md#conditional-generation-how-each-family-handles-control
+    primary_evidence:
+      - url: https://proceedings.neurips.cc/paper/2021/hash/49ad23d1ec9fa4bd8d77d02681df5cfa-Abstract.html
+        maturity: peer_reviewed
+        supports: Likelihood-gradient steering in diffusion under a noise-aware classifier.
+      - url: https://proceedings.neurips.cc/paper/2020/hash/6b493230-Abstract.html
+        maturity: peer_reviewed
+        supports: Marginalizing retrieval state in a composed conditional generator.
+    assumptions:
+      family_independent:
+        - The factor is nonnegative, measurable, and has a finite positive normalizer.
+        - Absolute-continuity reweighting cannot create support absent from the base law.
+      family_specific:
+        - Each family still needs a compatible sampler, estimator, or training objective.
+    failure_boundaries:
+      - A reward is not a likelihood without a declared joint observation model.
+      - Maximizing a proxy can worsen the real outcome even when optimization succeeds.
+    pedagogy:
+      orientation: Three-outcome numerical reweighting.
+      formalism: Normalizer, support, hard-event, and Bayesian special cases.
+      practice: Target-and-mechanism register.
+      research: Support and target-misspecification boundaries.
+    implementation_status: validated
+
+  - id: conditional_architectural_interfaces
+    name: Conditional objectives and neural conditioning interfaces
+    abstraction_layer: conditioning
+    canonical_definition: >-
+      A conditional model represents or constructs outputs given observed
+      context; concatenation, modulation, cross-attention, adapters, and prefix
+      tokens are alternative carriers rather than conditional semantics.
+    gap: >-
+      Family chapters described their own interfaces, but no shared treatment
+      separated the observational conditional from its neural carrier.
+    decision: accepted
+    rationale: >-
+      The distinction applies across every neural family and prevents
+      architecture identity from being mistaken for probabilistic identity.
+    canonical_owner: conditioning-steering-and-constraints.md#2-training-time-conditioning-and-architectural-interfaces
+    cross_links:
+      - representations-and-multimodal-systems.md#3-conditioning-fusion-and-cross-modal-alignment
+      - causal-generative-models-explained.md
+      - autoregressive-explained.md
+      - diffusion-explained.md
+    primary_evidence:
+      - url: https://papers.nips.cc/paper/2015/hash/8d55a249e6baa5c06772297520da2051-Abstract.html
+        maturity: peer_reviewed
+        supports: Conditional latent-variable modeling with amortized inference.
+      - url: https://arxiv.org/abs/2207.12598
+        maturity: preprint
+        supports: Shared conditional and condition-dropped prediction for classifier-free guidance.
+    assumptions:
+      family_independent:
+        - Training conditions and deployment conditions have declared support.
+      family_specific:
+        - Likelihood, score, adversarial, flow, and reconstruction objectives identify different quantities.
+    failure_boundaries:
+      - Null-context training is not exact marginalization by construction.
+      - Observational conditioning is not an intervention without causal assumptions.
+    pedagogy:
+      orientation: Binary marginal-versus-conditional example.
+      formalism: Conditional population objective.
+      practice: Interface and missing-condition audit.
+      research: Causal and support-shift boundary.
+    implementation_status: validated
+
+  - id: path_guidance_and_doob_transforms
+    name: Continuous score guidance, discrete Doob transforms, and twisted SMC
+    abstraction_layer: sampler
+    canonical_definition: >-
+      Modify a base Markov path using a backward evidence or terminal-value
+      function so its endpoint follows a conditional or reweighted target;
+      approximate guides and particles approximate that change of measure.
+    gap: >-
+      The book covered classifier guidance and SMC separately but did not derive
+      their shared change-of-measure object or finite-state counterpart.
+    decision: accepted
+    rationale: >-
+      It unifies continuous and discrete control without claiming their finite
+      algorithms or network targets are identical.
+    canonical_owner: conditioning-steering-and-constraints.md#3-guidance-doob-transforms-and-twisted-sampling
+    cross_links:
+      - diffusion-explained.md#guidance-techniques
+      - discrete-iterative-generation-explained.md#conditioning-and-guidance
+      - sampling-and-continuous-time.md
+      - latent-variables-and-inference.md#6-sequential-monte-carlo
+    primary_evidence:
+      - url: https://openreview.net/forum?id=r9s3Gbxz7g
+        maturity: peer_reviewed_workshop
+        supports: Twisted SMC construction for diffusion conditional sampling.
+      - url: https://openreview.net/forum?id=xoXn62FzD0
+        maturity: peer_reviewed
+        supports: SMC control of language generation with programmable potentials.
+      - url: https://iclr.cc/virtual/2026/poster/10009901
+        maturity: peer_reviewed
+        supports: Exact target-rate derivation for discrete flow guidance under learned guidance objects.
+      - url: https://openreview.net/forum?id=cpdHmRtx7d
+        maturity: peer_reviewed
+        supports: ICLR 2026 Monte Carlo correction for training-free diffusion guidance.
+    assumptions:
+      family_independent:
+        - The backward value is finite and positive on traversed support.
+        - Importance corrections cover the target path law.
+      family_specific:
+        - Continuous gradients, discrete rate ratios, and AR logits require different algebra.
+    failure_boundaries:
+      - Finite guidance scale and numerical steps need not realize the ideal endpoint law.
+      - Finite particles can collapse to one ancestry despite formally correct weights.
+    pedagogy:
+      orientation: Two-terminal-state likelihood example.
+      formalism: Score identity and Doob transition/rate formulas.
+      practice: Six-part guidance error budget.
+      research: 2026 continuous/discrete evidence boundaries.
+    implementation_status: validated
+
+  - id: hard_constrained_generation
+    name: Hard constraints, grammar viability, projection, and feasible maps
+    abstraction_layer: sampler
+    canonical_definition: >-
+      Return outputs inside a declared feasible set or formal language while
+      stating separately whether and how the procedure preserves a target law.
+    gap: >-
+      Existing constrained decoding equated local renormalization too strongly
+      with global conditional sampling and other families lacked a common audit.
+    decision: accepted
+    rationale: >-
+      Feasibility is central in structured text, scientific generation,
+      geometry, and design and cannot be reduced to soft conditioning.
+    canonical_owner: conditioning-steering-and-constraints.md#4-hard-constraints-formal-languages-and-feasible-geometry
+    cross_links:
+      - autoregressive-explained.md#constrained-decoding
+      - geometric-equivariant-generative-modeling.md
+      - flow-explained.md#what-changes-when-the-transformation-is-not-bijective
+      - generative-model-evaluation.md#3-conditional-fidelity-calibration-and-task-utility
+    primary_evidence:
+      - url: https://proceedings.neurips.cc/paper_files/paper/2024/hash/d15c16cf5619a2b1606da5fc88e3f1a9-Abstract-Conference.html
+        maturity: peer_reviewed
+        supports: Logical language-model control with tractable auxiliary structure.
+      - url: https://iclr.cc/virtual/2026/poster/10011297
+        maturity: peer_reviewed
+        supports: Context-free constrained decoding for arbitrary-order diffusion-LM infilling.
+      - url: https://openreview.net/forum?id=vxq1OnaAMq
+        maturity: peer_reviewed
+        supports: Gauge-map constrained flow matching for declared feasible-set classes.
+      - url: https://openreview.net/forum?id=1FEm5JLpvg
+        maturity: peer_reviewed
+        supports: Projected coupled diffusion for test-time joint constraints.
+    assumptions:
+      family_independent:
+        - Feasible set, tolerance, termination, and support overlap are declared.
+      family_specific:
+        - Parser state, projection geometry, Markov kernel, and Jacobian semantics differ.
+    failure_boundaries:
+      - Binary prefix viability omits unequal valid-completion mass.
+      - Projection generally produces a pushforward law rather than a conditional law.
+      - Formal validity does not imply semantic, physical, or causal correctness.
+    pedagogy:
+      orientation: Two-prefix global-conditioning counterexample.
+      formalism: Event conditioning, suffix mass, projection, and feasible-map Jacobian.
+      practice: Six-mechanism constraint audit.
+      research: Current formal-language and feasible-geometry methods.
+    implementation_status: validated
+
+  - id: candidate_selection_search_and_mbr
+    name: Rejection, importance resampling, best-of-N, search, and minimum Bayes risk
+    abstraction_layer: post_training
+    canonical_definition: >-
+      Generate proposals from a base law and accept, weight, search, or choose an
+      action using a score or loss, thereby defining a new output or decision rule.
+    gap: >-
+      Compute accounting named best-of-N and verifiers, but the book did not
+      derive the returned law or separate MBR decisions from samples.
+    decision: accepted
+    rationale: >-
+      Inference-time scaling is scientifically interpretable only when the
+      selected distribution, scorer error, and compute are explicit.
+    canonical_owner: conditioning-steering-and-constraints.md#5-reweighting-candidate-selection-search-and-decisions
+    cross_links:
+      - autoregressive-explained.md#generation-and-sampling-strategies
+      - compute-and-controlled-comparisons.md
+      - generative-model-evaluation.md#guidance-and-decoding-are-part-of-the-system
+    primary_evidence:
+      - url: https://aclanthology.org/2025.naacl-long.472/
+        maturity: peer_reviewed
+        supports: Reward-overoptimization boundary for best-of-N and MBR in named LM protocols.
+      - url: https://openreview.net/forum?id=TD9jC48sts
+        maturity: peer_reviewed
+        supports: ICLR 2026 exploration-then-generation candidate sampling.
+      - url: https://iclr.cc/virtual/2026/poster/10008045
+        maturity: peer_reviewed
+        supports: Lossless self-speculative correction for any-subset autoregressive models.
+    assumptions:
+      family_independent:
+        - Candidate proposal, score distribution, independence, and tie rule are declared.
+      family_specific:
+        - Search state, verifier, and cache/NFE units differ by modality and family.
+    failure_boundaries:
+      - Best-of-N is an order-statistic law, not generally an exponential tilt.
+      - Larger pools increase exposure to verifier misspecification.
+      - MBR returns a decision, not a posterior draw.
+    pedagogy:
+      orientation: Binary best-of-three success calculation.
+      formalism: Acceptance and continuous best-of-N densities.
+      practice: Candidate, verifier, search, and compute reporting contract.
+      research: Selected-distribution calibration and reward hacking.
+    implementation_status: validated
+
+  - id: retrieval_augmented_generation
+    name: Retrieval-augmented generative composition
+    abstraction_layer: system_composition
+    canonical_definition: >-
+      A retriever over a versioned external index supplies random or selected
+      context to a conditional generator; the system law marginalizes retrieval state.
+    gap: >-
+      Retrieval was named in production and governance sections but lacked a
+      generative law, attribution example, and component evaluation contract.
+    decision: accepted
+    rationale: >-
+      Retrieval materially changes generation, updateability, provenance,
+      privacy, latency, and evidence without defining a new base model family.
+    canonical_owner: conditioning-steering-and-constraints.md#6-retrieval-and-composed-generative-systems
+    cross_links:
+      - data-governance-and-provenance.md
+      - generative-model-evaluation.md
+      - compute-and-controlled-comparisons.md
+      - autoregressive-explained.md
+    primary_evidence:
+      - url: https://proceedings.neurips.cc/paper/2020/hash/6b493230-Abstract.html
+        maturity: peer_reviewed
+        supports: Parametric generator plus nonparametric retrieval composition.
+    assumptions:
+      family_independent:
+        - Index, retriever, selection rule, and context construction are versioned.
+      family_specific:
+        - Text passages, images, audio, exemplars, and scientific structures need different retrieval/evaluation units.
+    failure_boundaries:
+      - Retrieval does not prove relevance, entailment, freshness, rights, or truth.
+      - A system score cannot attribute error without conditioning on retrieval quality.
+    pedagogy:
+      orientation: Two-state retrieval/generation accuracy decomposition.
+      formalism: Marginal system output law.
+      practice: Retriever, generator, filter, and router ledger.
+      research: Attribution and selected-context shift.
+    implementation_status: validated
+
+  - id: topology_changing_flow_components
+    name: Surjective, injective, and augmented flow components
+    abstraction_layer: architecture
+    canonical_definition: >-
+      Transformations that aggregate preimages, embed a lower-dimensional law,
+      or add auxiliary variables, thereby changing likelihood and measure semantics.
+    gap: >-
+      The flow guide named these remedies for topology mismatch without deriving
+      their distinct density contracts.
+    decision: accepted
+    rationale: >-
+      They address real support and topology limitations but remain flow/latent
+      components rather than a new family umbrella.
+    canonical_owner: flow-explained.md#what-changes-when-the-transformation-is-not-bijective
+    cross_links:
+      - latent-variables-and-inference.md
+      - geometric-equivariant-generative-modeling.md
+      - conditioning-steering-and-constraints.md#4-hard-constraints-formal-languages-and-feasible-geometry
+    primary_evidence:
+      - url: https://papers.nips.cc/paper/2020/hash/9578a63fbe545bd82cc5bbe749636af1-Abstract.html
+        maturity: peer_reviewed
+        supports: Modular surjective and stochastic transformations with exact or bounded likelihood terms.
+      - url: https://papers.neurips.cc/paper_files/paper/2023/hash/572a6f16ec44f794fb3e0f8a310acbc6-Abstract-Conference.html
+        maturity: peer_reviewed
+        supports: Manifold-flow modeling and lower-dimensional latent structure.
+    assumptions:
+      family_independent:
+        - Base measure and observed versus auxiliary variables are declared.
+      family_specific:
+        - Fibre integration, chart volume, or auxiliary marginalization replaces ordinary bijective algebra.
+    failure_boundaries:
+      - One inverse branch does not score a surjection.
+      - A manifold density is not an ambient Lebesgue density.
+      - Exact joint density does not imply tractable observed marginal density.
+    pedagogy:
+      orientation: Three-to-two-state finite surjection.
+      formalism: Fibre sum, manifold metric determinant, and auxiliary integral.
+      practice: Measure and likelihood-interface audit.
+      research: Topology, chart coverage, and variational boundaries.
+    implementation_status: validated
+
+  - id: quantizer_composition_and_prior_codesign
+    name: Structured quantization, variable visual units, and tokenizer-prior co-design
+    abstraction_layer: representation
+    canonical_definition: >-
+      Compose quantizers across residual levels or coordinate groups and evaluate
+      the resulting discrete interface jointly with the downstream generative prior.
+    gap: >-
+      FSQ and general hierarchy were covered, but RVQ, implicit alphabets, and
+      downstream-aligned tokenizer training lacked formal and compute treatment.
+    decision: accepted
+    rationale: >-
+      Quantizer structure changes token count, alphabet, bitrate, dependencies,
+      streaming, generator cost, and failure localization.
+    canonical_owner: representations-and-multimodal-systems.md#residual-product-and-lookup-free-quantization
+    cross_links:
+      - vae-explained.md
+      - autoregressive-explained.md
+      - discrete-iterative-generation-explained.md
+      - compute-and-controlled-comparisons.md
+    primary_evidence:
+      - url: https://arxiv.org/abs/2107.03312
+        maturity: peer_reviewed_conference_version
+        supports: Residual quantization and structured quantizer dropout in an audio codec.
+      - url: https://openreview.net/forum?id=gzqrANCF4g
+        maturity: peer_reviewed
+        supports: Lookup-free quantization in a visual tokenizer.
+      - url: https://iclr.cc/virtual/2026/poster/10011804
+        maturity: peer_reviewed
+        supports: Downstream-denoising-aligned tokenizer training across named image generators.
+      - url: https://openaccess.thecvf.com/content/CVPR2026/html/Srivastava_DPAR_Dynamic_Patchification_for_Efficient_Autoregressive_Visual_Generation_CVPR_2026_paper.html
+        maturity: peer_reviewed
+        supports: Entropy-guided variable patch aggregation for visual autoregressive generation under named ImageNet protocols.
+      - url: https://openreview.net/forum?id=jwRAIYoVJn
+        maturity: peer_reviewed
+        supports: One shared discrete visual tokenizer as an understanding-generation system interface.
+    assumptions:
+      family_independent:
+        - Nominal bits, entropy, actual bitrate, reconstruction, and prior cost are reported separately.
+        - Fixed or variable token units declare their boundaries, sequence length, and compute policy.
+      family_specific:
+        - Audio streaming, image grids, video stride, and scientific state require different distortion and latency measures.
+    failure_boundaries:
+      - No explicit lookup table does not imply zero rate or small effective alphabet.
+      - Code utilization does not prove semantic value or downstream prior quality.
+      - A downstream proxy does not define a task-independent optimal tokenizer.
+      - Sharing a tokenizer does not prove identical sufficient statistics for understanding and generation.
+    pedagogy:
+      orientation: Two-bit lossless representation comparison.
+      formalism: RVQ recursion and nominal-rate expression.
+      practice: Codec/vocabulary/prior interface audit.
+      research: Downstream co-design evidence boundary.
+    implementation_status: validated
+
+  - id: stein_and_kl_derivative_objectives
+    name: Stein discrepancies and derivative-based KL objectives
+    abstraction_layer: objective_or_loss
+    canonical_definition: >-
+      Replace inaccessible density normalization or expectations by score,
+      derivative, or Stein-operator identities under boundary and witness assumptions.
+    gap: none_after_existing_audit
+    decision: merged_into_existing
+    rationale: >-
+      The objective guide and EBM objective tree already derive the operator,
+      witnesses, identification boundary, and finite-estimator limitations.
+    canonical_owner: objectives-and-statistical-distances.md#5-score-matching-and-fisher-divergence
+    cross_links:
+      - ebm-explained.md#the-objective-tree-what-each-transformation-removes
+    primary_evidence:
+      - url: https://jmlr.org/papers/v6/hyvarinen05a.html
+        maturity: peer_reviewed
+        supports: Score matching for unnormalized models.
+    merge_boundary: No new prose required; preserve existing owner and avoid a duplicate Stein chapter.
+    implementation_status: validated_existing
+
+  - id: discrete_latent_gradient_estimators
+    name: Score-function, relaxation, straight-through, and enumeration estimators
+    abstraction_layer: estimator
+    canonical_definition: >-
+      Alternative gradient estimators for discrete stochastic nodes with
+      different bias, variance, relaxation, and compute contracts.
+    gap: none_after_existing_audit
+    decision: merged_into_existing
+    rationale: >-
+      VAE and latent-inference chapters already compare enumeration, NVIL,
+      VIMCO, REBAR, RELAX, Gumbel relaxations, and straight-through rules.
+    canonical_owner: vae-explained.md#discrete-latents-four-different-gradient-contracts
+    cross_links:
+      - latent-variables-and-inference.md#4-gradient-estimators
+    primary_evidence:
+      - url: https://proceedings.mlr.press/v48/mnihb16.html
+        maturity: peer_reviewed
+        supports: Multi-sample control variates for discrete latent variables.
+    merge_boundary: Retain one estimator comparison rather than repeating it in every discrete family.
+    implementation_status: validated_existing
+
+  - id: learned_diffusion_schedules_and_reverse_variance
+    name: Learned diffusion schedules, reverse variance, and non-Gaussian kernels
+    abstraction_layer: architecture
+    canonical_definition: >-
+      Learn or choose path schedules and reverse-kernel parameterizations while
+      preserving their role as path/model components rather than new families.
+    gap: partial_but_owned
+    decision: merged_into_existing
+    rationale: >-
+      The diffusion guide already separates schedule, learned variance, target,
+      and marginal reverse-kernel approximation. Later expansion belongs there.
+    canonical_owner: diffusion-explained.md
+    cross_links:
+      - probability-paths-and-stochastic-transport.md
+    primary_evidence:
+      - url: https://proceedings.mlr.press/v139/nichol21a.html
+        maturity: peer_reviewed
+        supports: Learned reverse variances and schedule comparisons.
+      - url: https://proceedings.neurips.cc/paper/2021/hash/b578f2a52a0229873fefc2a4b06377fa-Abstract.html
+        maturity: peer_reviewed
+        supports: Variational diffusion and learnable schedule analysis.
+    merge_boundary: Add claims only with parameterization and likelihood/sampler consequences; no separate component volume.
+    implementation_status: validated_existing
+
+  - id: parallel_and_speculative_decoding
+    name: Speculative, multi-token, any-order, and parallel decoding
+    abstraction_layer: sampler
+    canonical_definition: >-
+      Propose or predict multiple variables per model evaluation, with correction
+      when the goal is to preserve a declared target joint.
+    gap: none_after_existing_audit
+    decision: merged_into_existing
+    rationale: >-
+      Autoregressive and discrete-iterative guides already separate draft,
+      verification, target preservation, independence approximation, and compute.
+    canonical_owner: autoregressive-explained.md#speculative-decoding-and-multi-token-proposals
+    cross_links:
+      - discrete-iterative-generation-explained.md
+      - compute-and-controlled-comparisons.md
+    primary_evidence:
+      - url: https://proceedings.mlr.press/v202/leviathan23a.html
+        maturity: peer_reviewed
+        supports: Exact speculative decoding with target-model correction.
+      - url: https://iclr.cc/virtual/2026/poster/10008045
+        maturity: peer_reviewed
+        supports: Any-subset autoregressive self-speculative correction.
+      - url: https://openreview.net/forum?id=AGJomYSrUG
+        maturity: peer_reviewed
+        supports: Random-input parallel token prediction for dependent block proposals under the ICLR 2026 protocol.
+    merge_boundary: New variants update the existing sampler section; architecture claims remain separate.
+    implementation_status: validated_existing
+
+  - id: learned_transport_and_mcmc_proposals
+    name: Learned proposals, transport preconditioning, and amortized MCMC
+    abstraction_layer: inference
+    canonical_definition: >-
+      Use a learned distribution or invertible transport to initialize, propose,
+      or precondition Monte Carlo while retaining the acceptance/invariance contract.
+    gap: none_after_existing_audit
+    decision: merged_into_existing
+    rationale: >-
+      The latent-inference guide already distinguishes a flow draw from a target
+      draw and states when acceptance ratios or transported targets are required.
+    canonical_owner: latent-variables-and-inference.md#learned-proposals-transports-and-amortized-inference
+    cross_links:
+      - sampling-and-continuous-time.md
+      - flow-explained.md#three-roles-one-interface
+    primary_evidence:
+      - url: https://arxiv.org/abs/1903.03704
+        maturity: preprint
+        supports: Neural transport preconditioning for HMC.
+    merge_boundary: A proposal network does not become a new sampler family unless its correction and target are defined.
+    implementation_status: validated_existing
+
+  - id: adversarial_architecture_and_regularization_components
+    name: Discriminator architecture, gradient penalties, spectral normalization, and progressive generation
+    abstraction_layer: architecture
+    canonical_definition: >-
+      Function-class and regularization choices for adversarial games that alter
+      critic geometry and optimization without changing the implicit-generator definition.
+    gap: none_after_existing_audit
+    decision: merged_into_existing
+    rationale: >-
+      The GAN guide already owns discriminator design, WGAN penalties, spectral
+      normalization, attention, limited-data training, and progressive systems.
+    canonical_owner: gan-explained.md
+    cross_links:
+      - objectives-and-statistical-distances.md
+    primary_evidence:
+      - url: https://openreview.net/forum?id=B1QRgziT-
+        maturity: peer_reviewed
+        supports: Spectral normalization for GAN discriminators.
+    merge_boundary: Maintain architecture-objective separation inside the GAN guide.
+    implementation_status: validated_existing
+
+  - id: likelihood_and_normalizer_estimators
+    name: Likelihood, evidence, and normalizing-constant estimators
+    abstraction_layer: estimator
+    canonical_definition: >-
+      Approximate a declared nonnegative integral or ratio of integrals using
+      exact structure, importance weights, annealed paths, interacting
+      particles, endpoint bridges, path derivatives, or prior-mass
+      transformation, with estimator-specific correctness and uncertainty.
+    gap: >-
+      Latent, EBM, sampling, and evaluation chapters named individual methods
+      but did not supply one query-first derivation of their direction,
+      assumptions, finite error, diagnostics, and reporting contract.
+    decision: accepted
+    rationale: >-
+      The component applies across normalized latent models, Bayesian model
+      evidence, unnormalized energy models, state-space likelihoods, and
+      conditional targets without defining a new generative-model family.
+    canonical_owner: likelihood-and-normalizer-estimation.md
+    cross_links:
+      - generative-model-evaluation.md#1-likelihood-bounds-bpd-and-perplexity
+      - latent-variables-and-inference.md#5-importance-sampling-and-iwae
+      - sampling-and-continuous-time.md#6-annealing-and-tempering
+      - ebm-explained.md#density-estimation-metrics
+      - density-latent-energy-relationships.md#1-one-distribution-several-mathematical-interfaces
+    primary_evidence:
+      - url: https://doi.org/10.1023/A:1008923215028
+        maturity: peer_reviewed
+        supports: Annealed importance sampling and its normalizer-ratio identity.
+      - url: https://doi.org/10.1111/j.1467-9868.2006.00553.x
+        maturity: peer_reviewed
+        supports: General SMC samplers and normalizing-constant estimation.
+      - url: https://doi.org/10.1214/ss/1028905934
+        maturity: peer_reviewed
+        supports: Importance, bridge, and path-sampling relationships.
+      - url: https://www.jmlr.org/papers/v25/19-556.html
+        maturity: peer_reviewed
+        supports: Pareto-smoothed importance sampling and tail diagnostics.
+      - url: https://openreview.net/forum?id=96fJALwotm
+        maturity: peer_reviewed
+        supports: ICLR 2026 non-asymptotic normalizer-estimation analysis under declared assumptions.
+    assumptions:
+      family_independent:
+        - The unnormalized target, support, base measure, and desired ratio direction are declared.
+        - Proposals and paths cover the target mass required by the estimator identity.
+        - Transition, resampling, bridge, quadrature, and numerical operations satisfy the stated construction.
+      family_specific:
+        - Latent marginals are often per-example, EBM partition functions are shared at fixed parameters, and Bayesian evidence integrates parameter priors.
+        - Tractable flows, autoregressive models, and circuits may avoid Monte Carlo normalization while retaining other numerical or marginalization errors.
+    failure_boundaries:
+      - Unbiased estimation of Z does not make log Z unbiased.
+      - High observed ESS cannot certify coverage of an unseen mode.
+      - Learned proposals or transports need the declared importance, SMC, or MH correction unless they themselves define the requested normalized model.
+      - Reverse stochastic bounds require their exact endpoint initialization rather than an approximately mixed substitute.
+    pedagogy:
+      orientation: One finite latent marginal with exact enumeration and ordinary importance sampling.
+      formalism: Change of measure, path-space weights, bridge and path identities, and prior-mass transformation.
+      practice: Diagnostics, numerical stability, independent repeats, shared-normalizer uncertainty, and reporting fields.
+      research: Path complexity, learned transport, multimodal certification, and adaptive-estimator validity through July 2026.
+    implementation_status: validated
+
+  - id: graphical_inference_and_message_passing
+    name: Graphical inference, exact compilation, and learned message passing
+    abstraction_layer: inference
+    canonical_definition: >-
+      Answer a declared normalizer, marginal, conditional, MAP, or sampling
+      query by exploiting factor scopes through elimination, cached tree or
+      junction-tree messages, approximate loopy or variational messages,
+      compiled circuits, or a learned inference map with an explicit target.
+    gap: >-
+      Classical, latent, state-space, and circuit volumes named individual
+      algorithms but did not provide one executable derivation linking
+      enumeration, intermediate factors, induced width, two-pass messages,
+      cluster calibration, loopy failure, differentiation, and amortization.
+    decision: accepted
+    rationale: >-
+      The same inference component applies to directed, undirected, latent,
+      energy, state-space, circuit, and neural-factor models without defining a
+      new generative-model family. It therefore needs one cross-cutting owner.
+    canonical_owner: graphical-inference-and-message-passing.md
+    cross_links:
+      - classical-generative-models.md#7-exact-inference-message-passing-and-tractability
+      - latent-variables-and-inference.md
+      - probabilistic-circuits-explained.md
+      - likelihood-and-normalizer-estimation.md
+    primary_evidence:
+      - url: https://doi.org/10.1109/18.910572
+        maturity: peer_reviewed
+        supports: Factor-graph semantics and exact sum-product on cycle-free graphs.
+      - url: https://doi.org/10.1016/S0004-3702(99)00059-4
+        maturity: peer_reviewed
+        supports: Bucket elimination and induced-width time-space complexity.
+      - url: https://doi.org/10.1111/j.2517-6161.1988.tb01721.x
+        maturity: peer_reviewed
+        supports: Exact local computation and junction-tree foundations.
+      - url: https://doi.org/10.1109/TIT.2005.850085
+        maturity: peer_reviewed
+        supports: Bethe fixed-point and generalized belief-propagation relationships.
+      - url: https://proceedings.neurips.cc/paper/2020/hash/07217414eb3fbe24d4e5b6cafb91ca18-Abstract.html
+        maturity: peer_reviewed
+        supports: Parameterized belief-propagation operators on factor graphs.
+      - url: https://openreview.net/forum?id=GbLvncuryy
+        maturity: preprint
+        supports: 2026 factor-structured score computation and generative composition under declared graph assumptions.
+    assumptions:
+      family_independent:
+        - The factors, support, evidence, base measure, and requested query are declared.
+        - Exact guarantees state graph acyclicity or cluster width, local operation exactness, and numerical convention.
+        - Approximate guarantees separate convergence, local consistency, and accuracy.
+      family_specific:
+        - Discrete tables, Gaussian factors, symbolic circuits, and neural factors expose different local operations and compression opportunities.
+        - Learned messages require a training-instance distribution and do not inherit probabilistic semantics from a generic graph architecture.
+    failure_boundaries:
+      - Small local factors or few learned parameters do not guarantee low induced width.
+      - Converged loopy messages need not equal exact marginals.
+      - A tree of exponentially large cliques can be exact and impractical.
+      - Compilation is exact algebraic reuse; amortized neural inference is an empirically evaluated approximation unless separately proved.
+    pedagogy:
+      orientation: One binary chain enumerated exactly with factor-graph and plate-notation distinctions.
+      formalism: Variable elimination, treewidth, sum-product, junction trees, Bethe free energy, and log-partition derivatives.
+      practice: Ordering, scaling, damping, residual, calibration, cache, and learned-solver reporting contracts.
+      research: Differentiable and neural messages, circuit compilation, structured scores, and evidence through July 2026.
+    implementation_status: validated
+
+  - id: dependency_graph_structure_learning
+    name: Dependency-graph and Bayesian-network structure learning
+    abstraction_layer: model_selection
+    canonical_definition: >-
+      Select or infer a conditional-independence graph, DAG equivalence class,
+      or posterior over graphical-model structures from repeated observations
+      under a declared probability family, score or conditional-independence
+      test, regularization or prior, and hidden-variable assumptions.
+    gap: >-
+      The curriculum distinguished fixed graphical models, graph-valued
+      generators, causal graphs, and GNN computation graphs but lacked one
+      finite derivation of Gaussian precision structure, penalized selection,
+      discrete neighborhoods, latent-induced dependence, DAG equivalence, and
+      the transition from a selected adjacency to a fitted generative law.
+    decision: accepted
+    rationale: >-
+      Structure learning is reusable across Gaussian, discrete, directed,
+      undirected, latent, and causal models, yet it does not define a new
+      generated-object family. Its semantics depend on the selected graph
+      object, so the classical owner must route explicitly to random-graph,
+      inference, learned-computation, and causal owners.
+    canonical_owner: classical-generative-models.md#learning-dependency-graphs-from-data
+    cross_links:
+      - random-graphs-and-relational-generators.md#five-objects-that-are-often-confused
+      - graphical-inference-and-message-passing.md#five-graphs-that-answer-different-questions
+      - causal-generative-models-explained.md#5-causal-discovery-bayesian-structure-learning-and-gflownets
+      - likelihood-and-normalizer-estimation.md
+    primary_evidence:
+      - url: https://doi.org/10.2307/2528966
+        maturity: peer_reviewed
+        supports: Gaussian covariance selection and precision-zero semantics.
+      - url: https://doi.org/10.1093/biostatistics/kxm045
+        maturity: peer_reviewed
+        supports: Penalized sparse inverse-covariance estimation.
+      - url: https://doi.org/10.1214/11-AOS949
+        maturity: peer_reviewed
+        supports: Sparse-plus-low-rank latent Gaussian structure and identifiability conditions.
+      - url: https://www.jmlr.org/papers/v2/chickering02a.html
+        maturity: peer_reviewed
+        supports: Score-equivalent Bayesian-network search over observational equivalence classes.
+      - url: https://openreview.net/forum?id=fVMr2sTow5
+        maturity: peer_reviewed
+        supports: TMLR graph-structure learning for a GNN prediction model through approximate marginal likelihood.
+      - url: https://proceedings.neurips.cc/paper_files/paper/2025/hash/1ecbfd5ea3a5745d5302c0c3ee35eb3a-Abstract-Conference.html
+        maturity: peer_reviewed
+        supports: Distribution learning for Bayes-net classes under fixed chordal-skeleton and bounded-indegree restrictions.
+    assumptions:
+      family_independent:
+        - The graph's node variables, edge semantics, observation regime, and target query are declared.
+        - The model class, score or tests, regularization or prior, and hidden-variable assumptions are declared.
+        - Uncertainty is reported as an equivalence class, stability measure, posterior, or assumption-conditional result rather than hidden by one diagram.
+      family_specific:
+        - Gaussian precision zeros require a nonsingular joint Gaussian law; discrete pseudolikelihood and neighborhood selection have different compatibility and recovery conditions.
+        - Directed observational structure does not inherit causal semantics, and a task-trained GNN adjacency does not inherit graphical-model conditional-independence semantics.
+    failure_boundaries:
+      - Covariance thresholding does not recover a Gaussian conditional-independence graph.
+      - A sparse observed graph can summarize dependence induced by latent common variables.
+      - Penalty choice, finite-sample error, weak signals, and misspecification can change selected edges.
+      - A selected adjacency is not a generator until factors, parameters, support, normalization, and sampling are defined.
+      - Predictive, dependency, random-graph, and causal edges are not interchangeable.
+    pedagogy:
+      orientation: Four graph objects separated by the observations and query that define them.
+      formalism: Gaussian likelihood and precision zeros, graphical lasso, Ising neighborhoods, Schur complements, and DAG equivalence.
+      practice: Penalty sensitivity, resampling stability, latent-variable diagnostics, held-out joint queries, and posterior or equivalence reporting.
+      research: High-dimensional recovery assumptions, sparse-plus-low-rank identifiability, restricted efficient Bayes-net learning, and task-conditioned learned adjacency through July 2026.
+    implementation_status: validated
+
+  - id: generative_representation_alignment
+    name: Auxiliary representation alignment for generative training
+    abstraction_layer: objective_or_loss
+    canonical_definition: >-
+      Add a weighted discrepancy between a declared internal generator state
+      and a projected external, frozen, or jointly learned representation while
+      retaining a family-specific generative objective and sampler.
+    gap: >-
+      The diffusion guide named REPA and the representation guide named an
+      alignment term, but neither supplied a family-independent objective,
+      teacher and layer protocol, training-versus-inference compute boundary,
+      collapsed-teacher counterexample, or explicit non-family classification.
+    decision: accepted
+    rationale: >-
+      Representation alignment is now used across diffusion transformers,
+      U-Nets, transport objectives, and joint perception-generation systems.
+      It changes optimization pressure and finite learned solutions, but does
+      not by itself define a probability law or sampler.
+    canonical_owner: representations-and-multimodal-systems.md#representation-alignment-is-an-auxiliary-generative-objective
+    cross_links:
+      - diffusion-explained.md#representation-alignment-for-dit-training
+      - representations-and-multimodal-systems.md#representational-similarity-is-a-diagnostic-not-a-quality-score
+      - objectives-and-statistical-distances.md#10-composite-objectives-and-identifiability
+    primary_evidence:
+      - url: https://proceedings.iclr.cc/paper_files/paper/2025/hash/d9e42b4d7163931f3689d6d6fbaa11d0-Abstract-Conference.html
+        maturity: peer_reviewed
+        supports: Frozen visual-teacher alignment for selected diffusion-transformer states under the REPA protocol.
+      - url: https://openreview.net/forum?id=im3FJ6quii
+        maturity: peer_reviewed
+        supports: Architecture-specific layer, spatial, and relational alignment choices for diffusion U-Nets.
+      - url: https://openreview.net/forum?id=DG4wLaRnAN
+        maturity: peer_reviewed
+        supports: Self-supervised spectral representation regularization under reported image and point-cloud protocols.
+      - url: https://openreview.net/forum?id=9CpHEbtvA9
+        maturity: peer_reviewed
+        supports: Token-embedding recovery and consistency regularization for visual autoregressive generators.
+    assumptions:
+      family_independent:
+        - The teacher or target representation, student layer, projection, discrepancy, weight, examples, and augmentations are declared.
+        - The target preserves distinctions required by the named generative query, or the base objective separately supplies them.
+        - Training and inference compute account separately for teacher evaluation, stored activations, projections, and backward passes.
+      family_specific:
+        - Noise level, timestep, token, spatial scale, and state parameterization must match the owning diffusion, flow, autoregressive, or latent-variable construction.
+        - Removing the teacher at inference does not change a sampler unless another component explicitly does so.
+    failure_boundaries:
+      - Equal teacher features for two task-distinct observations give the auxiliary loss no way to preserve their difference.
+      - Feature similarity does not establish decoder compatibility, likelihood equality, or a shared latent identity.
+      - A nonzero auxiliary weight can change the finite learned generator even when the family and sampler names remain unchanged.
+      - Reported iteration reductions are not automatically wall-clock, hardware, data, or architecture independent.
+    pedagogy:
+      orientation: A base generative loss plus one named teacher-feature regularizer.
+      formalism: Layer projection, stop-gradient semantics, discrepancy choice, and the separation from a probability law or sampler.
+      practice: Layer, noise, token, teacher, compute, ablation, and inference-removal reporting protocol.
+      research: REPA, U-REPA, self-supervised spectral alignment, internal representation diagnostics, and joint perception-generation systems through July 2026.
+    implementation_status: validated
+
+  - id: state_space_filtering_and_smoothing
+    name: Filtering and smoothing for state-space generators
+    abstraction_layer: inference
+    canonical_definition: >-
+      Compute online current-state posteriors, retrospective state or path
+      posteriors, predictive observation laws, and sequence evidence from a
+      declared state-space generative law using exact closure or an explicitly
+      represented approximation.
+    gap: >-
+      The classical and stochastic-process volumes defined state-space models
+      and briefly named Kalman, Gaussian, variational, and particle methods, but
+      the curriculum lacked one canonical derivation of Bayes recursions,
+      predictive normalizers, RTS smoothing, backward path simulation,
+      information and square-root forms, nonlinear moment approximations, ADF,
+      mixture reduction, EnKF, robust and flow roles, differentiable filters,
+      and query-specific validation.
+    decision: accepted
+    rationale: >-
+      These methods answer reusable posterior and evidence queries across
+      classical, neural, controlled, stochastic-process, and scientific
+      generators. They do not define another state-space family, so a dedicated
+      inference-method volume sits after graphical inference while the
+      classical guide retains model ownership.
+    canonical_owner: filtering-and-smoothing-state-space.md
+    cross_links:
+      - classical-generative-models.md#state-space-queries-generation-filtering-smoothing-and-forecasting
+      - latent-variables-and-inference.md#one-model-five-inference-regimes
+      - graphical-inference-and-message-passing.md
+      - stochastic-process-generators-explained.md#4-latent-dynamics-neural-sdes-and-path-measures
+      - world-models-and-causal-simulators.md#state-memory-and-belief-are-different-objects
+      - generative-models-unified.md#how-to-read-this-volume
+    primary_evidence:
+      - url: https://doi.org/10.1115/1.3662552
+        maturity: peer_reviewed_established
+        supports: Exact recursive filtering under the linear-Gaussian construction.
+      - url: https://doi.org/10.2514/3.3166
+        maturity: peer_reviewed_established
+        supports: Backward Gaussian smoothing and linear-dynamic-system likelihood calculations.
+      - url: https://doi.org/10.1093/biomet/81.3.541
+        maturity: peer_reviewed_established
+        supports: Blocked state-path sampling using forward filtering and backward simulation.
+      - url: https://doi.org/10.1109/JPROC.2003.823141
+        maturity: peer_reviewed_established
+        supports: Unscented transformation and sigma-point nonlinear filtering.
+      - url: https://doi.org/10.1109/TAC.2009.2019800
+        maturity: peer_reviewed
+        supports: Spherical-radial cubature filtering and a square-root form.
+      - url: https://doi.org/10.1029/94JC00572
+        maturity: peer_reviewed_established
+        supports: Ensemble forecast-error statistics for sequential data assimilation.
+      - url: https://doi.org/10.1109/TAC.2020.2976316
+        maturity: peer_reviewed
+        supports: Associative temporal parallelization of Bayesian filters and smoothers.
+      - url: https://tminka.github.io/papers/ep/
+        maturity: corrected_primary_record
+        supports: Assumed-density filtering, moment projection, and expectation-propagation relationships.
+      - url: https://proceedings.mlr.press/v235/duran-martin24a.html
+        maturity: peer_reviewed
+        supports: One generalized-Bayes construction for outlier-robust extended and ensemble filtering.
+      - url: https://proceedings.mlr.press/v267/tarumi25a.html
+        maturity: peer_reviewed
+        supports: Learned structural restrictions around an analytic recursive filtering interface.
+      - url: https://proceedings.mlr.press/v331/vantilborgh26a.html
+        maturity: peer_reviewed_frontier
+        supports: A 2026 probabilistic-control representation of smoothing with declared particle and dynamic-programming construction.
+      - url: https://arxiv.org/abs/2606.31137
+        maturity: preprint
+        supports: A 2026 mechanics-informed state and model-learning interface using approximate Bayesian filters.
+    assumptions:
+      family_independent:
+        - The state-space joint law, controls, initial law, transition, observation model, support, and missingness mechanism are declared.
+        - Filtering, fixed-lag smoothing, fixed-interval smoothing, forecasting, evidence, and path sampling retain distinct information sets and returned objects.
+        - Exactness claims state closure, integration, support, and numerical-rank assumptions; approximations state representation, projection, finite-compute, and validation error.
+      family_specific:
+        - Linear-Gaussian closure, finite-state dynamic programming, particles, mixtures, ensembles, variational paths, flows, and learned beliefs expose different guarantees and query costs.
+        - Controlled world models may require online beliefs for decisions, while offline representation learning may legally use a smoother; continuous-time generators add solver-induced transition error.
+    failure_boundaries:
+      - A Kalman-named update is not the exact nonlinear or non-Gaussian posterior.
+      - Correct transformed moments do not make a one-Gaussian approximation adequate for multimodal or constrained beliefs.
+      - Forward-KL Gaussian moment matching is not reverse-KL projection, and sequential projection can be order dependent.
+      - An infinite nonlinear EnKF ensemble does not generically recover exact nonlinear Bayes conditioning.
+      - Correct smoothed marginals sampled independently do not form a correct posterior trajectory.
+      - Differentiable filtering does not by itself supply an unbiased exact-likelihood gradient through resampling or finite approximations.
+      - Simulator-relative NIS, NEES, or coverage does not validate the real-data state-space model.
+    pedagogy:
+      orientation: A two-state exact filter and smoother separates information sets before any Gaussian approximation.
+      formalism: Bayesian prediction and correction, predictive evidence, Kalman and RTS equations, backward kernels, moment projection, ensembles, particles, and validation statistics.
+      practice: Scalar executable examples, missing-data and numerical contracts, limiting-case tests, compute ledgers, method selection, and cross-time path diagnostics.
+      research: Differentiable and learned filters, temporal scans, analytic learned structure, robust updates, multimodal beliefs, and peer-reviewed or explicitly labeled 2026 work.
+    implementation_status: validated
+
+  - id: variational_inference_algorithm_stack
+    name: Variational inference algorithm stack
+    abstraction_layer: inference
+    canonical_definition: >-
+      Optimize a declared normalized approximation, divergence, or evidence
+      bound for a declared posterior or latent-variable learning query, while
+      identifying separately the variational family, parameter sharing,
+      objective, gradient estimator, data-subsampling law, optimizer, and
+      finite-compute validation.
+    gap: none_after_chapter_10_expansion
+    decision: merged_into_existing
+    rationale: >-
+      Coordinate, message-based, stochastic, black-box, automatic,
+      multi-sample, wake-sleep, and semi-amortized constructions automate
+      different layers of one reusable inference problem. They expand the
+      existing latent-inference and graphical-inference owners rather than
+      defining a model family or a second variational volume.
+    canonical_owner: latent-variables-and-inference.md#2-elbo-derivation
+    cross_links:
+      - graphical-inference-and-message-passing.md#expectation-propagation-replaces-one-site-through-a-tilted-law
+      - gradients-and-geometry-in-generative-modeling.md#4-gradient-estimators-for-latent-discrete-and-multi-sample-models
+      - vae-explained.md#variational-inference
+      - likelihood-and-normalizer-estimation.md#importance-sampling
+      - generative-models-unified.md#latent-variable-models-the-hidden-variable-bridge
+    primary_evidence:
+      - url: https://www.jmlr.org/papers/v14/hoffman13a.html
+        maturity: peer_reviewed
+        supports: CAVI, conjugate global/local structure, natural-gradient SVI, and correctly scaled minibatch updates.
+      - url: https://www.jmlr.org/papers/v6/winn05a.html
+        maturity: peer_reviewed
+        supports: Variational message passing for supported conjugate-exponential graphical models.
+      - url: https://proceedings.mlr.press/v33/ranganath14.html
+        maturity: peer_reviewed
+        supports: Score-function black-box VI and model-independent control-variate construction.
+      - url: https://www.jmlr.org/papers/v18/16-107.html
+        maturity: peer_reviewed
+        supports: ADVI constraint transforms, transformed densities, Gaussian guides, and automatic pathwise optimization.
+      - url: https://tminka.github.io/papers/ep/
+        maturity: technical_report_and_peer_reviewed_conference
+        supports: Corrected EP cavity, tilted-law, moment-projection, site-replacement, and energy formulations.
+      - url: https://proceedings.neurips.cc/paper/2015/hash/f3bd5ad57c8389a8a1a541a76be463bf-Abstract.html
+        maturity: peer_reviewed
+        supports: Stochastic EP and its memory-versus-site approximation.
+      - url: https://arxiv.org/abs/1406.2751
+        maturity: peer_reviewed_conference_author_version
+        supports: Reweighted wake-sleep and the separation of generative and recognition-network updates.
+      - url: https://proceedings.mlr.press/v80/kim18e.html
+        maturity: peer_reviewed
+        supports: Differentiable semi-amortized refinement initialized by an inference network.
+      - url: https://openreview.net/forum?id=lomAtGpQ6n
+        maturity: peer_reviewed
+        supports: AISTATS 2026 radial-transport augmentation of Gaussian VI under stated regularity conditions.
+      - url: https://arxiv.org/abs/2602.01412
+        maturity: preprint
+        supports: Current score-function research for importance-weighted VI without a pathwise reparameterization.
+    assumptions:
+      family_independent:
+        - The target posterior or latent-variable objective, support, reference measure, and required normalizer access are declared.
+        - Family restriction, amortization, gradient estimation, stochastic optimization, and model misspecification remain distinct errors.
+        - Every automatic transform carries the correct change-of-variables term, and every minibatch estimator declares its sampling and scaling law.
+      family_specific:
+        - Conjugate CAVI and VMP require the relevant expected log-joint algebra; BBVI and ADVI require different density and derivative interfaces; implicit guides need an objective that does not silently assume tractable log q.
+        - EP uses cavity removal and local tilted-law moment projection rather than the global reverse-KL ELBO objective.
+        - Weighted and wake-sleep methods may reuse particles while optimizing different parameter-block objectives.
+    failure_boundaries:
+      - Exact coordinate maximization can converge to a restricted, symmetry-breaking, or local solution.
+      - Automatic differentiation and unconstraining transforms do not make a Gaussian guide multimodal or posterior inference exact.
+      - A tighter scalar evidence bound need not improve inference-network gradient signal or a downstream posterior query.
+      - A sleep-phase recognition model is trained under the current model marginal and can miss real-data regions absent from that model.
+      - Damping EP or semi-amortized refinement changes finite dynamics without certifying global accuracy.
+    pedagogy:
+      orientation: One model-to-inference diagram and an automation ladder distinguish the target from the solver.
+      formalism: ELBO, functional CAVI, BBVI and pathwise gradients, ADVI change of variables, IWAE parameter-block gradients, wake-sleep laws, and EP site updates.
+      practice: A two-spin symmetry-breaking calculation, support and transformation audits, minibatch scaling, weight diagnostics, and deployment step-count contracts.
+      research: Rich structured, mixture, flow, implicit, radial, weighted, and semi-amortized families with peer-reviewed versus preprint evidence labels.
+    implementation_status: validated
+
+  - id: randomized_optimization_sampling
+    name: Randomized optimization samplers
+    abstraction_layer: sampler
+    canonical_definition: >-
+      Draw auxiliary randomness, solve a declared global or structured
+      optimization problem, and return the optimizer as a sample. Exactness is
+      a property of the joint perturbation law, target factorization, and solve,
+      not of the presence of random noise around a MAP routine alone.
+    gap: none_after_message_passing_expansion
+    decision: merged_into_existing
+    rationale: >-
+      Configuration-level Gumbel-Max, structured perturb-and-MAP, Gaussian
+      perturb-and-solve, and approximate learned variants share a reusable
+      sampler interface. They belong in the graphical-inference volume and
+      sampling cross-links, rather than constituting a model family or another
+      standalone volume.
+    canonical_owner: graphical-inference-and-message-passing.md#randomized-optimization-when-a-map-oracle-becomes-a-sampler
+    cross_links:
+      - sampling-and-continuous-time.md#randomized-optimization-as-a-sampling-interface
+      - ebm-explained.md#inference-map-optimization-and-sampling-are-different-queries
+      - transitions-and-few-step-generation.md#discrete-few-step-and-parallel-transition-learning
+      - generative-models-unified.md#the-probabilistic-graphical-model-view
+    primary_evidence:
+      - url: https://proceedings.neurips.cc/paper_files/paper/2010/hash/d09bf41544a3365a46c9077ebb5e35c3-Abstract.html
+        maturity: peer_reviewed
+        supports: Exact Gaussian sampling by local Gaussian perturbations followed by a quadratic solve.
+      - url: https://proceedings.neurips.cc/paper/2013/hash/443cb001c138b2561a0d90720d6ce111-Abstract.html
+        maturity: peer_reviewed
+        supports: Bounds and approximations obtained from low-dimensional perturbations and MAP oracles.
+      - url: https://proceedings.neurips.cc/paper_files/paper/2014/hash/937debc749f041eb5700df7211ac795c-Abstract.html
+        maturity: peer_reviewed
+        supports: The Gumbel-process construction and exact A-star sampling without materializing every configuration perturbation.
+      - url: https://proceedings.neurips.cc/paper/2021/hash/07b1c04a30f798b5506c1ec5acfb9031-Abstract.html
+        maturity: peer_reviewed
+        supports: Learned perturb-and-max-product proposals for approximate sampling in discrete factor graphs.
+    assumptions:
+      family_independent:
+        - The target law, auxiliary-noise joint distribution, optimization domain, tie rule, and solve accuracy are declared.
+        - An exact claim proves that the optimizer pushforward has the target law; otherwise approximation error is measured against a named query.
+      family_specific:
+        - Finite Gumbel-Max needs an independent Gumbel for each complete configuration unless an alternative exact construction is proved.
+        - Gaussian perturb-and-solve needs a matching quadratic factorization and an exact linear solve; truncated iterative solves add sampler error.
+    failure_boundaries:
+      - Independent unary or factorwise perturbations generally do not reproduce independent configuration-level Gumbels and therefore change the output law.
+      - A randomized local optimum is not automatically a sample from the globally normalized target.
+      - Learned perturbations can improve empirical proposals without inheriting exactness from the optimizer they call.
+      - Optimization tolerances, nonunique optima, and numerical factorization error are part of the sampler definition.
+    pedagogy:
+      orientation: A three-outcome Gumbel-Max example turns normalized weights into exact categorical samples.
+      formalism: Pushforward-law criterion, configuration versus local perturbations, and Gaussian covariance derivation.
+      practice: Target, noise, optimizer, tie, tolerance, and diagnostic audit checklist.
+      research: Structured perturb-and-MAP, lazy Gumbel processes, learned perturbations, and bounded 2026 discrete distillation links.
+    implementation_status: validated_existing
+
+  - id: mcmc_kernel_design_and_diagnostics
+    name: MCMC kernel design, geometry, and finite-run diagnostics
+    abstraction_layer: sampler
+    canonical_definition: >-
+      Construct a transition or valid adaptive transition sequence for a
+      declared target, prove invariance or the relevant asymptotic contract,
+      establish reachability and recurrence assumptions, and estimate named
+      queries with dependence-aware uncertainty and failure-specific
+      diagnostics.
+    gap: resolved_by_sampling_foundation_expansion
+    decision: merged_into_existing
+    rationale: >-
+      Metropolis correction, Gibbs and auxiliary-variable updates, Langevin and
+      Hamiltonian dynamics, pseudo-marginal augmentation, transdimensional
+      moves, and tempering are reusable samplers or inference components. They
+      operate on targets from many generative families and do not define a new
+      probability family.
+    canonical_owner: sampling-and-continuous-time.md#2-markov-chains-and-stationarity
+    cross_links:
+      - sampling-and-continuous-time.md#3-metropolishastings
+      - sampling-and-continuous-time.md#4-gibbs-blocks-and-auxiliary-variables
+      - sampling-and-continuous-time.md#6-hamiltonian-monte-carlo
+      - sampling-and-continuous-time.md#7-warmup-geometry-and-mcmc-diagnostics
+      - sampling-and-continuous-time.md#9-transdimensional-and-structure-changing-mcmc
+      - latent-variables-and-inference.md
+      - ebm-explained.md#langevin-dynamics-mcmc-sampling
+      - bayesian-nonparametric-models-explained.md#5-posterior-computation-without-infinity-theater
+      - filtering-and-smoothing-state-space.md#6-particles-learning-validation-and-method-choice
+    primary_evidence:
+      - url: https://doi.org/10.1093/biomet/57.1.97
+        maturity: peer_reviewed
+        supports: Asymmetric-proposal Metropolis-Hastings correction.
+      - url: https://doi.org/10.1239/jap/1183667414
+        maturity: peer_reviewed
+        supports: Adaptive-MCMC ergodicity conditions and counterexamples.
+      - url: https://doi.org/10.1214/07-AOS574
+        maturity: peer_reviewed
+        supports: Pseudo-marginal exactness on an augmented state.
+      - url: https://doi.org/10.1214/aos/1056562461
+        maturity: peer_reviewed
+        supports: Slice augmentation and transition constructions.
+      - url: https://www.jmlr.org/papers/v15/hoffman14a.html
+        maturity: peer_reviewed
+        supports: NUTS trajectory construction and step-size adaptation.
+      - url: https://doi.org/10.1214/20-BA1221
+        maturity: peer_reviewed
+        supports: Rank-normalized split R-hat, folded checks, bulk and tail ESS, and MCSE.
+      - url: https://doi.org/10.1093/biomet/82.4.711
+        maturity: peer_reviewed
+        supports: Reversible-jump dimension matching and Jacobian correction.
+      - url: https://www.jmlr.org/papers/v27/25-1452.html
+        maturity: peer_reviewed
+        supports: Reversible within-orbit local step-size adaptation for multiscale HMC in 2026.
+      - url: https://openreview.net/forum?id=CODnlyYUli
+        maturity: peer_reviewed
+        supports: ICLR 2026 neural transports inside a corrected parallel-tempering system.
+    assumptions:
+      family_independent:
+        - The target, support, base measure, kernel or adaptive sequence, initialization, retained phase, observables, and cost unit are declared.
+        - Invariance, uniqueness, distributional convergence, ergodic averages, mixing time, and finite-run precision remain separate claims.
+        - Learned maps and proposals preserve exactness only through their Jacobian, weight, or acceptance construction.
+      family_specific:
+        - Gibbs requires available compatible full conditionals or valid within-block kernels.
+        - Gradient MCMC requires the stated differentiability, geometry, noise calibration, and discretization or acceptance contract.
+        - Structure-changing kernels require dimension matching relative to declared component measures.
+    failure_boundaries:
+      - Warmup length is not a theorem about worst-case mixing and discarding states cannot prove mode discovery.
+      - Acceptance one in Gibbs and high acceptance in MH or HMC do not establish efficient exploration.
+      - Traditional unsplit R-hat, one scalar ESS, or zero divergences cannot certify a high-dimensional chain.
+      - Fixed-step ULA and stochastic-gradient methods are not exact merely because their continuous-time analogue has the desired invariant law.
+      - Simulated annealing, parallel tempering, and AIS return different objects.
+    pedagogy:
+      orientation: A moving-law diagram and two-state chain separate invariance, marginal convergence, and path averages.
+      formalism: MH flow, Gibbs conditionals, slice augmentation, MALA ratio, HMC leapfrog, long-run variance, RJMCMC Jacobian, and tempered swap ratio.
+      practice: Warmup-versus-mixing table, modern multi-chain diagnostics, HMC and transdimensional reporting, and cost-normalized method comparison.
+      research: Pseudo-marginal and adaptive kernels, learned transports, discrete proposals, WALNUTS, diffusion-based Monte Carlo, and neural parallel tempering with maturity bounds.
+    implementation_status: validated
+
+  - id: monte_carlo_estimation_and_randomness_design
+    name: Monte Carlo estimation, uncertainty, and randomness design
+    abstraction_layer: estimator
+    canonical_definition: >-
+      Approximate a declared expectation, integral, objective, difference, or
+      resolution hierarchy with finite evaluations whose marginal laws,
+      dependence, bias, variance, and uncertainty procedure are explicit.
+    gap: resolved_by_sampling_foundation_expansion
+    decision: merged_into_existing
+    rationale: >-
+      Iid averages, rejection efficiency, Rao-Blackwellization, control
+      variates, antithetic pairs, common random numbers, QMC/RQMC, fixed sample
+      averages, multilevel couplings, and dependence-aware Markov-chain error
+      estimates are reusable estimator designs. They affect training,
+      inference, evaluation, and uncertainty across model families but do not
+      define another probability family.
+    canonical_owner: sampling-and-continuous-time.md#monte-carlo-begins-with-a-query
+    cross_links:
+      - sampling-and-continuous-time.md#variance-reduction-and-randomness-design
+      - sampling-and-continuous-time.md#correlated-draws-change-estimator-uncertainty
+      - latent-variables-and-inference.md#advi-transforms-the-target-as-well-as-the-sample
+      - gradients-and-geometry-in-generative-modeling.md#one-derivative-several-estimator-families
+      - likelihood-and-normalizer-estimation.md#importance-sampling
+      - generative-models-unified.md#how-to-read-this-volume
+    primary_evidence:
+      - url: https://proceedings.mlr.press/v80/buchholz18a.html
+        maturity: peer_reviewed
+        supports: QMC designs for score-function and pathwise Monte Carlo variational objectives.
+      - url: https://www.jmlr.org/papers/v22/21-0498.html
+        maturity: peer_reviewed
+        supports: Independently randomized QMC combined with quasi-Newton variational optimization under bounded rate conditions.
+      - url: https://www.jmlr.org/papers/v25/23-1015.html
+        maturity: peer_reviewed
+        supports: Fixed-randomness sample-average approximation for automatic mean-field VI and its expressivity boundary.
+      - url: https://www.jmlr.org/papers/v22/20-653.html
+        maturity: peer_reviewed
+        supports: Multilevel coupling for reparameterized variational-gradient estimation.
+      - url: https://openreview.net/forum?id=fdLU72nQdr
+        maturity: peer_reviewed
+        supports: ICLR 2026 randomized lattice integration for specialized very low-dimensional deep latent-variable models.
+      - url: https://iclr.cc/virtual/2026/poster/10011071
+        maturity: peer_reviewed
+        supports: ICLR 2026 antithetic initial-noise and RQMC designs for diffusion-model uncertainty queries.
+      - url: https://openreview.net/forum?id=Ahdsg2nkNH
+        maturity: peer_reviewed
+        supports: ICLR 2026 multilevel learned control functionals under smoothness and moderate-dimension conditions.
+    assumptions:
+      family_independent:
+        - The target law, observable, estimator, marginal sample laws, dependence, and cost unit are declared.
+        - Iid central-limit error bars require finite variance and an asymptotic regime; dependent designs use their own variance analysis.
+        - Markov-chain long-run variance and effective sample size are defined for a declared observable under stationarity and central-limit conditions.
+        - A variance-reduction claim compares equal target expectations and matched computation or reports bias and cost separately.
+      family_specific:
+        - Generator base-noise symmetries preserve input marginals but do not guarantee negative covariance after a nonlinear generator and observable.
+        - RQMC performance depends on the integrand, transformation, smoothness, and effective dimension of the family-specific query.
+        - Multilevel methods require a meaningful family-specific fidelity hierarchy and coupled adjacent levels.
+    failure_boundaries:
+      - The iid root-N exponent does not make high-dimensional sampling or rare-event discovery dimension independent.
+      - One deterministic QMC point set has no ordinary iid standard error; repeat-based uncertainty requires independent valid randomizations.
+      - Convergence on a fixed sample-average objective is not convergence on the population objective.
+      - Common random numbers target a comparison variance and need not improve either marginal estimate.
+      - Unbiasedness for a finite-resolution target does not remove continuum discretization bias.
+      - An observable-specific MCMC effective sample size is not an importance-weight ESS or a certificate that every mode was discovered.
+    pedagogy:
+      orientation: A finite three-state expectation separates a correct point estimate from its Monte Carlo uncertainty.
+      formalism: Iid CLT, rejection normalizer, Markov-chain long-run variance, observable-specific ESS, total variance, optimal control coefficient, antithetic and paired-difference variance, SAA, and multilevel telescope.
+      practice: Error-source ledger, replicated-randomization protocol, cost-matched comparison table, two-state dependence calculation, and high-dimensional rejection counterexample.
+      research: Bounded QMC VI, RQMC quasi-Newton, deterministic ADVI, multilevel VI, and three peer-reviewed ICLR 2026 generative applications.
+    implementation_status: validated
+
+  - id: sequential_monte_carlo_and_particle_methods
+    name: Sequential Monte Carlo and particle methods
+    abstraction_layer: inference
+    canonical_definition: >-
+      Approximate a declared sequence of normalized or unnormalized target laws
+      with a properly weighted interacting population whose mutation,
+      selection, ancestry, normalizer, and returned query are explicit.
+    gap: resolved_by_dedicated_foundation_volume
+    decision: accepted
+    rationale: >-
+      Particle filtering, static-target SMC, smoothing, PMCMC, rare-event SMC,
+      differentiable particle objectives, and particle-guided generators were
+      distributed across filtering, latent-inference, sampling, normalizer, and
+      family chapters. They share a reusable Feynman–Kac and proper-weighting
+      contract that is too broad for any one application chapter but does not
+      define a new probability-model family.
+    canonical_owner: sequential-monte-carlo-and-particle-methods.md
+    cross_links:
+      - filtering-and-smoothing-state-space.md#6-particles-learning-validation-and-method-choice
+      - latent-variables-and-inference.md#6-sequential-monte-carlo
+      - likelihood-and-normalizer-estimation.md#3-annealed-importance-sampling-and-sequential-monte-carlo
+      - sampling-and-continuous-time.md#smc-turns-one-hard-correction-into-a-sequence
+      - stochastic-process-generators-explained.md#particle-filtering-without-hiding-the-proposal
+      - conditioning-steering-and-constraints.md#sequential-monte-carlo-and-twisting
+      - generative-models-unified.md#how-to-read-this-volume
+    primary_evidence:
+      - url: https://doi.org/10.1049/ip-f-2.1993.0015
+        maturity: peer_reviewed
+        supports: Bootstrap particle filtering for nonlinear and non-Gaussian state estimation.
+      - url: https://doi.org/10.1111/j.1467-9868.2006.00553.x
+        maturity: peer_reviewed
+        supports: Fixed-space SMC samplers with forward and backward kernels and normalizer ratios.
+      - url: https://arxiv.org/abs/cs/0507025
+        maturity: peer_reviewed_conference_author_version
+        supports: Residual and stratified variance results and a counterexample to universal systematic-resampling dominance.
+      - url: https://doi.org/10.1111/j.1467-9868.2009.00736.x
+        maturity: peer_reviewed
+        supports: Extended-target particle MCMC and pseudo-marginal particle likelihood correction.
+      - url: https://www.jmlr.org/papers/v15/lindsten14a.html
+        maturity: peer_reviewed
+        supports: Particle Gibbs with ancestor sampling for path degeneracy and mixing.
+      - url: https://proceedings.mlr.press/v139/corenflos21a.html
+        maturity: peer_reviewed
+        supports: Entropy-regularized optimal-transport resampling with differentiability and convergence qualifications.
+      - url: https://proceedings.neurips.cc/paper_files/paper/2022/hash/fddc79681b2df2734c01444f9bc2a17e-Abstract-Conference.html
+        maturity: peer_reviewed
+        supports: Learned smoothing twists and variational SMC objectives.
+      - url: https://proceedings.neurips.cc/paper_files/paper/2023/hash/63e8bc7bbf1cfea36d1d1b6538aecce5-Abstract-Conference.html
+        maturity: peer_reviewed
+        supports: Twisted SMC for conditional diffusion sampling under the paper's asymptotic construction.
+      - url: https://proceedings.neurips.cc/paper_files/paper/2025/hash/d6484394c4cb5e1f4ecad8d90b912025-Abstract-Conference.html
+        maturity: peer_reviewed
+        supports: SMC-based inference-time diffusion alignment under a bounded proposal and reward protocol.
+      - url: https://arxiv.org/abs/2601.21104
+        maturity: preprint
+        supports: A 2026 research direction combining multilevel ideas and SMC for training-free diffusion inference.
+    assumptions:
+      family_independent:
+        - Targets, base measures, proposals, potentials, backward kernels, resampling order, and returned queries are declared.
+        - Proposal support covers every target-relevant state and importance weights are integrable under the required theorem.
+        - Resampling is unbiased or otherwise paired with the exact construction used to justify the estimator.
+        - Normalizer, normalized expectation, selected path, gradient, and generated endpoint retain separate finite-particle contracts.
+      family_specific:
+        - State-space filtering uses growing path targets and observation-aware proposals.
+        - Static Bayesian and energy targets use tempering, data sequences, and invariant mutation kernels.
+        - Learned generator compositions require model-specific path potentials, proposal densities or transitions, and endpoint correction.
+    failure_boundaries:
+      - Resampling manages current weight concentration but can worsen particle impoverishment and ancestral-path collapse.
+      - Equal post-resampling weights and high importance ESS cannot certify support coverage or smoothing accuracy.
+      - Systematic resampling has no unconditional variance dominance over multinomial resampling for every particle ordering and estimate.
+      - A standard unbiased normalizer estimate does not make its logarithm or a normalized particle expectation unbiased.
+      - A differentiable particle computation need not provide an unbiased exact-likelihood gradient.
+      - An approximate learned twist or proposal does not make a fixed-particle conditional generator exact.
+    pedagogy:
+      orientation: Three-stage particle flow and a finite three-state target sequence separate target, algorithm, and returned query.
+      formalism: Feynman–Kac path measure, generic weights, resampling offspring moments, bootstrap and adapted filters, backward kernels, smoothing, PMCMC, CESS, and twisting.
+      practice: Binary exact-versus-particle filter, offspring calculation, adaptive tempering step, rare-event factorization, reporting ledger, and repeated-run validation.
+      research: Differentiable resampling, variational particle objectives, smoothing twists, PMCMC hybrids, diffusion and discrete-generator control, and bounded 2026 preprints.
+    implementation_status: validated
+
+  - id: post_training_preference_optimization
+    name: Preference optimization, reward fine-tuning, and adversarial distillation
+    abstraction_layer: post_training
+    canonical_definition: >-
+      Additional optimization changes a trained generator using preferences,
+      rewards, critics, or teacher samples under a declared reference and data law.
+    gap: none_after_existing_audit
+    decision: merged_into_existing
+    rationale: >-
+      AR, GAN, diffusion, and few-step volumes already separate base objectives,
+      DPO/RL-style updates, adversarial distillation, and inference-only selection.
+    canonical_owner: autoregressive-explained.md#post-training-and-alignment
+    cross_links:
+      - gan-explained.md
+      - transitions-and-few-step-generation.md
+      - conditioning-steering-and-constraints.md#5-reweighting-candidate-selection-search-and-decisions
+    primary_evidence:
+      - url: https://proceedings.neurips.cc/paper_files/paper/2023/hash/a85b405ed65c6477a4fe8302b5e06ce7-Abstract-Conference.html
+        maturity: peer_reviewed
+        supports: Direct preference optimization under its preference-model formulation.
+    merge_boundary: Use the selection chapter for inference-only changes and family chapters for parameter updates.
+    implementation_status: validated_existing
+
+  - id: generic_moe_ssm_and_attention_backbones
+    name: Generic MoE, state-space, attention, and convolutional backbones
+    abstraction_layer: architecture
+    canonical_definition: >-
+      General neural function classes that can parameterize conditionals,
+      scores, energies, vector fields, encoders, or critics.
+    gap: no_generative_specific_gap
+    decision: rejected
+    rationale: >-
+      A generic backbone belongs only where a family-specific target, masking,
+      equivariance, state, or compute consequence is explained. A standalone
+      generic architecture chapter would expand beyond generative modeling.
+    canonical_owner: generative-models-unified.md#the-eight-layers-of-a-generative-system
+    accepted_placements:
+      - family architecture chapters
+      - compute-and-controlled-comparisons.md
+      - geometric-equivariant-generative-modeling.md
+    rejection_boundary: Reconsider only a generative-specific mechanism with distinct evidence and placement.
+    implementation_status: rejected
+
+  - id: generic_weight_quantization_pruning_and_kernels
+    name: Generic weight quantization, pruning, compiler, and hardware kernels
+    abstraction_layer: system_composition
+    canonical_definition: >-
+      Deployment transformations that reduce model memory or compute without
+      necessarily changing the declared generative law.
+    gap: no_generative_specific_gap
+    decision: rejected
+    rationale: >-
+      These are general systems topics. Include only generative consequences
+      such as sampler error accumulation, guidance branches, KV cache, NFE, or
+      distribution shift in the existing compute volume.
+    canonical_owner: compute-and-controlled-comparisons.md
+    accepted_placements:
+      - family production sections when a measured generative effect exists
+    rejection_boundary: Do not create a generic model-compression textbook inside this book.
+    implementation_status: rejected
+
+  - id: foundation_model_as_component_category
+    name: Foundation model as a generative component category
+    abstraction_layer: system_composition
+    canonical_definition: >-
+      A scale, pretraining, reuse, or product category whose underlying model
+      can belong to different generative or discriminative families.
+    gap: no_coherent_component_definition
+    decision: rejected
+    rationale: >-
+      The label does not specify probability semantics, objective, sampler,
+      representation, or interface. Specific pretrained encoders, retrievers,
+      generators, and critics can be admitted in their actual roles.
+    canonical_owner: generative-models-unified.md#separate-the-layers-before-unifying-them
+    accepted_placements:
+      - representations when a frozen encoder is used as a codec component
+      - composed systems when a named pretrained generator or retriever is used
+    rejection_boundary: Reconsider the concrete component, not the umbrella label.
+    implementation_status: rejected
+
+acceptance_result:
+  coverage_updates:
+    - A complete cross-family volume now owns conditioning, change of measure, hard constraints, selection, and retrieval.
+    - A complete cross-family volume now owns likelihood, evidence, partition-function, and normalizer-ratio estimators and their uncertainty contracts.
+    - A complete cross-family volume now owns graphical inference, exact message reuse, loopy approximation, compilation, and learned-message boundaries.
+    - A complete cross-family inference volume now owns state-space filtering, smoothing, Gaussian closure, nonlinear projection, ensembles, learned filters, and validation boundaries.
+    - A complete Foundations volume now owns sequential targets, proper weighting, resampling, particle and genealogical degeneracy, proposal adaptation, smoothing, PMCMC, static SMC, learned twists, and particle-guided generators.
+    - The graphical-inference volume now owns posterior decision-query distinctions, information-form Gaussian messages, and exact-versus-approximate randomized optimization samplers.
+    - The latent-inference volume now owns the CAVI-to-ADVI algorithm ladder, richer guide interfaces, weighted and wake-sleep objectives, and semi-amortized refinement; the graphical-inference volume owns EP site semantics.
+    - The sampling foundation now owns iid Monte Carlo uncertainty, rejection efficiency, generic variance reduction, QMC/RQMC, fixed-randomness objectives, and multilevel coupling without promoting estimator designs to model families.
+    - The classical foundation now owns dependency-graph structure learning and routes random-graph, inference, learned-computation, and causal semantics to their distinct owners.
+    - The flow guide now derives surjective, injective, and augmented likelihood semantics.
+    - The representation guide now derives RVQ, product/lookup-free quantization, and tokenizer-prior co-design.
+    - The representation guide now separates adaptation protocols, CKA-style diagnostics, contrastive view laws, and auxiliary generative representation alignment.
+    - Autoregressive constrained decoding now distinguishes local masking from exact global conditioning.
+  non_duplication_result: >-
+    Ten source-derived candidates already had complete or expanded canonical owners and
+    were merged rather than rewritten. Three generic labels were rejected.
+  family_boundary: >-
+    None of the accepted components is recorded as a new model family. They
+    change targets, parameterizations, paths, feasible sets, decisions, or
+    system composition while preserving the identity of their owning families.

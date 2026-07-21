@@ -1,0 +1,1656 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="This chapter treats the codec as part of the probabilistic model and develops a query-first map for reconstruction, sufficiency, accessibility, invariance," name="description"/>
+<meta content="Mahdi Shafiei" name="author"/>
+<link href="https://docs.avitai.bio/artifex/user-guide/concepts/representations-01-semantics/" rel="canonical"/>
+<link href="../geometric-equivariant-generative-modeling/" rel="prev"/>
+<link href="../representations-02-codecs/" rel="next"/>
+<link href="../../../assets/images/favicon.png" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.7.7" name="generator"/>
+<title>Representations 1 — Codec Semantics - Artifex</title>
+<link href="../../../assets/stylesheets/main.ec1eaa64.min.css" rel="stylesheet"/>
+<link href="../../../assets/stylesheets/palette.ab4e12ef.min.css" rel="stylesheet"/>
+<script src="../../../assets/vendor/iframe-worker/index.js"></script>
+<link href="../../../assets/_mkdocstrings.css" rel="stylesheet"/>
+<link href="../../../_static/extra.css" rel="stylesheet"/>
+<script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+<meta content="article" property="og:type"/>
+<meta content="The Artifex Generative Models Book" property="og:site_name"/>
+<meta content="Representations 1 — Codec Semantics" property="og:title"/>
+<meta content="This chapter treats the codec as part of the probabilistic model and develops a query-first map for reconstruction, sufficiency, accessibility, invariance," property="og:description"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/representations-01-semantics/" property="og:url"/>
+<meta content="2026-07-14" property="article:modified_time"/>
+<meta content="summary" name="twitter:card"/>
+<meta content="Representations 1 — Codec Semantics" name="twitter:title"/>
+<meta content="This chapter treats the codec as part of the probabilistic model and develops a query-first map for reconstruction, sufficiency, accessibility, invariance," name="twitter:description"/>
+<meta content="Generative models, Machine learning, Probabilistic modeling, research, specialization, canonical_chapter, representations-semantics, practitioner, researcher" name="keywords"/>
+<meta content="Representations 1 — Codec Semantics" name="citation_title"/>
+<meta content="Mahdi Shafiei" name="citation_author"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/representations-01-semantics/" name="citation_public_url"/>
+<meta content="en" name="citation_language"/>
+<meta content="Representations 1 — Codec Semantics" name="DC.title"/>
+<meta content="Mahdi Shafiei" name="DC.creator"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/representations-01-semantics/" name="DC.identifier"/>
+<meta content="Text.LearningResource" name="DC.type"/>
+<meta content="2026-07-14" name="DCTERMS.modified"/>
+<meta content="https://github.com/avitai/artifex/blob/main/LICENSE" name="DCTERMS.license"/>
+<meta content="research" name="DCTERMS.educationLevel"/>
+<meta content="practitioner, researcher" name="DCTERMS.audience"/>
+<link href="https://github.com/avitai/artifex/blob/main/LICENSE" rel="license"/>
+<script id="artifex-book-metadata" type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Chapter",
+  "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/representations-01-semantics/",
+  "url": "https://docs.avitai.bio/artifex/user-guide/concepts/representations-01-semantics/",
+  "name": "Representations 1 \u2014 Codec Semantics",
+  "description": "This chapter treats the codec as part of the probabilistic model and develops a query-first map for reconstruction, sufficiency, accessibility, invariance,",
+  "identifier": "representations-semantics",
+  "inLanguage": "en",
+  "isAccessibleForFree": true,
+  "learningResourceType": "Canonical chapter",
+  "educationalLevel": "research",
+  "educationalUse": "specialization",
+  "audience": [
+    
+      {"@type": "EducationalAudience", "audienceType": "practitioner"},
+    
+      {"@type": "EducationalAudience", "audienceType": "researcher"}
+    
+  ],
+  "dateModified": "2026-07-14",
+  "keywords": ["Generative models", "Machine learning", "Probabilistic modeling", "research", "specialization", "canonical_chapter", "representations-semantics", "practitioner", "researcher"],
+  "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+  "author": [
+    
+      {"@type": "Person", "name": "Mahdi Shafiei"}
+    
+  ],
+  "isPartOf": {
+    "@type": "Book",
+    "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/#book",
+    "url": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/",
+    "name": "The Artifex Generative Models Book",
+    "bookEdition": "Living Web Edition",
+    "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+    "author": [
+      
+        {"@type": "Person", "name": "Mahdi Shafiei"}
+      
+    ]
+  }
+}
+</script>
+<script defer="" src="../../../javascripts/mathjax.js"></script>
+<script defer="" integrity="sha384-OrHfGTnIbkl0do3N76qW/uWr38o91N05sbSPuYBPLH+hG8X/dNSrjZf3AGjzrCwC" src="../../../assets/vendor/mathjax/tex-mml-chtml.js"></script>
+</head>
+<body data-md-color-accent="amber" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#representations-1-codec-semantics">
+          Skip to content
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header md-header--shadow" data-md-component="header">
+<nav aria-label="Header" class="md-header__inner md-grid">
+<a aria-label="Artifex" class="md-header__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            Artifex
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+            
+              Representations 1 — Codec Semantics
+            
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-label="Switch to dark mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: light)" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_1" hidden="" title="Switch to dark mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+<input aria-label="Switch to light mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-primary="indigo" data-md-color-scheme="slate" id="__palette_1" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_0" hidden="" title="Switch to light mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+</form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div aria-label="Search" class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Search" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="Search" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="Search" class="md-search__options">
+<a aria-label="Share" class="md-search__icon md-icon" data-clipboard="" data-clipboard-text="" data-md-component="search-share" href="javascript:void(0)" tabindex="-1" title="Share">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"></path></svg>
+</a>
+<button aria-label="Clear" class="md-search__icon md-icon" tabindex="-1" title="Clear" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            Initializing search
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Navigation" class="md-nav md-nav--primary" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="Artifex" class="md-nav__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+    Artifex
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../..">
+<span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../getting-started/installation/">
+<span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Generative Models Book
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Generative Models Book
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    
+  
+    Start Here — The Landscape
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../first-course-01-generative-systems/">
+<span class="md-ellipsis">
+    
+  
+    First Course — New to Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../probability-01-objects/">
+<span class="md-ellipsis">
+    
+  
+    Foundations
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../autoregressive-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Model Families
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_5" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_5" id="__nav_3_5_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Connections and Compositions
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_5_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_5">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Connections and Compositions
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gradients-01-taxonomy/">
+<span class="md-ellipsis">
+    
+  
+    Gradients and Geometry in Generative Modeling
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../density-latent-energy-01-objects/">
+<span class="md-ellipsis">
+    
+  
+    Density, Latent, Energy, and Score
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../probability-paths-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Probability Paths and Stochastic Transport
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../general-markov-01-operators/">
+<span class="md-ellipsis">
+    
+  
+    General Markov Generators
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../few-step-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Transitions and Few-Step Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../geometric-01-symmetry/">
+<span class="md-ellipsis">
+    
+  
+    Geometric and Equivariant Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_5_7" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_5_7" id="__nav_3_5_7_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Representations and Multimodal Systems
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_5_7_label" class="md-nav" data-md-level="3">
+<label class="md-nav__title" for="__nav_3_5_7">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Representations and Multimodal Systems
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
+    
+  
+    1. Codec Semantics
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
+<span class="md-ellipsis">
+    
+  
+    1. Codec Semantics
+  
+
+    
+  </span>
+</a>
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#1-representation-is-part-of-the-generative-model">
+<span class="md-ellipsis">
+      
+        1. Representation Is Part of the Generative Model
+      
+    </span>
+</a>
+<nav aria-label="1. Representation Is Part of the Generative Model" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-1-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 1 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#ratedistortion-view">
+<span class="md-ellipsis">
+      
+        Rate–distortion view
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#deterministic-and-stochastic-codecs">
+<span class="md-ellipsis">
+      
+        Deterministic and stochastic codecs
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#representation-induced-support">
+<span class="md-ellipsis">
+      
+        Representation-induced support
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-information-loss">
+<span class="md-ellipsis">
+      
+        Worked information loss
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#a-representation-has-no-task-free-quality-score">
+<span class="md-ellipsis">
+      
+        A representation has no task-free quality score
+      
+    </span>
+</a>
+<nav aria-label="A representation has no task-free quality score" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#sufficiency-accessibility-and-utility">
+<span class="md-ellipsis">
+      
+        Sufficiency, accessibility, and utility
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#invariance-is-a-quotient-equivariance-retains-a-transformation">
+<span class="md-ellipsis">
+      
+        Invariance is a quotient; equivariance retains a transformation
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#disentanglement-and-identifiability-answer-different-questions">
+<span class="md-ellipsis">
+      
+        Disentanglement and identifiability answer different questions
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#representation-evaluation-matrix">
+<span class="md-ellipsis">
+      
+        Representation evaluation matrix
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#adaptation-protocols-measure-different-interfaces">
+<span class="md-ellipsis">
+      
+        Adaptation protocols measure different interfaces
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#representational-similarity-is-a-diagnostic-not-a-quality-score">
+<span class="md-ellipsis">
+      
+        Representational similarity is a diagnostic, not a quality score
+      
+    </span>
+</a>
+<nav aria-label="Representational similarity is a diagnostic, not a quality score" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-three-point-example-cka-one-fixed-decoder-failure">
+<span class="md-ellipsis">
+      
+        Worked three-point example: CKA one, fixed decoder failure
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-finite-counterexample-four-codes-four-different-claims">
+<span class="md-ellipsis">
+      
+        Worked finite counterexample: four codes, four different claims
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#what-each-training-objective-supplies">
+<span class="md-ellipsis">
+      
+        What each training objective supplies
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#four-evaluation-layers">
+<span class="md-ellipsis">
+      
+        Four evaluation layers
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-1-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 1 synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../representations-02-codecs/">
+<span class="md-ellipsis">
+    
+  
+    2. Discrete and Continuous Codecs
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../representations-03-fusion/">
+<span class="md-ellipsis">
+    
+  
+    3. Fusion and Alignment
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../representations-04-unified/">
+<span class="md-ellipsis">
+    
+  
+    4. Shared Backbones and Hybrid Systems
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../representations-05-training/">
+<span class="md-ellipsis">
+    
+  
+    5. Training and Evaluation
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../representations-06-practice/">
+<span class="md-ellipsis">
+    
+  
+    6. Research Directions
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../representations-and-multimodal-systems/">
+<span class="md-ellipsis">
+    
+  
+    Continuous View (All Chapters)
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../steering-01-targets/">
+<span class="md-ellipsis">
+    
+  
+    Conditioning, Steering, Constraints, and Selection
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../world-models-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    World Models and Causal Simulators
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../landscape-01-copulas/">
+<span class="md-ellipsis">
+    
+  
+    Extended Generative Landscape
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../normalization-01-queries/">
+<span class="md-ellipsis">
+    
+  
+    Research Practice
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../models/vae-guide/">
+<span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/core/base/">
+<span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../examples/overview/">
+<span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../zoo/">
+<span class="md-ellipsis">
+    
+  
+    Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../training/overview/">
+<span class="md-ellipsis">
+    
+  
+    Training
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../data/overview/">
+<span class="md-ellipsis">
+    
+  
+    Data &amp; Modalities
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../inference/overview/">
+<span class="md-ellipsis">
+    
+  
+    Inference &amp; Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../benchmarks/">
+<span class="md-ellipsis">
+    
+  
+    Evaluation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../guides/extensions/">
+<span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../extensions/">
+<span class="md-ellipsis">
+    
+  
+    Advanced Topics
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../cli/">
+<span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../community/contributing/">
+<span class="md-ellipsis">
+    
+  
+    Community
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/configs/protein-extension/">
+<span class="md-ellipsis">
+    
+  
+    Reference Library
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#1-representation-is-part-of-the-generative-model">
+<span class="md-ellipsis">
+      
+        1. Representation Is Part of the Generative Model
+      
+    </span>
+</a>
+<nav aria-label="1. Representation Is Part of the Generative Model" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-1-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 1 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#ratedistortion-view">
+<span class="md-ellipsis">
+      
+        Rate–distortion view
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#deterministic-and-stochastic-codecs">
+<span class="md-ellipsis">
+      
+        Deterministic and stochastic codecs
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#representation-induced-support">
+<span class="md-ellipsis">
+      
+        Representation-induced support
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-information-loss">
+<span class="md-ellipsis">
+      
+        Worked information loss
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#a-representation-has-no-task-free-quality-score">
+<span class="md-ellipsis">
+      
+        A representation has no task-free quality score
+      
+    </span>
+</a>
+<nav aria-label="A representation has no task-free quality score" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#sufficiency-accessibility-and-utility">
+<span class="md-ellipsis">
+      
+        Sufficiency, accessibility, and utility
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#invariance-is-a-quotient-equivariance-retains-a-transformation">
+<span class="md-ellipsis">
+      
+        Invariance is a quotient; equivariance retains a transformation
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#disentanglement-and-identifiability-answer-different-questions">
+<span class="md-ellipsis">
+      
+        Disentanglement and identifiability answer different questions
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#representation-evaluation-matrix">
+<span class="md-ellipsis">
+      
+        Representation evaluation matrix
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#adaptation-protocols-measure-different-interfaces">
+<span class="md-ellipsis">
+      
+        Adaptation protocols measure different interfaces
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#representational-similarity-is-a-diagnostic-not-a-quality-score">
+<span class="md-ellipsis">
+      
+        Representational similarity is a diagnostic, not a quality score
+      
+    </span>
+</a>
+<nav aria-label="Representational similarity is a diagnostic, not a quality score" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-three-point-example-cka-one-fixed-decoder-failure">
+<span class="md-ellipsis">
+      
+        Worked three-point example: CKA one, fixed decoder failure
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-finite-counterexample-four-codes-four-different-claims">
+<span class="md-ellipsis">
+      
+        Worked finite counterexample: four codes, four different claims
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#what-each-training-objective-supplies">
+<span class="md-ellipsis">
+      
+        What each training objective supplies
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#four-evaluation-layers">
+<span class="md-ellipsis">
+      
+        Four evaluation layers
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-1-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 1 synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<nav aria-label="Breadcrumb" class="md-path">
+<ol class="md-path__list">
+<li class="md-path__item">
+<a class="md-path__link" href="../../..">
+<span class="md-ellipsis">
+    Home
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    Generative Models Book
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../gradients-01-taxonomy/">
+<span class="md-ellipsis">
+    Connections and Compositions
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="./">
+<span class="md-ellipsis">
+    Representations and Multimodal Systems
+  </span>
+</a>
+</li>
+</ol>
+</nav>
+<article class="md-content__inner md-typeset">
+<h1 id="representations-1-codec-semantics">Representations 1 — Codec Semantics<a class="headerlink" href="#representations-1-codec-semantics" title="Permanent link">¤</a></h1><aside aria-label="Learning path" class="admonition abstract artifex-learning-path"><p class="admonition-title">Learning path</p><p><strong>Required knowledge</strong></p><ul class="artifex-learning-path__links" data-learning-path-role="required"><li><a href="../vae-explained/">Variational Autoencoders (VAEs) Explained</a></li><li><a href="../objectives-and-statistical-distances/">Objectives and Statistical Distances</a></li></ul><p><strong>Readiness check:</strong> can you explain the central object and reproduce one worked example from each required chapter? If not, follow its link before continuing.</p><p><strong>Newly unlocked in the default route</strong></p><ul class="artifex-learning-path__links" data-learning-path-role="unlocks"><li><a href="../representations-02-codecs/">Representations 2 — Discrete and Continuous Codecs</a></li></ul></aside>
+<p>This chapter treats the codec as part of the probabilistic model and develops a query-first map for reconstruction, sufficiency, accessibility, invariance, disentanglement, identifiability, compression, and causal adequacy. Read it continuously in the <a href="../representations-and-multimodal-systems/#1-representation-is-part-of-the-generative-model">complete guide</a>.</p>
+<h2 id="1-representation-is-part-of-the-generative-model">1. Representation Is Part of the Generative Model<a class="headerlink" href="#1-representation-is-part-of-the-generative-model" title="Permanent link">¤</a></h2>
+<h3 id="chapter-1-prerequisites-and-learning-objectives">Chapter 1 prerequisites and learning objectives<a class="headerlink" href="#chapter-1-prerequisites-and-learning-objectives" title="Permanent link">¤</a></h3>
+<p>This chapter assumes conditional probability and basic encoder/decoder models.
+By the end, you should be able to treat tokenizers, codecs, coordinate systems,
+and modality transforms as parts of the modeled system; distinguish invertible,
+lossy, stochastic, and many-to-one representations; derive the induced law on
+observations; and identify when representation error or support loss dominates a
+generator comparison.</p>
+<p>Let an encoder produce <span class="arithmatex">\(z\sim q_\phi(z\mid x)\)</span> and a decoder define <span class="arithmatex">\(p_\psi(x\mid z)\)</span>. A latent generator <span class="arithmatex">\(p_\theta(z)\)</span> induces</p>
+<div class="arithmatex">\[
+p(x)=\int p_\psi(x\mid z)p_\theta(z)dz.
+\]</div>
+<p>Every output is filtered through the codec. A perfect latent generator reproduces the encoded-data distribution, not information discarded by <span class="arithmatex">\(q_\phi\)</span>.</p>
+<h3 id="ratedistortion-view">Rate–distortion view<a class="headerlink" href="#ratedistortion-view" title="Permanent link">¤</a></h3>
+<p>A codec trades reconstruction distortion <span class="arithmatex">\(D\)</span> against representation rate <span class="arithmatex">\(R\)</span>:</p>
+<div class="arithmatex">\[
+\min_{q,p}\;D+\beta R.
+\]</div>
+<p>Distortion may be pixel, waveform, perceptual, adversarial, semantic, or task specific. Rate may refer to measured code length, an entropy-model cross-entropy, a variational KL, or a token-count proxy, but these quantities are not interchangeable. The <a href="../objectives-and-statistical-distances/#9-ratedistortion-and-information-bottlenecks">operational rate–distortion chapter</a> defines each one. There is no universal “best latent”: a representation optimized for perceptual reconstruction may omit text, counts, timing, or scientific quantities important downstream.</p>
+<h3 id="deterministic-and-stochastic-codecs">Deterministic and stochastic codecs<a class="headerlink" href="#deterministic-and-stochastic-codecs" title="Permanent link">¤</a></h3>
+<p>A deterministic encoder maps <span class="arithmatex">\(x\)</span> to one <span class="arithmatex">\(z\)</span>. A stochastic encoder retains posterior uncertainty and can represent ambiguous measurements, at the cost of inference and sampling choices. Decoder likelihood semantics still matter: mean-squared reconstruction corresponds to a Gaussian observation model only with specified variance and independence assumptions.</p>
+<h3 id="representation-induced-support">Representation-induced support<a class="headerlink" href="#representation-induced-support" title="Permanent link">¤</a></h3>
+<p>The decoder restricts reachable outputs. A latent flow can have exact density in <span class="arithmatex">\(z\)</span> while the decoded distribution is implicit or singular in observation space. A many-to-one decoder means distinct latents can represent the same output; an undercomplete codec can make some outputs unreachable.</p>
+<h3 id="worked-information-loss">Worked information loss<a class="headerlink" href="#worked-information-loss" title="Permanent link">¤</a></h3>
+<p>Let <span class="arithmatex">\(x=(a,b)\)</span> with independent bits and encode <span class="arithmatex">\(z=a\)</span>. A generator can learn <span class="arithmatex">\(p(z)\)</span> exactly. If the decoder predicts <span class="arithmatex">\(b\)</span> uniformly, it reproduces the joint only because the discarded bit was independent. If instead <span class="arithmatex">\(b=a\oplus c\)</span> for hidden context <span class="arithmatex">\(c\)</span> unavailable to the decoder, reconstruction and conditional control over <span class="arithmatex">\(b\)</span> are impossible regardless of generator scale.</p>
+<h3 id="a-representation-has-no-task-free-quality-score">A representation has no task-free quality score<a class="headerlink" href="#a-representation-has-no-task-free-quality-score" title="Permanent link">¤</a></h3>
+<p>Let <span class="arithmatex">\((X,Y)\sim p\)</span> denote an observation and a declared target, and let the
+encoder be <span class="arithmatex">\(Z\sim q_\phi(z\mid X)\)</span>. The same <span class="arithmatex">\(Z\)</span> may be excellent for one
+query and unusable for another. Before choosing a metric, specify:</p>
+<ol>
+<li>the source and deployment distributions over <span class="arithmatex">\(X\)</span>;</li>
+<li>the target, conditional query, or family of downstream tasks;</li>
+<li>which transformations should leave the answer unchanged and which should
+   transform it predictably;</li>
+<li>the allowed decoder or adaptation class, its training sample, and its
+   compute budget;</li>
+<li>the rate, latency, or state-space constraint on <span class="arithmatex">\(Z\)</span>; and</li>
+<li>the equivalence class under which a latent-recovery claim counts as
+   identified.</li>
+</ol>
+<p>Without these declarations, “semantic,” “compact,” “invariant,” “linear,” and
+“disentangled” are descriptions without a testable contract.</p>
+<h4 id="sufficiency-accessibility-and-utility">Sufficiency, accessibility, and utility<a class="headerlink" href="#sufficiency-accessibility-and-utility" title="Permanent link">¤</a></h4>
+<p>Under the joint law <span class="arithmatex">\(p(x,y)q_\phi(z\mid x)\)</span>, <span class="arithmatex">\(Z\)</span> is sufficient for predicting
+<span class="arithmatex">\(Y\)</span> from <span class="arithmatex">\(X\)</span> when</p>
+<div class="arithmatex">\[
+Y\perp X\mid Z,
+\qquad\text{equivalently}\qquad
+I(Y;X\mid Z)=0.
+\]</div>
+<p>This is a population property for a named target and distribution. It says that
+an unrestricted decision rule loses no predictive information by receiving
+<span class="arithmatex">\(Z\)</span> instead of <span class="arithmatex">\(X\)</span>. A linear probe asks a different question: can one member
+of a particular function class be estimated from a finite sample, with a
+declared regularizer and optimization procedure? Poor linear-probe performance
+does not prove that information is absent, and strong probe performance does
+not prove robustness under distribution shift.</p>
+<p>If <span class="arithmatex">\(X\)</span> can be recovered exactly as <span class="arithmatex">\(X=d(Z)\)</span>, then every target generated from
+<span class="arithmatex">\(X\)</span> is recoverable from <span class="arithmatex">\(Z\)</span> in principle. Exact reconstruction therefore
+implies information-theoretic sufficiency for such targets, but it does not
+make them linearly accessible, sample-efficient, invariant, causally valid, or
+semantically axis-aligned. Approximate reconstruction under one distortion is
+weaker still: a small average error can hide a rare task-critical feature.</p>
+<h4 id="invariance-is-a-quotient-equivariance-retains-a-transformation">Invariance is a quotient; equivariance retains a transformation<a class="headerlink" href="#invariance-is-a-quotient-equivariance-retains-a-transformation" title="Permanent link">¤</a></h4>
+<p>For a deterministic encoder <span class="arithmatex">\(f\)</span> and transformation <span class="arithmatex">\(g\)</span>, invariance means
+<span class="arithmatex">\(f(gx)=f(x)\)</span>. For a stochastic encoder, the corresponding statement is equality
+of conditional laws, <span class="arithmatex">\(q_\phi(\cdot\mid gx)=q_\phi(\cdot\mid x)\)</span>. Invariance
+collapses every declared transformation orbit to one code. That is useful only
+when the target is constant on those orbits.</p>
+<p>If rotation changes the quantity to be generated or controlled, an invariant
+code has discarded necessary information. An equivariant code instead obeys
+<span class="arithmatex">\(f(gx)=\rho(g)f(x)\)</span> for a known action <span class="arithmatex">\(\rho\)</span> in representation space. It keeps
+the transformation available while organizing it predictably. The
+<a href="../geometric-equivariant-generative-modeling/">geometric-generative guide</a>
+develops these group actions for sets, graphs, point clouds, and physical
+systems.</p>
+<h4 id="disentanglement-and-identifiability-answer-different-questions">Disentanglement and identifiability answer different questions<a class="headerlink" href="#disentanglement-and-identifiability-answer-different-questions" title="Permanent link">¤</a></h4>
+<p>A disentanglement claim relates coordinates or subspaces of <span class="arithmatex">\(Z\)</span> to <em>named</em>
+generative factors. Statistical independence among coordinates is not enough:
+independent variables can be transformed into different independent variables
+that mix the original semantics. Conversely, correlated causal factors need
+not admit independent coordinates even when their mechanisms are scientifically
+meaningful.</p>
+<p>Identifiability asks whether the available data distribution and model
+assumptions determine the latent representation up to a declared equivalence
+class—perhaps permutation and componentwise reparameterization. If two latent
+models induce the same observed law but disagree beyond that class, no
+observational metric can select the intended one. The unsupervised
+non-identifiability result of
+<a href="https://proceedings.mlr.press/v97/locatello19a">Locatello et al.</a> and positive
+results with an observed auxiliary variable under a conditional factorized
+prior in
+<a href="https://proceedings.mlr.press/v108/khemakhem20a.html">Khemakhem et al.</a>
+illustrate why every positive recovery result must state its assumptions.
+The <a href="../classical-generative-models/#independent-components-and-the-source-separation-contract">classical latent-model chapter</a>
+derives the narrower linear ICA theorem, its permutation and scaling
+equivalences, and the scale degeneracy inherited by sparse dictionaries.
+Sparse autoencoders add an amortized encoder and modern architectures, but
+overcompleteness and reconstruction do not erase those identification and
+stability questions; a peer-reviewed analysis of
+<a href="https://openreview.net/forum?id=miLK9YcxtA">identifiable sparse autoencoders</a>
+is evidence for particular repaired designs under its definitions, not for
+arbitrary learned features.
+Augmentation-paired views can also identify invariant content only under a
+specified latent view model and equivalence class
+(<a href="https://proceedings.neurips.cc/paper/2021/hash/8929c70f8d710e412d38da624b21c3c8-Abstract.html">von Kügelgen et al.</a>).</p>
+<h3 id="representation-evaluation-matrix">Representation evaluation matrix<a class="headerlink" href="#representation-evaluation-matrix" title="Permanent link">¤</a></h3>
+<p>The rows below are complementary. Passing one row does not silently pass the
+others.</p>
+<div class="md-typeset__table book-table-container"><table id="tbl-representations-and-multimodal-systems-representation-evaluation-matrix"><caption class="book-object-caption"><span class="book-object-number">Table REP.1.</span> Representation evaluation matrix</caption>
+<thead>
+<tr>
+<th>Claimed property</th>
+<th>Population question</th>
+<th>Representative evidence</th>
+<th>What it does <strong>not</strong> establish</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Observation fidelity</td>
+<td>Can <span class="arithmatex">\(d(Z)\)</span> recover the declared aspects of <span class="arithmatex">\(X\)</span> under a specified likelihood or distortion?</td>
+<td>held-out likelihood/distortion, residual stratification, perceptual and task-specific errors</td>
+<td>prior-sample quality, semantic axes, compactness, or easy downstream access</td>
+</tr>
+<tr>
+<td>Generative adequacy</td>
+<td>Do <span class="arithmatex">\(Z\sim p_\theta(z)\)</span> and <span class="arithmatex">\(X\sim p_\psi(x\mid Z)\)</span> reproduce the required observation law and conditions?</td>
+<td>latent NLL where available, decoded fidelity/coverage, conditional calibration, memorization audit</td>
+<td>recovery of the data-generating latent variables</td>
+</tr>
+<tr>
+<td>Target sufficiency</td>
+<td>Is <span class="arithmatex">\(Y\perp X\mid Z\)</span> for the named <span class="arithmatex">\(Y\)</span> and deployment law?</td>
+<td>proper held-out risk against an <span class="arithmatex">\(X\)</span>-based reference, conditional-information bounds when justified</td>
+<td>sufficiency for another target or environment</td>
+</tr>
+<tr>
+<td>Accessibility and utility</td>
+<td>Can a declared adapter learn the target from <span class="arithmatex">\(Z\)</span> with a stated sample and compute budget?</td>
+<td>frozen linear/nonlinear probes, few-shot curves, fine-tuning, shift tests</td>
+<td>information absence after a weak probe, or causal validity</td>
+</tr>
+<tr>
+<td>Invariance/equivariance</td>
+<td>Does <span class="arithmatex">\(Z\)</span> collapse or predictably transform along the declared action, while retaining target information?</td>
+<td>paired transformations, orbit-wise tests, equivariance residuals, out-of-orbit checks</td>
+<td>benefit for targets that change under the action</td>
+</tr>
+<tr>
+<td>Disentanglement</td>
+<td>Do named factors map to declared coordinates or subspaces under a stated equivalence?</td>
+<td>factor labels, controlled pairs/interventions, several factor metrics, intervention tests</td>
+<td>unsupervised identification, downstream utility, or causal mechanisms by itself</td>
+</tr>
+<tr>
+<td>Identifiability</td>
+<td>Does equality of observable laws imply equality of latent structure up to the allowed transformations?</td>
+<td>a theorem with explicit model, support, auxiliary-variable, temporal, or intervention assumptions</td>
+<td>finite-sample recovery or successful optimization</td>
+</tr>
+<tr>
+<td>Compression/minimality</td>
+<td>How much rate or state is needed while preserving the declared distortion or task family?</td>
+<td>actual bitstream rate, entropy-model cross-entropy, information bounds, rate–utility curves</td>
+<td>a universal smallest representation independent of the query</td>
+</tr>
+<tr>
+<td>Causal adequacy</td>
+<td>Does <span class="arithmatex">\(Z\)</span> retain identified variables or mechanisms needed for intervention or counterfactual queries?</td>
+<td>multi-environment/interventional tests, mechanism-shift prediction, sensitivity analysis</td>
+<td>causal semantics from observational reconstruction or prediction alone</td>
+</tr>
+</tbody>
+</table></div>
+<div class="admonition warning">
+<p class="admonition-title">Metric names do not define the claim</p>
+<p>A reconstruction score depends on its distortion and decoder; a probe
+depends on its adapter and data budget; a disentanglement score depends on
+known factors and its invariances; an information estimate depends on its
+estimator; and an intervention test depends on identification assumptions.
+Report the entire row contract, not just the scalar.</p>
+</div>
+<h3 id="adaptation-protocols-measure-different-interfaces">Adaptation protocols measure different interfaces<a class="headerlink" href="#adaptation-protocols-measure-different-interfaces" title="Permanent link">¤</a></h3>
+<p>A representation is not evaluated by attaching an unspecified "probe." Let
+<span class="arithmatex">\(r_\ell\)</span> denote the extraction rule at layer <span class="arithmatex">\(\ell\)</span>, including token selection
+or pooling and normalization, and let <span class="arithmatex">\(\mathcal A\)</span> be the class of adapters
+allowed to act on <span class="arithmatex">\(Z=r_\ell(X)\)</span>. A reproducible adaptation protocol declares
+the layer, preprocessing, adapter class, labeled-sample budget, regularization,
+optimizer, model-selection data, and evaluation distribution. Changing any of
+these changes the question.</p>
+<p>The common protocols expose five different interfaces:</p>
+<ul>
+<li><strong>Frozen linear probe.</strong> It asks whether the target is linearly accessible
+  from one fixed extraction under the declared data and optimization budget. A
+  positive result supports linear accessibility and measured sample efficiency,
+  not absence of nonlinear information, full-model adaptability, or robustness
+  to another shift.</li>
+<li><strong>Frozen nonlinear probe.</strong> It asks whether a richer declared adapter can
+  recover the target without changing the encoder. A positive result supports
+  accessibility through that function class, not simple organization or proof
+  that the adapter did not learn most of the task itself.</li>
+<li><strong>Few-shot adaptation curve.</strong> It asks how held-out risk changes with labeled
+  data and update budget. It supports sample-efficiency comparisons over the
+  measured range, not asymptotic sufficiency or extrapolation beyond that range.</li>
+<li><strong>Full fine-tuning.</strong> It asks whether an initialization adapts well when the
+  encoder itself may change. It measures optimization and transfer behavior of
+  the initialized system, not only the quality of the original frozen code.</li>
+<li><strong>Zero-shot fixed interface.</strong> It asks whether a declared prompt, similarity
+  rule, or decoder works without task-specific parameter updates. Failure does
+  not establish information absence or failure under another readout.</li>
+</ul>
+<p>Fine-tuning is especially easy to misname: because it changes <span class="arithmatex">\(r_\ell\)</span>, its
+result measures an <strong>initialization and learning procedure</strong>, not only the
+frozen code. Fair comparisons hold the labeled data, splits, search budget,
+adapter capacity, stopping rule, and reported layer fixed. They also report a
+raw-input or randomly initialized baseline when it answers a meaningful
+control question.</p>
+<p>The XOR code below anticipates the distinction. <span class="arithmatex">\(Z_{\mathrm{mix}}\)</span> preserves
+the class bit exactly, yet no affine readout separates the two classes. A
+two-layer nonlinear adapter can implement XOR. Calling the linear result
+"information loss" would therefore confuse one adapter's limitation with the
+representation's population information.</p>
+<h3 id="representational-similarity-is-a-diagnostic-not-a-quality-score">Representational similarity is a diagnostic, not a quality score<a class="headerlink" href="#representational-similarity-is-a-diagnostic-not-a-quality-score" title="Permanent link">¤</a></h3>
+<p>Similarity methods compare two activation spaces on the <strong>same named examples</strong>.
+They answer a correspondence question, which is different from predicting a
+target or substituting one latent space inside a generator. For centered
+activation matrices <span class="arithmatex">\(X\in\mathbb R^{n\times p}\)</span> and
+<span class="arithmatex">\(Y\in\mathbb R^{n\times q}\)</span> with nonzero feature variation, linear centered
+kernel alignment is</p>
+<div class="arithmatex">\[
+\operatorname{CKA}_{\mathrm{lin}}(X,Y)
+=
+\frac{\lVert X^{\mathsf T} Y\rVert_{F}^{2}}
+{\lVert X^{\mathsf T} X\rVert_F
+ \lVert Y^{\mathsf T} Y\rVert_F}.
+\]</div>
+<p>Linear CKA is unchanged by isotropic rescaling or an orthogonal change of
+feature basis. It is not invariant to every invertible linear map. This is a
+deliberate restriction: a similarity statistic invariant to every invertible
+linear transform becomes uninformative when the feature dimension is at least
+the number of examples. CCA-family measures use different invariances and
+regularization choices; none should be reported without the sample set,
+centering, layer, pooling, kernel or truncation, and uncertainty across seeds.
+See the primary analysis of
+<a href="https://proceedings.mlr.press/v97/kornblith19a.html">Kornblith et al.</a>.</p>
+<h4 id="worked-three-point-example-cka-one-fixed-decoder-failure">Worked three-point example: CKA one, fixed decoder failure<a class="headerlink" href="#worked-three-point-example-cka-one-fixed-decoder-failure" title="Permanent link">¤</a></h4>
+<p>Consider the already centered matrices</p>
+<div class="arithmatex">\[
+X=
+\begin{bmatrix}
+-1&amp;0\\
+0&amp;0\\
+1&amp;0
+\end{bmatrix}.
+\]</div>
+<p>Now swap its two feature coordinates:</p>
+<div class="arithmatex">\[
+\begin{aligned}
+Q=
+\begin{bmatrix}
+0&amp;1\\
+1&amp;0
+\end{bmatrix},
+\\
+Y&amp;=XQ.
+\end{aligned}
+\]</div>
+<p>Because <span class="arithmatex">\(Q\)</span> is orthogonal, <span class="arithmatex">\(\operatorname{CKA}_{\mathrm{lin}}(X,Y)=1\)</span>.
+Indeed, the numerator and the two denominator factors are <span class="arithmatex">\(4\)</span>, <span class="arithmatex">\(2\)</span>, and <span class="arithmatex">\(2\)</span>.
+Yet a fixed decoder <span class="arithmatex">\(d(z)=z_1\)</span> returns <span class="arithmatex">\((-1,0,1)\)</span> from <span class="arithmatex">\(X\)</span> and <span class="arithmatex">\((0,0,0)\)</span>
+from <span class="arithmatex">\(Y\)</span>. The spaces become decoder-equivalent only if the interface is changed,
+for example by composing the decoder with <span class="arithmatex">\(Q^{\mathsf T}\)</span>.</p>
+<p>Thus high CKA can support a claim about activation geometry while failing to
+establish any of the following:</p>
+<ul>
+<li>equal downstream risk under a fixed adapter;</li>
+<li>plug-compatible generator latents or decoder states;</li>
+<li>recovery of the same semantic coordinates;</li>
+<li>equality of likelihoods, samples, or conditional responses; or</li>
+<li>a causal relation between the two networks.</li>
+</ul>
+<p>The converse also needs care. Low similarity under one metric can reflect an
+allowed reparameterization while both representations support the same target.
+Use similarity alongside, not in place of, the query-specific rows in the
+evaluation matrix.</p>
+<h3 id="worked-finite-counterexample-four-codes-four-different-claims">Worked finite counterexample: four codes, four different claims<a class="headerlink" href="#worked-finite-counterexample-four-codes-four-different-claims" title="Permanent link">¤</a></h3>
+<p>Let <span class="arithmatex">\(C\)</span> be a class bit and <span class="arithmatex">\(N\)</span> a nuisance bit, independently uniform on
+<span class="arithmatex">\(\{0,1\}\)</span>. The observation is <span class="arithmatex">\(X=(C,N)\)</span> and the first downstream target is
+<span class="arithmatex">\(Y=C\)</span>. Compare four deterministic representations:</p>
+<div class="arithmatex">\[
+Z_{\mathrm{axis}}=(C,N),\qquad
+Z_{\mathrm{mix}}=(C\oplus N,N),\qquad
+Z_{\mathrm{task}}=C,\qquad
+Z_{\mathrm{zero}}=0.
+\]</div>
+<div class="md-typeset__table book-table-container"><table id="tbl-representations-and-multimodal-systems-worked-finite-counterexample-four-codes-four-different-claims"><caption class="book-object-caption"><span class="book-object-number">Table REP.2.</span> Worked finite counterexample: four codes, four different claims</caption>
+<thead>
+<tr>
+<th>Representation</th>
+<th style="text-align: right;">Entropy</th>
+<th>Reconstruct all of <span class="arithmatex">\(X\)</span>?</th>
+<th>Sufficient for <span class="arithmatex">\(Y=C\)</span>?</th>
+<th>Invariant to changing <span class="arithmatex">\(N\)</span>?</th>
+<th>Axis-aligned with <span class="arithmatex">\((C,N)\)</span>?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="arithmatex">\(Z_{\mathrm{axis}}\)</span></td>
+<td style="text-align: right;"><span class="arithmatex">\(2\)</span> bits</td>
+<td>yes</td>
+<td>yes</td>
+<td>no</td>
+<td>yes</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(Z_{\mathrm{mix}}\)</span></td>
+<td style="text-align: right;"><span class="arithmatex">\(2\)</span> bits</td>
+<td>yes, since <span class="arithmatex">\(C=Z_1\oplus Z_2\)</span></td>
+<td>yes, with a nonlinear rule</td>
+<td>no</td>
+<td>no</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(Z_{\mathrm{task}}\)</span></td>
+<td style="text-align: right;"><span class="arithmatex">\(1\)</span> bit</td>
+<td>no; the best guess of <span class="arithmatex">\(N\)</span> is correct with probability <span class="arithmatex">\(1/2\)</span></td>
+<td>yes</td>
+<td>yes</td>
+<td>only for the declared target</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(Z_{\mathrm{zero}}\)</span></td>
+<td style="text-align: right;"><span class="arithmatex">\(0\)</span> bits</td>
+<td>no</td>
+<td>no; the best class accuracy is <span class="arithmatex">\(1/2\)</span></td>
+<td>yes</td>
+<td>no</td>
+</tr>
+</tbody>
+</table></div>
+<p>Both coordinates of <span class="arithmatex">\(Z_{\mathrm{mix}}\)</span> are independent uniform bits, so its
+total correlation is zero. It also reconstructs perfectly. Nevertheless its
+first coordinate mixes the two named factors, and <span class="arithmatex">\(C\)</span> is XOR—not linearly
+separable—from <span class="arithmatex">\((Z_1,Z_2)\)</span>. This one example disproves three tempting
+implications:</p>
+<ol>
+<li>zero total correlation does not imply semantic axis alignment;</li>
+<li>exact reconstruction does not imply linear accessibility; and</li>
+<li>task sufficiency and nuisance invariance do not imply full reconstruction.</li>
+</ol>
+<p>Changing the target exposes the query dependence. If the target becomes
+<span class="arithmatex">\(Y'=N\)</span>, then <span class="arithmatex">\(Z_{\mathrm{task}}\)</span> is no longer sufficient. More generally, if
+two observations share a code but have different deterministic target values,
+no predictor of that target from the code can be correct on both.</p>
+<p>The example also gives an observational identifiability failure. A generator
+can sample either <span class="arithmatex">\(Z_{\mathrm{axis}}\)</span> and use the identity decoder, or sample
+<span class="arithmatex">\(Z_{\mathrm{mix}}\)</span> and invert the XOR map. Both induce exactly the same uniform
+law over <span class="arithmatex">\(X\)</span>. Likelihood of <span class="arithmatex">\(X\)</span> cannot decide which latent coordinates have the
+intended semantics.</p>
+<h3 id="what-each-training-objective-supplies">What each training objective supplies<a class="headerlink" href="#what-each-training-objective-supplies" title="Permanent link">¤</a></h3>
+<p>An objective creates pressure toward some rows of the matrix, not a certificate
+for all of them.</p>
+<div class="md-typeset__table book-table-container"><table id="tbl-representations-and-multimodal-systems-what-each-training-objective-supplies"><caption class="book-object-caption"><span class="book-object-number">Table REP.3.</span> What each training objective supplies</caption>
+<thead>
+<tr>
+<th>Objective or data signal</th>
+<th>Direct pressure</th>
+<th>Additional evidence still required</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Reconstruction or denoising</td>
+<td>preserve information rewarded by the chosen corruption and distortion</td>
+<td>prior compatibility, semantic accessibility, and behavior on task-critical residuals</td>
+</tr>
+<tr>
+<td>Latent generative likelihood or ELBO</td>
+<td>fit an observation law while regularizing a latent/inference model as specified</td>
+<td>semantic identification, interventions, and downstream adaptation</td>
+</tr>
+<tr>
+<td>Autoregressive or masked prediction</td>
+<td>retain context useful for the chosen conditional prediction problem</td>
+<td>whether an internal layer is a sufficient, stable, or compact exported representation</td>
+</tr>
+<tr>
+<td>Contrastive or joint-embedding learning</td>
+<td>align declared positive views and separate or otherwise avoid collapse</td>
+<td>generative density/decoder semantics, and whether the view relation preserves every target of interest</td>
+</tr>
+<tr>
+<td>Supervised prediction</td>
+<td>expose information for the labeled target under the training environments</td>
+<td>reconstruction, other tasks, and robustness to mechanism or environment shift</td>
+</tr>
+<tr>
+<td>Auxiliary variables, temporal structure, grouped observations, or interventions</td>
+<td>break specific latent symmetries under a declared generative model</td>
+<td>checking every assumption and the remaining equivalence class</td>
+</tr>
+<tr>
+<td>Joint generative–semantic training</td>
+<td>optimize several declared rows simultaneously</td>
+<td>a Pareto comparison showing which gains persist at matched rate, data, model, and compute</td>
+</tr>
+</tbody>
+</table></div>
+<p>The <a href="../objectives-and-statistical-distances/">objectives guide</a> supplies the
+statistical contracts behind likelihood, variational, contrastive, and
+information objectives. The
+<a href="../vae-explained/#latent-space-properties-and-interpretation">VAE guide</a>
+applies this map to inferred latent variables. The
+<a href="../causal-generative-models-explained/">causal-generative guide</a> explains why
+interventional or counterfactual semantics require more than an observational
+representation objective.</p>
+<h3 id="four-evaluation-layers">Four evaluation layers<a class="headerlink" href="#four-evaluation-layers" title="Permanent link">¤</a></h3>
+<ol>
+<li>Codec reconstruction on held-out real data.</li>
+<li>Latent distribution modeling.</li>
+<li>Decoded sample quality and coverage.</li>
+<li>Conditional/task fidelity for information the representation should preserve.</li>
+</ol>
+<p>Reporting only layer 3 hides whether failure came from the codec or generator.</p>
+<h3 id="chapter-1-synthesis">Chapter 1 synthesis<a class="headerlink" href="#chapter-1-synthesis" title="Permanent link">¤</a></h3>
+<p>The codec defines the state space, support, information bottleneck, and observation model. Representation claims are query-specific: reconstruction, generative adequacy, sufficiency, accessibility, similarity, invariance, disentanglement, identifiability, compression, and causal adequacy require different evidence. A probe measures one declared adapter interface; a similarity index measures one declared geometric correspondence. Neither is a task-free score. Chapter 2 compares discrete, continuous, hierarchical, and temporal representations.</p>
+<details class="question">
+<summary>Retrieval practice: representation claims</summary>
+<ol>
+<li>If <span class="arithmatex">\(X=d(Z)\)</span> exactly, what does this imply about predicting a target generated from <span class="arithmatex">\(X\)</span>, and what does it not imply about a linear probe?</li>
+<li>Why does <span class="arithmatex">\(\operatorname{TC}(Z)=0\)</span> fail to prove semantic disentanglement?</li>
+<li>When does invariance to a transformation destroy target sufficiency?</li>
+<li>Is sufficiency a property of <span class="arithmatex">\(Z\)</span> alone?</li>
+<li>What must an identifiability claim declare before it is meaningful?</li>
+<li>In the finite-bit example, which code is the most compressed sufficient representation for <span class="arithmatex">\(Y=C\)</span> among the four shown?</li>
+<li>Why does full fine-tuning not measure only the frozen representation?</li>
+<li>In the three-point example, why can linear CKA equal one while a fixed decoder fails?</li>
+</ol>
+<p><strong>Solutions.</strong> (1) Any predictor from <span class="arithmatex">\(X\)</span> can in principle be composed with <span class="arithmatex">\(d\)</span> to act on <span class="arithmatex">\(Z\)</span>; a restricted linear adapter may still be unable to express or estimate that composition. (2) Independence is a distributional property of learned coordinates, while semantic disentanglement relates them to named factors; a measure-preserving mixing can retain independence. (3) When the target differs within a collapsed transformation orbit. (4) No. It is defined relative to a target and joint/deployment law. (5) The observed model, assumptions or auxiliary information, and the equivalence class under which recovery counts. (6) <span class="arithmatex">\(Z_{\mathrm{task}}=C\)</span>, with one bit. (7) Fine-tuning updates the encoder and therefore measures the initialized system's adaptation path as well as its starting code. (8) CKA treats the orthogonal coordinate swap as identical geometry, while the fixed decoder assigns meaning to one particular coordinate and is not transformed with the representation.</p>
+</details>
+<p><strong>Bridge to Chapter 2.</strong> The query map tells us what a representation must preserve. We next study the discrete, continuous, hierarchical, and temporal state spaces that implement those choices.</p>
+<hr/>
+<p><strong>Continue:</strong> <a href="../representations-02-codecs/">2. Discrete and Continuous Codecs</a> · <a href="../representations-and-multimodal-systems/">Complete guide</a></p>
+</article>
+</div>
+<script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  Back to top
+</button>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+<div class="md-social">
+<a class="md-social__link" href="https://github.com/avitai/artifex" rel="noopener" target="_blank" title="github.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</a>
+<a class="md-social__link" href="https://pypi.org/project/avitai-artifex/" rel="noopener" target="_blank" title="pypi.org">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-66.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.3v101.8c0 29 25.2 46 53.4 54.3 33.8 9.9 66.3 11.7 106.8 0 26.9-7.8 53.4-23.5 53.4-54.3v-40.7H226.2v-13.6h160.2c31.1 0 42.6-21.7 53.4-54.2 11.2-33.5 10.7-65.7 0-108.6M286.2 444.7a20.4 20.4 0 1 1 0-40.7 20.4 20.4 0 1 1 0 40.7M167.8 248.1h106.8c29.7 0 53.4-24.5 53.4-54.3V91.9c0-29-24.4-50.7-53.4-55.6-35.8-5.9-74.7-5.6-106.8.1-45.2 8-53.4 24.7-53.4 55.6v40.7h106.9v13.6h-147c-31.1 0-58.3 18.7-66.8 54.2-9.8 40.7-10.2 66.1 0 108.6 7.6 31.6 25.7 54.2 56.8 54.2H101v-48.8c0-35.3 30.5-66.4 66.8-66.4m-6.6-183.4a20.4 20.4 0 1 1 0 40.8 20.4 20.4 0 1 1 0-40.8"></path></svg>
+</a>
+<a class="md-social__link" href="https://twitter.com/mahdi_shafiei" rel="noopener" target="_blank" title="twitter.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M459.4 151.7c.3 4.5.3 9.1.3 13.6 0 138.7-105.6 298.6-298.6 298.6-59.5 0-114.7-17.2-161.1-47.1 8.4 1 16.6 1.3 25.3 1.3 49.1 0 94.2-16.6 130.3-44.8-46.1-1-84.8-31.2-98.1-72.8 6.5 1 13 1.6 19.8 1.6 9.4 0 18.8-1.3 27.6-3.6-48.1-9.7-84.1-52-84.1-103v-1.3c14 7.8 30.2 12.7 47.4 13.3-28.3-18.8-46.8-51-46.8-87.4 0-19.5 5.2-37.4 14.3-53C87.4 130.8 165 172.4 252.1 176.9c-1.6-7.8-2.6-15.9-2.6-24C249.5 95.1 296.3 48 354.4 48c30.2 0 57.5 12.7 76.7 33.1 23.7-4.5 46.5-13.3 66.6-25.3-7.8 24.4-24.4 44.8-46.1 57.8 21.1-2.3 41.6-8.1 60.4-16.2-14.3 20.8-32.2 39.3-52.6 54.3"></path></svg>
+</a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.path", "navigation.top", "navigation.prune", "toc.follow", "search.highlight", "search.share", "search.suggest", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "content.mermaid"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+<script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+<script src="../../../javascripts/reading-layout.js"></script>
+</body>
+</html>

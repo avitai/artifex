@@ -1,0 +1,3415 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="A beginner on-ramp from generative questions and finite probability through learning, inference, sampling, six model families, executable Python, and a next-route diagnostic." name="description"/>
+<meta content="Mahdi Shafiei" name="author"/>
+<link href="https://docs.avitai.bio/artifex/user-guide/concepts/generative-modeling-first-course/" rel="canonical"/>
+<link href="../first-course-07-diagnostic/" rel="prev"/>
+<link href="../probability-01-objects/" rel="next"/>
+<link href="../../../assets/images/favicon.png" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.7.7" name="generator"/>
+<title>A First Course in Generative Modeling - Artifex</title>
+<link href="../../../assets/stylesheets/main.ec1eaa64.min.css" rel="stylesheet"/>
+<link href="../../../assets/stylesheets/palette.ab4e12ef.min.css" rel="stylesheet"/>
+<script src="../../../assets/vendor/iframe-worker/index.js"></script>
+<link href="../../../assets/_mkdocstrings.css" rel="stylesheet"/>
+<link href="../../../_static/extra.css" rel="stylesheet"/>
+<script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+<meta content="article" property="og:type"/>
+<meta content="The Artifex Generative Models Book" property="og:site_name"/>
+<meta content="A First Course in Generative Modeling" property="og:title"/>
+<meta content="A beginner on-ramp from generative questions and finite probability through learning, inference, sampling, six model families, executable Python, and a next-route diagnostic." property="og:description"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/generative-modeling-first-course/" property="og:url"/>
+<meta content="2026-07-17" property="article:modified_time"/>
+<meta content="summary" name="twitter:card"/>
+<meta content="A First Course in Generative Modeling" name="twitter:title"/>
+<meta content="A beginner on-ramp from generative questions and finite probability through learning, inference, sampling, six model families, executable Python, and a next-route diagnostic." name="twitter:description"/>
+<meta content="Generative models, Machine learning, Probabilistic modeling, foundation, reference, continuous_view, first-course-generative-modeling, newcomer, practitioner, researcher" name="keywords"/>
+<meta content="A First Course in Generative Modeling" name="citation_title"/>
+<meta content="Mahdi Shafiei" name="citation_author"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/generative-modeling-first-course/" name="citation_public_url"/>
+<meta content="en" name="citation_language"/>
+<meta content="A First Course in Generative Modeling" name="DC.title"/>
+<meta content="Mahdi Shafiei" name="DC.creator"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/generative-modeling-first-course/" name="DC.identifier"/>
+<meta content="Text.LearningResource" name="DC.type"/>
+<meta content="2026-07-17" name="DCTERMS.modified"/>
+<meta content="https://github.com/avitai/artifex/blob/main/LICENSE" name="DCTERMS.license"/>
+<meta content="foundation" name="DCTERMS.educationLevel"/>
+<meta content="newcomer, practitioner, researcher" name="DCTERMS.audience"/>
+<link href="https://github.com/avitai/artifex/blob/main/LICENSE" rel="license"/>
+<script id="artifex-book-metadata" type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Chapter",
+  "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-modeling-first-course/",
+  "url": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-modeling-first-course/",
+  "name": "A First Course in Generative Modeling",
+  "description": "A beginner on-ramp from generative questions and finite probability through learning, inference, sampling, six model families, executable Python, and a next-route diagnostic.",
+  "identifier": "first-course-generative-modeling",
+  "inLanguage": "en",
+  "isAccessibleForFree": true,
+  "learningResourceType": "Continuous volume",
+  "educationalLevel": "foundation",
+  "educationalUse": "reference",
+  "audience": [
+    
+      {"@type": "EducationalAudience", "audienceType": "newcomer"},
+    
+      {"@type": "EducationalAudience", "audienceType": "practitioner"},
+    
+      {"@type": "EducationalAudience", "audienceType": "researcher"}
+    
+  ],
+  "dateModified": "2026-07-17",
+  "keywords": ["Generative models", "Machine learning", "Probabilistic modeling", "foundation", "reference", "continuous_view", "first-course-generative-modeling", "newcomer", "practitioner", "researcher"],
+  "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+  "author": [
+    
+      {"@type": "Person", "name": "Mahdi Shafiei"}
+    
+  ],
+  "isPartOf": {
+    "@type": "Book",
+    "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/#book",
+    "url": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/",
+    "name": "The Artifex Generative Models Book",
+    "bookEdition": "Living Web Edition",
+    "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+    "author": [
+      
+        {"@type": "Person", "name": "Mahdi Shafiei"}
+      
+    ]
+  }
+}
+</script>
+<link href="../../../assets/vendor/katex/katex.min.css" id="artifex-katex-stylesheet" integrity="sha384-UA8juhPf75SzzAMA/4fo3yOU7sBJ0om7SCD2GHq0fZqZco6tr1UCV7nUbk9J90JM" rel="stylesheet"/>
+<script defer="" integrity="sha384-T/0lMUdJpd2S1ZHtRiofG3htU3xPCrFVeAQ1UUE2TJwlEJSV5NUwn30kP28n238E" src="../../../assets/vendor/mermaid/mermaid.min.js"></script>
+<script defer="" src="../../../assets/vendor/katex/katex-shadow.js"></script>
+<script defer="" src="../../../javascripts/mermaid-math.js"></script>
+<script defer="" src="../../../javascripts/mathjax.js"></script>
+<script defer="" integrity="sha384-OrHfGTnIbkl0do3N76qW/uWr38o91N05sbSPuYBPLH+hG8X/dNSrjZf3AGjzrCwC" src="../../../assets/vendor/mathjax/tex-mml-chtml.js"></script>
+<meta content="noindex,follow" name="robots"/>
+</head>
+<body data-md-color-accent="amber" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#a-first-course-in-generative-modeling">
+          Skip to content
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header md-header--shadow" data-md-component="header">
+<nav aria-label="Header" class="md-header__inner md-grid">
+<a aria-label="Artifex" class="md-header__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            Artifex
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+            
+              A First Course in Generative Modeling
+            
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-label="Switch to dark mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: light)" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_1" hidden="" title="Switch to dark mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+<input aria-label="Switch to light mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-primary="indigo" data-md-color-scheme="slate" id="__palette_1" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_0" hidden="" title="Switch to light mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+</form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div aria-label="Search" class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Search" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="Search" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="Search" class="md-search__options">
+<a aria-label="Share" class="md-search__icon md-icon" data-clipboard="" data-clipboard-text="" data-md-component="search-share" href="javascript:void(0)" tabindex="-1" title="Share">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"></path></svg>
+</a>
+<button aria-label="Clear" class="md-search__icon md-icon" tabindex="-1" title="Clear" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            Initializing search
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Navigation" class="md-nav md-nav--primary" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="Artifex" class="md-nav__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+    Artifex
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../..">
+<span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../getting-started/installation/">
+<span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Generative Models Book
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Generative Models Book
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    
+  
+    Start Here — The Landscape
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_2" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    First Course — New to Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_2_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_2">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    First Course — New to Generative Models
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../first-course-01-generative-systems/">
+<span class="md-ellipsis">
+    
+  
+    1. Generative Systems and Queries
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../first-course-02-probability/">
+<span class="md-ellipsis">
+    
+  
+    2. Probability and Conditional Generation
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../first-course-03-math-neural-networks/">
+<span class="md-ellipsis">
+    
+  
+    3. Math and Neural-Network Bridge
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../first-course-04-learning-inference-sampling/">
+<span class="md-ellipsis">
+    
+  
+    4. Learning, Inference, and Sampling
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../first-course-05-six-families/">
+<span class="md-ellipsis">
+    
+  
+    5. Six Families, One Toy Distribution
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../first-course-06-code-and-equations/">
+<span class="md-ellipsis">
+    
+  
+    6. Equations and Executable Code
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../first-course-07-diagnostic/">
+<span class="md-ellipsis">
+    
+  
+    7. Diagnostic and Next Routes
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
+    
+  
+    Continuous View (All Chapters)
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
+<span class="md-ellipsis">
+    
+  
+    Continuous View (All Chapters)
+  
+
+    
+  </span>
+</a>
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#the-shared-toy-world">
+<span class="md-ellipsis">
+      
+        The shared toy world
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#1-what-a-generative-system-must-specify">
+<span class="md-ellipsis">
+      
+        1. What a Generative System Must Specify
+      
+    </span>
+</a>
+<nav aria-label="1. What a Generative System Must Specify" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#prerequisites-and-learning-objectives-for-chapter-1">
+<span class="md-ellipsis">
+      
+        Prerequisites and learning objectives for Chapter 1
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#begin-with-the-query-not-the-architecture">
+<span class="md-ellipsis">
+      
+        Begin with the query, not the architecture
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#seven-roles-that-should-not-be-collapsed">
+<span class="md-ellipsis">
+      
+        Seven roles that should not be collapsed
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-example-four-different-questions-about-one-table">
+<span class="md-ellipsis">
+      
+        Worked example: four different questions about one table
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#your-turn-audit-a-vague-claim">
+<span class="md-ellipsis">
+      
+        Your turn: audit a vague claim
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-1-retrieval-practice">
+<span class="md-ellipsis">
+      
+        Chapter 1 retrieval practice
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-1-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 1 synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#2-probability-objects-and-conditional-generation">
+<span class="md-ellipsis">
+      
+        2. Probability Objects and Conditional Generation
+      
+    </span>
+</a>
+<nav aria-label="2. Probability Objects and Conditional Generation" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#prerequisites-and-learning-objectives-for-chapter-2">
+<span class="md-ellipsis">
+      
+        Prerequisites and learning objectives for Chapter 2
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#outcomes-events-variables-and-laws">
+<span class="md-ellipsis">
+      
+        Outcomes, events, variables, and laws
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#probability-mass-density-and-likelihood">
+<span class="md-ellipsis">
+      
+        Probability mass, density, and likelihood
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#factorization-is-an-equality-plus-an-ordering-choice">
+<span class="md-ellipsis">
+      
+        Factorization is an equality plus an ordering choice
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-example-exact-categorical-sampling">
+<span class="md-ellipsis">
+      
+        Worked example: exact categorical sampling
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#your-turn-reverse-the-conditioning-direction">
+<span class="md-ellipsis">
+      
+        Your turn: reverse the conditioning direction
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-2-retrieval-practice">
+<span class="md-ellipsis">
+      
+        Chapter 2 retrieval practice
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-2-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 2 synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#3-the-minimum-math-and-neural-network-bridge">
+<span class="md-ellipsis">
+      
+        3. The Minimum Math and Neural-Network Bridge
+      
+    </span>
+</a>
+<nav aria-label="3. The Minimum Math and Neural-Network Bridge" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#prerequisites-and-learning-objectives-for-chapter-3">
+<span class="md-ellipsis">
+      
+        Prerequisites and learning objectives for Chapter 3
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#scalars-vectors-and-matrices-are-typed-containers">
+<span class="md-ellipsis">
+      
+        Scalars, vectors, and matrices are typed containers
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#from-logits-to-a-categorical-law">
+<span class="md-ellipsis">
+      
+        From logits to a categorical law
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#expectations-are-weighted-averages-under-a-named-law">
+<span class="md-ellipsis">
+      
+        Expectations are weighted averages under a named law
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#gradients-measure-local-sensitivity">
+<span class="md-ellipsis">
+      
+        Gradients measure local sensitivity
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-example-one-bernoulli-update">
+<span class="md-ellipsis">
+      
+        Worked example: one Bernoulli update
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#your-turn-perform-the-opposite-update">
+<span class="md-ellipsis">
+      
+        Your turn: perform the opposite update
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-3-retrieval-practice">
+<span class="md-ellipsis">
+      
+        Chapter 3 retrieval practice
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-3-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 3 synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#4-learning-inference-and-sampling-are-different-computations">
+<span class="md-ellipsis">
+      
+        4. Learning, Inference, and Sampling Are Different Computations
+      
+    </span>
+</a>
+<nav aria-label="4. Learning, Inference, and Sampling Are Different Computations" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#prerequisites-and-learning-objectives-for-chapter-4">
+<span class="md-ellipsis">
+      
+        Prerequisites and learning objectives for Chapter 4
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#the-data-law-model-family-and-fitted-model">
+<span class="md-ellipsis">
+      
+        The data law, model family, and fitted model
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#population-objective-and-empirical-estimate">
+<span class="md-ellipsis">
+      
+        Population objective and empirical estimate
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#latent-variables-create-a-second-direction-of-reasoning">
+<span class="md-ellipsis">
+      
+        Latent variables create a second direction of reasoning
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-example-a-hidden-manufacturing-mode">
+<span class="md-ellipsis">
+      
+        Worked example: a hidden manufacturing mode
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#one-workflow-four-checkpoints">
+<span class="md-ellipsis">
+      
+        One workflow, four checkpoints
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#your-turn-classify-four-operations">
+<span class="md-ellipsis">
+      
+        Your turn: classify four operations
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-4-retrieval-practice">
+<span class="md-ellipsis">
+      
+        Chapter 4 retrieval practice
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-4-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 4 synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#5-six-families-through-one-toy-distribution">
+<span class="md-ellipsis">
+      
+        5. Six Families Through One Toy Distribution
+      
+    </span>
+</a>
+<nav aria-label="5. Six Families Through One Toy Distribution" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#prerequisites-and-learning-objectives-for-chapter-5">
+<span class="md-ellipsis">
+      
+        Prerequisites and learning objectives for Chapter 5
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#one-target-different-interfaces">
+<span class="md-ellipsis">
+      
+        One target, different interfaces
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#autoregressive-models-multiply-normalized-conditionals">
+<span class="md-ellipsis">
+      
+        Autoregressive models: multiply normalized conditionals
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#variational-autoencoders-latent-generation-plus-learned-inference">
+<span class="md-ellipsis">
+      
+        Variational autoencoders: latent generation plus learned inference
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#gans-match-through-a-learned-comparison">
+<span class="md-ellipsis">
+      
+        GANs: match through a learned comparison
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#energy-based-models-assign-scalar-compatibility-then-normalize">
+<span class="md-ellipsis">
+      
+        Energy-based models: assign scalar compatibility, then normalize
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#diffusion-models-learn-to-reverse-a-corruption-process">
+<span class="md-ellipsis">
+      
+        Diffusion models: learn to reverse a corruption process
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#normalizing-flows-transport-through-an-invertible-map">
+<span class="md-ellipsis">
+      
+        Normalizing flows: transport through an invertible map
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#side-by-side-family-contract">
+<span class="md-ellipsis">
+      
+        Side-by-side family contract
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-comparison-choose-by-query">
+<span class="md-ellipsis">
+      
+        Worked comparison: choose by query
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#your-turn-compare-do-not-merely-list">
+<span class="md-ellipsis">
+      
+        Your turn: compare, do not merely list
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-5-retrieval-practice">
+<span class="md-ellipsis">
+      
+        Chapter 5 retrieval practice
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-5-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 5 synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#6-how-to-read-equations-and-execute-the-first-model">
+<span class="md-ellipsis">
+      
+        6. How to Read Equations and Execute the First Model
+      
+    </span>
+</a>
+<nav aria-label="6. How to Read Equations and Execute the First Model" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#prerequisites-and-learning-objectives-for-chapter-6">
+<span class="md-ellipsis">
+      
+        Prerequisites and learning objectives for Chapter 6
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#read-equations-in-three-passes">
+<span class="md-ellipsis">
+      
+        Read equations in three passes
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#a-compact-notation-decoder">
+<span class="md-ellipsis">
+      
+        A compact notation decoder
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#from-the-tile-equations-to-executable-python">
+<span class="md-ellipsis">
+      
+        From the tile equations to executable Python
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#trace-the-roles-in-the-program">
+<span class="md-ellipsis">
+      
+        Trace the roles in the program
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-mutation-smoothing-an-unseen-state">
+<span class="md-ellipsis">
+      
+        Worked mutation: smoothing an unseen state
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#your-turn-modify-predict-then-run">
+<span class="md-ellipsis">
+      
+        Your turn: modify, predict, then run
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-6-retrieval-practice">
+<span class="md-ellipsis">
+      
+        Chapter 6 retrieval practice
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-6-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 6 synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#7-diagnostic-assessment-and-personalized-next-routes">
+<span class="md-ellipsis">
+      
+        7. Diagnostic Assessment and Personalized Next Routes
+      
+    </span>
+</a>
+<nav aria-label="7. Diagnostic Assessment and Personalized Next Routes" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#prerequisites-and-learning-objectives-for-chapter-7">
+<span class="md-ellipsis">
+      
+        Prerequisites and learning objectives for Chapter 7
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#how-to-take-the-diagnostic">
+<span class="md-ellipsis">
+      
+        How to take the diagnostic
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#first-course-diagnostic">
+<span class="md-ellipsis">
+      
+        First-course diagnostic
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#route-from-the-error-pattern">
+<span class="md-ellipsis">
+      
+        Route from the error pattern
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#the-complete-mathematical-foundation-remains-available">
+<span class="md-ellipsis">
+      
+        The complete mathematical foundation remains available
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#cumulative-performance-task">
+<span class="md-ellipsis">
+      
+        Cumulative performance task
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-7-retrieval-practice">
+<span class="md-ellipsis">
+      
+        Chapter 7 retrieval practice
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-7-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 7 synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#first-course-reading-trail">
+<span class="md-ellipsis">
+      
+        First-course reading trail
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../probability-01-objects/">
+<span class="md-ellipsis">
+    
+  
+    Foundations
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../autoregressive-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Model Families
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gradients-01-taxonomy/">
+<span class="md-ellipsis">
+    
+  
+    Connections and Compositions
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../normalization-01-queries/">
+<span class="md-ellipsis">
+    
+  
+    Research Practice
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../models/vae-guide/">
+<span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/core/base/">
+<span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../examples/overview/">
+<span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../zoo/">
+<span class="md-ellipsis">
+    
+  
+    Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../training/overview/">
+<span class="md-ellipsis">
+    
+  
+    Training
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../data/overview/">
+<span class="md-ellipsis">
+    
+  
+    Data &amp; Modalities
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../inference/overview/">
+<span class="md-ellipsis">
+    
+  
+    Inference &amp; Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../benchmarks/">
+<span class="md-ellipsis">
+    
+  
+    Evaluation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../guides/extensions/">
+<span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../extensions/">
+<span class="md-ellipsis">
+    
+  
+    Advanced Topics
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../cli/">
+<span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../community/contributing/">
+<span class="md-ellipsis">
+    
+  
+    Community
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/configs/protein-extension/">
+<span class="md-ellipsis">
+    
+  
+    Reference Library
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#the-shared-toy-world">
+<span class="md-ellipsis">
+      
+        The shared toy world
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#1-what-a-generative-system-must-specify">
+<span class="md-ellipsis">
+      
+        1. What a Generative System Must Specify
+      
+    </span>
+</a>
+<nav aria-label="1. What a Generative System Must Specify" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#prerequisites-and-learning-objectives-for-chapter-1">
+<span class="md-ellipsis">
+      
+        Prerequisites and learning objectives for Chapter 1
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#begin-with-the-query-not-the-architecture">
+<span class="md-ellipsis">
+      
+        Begin with the query, not the architecture
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#seven-roles-that-should-not-be-collapsed">
+<span class="md-ellipsis">
+      
+        Seven roles that should not be collapsed
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-example-four-different-questions-about-one-table">
+<span class="md-ellipsis">
+      
+        Worked example: four different questions about one table
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#your-turn-audit-a-vague-claim">
+<span class="md-ellipsis">
+      
+        Your turn: audit a vague claim
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-1-retrieval-practice">
+<span class="md-ellipsis">
+      
+        Chapter 1 retrieval practice
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-1-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 1 synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#2-probability-objects-and-conditional-generation">
+<span class="md-ellipsis">
+      
+        2. Probability Objects and Conditional Generation
+      
+    </span>
+</a>
+<nav aria-label="2. Probability Objects and Conditional Generation" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#prerequisites-and-learning-objectives-for-chapter-2">
+<span class="md-ellipsis">
+      
+        Prerequisites and learning objectives for Chapter 2
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#outcomes-events-variables-and-laws">
+<span class="md-ellipsis">
+      
+        Outcomes, events, variables, and laws
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#probability-mass-density-and-likelihood">
+<span class="md-ellipsis">
+      
+        Probability mass, density, and likelihood
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#factorization-is-an-equality-plus-an-ordering-choice">
+<span class="md-ellipsis">
+      
+        Factorization is an equality plus an ordering choice
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-example-exact-categorical-sampling">
+<span class="md-ellipsis">
+      
+        Worked example: exact categorical sampling
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#your-turn-reverse-the-conditioning-direction">
+<span class="md-ellipsis">
+      
+        Your turn: reverse the conditioning direction
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-2-retrieval-practice">
+<span class="md-ellipsis">
+      
+        Chapter 2 retrieval practice
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-2-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 2 synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#3-the-minimum-math-and-neural-network-bridge">
+<span class="md-ellipsis">
+      
+        3. The Minimum Math and Neural-Network Bridge
+      
+    </span>
+</a>
+<nav aria-label="3. The Minimum Math and Neural-Network Bridge" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#prerequisites-and-learning-objectives-for-chapter-3">
+<span class="md-ellipsis">
+      
+        Prerequisites and learning objectives for Chapter 3
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#scalars-vectors-and-matrices-are-typed-containers">
+<span class="md-ellipsis">
+      
+        Scalars, vectors, and matrices are typed containers
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#from-logits-to-a-categorical-law">
+<span class="md-ellipsis">
+      
+        From logits to a categorical law
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#expectations-are-weighted-averages-under-a-named-law">
+<span class="md-ellipsis">
+      
+        Expectations are weighted averages under a named law
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#gradients-measure-local-sensitivity">
+<span class="md-ellipsis">
+      
+        Gradients measure local sensitivity
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-example-one-bernoulli-update">
+<span class="md-ellipsis">
+      
+        Worked example: one Bernoulli update
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#your-turn-perform-the-opposite-update">
+<span class="md-ellipsis">
+      
+        Your turn: perform the opposite update
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-3-retrieval-practice">
+<span class="md-ellipsis">
+      
+        Chapter 3 retrieval practice
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-3-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 3 synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#4-learning-inference-and-sampling-are-different-computations">
+<span class="md-ellipsis">
+      
+        4. Learning, Inference, and Sampling Are Different Computations
+      
+    </span>
+</a>
+<nav aria-label="4. Learning, Inference, and Sampling Are Different Computations" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#prerequisites-and-learning-objectives-for-chapter-4">
+<span class="md-ellipsis">
+      
+        Prerequisites and learning objectives for Chapter 4
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#the-data-law-model-family-and-fitted-model">
+<span class="md-ellipsis">
+      
+        The data law, model family, and fitted model
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#population-objective-and-empirical-estimate">
+<span class="md-ellipsis">
+      
+        Population objective and empirical estimate
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#latent-variables-create-a-second-direction-of-reasoning">
+<span class="md-ellipsis">
+      
+        Latent variables create a second direction of reasoning
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-example-a-hidden-manufacturing-mode">
+<span class="md-ellipsis">
+      
+        Worked example: a hidden manufacturing mode
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#one-workflow-four-checkpoints">
+<span class="md-ellipsis">
+      
+        One workflow, four checkpoints
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#your-turn-classify-four-operations">
+<span class="md-ellipsis">
+      
+        Your turn: classify four operations
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-4-retrieval-practice">
+<span class="md-ellipsis">
+      
+        Chapter 4 retrieval practice
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-4-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 4 synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#5-six-families-through-one-toy-distribution">
+<span class="md-ellipsis">
+      
+        5. Six Families Through One Toy Distribution
+      
+    </span>
+</a>
+<nav aria-label="5. Six Families Through One Toy Distribution" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#prerequisites-and-learning-objectives-for-chapter-5">
+<span class="md-ellipsis">
+      
+        Prerequisites and learning objectives for Chapter 5
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#one-target-different-interfaces">
+<span class="md-ellipsis">
+      
+        One target, different interfaces
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#autoregressive-models-multiply-normalized-conditionals">
+<span class="md-ellipsis">
+      
+        Autoregressive models: multiply normalized conditionals
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#variational-autoencoders-latent-generation-plus-learned-inference">
+<span class="md-ellipsis">
+      
+        Variational autoencoders: latent generation plus learned inference
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#gans-match-through-a-learned-comparison">
+<span class="md-ellipsis">
+      
+        GANs: match through a learned comparison
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#energy-based-models-assign-scalar-compatibility-then-normalize">
+<span class="md-ellipsis">
+      
+        Energy-based models: assign scalar compatibility, then normalize
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#diffusion-models-learn-to-reverse-a-corruption-process">
+<span class="md-ellipsis">
+      
+        Diffusion models: learn to reverse a corruption process
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#normalizing-flows-transport-through-an-invertible-map">
+<span class="md-ellipsis">
+      
+        Normalizing flows: transport through an invertible map
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#side-by-side-family-contract">
+<span class="md-ellipsis">
+      
+        Side-by-side family contract
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-comparison-choose-by-query">
+<span class="md-ellipsis">
+      
+        Worked comparison: choose by query
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#your-turn-compare-do-not-merely-list">
+<span class="md-ellipsis">
+      
+        Your turn: compare, do not merely list
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-5-retrieval-practice">
+<span class="md-ellipsis">
+      
+        Chapter 5 retrieval practice
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-5-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 5 synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#6-how-to-read-equations-and-execute-the-first-model">
+<span class="md-ellipsis">
+      
+        6. How to Read Equations and Execute the First Model
+      
+    </span>
+</a>
+<nav aria-label="6. How to Read Equations and Execute the First Model" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#prerequisites-and-learning-objectives-for-chapter-6">
+<span class="md-ellipsis">
+      
+        Prerequisites and learning objectives for Chapter 6
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#read-equations-in-three-passes">
+<span class="md-ellipsis">
+      
+        Read equations in three passes
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#a-compact-notation-decoder">
+<span class="md-ellipsis">
+      
+        A compact notation decoder
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#from-the-tile-equations-to-executable-python">
+<span class="md-ellipsis">
+      
+        From the tile equations to executable Python
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#trace-the-roles-in-the-program">
+<span class="md-ellipsis">
+      
+        Trace the roles in the program
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-mutation-smoothing-an-unseen-state">
+<span class="md-ellipsis">
+      
+        Worked mutation: smoothing an unseen state
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#your-turn-modify-predict-then-run">
+<span class="md-ellipsis">
+      
+        Your turn: modify, predict, then run
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-6-retrieval-practice">
+<span class="md-ellipsis">
+      
+        Chapter 6 retrieval practice
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-6-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 6 synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#7-diagnostic-assessment-and-personalized-next-routes">
+<span class="md-ellipsis">
+      
+        7. Diagnostic Assessment and Personalized Next Routes
+      
+    </span>
+</a>
+<nav aria-label="7. Diagnostic Assessment and Personalized Next Routes" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#prerequisites-and-learning-objectives-for-chapter-7">
+<span class="md-ellipsis">
+      
+        Prerequisites and learning objectives for Chapter 7
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#how-to-take-the-diagnostic">
+<span class="md-ellipsis">
+      
+        How to take the diagnostic
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#first-course-diagnostic">
+<span class="md-ellipsis">
+      
+        First-course diagnostic
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#route-from-the-error-pattern">
+<span class="md-ellipsis">
+      
+        Route from the error pattern
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#the-complete-mathematical-foundation-remains-available">
+<span class="md-ellipsis">
+      
+        The complete mathematical foundation remains available
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#cumulative-performance-task">
+<span class="md-ellipsis">
+      
+        Cumulative performance task
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-7-retrieval-practice">
+<span class="md-ellipsis">
+      
+        Chapter 7 retrieval practice
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-7-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 7 synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#first-course-reading-trail">
+<span class="md-ellipsis">
+      
+        First-course reading trail
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<nav aria-label="Breadcrumb" class="md-path">
+<ol class="md-path__list">
+<li class="md-path__item">
+<a class="md-path__link" href="../../..">
+<span class="md-ellipsis">
+    Home
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    Generative Models Book
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../first-course-01-generative-systems/">
+<span class="md-ellipsis">
+    First Course — New to Generative Models
+  </span>
+</a>
+</li>
+</ol>
+</nav>
+<article class="md-content__inner md-typeset">
+<h1 id="a-first-course-in-generative-modeling">A First Course in Generative Modeling<a class="headerlink" href="#a-first-course-in-generative-modeling" title="Permanent link">¤</a></h1><aside aria-label="Learning path" class="admonition abstract artifex-learning-path"><p class="admonition-title">Learning path</p><p><strong>Required knowledge</strong></p><ul class="artifex-learning-path__links" data-learning-path-role="required"><li><a href="../first-course-01-generative-systems/">First Course 1 — Generative Systems and Queries</a></li></ul><p><strong>Readiness check:</strong> can you explain the central object and reproduce one worked example from each required chapter? If not, follow its link before continuing.</p><p><strong>Newly unlocked in the default route</strong></p><p>No immediate successor names this page as its final required prerequisite. Continue through the book navigation or the chapter's cross-links.</p></aside>
+<p>This first course is the short on-ramp for a reader who knows basic Python but
+has not studied generative models. It does not ask you to complete the full
+mathematical foundation before meeting a model family. Instead, one finite toy
+world carries the main ideas from questions to probability, learning,
+inference, sampling, family comparison, and executable code. Each chapter ends
+with retrieval and an independently attempted problem. The final diagnostic
+routes you into the full book according to the particular ideas you need next.</p>
+<div class="admonition tip">
+<p class="admonition-title">How to use the first course</p>
+<p>Read the worked example with a pencil or scratch file open. Attempt each
+<strong>Your turn</strong> prompt before opening its solution. Say the chapter synthesis
+in your own words without looking. If that is not yet possible, revisit the
+worked example rather than merely rereading the summary.</p>
+</div>
+<h2 id="the-shared-toy-world">The shared toy world<a class="headerlink" href="#the-shared-toy-world" title="Permanent link">¤</a></h2>
+<p>Every chapter returns to four kinds of tiles. A tile has two binary attributes:</p>
+<ul>
+<li><span class="arithmatex">\(X_1=0\)</span> means blue and <span class="arithmatex">\(X_1=1\)</span> means orange;</li>
+<li><span class="arithmatex">\(X_2=0\)</span> means circle and <span class="arithmatex">\(X_2=1\)</span> means triangle.</li>
+</ul>
+<p>Twenty observed tiles have counts <span class="arithmatex">\(9,1,3,7\)</span> for states <span class="arithmatex">\(00,01,10,11\)</span>. Their
+empirical probability mass function is therefore</p>
+<div class="arithmatex">\[
+\widehat p(00)=0.45,\qquad
+\widehat p(01)=0.05,\qquad
+\widehat p(10)=0.15,\qquad
+\widehat p(11)=0.35.
+\]</div>
+<p>The world is deliberately small enough that every probability can be checked
+by hand. Neural generative models address vastly larger objects, but the roles
+of model, objective, estimator, optimizer, inference procedure, and sampler do
+not change merely because a neural network replaces this table.</p>
+<hr/>
+<h2 id="1-what-a-generative-system-must-specify">1. What a Generative System Must Specify<a class="headerlink" href="#1-what-a-generative-system-must-specify" title="Permanent link">¤</a></h2>
+<h3 id="prerequisites-and-learning-objectives-for-chapter-1">Prerequisites and learning objectives for Chapter 1<a class="headerlink" href="#prerequisites-and-learning-objectives-for-chapter-1" title="Permanent link">¤</a></h3>
+<p>No model-family knowledge is assumed. You need only recognize a Python variable
+and a fraction. After this chapter, you should be able to:</p>
+<ol>
+<li>name the object a generator produces and the questions it must answer;</li>
+<li>distinguish a model from an objective, estimator, optimizer, and sampler;</li>
+<li>tell generation, scoring, completion, and latent inference apart; and</li>
+<li>audit an informal system description for missing roles.</li>
+</ol>
+<h3 id="begin-with-the-query-not-the-architecture">Begin with the query, not the architecture<a class="headerlink" href="#begin-with-the-query-not-the-architecture" title="Permanent link">¤</a></h3>
+<p>Suppose someone says, “I built a Transformer generator.” That sentence names an
+architecture, but it does not yet specify a generative system. What is the
+generated object: text, an image, a graph, a molecule, or a trajectory? Is the
+model a normalized probability law, an unnormalized energy, a sampler with no
+tractable density, or a constrained constructor? Which variables are observed,
+which are latent, and what is conditioned on? How is a sample produced after
+training?</p>
+<p>The same architecture can support different probability objects and training
+objectives. Conversely, recurrent networks, convolutional networks, and
+Transformers can all parameterize the same autoregressive factorization. Start
+with the query because the query determines what counts as a correct answer.</p>
+<p>For an observation <span class="arithmatex">\(x\)</span> and optional condition <span class="arithmatex">\(c\)</span>, common queries are:</p>
+<div class="md-typeset__table book-table-container"><table id="tbl-generative-modeling-first-course-begin-with-the-query-not-the-architecture"><caption class="book-object-caption"><span class="book-object-number">Table FIRST.1.</span> Begin with the query, not the architecture</caption>
+<thead>
+<tr>
+<th>Query</th>
+<th>Plain-language question</th>
+<th>Mathematical form</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Generate</td>
+<td>What new object could occur under condition <span class="arithmatex">\(c\)</span>?</td>
+<td><span class="arithmatex">\(X\sim p_\theta(\cdot\mid c)\)</span></td>
+</tr>
+<tr>
+<td>Score</td>
+<td>How much mass or density does the model assign to <span class="arithmatex">\(x\)</span>?</td>
+<td><span class="arithmatex">\(p_\theta(x\mid c)\)</span> or <span class="arithmatex">\(\log p_\theta(x\mid c)\)</span></td>
+</tr>
+<tr>
+<td>Complete</td>
+<td>What could the missing part be after observing the rest?</td>
+<td><span class="arithmatex">\(X_{\mathrm{miss}}\sim p_\theta(\cdot\mid x_{\mathrm{obs}},c)\)</span></td>
+</tr>
+<tr>
+<td>Infer</td>
+<td>Which hidden explanation is plausible for this observation?</td>
+<td><span class="arithmatex">\(p_\theta(z\mid x,c)\)</span></td>
+</tr>
+<tr>
+<td>Compare</td>
+<td>Which model or decision performs better for the intended use?</td>
+<td>a declared evaluation protocol</td>
+</tr>
+</tbody>
+</table></div>
+<p>A system need not support every query. A GAN generator can produce samples
+without exposing a normalized density for arbitrary inputs. An energy model can
+rank states before its normalizing constant is known. A deterministic grammar
+can construct valid objects without assigning probabilities. Unsupported
+queries are limitations to state, not defects to hide.</p>
+<h3 id="seven-roles-that-should-not-be-collapsed">Seven roles that should not be collapsed<a class="headerlink" href="#seven-roles-that-should-not-be-collapsed" title="Permanent link">¤</a></h3>
+<figure class="book-figure" id="fig-generative-modeling-first-course-seven-roles-that-should-not-be-collapsed"><pre class="mermaid"><code>flowchart LR
+    accTitle: Seven roles in a generative system
+    accDescr: Observed data inform a model, objective, and finite estimator; an optimizer updates the model; inference or sampling answers a query; evaluation tests the intended use.
+    D["Observed data"] --&gt; M["Model&lt;br/&gt;what can happen"]
+    M --&gt; O["Objective&lt;br/&gt;what good fit means"]
+    D --&gt; E["Estimator&lt;br/&gt;finite-data calculation"]
+    O --&gt; E
+    E --&gt; U["Optimizer&lt;br/&gt;parameter update"]
+    U --&gt; M
+    M --&gt; S["Sampler or inference algorithm&lt;br/&gt;answer a query"]
+    S --&gt; V["Evaluation&lt;br/&gt;test the intended use"]</code></pre><figcaption class="book-object-caption"><span class="book-object-number">Figure FIRST.1.</span> Seven roles in a generative system</figcaption></figure>
+<div class="md-typeset__table book-table-container"><table id="tbl-generative-modeling-first-course-seven-roles-that-should-not-be-collapsed"><caption class="book-object-caption"><span class="book-object-number">Table FIRST.2.</span> Seven roles that should not be collapsed</caption>
+<thead>
+<tr>
+<th>Role</th>
+<th>What it specifies</th>
+<th>Tile-world example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Model</td>
+<td>A law, energy, transformation, or constructive rule</td>
+<td>four masses <span class="arithmatex">\(q_\theta(00),\ldots,q_\theta(11)\)</span></td>
+</tr>
+<tr>
+<td>Objective</td>
+<td>A population or empirical criterion</td>
+<td>average negative log-likelihood</td>
+</tr>
+<tr>
+<td>Estimator</td>
+<td>A finite computation for an objective or gradient</td>
+<td>the mean loss over the 20 observed tiles</td>
+</tr>
+<tr>
+<td>Optimizer</td>
+<td>A rule that changes parameters</td>
+<td>one gradient-descent update</td>
+</tr>
+<tr>
+<td>Inference algorithm</td>
+<td>A method for a conditional or latent query</td>
+<td>compute <span class="arithmatex">\(q_\theta(X_2\mid X_1=1)\)</span></td>
+</tr>
+<tr>
+<td>Sampler</td>
+<td>A method that generates a draw</td>
+<td>map a uniform random number into one of four intervals</td>
+</tr>
+<tr>
+<td>Evaluation protocol</td>
+<td>Data, metrics, baselines, and uncertainty</td>
+<td>held-out log score plus coverage of all four states</td>
+</tr>
+</tbody>
+</table></div>
+<p>The optimizer is not part of the probability law. The sampler may be exact or
+approximate even when the model is fixed. A low training objective does not by
+itself establish that the generated samples are useful, diverse, calibrated,
+or safe.</p>
+<h3 id="worked-example-four-different-questions-about-one-table">Worked example: four different questions about one table<a class="headerlink" href="#worked-example-four-different-questions-about-one-table" title="Permanent link">¤</a></h3>
+<p>Use the empirical tile law</p>
+<div class="arithmatex">\[
+\widehat p=(0.45,0.05,0.15,0.35)
+\]</div>
+<p>in state order <span class="arithmatex">\(00,01,10,11\)</span>.</p>
+<p><strong>Generate.</strong> Draw one state using those four masses. This requires a sampling
+algorithm in addition to the table.</p>
+<p><strong>Score.</strong> The probability mass of an orange triangle is
+<span class="arithmatex">\(\widehat p(11)=0.35\)</span>. Because the outcome space is discrete, this is a
+probability, not a continuous density value.</p>
+<p><strong>Complete.</strong> If the color is orange, then</p>
+<div class="arithmatex">\[
+\widehat p(X_2=1\mid X_1=1)
+=\frac{\widehat p(11)}{\widehat p(10)+\widehat p(11)}
+=\frac{0.35}{0.15+0.35}=0.7.
+\]</div>
+<p><strong>Infer.</strong> If a latent variable <span class="arithmatex">\(Z\)</span> represented an unobserved manufacturing
+mode, inference would ask for <span class="arithmatex">\(p_\theta(Z\mid X_1,X_2)\)</span>. The current four-cell
+table contains no <span class="arithmatex">\(Z\)</span>, so that posterior is not defined until a latent-variable
+model is specified. An algorithm cannot infer a variable the model does not
+contain.</p>
+<h3 id="your-turn-audit-a-vague-claim">Your turn: audit a vague claim<a class="headerlink" href="#your-turn-audit-a-vague-claim" title="Permanent link">¤</a></h3>
+<p>A report says: “Our convolutional generator minimizes mean squared error and
+therefore learns the data distribution. At deployment we run ten refinement
+steps.” Identify at least four questions that must be answered before the claim
+can be evaluated.</p>
+<details class="success">
+<summary>Check your answer</summary>
+<p>A defensible audit asks at least: What object or probability law does the
+convolutional network parameterize? What are the prediction target and
+conditioning variables? Why does mean squared error identify the intended
+population object? How is its finite-sample estimator formed? What do the
+ten refinement steps simulate, and are they an exact or approximate sampler
+for the declared model? Which held-out protocol tests distributional fit and
+task utility? Architecture, loss name, and step count alone do not answer
+these questions.</p>
+</details>
+<h3 id="chapter-1-retrieval-practice">Chapter 1 retrieval practice<a class="headerlink" href="#chapter-1-retrieval-practice" title="Permanent link">¤</a></h3>
+<p>Without looking back, complete these prompts:</p>
+<ol>
+<li>A model states ________; an objective states ________.</li>
+<li>Why can two samplers give different finite-compute results for one model?</li>
+<li>Name one generator that can sample without exposing a tractable normalized
+   density.</li>
+<li>Why is “Transformer” not a complete description of a generative model?</li>
+</ol>
+<h3 id="chapter-1-synthesis">Chapter 1 synthesis<a class="headerlink" href="#chapter-1-synthesis" title="Permanent link">¤</a></h3>
+<p>A generative system begins with an object and a set of supported queries. The
+model, objective, estimator, optimizer, inference algorithm, sampler, and
+evaluation protocol answer different questions. Keeping those roles separate
+is the organizing invariant for the rest of the book.</p>
+<hr/>
+<h2 id="2-probability-objects-and-conditional-generation">2. Probability Objects and Conditional Generation<a class="headerlink" href="#2-probability-objects-and-conditional-generation" title="Permanent link">¤</a></h2>
+<h3 id="prerequisites-and-learning-objectives-for-chapter-2">Prerequisites and learning objectives for Chapter 2<a class="headerlink" href="#prerequisites-and-learning-objectives-for-chapter-2" title="Permanent link">¤</a></h3>
+<p>This chapter assumes the role distinctions from Chapter 1. After completing it,
+you should be able to:</p>
+<ol>
+<li>read a finite joint probability table and verify normalization;</li>
+<li>compute marginal and conditional probabilities;</li>
+<li>distinguish probability, density, likelihood, and log score; and</li>
+<li>implement exact inverse-CDF sampling for a finite law.</li>
+</ol>
+<h3 id="outcomes-events-variables-and-laws">Outcomes, events, variables, and laws<a class="headerlink" href="#outcomes-events-variables-and-laws" title="Permanent link">¤</a></h3>
+<p>An <strong>outcome</strong> is one possible result of an experiment. In the tile world, the
+outcome space is</p>
+<div class="arithmatex">\[
+\mathcal X=\{00,01,10,11\}.
+\]</div>
+<p>An <strong>event</strong> is a set of outcomes, such as “orange,”
+<span class="arithmatex">\(\{10,11\}\)</span>. A <strong>random variable</strong> is a measurable function of an outcome. Here
+<span class="arithmatex">\(X_1\)</span> extracts color and <span class="arithmatex">\(X_2\)</span> extracts shape. A probability law assigns total
+mass one to the outcome space and nonnegative mass to every event.</p>
+<p>The joint table is</p>
+<div class="md-typeset__table book-table-container"><table id="tbl-generative-modeling-first-course-outcomes-events-variables-and-laws"><caption class="book-object-caption"><span class="book-object-number">Table FIRST.3.</span> Outcomes, events, variables, and laws</caption>
+<thead>
+<tr>
+<th></th>
+<th style="text-align: right;"><span class="arithmatex">\(X_2=0\)</span> circle</th>
+<th style="text-align: right;"><span class="arithmatex">\(X_2=1\)</span> triangle</th>
+<th style="text-align: right;">color marginal</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="arithmatex">\(X_1=0\)</span> blue</td>
+<td style="text-align: right;"><span class="arithmatex">\(0.45\)</span></td>
+<td style="text-align: right;"><span class="arithmatex">\(0.05\)</span></td>
+<td style="text-align: right;"><span class="arithmatex">\(0.50\)</span></td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(X_1=1\)</span> orange</td>
+<td style="text-align: right;"><span class="arithmatex">\(0.15\)</span></td>
+<td style="text-align: right;"><span class="arithmatex">\(0.35\)</span></td>
+<td style="text-align: right;"><span class="arithmatex">\(0.50\)</span></td>
+</tr>
+<tr>
+<td>shape marginal</td>
+<td style="text-align: right;"><span class="arithmatex">\(0.60\)</span></td>
+<td style="text-align: right;"><span class="arithmatex">\(0.40\)</span></td>
+<td style="text-align: right;"><span class="arithmatex">\(1.00\)</span></td>
+</tr>
+</tbody>
+</table></div>
+<p>The last row and column are <strong>marginals</strong>: sum over the variable you do not ask
+about. For example,</p>
+<div class="arithmatex">\[
+p(X_2=1)=p(01)+p(11)=0.05+0.35=0.40.
+\]</div>
+<p>A conditional law restricts to an event and renormalizes. Since orange has
+mass <span class="arithmatex">\(0.50\)</span>,</p>
+<div class="arithmatex">\[
+p(X_2=1\mid X_1=1)=\frac{p(11)}{p(X_1=1)}=0.70.
+\]</div>
+<p>This division is defined only when the conditioning event has positive
+probability. In continuous spaces, conditioning at a value requires a regular
+conditional law rather than the informal ratio of two zero-probability events;
+the full probability chapters develop that distinction.</p>
+<h3 id="probability-mass-density-and-likelihood">Probability mass, density, and likelihood<a class="headerlink" href="#probability-mass-density-and-likelihood" title="Permanent link">¤</a></h3>
+<p>For a discrete state, <span class="arithmatex">\(p(X=x)\)</span> is probability mass. For a continuous variable,
+a density <span class="arithmatex">\(f(x)\)</span> is defined relative to a reference measure and can exceed one;
+probabilities are integrals over sets. Thus “the probability of the exact real
+number <span class="arithmatex">\(x\)</span>” is generally zero even when <span class="arithmatex">\(f(x)&gt;0\)</span>.</p>
+<p><strong>Likelihood</strong> holds observed data fixed and views the same model expression as
+a function of its parameter:</p>
+<div class="arithmatex">\[
+L(\theta;x)=p_\theta(x).
+\]</div>
+<p>It is not a probability distribution over <span class="arithmatex">\(\theta\)</span> unless a separate Bayesian
+model supplies a prior and normalizes the posterior. The log score
+<span class="arithmatex">\(\log p_\theta(x)\)</span> is often easier to add across independent observations and
+turns products into sums.</p>
+<h3 id="factorization-is-an-equality-plus-an-ordering-choice">Factorization is an equality plus an ordering choice<a class="headerlink" href="#factorization-is-an-equality-plus-an-ordering-choice" title="Permanent link">¤</a></h3>
+<p>Every joint law of two discrete variables satisfies the chain rule wherever
+the conditional is defined:</p>
+<div class="arithmatex">\[
+p(x_1,x_2)=p(x_1)p(x_2\mid x_1).
+\]</div>
+<p>For the tile law,</p>
+<div class="arithmatex">\[
+p(X_1=0)=p(X_1=1)=0.5,
+\]</div>
+<p>and</p>
+<div class="arithmatex">\[
+p(X_2=1\mid X_1=0)=0.1,
+\qquad
+p(X_2=1\mid X_1=1)=0.7.
+\]</div>
+<p>Multiplication reconstructs all four cells:</p>
+<div class="arithmatex">\[
+0.5(0.9,0.1,0.3,0.7)=(0.45,0.05,0.15,0.35),
+\]</div>
+<p>where the pairs correspond to the two colors. An autoregressive model scales
+this idea to many ordered components and uses a shared architecture to predict
+each conditional.</p>
+<h3 id="worked-example-exact-categorical-sampling">Worked example: exact categorical sampling<a class="headerlink" href="#worked-example-exact-categorical-sampling" title="Permanent link">¤</a></h3>
+<p>Partition the unit interval using cumulative masses:</p>
+<div class="md-typeset__table book-table-container"><table id="tbl-generative-modeling-first-course-worked-example-exact-categorical-sampling"><caption class="book-object-caption"><span class="book-object-number">Table FIRST.4.</span> Worked example: exact categorical sampling</caption>
+<thead>
+<tr>
+<th>Uniform draw <span class="arithmatex">\(u\)</span></th>
+<th>Generated state</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="arithmatex">\(0\le u&lt;0.45\)</span></td>
+<td><span class="arithmatex">\(00\)</span></td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(0.45\le u&lt;0.50\)</span></td>
+<td><span class="arithmatex">\(01\)</span></td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(0.50\le u&lt;0.65\)</span></td>
+<td><span class="arithmatex">\(10\)</span></td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(0.65\le u&lt;1\)</span></td>
+<td><span class="arithmatex">\(11\)</span></td>
+</tr>
+</tbody>
+</table></div>
+<p>If <span class="arithmatex">\(U\sim\operatorname{Uniform}(0,1)\)</span> and the sampler returns the state whose
+interval contains <span class="arithmatex">\(U\)</span>, the output has exactly the desired law. The cumulative
+intervals are the algorithm; the four masses are the model. Floating-point
+rounding and pseudorandom-number generation are implementation details that
+can still matter in a real system.</p>
+<h3 id="your-turn-reverse-the-conditioning-direction">Your turn: reverse the conditioning direction<a class="headerlink" href="#your-turn-reverse-the-conditioning-direction" title="Permanent link">¤</a></h3>
+<p>Compute <span class="arithmatex">\(p(X_1=1\mid X_2=1)\)</span> and explain why it differs from
+<span class="arithmatex">\(p(X_2=1\mid X_1=1)\)</span>.</p>
+<details class="success">
+<summary>Check your answer</summary>
+<p>The triangle marginal is <span class="arithmatex">\(p(X_2=1)=0.40\)</span>, so
+<span class="arithmatex">\(p(X_1=1\mid X_2=1)=0.35/0.40=0.875\)</span>. The reverse conditional is
+<span class="arithmatex">\(0.35/0.50=0.70\)</span>. Both use the same joint cell in the numerator, but they
+normalize over different events. In general, reversing a conditional
+requires the joint law or Bayes' rule; it is not a change in notation alone.</p>
+</details>
+<h3 id="chapter-2-retrieval-practice">Chapter 2 retrieval practice<a class="headerlink" href="#chapter-2-retrieval-practice" title="Permanent link">¤</a></h3>
+<ol>
+<li>What must the four entries of a probability mass function satisfy?</li>
+<li>How do you obtain a marginal from a joint table?</li>
+<li>Why may a continuous density be greater than one?</li>
+<li>Which quantity changes its interpretation when data are held fixed and the
+   parameter varies?</li>
+<li>Reconstruct <span class="arithmatex">\(p(10)\)</span> from <span class="arithmatex">\(p(X_1=1)\)</span> and
+   <span class="arithmatex">\(p(X_2=0\mid X_1=1)\)</span>.</li>
+</ol>
+<h3 id="chapter-2-synthesis">Chapter 2 synthesis<a class="headerlink" href="#chapter-2-synthesis" title="Permanent link">¤</a></h3>
+<p>Probability supplies normalized statements about what can happen. Marginals
+sum out variables; conditionals restrict and renormalize; the chain rule turns
+a joint law into ordered conditionals. A density is not point probability, and
+a likelihood is the model expression viewed as a function of parameters.</p>
+<hr/>
+<h2 id="3-the-minimum-math-and-neural-network-bridge">3. The Minimum Math and Neural-Network Bridge<a class="headerlink" href="#3-the-minimum-math-and-neural-network-bridge" title="Permanent link">¤</a></h2>
+<h3 id="prerequisites-and-learning-objectives-for-chapter-3">Prerequisites and learning objectives for Chapter 3<a class="headerlink" href="#prerequisites-and-learning-objectives-for-chapter-3" title="Permanent link">¤</a></h3>
+<p>This chapter uses the finite probability table from Chapter 2. After it, you
+should be able to:</p>
+<ol>
+<li>read vectors, matrices, sums, and expectations in later chapters;</li>
+<li>interpret a gradient as local sensitivity rather than a magic update;</li>
+<li>trace an affine layer, nonlinearity, and output-law parameterization; and</li>
+<li>check dimensions and signs in a one-parameter learning step.</li>
+</ol>
+<h3 id="scalars-vectors-and-matrices-are-typed-containers">Scalars, vectors, and matrices are typed containers<a class="headerlink" href="#scalars-vectors-and-matrices-are-typed-containers" title="Permanent link">¤</a></h3>
+<p>A scalar is one number. A vector is an ordered list of numbers. A matrix is a
+rectangular array that often represents a linear map. For the tile law,</p>
+<div class="arithmatex">\[
+\mathbf p=
+\begin{bmatrix}
+0.45\\0.05\\0.15\\0.35
+\end{bmatrix}
+\]</div>
+<p>is a four-dimensional probability vector. The conditions
+<span class="arithmatex">\(p_i\ge 0\)</span> and <span class="arithmatex">\(\sum_i p_i=1\)</span> are part of its meaning, not consequences of its
+shape.</p>
+<p>If <span class="arithmatex">\(\mathbf x\in\mathbb R^d\)</span>, a matrix
+<span class="arithmatex">\(W\in\mathbb R^{h\times d}\)</span> and bias <span class="arithmatex">\(\mathbf b\in\mathbb R^h\)</span> define the
+affine map</p>
+<div class="arithmatex">\[
+\mathbf a=W\mathbf x+\mathbf b\in\mathbb R^h.
+\]</div>
+<p>A dimension check catches many errors before any calculation: the inner sizes
+of <span class="arithmatex">\(W\mathbf x\)</span> must match, and the result must have the same shape as
+<span class="arithmatex">\(\mathbf b\)</span>. A neural layer usually follows the affine map with a nonlinear
+function <span class="arithmatex">\(\sigma\)</span>:</p>
+<div class="arithmatex">\[
+\mathbf h=\sigma(W\mathbf x+\mathbf b).
+\]</div>
+<p>Stacking such layers creates a flexible function. It does not by itself create
+a probability law. The final layer must parameterize a declared output object,
+such as categorical logits, a Gaussian mean and scale, a scalar energy, a
+score vector, or a transport velocity.</p>
+<h3 id="from-logits-to-a-categorical-law">From logits to a categorical law<a class="headerlink" href="#from-logits-to-a-categorical-law" title="Permanent link">¤</a></h3>
+<p>Unconstrained network outputs <span class="arithmatex">\(a_1,\ldots,a_K\)</span> are often called logits. The
+softmax transformation produces nonnegative values summing to one:</p>
+<div class="arithmatex">\[
+q_i=\frac{e^{a_i}}{\sum_{j=1}^K e^{a_j}}.
+\]</div>
+<p>Adding the same constant to every logit leaves the probabilities unchanged.
+In numerical code, subtracting <span class="arithmatex">\(\max_j a_j\)</span> before exponentiation avoids
+overflow without changing the result.</p>
+<p>For two outcomes, one logit <span class="arithmatex">\(\theta\)</span> can parameterize a Bernoulli probability
+through the sigmoid</p>
+<div class="arithmatex">\[
+q_\theta=\sigma(\theta)=\frac{1}{1+e^{-\theta}}.
+\]</div>
+<h3 id="expectations-are-weighted-averages-under-a-named-law">Expectations are weighted averages under a named law<a class="headerlink" href="#expectations-are-weighted-averages-under-a-named-law" title="Permanent link">¤</a></h3>
+<p>For a function <span class="arithmatex">\(f\)</span> on the four states,</p>
+<div class="arithmatex">\[
+\mathbb E_{X\sim p}[f(X)]
+=\sum_{x\in\mathcal X}p(x)f(x).
+\]</div>
+<p>The subscript matters. Replacing <span class="arithmatex">\(p\)</span> with a model <span class="arithmatex">\(q_\theta\)</span>, an empirical
+distribution <span class="arithmatex">\(\widehat p\)</span>, or an approximate posterior changes the quantity.
+For the indicator <span class="arithmatex">\(f(x)=\mathbf 1\{x\text{ is a triangle}\}\)</span>, the expectation
+is the triangle probability, <span class="arithmatex">\(0.40\)</span>.</p>
+<h3 id="gradients-measure-local-sensitivity">Gradients measure local sensitivity<a class="headerlink" href="#gradients-measure-local-sensitivity" title="Permanent link">¤</a></h3>
+<p>For a scalar loss <span class="arithmatex">\(\ell(\theta)\)</span>, the derivative
+<span class="arithmatex">\(d\ell/d\theta\)</span> describes the first-order change in loss for a small parameter
+change. In many dimensions the gradient collects all partial derivatives:</p>
+<div class="arithmatex">\[
+\nabla_\theta \ell(\theta)
+=\begin{bmatrix}
+\partial \ell/\partial\theta_1&amp;\cdots&amp;
+\partial \ell/\partial\theta_m
+\end{bmatrix}^{\!\top}.
+\]</div>
+<p>Gradient descent proposes</p>
+<div class="arithmatex">\[
+\theta_{t+1}=\theta_t-\eta\nabla_\theta\ell(\theta_t),
+\]</div>
+<p>where <span class="arithmatex">\(\eta&gt;0\)</span> is a step size. The minus sign follows the local direction of
+decrease. It does not guarantee a global optimum, a valid probability
+parameterization, or good generalization. Those require additional structure
+and evidence.</p>
+<h3 id="worked-example-one-bernoulli-update">Worked example: one Bernoulli update<a class="headerlink" href="#worked-example-one-bernoulli-update" title="Permanent link">¤</a></h3>
+<p>Let a model predict the probability of a triangle with
+<span class="arithmatex">\(q_\theta=\sigma(\theta)\)</span>. For one observed triangle <span class="arithmatex">\(y=1\)</span>, the negative
+log-likelihood is</p>
+<div class="arithmatex">\[
+\ell(\theta)=-\log q_\theta.
+\]</div>
+<p>Its derivative is <span class="arithmatex">\(q_\theta-y\)</span>. At <span class="arithmatex">\(\theta=0\)</span>, <span class="arithmatex">\(q_\theta=0.5\)</span> and</p>
+<div class="arithmatex">\[
+\frac{d\ell}{d\theta}=0.5-1=-0.5.
+\]</div>
+<p>With step size <span class="arithmatex">\(\eta=0.2\)</span>,</p>
+<div class="arithmatex">\[
+\theta_{1}=0-0.2(-0.5)=0.1.
+\]</div>
+<p>The new probability is <span class="arithmatex">\(\sigma(0.1)\approx0.525\)</span>, so the update raises the
+probability assigned to the observed triangle. For a circle, <span class="arithmatex">\(y=0\)</span>, the
+gradient would be positive and the same rule would lower that probability.
+Automatic differentiation computes such derivatives through large programs;
+it does not decide whether the program expresses the right objective.</p>
+<h3 id="your-turn-perform-the-opposite-update">Your turn: perform the opposite update<a class="headerlink" href="#your-turn-perform-the-opposite-update" title="Permanent link">¤</a></h3>
+<p>Starting again at <span class="arithmatex">\(\theta=0\)</span>, perform one gradient-descent step with
+<span class="arithmatex">\(y=0\)</span> and <span class="arithmatex">\(\eta=0.2\)</span>. State the sign of the new parameter and whether the
+triangle probability rises or falls.</p>
+<details class="success">
+<summary>Check your answer</summary>
+<p>At <span class="arithmatex">\(\theta=0\)</span>, <span class="arithmatex">\(q_\theta=0.5\)</span>, so the derivative is
+<span class="arithmatex">\(q_\theta-y=0.5\)</span>. The update gives
+<span class="arithmatex">\(\theta_1=0-0.2(0.5)=-0.1\)</span>. Therefore
+<span class="arithmatex">\(\sigma(-0.1)\approx0.475\)</span>: the predicted triangle probability falls and
+the circle probability rises.</p>
+</details>
+<h3 id="chapter-3-retrieval-practice">Chapter 3 retrieval practice<a class="headerlink" href="#chapter-3-retrieval-practice" title="Permanent link">¤</a></h3>
+<ol>
+<li>What additional constraints turn a four-vector into a probability vector?</li>
+<li>What are the dimensions of <span class="arithmatex">\(W\mathbf x\)</span> when
+   <span class="arithmatex">\(W\in\mathbb R^{h\times d}\)</span> and <span class="arithmatex">\(\mathbf x\in\mathbb R^d\)</span>?</li>
+<li>Why does a neural network's final output need an interpretation contract?</li>
+<li>What does the subscript in <span class="arithmatex">\(\mathbb E_{X\sim p}\)</span> tell you?</li>
+<li>What information does a gradient provide, and what does it not guarantee?</li>
+</ol>
+<h3 id="chapter-3-synthesis">Chapter 3 synthesis<a class="headerlink" href="#chapter-3-synthesis" title="Permanent link">¤</a></h3>
+<p>Vectors and matrices represent typed quantities and transformations. Neural
+networks are flexible functions whose outputs become generative objects only
+through a declared parameterization. Expectations are averages under named
+laws, and gradients are local sensitivities used by—but not equivalent to—an
+optimizer.</p>
+<hr/>
+<h2 id="4-learning-inference-and-sampling-are-different-computations">4. Learning, Inference, and Sampling Are Different Computations<a class="headerlink" href="#4-learning-inference-and-sampling-are-different-computations" title="Permanent link">¤</a></h2>
+<h3 id="prerequisites-and-learning-objectives-for-chapter-4">Prerequisites and learning objectives for Chapter 4<a class="headerlink" href="#prerequisites-and-learning-objectives-for-chapter-4" title="Permanent link">¤</a></h3>
+<p>This chapter combines the role distinctions, finite law, and gradient bridge
+from Chapters 1–3. After it, you should be able to:</p>
+<ol>
+<li>separate population target, empirical objective, estimator, and optimizer;</li>
+<li>distinguish learning parameters from inferring latent variables;</li>
+<li>distinguish posterior inference from generation; and</li>
+<li>trace a complete train–infer–generate–evaluate workflow.</li>
+</ol>
+<h3 id="the-data-law-model-family-and-fitted-model">The data law, model family, and fitted model<a class="headerlink" href="#the-data-law-model-family-and-fitted-model" title="Permanent link">¤</a></h3>
+<p>Let <span class="arithmatex">\(p_\star\)</span> denote the unknown process that produced the observations. A
+dataset <span class="arithmatex">\(D=(x_1,\ldots,x_N)\)</span> is finite evidence about that process. A model
+family <span class="arithmatex">\(\{p_\theta:\theta\in\Theta\}\)</span> is a set of candidate laws. A learning
+algorithm maps the data, initialization, randomness, and configuration to a
+fitted parameter <span class="arithmatex">\(\widehat\theta\)</span>.</p>
+<p>These objects should not be silently identified:</p>
+<div class="arithmatex">\[
+p_\star
+\quad\ne\quad
+\widehat p_D
+\quad\ne\quad
+p_{\widehat\theta}
+\]</div>
+<p>in general. The empirical law <span class="arithmatex">\(\widehat p_D\)</span> records the observed frequencies.
+The fitted model may smooth, constrain, or generalize beyond them. Even a model
+that matches the finite dataset exactly need not equal the process that will
+produce future data.</p>
+<h3 id="population-objective-and-empirical-estimate">Population objective and empirical estimate<a class="headerlink" href="#population-objective-and-empirical-estimate" title="Permanent link">¤</a></h3>
+<p>Maximum likelihood can be motivated by the population cross-entropy</p>
+<div class="arithmatex">\[
+\mathcal R(\theta)
+=\mathbb E_{X\sim p_\star}[-\log p_\theta(X)].
+\]</div>
+<p>Because <span class="arithmatex">\(p_\star\)</span> is unknown, training uses the empirical average</p>
+<div class="arithmatex">\[
+\widehat{\mathcal R}_D(\theta)
+=-\frac1N\sum_{n=1}^N\log p_\theta(x_n).
+\]</div>
+<p>For a large dataset, a minibatch average is a stochastic estimator of this
+empirical objective. It is not automatically an unbiased estimator of every
+other quantity in the model, and lowering it on training data is not the same
+as lowering population risk.</p>
+<p>An optimizer consumes objective or gradient estimates and proposes parameters.
+Different optimizers, step sizes, initializations, and stopping rules can reach
+different fitted models even when the written objective is identical.</p>
+<h3 id="latent-variables-create-a-second-direction-of-reasoning">Latent variables create a second direction of reasoning<a class="headerlink" href="#latent-variables-create-a-second-direction-of-reasoning" title="Permanent link">¤</a></h3>
+<p>A latent-variable model introduces an unobserved <span class="arithmatex">\(Z\)</span> and specifies a joint law</p>
+<div class="arithmatex">\[
+p_\theta(x,z)=p_\theta(z)p_\theta(x\mid z).
+\]</div>
+<p><strong>Generation</strong> follows the model direction:</p>
+<div class="arithmatex">\[
+Z\sim p_\theta(z),\qquad X\sim p_\theta(x\mid Z).
+\]</div>
+<p><strong>Inference</strong> reverses the question after observing <span class="arithmatex">\(x\)</span>:</p>
+<div class="arithmatex">\[
+p_\theta(z\mid x)
+=\frac{p_\theta(z)p_\theta(x\mid z)}
+       {\sum_{z'}p_\theta(z')p_\theta(x\mid z')}
+\]</div>
+<p>for a finite latent space. The posterior is implied by the joint model, but it
+may be expensive to compute. Variational inference introduces a tractable
+approximation <span class="arithmatex">\(q_\phi(z\mid x)\)</span>; Monte Carlo methods approximate expectations
+with weighted or correlated samples. Approximate inference changes the
+computation and may change the training estimator, even when the declared
+generative model is fixed.</p>
+<h3 id="worked-example-a-hidden-manufacturing-mode">Worked example: a hidden manufacturing mode<a class="headerlink" href="#worked-example-a-hidden-manufacturing-mode" title="Permanent link">¤</a></h3>
+<p>Let <span class="arithmatex">\(Z\in\{A,B\}\)</span> be a hidden manufacturing mode with equal prior mass. Mode
+<span class="arithmatex">\(A\)</span> produces only blue tiles and uses shape probabilities</p>
+<div class="arithmatex">\[
+p(X=00\mid Z=A)=0.9,
+\qquad
+p(X=01\mid Z=A)=0.1.
+\]</div>
+<p>Mode <span class="arithmatex">\(B\)</span> produces only orange tiles and uses</p>
+<div class="arithmatex">\[
+p(X=10\mid Z=B)=0.3,
+\qquad
+p(X=11\mid Z=B)=0.7.
+\]</div>
+<p>Marginalizing <span class="arithmatex">\(Z\)</span> gives the same four-state law:</p>
+<div class="arithmatex">\[
+p(X)=0.5(0.9,0.1,0,0)+0.5(0,0,0.3,0.7)
+=(0.45,0.05,0.15,0.35).
+\]</div>
+<p>For an orange triangle, Bayes' rule gives
+<span class="arithmatex">\(p(Z=B\mid X=11)=1\)</span> because mode <span class="arithmatex">\(A\)</span> assigns that state zero mass. For a model
+whose components overlap, posterior mode probabilities would lie strictly
+between zero and one.</p>
+<p>The latent representation is not uniquely identified by the observed marginal
+law. One could define other hidden states that integrate to the same four
+probabilities. Data about <span class="arithmatex">\(X\)</span> alone establish the observed law more directly
+than they establish a preferred hidden explanation.</p>
+<h3 id="one-workflow-four-checkpoints">One workflow, four checkpoints<a class="headerlink" href="#one-workflow-four-checkpoints" title="Permanent link">¤</a></h3>
+<figure class="book-figure" id="fig-generative-modeling-first-course-one-workflow-four-checkpoints"><pre class="mermaid"><code>flowchart TD
+    accTitle: Learning, inference, generation, and evaluation workflow
+    accDescr: A declared model is fitted and validated before posterior inference or generation; both paths feed an evaluation of the downstream decision.
+    A["Declare model and supported queries"] --&gt; B["Fit parameters&lt;br/&gt;objective · estimator · optimizer"]
+    B --&gt; C["Validate on held-out or prospective evidence"]
+    C --&gt; D["Infer hidden or missing variables&lt;br/&gt;when the query requires it"]
+    C --&gt; E["Generate with a declared sampler"]
+    D --&gt; F["Evaluate the downstream decision"]
+    E --&gt; F</code></pre><figcaption class="book-object-caption"><span class="book-object-number">Figure FIRST.2.</span> Learning, inference, generation, and evaluation workflow</figcaption></figure>
+<ol>
+<li><strong>Fit:</strong> use training data to choose parameters.</li>
+<li><strong>Validate:</strong> measure declared properties on data not used for the same fit.</li>
+<li><strong>Infer:</strong> answer a posterior or missing-data query for a fixed model.</li>
+<li><strong>Generate:</strong> sample from the fitted model using a stated algorithm.</li>
+</ol>
+<p>Evaluation can reveal that a fitted model is poor; it does not retroactively
+turn the metric into the model's training objective. A deployment filter can
+change the distribution of delivered samples; it must be included when the
+deployed system, rather than the base model, is evaluated.</p>
+<h3 id="your-turn-classify-four-operations">Your turn: classify four operations<a class="headerlink" href="#your-turn-classify-four-operations" title="Permanent link">¤</a></h3>
+<p>Classify each operation as learning, inference, sampling, or evaluation:</p>
+<ol>
+<li>updating weights from a minibatch gradient;</li>
+<li>estimating <span class="arithmatex">\(p(Z\mid X=x)\)</span> after seeing a tile;</li>
+<li>drawing <span class="arithmatex">\(Z\)</span> from the prior and then drawing <span class="arithmatex">\(X\mid Z\)</span>;</li>
+<li>measuring held-out log score and the frequency of every tile state.</li>
+</ol>
+<details class="success">
+<summary>Check your answer</summary>
+<p>The operations are, respectively: learning, inference, sampling, and
+evaluation. A real system may compose them—for example, VAE learning uses
+an inference network inside a training estimator—but their conceptual roles
+remain different.</p>
+</details>
+<h3 id="chapter-4-retrieval-practice">Chapter 4 retrieval practice<a class="headerlink" href="#chapter-4-retrieval-practice" title="Permanent link">¤</a></h3>
+<ol>
+<li>Why are <span class="arithmatex">\(p_\star\)</span>, <span class="arithmatex">\(\widehat p_D\)</span>, and <span class="arithmatex">\(p_{\widehat\theta}\)</span> different
+   objects?</li>
+<li>What is the difference between a population objective and a minibatch
+   estimator?</li>
+<li>In which direction does latent-variable generation run?</li>
+<li>Which distribution answers the reverse latent question after observing
+   <span class="arithmatex">\(x\)</span>?</li>
+<li>Why does exact agreement with an observed marginal not identify a unique
+   latent explanation?</li>
+</ol>
+<h3 id="chapter-4-synthesis">Chapter 4 synthesis<a class="headerlink" href="#chapter-4-synthesis" title="Permanent link">¤</a></h3>
+<p>Learning selects parameters from data; inference answers conditional or latent
+queries under a model; sampling generates draws; evaluation tests declared
+properties. A population target, empirical objective, stochastic estimator,
+and optimizer occupy successive but non-equivalent layers.</p>
+<hr/>
+<h2 id="5-six-families-through-one-toy-distribution">5. Six Families Through One Toy Distribution<a class="headerlink" href="#5-six-families-through-one-toy-distribution" title="Permanent link">¤</a></h2>
+<h3 id="prerequisites-and-learning-objectives-for-chapter-5">Prerequisites and learning objectives for Chapter 5<a class="headerlink" href="#prerequisites-and-learning-objectives-for-chapter-5" title="Permanent link">¤</a></h3>
+<p>This chapter assumes the four-state law and workflow from earlier chapters.
+After it, you should be able to:</p>
+<ol>
+<li>give a one-sentence generative story for AR, VAE, GAN, EBM, diffusion, and
+   flow models;</li>
+<li>identify each family's modeled object, common training signal, and
+   generation procedure;</li>
+<li>explain which comparisons are exact in the toy world and which are only
+   structural analogies; and</li>
+<li>choose a plausible family based on required queries rather than popularity.</li>
+</ol>
+<h3 id="one-target-different-interfaces">One target, different interfaces<a class="headerlink" href="#one-target-different-interfaces" title="Permanent link">¤</a></h3>
+<p>The target remains</p>
+<div class="arithmatex">\[
+p_\star=(0.45,0.05,0.15,0.35)
+\]</div>
+<p>over <span class="arithmatex">\(00,01,10,11\)</span>. Each family can be related to this target, but it exposes a
+different interface and makes different approximations at realistic scale.</p>
+<figure class="book-figure" id="fig-generative-modeling-first-course-one-target-different-interfaces"><pre class="mermaid"><code>flowchart LR
+    accTitle: Six model-family interfaces to one target distribution
+    accDescr: One target tile law is connected to autoregressive, VAE, GAN, energy-based, diffusion, and flow interfaces without claiming that their parameterizations or objectives are equivalent.
+    T["Target tile law"]
+    T --- AR["AR&lt;br/&gt;ordered conditionals"]
+    T --- VAE["VAE&lt;br/&gt;latent joint + inference"]
+    T --- GAN["GAN&lt;br/&gt;generator + discriminator game"]
+    T --- EBM["EBM&lt;br/&gt;energy + normalizer"]
+    T --- DIFF["Diffusion&lt;br/&gt;corrupt + reverse"]
+    T --- FLOW["Flow&lt;br/&gt;invertible transport"]</code></pre><figcaption class="book-object-caption"><span class="book-object-number">Figure FIRST.3.</span> Six model-family interfaces to one target distribution</figcaption></figure>
+<p>The diagram does not claim that the parameterizations or objectives are
+equivalent. It fixes one target so their structural differences are visible.</p>
+<h3 id="autoregressive-models-multiply-normalized-conditionals">Autoregressive models: multiply normalized conditionals<a class="headerlink" href="#autoregressive-models-multiply-normalized-conditionals" title="Permanent link">¤</a></h3>
+<p>Choose an order, then factorize:</p>
+<div class="arithmatex">\[
+p(x_1,x_2)=p(x_1)p(x_2\mid x_1).
+\]</div>
+<p>The exact tile parameters are</p>
+<div class="arithmatex">\[
+\begin{aligned}
+p(X_1=1) &amp;= 0.5, \\
+p(X_2=1\mid X_1=0) &amp;= 0.1, \\
+p(X_2=1\mid X_1=1) &amp;= 0.7.
+\end{aligned}
+\]</div>
+<p>Generation draws color, then shape conditional on color. Scoring multiplies
+the two normalized terms. In high dimensions, the architecture shares
+parameters across conditionals and the order affects computation and inductive
+bias even though the chain rule itself is universal.</p>
+<p><strong>Connection:</strong> the inverse-CDF tile sampler and a token-by-token language
+model are both ancestral samplers. The surface objects differ, but both append
+one draw conditional on the prefix.</p>
+<h3 id="variational-autoencoders-latent-generation-plus-learned-inference">Variational autoencoders: latent generation plus learned inference<a class="headerlink" href="#variational-autoencoders-latent-generation-plus-learned-inference" title="Permanent link">¤</a></h3>
+<p>The hidden-mode model from Chapter 4 writes</p>
+<div class="arithmatex">\[
+p_\theta(x)=\sum_z p_\theta(z)p_\theta(x\mid z).
+\]</div>
+<p>A VAE uses neural networks for a decoder <span class="arithmatex">\(p_\theta(x\mid z)\)</span> and an approximate
+posterior <span class="arithmatex">\(q_\phi(z\mid x)\)</span>. It commonly trains with the evidence lower bound</p>
+<div class="arithmatex">\[
+\mathbb E_{q_\phi(z\mid x)}[\log p_\theta(x\mid z)]
+-\operatorname{KL}\!\left(q_\phi(z\mid x)\,\|\,p(z)\right)
+\le \log p_\theta(x).
+\]</div>
+<p>Generation samples the prior and decodes. Encoding a datum with
+<span class="arithmatex">\(q_\phi(z\mid x)\)</span> is inference, not the unconditional generative direction.
+The finite tile posterior is exact; “VAE” specifically adds amortized
+variational inference for settings where exact posterior calculations are not
+generally available.</p>
+<p><strong>Connection:</strong> an autoregressive decoder may appear inside a VAE. “VAE” names
+the latent-model and inference/training structure, while “autoregressive” names
+a factorization of an output law; they are composable rather than mutually
+exclusive labels.</p>
+<h3 id="gans-match-through-a-learned-comparison">GANs: match through a learned comparison<a class="headerlink" href="#gans-match-through-a-learned-comparison" title="Permanent link">¤</a></h3>
+<p>Let <span class="arithmatex">\(U\sim\operatorname{Uniform}(0,1)\)</span> and let a generator <span class="arithmatex">\(G_\theta(U)\)</span> map
+noise to a tile. A sufficiently flexible generator can allocate intervals of
+length <span class="arithmatex">\(0.45,0.05,0.15,0.35\)</span> to the four states. The pushforward law of
+<span class="arithmatex">\(G_\theta(U)\)</span> then matches the target.</p>
+<p>A GAN does not fit those interval lengths by maximum likelihood. A
+discriminator or critic learns to distinguish data from generated samples,
+while the generator changes to improve the adversarial objective. At an ideal
+population optimum under the stated game, generated and data laws can agree;
+finite networks, finite samples, and optimization dynamics need not reach that
+optimum.</p>
+<p>Generation is direct once <span class="arithmatex">\(G_\theta\)</span> is trained. A normalized likelihood for
+an arbitrary tile is not generally exposed by the neural generator.</p>
+<p><strong>Connection:</strong> both a GAN and a VAE can use a decoder-shaped network from
+latent noise to observations. The same architectural arrow does not make their
+probability semantics or training objectives the same.</p>
+<h3 id="energy-based-models-assign-scalar-compatibility-then-normalize">Energy-based models: assign scalar compatibility, then normalize<a class="headerlink" href="#energy-based-models-assign-scalar-compatibility-then-normalize" title="Permanent link">¤</a></h3>
+<p>An EBM writes</p>
+<div class="arithmatex">\[
+p_\theta(x)=\frac{e^{-E_\theta(x)}}{Z_\theta},
+\qquad
+Z_\theta=\sum_{x'}e^{-E_\theta(x')}
+\]</div>
+<p>for the finite tile world. Choosing</p>
+<div class="arithmatex">\[
+E(x)=-\log p_\star(x)
+\]</div>
+<p>gives <span class="arithmatex">\(Z=1\)</span> and exactly recovers the target. Adding the same constant to every
+energy changes <span class="arithmatex">\(Z\)</span> but not the normalized law. For large spaces, calculating
+<span class="arithmatex">\(Z_\theta\)</span> and drawing representative samples can be the hard parts. MCMC is a
+sampling method for an energy-defined law; the energy function is the model
+component.</p>
+<p><strong>Connection:</strong> the score of a differentiable continuous EBM is
+<span class="arithmatex">\(\nabla_x\log p_\theta(x)=-\nabla_xE_\theta(x)\)</span> because the normalizer does not
+depend on <span class="arithmatex">\(x\)</span>. Diffusion models often learn scores without first learning an
+explicit scalar energy.</p>
+<h3 id="diffusion-models-learn-to-reverse-a-corruption-process">Diffusion models: learn to reverse a corruption process<a class="headerlink" href="#diffusion-models-learn-to-reverse-a-corruption-process" title="Permanent link">¤</a></h3>
+<p>A discrete corruption kernel can randomly replace a tile with progressively
+less informative states. If <span class="arithmatex">\(q_t(y\mid x)\)</span> is the forward corruption law, then
+the exact reverse conditional under the data law is</p>
+<div class="arithmatex">\[
+q_t(x\mid y)
+=\frac{p_\star(x)q_t(y\mid x)}
+       {\sum_{x'}p_\star(x')q_t(y\mid x')}.
+\]</div>
+<p>Training examples can be constructed by drawing a real tile and corrupting it.
+A neural model learns reverse conditionals, noise predictions, scores, or
+velocity-like targets depending on the formulation. Generation begins from a
+simple high-noise distribution and applies a numerical reverse process.</p>
+<p>For four states the reverse table can be computed exactly. In image, audio, or
+continuous-state models it is learned and the finite-step sampler introduces
+an additional approximation.</p>
+<p><strong>Connection:</strong> diffusion generation is sequential like autoregressive
+generation, but its sequence usually evolves whole noisy states over time
+rather than appending one observed component at a time.</p>
+<h3 id="normalizing-flows-transport-through-an-invertible-map">Normalizing flows: transport through an invertible map<a class="headerlink" href="#normalizing-flows-transport-through-an-invertible-map" title="Permanent link">¤</a></h3>
+<p>For continuous variables, an invertible map <span class="arithmatex">\(x=f_\theta(z)\)</span> transforms a base
+density according to</p>
+<div class="arithmatex">\[
+p_X(x)=p_Z(f_\theta^{-1}(x))
+\left|\det J_{f_\theta^{-1}}(x)\right|.
+\]</div>
+<p>Generation applies the forward map to base noise; scoring uses the inverse and
+Jacobian determinant. Continuous-time flows replace a finite composition of
+maps with an ODE and track density change through a divergence.</p>
+<p>The discrete tile world exposes a useful limitation. A bijection of four
+states merely permutes four base masses. A uniform discrete base therefore
+remains uniform and cannot become <span class="arithmatex">\((0.45,0.05,0.15,0.35)\)</span> through a bijection
+alone. One needs a nonuniform base, an augmented/discrete construction, or a
+continuous representation such as dequantized tiles. “Invertible” does not by
+itself imply universal distribution matching.</p>
+<p><strong>Connection:</strong> GAN generators and flows both push base noise through a neural
+map. The flow constrains the map so that density transformation is available;
+a typical GAN permits a noninvertible map and uses adversarial comparison
+instead of change-of-variables likelihood.</p>
+<h3 id="side-by-side-family-contract">Side-by-side family contract<a class="headerlink" href="#side-by-side-family-contract" title="Permanent link">¤</a></h3>
+<div class="md-typeset__table book-table-container"><table id="tbl-generative-modeling-first-course-side-by-side-family-contract"><caption class="book-object-caption"><span class="book-object-number">Table FIRST.5.</span> Side-by-side family contract</caption>
+<thead>
+<tr>
+<th>Family</th>
+<th>Declared object</th>
+<th>Common learning signal</th>
+<th>Generation</th>
+<th>Direct normalized score?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AR</td>
+<td>ordered normalized conditionals</td>
+<td>log-likelihood</td>
+<td>ancestral, component by component</td>
+<td>yes, when conditionals are tractable</td>
+</tr>
+<tr>
+<td>VAE</td>
+<td>latent joint plus approximate posterior</td>
+<td>ELBO or related variational objective</td>
+<td>prior sample, then decoder</td>
+<td>lower bound commonly; exact marginal may be hard</td>
+</tr>
+<tr>
+<td>GAN</td>
+<td>implicit pushforward plus adversarial game</td>
+<td>discriminator/critic comparison</td>
+<td>one generator pass, possibly composed</td>
+<td>generally no</td>
+</tr>
+<tr>
+<td>EBM</td>
+<td>scalar energy defining an unnormalized law</td>
+<td>likelihood approximations, score matching, contrastive criteria</td>
+<td>usually MCMC or another energy-aware sampler</td>
+<td>only after handling the normalizer</td>
+</tr>
+<tr>
+<td>Diffusion</td>
+<td>forward path plus learned reverse/score/velocity object</td>
+<td>denoising, score, variational, or flow objectives</td>
+<td>iterative numerical reverse process</td>
+<td>formulation-dependent; exact data likelihood is not automatic</td>
+</tr>
+<tr>
+<td>Flow</td>
+<td>invertible discrete or continuous transport</td>
+<td>exact or simulation-free transport objectives</td>
+<td>map base noise through transport</td>
+<td>yes for tractable invertible density flows</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="worked-comparison-choose-by-query">Worked comparison: choose by query<a class="headerlink" href="#worked-comparison-choose-by-query" title="Permanent link">¤</a></h3>
+<p>Suppose exact per-tile scoring and fast sampling are both required. In the
+four-state world, a table or AR factorization provides both directly. A
+tractable discrete flow with a suitable base can also score and sample, though
+the uniform-base limitation above matters. A GAN offers fast sampling but not
+the required score. An EBM offers energies but may make normalization and
+sampling expensive. A diffusion model introduces an iterative sampler that is
+unnecessary for this tiny space. A VAE is useful if a latent representation is
+part of the query, but its marginal score may require a bound or estimator.</p>
+<p>This is not a universal ranking. Change the query to “learn a useful latent
+representation” or “generate high-dimensional perceptual data under a fixed
+latency budget,” and the tradeoffs change.</p>
+<h3 id="your-turn-compare-do-not-merely-list">Your turn: compare, do not merely list<a class="headerlink" href="#your-turn-compare-do-not-merely-list" title="Permanent link">¤</a></h3>
+<p>For each pair, state one shared structure and one non-equivalence:</p>
+<ol>
+<li>GAN and flow;</li>
+<li>EBM and diffusion;</li>
+<li>AR and diffusion;</li>
+<li>VAE and AR.</li>
+</ol>
+<details class="success">
+<summary>Check your answer</summary>
+<ol>
+<li>Both can push base noise through neural computation; a density flow is
+   invertible with a tractable change-of-variables contract, while a
+   typical GAN is implicit and adversarially trained.</li>
+<li>Both can use score-like information; an EBM begins from a scalar energy
+   defining one law, while diffusion usually learns time-indexed reverse or
+   score objects along a corruption path.</li>
+<li>Both generate sequentially; AR appends ordered observed components,
+   while diffusion updates noisy whole-state representations over time.</li>
+<li>Both may contain normalized autoregressive conditionals; a VAE adds a
+   latent joint, approximate posterior, and variational training structure,
+   whereas AR alone only specifies an ordered factorization.</li>
+</ol>
+</details>
+<h3 id="chapter-5-retrieval-practice">Chapter 5 retrieval practice<a class="headerlink" href="#chapter-5-retrieval-practice" title="Permanent link">¤</a></h3>
+<p>Cover the comparison table and reconstruct one sentence for each family using
+the pattern: <strong>object → learning signal → generation procedure</strong>. Then answer:</p>
+<ol>
+<li>Which two families most clearly illustrate that similar decoder
+   architectures need not imply the same objective?</li>
+<li>Why can a uniform four-state base not become the nonuniform tile law through
+   a discrete bijection alone?</li>
+<li>Which family makes the normalizer an explicit obstacle?</li>
+<li>In what sense are AR and diffusion both sequential, and how do their
+   sequences differ?</li>
+</ol>
+<h3 id="chapter-5-synthesis">Chapter 5 synthesis<a class="headerlink" href="#chapter-5-synthesis" title="Permanent link">¤</a></h3>
+<p>The six families are different interfaces to distribution construction and
+learning, not six brand names for interchangeable neural networks. Comparing
+them on one target makes the shared structures visible while forcing every
+claimed connection to state what is—and is not—preserved.</p>
+<hr/>
+<h2 id="6-how-to-read-equations-and-execute-the-first-model">6. How to Read Equations and Execute the First Model<a class="headerlink" href="#6-how-to-read-equations-and-execute-the-first-model" title="Permanent link">¤</a></h2>
+<h3 id="prerequisites-and-learning-objectives-for-chapter-6">Prerequisites and learning objectives for Chapter 6<a class="headerlink" href="#prerequisites-and-learning-objectives-for-chapter-6" title="Permanent link">¤</a></h3>
+<p>This chapter assumes the tile law and role map from Chapters 1–5. After it, you
+should be able to:</p>
+<ol>
+<li>translate a compact probability equation into a sequence of operations;</li>
+<li>map symbols in an equation to variables in code;</li>
+<li>execute and modify a dependency-free finite generative model; and</li>
+<li>use normalization, boundary, and simulation checks to catch mistakes.</li>
+</ol>
+<h3 id="read-equations-in-three-passes">Read equations in three passes<a class="headerlink" href="#read-equations-in-three-passes" title="Permanent link">¤</a></h3>
+<p>Consider the empirical negative log-likelihood</p>
+<div class="arithmatex">\[
+\widehat{\mathcal R}(q)
+=-\frac1N\sum_{n=1}^{N}\log q(x_n).
+\]</div>
+<p><strong>Pass 1: name the output.</strong> The left side is one scalar loss computed from a
+candidate mass function <span class="arithmatex">\(q\)</span> and a dataset.</p>
+<p><strong>Pass 2: identify scope and binding.</strong> The index <span class="arithmatex">\(n\)</span> runs from <span class="arithmatex">\(1\)</span> through
+<span class="arithmatex">\(N\)</span>. Each <span class="arithmatex">\(x_n\)</span> is an observed state. The expression <span class="arithmatex">\(q(x_n)\)</span> selects the mass
+assigned to that state.</p>
+<p><strong>Pass 3: execute the operators.</strong> For each observation: look up its mass,
+take the natural logarithm, add the results, divide by <span class="arithmatex">\(N\)</span>, and negate. An
+impossible observed state with <span class="arithmatex">\(q(x_n)=0\)</span> gives infinite loss, which is a
+support failure rather than a floating-point inconvenience.</p>
+<p>This three-pass method—output, scope, operations—works for expectations,
+integrals, matrix equations, and update rules. Add a fourth pass for
+assumptions: which law generates the expectation, which variables are fixed,
+and where denominators or inverses are defined?</p>
+<h3 id="a-compact-notation-decoder">A compact notation decoder<a class="headerlink" href="#a-compact-notation-decoder" title="Permanent link">¤</a></h3>
+<div class="md-typeset__table book-table-container"><table id="tbl-generative-modeling-first-course-a-compact-notation-decoder"><caption class="book-object-caption"><span class="book-object-number">Table FIRST.6.</span> A compact notation decoder</caption>
+<thead>
+<tr>
+<th>Symbol</th>
+<th>Read it as</th>
+<th>Code-level question</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="arithmatex">\(x\sim p\)</span></td>
+<td>draw <span class="arithmatex">\(x\)</span> according to law <span class="arithmatex">\(p\)</span></td>
+<td>Which sampler, seed, and approximation?</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(\mathbb E_{p}[f(X)]\)</span></td>
+<td>average <span class="arithmatex">\(f\)</span> under <span class="arithmatex">\(p\)</span></td>
+<td>Exact sum, quadrature, or Monte Carlo?</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(p(x\mid c)\)</span></td>
+<td>law or density of <span class="arithmatex">\(x\)</span> given <span class="arithmatex">\(c\)</span></td>
+<td>How is <span class="arithmatex">\(c\)</span> represented and normalized?</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(\arg\min_\theta L(\theta)\)</span></td>
+<td>the parameter set minimizing <span class="arithmatex">\(L\)</span></td>
+<td>Which optimizer approximates it?</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(\nabla_\theta L\)</span></td>
+<td>local sensitivity to parameters</td>
+<td>Is it exact, autodifferentiated, or estimated?</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(\propto\)</span></td>
+<td>equal up to a positive factor independent of the displayed variable</td>
+<td>What normalizer is omitted?</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(\approx\)</span></td>
+<td>approximation</td>
+<td>Which limit, error source, or diagnostic justifies it?</td>
+</tr>
+</tbody>
+</table></div>
+<p>Do not translate <span class="arithmatex">\(\arg\min\)</span> as “gradient descent.” The former defines a target
+set; the latter is one algorithm that may or may not reach it. Do not translate
+<span class="arithmatex">\(x\sim p\)</span> as “call this particular library function.” The mathematical draw and
+its implementation are separate contracts.</p>
+<h3 id="from-the-tile-equations-to-executable-python">From the tile equations to executable Python<a class="headerlink" href="#from-the-tile-equations-to-executable-python" title="Permanent link">¤</a></h3>
+<p>The following program uses only the Python standard library. It estimates the
+four-state empirical model, verifies the joint and conditional calculations,
+computes its average negative log-likelihood, and generates reproducible
+samples by inverse-CDF sampling.</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a href="#__codelineno-0-1" id="__codelineno-0-1" name="__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">bisect</span><span class="w"> </span><span class="kn">import</span> <span class="n">bisect</span>
+</span><span id="__span-0-2"><a href="#__codelineno-0-2" id="__codelineno-0-2" name="__codelineno-0-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">itertools</span><span class="w"> </span><span class="kn">import</span> <span class="n">accumulate</span>
+</span><span id="__span-0-3"><a href="#__codelineno-0-3" id="__codelineno-0-3" name="__codelineno-0-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">math</span><span class="w"> </span><span class="kn">import</span> <span class="n">isclose</span><span class="p">,</span> <span class="n">log</span>
+</span><span id="__span-0-4"><a href="#__codelineno-0-4" id="__codelineno-0-4" name="__codelineno-0-4"></a><span class="kn">from</span><span class="w"> </span><span class="nn">random</span><span class="w"> </span><span class="kn">import</span> <span class="n">Random</span>
+</span><span id="__span-0-5"><a href="#__codelineno-0-5" id="__codelineno-0-5" name="__codelineno-0-5"></a>
+</span><span id="__span-0-6"><a href="#__codelineno-0-6" id="__codelineno-0-6" name="__codelineno-0-6"></a><span class="n">states</span> <span class="o">=</span> <span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+</span><span id="__span-0-7"><a href="#__codelineno-0-7" id="__codelineno-0-7" name="__codelineno-0-7"></a><span class="n">counts</span> <span class="o">=</span> <span class="p">(</span><span class="mi">9</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">7</span><span class="p">)</span>
+</span><span id="__span-0-8"><a href="#__codelineno-0-8" id="__codelineno-0-8" name="__codelineno-0-8"></a><span class="n">sample_size</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">counts</span><span class="p">)</span>
+</span><span id="__span-0-9"><a href="#__codelineno-0-9" id="__codelineno-0-9" name="__codelineno-0-9"></a><span class="n">pmf</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">count</span> <span class="o">/</span> <span class="n">sample_size</span> <span class="k">for</span> <span class="n">count</span> <span class="ow">in</span> <span class="n">counts</span><span class="p">)</span>
+</span><span id="__span-0-10"><a href="#__codelineno-0-10" id="__codelineno-0-10" name="__codelineno-0-10"></a>
+</span><span id="__span-0-11"><a href="#__codelineno-0-11" id="__codelineno-0-11" name="__codelineno-0-11"></a><span class="k">assert</span> <span class="nb">all</span><span class="p">(</span><span class="n">probability</span> <span class="o">&gt;=</span> <span class="mf">0.0</span> <span class="k">for</span> <span class="n">probability</span> <span class="ow">in</span> <span class="n">pmf</span><span class="p">)</span>
+</span><span id="__span-0-12"><a href="#__codelineno-0-12" id="__codelineno-0-12" name="__codelineno-0-12"></a><span class="k">assert</span> <span class="n">isclose</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">pmf</span><span class="p">),</span> <span class="mf">1.0</span><span class="p">)</span>
+</span><span id="__span-0-13"><a href="#__codelineno-0-13" id="__codelineno-0-13" name="__codelineno-0-13"></a>
+</span><span id="__span-0-14"><a href="#__codelineno-0-14" id="__codelineno-0-14" name="__codelineno-0-14"></a><span class="n">orange_mass</span> <span class="o">=</span> <span class="n">pmf</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="n">pmf</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+</span><span id="__span-0-15"><a href="#__codelineno-0-15" id="__codelineno-0-15" name="__codelineno-0-15"></a><span class="n">orange_triangle_mass</span> <span class="o">=</span> <span class="n">pmf</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+</span><span id="__span-0-16"><a href="#__codelineno-0-16" id="__codelineno-0-16" name="__codelineno-0-16"></a><span class="n">triangle_given_orange</span> <span class="o">=</span> <span class="n">orange_triangle_mass</span> <span class="o">/</span> <span class="n">orange_mass</span>
+</span><span id="__span-0-17"><a href="#__codelineno-0-17" id="__codelineno-0-17" name="__codelineno-0-17"></a><span class="k">assert</span> <span class="n">isclose</span><span class="p">(</span><span class="n">triangle_given_orange</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">)</span>
+</span><span id="__span-0-18"><a href="#__codelineno-0-18" id="__codelineno-0-18" name="__codelineno-0-18"></a>
+</span><span id="__span-0-19"><a href="#__codelineno-0-19" id="__codelineno-0-19" name="__codelineno-0-19"></a><span class="n">average_negative_log_likelihood</span> <span class="o">=</span> <span class="o">-</span><span class="nb">sum</span><span class="p">(</span>
+</span><span id="__span-0-20"><a href="#__codelineno-0-20" id="__codelineno-0-20" name="__codelineno-0-20"></a>    <span class="n">count</span> <span class="o">*</span> <span class="n">log</span><span class="p">(</span><span class="n">probability</span><span class="p">)</span> <span class="k">for</span> <span class="n">count</span><span class="p">,</span> <span class="n">probability</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">counts</span><span class="p">,</span> <span class="n">pmf</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span><span id="__span-0-21"><a href="#__codelineno-0-21" id="__codelineno-0-21" name="__codelineno-0-21"></a><span class="p">)</span> <span class="o">/</span> <span class="n">sample_size</span>
+</span><span id="__span-0-22"><a href="#__codelineno-0-22" id="__codelineno-0-22" name="__codelineno-0-22"></a>
+</span><span id="__span-0-23"><a href="#__codelineno-0-23" id="__codelineno-0-23" name="__codelineno-0-23"></a><span class="n">cumulative</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">accumulate</span><span class="p">(</span><span class="n">pmf</span><span class="p">))</span>
+</span><span id="__span-0-24"><a href="#__codelineno-0-24" id="__codelineno-0-24" name="__codelineno-0-24"></a>
+</span><span id="__span-0-25"><a href="#__codelineno-0-25" id="__codelineno-0-25" name="__codelineno-0-25"></a>
+</span><span id="__span-0-26"><a href="#__codelineno-0-26" id="__codelineno-0-26" name="__codelineno-0-26"></a><span class="k">def</span><span class="w"> </span><span class="nf">sample_tile</span><span class="p">(</span><span class="n">uniform_draw</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+</span><span id="__span-0-27"><a href="#__codelineno-0-27" id="__codelineno-0-27" name="__codelineno-0-27"></a><span class="w">    </span><span class="sd">"""Map one draw in [0, 1) to a tile using cumulative masses."""</span>
+</span><span id="__span-0-28"><a href="#__codelineno-0-28" id="__codelineno-0-28" name="__codelineno-0-28"></a>    <span class="k">if</span> <span class="ow">not</span> <span class="mf">0.0</span> <span class="o">&lt;=</span> <span class="n">uniform_draw</span> <span class="o">&lt;</span> <span class="mf">1.0</span><span class="p">:</span>
+</span><span id="__span-0-29"><a href="#__codelineno-0-29" id="__codelineno-0-29" name="__codelineno-0-29"></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"uniform_draw must lie in [0, 1)"</span><span class="p">)</span>
+</span><span id="__span-0-30"><a href="#__codelineno-0-30" id="__codelineno-0-30" name="__codelineno-0-30"></a>    <span class="k">return</span> <span class="n">states</span><span class="p">[</span><span class="n">bisect</span><span class="p">(</span><span class="n">cumulative</span><span class="p">,</span> <span class="n">uniform_draw</span><span class="p">)]</span>
+</span><span id="__span-0-31"><a href="#__codelineno-0-31" id="__codelineno-0-31" name="__codelineno-0-31"></a>
+</span><span id="__span-0-32"><a href="#__codelineno-0-32" id="__codelineno-0-32" name="__codelineno-0-32"></a>
+</span><span id="__span-0-33"><a href="#__codelineno-0-33" id="__codelineno-0-33" name="__codelineno-0-33"></a><span class="n">rng</span> <span class="o">=</span> <span class="n">Random</span><span class="p">(</span><span class="mi">7</span><span class="p">)</span>
+</span><span id="__span-0-34"><a href="#__codelineno-0-34" id="__codelineno-0-34" name="__codelineno-0-34"></a><span class="n">generated</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">sample_tile</span><span class="p">(</span><span class="n">rng</span><span class="o">.</span><span class="n">random</span><span class="p">())</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">8</span><span class="p">))</span>
+</span><span id="__span-0-35"><a href="#__codelineno-0-35" id="__codelineno-0-35" name="__codelineno-0-35"></a>
+</span><span id="__span-0-36"><a href="#__codelineno-0-36" id="__codelineno-0-36" name="__codelineno-0-36"></a><span class="nb">print</span><span class="p">(</span><span class="s2">"pmf:"</span><span class="p">,</span> <span class="n">pmf</span><span class="p">)</span>
+</span><span id="__span-0-37"><a href="#__codelineno-0-37" id="__codelineno-0-37" name="__codelineno-0-37"></a><span class="nb">print</span><span class="p">(</span><span class="s2">"P(triangle | orange):"</span><span class="p">,</span> <span class="n">triangle_given_orange</span><span class="p">)</span>
+</span><span id="__span-0-38"><a href="#__codelineno-0-38" id="__codelineno-0-38" name="__codelineno-0-38"></a><span class="nb">print</span><span class="p">(</span><span class="s2">"average NLL:"</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span><span class="n">average_negative_log_likelihood</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+</span><span id="__span-0-39"><a href="#__codelineno-0-39" id="__codelineno-0-39" name="__codelineno-0-39"></a><span class="nb">print</span><span class="p">(</span><span class="s2">"generated:"</span><span class="p">,</span> <span class="n">generated</span><span class="p">)</span>
+</span></code></pre></div>
+<p>Expected output under the specified Python pseudorandom generator is:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-1-1"><a href="#__codelineno-1-1" id="__codelineno-1-1" name="__codelineno-1-1"></a>pmf: (0.45, 0.05, 0.15, 0.35)
+</span><span id="__span-1-2"><a href="#__codelineno-1-2" id="__codelineno-1-2" name="__codelineno-1-2"></a>P(triangle | orange): 0.7
+</span><span id="__span-1-3"><a href="#__codelineno-1-3" id="__codelineno-1-3" name="__codelineno-1-3"></a>average NLL: 1.161121
+</span><span id="__span-1-4"><a href="#__codelineno-1-4" id="__codelineno-1-4" name="__codelineno-1-4"></a>generated: ((0, 0), (0, 0), (1, 1), (0, 0), (1, 0), (0, 0), (0, 0), (1, 0))
+</span></code></pre></div>
+<p>The assertions are part of the example, not decoration. They encode model
+invariants and a hand-derived conditional. The fixed seed makes this short run
+reproducible; it does not prove that eight draws match the distribution. A
+simulation diagnostic needs many draws and uncertainty-aware tolerances.</p>
+<h3 id="trace-the-roles-in-the-program">Trace the roles in the program<a class="headerlink" href="#trace-the-roles-in-the-program" title="Permanent link">¤</a></h3>
+<div class="md-typeset__table book-table-container"><table id="tbl-generative-modeling-first-course-trace-the-roles-in-the-program"><caption class="book-object-caption"><span class="book-object-number">Table FIRST.7.</span> Trace the roles in the program</caption>
+<thead>
+<tr>
+<th>Program element</th>
+<th>Conceptual role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>states</code></td>
+<td>outcome-space representation</td>
+</tr>
+<tr>
+<td><code>counts</code></td>
+<td>observed finite data summary</td>
+</tr>
+<tr>
+<td><code>pmf</code></td>
+<td>fitted empirical model</td>
+</tr>
+<tr>
+<td>average NLL expression</td>
+<td>empirical objective evaluated at the fitted model</td>
+</tr>
+<tr>
+<td><code>cumulative</code> and <code>sample_tile</code></td>
+<td>exact categorical sampling algorithm</td>
+</tr>
+<tr>
+<td><code>rng</code></td>
+<td>reproducible pseudorandom source, not the probability law itself</td>
+</tr>
+<tr>
+<td>assertions</td>
+<td>finite correctness checks</td>
+</tr>
+</tbody>
+</table></div>
+<p>There is no optimizer because the unconstrained categorical maximum-likelihood
+estimate has a closed form: count each state and divide by <span class="arithmatex">\(N\)</span>. There is no
+latent inference because the model contains no latent variable. Adding library
+machinery would not improve this example's semantics.</p>
+<h3 id="worked-mutation-smoothing-an-unseen-state">Worked mutation: smoothing an unseen state<a class="headerlink" href="#worked-mutation-smoothing-an-unseen-state" title="Permanent link">¤</a></h3>
+<p>Suppose a smaller training set has counts <span class="arithmatex">\((4,0,1,3)\)</span>. The empirical estimate
+assigns state <span class="arithmatex">\(01\)</span> zero mass, so one future <span class="arithmatex">\(01\)</span> observation has infinite log
+loss. Add-<span class="arithmatex">\(\alpha\)</span> smoothing uses</p>
+<div class="arithmatex">\[
+q_\alpha(x_i)=\frac{n_i+\alpha}{N+K\alpha}
+\]</div>
+<p>for <span class="arithmatex">\(K=4\)</span> states and <span class="arithmatex">\(\alpha&gt;0\)</span>. With <span class="arithmatex">\(\alpha=1\)</span>, the masses are</p>
+<div class="arithmatex">\[
+q_1=(5,1,2,4)/12.
+\]</div>
+<p>This is a modeling choice, not a numerical trick: it changes the fitted law by
+allocating mass to unseen outcomes. A Bayesian interpretation is available
+through a symmetric Dirichlet prior, but the operational consequence can be
+understood before that derivation.</p>
+<h3 id="your-turn-modify-predict-then-run">Your turn: modify, predict, then run<a class="headerlink" href="#your-turn-modify-predict-then-run" title="Permanent link">¤</a></h3>
+<p>Before executing code, change <code>counts</code> to <code>(4, 0, 1, 3)</code> and predict:</p>
+<ol>
+<li>the unsmoothed probability of state <code>01</code>;</li>
+<li>whether the existing NLL expression can evaluate the zero-count state
+   safely inside its current sum;</li>
+<li>the add-one-smoothed probability of <code>01</code>; and</li>
+<li>whether a smoothed sampler can now generate <code>01</code>.</li>
+</ol>
+<details class="success">
+<summary>Check your answer</summary>
+<p>The unsmoothed mass is zero. In the displayed expression Python still
+evaluates <code>log(0.0)</code> even though its count multiplier is zero, so the code
+raises a domain error; a robust implementation must omit zero-count terms
+or handle support explicitly. Add-one smoothing gives mass <span class="arithmatex">\(1/12\)</span> to <code>01</code>,
+and a sampler built from the smoothed masses can generate it. This exercise
+separates a mathematical convention (<span class="arithmatex">\(0\log0=0\)</span> in entropy-like sums) from
+the eager evaluation behavior of code.</p>
+</details>
+<h3 id="chapter-6-retrieval-practice">Chapter 6 retrieval practice<a class="headerlink" href="#chapter-6-retrieval-practice" title="Permanent link">¤</a></h3>
+<ol>
+<li>What are the three passes for reading an equation?</li>
+<li>What question should follow every <span class="arithmatex">\(\approx\)</span> sign?</li>
+<li>Which line of the program is the model, and which function is the sampler?</li>
+<li>Why does a fixed seed not validate distributional correctness?</li>
+<li>Why does add-<span class="arithmatex">\(\alpha\)</span> smoothing change the model rather than merely prevent
+   a software error?</li>
+</ol>
+<h3 id="chapter-6-synthesis">Chapter 6 synthesis<a class="headerlink" href="#chapter-6-synthesis" title="Permanent link">¤</a></h3>
+<p>An equation becomes manageable when you identify its output, variable scope,
+operations, and assumptions. Code should preserve the same roles explicitly.
+The finite tile program is a complete generative workflow precisely because it
+is small enough to audit: data produce a fitted law, invariants are checked,
+and a separate sampler generates reproducible draws.</p>
+<hr/>
+<h2 id="7-diagnostic-assessment-and-personalized-next-routes">7. Diagnostic Assessment and Personalized Next Routes<a class="headerlink" href="#7-diagnostic-assessment-and-personalized-next-routes" title="Permanent link">¤</a></h2>
+<h3 id="prerequisites-and-learning-objectives-for-chapter-7">Prerequisites and learning objectives for Chapter 7<a class="headerlink" href="#prerequisites-and-learning-objectives-for-chapter-7" title="Permanent link">¤</a></h3>
+<p>This chapter assumes all earlier first-course chapters. After it, you should be
+able to:</p>
+<ol>
+<li>demonstrate the first-course outcomes without relying on recognition alone;</li>
+<li>locate a specific conceptual gap from your response, not merely a total
+   score;</li>
+<li>choose a next route through the complete book; and</li>
+<li>state what evidence would show that you are ready to advance.</li>
+</ol>
+<h3 id="how-to-take-the-diagnostic">How to take the diagnostic<a class="headerlink" href="#how-to-take-the-diagnostic" title="Permanent link">¤</a></h3>
+<p>Use a blank page or text file. Do not consult earlier chapters during the first
+attempt. Write an explanation or calculation for every item; a familiar-looking
+answer is not evidence of recall. Then compare with the solution and mark the
+<strong>route tag</strong> for every item you could not justify.</p>
+<p>The tags are:</p>
+<ul>
+<li><strong>O</strong> — objects and role separation;</li>
+<li><strong>P</strong> — probability and notation;</li>
+<li><strong>M</strong> — mathematics and optimization;</li>
+<li><strong>I</strong> — latent inference and estimation;</li>
+<li><strong>F</strong> — family comparison; and</li>
+<li><strong>C</strong> — executable computation.</li>
+</ul>
+<p>There is deliberately no universal pass percentage. Missing one foundational
+denominator can matter more than missing two family names. Route by the pattern
+of errors and the explanations you can reconstruct.</p>
+<h3 id="first-course-diagnostic">First-course diagnostic<a class="headerlink" href="#first-course-diagnostic" title="Permanent link">¤</a></h3>
+<ol>
+<li><strong>[O]</strong> A paper defines an energy <span class="arithmatex">\(E_\theta(x)\)</span>, trains it by score matching,
+   and generates with Langevin dynamics. Identify the model component,
+   objective, and sampler.</li>
+<li><strong>[O]</strong> Give one reason a generator may support sampling but not normalized
+   scoring.</li>
+<li><strong>[P]</strong> Using the tile table, calculate
+   <span class="arithmatex">\(p(X_1=0\mid X_2=0)\)</span>.</li>
+<li><strong>[P]</strong> Explain why a continuous density value of <span class="arithmatex">\(2.4\)</span> is not an invalid
+   probability.</li>
+<li><strong>[M]</strong> If a scalar loss has derivative <span class="arithmatex">\(-3\)</span> and the step size is <span class="arithmatex">\(0.1\)</span>,
+   what gradient-descent update is proposed? State one thing this update does
+   not guarantee.</li>
+<li><strong>[M]</strong> For <span class="arithmatex">\(W\in\mathbb R^{5\times3}\)</span> and
+   <span class="arithmatex">\(\mathbf x\in\mathbb R^3\)</span>, give the shape of <span class="arithmatex">\(W\mathbf x\)</span>.</li>
+<li><strong>[I]</strong> In <span class="arithmatex">\(p_\theta(z)p_\theta(x\mid z)\)</span>, describe the generation direction
+   and the posterior-inference question.</li>
+<li><strong>[I]</strong> Why can two latent-variable models have the same marginal law for
+   <span class="arithmatex">\(X\)</span> but different latent meanings?</li>
+<li><strong>[F]</strong> Contrast a GAN generator with a density flow using one similarity
+   and one non-equivalence.</li>
+<li><strong>[F]</strong> Contrast autoregressive and diffusion generation using one
+    similarity and one non-equivalence.</li>
+<li><strong>[C]</strong> In the executable example, why are <code>pmf</code> and <code>sample_tile</code>
+    different objects?</li>
+<li><strong>[C]</strong> Modify the program to draw 10,000 tiles and propose a diagnostic
+    that compares generated frequencies with the four model masses.</li>
+</ol>
+<details class="success">
+<summary>Diagnostic solutions</summary>
+<ol>
+<li><span class="arithmatex">\(E_\theta\)</span> defines the unnormalized model object; score matching is the
+   training objective; Langevin dynamics is the sampler.</li>
+<li>An implicit generator can map noise to samples without an invertible map
+   or tractable change-of-variables density.</li>
+<li>The circle marginal is <span class="arithmatex">\(0.45+0.15=0.60\)</span>, so
+   <span class="arithmatex">\(p(X_1=0\mid X_2=0)=0.45/0.60=0.75\)</span>.</li>
+<li>Density is measured relative to a reference measure; probability is an
+   integral over a set. A narrow interval can have density above one while
+   its integrated probability remains at most one.</li>
+<li><span class="arithmatex">\(\theta_{t+1}=\theta_t-0.1(-3)=\theta_t+0.3\)</span>. This local step does not
+   guarantee a global optimum, generalization, or even a lower loss when
+   the step is too large.</li>
+<li>The product lies in <span class="arithmatex">\(\mathbb R^5\)</span>.</li>
+<li>Generation draws <span class="arithmatex">\(z\)</span> from its prior and then <span class="arithmatex">\(x\mid z\)</span>; inference asks
+   which <span class="arithmatex">\(z\)</span> values are plausible after observing <span class="arithmatex">\(x\)</span>, namely
+   <span class="arithmatex">\(p_\theta(z\mid x)\)</span>.</li>
+<li>Marginalization can erase distinctions among joint decompositions;
+   observed <span class="arithmatex">\(X\)</span> alone need not identify a unique latent coordinate or
+   causal interpretation.</li>
+<li>Both push base noise through a learned map. A density flow constrains the
+   map to provide an inverse and Jacobian density contract; a typical GAN
+   uses adversarial training and exposes no normalized likelihood.</li>
+<li>Both produce a sequence of conditional updates. AR usually appends
+    observed components in an order; diffusion iteratively transforms a
+    noisy whole-state representation along a time path.</li>
+<li><code>pmf</code> specifies the four masses; <code>sample_tile</code> is one algorithm that
+    converts uniform randomness into a draw from those masses.</li>
+<li>Repeatedly call <code>sample_tile(rng.random())</code>, count each returned state,
+    divide by 10,000, and compare the empirical frequencies with <code>pmf</code>.
+    A useful diagnostic reports deviations together with sampling
+    uncertainty instead of demanding exact equality.</li>
+</ol>
+</details>
+<h3 id="route-from-the-error-pattern">Route from the error pattern<a class="headerlink" href="#route-from-the-error-pattern" title="Permanent link">¤</a></h3>
+<div class="md-typeset__table book-table-container"><table id="tbl-generative-modeling-first-course-route-from-the-error-pattern"><caption class="book-object-caption"><span class="book-object-number">Table FIRST.8.</span> Route from the error pattern</caption>
+<thead>
+<tr>
+<th>Revisit tag</th>
+<th>Immediate next chapters</th>
+<th>Readiness evidence before advancing</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>O</td>
+<td><a href="../probability-01-objects/">Probability 1</a>, then <a href="../objectives-01-discrepancies/">Objectives 1</a></td>
+<td>Given a new system, label model, objective, estimator, optimizer, sampler, and metric without conflation.</td>
+</tr>
+<tr>
+<td>P</td>
+<td><a href="../probability-01-objects/">Probability 1</a> through <a href="../probability-04-practice/">Probability 4</a>, with <a href="../generative-models-notation/">Notation</a> as lookup</td>
+<td>Recompute a joint, marginal, conditional, likelihood, and finite expectation from a new table.</td>
+</tr>
+<tr>
+<td>M</td>
+<td><a href="../optimization-01-differentiation/">Optimization 1</a>, <a href="../optimization-02-stochastic-gradients/">Optimization 2</a>, and the local linear-algebra links in <a href="../generative-models-notation/">Notation</a></td>
+<td>Trace dimensions and one gradient update, then explain the assumptions behind the optimizer's claim.</td>
+</tr>
+<tr>
+<td>I</td>
+<td><a href="../bayesian-learning-01-object/">Bayesian Learning 1</a>, then <a href="../inference-01-objects-and-queries/">Latent Inference 1</a> and <a href="../inference-02-variational/">Latent Inference 2</a></td>
+<td>Derive one finite posterior and distinguish exact posterior, approximation family, and estimator.</td>
+</tr>
+<tr>
+<td>F</td>
+<td>Read Chapter 1 of the two families you confused, then compare their synthesis chapters</td>
+<td>Fill the object–objective–generation table and state the assumptions behind one connection.</td>
+</tr>
+<tr>
+<td>C</td>
+<td>Re-run <a href="../first-course-06-code-and-equations/">Chapter 6</a>, then complete the <a href="../../../getting-started/quickstart/">executable VAE quickstart</a></td>
+<td>Predict an output, run the program, explain any discrepancy, and connect each code component to its mathematical role.</td>
+</tr>
+</tbody>
+</table></div>
+<p>If no tag repeats and you can explain all twelve answers, begin the
+<a href="../autoregressive-01-foundations/">autoregressive foundations</a> for the most
+direct neural example of normalized generation, then follow the six-family
+route in the landscape. If your application already determines a family, enter
+that family's Chapter 1 and use its local prerequisite panel instead.</p>
+<h3 id="the-complete-mathematical-foundation-remains-available">The complete mathematical foundation remains available<a class="headerlink" href="#the-complete-mathematical-foundation-remains-available" title="Permanent link">¤</a></h3>
+<p>The first course is an on-ramp, not a replacement for the foundation. The
+complete route develops probability, classical models, Bayesian learning,
+latent inference, objectives, information and coding, graphical models,
+message passing, filtering and smoothing, sampling, sequential Monte Carlo,
+optimization, and notation. Follow it continuously when you need proof-level
+coverage or broad research preparation. Follow local diagnostic links when you
+need just-in-time foundations for one family.</p>
+<h3 id="cumulative-performance-task">Cumulative performance task<a class="headerlink" href="#cumulative-performance-task" title="Permanent link">¤</a></h3>
+<p>Choose a tiny object with at most eight states—for example, two coin flips, a
+three-bit pattern, or a two-step categorical sequence—and produce a one-page
+model card containing:</p>
+<ol>
+<li>the outcome space and supported queries;</li>
+<li>a normalized probability table or an explicit statement that no normalized
+   law is exposed;</li>
+<li>one marginal and one conditional calculation;</li>
+<li>separate model, objective, estimator, optimizer, and sampler descriptions;</li>
+<li>executable generation code with at least two invariants;</li>
+<li>a comparison with one of AR, VAE, GAN, EBM, diffusion, or flow; and</li>
+<li>an evaluation plan that states data separation, metric, and uncertainty.</li>
+</ol>
+<p>The artifact passes when another reader can reproduce the calculation and
+generation result, identify every role, and tell which claims are exact,
+estimated, or approximate. This is stronger evidence of readiness than
+recognizing definitions in isolation.</p>
+<h3 id="chapter-7-retrieval-practice">Chapter 7 retrieval practice<a class="headerlink" href="#chapter-7-retrieval-practice" title="Permanent link">¤</a></h3>
+<p>One day after finishing the first course, reconstruct from memory:</p>
+<ol>
+<li>the seven generative-system roles;</li>
+<li>the joint-to-conditional tile calculation;</li>
+<li>the object–learning–generation sentence for each of six families; and</li>
+<li>the difference between learning, inference, sampling, and evaluation.</li>
+</ol>
+<p>Use the diagnostic tags again for anything you cannot reconstruct. Delayed
+retrieval is part of the route, not an optional epilogue.</p>
+<h3 id="chapter-7-synthesis">Chapter 7 synthesis<a class="headerlink" href="#chapter-7-synthesis" title="Permanent link">¤</a></h3>
+<p>You are ready to leave the on-ramp when you can explain the role distinctions,
+compute a finite conditional, compare the six families structurally, and run a
+small generator. The diagnostic routes missing knowledge to a specific part of
+the complete book; it does not force every newcomer through every foundation
+volume before encountering a model family.</p>
+<hr/>
+<h2 id="first-course-reading-trail">First-course reading trail<a class="headerlink" href="#first-course-reading-trail" title="Permanent link">¤</a></h2>
+<ul>
+<li>Continue with the <a href="../probability-and-generative-modeling/">complete probability foundation</a>
+  for measures, densities, likelihood, transformations, and worked examples.</li>
+<li>Use <a href="../generative-models-notation/">canonical notation</a> as a lookup surface
+  rather than memorizing every symbol in advance.</li>
+<li>Follow the <a href="../generative-models-unified/#beginner-practitioner-and-research-routes">complete mathematical foundation</a>
+  when broad research preparation is the goal.</li>
+<li>Enter the <a href="../generative-models-unified/#how-to-read-this-volume">six neural family sequence</a>
+  after the diagnostic, or go directly to a family whose local prerequisites
+  you satisfy.</li>
+</ul>
+</article>
+</div>
+<script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  Back to top
+</button>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+<div class="md-social">
+<a class="md-social__link" href="https://github.com/avitai/artifex" rel="noopener" target="_blank" title="github.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</a>
+<a class="md-social__link" href="https://pypi.org/project/avitai-artifex/" rel="noopener" target="_blank" title="pypi.org">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-66.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.3v101.8c0 29 25.2 46 53.4 54.3 33.8 9.9 66.3 11.7 106.8 0 26.9-7.8 53.4-23.5 53.4-54.3v-40.7H226.2v-13.6h160.2c31.1 0 42.6-21.7 53.4-54.2 11.2-33.5 10.7-65.7 0-108.6M286.2 444.7a20.4 20.4 0 1 1 0-40.7 20.4 20.4 0 1 1 0 40.7M167.8 248.1h106.8c29.7 0 53.4-24.5 53.4-54.3V91.9c0-29-24.4-50.7-53.4-55.6-35.8-5.9-74.7-5.6-106.8.1-45.2 8-53.4 24.7-53.4 55.6v40.7h106.9v13.6h-147c-31.1 0-58.3 18.7-66.8 54.2-9.8 40.7-10.2 66.1 0 108.6 7.6 31.6 25.7 54.2 56.8 54.2H101v-48.8c0-35.3 30.5-66.4 66.8-66.4m-6.6-183.4a20.4 20.4 0 1 1 0 40.8 20.4 20.4 0 1 1 0-40.8"></path></svg>
+</a>
+<a class="md-social__link" href="https://twitter.com/mahdi_shafiei" rel="noopener" target="_blank" title="twitter.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M459.4 151.7c.3 4.5.3 9.1.3 13.6 0 138.7-105.6 298.6-298.6 298.6-59.5 0-114.7-17.2-161.1-47.1 8.4 1 16.6 1.3 25.3 1.3 49.1 0 94.2-16.6 130.3-44.8-46.1-1-84.8-31.2-98.1-72.8 6.5 1 13 1.6 19.8 1.6 9.4 0 18.8-1.3 27.6-3.6-48.1-9.7-84.1-52-84.1-103v-1.3c14 7.8 30.2 12.7 47.4 13.3-28.3-18.8-46.8-51-46.8-87.4 0-19.5 5.2-37.4 14.3-53C87.4 130.8 165 172.4 252.1 176.9c-1.6-7.8-2.6-15.9-2.6-24C249.5 95.1 296.3 48 354.4 48c30.2 0 57.5 12.7 76.7 33.1 23.7-4.5 46.5-13.3 66.6-25.3-7.8 24.4-24.4 44.8-46.1 57.8 21.1-2.3 41.6-8.1 60.4-16.2-14.3 20.8-32.2 39.3-52.6 54.3"></path></svg>
+</a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.path", "navigation.top", "navigation.prune", "toc.follow", "search.highlight", "search.share", "search.suggest", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "content.mermaid"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+<script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+<script src="../../../javascripts/reading-layout.js"></script>
+</body>
+</html>

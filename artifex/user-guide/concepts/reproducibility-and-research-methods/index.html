@@ -1,0 +1,2173 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="Research needs more than a new score. It needs a falsifiable question, a controlled estimand, uncertainty, mechanism-revealing ablations, reproducible" name="description"/>
+<meta content="Mahdi Shafiei" name="author"/>
+<link href="https://docs.avitai.bio/artifex/user-guide/concepts/reproducibility-and-research-methods/" rel="canonical"/>
+<link href="../research-06-maintenance/" rel="prev"/>
+<link href="../../models/vae-guide/" rel="next"/>
+<link href="../../../assets/images/favicon.png" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.7.7" name="generator"/>
+<title>Reproducibility and Generative-Model Research Methods - Artifex</title>
+<link href="../../../assets/stylesheets/main.ec1eaa64.min.css" rel="stylesheet"/>
+<link href="../../../assets/stylesheets/palette.ab4e12ef.min.css" rel="stylesheet"/>
+<script src="../../../assets/vendor/iframe-worker/index.js"></script>
+<link href="../../../assets/_mkdocstrings.css" rel="stylesheet"/>
+<link href="../../../_static/extra.css" rel="stylesheet"/>
+<script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+<meta content="article" property="og:type"/>
+<meta content="The Artifex Generative Models Book" property="og:site_name"/>
+<meta content="Reproducibility and Generative-Model Research Methods" property="og:title"/>
+<meta content="Research needs more than a new score. It needs a falsifiable question, a controlled estimand, uncertainty, mechanism-revealing ablations, reproducible" property="og:description"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/reproducibility-and-research-methods/" property="og:url"/>
+<meta content="2026-07-11" property="article:modified_time"/>
+<meta content="summary" name="twitter:card"/>
+<meta content="Reproducibility and Generative-Model Research Methods" name="twitter:title"/>
+<meta content="Research needs more than a new score. It needs a falsifiable question, a controlled estimand, uncertainty, mechanism-revealing ablations, reproducible" name="twitter:description"/>
+<meta content="Generative models, Machine learning, Probabilistic modeling, research, reference, continuous_view, reproducibility-research-methods-complete, practitioner, researcher" name="keywords"/>
+<meta content="Reproducibility and Generative-Model Research Methods" name="citation_title"/>
+<meta content="Mahdi Shafiei" name="citation_author"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/reproducibility-and-research-methods/" name="citation_public_url"/>
+<meta content="en" name="citation_language"/>
+<meta content="Reproducibility and Generative-Model Research Methods" name="DC.title"/>
+<meta content="Mahdi Shafiei" name="DC.creator"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/reproducibility-and-research-methods/" name="DC.identifier"/>
+<meta content="Text.LearningResource" name="DC.type"/>
+<meta content="2026-07-11" name="DCTERMS.modified"/>
+<meta content="https://github.com/avitai/artifex/blob/main/LICENSE" name="DCTERMS.license"/>
+<meta content="research" name="DCTERMS.educationLevel"/>
+<meta content="practitioner, researcher" name="DCTERMS.audience"/>
+<link href="https://github.com/avitai/artifex/blob/main/LICENSE" rel="license"/>
+<script id="artifex-book-metadata" type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Chapter",
+  "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/reproducibility-and-research-methods/",
+  "url": "https://docs.avitai.bio/artifex/user-guide/concepts/reproducibility-and-research-methods/",
+  "name": "Reproducibility and Generative-Model Research Methods",
+  "description": "Research needs more than a new score. It needs a falsifiable question, a controlled estimand, uncertainty, mechanism-revealing ablations, reproducible",
+  "identifier": "reproducibility-research-methods-complete",
+  "inLanguage": "en",
+  "isAccessibleForFree": true,
+  "learningResourceType": "Continuous volume",
+  "educationalLevel": "research",
+  "educationalUse": "reference",
+  "audience": [
+    
+      {"@type": "EducationalAudience", "audienceType": "practitioner"},
+    
+      {"@type": "EducationalAudience", "audienceType": "researcher"}
+    
+  ],
+  "dateModified": "2026-07-11",
+  "keywords": ["Generative models", "Machine learning", "Probabilistic modeling", "research", "reference", "continuous_view", "reproducibility-research-methods-complete", "practitioner", "researcher"],
+  "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+  "author": [
+    
+      {"@type": "Person", "name": "Mahdi Shafiei"}
+    
+  ],
+  "isPartOf": {
+    "@type": "Book",
+    "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/#book",
+    "url": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/",
+    "name": "The Artifex Generative Models Book",
+    "bookEdition": "Living Web Edition",
+    "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+    "author": [
+      
+        {"@type": "Person", "name": "Mahdi Shafiei"}
+      
+    ]
+  }
+}
+</script>
+<script defer="" src="../../../javascripts/mathjax.js"></script>
+<script defer="" integrity="sha384-OrHfGTnIbkl0do3N76qW/uWr38o91N05sbSPuYBPLH+hG8X/dNSrjZf3AGjzrCwC" src="../../../assets/vendor/mathjax/tex-mml-chtml.js"></script>
+<meta content="noindex,follow" name="robots"/>
+</head>
+<body data-md-color-accent="amber" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#reproducibility-and-generative-model-research-methods">
+          Skip to content
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header md-header--shadow" data-md-component="header">
+<nav aria-label="Header" class="md-header__inner md-grid">
+<a aria-label="Artifex" class="md-header__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            Artifex
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+            
+              Reproducibility and Generative-Model Research Methods
+            
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-label="Switch to dark mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: light)" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_1" hidden="" title="Switch to dark mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+<input aria-label="Switch to light mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-primary="indigo" data-md-color-scheme="slate" id="__palette_1" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_0" hidden="" title="Switch to light mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+</form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div aria-label="Search" class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Search" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="Search" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="Search" class="md-search__options">
+<a aria-label="Share" class="md-search__icon md-icon" data-clipboard="" data-clipboard-text="" data-md-component="search-share" href="javascript:void(0)" tabindex="-1" title="Share">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"></path></svg>
+</a>
+<button aria-label="Clear" class="md-search__icon md-icon" tabindex="-1" title="Clear" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            Initializing search
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Navigation" class="md-nav md-nav--primary" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="Artifex" class="md-nav__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+    Artifex
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../..">
+<span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../getting-started/installation/">
+<span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Generative Models Book
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Generative Models Book
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    
+  
+    Start Here — The Landscape
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../first-course-01-generative-systems/">
+<span class="md-ellipsis">
+    
+  
+    First Course — New to Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../probability-01-objects/">
+<span class="md-ellipsis">
+    
+  
+    Foundations
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../autoregressive-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Model Families
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gradients-01-taxonomy/">
+<span class="md-ellipsis">
+    
+  
+    Connections and Compositions
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_6" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_6" id="__nav_3_6_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Research Practice
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_6_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_6">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Research Practice
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../normalization-01-queries/">
+<span class="md-ellipsis">
+    
+  
+    Estimating Likelihoods and Normalizing Constants
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../evaluation-01-likelihood/">
+<span class="md-ellipsis">
+    
+  
+    Evaluating Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../governance-01-lineage/">
+<span class="md-ellipsis">
+    
+  
+    Data Governance, Privacy, and Provenance
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../compute-01-training/">
+<span class="md-ellipsis">
+    
+  
+    Compute and Controlled Comparisons
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_6_5" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_6_5" id="__nav_3_6_5_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Reproducibility and Research Methods
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_6_5_label" class="md-nav" data-md-level="3">
+<label class="md-nav__title" for="__nav_3_6_5">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Reproducibility and Research Methods
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../research-01-questions/">
+<span class="md-ellipsis">
+    
+  
+    1. Questions and Claims
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../research-02-statistics/">
+<span class="md-ellipsis">
+    
+  
+    2. Design and Statistics
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../research-03-ablations/">
+<span class="md-ellipsis">
+    
+  
+    3. Ablations and Negative Results
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../research-04-artifacts/">
+<span class="md-ellipsis">
+    
+  
+    4. Reproducible Artifacts
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../research-05-evidence/">
+<span class="md-ellipsis">
+    
+  
+    5. Evidence and Claim Ledgers
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../research-06-maintenance/">
+<span class="md-ellipsis">
+    
+  
+    6. Evidence Maintenance
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
+    
+  
+    Continuous View (All Chapters)
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
+<span class="md-ellipsis">
+    
+  
+    Continuous View (All Chapters)
+  
+
+    
+  </span>
+</a>
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#1-selecting-research-questions-and-claims">
+<span class="md-ellipsis">
+      
+        1. Selecting Research Questions and Claims
+      
+    </span>
+</a>
+<nav aria-label="1. Selecting Research Questions and Claims" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-1-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 1 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#start-from-a-decision-or-missing-explanation">
+<span class="md-ellipsis">
+      
+        Start from a decision or missing explanation
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#define-the-estimand">
+<span class="md-ellipsis">
+      
+        Define the estimand
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#hypotheses-and-predictions">
+<span class="md-ellipsis">
+      
+        Hypotheses and predictions
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#scope-ladder">
+<span class="md-ellipsis">
+      
+        Scope ladder
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#baseline-hierarchy">
+<span class="md-ellipsis">
+      
+        Baseline hierarchy
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-question-refinement">
+<span class="md-ellipsis">
+      
+        Worked question refinement
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-1-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 1 synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#2-experimental-design-uncertainty-and-significance">
+<span class="md-ellipsis">
+      
+        2. Experimental Design, Uncertainty, and Significance
+      
+    </span>
+</a>
+<nav aria-label="2. Experimental Design, Uncertainty, and Significance" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-2-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 2 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#identify-independent-units">
+<span class="md-ellipsis">
+      
+        Identify independent units
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#report-distributions-and-intervals">
+<span class="md-ellipsis">
+      
+        Report distributions and intervals
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#what-a-p-value-is-not">
+<span class="md-ellipsis">
+      
+        What a p-value is not
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#multiple-comparisons-and-optional-stopping">
+<span class="md-ellipsis">
+      
+        Multiple comparisons and optional stopping
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#power-and-precision">
+<span class="md-ellipsis">
+      
+        Power and precision
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#seeds-and-determinism">
+<span class="md-ellipsis">
+      
+        Seeds and determinism
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#stratification">
+<span class="md-ellipsis">
+      
+        Stratification
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-2-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 2 synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#3-ablations-mechanisms-and-negative-results">
+<span class="md-ellipsis">
+      
+        3. Ablations, Mechanisms, and Negative Results
+      
+    </span>
+</a>
+<nav aria-label="3. Ablations, Mechanisms, and Negative Results" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-3-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 3 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#ablation-is-an-intervention">
+<span class="md-ellipsis">
+      
+        Ablation is an intervention
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mechanism-tests">
+<span class="md-ellipsis">
+      
+        Mechanism tests
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#null-and-negative-results">
+<span class="md-ellipsis">
+      
+        Null and negative results
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#debug-before-interpreting">
+<span class="md-ellipsis">
+      
+        Debug before interpreting
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#sensitivity-and-robustness">
+<span class="md-ellipsis">
+      
+        Sensitivity and robustness
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#publication-bias-and-outcome-switching">
+<span class="md-ellipsis">
+      
+        Publication bias and outcome switching
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-apparent-mechanism">
+<span class="md-ellipsis">
+      
+        Worked apparent mechanism
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-3-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 3 synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#4-reproducible-artifacts-and-independent-replication">
+<span class="md-ellipsis">
+      
+        4. Reproducible Artifacts and Independent Replication
+      
+    </span>
+</a>
+<nav aria-label="4. Reproducible Artifacts and Independent Replication" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-4-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 4 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#local-terminology">
+<span class="md-ellipsis">
+      
+        Local terminology
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#artifact-bundle">
+<span class="md-ellipsis">
+      
+        Artifact bundle
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#reproduction-compatibility">
+<span class="md-ellipsis">
+      
+        Reproduction compatibility
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#restricted-artifacts">
+<span class="md-ellipsis">
+      
+        Restricted artifacts
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#artifact-availability-versus-scientific-validity">
+<span class="md-ellipsis">
+      
+        Artifact availability versus scientific validity
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-acceptance-rule">
+<span class="md-ellipsis">
+      
+        Worked acceptance rule
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-4-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 4 synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#5-evidence-labels-reproduction-levels-and-claim-ledgers">
+<span class="md-ellipsis">
+      
+        5. Evidence Labels, Reproduction Levels, and Claim Ledgers
+      
+    </span>
+</a>
+<nav aria-label="5. Evidence Labels, Reproduction Levels, and Claim Ledgers" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-5-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 5 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#standard-evidence-labels">
+<span class="md-ellipsis">
+      
+        Standard evidence labels
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#reproduction-status">
+<span class="md-ellipsis">
+      
+        Reproduction status
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#claim-ledger-schema">
+<span class="md-ellipsis">
+      
+        Claim ledger schema
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#relationship-labels">
+<span class="md-ellipsis">
+      
+        Relationship labels
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#source-hierarchy">
+<span class="md-ellipsis">
+      
+        Source hierarchy
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-evidence-matrix">
+<span class="md-ellipsis">
+      
+        Worked evidence matrix
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-5-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 5 synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#6-evidence-review-and-maintenance">
+<span class="md-ellipsis">
+      
+        6. Evidence Review and Maintenance
+      
+    </span>
+</a>
+<nav aria-label="6. Evidence Review and Maintenance" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-6-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 6 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#release-time-evidence-review">
+<span class="md-ellipsis">
+      
+        Release-Time Evidence Review
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#literature-search-log">
+<span class="md-ellipsis">
+      
+        Literature-search log
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#peer-reviewed-research-checkpoints">
+<span class="md-ellipsis">
+      
+        Peer-Reviewed Research Checkpoints
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#research-exercises">
+<span class="md-ellipsis">
+      
+        Research exercises
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#final-synthesis">
+<span class="md-ellipsis">
+      
+        Final synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../models/vae-guide/">
+<span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/core/base/">
+<span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../examples/overview/">
+<span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../zoo/">
+<span class="md-ellipsis">
+    
+  
+    Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../training/overview/">
+<span class="md-ellipsis">
+    
+  
+    Training
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../data/overview/">
+<span class="md-ellipsis">
+    
+  
+    Data &amp; Modalities
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../inference/overview/">
+<span class="md-ellipsis">
+    
+  
+    Inference &amp; Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../benchmarks/">
+<span class="md-ellipsis">
+    
+  
+    Evaluation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../guides/extensions/">
+<span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../extensions/">
+<span class="md-ellipsis">
+    
+  
+    Advanced Topics
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../cli/">
+<span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../community/contributing/">
+<span class="md-ellipsis">
+    
+  
+    Community
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/configs/protein-extension/">
+<span class="md-ellipsis">
+    
+  
+    Reference Library
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#1-selecting-research-questions-and-claims">
+<span class="md-ellipsis">
+      
+        1. Selecting Research Questions and Claims
+      
+    </span>
+</a>
+<nav aria-label="1. Selecting Research Questions and Claims" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-1-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 1 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#start-from-a-decision-or-missing-explanation">
+<span class="md-ellipsis">
+      
+        Start from a decision or missing explanation
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#define-the-estimand">
+<span class="md-ellipsis">
+      
+        Define the estimand
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#hypotheses-and-predictions">
+<span class="md-ellipsis">
+      
+        Hypotheses and predictions
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#scope-ladder">
+<span class="md-ellipsis">
+      
+        Scope ladder
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#baseline-hierarchy">
+<span class="md-ellipsis">
+      
+        Baseline hierarchy
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-question-refinement">
+<span class="md-ellipsis">
+      
+        Worked question refinement
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-1-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 1 synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#2-experimental-design-uncertainty-and-significance">
+<span class="md-ellipsis">
+      
+        2. Experimental Design, Uncertainty, and Significance
+      
+    </span>
+</a>
+<nav aria-label="2. Experimental Design, Uncertainty, and Significance" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-2-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 2 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#identify-independent-units">
+<span class="md-ellipsis">
+      
+        Identify independent units
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#report-distributions-and-intervals">
+<span class="md-ellipsis">
+      
+        Report distributions and intervals
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#what-a-p-value-is-not">
+<span class="md-ellipsis">
+      
+        What a p-value is not
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#multiple-comparisons-and-optional-stopping">
+<span class="md-ellipsis">
+      
+        Multiple comparisons and optional stopping
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#power-and-precision">
+<span class="md-ellipsis">
+      
+        Power and precision
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#seeds-and-determinism">
+<span class="md-ellipsis">
+      
+        Seeds and determinism
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#stratification">
+<span class="md-ellipsis">
+      
+        Stratification
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-2-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 2 synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#3-ablations-mechanisms-and-negative-results">
+<span class="md-ellipsis">
+      
+        3. Ablations, Mechanisms, and Negative Results
+      
+    </span>
+</a>
+<nav aria-label="3. Ablations, Mechanisms, and Negative Results" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-3-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 3 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#ablation-is-an-intervention">
+<span class="md-ellipsis">
+      
+        Ablation is an intervention
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mechanism-tests">
+<span class="md-ellipsis">
+      
+        Mechanism tests
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#null-and-negative-results">
+<span class="md-ellipsis">
+      
+        Null and negative results
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#debug-before-interpreting">
+<span class="md-ellipsis">
+      
+        Debug before interpreting
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#sensitivity-and-robustness">
+<span class="md-ellipsis">
+      
+        Sensitivity and robustness
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#publication-bias-and-outcome-switching">
+<span class="md-ellipsis">
+      
+        Publication bias and outcome switching
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-apparent-mechanism">
+<span class="md-ellipsis">
+      
+        Worked apparent mechanism
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-3-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 3 synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#4-reproducible-artifacts-and-independent-replication">
+<span class="md-ellipsis">
+      
+        4. Reproducible Artifacts and Independent Replication
+      
+    </span>
+</a>
+<nav aria-label="4. Reproducible Artifacts and Independent Replication" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-4-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 4 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#local-terminology">
+<span class="md-ellipsis">
+      
+        Local terminology
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#artifact-bundle">
+<span class="md-ellipsis">
+      
+        Artifact bundle
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#reproduction-compatibility">
+<span class="md-ellipsis">
+      
+        Reproduction compatibility
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#restricted-artifacts">
+<span class="md-ellipsis">
+      
+        Restricted artifacts
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#artifact-availability-versus-scientific-validity">
+<span class="md-ellipsis">
+      
+        Artifact availability versus scientific validity
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-acceptance-rule">
+<span class="md-ellipsis">
+      
+        Worked acceptance rule
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-4-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 4 synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#5-evidence-labels-reproduction-levels-and-claim-ledgers">
+<span class="md-ellipsis">
+      
+        5. Evidence Labels, Reproduction Levels, and Claim Ledgers
+      
+    </span>
+</a>
+<nav aria-label="5. Evidence Labels, Reproduction Levels, and Claim Ledgers" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-5-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 5 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#standard-evidence-labels">
+<span class="md-ellipsis">
+      
+        Standard evidence labels
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#reproduction-status">
+<span class="md-ellipsis">
+      
+        Reproduction status
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#claim-ledger-schema">
+<span class="md-ellipsis">
+      
+        Claim ledger schema
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#relationship-labels">
+<span class="md-ellipsis">
+      
+        Relationship labels
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#source-hierarchy">
+<span class="md-ellipsis">
+      
+        Source hierarchy
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-evidence-matrix">
+<span class="md-ellipsis">
+      
+        Worked evidence matrix
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-5-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 5 synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#6-evidence-review-and-maintenance">
+<span class="md-ellipsis">
+      
+        6. Evidence Review and Maintenance
+      
+    </span>
+</a>
+<nav aria-label="6. Evidence Review and Maintenance" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-6-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 6 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#release-time-evidence-review">
+<span class="md-ellipsis">
+      
+        Release-Time Evidence Review
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#literature-search-log">
+<span class="md-ellipsis">
+      
+        Literature-search log
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#peer-reviewed-research-checkpoints">
+<span class="md-ellipsis">
+      
+        Peer-Reviewed Research Checkpoints
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#research-exercises">
+<span class="md-ellipsis">
+      
+        Research exercises
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#final-synthesis">
+<span class="md-ellipsis">
+      
+        Final synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<nav aria-label="Breadcrumb" class="md-path">
+<ol class="md-path__list">
+<li class="md-path__item">
+<a class="md-path__link" href="../../..">
+<span class="md-ellipsis">
+    Home
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    Generative Models Book
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../normalization-01-queries/">
+<span class="md-ellipsis">
+    Research Practice
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../research-01-questions/">
+<span class="md-ellipsis">
+    Reproducibility and Research Methods
+  </span>
+</a>
+</li>
+</ol>
+</nav>
+<article class="md-content__inner md-typeset">
+<h1 id="reproducibility-and-generative-model-research-methods">Reproducibility and Generative-Model Research Methods<a class="headerlink" href="#reproducibility-and-generative-model-research-methods" title="Permanent link">¤</a></h1><aside aria-label="Learning path" class="admonition abstract artifex-learning-path"><p class="admonition-title">Learning path</p><p><strong>Required knowledge</strong></p><ul class="artifex-learning-path__links" data-learning-path-role="required"><li><a href="../generative-model-evaluation/">Evaluating Generative Models</a></li><li><a href="../data-governance-and-provenance/">Data Governance, Privacy, and Provenance</a></li><li><a href="../compute-and-controlled-comparisons/">Compute Accounting and Controlled Comparisons</a></li></ul><p><strong>Readiness check:</strong> can you explain the central object and reproduce one worked example from each required chapter? If not, follow its link before continuing.</p><p><strong>Newly unlocked in the default route</strong></p><p>No immediate successor names this page as its final required prerequisite. Continue through the book navigation or the chapter's cross-links.</p></aside>
+<p>Research needs more than a new score. It needs a falsifiable question, a controlled estimand, uncertainty, mechanism-revealing ablations, reproducible artifacts, bounded conclusions, evidence maturity, and maintenance as the literature changes.</p>
+<p>This volume provides an end-to-end method for selecting questions, designing experiments, reporting negative results, packaging reproductions, distinguishing publication from replication, maintaining claim ledgers, and reviewing research evidence.</p>
+<div class="admonition info">
+<p class="admonition-title">Reading routes</p>
+<p><strong>Entry after prerequisites:</strong> Chapters 1–2 for questions, hypotheses, and uncertainty.<br/>
+<strong>Practitioner:</strong> Chapters 1–4 for experimental and artifact practice.<br>
+<strong>Research:</strong> all chapters, especially evidence/reproduction labels and release-time evidence maintenance.</br></p>
+</div>
+<h2 id="1-selecting-research-questions-and-claims">1. Selecting Research Questions and Claims<a class="headerlink" href="#1-selecting-research-questions-and-claims" title="Permanent link">¤</a></h2>
+<h3 id="chapter-1-prerequisites-and-learning-objectives">Chapter 1 prerequisites and learning objectives<a class="headerlink" href="#chapter-1-prerequisites-and-learning-objectives" title="Permanent link">¤</a></h3>
+<p>This chapter assumes familiarity with generative-model components and
+evaluation. By the end, you should be able to convert a broad idea into a
+falsifiable question, name the model/system boundary and estimand, distinguish
+descriptive, predictive, causal, mechanistic, and theoretical claims, choose
+baselines that could refute the contribution, and write explicit success,
+failure, and scope criteria before experimentation.</p>
+<h3 id="start-from-a-decision-or-missing-explanation">Start from a decision or missing explanation<a class="headerlink" href="#start-from-a-decision-or-missing-explanation" title="Permanent link">¤</a></h3>
+<p>Strong questions arise when evidence could change a model choice, theory, safety decision, or scientific explanation. Examples:</p>
+<ul>
+<li>Does an objective improve conditional coverage at matched training/inference compute?</li>
+<li>Is a claimed speedup caused by fewer model evaluations or a different codec/hardware path?</li>
+<li>Which representation information predicts downstream failure?</li>
+<li>Does an apparent unification preserve the same distribution, only the same population optimum, or merely implementation structure?</li>
+<li>Under what shift does a method stop working?</li>
+</ul>
+<p>“Can we add module X?” is an engineering prompt. A research question names the comparison, mechanism, population, and failure criterion.</p>
+<h3 id="define-the-estimand">Define the estimand<a class="headerlink" href="#define-the-estimand" title="Permanent link">¤</a></h3>
+<p>Let <span class="arithmatex">\(Y(m,u)\)</span> be an outcome for method/configuration <span class="arithmatex">\(m\)</span> on evaluation unit <span class="arithmatex">\(u\)</span>. A method-effect estimand might be</p>
+<div class="arithmatex">\[
+\Delta=\mathbb E_{u\sim\mathcal U}
+[Y(m_1,u)-Y(m_0,u)]
+\]</div>
+<p>under matched data, architecture, budget, and protocol. If those differ, <span class="arithmatex">\(\Delta\)</span> is a system-bundle difference. State the target population <span class="arithmatex">\(\mathcal U\)</span>: prompts, datasets, tasks, domains, users, or hardware workloads.</p>
+<h3 id="hypotheses-and-predictions">Hypotheses and predictions<a class="headerlink" href="#hypotheses-and-predictions" title="Permanent link">¤</a></h3>
+<p>A mechanism hypothesis should predict more than the headline metric. If better token utilization causes improvement, predict code entropy, per-region errors, and failure under controlled code collapse. If a solver reduces curvature error, predict where/when trajectories diverge—not only lower FID.</p>
+<p>Predefine observations that would weaken the hypothesis. A result that can only confirm the story is not a strong test.</p>
+<h3 id="scope-ladder">Scope ladder<a class="headerlink" href="#scope-ladder" title="Permanent link">¤</a></h3>
+<p>Write claims at the narrowest supported level:</p>
+<ol>
+<li>implementation behaves on a unit test;</li>
+<li>method improves one benchmark/protocol;</li>
+<li>effect repeats across tasks/seeds/scales;</li>
+<li>mechanism survives targeted interventions;</li>
+<li>theory proves a property under assumptions;</li>
+<li>independent evidence generalizes beyond the original setup.</li>
+</ol>
+<p>Do not jump from level 2 to “general solution.”</p>
+<h3 id="baseline-hierarchy">Baseline hierarchy<a class="headerlink" href="#baseline-hierarchy" title="Permanent link">¤</a></h3>
+<p>Include:</p>
+<ul>
+<li>identity/no-change or random baseline;</li>
+<li>strongest simple baseline;</li>
+<li>current relevant method under retuning;</li>
+<li>parameter/compute/data-matched baseline;</li>
+<li>oracle or upper/lower bound where possible;</li>
+<li>ablated and alternative-mechanism controls.</li>
+</ul>
+<p>A new component must beat spending its extra compute/data on a simpler existing method.</p>
+<h3 id="worked-question-refinement">Worked question refinement<a class="headerlink" href="#worked-question-refinement" title="Permanent link">¤</a></h3>
+<p>Weak: “Are discrete tokenizers better?” Refined: “At matched bitrate, decoder compute, training images, and downstream prior FLOPs, does tokenizer A improve compositional prompt accuracy without reducing reconstruction text accuracy or conditional diversity on held-out sources?” The refined question defines resources, outcomes, trade-offs, and population.</p>
+<details class="question">
+<summary>Retrieval question: what separates a method claim from a system claim?</summary>
+<p>A method claim isolates the method while controlling other causes. A system claim compares complete configurations and must not attribute the bundle difference to one component.</p>
+</details>
+<h3 id="chapter-1-synthesis">Chapter 1 synthesis<a class="headerlink" href="#chapter-1-synthesis" title="Permanent link">¤</a></h3>
+<p>A research question becomes testable through a declared estimand and counter-predictions. Chapter 2 designs sampling, uncertainty, and confirmatory analysis around it.</p>
+<h2 id="2-experimental-design-uncertainty-and-significance">2. Experimental Design, Uncertainty, and Significance<a class="headerlink" href="#2-experimental-design-uncertainty-and-significance" title="Permanent link">¤</a></h2>
+<h3 id="chapter-2-prerequisites-and-learning-objectives">Chapter 2 prerequisites and learning objectives<a class="headerlink" href="#chapter-2-prerequisites-and-learning-objectives" title="Permanent link">¤</a></h3>
+<p>This chapter assumes elementary statistics. By the end, you should be able to
+identify the sampling and intervention units, randomize or block appropriate
+nuisance factors, distinguish seed variation from dataset and evaluator
+variation, select intervals or tests for the estimand, correct multiplicity when
+needed, and interpret practical effect size separately from thresholded
+significance.</p>
+<h3 id="identify-independent-units">Identify independent units<a class="headerlink" href="#identify-independent-units" title="Permanent link">¤</a></h3>
+<p>Prompts, dataset examples, training seeds, stochastic samples, raters, tasks, and checkpoints form a hierarchy. Repeated generations from one prompt are not independent prompt draws; repeated metrics on one checkpoint are not training replicates.</p>
+<p>For paired prompt differences <span class="arithmatex">\(d_i=Y_{1i}-Y_{0i}\)</span>,</p>
+<div class="arithmatex">\[
+\bar d=\frac1n\sum_i d_i,
+\qquad
+SE(\bar d)=\frac{s_d}{\sqrt n}
+\]</div>
+<p>under independent prompt units and standard assumptions. When prompts/tasks are clustered or heavy-tailed, use hierarchical models or cluster bootstrap. Training-seed uncertainty requires independent training runs.</p>
+<h3 id="report-distributions-and-intervals">Report distributions and intervals<a class="headerlink" href="#report-distributions-and-intervals" title="Permanent link">¤</a></h3>
+<p>Provide per-task/per-prompt distributions, median/quantiles or robust aggregates, and intervals—not only mean ± one run's sample standard deviation. <a href="https://papers.nips.cc/paper/2021/hash/f514cec81cb148559cf475e7426eed5e-Abstract.html">Statistical Precipice</a> demonstrates how few-run aggregate point estimates can support unstable rankings and motivates interval/performance-profile reporting.</p>
+<h3 id="what-a-p-value-is-not">What a p-value is not<a class="headerlink" href="#what-a-p-value-is-not" title="Permanent link">¤</a></h3>
+<p>A <span class="arithmatex">\(p\)</span>-value is not the probability the null is true, the probability the result replicates, or effect importance. Report effect size and interval. A tiny effect can be significant with huge <span class="arithmatex">\(n\)</span>; a useful effect can remain uncertain with small <span class="arithmatex">\(n\)</span>.</p>
+<p>For Bayesian analysis report priors, posterior quantity, sensitivity, and decision threshold. A credible interval and frequentist confidence interval have different interpretations.</p>
+<h3 id="multiple-comparisons-and-optional-stopping">Multiple comparisons and optional stopping<a class="headerlink" href="#multiple-comparisons-and-optional-stopping" title="Permanent link">¤</a></h3>
+<p>Trying many metrics, datasets, prompts, seeds, checkpoints, and hyperparameters then reporting the best inflates false discoveries. Predeclare primary outcomes; separate exploratory from confirmatory analyses; adjust or model multiplicity; and use a fresh confirmation set after selection.</p>
+<p>Do not stop collecting runs when significance appears unless using a valid sequential design. Keep an experiment registry including failed/neutral runs.</p>
+<h3 id="power-and-precision">Power and precision<a class="headerlink" href="#power-and-precision" title="Permanent link">¤</a></h3>
+<p>Choose sample size from the smallest effect worth detecting, expected variance/correlation, desired interval width or power, and attrition/failure. Simulation-based power is often easier for hierarchical generative studies. Post-hoc “observed power” adds little beyond the interval.</p>
+<h3 id="seeds-and-determinism">Seeds and determinism<a class="headerlink" href="#seeds-and-determinism" title="Permanent link">¤</a></h3>
+<p>Seeds sample initialization, data order, augmentation, dropout, sampler noise, and environment stochasticity. Report the selection policy and all completed runs. Hardware kernels/distributed reductions can remain nondeterministic despite fixed seeds; record determinism settings and tolerances.</p>
+<h3 id="stratification">Stratification<a class="headerlink" href="#stratification" title="Permanent link">¤</a></h3>
+<p>Aggregate scores can hide difficulty, language, modality, demographic, source, or tail-event differences. Predefine meaningful strata and interactions. <a href="https://openreview.net/forum?id=Ipgssz2WL1">Predictability-Aligned Evaluation</a>, ICML 2026, is <strong>Peer-reviewed research</strong> evidence in time-series forecasting that average error can confound model performance with changing instance difficulty; its spectral framework is domain-specific, while stratified difficulty analysis is broadly useful.</p>
+<details class="question">
+<summary>Retrieval question: which unit should a bootstrap resample?</summary>
+<p>The highest sampled unit to which the conclusion generalizes—often prompts/tasks and, separately, training runs—not every correlated generation or rater click as independent.</p>
+</details>
+<h3 id="chapter-2-synthesis">Chapter 2 synthesis<a class="headerlink" href="#chapter-2-synthesis" title="Permanent link">¤</a></h3>
+<p>Uncertainty follows the sampling hierarchy, not the number of logged rows. Chapter 3 designs ablations and negative-result analyses that test mechanisms instead of decorating a positive result.</p>
+<h2 id="3-ablations-mechanisms-and-negative-results">3. Ablations, Mechanisms, and Negative Results<a class="headerlink" href="#3-ablations-mechanisms-and-negative-results" title="Permanent link">¤</a></h2>
+<h3 id="chapter-3-prerequisites-and-learning-objectives">Chapter 3 prerequisites and learning objectives<a class="headerlink" href="#chapter-3-prerequisites-and-learning-objectives" title="Permanent link">¤</a></h3>
+<p>This chapter assumes Chapters 1–2 and controlled-comparison design. By the end,
+you should be able to design necessity, sufficiency, dose-response, replacement,
+and interaction ablations; distinguish component attribution from mechanistic
+explanation; identify compensating changes and hyperparameter unfairness; and
+turn a negative result into a bounded, reproducible update rather than a universal
+failure claim.</p>
+<h3 id="ablation-is-an-intervention">Ablation is an intervention<a class="headerlink" href="#ablation-is-an-intervention" title="Permanent link">¤</a></h3>
+<p>An ablation changes a component while keeping the rest of the causal comparison stable. Removing a training component only at inference may create an out-of-distribution system rather than test its training contribution. Retrain when the claim concerns learned adaptation.</p>
+<p>Use factorial designs for interactions. With components <span class="arithmatex">\(A,B\)</span>, estimate</p>
+<div class="arithmatex">\[
+I_{AB}=
+[Y_{11}-Y_{01}]-[Y_{10}-Y_{00}].
+\]</div>
+<p>If <span class="arithmatex">\(I_{AB}\ne0\)</span>, “the effect of A” depends on B. One-at-a-time tables cannot reveal this.</p>
+<h3 id="mechanism-tests">Mechanism tests<a class="headerlink" href="#mechanism-tests" title="Permanent link">¤</a></h3>
+<ul>
+<li>intervene on the proposed mediator;</li>
+<li>measure predicted intermediate quantities;</li>
+<li>create synthetic cases where alternatives disagree;</li>
+<li>test invariances/equivariances claimed by theory;</li>
+<li>vary scale/horizon/noise where the mechanism predicts a curve;</li>
+<li>use negative controls that should not respond;</li>
+<li>test an alternative mechanism with equal capacity/compute.</li>
+</ul>
+<p>Attention visualization, latent clustering, or correlation can suggest hypotheses but does not establish causal mechanism.</p>
+<h3 id="null-and-negative-results">Null and negative results<a class="headerlink" href="#null-and-negative-results" title="Permanent link">¤</a></h3>
+<p>A useful negative result specifies:</p>
+<ol>
+<li>the claim tested and smallest meaningful effect;</li>
+<li>faithful implementation and baseline validation;</li>
+<li>search/tuning budget and diagnostics;</li>
+<li>uncertainty and power/precision;</li>
+<li>settings where failure holds and does not hold;</li>
+<li>plausible explanations separated from evidence;</li>
+<li>artifacts that make further testing possible.</li>
+</ol>
+<p>“It did not work” after one seed is anecdote; a bounded failure after competent testing is knowledge.</p>
+<h3 id="debug-before-interpreting">Debug before interpreting<a class="headerlink" href="#debug-before-interpreting" title="Permanent link">¤</a></h3>
+<p>Verify shapes, dtypes, masks, signs, schedules, gradient paths, train/eval modes, preprocessing, metric code, data overlap, and a small solvable case. Reproduce a known baseline. Check loss/gradient scale and overfit a tiny dataset where appropriate. Only then interpret algorithmic failure.</p>
+<h3 id="sensitivity-and-robustness">Sensitivity and robustness<a class="headerlink" href="#sensitivity-and-robustness" title="Permanent link">¤</a></h3>
+<p>Report response surfaces over important hyperparameters rather than the proposed method's optimum against baseline defaults. Include data size, compute, model scale, guidance, NFE, resolution, corruption, and shift. A method useful only in a narrow stable region may still matter, but the region is part of the result.</p>
+<h3 id="publication-bias-and-outcome-switching">Publication bias and outcome switching<a class="headerlink" href="#publication-bias-and-outcome-switching" title="Permanent link">¤</a></h3>
+<p>Maintain preregistered or timestamped hypotheses when feasible, publish neutral/negative ablations, and distinguish planned from post-hoc stories. Do not rename a failed primary endpoint as “diagnostic” and promote a secondary metric without disclosure.</p>
+<p>The official <a href="https://blog.neurips.cc/2026/05/04/mlrc-2026-reproducibility-as-an-official-track-at-neurips/">NeurIPS 2026 MLRC call</a> explicitly treats careful negative and partial failures to reproduce as valuable contributions—<strong>Official venue policy</strong>, not empirical evidence about any method.</p>
+<h3 id="worked-apparent-mechanism">Worked apparent mechanism<a class="headerlink" href="#worked-apparent-mechanism" title="Permanent link">¤</a></h3>
+<p>A new loss improves FID but also doubles guidance scale. Factorial runs (old/new loss × low/high guidance) show both losses gain equally from guidance and no loss effect at matched guidance. The original bundle result was real; the attributed mechanism was not.</p>
+<details class="question">
+<summary>Retrieval question: when must an ablation retrain?</summary>
+<p>When the removed/changed component affects the learned parameters or training distribution. Inference-only removal then tests robustness to disabling a component, not its training contribution.</p>
+</details>
+<h3 id="chapter-3-synthesis">Chapter 3 synthesis<a class="headerlink" href="#chapter-3-synthesis" title="Permanent link">¤</a></h3>
+<p>Ablations are controlled interventions; negative results need validated implementations and precision. Chapter 4 makes those claims executable by another researcher.</p>
+<h2 id="4-reproducible-artifacts-and-independent-replication">4. Reproducible Artifacts and Independent Replication<a class="headerlink" href="#4-reproducible-artifacts-and-independent-replication" title="Permanent link">¤</a></h2>
+<h3 id="chapter-4-prerequisites-and-learning-objectives">Chapter 4 prerequisites and learning objectives<a class="headerlink" href="#chapter-4-prerequisites-and-learning-objectives" title="Permanent link">¤</a></h3>
+<p>This chapter assumes a runnable research codebase. By the end, you should be able
+to package data lineage, environment locks, configurations, seeds, commands,
+checkpoints, and expected outputs; distinguish repeatability, computational
+reproducibility, robustness, and independent replication; design smoke and
+full-scale verification; and document deviations without silently changing the
+claim.</p>
+<h3 id="local-terminology">Local terminology<a class="headerlink" href="#local-terminology" title="Permanent link">¤</a></h3>
+<p>Terminology varies across disciplines. This curriculum uses:</p>
+<ul>
+<li><strong>Repeatability:</strong> same team, code, data, and environment reruns the experiment.</li>
+<li><strong>Artifact reproduction:</strong> another team runs provided code/data/configs and obtains compatible results.</li>
+<li><strong>Independent replication:</strong> another team independently implements or recollects key pieces and tests the claim.</li>
+<li><strong>Generalization study:</strong> tests the claim on new models/data/domains/scales.</li>
+</ul>
+<p>State the definition rather than relying on the word alone. <a href="https://www.jmlr.org/papers/v22/20-303.html">Pineau et al.</a> documents the NeurIPS reproducibility program and checklist/artifact practices.</p>
+<h3 id="artifact-bundle">Artifact bundle<a class="headerlink" href="#artifact-bundle" title="Permanent link">¤</a></h3>
+<p>Include:</p>
+<ul>
+<li>exact code commit and patch state;</li>
+<li>environment/lockfile, compiler/driver/runtime versions;</li>
+<li>data manifest, hashes, licenses, preprocessing, splits;</li>
+<li>model initialization/checkpoint hashes;</li>
+<li>every configuration and random seed;</li>
+<li>commands/workflow DAG from raw data to tables/figures;</li>
+<li>raw per-example/per-seed outputs, not only aggregates;</li>
+<li>metric code/version/reference statistics;</li>
+<li>hardware/topology/precision and resource logs;</li>
+<li>expected runtime/cost and small smoke path;</li>
+<li>known nondeterminism, tolerances, and failure recovery;</li>
+<li>artifact license and access restrictions.</li>
+</ul>
+<p>Containers help but do not preserve unavailable data/services, hardware semantics, or external APIs indefinitely. Archive source and metadata; pin mutable model/dataset revisions; provide checksums.</p>
+<h3 id="reproduction-compatibility">Reproduction compatibility<a class="headerlink" href="#reproduction-compatibility" title="Permanent link">¤</a></h3>
+<p>Define acceptance before rerun: effect direction, interval overlap, absolute tolerance, or claim-specific threshold. Exact floating-point equality is rarely appropriate; “looks similar” is too weak.</p>
+<p>If reproduction fails, compare data, preprocessing, model checkpoint, optimizer, random seeds, library kernels, evaluation, and hidden defaults. Contact authors where possible without allowing post-hoc changes to erase the original specification.</p>
+<h3 id="restricted-artifacts">Restricted artifacts<a class="headerlink" href="#restricted-artifacts" title="Permanent link">¤</a></h3>
+<p>Privacy, licenses, safety, or commercial constraints may prevent public data/weights. Provide synthetic/minimal examples, schemas, hashes, access procedure, secure evaluation, detailed pseudocode, and aggregate diagnostics. “Cannot release” does not justify omitting enough information to assess the claim.</p>
+<h3 id="artifact-availability-versus-scientific-validity">Artifact availability versus scientific validity<a class="headerlink" href="#artifact-availability-versus-scientific-validity" title="Permanent link">¤</a></h3>
+<p>Perfectly runnable code can reproduce a confounded or contaminated experiment. Independent replication can reveal hidden dependencies. Conversely, a sound theorem or result can have imperfect packaging. Assess artifact quality, experimental validity, and evidence maturity separately.</p>
+<h3 id="worked-acceptance-rule">Worked acceptance rule<a class="headerlink" href="#worked-acceptance-rule" title="Permanent link">¤</a></h3>
+<p>Original paired improvement is 2.0 points with 95% CI [1.2,2.8]. Before rerun, define reproduction success as positive improvement with CI excluding zero and estimate within a scientifically chosen tolerance; partial success as positive but imprecise or smaller beyond tolerance. Do not define success after seeing the result.</p>
+<details class="question">
+<summary>Retrieval question: what does a container fail to preserve?</summary>
+<p>Mutable/unavailable data and APIs, external services, hardware behavior, licenses/credentials, random nondeterminism, and long-term image availability unless separately archived.</p>
+</details>
+<h3 id="chapter-4-synthesis">Chapter 4 synthesis<a class="headerlink" href="#chapter-4-synthesis" title="Permanent link">¤</a></h3>
+<p>Artifacts make a claim inspectable; independent replication tests hidden assumptions. Chapter 5 records both publication maturity and reproduction status without conflating them.</p>
+<h2 id="5-evidence-labels-reproduction-levels-and-claim-ledgers">5. Evidence Labels, Reproduction Levels, and Claim Ledgers<a class="headerlink" href="#5-evidence-labels-reproduction-levels-and-claim-ledgers" title="Permanent link">¤</a></h2>
+<h3 id="chapter-5-prerequisites-and-learning-objectives">Chapter 5 prerequisites and learning objectives<a class="headerlink" href="#chapter-5-prerequisites-and-learning-objectives" title="Permanent link">¤</a></h3>
+<p>This chapter assumes the claim taxonomy and artifact workflow. By the end, you
+should be able to attach point-of-use evidence to an atomic claim, separate
+peer-reviewed, official, reproduced, and preliminary support, score a
+reproduction level without overstating it, maintain a claim/evidence ledger, and
+identify when a citation is relevant but does not entail the authored statement.</p>
+<h3 id="standard-evidence-labels">Standard evidence labels<a class="headerlink" href="#standard-evidence-labels" title="Permanent link">¤</a></h3>
+<p>Use exactly one maturity label per claim source:</p>
+<div class="md-typeset__table book-table-container"><table id="tbl-reproducibility-and-research-methods-standard-evidence-labels"><caption class="book-object-caption"><span class="book-object-number">Table REPRO.1.</span> Standard evidence labels</caption>
+<thead>
+<tr>
+<th>Label</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Established</code></td>
+<td>mature result supported across substantial theory/evidence</td>
+</tr>
+<tr>
+<td><code>Peer-reviewed research</code></td>
+<td>accepted archival result; still protocol-bound</td>
+</tr>
+<tr>
+<td><code>Preprint</code></td>
+<td>public manuscript without verified archival acceptance</td>
+</tr>
+<tr>
+<td><code>Technical report</code></td>
+<td>organization/author report, possibly detailed but not archival peer review</td>
+</tr>
+<tr>
+<td><code>Vendor claim</code></td>
+<td>product/organization assertion or demonstration without sufficient independent evidence</td>
+</tr>
+<tr>
+<td><code>Interpretive synthesis</code></td>
+<td>curriculum inference connecting sources; not directly asserted by one source</td>
+</tr>
+</tbody>
+</table></div>
+<p>Peer review is a filter, not proof. “Established” requires more than age or citation count. Vendor claims can later gain stronger evidence; record versions rather than silently relabeling history.</p>
+<h3 id="reproduction-status">Reproduction status<a class="headerlink" href="#reproduction-status" title="Permanent link">¤</a></h3>
+<p>Track independently from maturity:</p>
+<ol>
+<li><code>Author result</code> — evidence reported by originating authors/team.</li>
+<li><code>Independent reproduction</code> — independent team obtains a compatible claim under declared acceptance criteria.</li>
+<li><code>Partial reproduction</code> — some components/settings reproduce or effect is materially weaker/different.</li>
+<li><code>Unverified claim</code> — no qualifying reproduction found in the audit.</li>
+</ol>
+<p>A peer-reviewed paper may remain <code>Author result</code>; a preprint may have an <code>Independent reproduction</code>.</p>
+<h3 id="claim-ledger-schema">Claim ledger schema<a class="headerlink" href="#claim-ledger-schema" title="Permanent link">¤</a></h3>
+<p>For each benchmark/research claim store:</p>
+<ul>
+<li>stable claim ID and exact bounded wording;</li>
+<li>evidence label and reproduction status;</li>
+<li>source URL/DOI, authors, venue/status, version/date;</li>
+<li>dataset/split/modality/resolution;</li>
+<li>conditional/unconditional and guidance/decoding/sampler;</li>
+<li>total/active parameters, training data/compute;</li>
+<li>NFE/candidates/wall-clock/hardware;</li>
+<li>metric implementation and uncertainty;</li>
+<li>comparable baselines and known confounders;</li>
+<li>supporting table/figure/appendix location;</li>
+<li>verification date and reviewer;</li>
+<li>superseding/contradicting evidence;</li>
+<li>curriculum pages using the claim.</li>
+</ul>
+<h3 id="relationship-labels">Relationship labels<a class="headerlink" href="#relationship-labels" title="Permanent link">¤</a></h3>
+<p>Unification claims additionally use the six curriculum relationships:</p>
+<ol>
+<li>algebraic equivalence;</li>
+<li>distributional/dynamical equivalence under assumptions;</li>
+<li>population-optimum correspondence;</li>
+<li>shared estimator/objective;</li>
+<li>implementation analogy;</li>
+<li>hybrid system composition.</li>
+</ol>
+<p>The claim ledger must state assumptions and finite-estimation/sampling gaps. Shared architecture never upgrades an analogy to distributional equivalence.</p>
+<h3 id="source-hierarchy">Source hierarchy<a class="headerlink" href="#source-hierarchy" title="Permanent link">¤</a></h3>
+<p>Use primary papers for technical claims, official specifications/reports for their own standards/products, and surveys to discover/organize literature. Verify benchmark claims in the cited table/appendix and code, not abstract alone. Record withdrawn/rejected status when relevant; acceptance can change between preprint versions.</p>
+<h3 id="worked-evidence-matrix">Worked evidence matrix<a class="headerlink" href="#worked-evidence-matrix" title="Permanent link">¤</a></h3>
+<p>“Method X is SOTA” becomes: “X reports metric M on dataset split S at resolution R with guidance G and NFE K in paper version V, verified date D; author result; training-data comparability unresolved.” The longer sentence is scientifically useful because it can be falsified and updated.</p>
+<details class="question">
+<summary>Retrieval question: why are evidence maturity and reproduction separate axes?</summary>
+<p>Peer review evaluates a submission; reproduction tests whether the result can be obtained again. Each can exist without the other and supports a different inference.</p>
+</details>
+<h3 id="chapter-5-synthesis">Chapter 5 synthesis<a class="headerlink" href="#chapter-5-synthesis" title="Permanent link">¤</a></h3>
+<p>Claim ledgers make evidence status, protocol, and reuse explicit. Chapter 6 defines how to refresh the evidence base without treating publication recency as evidence maturity.</p>
+<h2 id="6-evidence-review-and-maintenance">6. Evidence Review and Maintenance<a class="headerlink" href="#6-evidence-review-and-maintenance" title="Permanent link">¤</a></h2>
+<h3 id="chapter-6-prerequisites-and-learning-objectives">Chapter 6 prerequisites and learning objectives<a class="headerlink" href="#chapter-6-prerequisites-and-learning-objectives" title="Permanent link">¤</a></h3>
+<p>This capstone assumes Chapters 1–5. By the end, you should be able to run a
+release-time evidence review, preserve a reproducible literature-search log,
+detect stale, retracted, superseded, or scope-shifted evidence, triage errata by
+claim impact, and design maintenance ownership and cadence so a living technical
+book can update without rewriting its historical record.</p>
+<h3 id="release-time-evidence-review">Release-Time Evidence Review<a class="headerlink" href="#release-time-evidence-review" title="Permanent link">¤</a></h3>
+<p>For every module with <code>last_verified</code>:</p>
+<ol>
+<li>enumerate claim IDs and search terms;</li>
+<li>search primary venue/proceeding indexes and author/project records through cutoff;</li>
+<li>check whether cited preprints were accepted, revised, withdrawn, or contradicted;</li>
+<li>compare paper versions and benchmark protocols;</li>
+<li>inspect tables/appendices/code for headline numbers;</li>
+<li>search independent reproductions and negative evidence;</li>
+<li>update evidence/reproduction labels and qualifiers;</li>
+<li>record reviewer, queries, cutoff, and unresolved items;</li>
+<li>run links/contracts/build and render inspection.</li>
+</ol>
+<p>A stale verification date produces a report and review queue. It does not automatically delete historical content or replace it with an unsupported “latest” claim.</p>
+<h3 id="literature-search-log">Literature-search log<a class="headerlink" href="#literature-search-log" title="Permanent link">¤</a></h3>
+<p>Record databases/venues, exact queries, date window, status filters, inclusion/exclusion criteria, duplicates, and reasons for excluding submissions/workshops/vendor posts. Search by method aliases and citations; title search alone misses renamed work.</p>
+<h3 id="peer-reviewed-research-checkpoints">Peer-Reviewed Research Checkpoints<a class="headerlink" href="#peer-reviewed-research-checkpoints" title="Permanent link">¤</a></h3>
+<ul>
+<li><a href="https://openreview.net/forum?id=3urFJKbmYN">The Generalization Spectrum</a>, ICML 2026 — <strong>Peer-reviewed research</strong> for separating memorization, near transfer, and farther transfer in controlled competitive-programming variants; distances and conclusions are benchmark-specific.</li>
+<li><a href="https://openreview.net/forum?id=Ipgssz2WL1">Predictability-Aligned Evaluation</a>, ICML 2026 — <strong>Peer-reviewed research</strong> for stratifying forecast error by spectral predictability in its domain.</li>
+<li><a href="https://openreview.net/forum?id=EoBmdFujak">Train Once, Answer All</a>, ICLR 2026 — <strong>Peer-reviewed research</strong> for multiplexing controlled pretraining experiments while explicitly testing interactions in the reported setup.</li>
+<li><a href="https://openreview.net/forum?id=uIJyYkOgAy">MedEvidence</a>, ICLR 2026 — <strong>Peer-reviewed research</strong> benchmark evidence that tested models lacked expert-like skepticism toward low-quality findings; it warns against automated literature synthesis, not against all research assistance.</li>
+<li>The <a href="https://blog.neurips.cc/2026/05/04/mlrc-2026-reproducibility-as-an-official-track-at-neurips/">NeurIPS 2026 MLRC</a> is <strong>Official venue policy</strong> recognizing reproduction, generalization, meta-reproducibility, AI-assisted reproducibility audits, and negative/partial results.</li>
+</ul>
+<h3 id="research-exercises">Research exercises<a class="headerlink" href="#research-exercises" title="Permanent link">¤</a></h3>
+<ol>
+<li>Convert a vague “better model” idea into an estimand, mechanism predictions, and falsifiers.</li>
+<li>Simulate hierarchical prompt/seed data and compare naive versus cluster-bootstrap intervals.</li>
+<li>Design a factorial ablation that separates architecture, objective, and guidance interaction.</li>
+<li>Reproduce one result from provided artifacts, then independently implement its key algorithm.</li>
+<li>Create a claim ledger for five research statements and audit their exact tables/status.</li>
+<li>Write a bounded negative-result report with power, diagnostics, and released artifacts.</li>
+<li>Run a release-time review that discovers a cited preprint was withdrawn; update maturity without erasing historically useful method discussion.</li>
+<li>Stress-test an AI literature assistant against source versions, retractions, benchmark qualifiers, and fabricated citations.</li>
+</ol>
+<details class="success">
+<summary>Exercise 7 solution criterion</summary>
+<p>Preserve the method as historical/preprint material if pedagogically relevant, mark the withdrawal and verification date, remove unsupported peer-reviewed/SOTA language, add stronger replacement evidence if available, and update every dependent claim through the ledger.</p>
+</details>
+<details class="question">
+<summary>Cumulative retrieval: reproducible research</summary>
+<ol>
+<li>What must be fixed before a comparison can support a causal component claim?</li>
+<li>Why are several random seeds not the same as independent replication?</li>
+<li>What information turns a link list into a claim-evidence ledger?</li>
+<li>Which events should trigger an evidence-maintenance review?</li>
+</ol>
+<p><strong>Solutions.</strong> (1) The estimand, intervention/component change, system boundary, data, budget, tuning, evaluation, and relevant nuisance controls. (2) Seeds repeat one implementation, team, data pipeline, and interpretation; independent replication recreates the test with meaningful organizational or implementation independence. (3) Atomic claim identity, exact supporting source and location, entailment/scope, evidence maturity, verification/review state, and update history. (4) Releases, material claim edits, new contradictory or stronger evidence, retractions/corrections, broken or moved sources, benchmark changes, and reported errata.</p>
+</details>
+<h3 id="final-synthesis">Final synthesis<a class="headerlink" href="#final-synthesis" title="Permanent link">¤</a></h3>
+<p>Durable research starts with a bounded question and ends with maintained evidence. Sampling hierarchies determine uncertainty; ablations test mechanisms; negative results map failure regions; artifacts enable reproduction; independent replications test hidden assumptions; claim ledgers keep maturity, protocol, and reproduction distinct. Conceptual coverage and executable library support are separate evidence claims and must be documented as such.</p>
+</article>
+</div>
+<script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  Back to top
+</button>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+<div class="md-social">
+<a class="md-social__link" href="https://github.com/avitai/artifex" rel="noopener" target="_blank" title="github.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</a>
+<a class="md-social__link" href="https://pypi.org/project/avitai-artifex/" rel="noopener" target="_blank" title="pypi.org">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-66.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.3v101.8c0 29 25.2 46 53.4 54.3 33.8 9.9 66.3 11.7 106.8 0 26.9-7.8 53.4-23.5 53.4-54.3v-40.7H226.2v-13.6h160.2c31.1 0 42.6-21.7 53.4-54.2 11.2-33.5 10.7-65.7 0-108.6M286.2 444.7a20.4 20.4 0 1 1 0-40.7 20.4 20.4 0 1 1 0 40.7M167.8 248.1h106.8c29.7 0 53.4-24.5 53.4-54.3V91.9c0-29-24.4-50.7-53.4-55.6-35.8-5.9-74.7-5.6-106.8.1-45.2 8-53.4 24.7-53.4 55.6v40.7h106.9v13.6h-147c-31.1 0-58.3 18.7-66.8 54.2-9.8 40.7-10.2 66.1 0 108.6 7.6 31.6 25.7 54.2 56.8 54.2H101v-48.8c0-35.3 30.5-66.4 66.8-66.4m-6.6-183.4a20.4 20.4 0 1 1 0 40.8 20.4 20.4 0 1 1 0-40.8"></path></svg>
+</a>
+<a class="md-social__link" href="https://twitter.com/mahdi_shafiei" rel="noopener" target="_blank" title="twitter.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M459.4 151.7c.3 4.5.3 9.1.3 13.6 0 138.7-105.6 298.6-298.6 298.6-59.5 0-114.7-17.2-161.1-47.1 8.4 1 16.6 1.3 25.3 1.3 49.1 0 94.2-16.6 130.3-44.8-46.1-1-84.8-31.2-98.1-72.8 6.5 1 13 1.6 19.8 1.6 9.4 0 18.8-1.3 27.6-3.6-48.1-9.7-84.1-52-84.1-103v-1.3c14 7.8 30.2 12.7 47.4 13.3-28.3-18.8-46.8-51-46.8-87.4 0-19.5 5.2-37.4 14.3-53C87.4 130.8 165 172.4 252.1 176.9c-1.6-7.8-2.6-15.9-2.6-24C249.5 95.1 296.3 48 354.4 48c30.2 0 57.5 12.7 76.7 33.1 23.7-4.5 46.5-13.3 66.6-25.3-7.8 24.4-24.4 44.8-46.1 57.8 21.1-2.3 41.6-8.1 60.4-16.2-14.3 20.8-32.2 39.3-52.6 54.3"></path></svg>
+</a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.path", "navigation.top", "navigation.prune", "toc.follow", "search.highlight", "search.share", "search.suggest", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "content.mermaid"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+<script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+<script src="../../../javascripts/reading-layout.js"></script>
+</body>
+</html>

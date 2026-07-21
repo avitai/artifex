@@ -1,0 +1,1722 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="This chapter develops CNFs, Neural ODEs, divergence estimation, adjoints, conditional flow matching, OT couplings, rectified flow, stochastic interpolants, and" name="description"/>
+<meta content="Mahdi Shafiei" name="author"/>
+<link href="https://docs.avitai.bio/artifex/user-guide/concepts/flow-04-continuous/" rel="canonical"/>
+<link href="../flow-03-training/" rel="prev"/>
+<link href="../flow-05-practice/" rel="next"/>
+<link href="../../../assets/images/favicon.png" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.7.7" name="generator"/>
+<title>Flows 4 — Continuous Flows and Flow Matching - Artifex</title>
+<link href="../../../assets/stylesheets/main.ec1eaa64.min.css" rel="stylesheet"/>
+<link href="../../../assets/stylesheets/palette.ab4e12ef.min.css" rel="stylesheet"/>
+<script src="../../../assets/vendor/iframe-worker/index.js"></script>
+<link href="../../../assets/_mkdocstrings.css" rel="stylesheet"/>
+<link href="../../../_static/extra.css" rel="stylesheet"/>
+<script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+<meta content="article" property="og:type"/>
+<meta content="The Artifex Generative Models Book" property="og:site_name"/>
+<meta content="Flows 4 — Continuous Flows and Flow Matching" property="og:title"/>
+<meta content="This chapter develops CNFs, Neural ODEs, divergence estimation, adjoints, conditional flow matching, OT couplings, rectified flow, stochastic interpolants, and" property="og:description"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/flow-04-continuous/" property="og:url"/>
+<meta content="2026-07-14" property="article:modified_time"/>
+<meta content="summary" name="twitter:card"/>
+<meta content="Flows 4 — Continuous Flows and Flow Matching" name="twitter:title"/>
+<meta content="This chapter develops CNFs, Neural ODEs, divergence estimation, adjoints, conditional flow matching, OT couplings, rectified flow, stochastic interpolants, and" name="twitter:description"/>
+<meta content="Generative models, Machine learning, Probabilistic modeling, research, specialization, canonical_chapter, flows-continuous, practitioner, researcher" name="keywords"/>
+<meta content="Flows 4 — Continuous Flows and Flow Matching" name="citation_title"/>
+<meta content="Mahdi Shafiei" name="citation_author"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/flow-04-continuous/" name="citation_public_url"/>
+<meta content="en" name="citation_language"/>
+<meta content="Flows 4 — Continuous Flows and Flow Matching" name="DC.title"/>
+<meta content="Mahdi Shafiei" name="DC.creator"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/flow-04-continuous/" name="DC.identifier"/>
+<meta content="Text.LearningResource" name="DC.type"/>
+<meta content="2026-07-14" name="DCTERMS.modified"/>
+<meta content="https://github.com/avitai/artifex/blob/main/LICENSE" name="DCTERMS.license"/>
+<meta content="research" name="DCTERMS.educationLevel"/>
+<meta content="practitioner, researcher" name="DCTERMS.audience"/>
+<link href="https://github.com/avitai/artifex/blob/main/LICENSE" rel="license"/>
+<script id="artifex-book-metadata" type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Chapter",
+  "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/flow-04-continuous/",
+  "url": "https://docs.avitai.bio/artifex/user-guide/concepts/flow-04-continuous/",
+  "name": "Flows 4 \u2014 Continuous Flows and Flow Matching",
+  "description": "This chapter develops CNFs, Neural ODEs, divergence estimation, adjoints, conditional flow matching, OT couplings, rectified flow, stochastic interpolants, and",
+  "identifier": "flows-continuous",
+  "inLanguage": "en",
+  "isAccessibleForFree": true,
+  "learningResourceType": "Canonical chapter",
+  "educationalLevel": "research",
+  "educationalUse": "specialization",
+  "audience": [
+    
+      {"@type": "EducationalAudience", "audienceType": "practitioner"},
+    
+      {"@type": "EducationalAudience", "audienceType": "researcher"}
+    
+  ],
+  "dateModified": "2026-07-14",
+  "keywords": ["Generative models", "Machine learning", "Probabilistic modeling", "research", "specialization", "canonical_chapter", "flows-continuous", "practitioner", "researcher"],
+  "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+  "author": [
+    
+      {"@type": "Person", "name": "Mahdi Shafiei"}
+    
+  ],
+  "isPartOf": {
+    "@type": "Book",
+    "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/#book",
+    "url": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/",
+    "name": "The Artifex Generative Models Book",
+    "bookEdition": "Living Web Edition",
+    "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+    "author": [
+      
+        {"@type": "Person", "name": "Mahdi Shafiei"}
+      
+    ]
+  }
+}
+</script>
+<script defer="" src="../../../javascripts/mathjax.js"></script>
+<script defer="" integrity="sha384-OrHfGTnIbkl0do3N76qW/uWr38o91N05sbSPuYBPLH+hG8X/dNSrjZf3AGjzrCwC" src="../../../assets/vendor/mathjax/tex-mml-chtml.js"></script>
+</head>
+<body data-md-color-accent="amber" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#flows-4-continuous-flows-and-flow-matching">
+          Skip to content
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header md-header--shadow" data-md-component="header">
+<nav aria-label="Header" class="md-header__inner md-grid">
+<a aria-label="Artifex" class="md-header__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            Artifex
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+            
+              Flows 4 — Continuous Flows and Flow Matching
+            
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-label="Switch to dark mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: light)" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_1" hidden="" title="Switch to dark mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+<input aria-label="Switch to light mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-primary="indigo" data-md-color-scheme="slate" id="__palette_1" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_0" hidden="" title="Switch to light mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+</form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div aria-label="Search" class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Search" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="Search" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="Search" class="md-search__options">
+<a aria-label="Share" class="md-search__icon md-icon" data-clipboard="" data-clipboard-text="" data-md-component="search-share" href="javascript:void(0)" tabindex="-1" title="Share">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"></path></svg>
+</a>
+<button aria-label="Clear" class="md-search__icon md-icon" tabindex="-1" title="Clear" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            Initializing search
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Navigation" class="md-nav md-nav--primary" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="Artifex" class="md-nav__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+    Artifex
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../..">
+<span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../getting-started/installation/">
+<span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Generative Models Book
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Generative Models Book
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    
+  
+    Start Here — The Landscape
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../first-course-01-generative-systems/">
+<span class="md-ellipsis">
+    
+  
+    First Course — New to Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../probability-01-objects/">
+<span class="md-ellipsis">
+    
+  
+    Foundations
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_4" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_4" id="__nav_3_4_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Model Families
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_4_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_4">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Model Families
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../autoregressive-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Autoregressive Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../vae-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Variational Autoencoders
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gan-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Generative Adversarial Networks
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../ebm-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Energy-Based Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../diffusion-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Diffusion Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_4_6" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_4_6" id="__nav_3_4_6_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Normalizing Flows and Flow Matching
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_4_6_label" class="md-nav" data-md-level="3">
+<label class="md-nav__title" for="__nav_3_4_6">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Normalizing Flows and Flow Matching
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../flow-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    1. Change of Variables
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../flow-02-architectures/">
+<span class="md-ellipsis">
+    
+  
+    2. Discrete-Time Architectures
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../flow-03-training/">
+<span class="md-ellipsis">
+    
+  
+    3. Training and Density Estimation
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
+    
+  
+    4. Continuous Flows and Flow Matching
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
+<span class="md-ellipsis">
+    
+  
+    4. Continuous Flows and Flow Matching
+  
+
+    
+  </span>
+</a>
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#continuous-time-flows-and-foundational-flow-matching">
+<span class="md-ellipsis">
+      
+        Continuous-Time Flows and Foundational Flow Matching
+      
+    </span>
+</a>
+<nav aria-label="Continuous-Time Flows and Foundational Flow Matching" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#continuous-time-flows-and-foundational-flow-matching-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Continuous-Time Flows and Foundational Flow Matching: Prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#continuous-normalizing-flows-neural-odes">
+<span class="md-ellipsis">
+      
+        Continuous Normalizing Flows (Neural ODEs)
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#flow-matching-simulation-free-training">
+<span class="md-ellipsis">
+      
+        Flow Matching: Simulation-Free Training
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#rectified-flows-learning-straight-trajectories">
+<span class="md-ellipsis">
+      
+        Rectified Flows: Learning Straight Trajectories
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#continuous-time-flows-and-foundational-flow-matching-discrete-flow-matching">
+<span class="md-ellipsis">
+      
+        Continuous-Time Flows and Foundational Flow Matching: Discrete Flow Matching
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#geometric-flows-riemannian-manifolds">
+<span class="md-ellipsis">
+      
+        Geometric Flows: Riemannian Manifolds
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#conditional-rectified-and-average-velocity-flow-objectives">
+<span class="md-ellipsis">
+      
+        Conditional, Rectified, and Average-Velocity Flow Objectives
+      
+    </span>
+</a>
+<nav aria-label="Conditional, Rectified, and Average-Velocity Flow Objectives" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#conditional-flow-matching-and-optimal-transport-couplings">
+<span class="md-ellipsis">
+      
+        Conditional Flow Matching and Optimal-Transport Couplings
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mean-flows-one-step-generation-without-distillation">
+<span class="md-ellipsis">
+      
+        Mean Flows: One-Step Generation Without Distillation
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#classifier-free-guidance-for-flow-matching">
+<span class="md-ellipsis">
+      
+        Classifier-Free Guidance for Flow Matching
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#discrete-flow-matching-at-scale">
+<span class="md-ellipsis">
+      
+        Discrete Flow Matching at Scale
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#variance-reduced-training-and-inference-time-scaling">
+<span class="md-ellipsis">
+      
+        Variance-Reduced Training and Inference-Time Scaling
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#flow-map-matching-and-consistency-bridges">
+<span class="md-ellipsis">
+      
+        Flow Map Matching and Consistency Bridges
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#peer-reviewed-research-checkpoints">
+<span class="md-ellipsis">
+      
+        Peer-Reviewed Research Checkpoints
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#production-scale-flow-matching">
+<span class="md-ellipsis">
+      
+        Production-Scale Flow Matching
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#surveys-and-resources">
+<span class="md-ellipsis">
+      
+        Surveys and Resources
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-example-crossing-conditional-paths-and-the-marginal-velocity">
+<span class="md-ellipsis">
+      
+        Worked example: crossing conditional paths and the marginal velocity
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#independent-practice-and-assessment-map-continuous-flows">
+<span class="md-ellipsis">
+      
+        Independent practice and assessment map: continuous flows
+      
+    </span>
+</a>
+<nav aria-label="Independent practice and assessment map: continuous flows" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#p1-audit-a-continuous-or-flow-matching-generator-end-to-end">
+<span class="md-ellipsis">
+      
+        P1 — Audit a continuous or flow-matching generator end to end
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-4-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 4 synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../flow-05-practice/">
+<span class="md-ellipsis">
+    
+  
+    5. Practice and Evaluation
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../flow-06-synthesis/">
+<span class="md-ellipsis">
+    
+  
+    6. Synthesis and Reading
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../flow-explained/">
+<span class="md-ellipsis">
+    
+  
+    Continuous View (All Chapters)
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../probabilistic-circuits-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Probabilistic Circuits
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../tensor-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Tensor-Network and Born Probability Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../implicit-generators-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Implicit Generators Beyond GANs
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../discrete-iterative-01-masked/">
+<span class="md-ellipsis">
+    
+  
+    Discrete Iterative Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../bayesian-flow-networks-01-story/">
+<span class="md-ellipsis">
+    
+  
+    Bayesian Flow Networks
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gflownets-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Generative Flow Networks
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../bnp-01-random-measures/">
+<span class="md-ellipsis">
+    
+  
+    Bayesian Nonparametric Random-Measure Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../stochastic-process-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Stochastic-Process and Function-Space Generators
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../point-processes-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Point Processes and Random Finite Sets
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../random-graphs-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Random Graphs and Relational Generators
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../copula-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Copula Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../grammar-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Probabilistic Grammars and Program Derivations
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../causal-generative-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Causal Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../new-families-frontier-evidence/">
+<span class="md-ellipsis">
+    
+  
+    Research Evidence Ledger
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gradients-01-taxonomy/">
+<span class="md-ellipsis">
+    
+  
+    Connections and Compositions
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../normalization-01-queries/">
+<span class="md-ellipsis">
+    
+  
+    Research Practice
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../models/vae-guide/">
+<span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/core/base/">
+<span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../examples/overview/">
+<span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../zoo/">
+<span class="md-ellipsis">
+    
+  
+    Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../training/overview/">
+<span class="md-ellipsis">
+    
+  
+    Training
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../data/overview/">
+<span class="md-ellipsis">
+    
+  
+    Data &amp; Modalities
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../inference/overview/">
+<span class="md-ellipsis">
+    
+  
+    Inference &amp; Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../benchmarks/">
+<span class="md-ellipsis">
+    
+  
+    Evaluation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../guides/extensions/">
+<span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../extensions/">
+<span class="md-ellipsis">
+    
+  
+    Advanced Topics
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../cli/">
+<span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../community/contributing/">
+<span class="md-ellipsis">
+    
+  
+    Community
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/configs/protein-extension/">
+<span class="md-ellipsis">
+    
+  
+    Reference Library
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#continuous-time-flows-and-foundational-flow-matching">
+<span class="md-ellipsis">
+      
+        Continuous-Time Flows and Foundational Flow Matching
+      
+    </span>
+</a>
+<nav aria-label="Continuous-Time Flows and Foundational Flow Matching" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#continuous-time-flows-and-foundational-flow-matching-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Continuous-Time Flows and Foundational Flow Matching: Prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#continuous-normalizing-flows-neural-odes">
+<span class="md-ellipsis">
+      
+        Continuous Normalizing Flows (Neural ODEs)
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#flow-matching-simulation-free-training">
+<span class="md-ellipsis">
+      
+        Flow Matching: Simulation-Free Training
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#rectified-flows-learning-straight-trajectories">
+<span class="md-ellipsis">
+      
+        Rectified Flows: Learning Straight Trajectories
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#continuous-time-flows-and-foundational-flow-matching-discrete-flow-matching">
+<span class="md-ellipsis">
+      
+        Continuous-Time Flows and Foundational Flow Matching: Discrete Flow Matching
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#geometric-flows-riemannian-manifolds">
+<span class="md-ellipsis">
+      
+        Geometric Flows: Riemannian Manifolds
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#conditional-rectified-and-average-velocity-flow-objectives">
+<span class="md-ellipsis">
+      
+        Conditional, Rectified, and Average-Velocity Flow Objectives
+      
+    </span>
+</a>
+<nav aria-label="Conditional, Rectified, and Average-Velocity Flow Objectives" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#conditional-flow-matching-and-optimal-transport-couplings">
+<span class="md-ellipsis">
+      
+        Conditional Flow Matching and Optimal-Transport Couplings
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mean-flows-one-step-generation-without-distillation">
+<span class="md-ellipsis">
+      
+        Mean Flows: One-Step Generation Without Distillation
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#classifier-free-guidance-for-flow-matching">
+<span class="md-ellipsis">
+      
+        Classifier-Free Guidance for Flow Matching
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#discrete-flow-matching-at-scale">
+<span class="md-ellipsis">
+      
+        Discrete Flow Matching at Scale
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#variance-reduced-training-and-inference-time-scaling">
+<span class="md-ellipsis">
+      
+        Variance-Reduced Training and Inference-Time Scaling
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#flow-map-matching-and-consistency-bridges">
+<span class="md-ellipsis">
+      
+        Flow Map Matching and Consistency Bridges
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#peer-reviewed-research-checkpoints">
+<span class="md-ellipsis">
+      
+        Peer-Reviewed Research Checkpoints
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#production-scale-flow-matching">
+<span class="md-ellipsis">
+      
+        Production-Scale Flow Matching
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#surveys-and-resources">
+<span class="md-ellipsis">
+      
+        Surveys and Resources
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-example-crossing-conditional-paths-and-the-marginal-velocity">
+<span class="md-ellipsis">
+      
+        Worked example: crossing conditional paths and the marginal velocity
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#independent-practice-and-assessment-map-continuous-flows">
+<span class="md-ellipsis">
+      
+        Independent practice and assessment map: continuous flows
+      
+    </span>
+</a>
+<nav aria-label="Independent practice and assessment map: continuous flows" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#p1-audit-a-continuous-or-flow-matching-generator-end-to-end">
+<span class="md-ellipsis">
+      
+        P1 — Audit a continuous or flow-matching generator end to end
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-4-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 4 synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<nav aria-label="Breadcrumb" class="md-path">
+<ol class="md-path__list">
+<li class="md-path__item">
+<a class="md-path__link" href="../../..">
+<span class="md-ellipsis">
+    Home
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    Generative Models Book
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../autoregressive-01-foundations/">
+<span class="md-ellipsis">
+    Model Families
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../flow-01-foundations/">
+<span class="md-ellipsis">
+    Normalizing Flows and Flow Matching
+  </span>
+</a>
+</li>
+</ol>
+</nav>
+<article class="md-content__inner md-typeset">
+<h1 id="flows-4-continuous-flows-and-flow-matching">Flows 4 — Continuous Flows and Flow Matching<a class="headerlink" href="#flows-4-continuous-flows-and-flow-matching" title="Permanent link">¤</a></h1><aside aria-label="Learning path" class="admonition abstract artifex-learning-path"><p class="admonition-title">Learning path</p><p><strong>Required knowledge</strong></p><ul class="artifex-learning-path__links" data-learning-path-role="required"><li><a href="../flow-03-training/">Flows 3 — Training and Density Estimation</a></li></ul><p><strong>Readiness check:</strong> can you explain the central object and reproduce one worked example from each required chapter? If not, follow its link before continuing.</p><p><strong>Newly unlocked in the default route</strong></p><ul class="artifex-learning-path__links" data-learning-path-role="unlocks"><li><a href="../flow-05-practice/">Flows 5 — Practice, Evaluation, and Production</a></li></ul></aside>
+<p>This chapter develops CNFs, Neural ODEs, divergence estimation, adjoints, conditional flow matching, OT couplings, rectified flow, stochastic interpolants, and average-velocity objectives. For uninterrupted reading, use the <a href="../flow-explained/#continuous-time-flows-and-foundational-flow-matching">complete guide</a>.</p>
+<h2 id="continuous-time-flows-and-foundational-flow-matching">Continuous-Time Flows and Foundational Flow Matching<a class="headerlink" href="#continuous-time-flows-and-foundational-flow-matching" title="Permanent link">¤</a></h2>
+<h3 id="continuous-time-flows-and-foundational-flow-matching-prerequisites-and-learning-objectives">Continuous-Time Flows and Foundational Flow Matching: Prerequisites and learning objectives<a class="headerlink" href="#continuous-time-flows-and-foundational-flow-matching-prerequisites-and-learning-objectives" title="Permanent link">¤</a></h3>
+<p>You should know ODE existence/uniqueness, the continuity equation, conditional expectation, and basic Monte Carlo estimation. By the end, you should be able to:</p>
+<ol>
+<li>derive the instantaneous change-of-variables equation and state its regularity assumptions;</li>
+<li>explain what Hutchinson estimation, adaptive integration, and adjoint differentiation do and do not make exact;</li>
+<li>derive the marginal flow-matching vector field from conditional regression;</li>
+<li>distinguish endpoint coupling, probability path, vector-field target, solver, reflow, flow map, and MeanFlow; and</li>
+<li>place discrete and manifold generators without pretending they are Euclidean diffeomorphisms.</li>
+</ol>
+<p>The <a href="../probability-paths-and-stochastic-transport/#3-flow-matching-conditional-paths-and-rectification">probability-paths guide</a> derives conditional-to-marginal velocity regression, coupling dependence, crossings, and the exact scope of diffusion/flow target conversions.</p>
+<p>The <a href="../geometric-equivariant-generative-modeling/#3-manifolds-lie-groups-quotients-and-gauge-choices">geometric and equivariant generation guide</a> covers tangent velocities, Riemannian volume, log-map branches, quotient spaces, and geometric integration error.</p>
+<p>The architectures above are <strong>discrete-step flows</strong>: finite compositions of invertible layers with structured or estimated Jacobian terms. The continuous-time variants below instead define the transformation through an ODE or vector field. This line includes flow matching, rectified flow, and rectified-flow MMDiT systems such as Stable Diffusion 3 and FLUX.1. MeanFlow, OT-CFM, CFG-Zero*, and Stable Velocity are organized in <a href="../flow-explained/#conditional-rectified-and-average-velocity-flow-objectives">Conditional, Rectified, and Average-Velocity Flow Objectives</a>.</p>
+<h3 id="continuous-normalizing-flows-neural-odes">Continuous Normalizing Flows (Neural ODEs)<a class="headerlink" href="#continuous-normalizing-flows-neural-odes" title="Permanent link">¤</a></h3>
+<p><strong>Continuous flows</strong> (<a href="https://arxiv.org/abs/1806.07366">Chen et al., 2018 — NeurIPS Best Paper</a>; <a href="https://arxiv.org/abs/1810.01367">Grathwohl et al., 2019 — FFJORD</a>) parameterize the derivative of the hidden state:</p>
+<div class="arithmatex">\[
+\frac{d\mathbf{z}_t}{dt} = f(\mathbf{z}_t, t, \theta)
+\]</div>
+<p>The output <span class="arithmatex">\(\mathbf{z}_1\)</span> at time <span class="arithmatex">\(t=1\)</span> given initial condition <span class="arithmatex">\(\mathbf{z}_0\)</span> at <span class="arithmatex">\(t=0\)</span> is computed using ODE solvers.</p>
+<p><strong>Key Innovation (FFJORD):</strong></p>
+<p>The change in log-density follows:</p>
+<div class="arithmatex">\[
+\frac{d \log p(\mathbf{z}_t)}{dt} = -\text{Tr}\left(\frac{\partial f}{\partial \mathbf{z}_t}\right)
+\]</div>
+<p><strong>Hutchinson's trace estimator</strong> makes this tractable:</p>
+<div class="arithmatex">\[
+\text{Tr}(A) \approx \mathbf{v}^T A \mathbf{v} \quad \text{where } \mathbf{v} \sim \mathcal{N}(0, I)
+\]</div>
+<p>With a zero-mean probe satisfying <span class="arithmatex">\(\mathbb E[vv^\top]=I\)</span>, <span class="arithmatex">\(v^\top A v\)</span> is an unbiased estimator of <span class="arithmatex">\(\operatorname{Tr}(A)\)</span>. Automatic differentiation can evaluate it without materializing the full Jacobian. The cost is roughly that of additional vector–Jacobian/Jacobian–vector products through the network, not universally <span class="arithmatex">\(O(D)\)</span>: network architecture, batching, probe count, and autodiff mode determine actual time and memory, while stochastic variance determines density-estimation error.</p>
+<p><strong>Advantages:</strong></p>
+<ul>
+<li><strong>Fewer layer-level determinant constraints</strong>: the vector field need not be assembled from coupling layers, although it must satisfy the regularity and numerical requirements of the ODE.</li>
+<li><strong>Topology is still constrained</strong>: a standard deterministic ODE flow is a continuous bijection and cannot change connectedness or create a truly sharp discontinuous boundary from a full-support connected base. Augmented dimensions, stochastic dynamics, mixtures, or non-invertible constructions are needed to escape this limitation.</li>
+<li><strong>Adjoint methods trade memory for recomputation</strong>: continuous-adjoint differentiation need not store every solver state, but checkpointing, solver internals, parameters, and numerical mismatch between forward and backward trajectories prevent a universal <span class="arithmatex">\(O(1)\)</span> end-to-end memory claim</li>
+</ul>
+<p><strong>Challenges:</strong></p>
+<ul>
+<li><strong>Unpredictable cost</strong>: Number of function evaluations adapts to complexity</li>
+<li><strong>Stiff dynamics</strong>: Can struggle with certain distributions</li>
+<li><strong>Slower than discrete flows</strong>: Requires ODE integration</li>
+</ul>
+<p><strong>When to Use:</strong></p>
+<ul>
+<li>When a flexible time-dependent vector field is worth numerical integration and divergence-estimation cost</li>
+<li>Physics and scientific systems where continuous dynamics are a useful inductive bias</li>
+<li>Density estimation or transport on compatible continuous supports, with augmentation, mixtures, stochasticity, or manifold constructions considered when topology differs</li>
+</ul>
+<h3 id="flow-matching-simulation-free-training">Flow Matching: Simulation-Free Training<a class="headerlink" href="#flow-matching-simulation-free-training" title="Permanent link">¤</a></h3>
+<p><strong>Flow Matching</strong> (<a href="https://arxiv.org/abs/2210.02747">Lipman, Chen, Ben-Hamu, Nickel &amp; Le, 2023 — ICLR</a>) introduced a paradigm shift for training continuous normalizing flows <strong>without ODE simulation</strong>.</p>
+<p><strong>Key Idea:</strong></p>
+<p>Rather than integrating forward dynamics during training (as in Neural ODEs), perform regression on the vector field of fixed conditional probability paths.</p>
+<p><strong>Training Procedure:</strong></p>
+<ol>
+<li>Given samples <span class="arithmatex">\(\mathbf{x}_0 \sim p_0\)</span> and <span class="arithmatex">\(\mathbf{x}_1 \sim p_1\)</span></li>
+<li>Define interpolant: <span class="arithmatex">\(\mathbf{x}_t = (1-t)\mathbf{x}_0 + t\mathbf{x}_1\)</span></li>
+<li>Train neural network <span class="arithmatex">\(\mathbf{v}_\theta(\mathbf{x}_t, t)\)</span> to match conditional vector field:</li>
+</ol>
+<div class="arithmatex">\[
+\min_\theta \mathbb{E}_{t, \mathbf{x}_0, \mathbf{x}_1}\left[\|\mathbf{v}_\theta(\mathbf{x}_t, t) - (\mathbf{x}_1 - \mathbf{x}_0)\|^2\right]
+\]</div>
+<p>This common estimator is L2 regression requiring <strong>no ODE trajectory simulation inside each training example</strong>.</p>
+<p>That statement is about the common training estimator, not the entire system. Sampling still integrates an ODE unless a flow-map or one-step objective is learned, and likelihood evaluation still integrates the divergence. The straight-line target <span class="arithmatex">\(x_1-x_0\)</span> is a <strong>conditional</strong> velocity for a sampled endpoint pair. At an intermediate location <span class="arithmatex">\(x\)</span>, many pairs may cross, so the population MSE solution is</p>
+<div class="arithmatex">\[
+v^*(x,t)=\mathbb E[X_1-X_0\mid X_t=x,t].
+\]</div>
+<p>Under the usual integrability and regularity assumptions, this conditional expectation is the marginal velocity that satisfies the continuity equation for the induced marginal path. It generally is not the velocity of any particular training pair.</p>
+<p><strong>Inference:</strong></p>
+<p>Integrate the learned field using standard ODE solvers:</p>
+<div class="arithmatex">\[
+\frac{d\mathbf{x}}{dt} = \mathbf{v}_\theta(\mathbf{x}, t), \quad t \in [0, 1]
+\]</div>
+<p><strong>Optimal Transport Flow Matching:</strong></p>
+<p>Uses <strong>minibatch optimal transport</strong> to couple noise and data samples before interpolation. It often reduces conditional displacement/crossing diagnostics in reported settings, but minibatch OT is an approximation and no fixed NFE reduction follows automatically.</p>
+<p><strong>Results:</strong></p>
+<ul>
+<li>The original paper reports favorable ImageNet likelihood and sample-quality comparisons under its architecture and protocol</li>
+<li>Later work extends conditional paths and couplings to Riemannian manifolds, discrete data, video, scientific systems, and multimodal state spaces</li>
+<li>No result establishes a protocol-independent ordering over diffusion, flow matching, or simulation-trained CNFs</li>
+</ul>
+<p><strong>When to Use:</strong></p>
+<ul>
+<li>Training continuous flows efficiently</li>
+<li>Want simulation-free gradients</li>
+<li>Need strong likelihood estimates</li>
+<li>See <a href="../flow-explained/#conditional-flow-matching-and-optimal-transport-couplings">Conditional Flow Matching and Optimal-Transport Couplings</a> for OT-CFM, stochastic interpolants, and production considerations.</li>
+</ul>
+<h3 id="rectified-flows-learning-straight-trajectories">Rectified Flows: Learning Straight Trajectories<a class="headerlink" href="#rectified-flows-learning-straight-trajectories" title="Permanent link">¤</a></h3>
+<p><strong>Rectified Flow</strong> (<a href="https://arxiv.org/abs/2209.03003">Liu, Gong &amp; Liu, 2023 — ICLR</a>) learns ODEs following <strong>straight-line paths</strong> connecting source and target distributions.</p>
+<p><strong>Training:</strong></p>
+<p>Given coupling between noise samples <span class="arithmatex">\(\mathbf{u} \sim p_0\)</span> and data samples <span class="arithmatex">\(\mathbf{x} \sim p_1\)</span>:</p>
+<ol>
+<li>Linearly interpolate: <span class="arithmatex">\(\mathbf{x}_t = (1-t)\mathbf{u} + t\mathbf{x}\)</span></li>
+<li>Learn velocity field: <span class="arithmatex">\(\frac{d\mathbf{x}_t}{dt} = \mathbf{v}_\theta(\mathbf{x}_t, t)\)</span></li>
+</ol>
+<p><strong>Reflow Process (Key Innovation):</strong></p>
+<ol>
+<li>Train initial model</li>
+<li>Generate paired samples: <span class="arithmatex">\((\mathbf{u}, \mathbf{x}_{\text{gen}})\)</span> where <span class="arithmatex">\(\mathbf{x}_{\text{gen}} = \text{model}(\mathbf{u})\)</span></li>
+<li>Retrain on these pairs</li>
+</ol>
+<p>This iterative rectification progressively straightens trajectories.</p>
+<p><strong>Benefits:</strong></p>
+<ul>
+<li><strong>Provably non-increasing convex transport costs</strong></li>
+<li><strong>Potential few-step generation</strong>: straighter learned trajectories can reduce discretisation error for a fixed solver, but endpoint error and field error remain</li>
+<li><strong>Reflow is an additional training procedure</strong>: the useful number of rounds is empirical and protocol-dependent</li>
+</ul>
+<p><strong>Applications:</strong></p>
+<ul>
+<li><strong>Stable Diffusion 3</strong>: its technical report uses a rectified-flow formulation with an MMDiT backbone and reports complete-system comparisons</li>
+<li><strong>InstaFlow</strong>: reports a distilled/reflowed one-step image system under its hardware and benchmark protocol</li>
+<li>Few-step generation is a research and deployment target, not a consequence of drawing straight conditional interpolants alone</li>
+</ul>
+<p><strong>When to Use:</strong></p>
+<ul>
+<li>Experiments targeting few-step or one-step generation with an explicit quality budget.</li>
+<li>Latency-sensitive applications after end-to-end hardware measurement.</li>
+<li>Reflow or distillation studies where teacher cost and student supervision are reported.</li>
+<li>MeanFlow is a distinct one-step-from-scratch objective covered in <a href="#mean-flows-one-step-generation-without-distillation">Mean Flows</a>. TarFlow is also discussed there for conceptual comparison, but it is an autoregressive normalizing flow with sequential inverse sampling—not a MeanFlow-style one-step map.</li>
+</ul>
+<h3 id="continuous-time-flows-and-foundational-flow-matching-discrete-flow-matching">Continuous-Time Flows and Foundational Flow Matching: Discrete Flow Matching<a class="headerlink" href="#continuous-time-flows-and-foundational-flow-matching-discrete-flow-matching" title="Permanent link">¤</a></h3>
+<p><strong>Discrete Flow Matching</strong> (<a href="https://arxiv.org/abs/2407.15595">Gat et al., 2024 — NeurIPS Spotlight</a>; <a href="https://arxiv.org/abs/2402.04997">Campbell et al., 2024 — NeurIPS</a>) extends flows to discrete data (text, molecules, code) using <strong>Continuous-Time Markov Chains (CTMC)</strong>.</p>
+<p><strong>Problem:</strong></p>
+<p>Traditional flows designed for continuous data. Dequantization workarounds prove inadequate for inherently discrete data like language.</p>
+<p><strong>Solution:</strong></p>
+<p>Use a CTMC with a time-dependent generator <span class="arithmatex">\(Q_t\)</span>. For <span class="arithmatex">\(x'\ne x\)</span>, <span class="arithmatex">\(Q_t(x,x')\ge 0\)</span> and each row sums to zero. The forward equation is</p>
+<div class="arithmatex">\[
+\frac{dp_t(x)}{dt}=\sum_{x'}p_t(x')Q_t(x',x).
+\]</div>
+<p><strong>Training:</strong></p>
+<p>Choose a conditional probability path and a conditional generator, then train a parameterized generator or equivalent denoising distribution so its population optimum yields the corresponding marginal dynamics. The exact loss may be cross-entropy, rate matching, or a generator-matching objective; a generic Euclidean squared norm over an unconstrained rate matrix is not the definition and can violate non-negativity or zero-row-sum constraints.</p>
+<p><strong>Evidence boundary:</strong></p>
+<ul>
+<li>Gat et al. and Campbell et al. report text, code, molecule, and protein experiments under different state spaces and transition parameterizations.</li>
+<li>Dirichlet/Fisher–Rao constructions instead evolve continuous simplex-valued objects and should not be conflated with a finite-state CTMC merely because both target categorical data.</li>
+<li>Benchmark numbers require the checkpoint, decoding budget, task harness, and baseline protocol; they are not properties of "discrete flow matching" in the abstract.</li>
+</ul>
+<p><strong>When to Use:</strong></p>
+<ul>
+<li>Text generation (alternative to autoregressive)</li>
+<li>Molecular generation with discrete atom types</li>
+<li>Code generation</li>
+<li>Any discrete structured data</li>
+</ul>
+<h3 id="geometric-flows-riemannian-manifolds">Geometric Flows: Riemannian Manifolds<a class="headerlink" href="#geometric-flows-riemannian-manifolds" title="Permanent link">¤</a></h3>
+<p><strong>Riemannian Flow Matching</strong> (<a href="https://arxiv.org/abs/2302.03660">Chen &amp; Lipman, 2024</a>) extends flows to <strong>non-Euclidean geometries</strong>, critical for data on manifolds.</p>
+<p><strong>Applications:</strong></p>
+<ul>
+<li><strong>Molecular conformations</strong>: SE(3) equivariant flows</li>
+<li><strong>Protein structures</strong>: SO(3) rotations and translations</li>
+<li><strong>Robotic configurations</strong>: Configuration space manifolds</li>
+<li><strong>Materials</strong>: crystal generation with periodic, permutation, and lattice constraints</li>
+</ul>
+<p><strong>Key Idea:</strong></p>
+<p>Replace Euclidean straight-line interpolants with <strong>geodesics</strong> on the manifold:</p>
+<div class="arithmatex">\[
+\frac{d\mathbf{x}_t}{dt} = \mathbf{v}_\theta(\mathbf{x}_t, t) \quad \text{on manifold } \mathcal{M}
+\]</div>
+<p><strong>When to Use:</strong></p>
+<ul>
+<li>Data naturally lives on manifolds</li>
+<li>Symmetries and geometric constraints are important</li>
+<li>Protein design, molecular generation, materials discovery</li>
+<li>3D geometry and robotics applications</li>
+</ul>
+<hr/>
+<h2 id="conditional-rectified-and-average-velocity-flow-objectives">Conditional, Rectified, and Average-Velocity Flow Objectives<a class="headerlink" href="#conditional-rectified-and-average-velocity-flow-objectives" title="Permanent link">¤</a></h2>
+<p>The <a href="../transitions-and-few-step-generation/#3-shortcut-models-average-velocity-and-meanflow">transitions and few-step guide</a> derives exact flow-map and average-velocity identities, then distinguishes their training approximations and NFE accounting.</p>
+<p>Classical work made flows tractable through structured Jacobians; continuous normalizing flows replaced layer stacks with ODEs; flow-matching research develops conditional paths, couplings, flow maps, few-step objectives, discrete generators, and scientific applications. Publication counts from search queries are unstable and taxonomy-dependent, so this section tracks named primary results rather than using paper volume as evidence of scientific importance.</p>
+<h3 id="conditional-flow-matching-and-optimal-transport-couplings">Conditional Flow Matching and Optimal-Transport Couplings<a class="headerlink" href="#conditional-flow-matching-and-optimal-transport-couplings" title="Permanent link">¤</a></h3>
+<p><strong>Conditional Flow Matching (CFM) / Independent CFM (I-CFM)</strong> (<a href="https://arxiv.org/abs/2302.00482">Tong et al., 2024 — TMLR</a>) generalises Lipman et al.'s flow matching to <strong>arbitrary noise–data couplings</strong>, and introduces:</p>
+<ul>
+<li><strong>OT-CFM</strong> — uses minibatch <em>optimal-transport</em> couplings instead of independent pairs; the paper reports straighter/easier transports in its settings, but a minibatch assignment is not the population OT coupling and does not guarantee a particular NFE reduction.</li>
+<li><strong>SB-CFM</strong> — a Schrödinger-bridge variant that combines OT with stochastic dynamics.</li>
+</ul>
+<p>These objectives are implemented in the authors' open-source <strong>TorchCFM</strong> library and are widely used research baselines; adoption is not itself a correctness or performance guarantee.</p>
+<p><strong>Stochastic Interpolants</strong> (<a href="https://arxiv.org/abs/2303.08797">Albergo &amp; Vanden-Eijnden, 2023</a>; <a href="https://arxiv.org/abs/2310.03725">Albergo et al., 2024</a>) generalise flow matching with <em>stochastic</em> couplings and bridge ODEs and SDEs in a single framework—the framework that underlies SiT, Multitask Stochastic Interpolants (<a href="https://arxiv.org/abs/2508.04605">2026</a>), and related shared objectives.</p>
+<p><strong>Generator Matching</strong> (<a href="https://arxiv.org/abs/2410.20587">Holderrieth et al., 2024</a>) formulates a broader conditional-to-marginal generator-learning framework covering deterministic flows, diffusions, and jump processes under construction-specific assumptions. "Subsumes" here is a mathematical relationship, not a claim that the same network, loss implementation, or finite-step sampler is interchangeable across state spaces.</p>
+<h3 id="mean-flows-one-step-generation-without-distillation">Mean Flows: One-Step Generation Without Distillation<a class="headerlink" href="#mean-flows-one-step-generation-without-distillation" title="Permanent link">¤</a></h3>
+<p><strong>Mean Flows</strong> (<a href="https://arxiv.org/abs/2505.13447">Geng, Deng, Bai, Kolter &amp; He, 2025 — NeurIPS Oral</a>) replace flow matching's <em>instantaneous</em> velocity field with the <strong>average velocity</strong> along a trajectory:</p>
+<div class="arithmatex">\[
+u^{\text{mean}}_\theta(x_t, s, t) \;\approx\; \frac{1}{t - s}\!\int_s^t v(x_\tau, \tau)\, d\tau.
+\]</div>
+<p>Training uses a closed-form identity between average and instantaneous velocities, requiring <strong>no pre-training, no distillation, and no curriculum</strong>. The single-network model achieves:</p>
+<ul>
+<li><strong>FID 3.43 at 1 NFE on ImageNet 256² — trained from scratch</strong> (vs. flow-matching teachers needing 25–50 NFE for matching quality).</li>
+</ul>
+<p>Follow-ups include <strong>AlphaFlow</strong> (<a href="https://openreview.net/forum?id=adacb4JTIv">ICLR 2026</a>) — an analysis and generalised objective — <strong>Improved Mean Flows</strong> (<a href="https://openaccess.thecvf.com/content/CVPR2026/html/Geng_Improved_Mean_Flows_On_the_Challenges_of_Fastforward_Generative_Models_CVPR_2026_paper.html">CVPR 2026</a>) — a velocity-reparameterized objective with guidance as explicit conditioning variables — and <strong>Pixel Mean Flows</strong> (<a href="https://arxiv.org/abs/2601.22158">2026 preprint</a>) for one-step pixel-space generation. These results demonstrate strong protocol-specific one-step systems. One network evaluation is not "near-zero" total cost: backbone FLOPs, guidance branches, codec decoding, memory traffic, and hardware remain.</p>
+<h3 id="classifier-free-guidance-for-flow-matching">Classifier-Free Guidance for Flow Matching<a class="headerlink" href="#classifier-free-guidance-for-flow-matching" title="Permanent link">¤</a></h3>
+<p>Standard CFG (<a href="https://arxiv.org/abs/2207.12598">Ho &amp; Salimans, 2022</a>) was designed for diffusion models; the 2025 wave adapts it specifically to flow matching:</p>
+<ul>
+<li><strong>CFG-Zero*</strong> (<a href="https://arxiv.org/abs/2503.18886">Fan et al., 2025</a>) — observes that early-step velocity estimates undershoot in flow ODEs, and introduces (a) an <strong>optimised guidance scale</strong> correcting velocity inaccuracies, plus (b) <strong>zero-init</strong>, which zeroes the first few ODE-solver steps. Consistently outperforms standard CFG on Lumina-Next, SD3, FLUX.1, and Wan-2.1.</li>
+<li><strong>Flow-Matching Guidance Theory</strong> (<a href="https://openreview.net/forum?id=pKaNgFzJBy">2024–25</a>) — derives guidance techniques for flow-matching dynamics beyond a direct reuse of diffusion CFG; scope depends on the conditional path and field parameterization.</li>
+</ul>
+<h3 id="discrete-flow-matching-at-scale">Discrete Flow Matching at Scale<a class="headerlink" href="#discrete-flow-matching-at-scale" title="Permanent link">¤</a></h3>
+<p>Discrete flow matching has matured rapidly:</p>
+<ul>
+<li><strong>DFM</strong> (<a href="https://arxiv.org/abs/2407.15595">Gat et al., 2024 — NeurIPS Spotlight</a>) and <strong>Multiflow</strong> (<a href="https://arxiv.org/abs/2402.04997">Campbell et al., 2024</a>) — CTMC-based flows for categorical data; foundation for the modern discrete-flow literature.</li>
+<li><strong>Fisher Flow</strong> (<a href="https://arxiv.org/abs/2405.14664">Davis et al., 2024</a>) — a <em>geometric</em> discrete flow that interprets categorical distributions as points on a statistical manifold with the Fisher–Rao metric.</li>
+<li><strong>DeFoG</strong> (<a href="https://icml.cc/virtual/2025/poster/45644">Ho et al., ICML 2025</a>) — applies DFM to graph generation and reports benchmark improvements under its molecular-graph protocols.</li>
+<li><strong>Discrete Flow Matching as AR Post-Training</strong> (<a href="https://dl.acm.org/doi/10.1145/3768292.3770442">2025</a>) — studies DFM post-training for autoregressive language models; improvements belong to its models, data, decoding, and evaluation setup.</li>
+</ul>
+<p>These connect to the broader <strong>diffusion language model</strong> family (LLaDA, Mercury, Dream — see the <a href="../diffusion-explained/#further-reading-diffusion-language-models">Diffusion explainer</a>). Some DFM and masked discrete-diffusion constructions admit a common CTMC description after their state space, forward path, and parameterization are aligned; the names alone do not make their finite samplers identical.</p>
+<p>For DeFoG and other graph-valued flows, <a href="../random-graphs-and-relational-generators/">Random Graphs and Relational Generators</a> supplies the missing object-level contract: node identity, relabeling, graph size, exact constraints, and graph-distribution evaluation.</p>
+<p>For flows used as dependence models, <a href="../copula-models-explained/#5-discrete-mixed-and-neural-copulas">Copula Models</a> distinguishes cube support from the stronger requirement of exactly uniform output marginals. A generic normalized flow on <span class="arithmatex">\([0,1]^d\)</span> is not automatically a copula.</p>
+<h3 id="variance-reduced-training-and-inference-time-scaling">Variance-Reduced Training and Inference-Time Scaling<a class="headerlink" href="#variance-reduced-training-and-inference-time-scaling" title="Permanent link">¤</a></h3>
+<p>One line of work attacks the <em>variance</em> of flow-matching gradient estimators and the <em>inference</em> compute budget:</p>
+<ul>
+<li><strong>Stable Velocity</strong> (<a href="https://arxiv.org/abs/2602.05435">2026</a>) — a variance-perspective on flow matching that reveals a two-regime structure; introduces <strong>StableVM</strong> for unbiased variance-reduced training, <strong>VA-REPA</strong> for selective auxiliary supervision, and <strong>StableVS</strong> for finetuning-free acceleration.</li>
+<li><strong>Inference-Time Compute Scaling for Flow Matching</strong> (<a href="https://arxiv.org/abs/2510.17786">2025</a>) — reports inference-time search/scaling experiments for FM models in protein design and folding; extra compute changes the generation-and-selection system rather than the base sampler alone.</li>
+<li><strong>An Error Analysis of Flow Matching</strong> (<a href="https://openreview.net/forum?id=vES22INUKm">NeurIPS 2024</a>) — analyzes how estimation and numerical errors propagate in flow-matching CNFs under stated assumptions.</li>
+<li><strong>Local Flow Matching</strong> (<a href="https://openreview.net/forum?id=MM197t8WlM">NeurIPS 2024</a>) and <strong>Wasserstein Flow Matching</strong> (<a href="https://openreview.net/forum?id=HB4lr0ykTi">NeurIPS 2024</a>) — generative modelling over <em>families</em> of distributions and over Wasserstein space respectively.</li>
+</ul>
+<h3 id="flow-map-matching-and-consistency-bridges">Flow Map Matching and Consistency Bridges<a class="headerlink" href="#flow-map-matching-and-consistency-bridges" title="Permanent link">¤</a></h3>
+<p><strong>Flow Map Matching</strong> (<a href="https://arxiv.org/abs/2406.07507">Boffi et al., 2024</a>) learns a <em>flow map</em> <span class="arithmatex">\(\Phi_{s\leftarrow t}(x_t)\)</span> between times on an underlying process. Exact flow maps obey identity and semigroup constraints, <span class="arithmatex">\(\Phi_{t\leftarrow t}=I\)</span> and <span class="arithmatex">\(\Phi_{r\leftarrow s}\circ\Phi_{s\leftarrow t}=\Phi_{r\leftarrow t}\)</span>. Consistency and average-velocity models can be related to particular endpoints or parameterizations, but their finite neural objectives and errors are not interchangeable merely because the ideal maps coincide.</p>
+<h3 id="peer-reviewed-research-checkpoints">Peer-Reviewed Research Checkpoints<a class="headerlink" href="#peer-reviewed-research-checkpoints" title="Permanent link">¤</a></h3>
+<ul>
+<li><strong>Peer-reviewed research — FreqFlow.</strong> <a href="https://openaccess.thecvf.com/content/CVPR2026/html/Ren_Frequency-Aware_Flow_Matching_for_High-Quality_Image_Generation_CVPR_2026_paper.html">Ren et al., CVPR 2026</a> add frequency-aware conditioning and report FID 1.38 for class-conditional ImageNet 256 under their checkpoint, guidance, and metric protocol. This is an architecture result, not a protocol-free family ranking.</li>
+<li><strong>Peer-reviewed research — Improved Mean Flows.</strong> <a href="https://openaccess.thecvf.com/content/CVPR2026/html/Geng_Improved_Mean_Flows_On_the_Challenges_of_Fastforward_Generative_Models_CVPR_2026_paper.html">Geng et al., CVPR 2026</a> reformulate training as a loss on instantaneous velocity parameterized through an average-velocity predictor, expose guidance through conditioning variables, and report FID 1.72 at one network evaluation on class-conditional ImageNet 256. The number belongs to that from-scratch architecture, guidance, checkpoint, and evaluation protocol; it is not a general one-step guarantee.</li>
+<li><strong>Peer-reviewed research — Decoupled MeanFlow.</strong> <a href="https://iclr.cc/virtual/2026/poster/10009715">Lee, Yu &amp; Shin, ICLR 2026</a> convert a pretrained flow model into a flow-map model through a decoder-side time-interval design and report one- and four-step ImageNet results. It is not the same training story as MeanFlow trained from scratch.</li>
+<li><strong>Peer-reviewed research — MeanFlow training dynamics.</strong> <a href="https://openaccess.thecvf.com/content/CVPR2026/html/Kim_Understanding_Accelerating_and_Improving_MeanFlow_Training_CVPR_2026_paper.html">Kim et al., CVPR 2026</a> find that accurate instantaneous and short-interval velocities precede strong long-interval learning, then report a curriculum-like training schedule. This directly qualifies any claim that one-step learning is automatically easy.</li>
+<li><strong>Peer-reviewed research — MeanFlow Transformers with Representation Autoencoders.</strong> <a href="https://openaccess.thecvf.com/content/CVPR2026/html/Hu_MeanFlow_Transformers_with_Representation_Autoencoders_CVPR_2026_paper.html">Hu et al., CVPR 2026</a> report a representation-autoencoder MeanFlow system with lower sampling/training compute under their measurements. Their method uses flow-teacher distillation and optional bootstrapping, so it must not be cited as evidence for a no-teacher objective.</li>
+<li><strong>Peer-reviewed research — straightness by latent conditioning.</strong> <a href="https://openaccess.thecvf.com/content/CVPR2026/papers/Ma_Learning_Straight_Flows_Variational_Flow_Matching_for_Efficient_Generation_CVPR_2026_paper.pdf">Ma et al., CVPR 2026</a> introduce Straight Variational Flow Matching. The paper's learned auxiliary latent changes the conditional model; its results do not prove that independent endpoint coupling becomes noncrossing in the original state space.</li>
+</ul>
+<h3 id="production-scale-flow-matching">Production-Scale Flow Matching<a class="headerlink" href="#production-scale-flow-matching" title="Permanent link">¤</a></h3>
+<p>Rectified-flow / flow-matching Transformers are a common recipe for large-scale visual generators, especially when paired with latent codecs and DiT / MMDiT backbones:</p>
+<ul>
+<li><strong>Stable Diffusion 3 / 3.5</strong> (<a href="https://arxiv.org/abs/2403.03206">Esser et al., 2024 — MMDiT</a>) — rectified-flow MMDiT with Logit-Normal <span class="arithmatex">\(t\)</span> sampling.</li>
+<li><strong>FLUX.1</strong> (<a href="https://github.com/black-forest-labs/flux">Black Forest Labs, 2024</a>) — 12B-parameter rectified-flow transformer.</li>
+<li><strong>Vendor/technical-report systems:</strong> HunyuanVideo, Wan, and Mochi describe flow-matching or rectified-flow video systems over learned latents. CogVideoX uses diffusion-model terminology and should not be relabeled as flow matching without a source-specific target/path analysis.</li>
+<li><strong>Flowception</strong> (<a href="https://arxiv.org/abs/2512.11438">2026</a>) — temporally-expansive, variable-length non-autoregressive video flow matching.</li>
+</ul>
+<h3 id="surveys-and-resources">Surveys and Resources<a class="headerlink" href="#surveys-and-resources" title="Permanent link">¤</a></h3>
+<div class="md-typeset__table book-table-container"><table id="tbl-flow-explained-surveys-and-resources"><caption class="book-object-caption"><span class="book-object-number">Table FLOW.9.</span> Surveys and Resources</caption>
+<thead>
+<tr>
+<th>Resource</th>
+<th>Year</th>
+<th>Scope</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://arxiv.org/abs/2507.17731"><em>Flow Matching Meets Biology and Life Science: A Survey</em></a> (Nature npj AI)</td>
+<td>2025</td>
+<td>Comprehensive survey; biological applications + variant taxonomy</td>
+</tr>
+<tr>
+<td><a href="https://www.nature.com/articles/s42256-026-01220-0"><em>Flow matching for generative modelling in bioinformatics</em></a> (Nature MI)</td>
+<td>2026</td>
+<td>Theoretical foundations + computational biology applications</td>
+</tr>
+<tr>
+<td><a href="https://github.com/dongzhuoyao/awesome-flow-matching">Awesome Flow Matching</a></td>
+<td>continuously updated</td>
+<td>Curated list of flow-matching papers</td>
+</tr>
+<tr>
+<td><a href="https://github.com/atong01/conditional-flow-matching">TorchCFM</a></td>
+<td>continuously updated</td>
+<td>Reference implementation: vanilla / OT / Schrödinger CFM</td>
+</tr>
+</tbody>
+</table></div>
+<hr/>
+<h3 id="worked-example-crossing-conditional-paths-and-the-marginal-velocity">Worked example: crossing conditional paths and the marginal velocity<a class="headerlink" href="#worked-example-crossing-conditional-paths-and-the-marginal-velocity" title="Permanent link">¤</a></h3>
+<p>Let the source and target both put probability <span class="arithmatex">\(1/2\)</span> on <span class="arithmatex">\(-1\)</span> and <span class="arithmatex">\(+1\)</span>, but pair endpoints independently. At <span class="arithmatex">\(t=1/2\)</span>, the pairs <span class="arithmatex">\((-1,+1)\)</span> and <span class="arithmatex">\((+1,-1)\)</span> both pass through <span class="arithmatex">\(x=0\)</span> with conditional velocities <span class="arithmatex">\(+2\)</span> and <span class="arithmatex">\(-2\)</span>. Squared-error regression at <span class="arithmatex">\((x,t)=(0,1/2)\)</span> returns their conditional mean, <span class="arithmatex">\(v^*(0,1/2)=0\)</span>.</p>
+<p>The network has not recovered either particle's velocity; it has recovered the velocity appropriate to the <strong>marginal probability path</strong>. With the identity coupling <span class="arithmatex">\(X_1=X_0\)</span>, every path is stationary and the velocity is zero everywhere. Both couplings have the same endpoint marginals, yet they define different training targets and intermediate paths. Endpoint distributions alone do not determine a flow-matching algorithm.</p>
+<h3 id="independent-practice-and-assessment-map-continuous-flows">Independent practice and assessment map: continuous flows<a class="headerlink" href="#independent-practice-and-assessment-map-continuous-flows" title="Permanent link">¤</a></h3>
+<p>Keep the conditional path, marginal dynamics, vector-field estimator, density
+estimator, numerical solver, long-transition model, and non-Euclidean generator
+distinct. Continuous-time identities do not certify finite computations.</p>
+<h4 id="p1-audit-a-continuous-or-flow-matching-generator-end-to-end">P1 — Audit a continuous or flow-matching generator end to end<a class="headerlink" href="#p1-audit-a-continuous-or-flow-matching-generator-end-to-end" title="Permanent link">¤</a></h4>
+<ol>
+<li><strong>P1.1 — Predict before computing.</strong> Predict whether each claim is necessarily true: Hutchinson estimation makes a CNF density exact; an adaptive solver tolerance is a proof of exact integration; an adjoint method uses constant end-to-end memory; simulation-free training makes sampling simulation-free; straight conditional paths give straight marginal trajectories; common endpoint marginals identify one coupling; one MeanFlow evaluation is an exact ODE solve; and a Euclidean velocity field is a valid CTMC or tangent field. For every false claim, name the remaining estimator, solver, conditioning, or state-space requirement.</li>
+<li><strong>P1.2 — Instantaneous change of variables and numerical density.</strong> For the affine ODE <span class="arithmatex">\(\dot x_t=a(t)x_t+b(t)\)</span> in two dimensions, solve the state and log-density equations analytically for a simple chosen <span class="arithmatex">\(a,b\)</span>. Derive the divergence formula and estimate its trace with Gaussian and Rademacher probes. Compare exact density with one fixed-step solve and adaptive solves at two tolerances, recording accepted/rejected steps and NFE, then add a stochastic single-probe estimate. Separate discretization bias, tolerance diagnostics, trace variance, and floating-point error.</li>
+<li><strong>P1.3 — Conditional-to-marginal regression.</strong> Enumerate all four endpoint pairs for independent couplings of <span class="arithmatex">\(X_0,X_1\in\{-1,+1\}\)</span>. At <span class="arithmatex">\(t=1/2\)</span>, calculate the conditional velocities and their conditional expectations at every reachable <span class="arithmatex">\(X_t\)</span>. Repeat with identity and swap couplings. State the integrability/regularity assumptions needed for the population regressor to satisfy the marginal continuity equation.</li>
+<li><strong>P1.4 — Long-transition taxonomy.</strong> For ordinary flow matching, reflow, a distilled one-step student, flow-map matching, consistency, MeanFlow trained from scratch, and Decoupled MeanFlow, declare the learned target, time arguments, teacher or initialization, identity/semigroup condition, sampling call graph, and error source. Give a counterexample to inferring equal supervision or total cost from equal output-step count.</li>
+<li><strong>P1.5 — Replace Euclidean dynamics correctly.</strong> Construct a three-state CTMC generator with nonnegative off-diagonal rates and zero row sums, calculate one infinitesimal mass update, and compare it with a simplex-valued Fisher–Rao path. Separately specify a tangent velocity and reference volume for a circle or rotation group. Identify why neither construction is an ordinary Euclidean diffeomorphism over one-hot vectors.</li>
+<li><strong>P1.6 — Transfer.</strong> Design a coupled discrete–geometric flow for protein sequence and backbone or atom types and molecular coordinates. Declare endpoint coupling, conditional path or jump generator, equivariance/gauge, marginal target, training estimator, ODE/jump integrator, NFE/events, constraint handling, likelihood semantics, and a small state-space or harmonic test that can falsify normalization and endpoint claims.</li>
+</ol>
+<h5 id="outcome-to-task-alignment-continuous-flows">Outcome-to-task alignment: continuous flows<a class="headerlink" href="#outcome-to-task-alignment-continuous-flows" title="Permanent link">¤</a></h5>
+<div class="md-typeset__table book-table-container"><table id="tbl-flow-explained-outcome-to-task-alignment-continuous-flows"><caption class="book-object-caption"><span class="book-object-number">Table FLOW.20.</span> Outcome-to-task alignment for continuous flows and flow matching</caption>
+<thead>
+<tr>
+<th>Learning objective</th>
+<th>Independently assessed by</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>O1 — Derive instantaneous change of variables and state its regularity assumptions</td>
+<td>P1.1, P1.2</td>
+</tr>
+<tr>
+<td>O2 — Explain what trace estimation, adaptive integration, and adjoint differentiation do and do not make exact</td>
+<td>P1.1, P1.2</td>
+</tr>
+<tr>
+<td>O3 — Derive the marginal flow-matching vector field from conditional regression</td>
+<td>P1.1, P1.3</td>
+</tr>
+<tr>
+<td>O4 — Distinguish coupling, path, target, solver, reflow, flow map, and MeanFlow</td>
+<td>P1.1, P1.2, P1.3, P1.4</td>
+</tr>
+<tr>
+<td>O5 — Place discrete and manifold generators without treating them as Euclidean diffeomorphisms</td>
+<td>P1.1, P1.5, P1.6</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="chapter-4-synthesis">Chapter 4 synthesis<a class="headerlink" href="#chapter-4-synthesis" title="Permanent link">¤</a></h3>
+<p>Continuous flows move tractability from layer determinants to differential equations. Flow matching avoids trajectory simulation in the common training estimator, not at sampling or likelihood time. Couplings determine conditional paths; regression marginalizes crossings; solvers approximate learned dynamics; flow-map and MeanFlow objectives learn longer transitions with different supervision. Discrete and geometric variants require their own generators, measures, and integrators.</p>
+<details class="question">
+<summary>Retrieval practice: continuous flows and flow matching</summary>
+<ol>
+<li>Why is Hutchinson's trace estimate unbiased, and what error remains?</li>
+<li>What is the population MSE predictor for a conditional flow target?</li>
+<li>Does a straight conditional interpolant imply a straight marginal ODE trajectory?</li>
+<li>Why are MeanFlow, Decoupled MeanFlow, and a distilled one-step flow not one method?</li>
+<li>What must a finite-state CTMC generator satisfy?</li>
+</ol>
+<p><strong>Solutions.</strong> (1) <span class="arithmatex">\(\mathbb E[vv^\top]=I\)</span> gives <span class="arithmatex">\(\mathbb E[v^\top Av]=\operatorname{Tr}A\)</span>; finite probes retain Monte Carlo variance, and ODE/discretisation error is separate. (2) The conditional expectation of the target given the observed intermediate state and time. (3) No. Crossing pairs can average to a curved or even stationary marginal field. (4) They differ in parameterization, initialization/teacher requirements, losses, and interval supervision even when all target long transitions. (5) Off-diagonal rates are nonnegative and rows sum to zero, with support and boundary behavior declared.</p>
+</details>
+<p><strong>Bridge.</strong> The theory supplies many valid constructions but no universal deployment winner. Chapter 5 turns to controlled evaluation, implementation contracts, and end-to-end cost. <a href="../flow-explained/#comparing-flows-with-other-generative-models">Continue continuously</a> or open <a href="../flow-05-practice/">Chapter 5</a>.</p>
+<hr/>
+<p><strong>Navigate:</strong> <a href="../flow-03-training/">← Training</a> · <a href="../flow-05-practice/">5. Practice and Evaluation →</a> · <a href="../flow-explained/#continuous-time-flows-and-foundational-flow-matching">Complete guide</a></p>
+</article>
+</div>
+<script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  Back to top
+</button>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+<div class="md-social">
+<a class="md-social__link" href="https://github.com/avitai/artifex" rel="noopener" target="_blank" title="github.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</a>
+<a class="md-social__link" href="https://pypi.org/project/avitai-artifex/" rel="noopener" target="_blank" title="pypi.org">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-66.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.3v101.8c0 29 25.2 46 53.4 54.3 33.8 9.9 66.3 11.7 106.8 0 26.9-7.8 53.4-23.5 53.4-54.3v-40.7H226.2v-13.6h160.2c31.1 0 42.6-21.7 53.4-54.2 11.2-33.5 10.7-65.7 0-108.6M286.2 444.7a20.4 20.4 0 1 1 0-40.7 20.4 20.4 0 1 1 0 40.7M167.8 248.1h106.8c29.7 0 53.4-24.5 53.4-54.3V91.9c0-29-24.4-50.7-53.4-55.6-35.8-5.9-74.7-5.6-106.8.1-45.2 8-53.4 24.7-53.4 55.6v40.7h106.9v13.6h-147c-31.1 0-58.3 18.7-66.8 54.2-9.8 40.7-10.2 66.1 0 108.6 7.6 31.6 25.7 54.2 56.8 54.2H101v-48.8c0-35.3 30.5-66.4 66.8-66.4m-6.6-183.4a20.4 20.4 0 1 1 0 40.8 20.4 20.4 0 1 1 0-40.8"></path></svg>
+</a>
+<a class="md-social__link" href="https://twitter.com/mahdi_shafiei" rel="noopener" target="_blank" title="twitter.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M459.4 151.7c.3 4.5.3 9.1.3 13.6 0 138.7-105.6 298.6-298.6 298.6-59.5 0-114.7-17.2-161.1-47.1 8.4 1 16.6 1.3 25.3 1.3 49.1 0 94.2-16.6 130.3-44.8-46.1-1-84.8-31.2-98.1-72.8 6.5 1 13 1.6 19.8 1.6 9.4 0 18.8-1.3 27.6-3.6-48.1-9.7-84.1-52-84.1-103v-1.3c14 7.8 30.2 12.7 47.4 13.3-28.3-18.8-46.8-51-46.8-87.4 0-19.5 5.2-37.4 14.3-53C87.4 130.8 165 172.4 252.1 176.9c-1.6-7.8-2.6-15.9-2.6-24C249.5 95.1 296.3 48 354.4 48c30.2 0 57.5 12.7 76.7 33.1 23.7-4.5 46.5-13.3 66.6-25.3-7.8 24.4-24.4 44.8-46.1 57.8 21.1-2.3 41.6-8.1 60.4-16.2-14.3 20.8-32.2 39.3-52.6 54.3"></path></svg>
+</a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.path", "navigation.top", "navigation.prune", "toc.follow", "search.highlight", "search.share", "search.suggest", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "content.mermaid"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+<script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+<script src="../../../javascripts/reading-layout.js"></script>
+</body>
+</html>

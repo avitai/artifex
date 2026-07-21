@@ -1,0 +1,1414 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="This chapter compares endpoint consistency, two-time flow maps, semigroup constraints, teacher distillation, self-distillation, and direct map training. Read it" name="description"/>
+<meta content="Mahdi Shafiei" name="author"/>
+<link href="https://docs.avitai.bio/artifex/user-guide/concepts/few-step-02-consistency/" rel="canonical"/>
+<link href="../few-step-01-foundations/" rel="prev"/>
+<link href="../few-step-03-meanflow/" rel="next"/>
+<link href="../../../assets/images/favicon.png" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.7.7" name="generator"/>
+<title>Few-Step Generation 2 — Consistency and Flow Maps - Artifex</title>
+<link href="../../../assets/stylesheets/main.ec1eaa64.min.css" rel="stylesheet"/>
+<link href="../../../assets/stylesheets/palette.ab4e12ef.min.css" rel="stylesheet"/>
+<script src="../../../assets/vendor/iframe-worker/index.js"></script>
+<link href="../../../assets/_mkdocstrings.css" rel="stylesheet"/>
+<link href="../../../_static/extra.css" rel="stylesheet"/>
+<script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+<meta content="article" property="og:type"/>
+<meta content="The Artifex Generative Models Book" property="og:site_name"/>
+<meta content="Few-Step Generation 2 — Consistency and Flow Maps" property="og:title"/>
+<meta content="This chapter compares endpoint consistency, two-time flow maps, semigroup constraints, teacher distillation, self-distillation, and direct map training. Read it" property="og:description"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/few-step-02-consistency/" property="og:url"/>
+<meta content="2026-07-21" property="article:modified_time"/>
+<meta content="summary" name="twitter:card"/>
+<meta content="Few-Step Generation 2 — Consistency and Flow Maps" name="twitter:title"/>
+<meta content="This chapter compares endpoint consistency, two-time flow maps, semigroup constraints, teacher distillation, self-distillation, and direct map training. Read it" name="twitter:description"/>
+<meta content="Generative models, Machine learning, Probabilistic modeling, research, specialization, canonical_chapter, few-step-consistency, practitioner, researcher" name="keywords"/>
+<meta content="Few-Step Generation 2 — Consistency and Flow Maps" name="citation_title"/>
+<meta content="Mahdi Shafiei" name="citation_author"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/few-step-02-consistency/" name="citation_public_url"/>
+<meta content="en" name="citation_language"/>
+<meta content="Few-Step Generation 2 — Consistency and Flow Maps" name="DC.title"/>
+<meta content="Mahdi Shafiei" name="DC.creator"/>
+<meta content="https://docs.avitai.bio/artifex/user-guide/concepts/few-step-02-consistency/" name="DC.identifier"/>
+<meta content="Text.LearningResource" name="DC.type"/>
+<meta content="2026-07-21" name="DCTERMS.modified"/>
+<meta content="https://github.com/avitai/artifex/blob/main/LICENSE" name="DCTERMS.license"/>
+<meta content="research" name="DCTERMS.educationLevel"/>
+<meta content="practitioner, researcher" name="DCTERMS.audience"/>
+<link href="https://github.com/avitai/artifex/blob/main/LICENSE" rel="license"/>
+<script id="artifex-book-metadata" type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Chapter",
+  "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/few-step-02-consistency/",
+  "url": "https://docs.avitai.bio/artifex/user-guide/concepts/few-step-02-consistency/",
+  "name": "Few-Step Generation 2 \u2014 Consistency and Flow Maps",
+  "description": "This chapter compares endpoint consistency, two-time flow maps, semigroup constraints, teacher distillation, self-distillation, and direct map training. Read it",
+  "identifier": "few-step-consistency",
+  "inLanguage": "en",
+  "isAccessibleForFree": true,
+  "learningResourceType": "Canonical chapter",
+  "educationalLevel": "research",
+  "educationalUse": "specialization",
+  "audience": [
+    
+      {"@type": "EducationalAudience", "audienceType": "practitioner"},
+    
+      {"@type": "EducationalAudience", "audienceType": "researcher"}
+    
+  ],
+  "dateModified": "2026-07-21",
+  "keywords": ["Generative models", "Machine learning", "Probabilistic modeling", "research", "specialization", "canonical_chapter", "few-step-consistency", "practitioner", "researcher"],
+  "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+  "author": [
+    
+      {"@type": "Person", "name": "Mahdi Shafiei"}
+    
+  ],
+  "isPartOf": {
+    "@type": "Book",
+    "@id": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/#book",
+    "url": "https://docs.avitai.bio/artifex/user-guide/concepts/generative-models-unified/",
+    "name": "The Artifex Generative Models Book",
+    "bookEdition": "Living Web Edition",
+    "license": "https://github.com/avitai/artifex/blob/main/LICENSE",
+    "author": [
+      
+        {"@type": "Person", "name": "Mahdi Shafiei"}
+      
+    ]
+  }
+}
+</script>
+<link href="../../../assets/vendor/katex/katex.min.css" id="artifex-katex-stylesheet" integrity="sha384-UA8juhPf75SzzAMA/4fo3yOU7sBJ0om7SCD2GHq0fZqZco6tr1UCV7nUbk9J90JM" rel="stylesheet"/>
+<script defer="" integrity="sha384-T/0lMUdJpd2S1ZHtRiofG3htU3xPCrFVeAQ1UUE2TJwlEJSV5NUwn30kP28n238E" src="../../../assets/vendor/mermaid/mermaid.min.js"></script>
+<script defer="" src="../../../assets/vendor/katex/katex-shadow.js"></script>
+<script defer="" src="../../../javascripts/mermaid-math.js"></script>
+<script defer="" src="../../../javascripts/mathjax.js"></script>
+<script defer="" integrity="sha384-OrHfGTnIbkl0do3N76qW/uWr38o91N05sbSPuYBPLH+hG8X/dNSrjZf3AGjzrCwC" src="../../../assets/vendor/mathjax/tex-mml-chtml.js"></script>
+</head>
+<body data-md-color-accent="amber" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#few-step-generation-2-consistency-and-flow-maps">
+          Skip to content
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header md-header--shadow" data-md-component="header">
+<nav aria-label="Header" class="md-header__inner md-grid">
+<a aria-label="Artifex" class="md-header__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            Artifex
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+            
+              Few-Step Generation 2 — Consistency and Flow Maps
+            
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-label="Switch to dark mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: light)" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_1" hidden="" title="Switch to dark mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+<input aria-label="Switch to light mode" class="md-option" data-md-color-accent="amber" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-primary="indigo" data-md-color-scheme="slate" id="__palette_1" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_0" hidden="" title="Switch to light mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+</form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div aria-label="Search" class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Search" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="Search" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="Search" class="md-search__options">
+<a aria-label="Share" class="md-search__icon md-icon" data-clipboard="" data-clipboard-text="" data-md-component="search-share" href="javascript:void(0)" tabindex="-1" title="Share">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"></path></svg>
+</a>
+<button aria-label="Clear" class="md-search__icon md-icon" tabindex="-1" title="Clear" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            Initializing search
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Navigation" class="md-nav md-nav--primary" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="Artifex" class="md-nav__button md-logo" data-md-component="logo" href="../../.." title="Artifex">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1c0-.21-.07-.41-.18-.57L13 8.35V4h-2v4.35L5.18 18.43c-.11.16-.18.36-.18.57m1 3a3 3 0 0 1-3-3c0-.6.18-1.16.5-1.63L9 7.81V6a1 1 0 0 1-1-1V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1v1.81l5.5 9.56c.32.47.5 1.03.5 1.63a3 3 0 0 1-3 3zm7-6 1.34-1.34L16.27 18H7.73l2.66-4.61zm-.5-4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5.5.5 0 0 1 .5-.5"></path></svg>
+</a>
+    Artifex
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/avitai/artifex" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    avitai/artifex
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../..">
+<span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../getting-started/installation/">
+<span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Generative Models Book
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Generative Models Book
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    
+  
+    Start Here — The Landscape
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../first-course-01-generative-systems/">
+<span class="md-ellipsis">
+    
+  
+    First Course — New to Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../probability-01-objects/">
+<span class="md-ellipsis">
+    
+  
+    Foundations
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../autoregressive-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Model Families
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_5" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_5" id="__nav_3_5_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Connections and Compositions
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_5_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_5">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Connections and Compositions
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../gradients-01-taxonomy/">
+<span class="md-ellipsis">
+    
+  
+    Gradients and Geometry in Generative Modeling
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../density-latent-energy-01-objects/">
+<span class="md-ellipsis">
+    
+  
+    Density, Latent, Energy, and Score
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../probability-paths-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    Probability Paths and Stochastic Transport
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../general-markov-01-operators/">
+<span class="md-ellipsis">
+    
+  
+    General Markov Generators
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3_5_5" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_5_5" id="__nav_3_5_5_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Transitions and Few-Step Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_5_5_label" class="md-nav" data-md-level="3">
+<label class="md-nav__title" for="__nav_3_5_5">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Transitions and Few-Step Generation
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../few-step-01-foundations/">
+<span class="md-ellipsis">
+    
+  
+    1. Finite Transitions
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
+    
+  
+    2. Consistency and Flow Maps
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
+<span class="md-ellipsis">
+    
+  
+    2. Consistency and Flow Maps
+  
+
+    
+  </span>
+</a>
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#2-consistency-models-and-flow-map-matching">
+<span class="md-ellipsis">
+      
+        2. Consistency Models and Flow-Map Matching
+      
+    </span>
+</a>
+<nav aria-label="2. Consistency Models and Flow-Map Matching" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-2-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 2 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#two-time-flow-maps">
+<span class="md-ellipsis">
+      
+        Two-time flow maps
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#teacher-self-distillation-and-direct-training">
+<span class="md-ellipsis">
+      
+        Teacher, self-distillation, and direct training
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-composition-residual">
+<span class="md-ellipsis">
+      
+        Worked composition residual
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-error-propagation-bound">
+<span class="md-ellipsis">
+      
+        Worked error propagation bound
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-affine-composition-residual">
+<span class="md-ellipsis">
+      
+        Worked affine composition residual
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#misconception-checks-consistency-and-maps">
+<span class="md-ellipsis">
+      
+        Misconception checks: consistency and maps
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#independent-practice-and-assessment-map-consistency-and-flow-maps">
+<span class="md-ellipsis">
+      
+        Independent practice and assessment map: consistency and flow maps
+      
+    </span>
+</a>
+<nav aria-label="Independent practice and assessment map: consistency and flow maps" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#feedback-contract-consistency-and-flow-maps">
+<span class="md-ellipsis">
+      
+        Feedback contract: consistency and flow maps
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#outcome-to-task-alignment-consistency-and-flow-maps">
+<span class="md-ellipsis">
+      
+        Outcome-to-task alignment: consistency and flow maps
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-2-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 2 synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../few-step-03-meanflow/">
+<span class="md-ellipsis">
+    
+  
+    3. MeanFlow and Shortcuts
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../few-step-04-transition/">
+<span class="md-ellipsis">
+    
+  
+    4. Transition Matching and Continuous AR
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../few-step-05-distillation/">
+<span class="md-ellipsis">
+    
+  
+    5. Distillation Families
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../few-step-06-practice/">
+<span class="md-ellipsis">
+    
+  
+    6. Evaluation and Research
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../transitions-and-few-step-generation/">
+<span class="md-ellipsis">
+    
+  
+    Continuous View (All Chapters)
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../geometric-01-symmetry/">
+<span class="md-ellipsis">
+    
+  
+    Geometric and Equivariant Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../representations-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    Representations and Multimodal Systems
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../steering-01-targets/">
+<span class="md-ellipsis">
+    
+  
+    Conditioning, Steering, Constraints, and Selection
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../world-models-01-semantics/">
+<span class="md-ellipsis">
+    
+  
+    World Models and Causal Simulators
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../landscape-01-copulas/">
+<span class="md-ellipsis">
+    
+  
+    Extended Generative Landscape
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../normalization-01-queries/">
+<span class="md-ellipsis">
+    
+  
+    Research Practice
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../models/vae-guide/">
+<span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/core/base/">
+<span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../examples/overview/">
+<span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../zoo/">
+<span class="md-ellipsis">
+    
+  
+    Generative Models
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../training/overview/">
+<span class="md-ellipsis">
+    
+  
+    Training
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../data/overview/">
+<span class="md-ellipsis">
+    
+  
+    Data &amp; Modalities
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../inference/overview/">
+<span class="md-ellipsis">
+    
+  
+    Inference &amp; Generation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../benchmarks/">
+<span class="md-ellipsis">
+    
+  
+    Evaluation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../guides/extensions/">
+<span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../extensions/">
+<span class="md-ellipsis">
+    
+  
+    Advanced Topics
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../cli/">
+<span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../community/contributing/">
+<span class="md-ellipsis">
+    
+  
+    Community
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../../api/configs/protein-extension/">
+<span class="md-ellipsis">
+    
+  
+    Reference Library
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="On this page" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#2-consistency-models-and-flow-map-matching">
+<span class="md-ellipsis">
+      
+        2. Consistency Models and Flow-Map Matching
+      
+    </span>
+</a>
+<nav aria-label="2. Consistency Models and Flow-Map Matching" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-2-prerequisites-and-learning-objectives">
+<span class="md-ellipsis">
+      
+        Chapter 2 prerequisites and learning objectives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#two-time-flow-maps">
+<span class="md-ellipsis">
+      
+        Two-time flow maps
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#teacher-self-distillation-and-direct-training">
+<span class="md-ellipsis">
+      
+        Teacher, self-distillation, and direct training
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-composition-residual">
+<span class="md-ellipsis">
+      
+        Worked composition residual
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-error-propagation-bound">
+<span class="md-ellipsis">
+      
+        Worked error propagation bound
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#worked-affine-composition-residual">
+<span class="md-ellipsis">
+      
+        Worked affine composition residual
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#misconception-checks-consistency-and-maps">
+<span class="md-ellipsis">
+      
+        Misconception checks: consistency and maps
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#independent-practice-and-assessment-map-consistency-and-flow-maps">
+<span class="md-ellipsis">
+      
+        Independent practice and assessment map: consistency and flow maps
+      
+    </span>
+</a>
+<nav aria-label="Independent practice and assessment map: consistency and flow maps" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#feedback-contract-consistency-and-flow-maps">
+<span class="md-ellipsis">
+      
+        Feedback contract: consistency and flow maps
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#outcome-to-task-alignment-consistency-and-flow-maps">
+<span class="md-ellipsis">
+      
+        Outcome-to-task alignment: consistency and flow maps
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#chapter-2-synthesis">
+<span class="md-ellipsis">
+      
+        Chapter 2 synthesis
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<nav aria-label="Breadcrumb" class="md-path">
+<ol class="md-path__list">
+<li class="md-path__item">
+<a class="md-path__link" href="../../..">
+<span class="md-ellipsis">
+    Home
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../generative-models-unified/">
+<span class="md-ellipsis">
+    Generative Models Book
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../gradients-01-taxonomy/">
+<span class="md-ellipsis">
+    Connections and Compositions
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../few-step-01-foundations/">
+<span class="md-ellipsis">
+    Transitions and Few-Step Generation
+  </span>
+</a>
+</li>
+</ol>
+</nav>
+<article class="md-content__inner md-typeset">
+<h1 id="few-step-generation-2-consistency-and-flow-maps">Few-Step Generation 2 — Consistency and Flow Maps<a class="headerlink" href="#few-step-generation-2-consistency-and-flow-maps" title="Permanent link">¤</a></h1><aside aria-label="Learning path" class="admonition abstract artifex-learning-path"><p class="admonition-title">Learning path</p><p><strong>Required knowledge</strong></p><ul class="artifex-learning-path__links" data-learning-path-role="required"><li><a href="../few-step-01-foundations/">Few-Step Generation 1 — Finite Transitions</a></li></ul><p><strong>Readiness check:</strong> can you explain the central object and reproduce one worked example from each required chapter? If not, follow its link before continuing.</p><p><strong>Newly unlocked in the default route</strong></p><ul class="artifex-learning-path__links" data-learning-path-role="unlocks"><li><a href="../few-step-03-meanflow/">Few-Step Generation 3 — MeanFlow and Shortcuts</a></li></ul></aside>
+<p>This chapter compares endpoint consistency, two-time flow maps, semigroup constraints, teacher distillation, self-distillation, and direct map training. Read it continuously in the <a href="../transitions-and-few-step-generation/#2-consistency-models-and-flow-map-matching">complete guide</a>.</p>
+<h2 id="2-consistency-models-and-flow-map-matching">2. Consistency Models and Flow-Map Matching<a class="headerlink" href="#2-consistency-models-and-flow-map-matching" title="Permanent link">¤</a></h2>
+<h3 id="chapter-2-prerequisites-and-learning-objectives">Chapter 2 prerequisites and learning objectives<a class="headerlink" href="#chapter-2-prerequisites-and-learning-objectives" title="Permanent link">¤</a></h3>
+<p>This chapter assumes Chapter 1's finite-transition distinction and basic
+distillation. By the end, you should be able to:</p>
+<ol>
+<li><strong>O1 — Separate endpoint and two-time targets:</strong> distinguish endpoint
+   invariance, arbitrary-time traversal, score access, and stochastic sampling.</li>
+<li><strong>O2 — State anchoring conditions:</strong> combine boundary, data, and identity
+   constraints so trivial constant solutions are excluded.</li>
+<li><strong>O3 — Audit composition:</strong> compute direct-versus-composed residuals and
+   classify what small sampled residuals do and do not establish.</li>
+<li><strong>O4 — Bound propagated map error:</strong> use a Lipschitz recursion to explain
+   why a locally accurate map can fail after repeated composition.</li>
+<li><strong>O5 — Classify supervision:</strong> distinguish teacher distillation,
+   self-distillation, and standalone/direct consistency training by target
+   provenance rather than method name.</li>
+<li><strong>O6 — Transfer the map contract:</strong> design identity, composition, inversion,
+   off-grid, and endpoint tests for a new state space.</li>
+</ol>
+<figure class="book-figure" id="fig-transitions-and-few-step-generation-chapter-2-prerequisites-and-learning-objectives"><pre class="mermaid"><code>%%{init: {'themeCSS': '.nodeLabel p { color: #111827 !important; } .flowchart-link { stroke: #78879a !important; stroke-width: 2px !important; } marker path { fill: #78879a !important; stroke: #78879a !important; }'}}%%
+flowchart TB
+    accTitle: Endpoint consistency and two-time flow maps impose different contracts
+    accDescr: Endpoint consistency maps every state on one trajectory to a common data endpoint. A two-time map accepts source and destination times and should satisfy identity and composition. Both need an anchor to the intended data law, and stochastic multistep sampling adds a new kernel when noise is injected.
+    X[State on a reference trajectory] --&gt; E[Endpoint consistency map]
+    E --&gt; D[Common data endpoint]
+    X --&gt; T[Two-time flow map]
+    T --&gt; Y[Requested intermediate or endpoint state]
+    T --&gt; I[Identity test]
+    T --&gt; C[Composition test]
+    E --&gt; A[Boundary and data anchor]
+    T --&gt; A
+    D --&gt; N[Optional noise reinjection]
+    N --&gt; K[New stochastic sampling kernel]</code></pre><figcaption class="book-object-caption"><span class="book-object-number">Figure FEW.3.</span> Endpoint consistency and two-time flow maps impose different contracts</figcaption></figure>
+<p><a href="https://proceedings.mlr.press/v202/song23a.html">Consistency Models</a> learn a function <span class="arithmatex">\(f_\theta(x_t,t)\)</span> that maps points on the same probability-flow trajectory to a common endpoint, with a boundary condition near data time. Ideally,</p>
+<div class="arithmatex">\[
+f_\theta(x_t,t)=f_\theta(x_s,s)
+\]</div>
+<p>whenever <span class="arithmatex">\(x_s=\Phi_{t\to s}(x_t)\)</span>. Consistency distillation obtains adjacent trajectory pairs from a pretrained diffusion/ODE teacher; consistency training constructs a teacher through self/EMA targets.</p>
+<p>Endpoint consistency permits one-step generation. Multistep procedures may alternate endpoint prediction and controlled noise injection, but they no longer simply evaluate the original deterministic flow map at more points.</p>
+<p>Consistency alone is underidentified. Every constant function satisfies
+<span class="arithmatex">\(f(x_t,t)=f(x_s,s)\)</span>, including one that maps all inputs to the same image. A
+usable construction therefore combines trajectory consistency with a boundary
+parameterization or loss such as <span class="arithmatex">\(f(x_\epsilon,\epsilon)\approx x_\epsilon\)</span>,
+and with training pairs whose endpoint distribution is anchored to data. The
+three statements answer different questions:</p>
+<div class="md-typeset__table book-table-container"><table id="tbl-transitions-and-few-step-generation-chapter-2-prerequisites-and-learning-objectives"><caption class="book-object-caption"><span class="book-object-number">Table FEW.7.</span> Chapter 2 prerequisites and learning objectives</caption>
+<thead>
+<tr>
+<th>Constraint</th>
+<th>Prevents</th>
+<th>Does not prove by itself</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>same-trajectory consistency</td>
+<td>time-dependent disagreement along sampled paths</td>
+<td>the common value is the correct endpoint</td>
+</tr>
+<tr>
+<td>identity/boundary anchoring</td>
+<td>arbitrary constant endpoints near data time</td>
+<td>global consistency away from the boundary</td>
+</tr>
+<tr>
+<td>data/teacher target</td>
+<td>an endpoint unrelated to the intended law</td>
+<td>correct intermediate map or inversion</td>
+</tr>
+</tbody>
+</table></div>
+<p>When a multistep consistency sampler predicts an endpoint, adds fresh noise,
+and predicts again, its law is a composition of a deterministic predictor and
+a corruption kernel. It can improve sample quality, but it is not “a more
+accurate numerical integration” of the same deterministic map unless that
+equivalence is separately derived.</p>
+<h3 id="two-time-flow-maps">Two-time flow maps<a class="headerlink" href="#two-time-flow-maps" title="Permanent link">¤</a></h3>
+<p><a href="https://openreview.net/forum?id=cqDH0e6ak2">Flow Map Matching</a>, TMLR 2025, learns</p>
+<div class="arithmatex">\[
+F_\theta(x_t,t,s)\approx\Phi_{t\to s}(x_t)
+\]</div>
+<p>for arbitrary pairs <span class="arithmatex">\((t,s)\)</span>. This retains the endpoint model as <span class="arithmatex">\(s=0\)</span> while supporting an a-posteriori step-count choice. Its mathematical framework relates consistency models, consistency trajectory models, progressive distillation, and neural-operator views.</p>
+<p>Useful constraints include:</p>
+<div class="arithmatex">\[
+F(x,t,t)=x,
+\]</div>
+<div class="arithmatex">\[
+F(F(x,t,s),s,r)=F(x,t,r),
+\]</div>
+<p>and, for invertible ODE maps,</p>
+<div class="arithmatex">\[
+F(F(x,t,s),s,t)=x.
+\]</div>
+<p>Matching one constraint on sampled states does not guarantee the others off distribution.</p>
+<p>The identity and composition laws can be built into a parameterization only in
+special cases. Usually they are learned or regularized on sampled states and
+times. Report the sampling distribution over <span class="arithmatex">\((x,s,t,r)\)</span>: excellent residuals
+on nearby teacher states do not establish long-jump composition from generated
+off-trajectory states.</p>
+<p><a href="https://proceedings.iclr.cc/paper_files/paper/2024/hash/c204d12afa0175285e5aac65188808b4-Abstract-Conference.html"><em>Consistency Trajectory Models</em></a>
+learn arbitrary traversal along a probability-flow ODE and expose a score-like
+quantity; <a href="https://openreview.net/pdf?id=cqDH0e6ak2">Flow Map Matching</a>
+provides a broader stochastic-interpolant framework for two-time maps. These are
+useful connections, not synonyms. Compare their parameterized object, training
+identity, path construction, and sampling program before transferring a theorem.</p>
+<h3 id="teacher-self-distillation-and-direct-training">Teacher, self-distillation, and direct training<a class="headerlink" href="#teacher-self-distillation-and-direct-training" title="Permanent link">¤</a></h3>
+<ul>
+<li><strong>Teacher distillation:</strong> accurate trajectory pairs but costly preprocessing and inherited teacher bias.</li>
+<li><strong>Self-distillation:</strong> avoids a fixed teacher but creates moving-target stability problems.</li>
+<li><strong>Direct map objectives:</strong> avoid rollouts where identities permit, but may require Jacobian-vector products, inverse networks, or nested model calls.</li>
+</ul>
+<p>“Direct” and “teacher-free” are not interchangeable. A loss can avoid explicit
+teacher trajectories while using a pretrained score, or can bootstrap from an
+EMA copy whose targets depend on earlier model states. Conversely, standalone
+consistency training may use analytically corrupted data and an estimated score
+without a pretrained generative teacher. Record every target-producing network
+and whether gradients pass through it.</p>
+<p>The deployed map is deterministic unless it receives new noise. It can still generate a multimodal marginal because the initial noise varies, but a coarse conditional transition from a fixed intermediate state cannot branch without extra randomness.</p>
+<h3 id="worked-composition-residual">Worked composition residual<a class="headerlink" href="#worked-composition-residual" title="Permanent link">¤</a></h3>
+<p>Define</p>
+<div class="arithmatex">\[
+R=\|F(F(x,t,s),s,r)-F(x,t,r)\|.
+\]</div>
+<p>A model can have small endpoint error for <span class="arithmatex">\(r=0\)</span> yet large <span class="arithmatex">\(R\)</span> at intermediate times. It may be an effective one-step generator but an unreliable editable trajectory model. Evaluation must match the claimed query.</p>
+<h3 id="worked-error-propagation-bound">Worked error propagation bound<a class="headerlink" href="#worked-error-propagation-bound" title="Permanent link">¤</a></h3>
+<p>Let exact maps satisfy <span class="arithmatex">\(\Phi_{k+1}\circ\Phi_k\)</span>, and learned maps satisfy the
+uniform one-step bounds</p>
+<div class="arithmatex">\[
+\|F_k(x)-\Phi_k(x)\|\leq\varepsilon_k.
+\]</div>
+<p>If <span class="arithmatex">\(\Phi_{k+1}\)</span> is <span class="arithmatex">\(L_{k+1}\)</span>-Lipschitz, then</p>
+<div class="arithmatex">\[
+\begin{aligned}
+\|F_{k+1}(F_k(x))-\Phi_{k+1}(\Phi_k(x))\|
+&amp;\leq \varepsilon_{k+1}
++L_{k+1}\varepsilon_k.
+\end{aligned}
+\]</div>
+<p>For <span class="arithmatex">\(m\)</span> maps with a common bound <span class="arithmatex">\(\varepsilon\)</span> and <span class="arithmatex">\(L=1\)</span>, the worst-case bound
+is <span class="arithmatex">\(m\varepsilon\)</span>; for <span class="arithmatex">\(L&gt;1\)</span> it is
+<span class="arithmatex">\(\varepsilon( L^m-1)/(L-1)\)</span>. This is an upper bound, not a prediction that
+errors always align. It explains why direct long-jump and repeated-short-jump
+tests are complementary.</p>
+<h3 id="worked-affine-composition-residual">Worked affine composition residual<a class="headerlink" href="#worked-affine-composition-residual" title="Permanent link">¤</a></h3>
+<p>Suppose a true half-step is <span class="arithmatex">\(\Phi(x)=2x+1\)</span>, so the true full-step map is
+<span class="arithmatex">\(\Phi(\Phi(x))=4x+3\)</span>. Let a learned half-step be <span class="arithmatex">\(F_h(x)=2x+1.1\)</span> and a learned
+full-step be <span class="arithmatex">\(F_{2h}(x)=4x+2.9\)</span>. At <span class="arithmatex">\(x=1\)</span>,</p>
+<div class="arithmatex">\[
+F_h(F_h(1))=7.3,
+\qquad F_{2h}(1)=6.9,
+\qquad R=0.4.
+\]</div>
+<p>Their errors relative to the exact full-step value seven are <span class="arithmatex">\(0.3\)</span> and <span class="arithmatex">\(0.1\)</span>.
+The direct map is more endpoint-accurate here even though the two learned maps
+are inconsistent with each other. A composition residual diagnoses algebraic
+coherence; it is not an endpoint-quality metric.</p>
+<details class="question">
+<summary>Retrieval practice: consistency and flow maps</summary>
+<ol>
+<li>What algebraic identity should exact flow maps satisfy across an intermediate time <span class="arithmatex">\(u\)</span>?</li>
+<li>Which extra condition anchors a consistency family to the desired endpoint rather than a trivial solution?</li>
+<li>How do teacher distillation and direct consistency training differ in their source of targets?</li>
+<li>What does a small sampled composition residual fail to prove?</li>
+</ol>
+<p><strong>Solutions.</strong> (1) <span class="arithmatex">\(F_{s,t}=F_{u,t}\circ F_{s,u}\)</span> with the chapter's time convention. (2) A boundary/data condition such as identity at equal times and correct mapping to clean data. (3) Teacher distillation uses trajectories or predictions from a pretrained process; direct training constructs consistency targets from data, corruption, and coupled model evaluations. (4) Global correctness, unsampled-time consistency, distributional fidelity, stability, or low-error one-step generation outside the tested states.</p>
+</details>
+<h3 id="misconception-checks-consistency-and-maps">Misconception checks: consistency and maps<a class="headerlink" href="#misconception-checks-consistency-and-maps" title="Permanent link">¤</a></h3>
+<ul>
+<li><strong>“Consistency selects the correct solution.”</strong> Constant maps are consistent;
+  boundary and data anchoring select the intended endpoint.</li>
+<li><strong>“Endpoint consistency gives arbitrary-time editing.”</strong> Editing and
+  inversion need a two-time or bidirectional contract beyond <span class="arithmatex">\(s=0\)</span>.</li>
+<li><strong>“More consistency steps trace the same ODE.”</strong> Noise reinjection changes the
+  sampling kernel.</li>
+<li><strong>“Zero composition residual proves correct dynamics.”</strong> A wrong semigroup can
+  be internally consistent.</li>
+</ul>
+<h3 id="independent-practice-and-assessment-map-consistency-and-flow-maps">Independent practice and assessment map: consistency and flow maps<a class="headerlink" href="#independent-practice-and-assessment-map-consistency-and-flow-maps" title="Permanent link">¤</a></h3>
+<ol>
+<li><strong>P1.1 — Predict before computing: the trivial solution.</strong> <em>Type: predict · Difficulty: foundation · Typical time: 8 min.</em> Decide whether <span class="arithmatex">\(f(x,t)=c\)</span> satisfies same-trajectory consistency, then name the smallest extra condition that falsifies it for non-degenerate data.</li>
+<li><strong>P1.2 — Audit affine composition.</strong> <em>Type: evaluate · Difficulty: core · Typical time: 10 min.</em> Reproduce the <span class="arithmatex">\(F_h,F_{2h}\)</span> residual at <span class="arithmatex">\(x=1\)</span> and compare both routes with the exact value seven.</li>
+<li><strong>P1.3 — Derive a two-step error bound.</strong> <em>Type: derive · Difficulty: core · Typical time: 12 min.</em> Starting from one-step errors <span class="arithmatex">\(\varepsilon_1,\varepsilon_2\)</span> and an <span class="arithmatex">\(L_2\)</span>-Lipschitz second exact map, derive the displayed bound by adding and subtracting one term.</li>
+<li><strong>P1.4 — Classify target provenance.</strong> <em>Type: compare · Difficulty: core · Typical time: 12 min.</em> For four losses using (a) cached teacher pairs, (b) a stop-gradient EMA target, © analytically corrupted data plus a pretrained score, and (d) analytically corrupted data with no pretrained model, classify fixed-teacher use, bootstrap dependence, and data access.</li>
+<li><strong>P1.5 — Design an off-grid audit.</strong> <em>Type: design · Difficulty: stretch · Typical time: 16 min.</em> Specify state/time splits that distinguish interpolation from extrapolation and direct-map accuracy from composition consistency.</li>
+<li><strong>P1.6 — Transfer to a manifold.</strong> <em>Type: transfer · Difficulty: stretch · Typical time: 18 min.</em> Define identity, composition, and boundary/data checks for a learned two-time map on the unit circle and include one geometry-preservation diagnostic.</li>
+</ol>
+<h4 id="feedback-contract-consistency-and-flow-maps">Feedback contract: consistency and flow maps<a class="headerlink" href="#feedback-contract-consistency-and-flow-maps" title="Permanent link">¤</a></h4>
+<div class="md-typeset__table book-table-container"><table id="tbl-transitions-and-few-step-generation-feedback-contract-consistency-and-flow-maps-1"><caption class="book-object-caption"><span class="book-object-number">Table FEW.8.</span> Feedback contract: consistency and flow maps — table 1</caption>
+<thead>
+<tr>
+<th>Task</th>
+<th>Evidence of success</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>P1.1</td>
+<td>The constant map passes consistency but fails an identity/data anchor whenever endpoints vary.</td>
+</tr>
+<tr>
+<td>P1.2</td>
+<td>Direct, composed, and exact values are <span class="arithmatex">\(6.9\)</span>, <span class="arithmatex">\(7.3\)</span>, and <span class="arithmatex">\(7.0\)</span>; residual and endpoint error are not conflated.</td>
+</tr>
+<tr>
+<td>P1.3</td>
+<td>Triangle inequality and the exact map's Lipschitz constant yield <span class="arithmatex">\(\varepsilon_2+L_2\varepsilon_1\)</span>.</td>
+</tr>
+<tr>
+<td>P1.4</td>
+<td>All target-producing models, stop-gradient boundaries, and real-data requirements are explicit.</td>
+</tr>
+<tr>
+<td>P1.5</td>
+<td>Held-out times and generated/off-trajectory states are tested, with direct and composed routes scored separately.</td>
+</tr>
+<tr>
+<td>P1.6</td>
+<td>Outputs stay on the circle or are measured intrinsically; identity, composition, and endpoint-law checks remain distinct.</td>
+</tr>
+</tbody>
+</table></div>
+<details class="tip">
+<summary>Graduated hints for P1</summary>
+<div class="md-typeset__table book-table-container"><table id="tbl-transitions-and-few-step-generation-feedback-contract-consistency-and-flow-maps-2"><caption class="book-object-caption"><span class="book-object-number">Table FEW.9.</span> Feedback contract: consistency and flow maps — table 2</caption>
+<thead>
+<tr>
+<th>Task</th>
+<th>Hint 1 — Direction</th>
+<th>Hint 2 — Setup</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>P1.1</td>
+<td>Both sides of the consistency equality become <span class="arithmatex">\(c\)</span>.</td>
+<td>Test <span class="arithmatex">\(f(x,0)=x\)</span> on two different data points.</td>
+</tr>
+<tr>
+<td>P1.2</td>
+<td>Apply the half-step twice before comparing.</td>
+<td><span class="arithmatex">\(F_h(1)=3.1\)</span> and <span class="arithmatex">\(F_h(3.1)=7.3\)</span>.</td>
+</tr>
+<tr>
+<td>P1.3</td>
+<td>Insert <span class="arithmatex">\(\Phi_2(F_1(x))\)</span>.</td>
+<td>Bound the learned-second-map error, then the propagated first-map error.</td>
+</tr>
+<tr>
+<td>P1.4</td>
+<td>“No cached path” does not imply “no pretrained network.”</td>
+<td>Make columns for fixed teacher, EMA/bootstrap, pretrained score, and real data.</td>
+</tr>
+<tr>
+<td>P1.5</td>
+<td>Training time pairs are usually not the only distribution shift.</td>
+<td>Cross time-grid status with teacher versus generated states.</td>
+</tr>
+<tr>
+<td>P1.6</td>
+<td>Euclidean coordinate error can hide leaving the state space.</td>
+<td>Parameterize by angle or renormalize, then measure geodesic residuals.</td>
+</tr>
+</tbody>
+</table></div>
+</details>
+<h4 id="outcome-to-task-alignment-consistency-and-flow-maps">Outcome-to-task alignment: consistency and flow maps<a class="headerlink" href="#outcome-to-task-alignment-consistency-and-flow-maps" title="Permanent link">¤</a></h4>
+<div class="md-typeset__table book-table-container"><table id="tbl-transitions-and-few-step-generation-outcome-to-task-alignment-consistency-and-flow-maps"><caption class="book-object-caption"><span class="book-object-number">Table FEW.10.</span> Outcome-to-task alignment: consistency and flow maps</caption>
+<thead>
+<tr>
+<th>Learning objective</th>
+<th>Independently assessed by</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>O1 — Separate endpoint and two-time targets</td>
+<td>P1.1, P1.5</td>
+</tr>
+<tr>
+<td>O2 — State anchoring conditions</td>
+<td>P1.1, P1.6</td>
+</tr>
+<tr>
+<td>O3 — Audit composition</td>
+<td>P1.2, P1.5, P1.6</td>
+</tr>
+<tr>
+<td>O4 — Bound propagated map error</td>
+<td>P1.3</td>
+</tr>
+<tr>
+<td>O5 — Classify supervision</td>
+<td>P1.4</td>
+</tr>
+<tr>
+<td>O6 — Transfer the map contract</td>
+<td>P1.6</td>
+</tr>
+</tbody>
+</table></div>
+<details class="success">
+<summary>Complete solutions to P1</summary>
+<ol>
+<li><strong>P1.1.</strong> A constant map gives <span class="arithmatex">\(c=c\)</span> for every pair on a trajectory, so consistency alone accepts it. An identity boundary <span class="arithmatex">\(f(x,0)=x\)</span> or an equivalent non-degenerate data anchor rejects one constant for two distinct endpoints. <strong>Check.</strong> An anchor at only one data point would still be insufficient.</li>
+<li><strong>P1.2.</strong> <span class="arithmatex">\(F_h(1)=3.1\)</span>, <span class="arithmatex">\(F_h(3.1)=7.3\)</span>, and <span class="arithmatex">\(F_{2h}(1)=6.9\)</span>, so the composition residual is <span class="arithmatex">\(0.4\)</span>. The exact full step is <span class="arithmatex">\(4(1)+3=7\)</span>, making direct and composed endpoint errors <span class="arithmatex">\(0.1\)</span> and <span class="arithmatex">\(0.3\)</span>. <strong>Check.</strong> Lower residual would not necessarily mean lower exact-map error.</li>
+<li><strong>P1.3.</strong> Add and subtract <span class="arithmatex">\(\Phi_2(F_1(x))\)</span>. The triangle inequality gives <span class="arithmatex">\(\|F_2(F_1)-\Phi_2(F_1)\|+\|\Phi_2(F_1)-\Phi_2(\Phi_1)\|\leq\varepsilon_2+L_2\varepsilon_1\)</span>. <strong>Check.</strong> Lipschitzness is required only for the propagated term in this bound.</li>
+<li><strong>P1.4.</strong> (a) uses a fixed teacher and cached pairs; (b) is bootstrapped through an EMA target; © uses a fixed pretrained score and real data even without cached trajectories; (d) is the only listed route with neither fixed pretrained model nor bootstrap, though it still uses data and analytic corruption. <strong>Rubric.</strong> “Teacher-free” must state whether auxiliary pretrained scores count.</li>
+<li><strong>P1.5.</strong> Hold out individual times, interval lengths, and complete time regions. At each, evaluate teacher/on-trajectory and model-generated/off-trajectory states. Score the direct jump against an exact or high-accuracy reference and separately score direct-versus-composed consistency. <strong>Check.</strong> Randomly holding out examples at already-trained time pairs tests neither time extrapolation nor state shift.</li>
+<li><strong>P1.6.</strong> Represent <span class="arithmatex">\(x=(\cos\theta,\sin\theta)\)</span> and learn angular or tangent updates, or project with the projection included in the declared algorithm. Verify <span class="arithmatex">\(F(x,t,t)=x\)</span>, geodesic direct-versus-composed residuals, and the pushed-forward endpoint law. Check <span class="arithmatex">\(|\|F(x)\|_2-1|\)</span> before any hidden projection. <strong>Check.</strong> Circle membership does not establish the correct angular distribution.</li>
+</ol>
+</details>
+<h3 id="chapter-2-synthesis">Chapter 2 synthesis<a class="headerlink" href="#chapter-2-synthesis" title="Permanent link">¤</a></h3>
+<p>Consistency models learn endpoint invariance; flow maps learn two-time transitions and semigroup structure. Both replace repeated local integration with a harder global approximation problem. Chapter 3 derives average-velocity and shortcut parameterizations for direct long jumps.</p>
+<hr/>
+<p><strong>Previous:</strong> <a href="../few-step-01-foundations/">1. Finite Transitions</a> · <strong>Continue:</strong> <a href="../few-step-03-meanflow/">3. MeanFlow and Shortcuts</a> · <a href="../transitions-and-few-step-generation/">Complete guide</a></p>
+</article>
+</div>
+<script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  Back to top
+</button>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+<div class="md-social">
+<a class="md-social__link" href="https://github.com/avitai/artifex" rel="noopener" target="_blank" title="github.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</a>
+<a class="md-social__link" href="https://pypi.org/project/avitai-artifex/" rel="noopener" target="_blank" title="pypi.org">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-66.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.3v101.8c0 29 25.2 46 53.4 54.3 33.8 9.9 66.3 11.7 106.8 0 26.9-7.8 53.4-23.5 53.4-54.3v-40.7H226.2v-13.6h160.2c31.1 0 42.6-21.7 53.4-54.2 11.2-33.5 10.7-65.7 0-108.6M286.2 444.7a20.4 20.4 0 1 1 0-40.7 20.4 20.4 0 1 1 0 40.7M167.8 248.1h106.8c29.7 0 53.4-24.5 53.4-54.3V91.9c0-29-24.4-50.7-53.4-55.6-35.8-5.9-74.7-5.6-106.8.1-45.2 8-53.4 24.7-53.4 55.6v40.7h106.9v13.6h-147c-31.1 0-58.3 18.7-66.8 54.2-9.8 40.7-10.2 66.1 0 108.6 7.6 31.6 25.7 54.2 56.8 54.2H101v-48.8c0-35.3 30.5-66.4 66.8-66.4m-6.6-183.4a20.4 20.4 0 1 1 0 40.8 20.4 20.4 0 1 1 0-40.8"></path></svg>
+</a>
+<a class="md-social__link" href="https://twitter.com/mahdi_shafiei" rel="noopener" target="_blank" title="twitter.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M459.4 151.7c.3 4.5.3 9.1.3 13.6 0 138.7-105.6 298.6-298.6 298.6-59.5 0-114.7-17.2-161.1-47.1 8.4 1 16.6 1.3 25.3 1.3 49.1 0 94.2-16.6 130.3-44.8-46.1-1-84.8-31.2-98.1-72.8 6.5 1 13 1.6 19.8 1.6 9.4 0 18.8-1.3 27.6-3.6-48.1-9.7-84.1-52-84.1-103v-1.3c14 7.8 30.2 12.7 47.4 13.3-28.3-18.8-46.8-51-46.8-87.4 0-19.5 5.2-37.4 14.3-53C87.4 130.8 165 172.4 252.1 176.9c-1.6-7.8-2.6-15.9-2.6-24C249.5 95.1 296.3 48 354.4 48c30.2 0 57.5 12.7 76.7 33.1 23.7-4.5 46.5-13.3 66.6-25.3-7.8 24.4-24.4 44.8-46.1 57.8 21.1-2.3 41.6-8.1 60.4-16.2-14.3 20.8-32.2 39.3-52.6 54.3"></path></svg>
+</a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.path", "navigation.top", "navigation.prune", "toc.follow", "search.highlight", "search.share", "search.suggest", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "content.mermaid"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+<script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+<script src="../../../javascripts/reading-layout.js"></script>
+</body>
+</html>
