@@ -451,6 +451,7 @@ order-by-type = false
 
 [tool.ruff.lint.per-file-ignores]
 "*.ipynb" = ["D", "F821", "F541", "T201", "UP006", "UP035", "BLE001"] # Notebooks are generated tutorial artifacts with markdown cells and cross-cell context
+"deploy/**/*.py" = ["T201", "BLE001"] # Remote GPU launchers and probes report to stdout and deliberately catch whatever a backend raises
 "docs/**/*.py" = ["D", "T201"] # Docs examples are tutorial sources; Ruff D is enforced on maintained src/ APIs
 "examples/**/*.py" = ["D", "T201", "BLE001"] # Examples are executable tutorials with user-facing output and demo error wrappers
 # BASELINE: Existing BLE001 (blind except) violations
