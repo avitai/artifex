@@ -385,3 +385,76 @@ class TestDiffusionModel:
         finally:
             # Restore original function
             jax.random.normal = original_normal
+
+
+class _OracleBackbone:
+    """A backbone that recovers exactly the noise a sample was built from.
+
+    Given x_t and the clean x_0 it produced, the added noise is
+    (x_t - sqrt(alphas_cumprod_t) * x_0) / sqrt(1 - alphas_cumprod_t). A model
+    wearing this backbone is a perfect epsilon predictor, so any correct
+    epsilon objective must score it at zero.
+    """
+
+    def __init__(self, schedule, x_start):
+        self.schedule = schedule
+        self.x_start = x_start
+
+    def __call__(self, x_t, timesteps, **kwargs):
+        del kwargs
+        sqrt_bar = self.schedule._extract_into_tensor(
+            self.schedule.sqrt_alphas_cumprod, timesteps, x_t.shape
+        )
+        sqrt_one_minus_bar = self.schedule._extract_into_tensor(
+            self.schedule.sqrt_one_minus_alphas_cumprod, timesteps, x_t.shape
+        )
+        return (x_t - sqrt_bar * self.x_start) / sqrt_one_minus_bar
+
+
+class TestDiffusionObjective:
+    """The training objective must score the model that produced it.
+
+    loss_fn previously drew a fresh noise vector that had no relationship to
+    anything the model had seen, so the returned number was independent of
+    model quality and its gradient pointed at the zero function.
+    """
+
+    def test_perfect_epsilon_predictor_scores_near_zero(self, model, input_data):
+        """A model that predicts the added noise exactly must have ~zero loss."""
+        model.backbone = _OracleBackbone(model.noise_schedule, input_data)
+
+        losses = model.loss_fn({"x": input_data}, {})
+
+        assert float(losses["total_loss"]) < 1e-8
+
+    def test_useless_predictor_scores_near_unit_variance(self, model, input_data):
+        """A model that always predicts zero must score E[eps^2] = 1."""
+        model.backbone = lambda x_t, timesteps, **kwargs: jnp.zeros_like(x_t)
+
+        losses = model.loss_fn({"x": input_data}, {})
+
+        assert float(losses["total_loss"]) == pytest.approx(1.0, abs=0.15)
+
+    def test_perfect_predictor_beats_useless_predictor(self, model, input_data):
+        """The ordering the optimiser follows must favour the better model."""
+        model.backbone = _OracleBackbone(model.noise_schedule, input_data)
+        perfect = float(model.loss_fn({"x": input_data}, {})["total_loss"])
+
+        model.backbone = lambda x_t, timesteps, **kwargs: jnp.zeros_like(x_t)
+        useless = float(model.loss_fn({"x": input_data}, {})["total_loss"])
+
+        assert perfect < useless
+
+    def test_loss_is_differentiable_with_respect_to_the_backbone(self, config, rngs):
+        """The objective must produce a usable gradient for the real backbone."""
+        model = DiffusionModel(config, rngs=rngs)
+        x = jax.random.normal(jax.random.key(11), (2, 32, 32, 3))
+
+        def objective(m):
+            return m.loss_fn({"x": x}, {})["total_loss"]
+
+        grads = nnx.grad(objective)(model)
+        leaves = [leaf for leaf in jax.tree_util.tree_leaves(grads) if leaf is not None]
+
+        assert leaves
+        assert any(float(jnp.abs(leaf).sum()) > 0.0 for leaf in leaves)

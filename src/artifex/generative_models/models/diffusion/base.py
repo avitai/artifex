@@ -8,6 +8,11 @@ from flax import nnx
 
 from artifex.generative_models.core.base import GenerativeModel
 from artifex.generative_models.core.configuration import DiffusionConfig
+from artifex.generative_models.core.losses.reconstruction import (
+    huber_loss,
+    mae_loss,
+    mse_loss,
+)
 from artifex.generative_models.core.noise_schedule import (
     create_noise_schedule,
     extract_timesteps_into_tensor,
@@ -15,6 +20,14 @@ from artifex.generative_models.core.noise_schedule import (
 )
 from artifex.generative_models.factory.builders.backbone_builder import create_backbone
 from artifex.generative_models.training.utils import extract_model_prediction
+
+
+# Reconstruction losses selectable through DDPMConfig.loss_type.
+DIFFUSION_LOSSES = {
+    "mse": mse_loss,
+    "l1": mae_loss,
+    "huber": huber_loss,
+}
 
 
 class DiffusionModel(GenerativeModel):
@@ -80,6 +93,11 @@ class DiffusionModel(GenerativeModel):
         self.posterior_log_variance_clipped = self.noise_schedule.posterior_log_variance_clipped
         self.posterior_mean_coef1 = self.noise_schedule.posterior_mean_coef1
         self.posterior_mean_coef2 = self.noise_schedule.posterior_mean_coef2
+
+        # Reconstruction loss used by loss_fn. Only the DDPM family of configs
+        # declares one; score-based configs have no epsilon objective, so the
+        # base falls back to the DDPM default.
+        self.loss_type = getattr(config, "loss_type", "mse")
 
     def __call__(
         self,
@@ -348,17 +366,33 @@ class DiffusionModel(GenerativeModel):
     def loss_fn(
         self,
         batch: Any,
-        model_outputs: dict[str, Any],
+        model_outputs: dict[str, Any] | None = None,
+        *,
+        rngs: nnx.Rngs | None = None,
+        **kwargs: Any,
     ) -> dict[str, Any]:
-        """Compute loss for training.
+        """Compute the denoising objective for training.
+
+        The objective owns its forward pass, following the Flax NNX convention
+        that a loss function takes the model and the raw batch and invokes the
+        model itself. A diffusion prediction is only meaningful relative to the
+        timestep and noise that produced its input, and neither is recoverable
+        from a finished output dictionary, so `model_outputs` cannot be scored
+        and is accepted only for protocol compatibility. `FlowModel.loss_fn`
+        recomputes its own log-probability for the same reason.
 
         Args:
             batch: Input batch (should contain 'x' key with data)
-            model_outputs: Model outputs from forward pass
+            model_outputs: Unused. A prediction alone does not identify the
+                timestep and noise it was produced from.
+            rngs: Optional RNG streams overriding the model-owned RNGs
+            **kwargs: Additional arguments, ignored
 
         Returns:
             Dictionary containing canonical loss terms.
         """
+        del model_outputs, kwargs
+
         # Extract data from batch
         if isinstance(batch, dict):
             x = batch.get("x", batch.get("data", batch))
@@ -367,26 +401,23 @@ class DiffusionModel(GenerativeModel):
 
         # Get batch size
         batch_size = x.shape[0]
+        active_rngs = self.rngs if rngs is None else rngs
 
-        # Sample timesteps using self.rngs
+        # Sample the timesteps and the noise that define this training example
         num_timesteps = self.noise_schedule.num_timesteps
-        t = jax.random.randint(self.rngs.timestep(), (batch_size,), 0, num_timesteps)
+        t = jax.random.randint(active_rngs.timestep(), (batch_size,), 0, num_timesteps)
+        noise = jax.random.normal(active_rngs.noise(), x.shape)
 
-        # Generate noise using self.rngs
-        noise = jax.random.normal(self.rngs.noise(), x.shape)
+        # Run the forward diffusion and score the model on that exact input, so
+        # the prediction and its target describe the same corruption
+        noisy_x = self.q_sample(x, t, noise=noise)
+        predicted = extract_model_prediction(self(noisy_x, t))
 
-        # Add noise to inputs (for target we use the original noise)
-        # noisy_x = self.q_sample(x, t, noise=noise, rngs=rngs)  # Not needed for loss calculation
-
-        # Get prediction from model outputs
-        predicted = extract_model_prediction(model_outputs)
-
-        # Compute loss
-        loss = jnp.mean((predicted - noise) ** 2)
+        loss = DIFFUSION_LOSSES[self.loss_type](predicted, noise)
 
         # Return loss and metrics as dictionary
         return {
             "total_loss": loss,
-            "mse_loss": loss,
+            f"{self.loss_type}_loss": loss,
             "avg_timestep": jnp.mean(t.astype(jnp.float32)),
         }

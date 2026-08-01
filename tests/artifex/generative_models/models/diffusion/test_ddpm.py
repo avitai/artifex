@@ -824,3 +824,64 @@ class TestDDPMGetSampleShape:
         shape = model._get_sample_shape()
 
         assert shape == (8, 8, 1)
+
+
+class TestConfiguredLossType:
+    """DDPMConfig.loss_type must select the reconstruction loss it names.
+
+    The field was validated against {mse, l1, huber} and stored on the model,
+    but nothing ever read it: every configuration trained against MSE.
+    """
+
+    @staticmethod
+    def _config(loss_type: str) -> DDPMConfig:
+        return DDPMConfig(
+            name=f"ddpm_{loss_type}",
+            backbone=UNetBackboneConfig(
+                name="unet",
+                hidden_dims=(8, 16),
+                activation="relu",
+                in_channels=1,
+                out_channels=1,
+                channel_mult=(1, 2),
+                num_res_blocks=1,
+            ),
+            noise_schedule=NoiseScheduleConfig(
+                name="schedule",
+                num_timesteps=50,
+                schedule_type="linear",
+                beta_start=1e-4,
+                beta_end=0.02,
+            ),
+            input_shape=(8, 8, 1),
+            loss_type=loss_type,
+        )
+
+    @pytest.mark.parametrize("loss_type", ["mse", "l1", "huber"])
+    def test_configured_loss_type_is_reported(self, loss_type):
+        """The model must expose and report the loss it was configured with."""
+        from flax import nnx
+
+        model = DDPMModel(self._config(loss_type), rngs=nnx.Rngs(0))
+        x = jax.random.normal(jax.random.key(1), (2, 8, 8, 1))
+
+        losses = model.loss_fn({"x": x})
+
+        assert model.loss_type == loss_type
+        assert f"{loss_type}_loss" in losses
+        assert jnp.isfinite(losses["total_loss"])
+
+    def test_different_loss_types_give_different_values(self):
+        """Selecting l1 or huber must actually change the number produced."""
+        from flax import nnx
+
+        x = jax.random.normal(jax.random.key(2), (2, 8, 8, 1))
+
+        values = {}
+        for loss_type in ("mse", "l1", "huber"):
+            # Identical seeds so the sampled timesteps and noise match exactly
+            model = DDPMModel(self._config(loss_type), rngs=nnx.Rngs(7))
+            values[loss_type] = float(model.loss_fn({"x": x})["total_loss"])
+
+        assert values["mse"] != pytest.approx(values["l1"], rel=1e-3)
+        assert values["mse"] != pytest.approx(values["huber"], rel=1e-3)
