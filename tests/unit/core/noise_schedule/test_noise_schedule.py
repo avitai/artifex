@@ -410,3 +410,59 @@ class TestNoiseSchedulePosterior:
     def test_posterior_variance_is_non_negative(self, schedule):
         """Test posterior variance is non-negative."""
         assert jnp.all(schedule.posterior_variance >= 0)
+
+
+class TestSchedulePrecision:
+    """Derived schedule quantities must not lose precision to cancellation.
+
+    ``1 - alphas_cumprod`` is close to zero at low timesteps while
+    ``alphas_cumprod`` is close to one. Forming it by subtraction discards most
+    of the float32 significand exactly where diffusion sampling spends its final,
+    quality-determining steps.
+    """
+
+    @staticmethod
+    def _schedule(num_timesteps: int = 100, beta_start: float = 1e-4):
+        from artifex.generative_models.core.configuration import NoiseScheduleConfig
+        from artifex.generative_models.core.noise_schedule import create_noise_schedule
+
+        return create_noise_schedule(
+            NoiseScheduleConfig(
+                name="precision_schedule",
+                schedule_type="linear",
+                num_timesteps=num_timesteps,
+                beta_start=beta_start,
+                beta_end=0.02,
+            )
+        )
+
+    def test_one_minus_alphas_cumprod_matches_beta_at_first_step(self):
+        """At t=0, alphas_cumprod is 1 - beta_0, so 1 - alphas_cumprod is beta_0."""
+        schedule = self._schedule()
+
+        assert schedule.one_minus_alphas_cumprod[0] == pytest.approx(
+            float(schedule.betas[0]), rel=1e-6
+        )
+
+    def test_posterior_coefficients_collapse_exactly_at_first_step(self):
+        """At t=0 the posterior is a point mass at x_0, so coef1=1 and coef2=0."""
+        schedule = self._schedule()
+
+        assert float(schedule.posterior_mean_coef1[0]) == pytest.approx(1.0, rel=1e-6)
+        assert float(schedule.posterior_mean_coef2[0]) == pytest.approx(0.0, abs=1e-9)
+
+    def test_sqrt_recipm1_matches_stable_ratio(self):
+        """sqrt(1/a - 1) must be computed as sqrt((1 - a) / a) to stay accurate."""
+        schedule = self._schedule()
+
+        expected = jnp.sqrt(schedule.one_minus_alphas_cumprod / schedule.alphas_cumprod)
+        assert jnp.allclose(schedule.sqrt_recipm1_alphas_cumprod, expected, rtol=1e-6)
+
+    def test_precision_holds_for_very_small_beta_start(self):
+        """The cancellation worsens as beta_start shrinks; the identity must hold."""
+        schedule = self._schedule(beta_start=1e-6)
+
+        assert schedule.one_minus_alphas_cumprod[0] == pytest.approx(
+            float(schedule.betas[0]), rel=1e-5
+        )
+        assert float(schedule.posterior_mean_coef1[0]) == pytest.approx(1.0, rel=1e-5)

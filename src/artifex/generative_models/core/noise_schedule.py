@@ -18,9 +18,83 @@ Functions:
 import abc
 
 import jax.numpy as jnp
+import numpy as np
 from flax import nnx
 
 from artifex.generative_models.core.configuration import NoiseScheduleConfig
+
+
+def derive_schedule_quantities(
+    betas: jnp.ndarray,
+    clip_min: float,
+) -> dict[str, jnp.ndarray]:
+    """Derive every schedule quantity from betas in float64, then narrow to float32.
+
+    `alphas_cumprod` approaches one at low timesteps, so forming `1 - alphas_cumprod`
+    in float32 cancels away most of the significand: with beta_start=1e-4 the first
+    entry keeps barely four correct digits, and that error propagates into the
+    posterior variance and both posterior mean coefficients. The damage lands in the
+    low-noise regime, which is where reverse sampling takes its final,
+    quality-determining steps.
+
+    The reference implementations resolve this the same way, computing the schedule
+    in float64 before use: openai/improved-diffusion annotates the step "Use float64
+    for accuracy", and FlaxDiff builds its schedules with `np.float64`. Doing the
+    derivation here in float64 and storing float32 lowers the relative error of
+    `1 - alphas_cumprod` at the first timestep from 1.7e-4 to 2.5e-8.
+
+    NumPy is used rather than `jax.numpy` because float64 in JAX requires enabling
+    x64 globally. This function is deliberately module level so that no NumPy runs
+    inside an `nnx.Module`, and it evaluates once at construction, never under trace.
+
+    Args:
+        betas: Beta values for each timestep.
+        clip_min: Lower clip applied before taking logs of (1 - alphas_cumprod).
+
+    Returns:
+        Mapping of schedule attribute name to its float32 array.
+    """
+    betas_64 = np.asarray(betas, dtype=np.float64)
+
+    alphas = 1.0 - betas_64
+    alphas_cumprod = np.cumprod(alphas)
+    alphas_cumprod_prev = np.append(1.0, alphas_cumprod[:-1])
+
+    # Carried as first-class quantities so no consumer re-derives them in float32.
+    one_minus_alphas_cumprod = 1.0 - alphas_cumprod
+    one_minus_alphas_cumprod_prev = 1.0 - alphas_cumprod_prev
+
+    posterior_variance = betas_64 * one_minus_alphas_cumprod_prev / one_minus_alphas_cumprod
+
+    # The posterior variance is zero at t=0, so its log reuses the t=1 entry. A
+    # single-timestep schedule has no t=1; JAX used to clamp this index silently,
+    # NumPy raises, so the clamp is now explicit.
+    log_variance_head = posterior_variance[min(1, posterior_variance.shape[0] - 1)]
+
+    quantities = {
+        "alphas": alphas,
+        "alphas_cumprod": alphas_cumprod,
+        "alphas_cumprod_prev": alphas_cumprod_prev,
+        "one_minus_alphas_cumprod": one_minus_alphas_cumprod,
+        "one_minus_alphas_cumprod_prev": one_minus_alphas_cumprod_prev,
+        "sqrt_alphas_cumprod": np.sqrt(alphas_cumprod),
+        "sqrt_one_minus_alphas_cumprod": np.sqrt(one_minus_alphas_cumprod),
+        "log_one_minus_alphas_cumprod": np.log(np.clip(one_minus_alphas_cumprod, clip_min, None)),
+        "sqrt_recip_alphas_cumprod": np.sqrt(1.0 / alphas_cumprod),
+        "sqrt_recipm1_alphas_cumprod": np.sqrt(1.0 / alphas_cumprod - 1.0),
+        "posterior_variance": posterior_variance,
+        "posterior_log_variance_clipped": np.log(
+            np.append(log_variance_head, posterior_variance[1:])
+        ),
+        "posterior_mean_coef1": (
+            betas_64 * np.sqrt(alphas_cumprod_prev) / one_minus_alphas_cumprod
+        ),
+        "posterior_mean_coef2": (
+            one_minus_alphas_cumprod_prev * np.sqrt(alphas) / one_minus_alphas_cumprod
+        ),
+    }
+
+    return {name: jnp.asarray(value, dtype=jnp.float32) for name, value in quantities.items()}
 
 
 def extract_timesteps_into_tensor(
@@ -117,34 +191,33 @@ class NoiseSchedule(nnx.Module, abc.ABC):
         pass
 
     def _compute_derived_values(self) -> None:
-        """Compute derived values from betas."""
-        # Compute alpha values
-        self.alphas = 1.0 - self.betas
-        self.alphas_cumprod = jnp.cumprod(self.alphas)
-        self.alphas_cumprod_prev = jnp.append(jnp.array([1.0]), self.alphas_cumprod[:-1])
+        """Compute derived values from betas.
+
+        The derivation runs in float64 and is stored as float32; see
+        `derive_schedule_quantities` for why the precision matters.
+        """
+        derived = derive_schedule_quantities(self.betas, self.clip_min)
+
+        # Assigned explicitly rather than through setattr so the attributes stay
+        # visible to the type checker and to nnx's attribute tracking.
+        self.alphas = derived["alphas"]
+        self.alphas_cumprod = derived["alphas_cumprod"]
+        self.alphas_cumprod_prev = derived["alphas_cumprod_prev"]
+        self.one_minus_alphas_cumprod = derived["one_minus_alphas_cumprod"]
+        self.one_minus_alphas_cumprod_prev = derived["one_minus_alphas_cumprod_prev"]
 
         # Values used for diffusion process
-        self.sqrt_alphas_cumprod = jnp.sqrt(self.alphas_cumprod)
-        self.sqrt_one_minus_alphas_cumprod = jnp.sqrt(1.0 - self.alphas_cumprod)
-        self.log_one_minus_alphas_cumprod = jnp.log(
-            jnp.clip(1.0 - self.alphas_cumprod, self.clip_min, None)
-        )
-        self.sqrt_recip_alphas_cumprod = jnp.sqrt(1.0 / self.alphas_cumprod)
-        self.sqrt_recipm1_alphas_cumprod = jnp.sqrt(1.0 / self.alphas_cumprod - 1)
+        self.sqrt_alphas_cumprod = derived["sqrt_alphas_cumprod"]
+        self.sqrt_one_minus_alphas_cumprod = derived["sqrt_one_minus_alphas_cumprod"]
+        self.log_one_minus_alphas_cumprod = derived["log_one_minus_alphas_cumprod"]
+        self.sqrt_recip_alphas_cumprod = derived["sqrt_recip_alphas_cumprod"]
+        self.sqrt_recipm1_alphas_cumprod = derived["sqrt_recipm1_alphas_cumprod"]
 
         # Coefficients for posterior q(x_{t-1} | x_t, x_0)
-        self.posterior_variance = (
-            self.betas * (1.0 - self.alphas_cumprod_prev) / (1.0 - self.alphas_cumprod)
-        )
-        self.posterior_log_variance_clipped = jnp.log(
-            jnp.append(self.posterior_variance[1], self.posterior_variance[1:])
-        )
-        self.posterior_mean_coef1 = (
-            self.betas * jnp.sqrt(self.alphas_cumprod_prev) / (1.0 - self.alphas_cumprod)
-        )
-        self.posterior_mean_coef2 = (
-            (1.0 - self.alphas_cumprod_prev) * jnp.sqrt(self.alphas) / (1.0 - self.alphas_cumprod)
-        )
+        self.posterior_variance = derived["posterior_variance"]
+        self.posterior_log_variance_clipped = derived["posterior_log_variance_clipped"]
+        self.posterior_mean_coef1 = derived["posterior_mean_coef1"]
+        self.posterior_mean_coef2 = derived["posterior_mean_coef2"]
 
     def _extract_into_tensor(
         self,
