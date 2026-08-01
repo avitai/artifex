@@ -5,7 +5,13 @@ from collections.abc import Callable
 import jax
 import jax.numpy as jnp
 
+from artifex.generative_models.core.configuration import NoiseScheduleConfig
+from artifex.generative_models.core.noise_schedule import create_noise_schedule
 from artifex.generative_models.core.sampling.base import SamplingAlgorithm
+
+
+# Beta schedules this sampler accepts, mapped onto NoiseScheduleConfig types.
+SUPPORTED_BETA_SCHEDULES = ("linear", "quadratic")
 
 
 class DiffusionSampler(SamplingAlgorithm):
@@ -31,22 +37,30 @@ class DiffusionSampler(SamplingAlgorithm):
         self.model = model
         self.num_timesteps = num_timesteps
 
-        if beta_schedule == "linear":
-            self.betas = jnp.linspace(beta_start, beta_end, num_timesteps)
-        elif beta_schedule == "quadratic":
-            self.betas = jnp.linspace(beta_start**0.5, beta_end**0.5, num_timesteps) ** 2
-        else:
+        if beta_schedule not in SUPPORTED_BETA_SCHEDULES:
             raise ValueError(f"Unknown beta schedule: {beta_schedule}")
 
-        self.alphas = 1.0 - self.betas
-        self.alphas_cumprod = jnp.cumprod(self.alphas)
-        self.alphas_cumprod_prev = jnp.append(jnp.array([1.0]), self.alphas_cumprod[:-1])
-        self.sqrt_alphas_cumprod = jnp.sqrt(self.alphas_cumprod)
-        self.sqrt_one_minus_alphas_cumprod = jnp.sqrt(1.0 - self.alphas_cumprod)
-        self.sqrt_recip_alphas = jnp.sqrt(1.0 / self.alphas)
-        self.posterior_variance = (
-            self.betas * (1.0 - self.alphas_cumprod_prev) / (1.0 - self.alphas_cumprod)
+        # The schedule and every quantity derived from it come from the shared
+        # NoiseSchedule. Re-deriving them here is what let this sampler's reverse
+        # step drift away from the canonical posterior.
+        self.noise_schedule = create_noise_schedule(
+            NoiseScheduleConfig(
+                name=f"diffusion_sampler_{beta_schedule}",
+                schedule_type=beta_schedule,
+                num_timesteps=num_timesteps,
+                beta_start=beta_start,
+                beta_end=beta_end,
+            )
         )
+
+        self.betas = self.noise_schedule.betas
+        self.alphas = self.noise_schedule.alphas
+        self.alphas_cumprod = self.noise_schedule.alphas_cumprod
+        self.alphas_cumprod_prev = self.noise_schedule.alphas_cumprod_prev
+        self.sqrt_alphas_cumprod = self.noise_schedule.sqrt_alphas_cumprod
+        self.sqrt_one_minus_alphas_cumprod = self.noise_schedule.sqrt_one_minus_alphas_cumprod
+        self.sqrt_recip_alphas = jnp.sqrt(1.0 / self.alphas)
+        self.posterior_variance = self.noise_schedule.posterior_variance
 
     def init(self, x: jax.Array, key: jax.Array) -> dict:
         """Initialize sampler state."""
@@ -64,20 +78,11 @@ class DiffusionSampler(SamplingAlgorithm):
             raise RuntimeError("DiffusionSampler is missing a predict_noise_fn")
         predicted_noise = predict_noise_fn(x, t)
 
-        alpha_t = self.alphas[t]
-        alpha_cumprod_t = self.alphas_cumprod[t]
-        x0_pred = (x - predicted_noise * jnp.sqrt(1 - alpha_cumprod_t)) / jnp.sqrt(alpha_cumprod_t)
-        model_mean = (
-            jnp.sqrt(alpha_t)
-            * (1 - alpha_cumprod_t / alpha_t)
-            / jnp.sqrt(1 - alpha_cumprod_t)
-            * x0_pred
-            + jnp.sqrt(alpha_cumprod_t / alpha_t)
-            * (1 - alpha_t)
-            / jnp.sqrt(1 - alpha_cumprod_t)
-            * x
+        timesteps = jnp.asarray(t, dtype=jnp.int32)
+        x0_pred = self.noise_schedule.predict_start_from_noise(x, timesteps, predicted_noise)
+        model_mean, posterior_variance_t, _ = self.noise_schedule.q_posterior_mean_variance(
+            x0_pred, x, timesteps
         )
-        posterior_variance_t = self.posterior_variance[t]
 
         noise_key, new_key = jax.random.split(key)
         noise = jax.random.normal(noise_key, x.shape)

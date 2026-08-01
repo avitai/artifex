@@ -169,8 +169,15 @@ class TestBetaSchedule:
         assert jnp.allclose(base_sampler.sqrt_alphas_cumprod, expected)
 
     def test_sqrt_one_minus_alphas_cumprod(self, base_sampler):
-        """Test sqrt(1 - alphas_cumprod)."""
-        expected = jnp.sqrt(1.0 - base_sampler.alphas_cumprod)
+        """Test sqrt(1 - alphas_cumprod).
+
+        The complement is taken from the schedule rather than recomputed as
+        ``1 - alphas_cumprod``: that subtraction cancels away most of the float32
+        significand at low timesteps, so it is the less accurate value, not the
+        reference. See TestSchedulePrecision in the noise-schedule tests.
+        """
+        schedule = base_sampler.noise_schedule
+        expected = jnp.sqrt(schedule.one_minus_alphas_cumprod)
         assert jnp.allclose(base_sampler.sqrt_one_minus_alphas_cumprod, expected)
 
     def test_posterior_variance_formula(self, base_sampler):
@@ -178,10 +185,11 @@ class TestBetaSchedule:
 
         posterior_variance = betas * (1 - alphas_cumprod_prev) / (1 - alphas_cumprod)
         """
+        schedule = base_sampler.noise_schedule
         expected = (
             base_sampler.betas
-            * (1.0 - base_sampler.alphas_cumprod_prev)
-            / (1.0 - base_sampler.alphas_cumprod)
+            * schedule.one_minus_alphas_cumprod_prev
+            / schedule.one_minus_alphas_cumprod
         )
         assert jnp.allclose(base_sampler.posterior_variance, expected, equal_nan=True)
 
@@ -428,3 +436,81 @@ class TestMathematicalProperties:
 
         # Interior values should differ
         assert not jnp.allclose(linear_sampler.betas[50], quadratic_sampler.betas[50])
+
+
+class TestPosteriorMean:
+    """The reverse step must follow the closed-form DDPM posterior mean.
+
+    ``step`` previously inlined its own derivation of q(x_{t-1} | x_t, x_0),
+    duplicating the one in ``core.noise_schedule``. The two drifted: the inlined
+    version swapped the x_0 and x_t coefficients and divided by sqrt(1 - alpha_bar)
+    where the posterior calls for (1 - alpha_bar).
+    """
+
+    @staticmethod
+    def _reference_mean(sampler, x, predicted_noise, t):
+        """Closed-form posterior mean, written independently of the sampler."""
+        schedule = sampler.noise_schedule
+        alpha_t = sampler.alphas[t]
+        alpha_bar_t = sampler.alphas_cumprod[t]
+        alpha_bar_prev = sampler.alphas_cumprod_prev[t]
+        beta_t = sampler.betas[t]
+
+        # Complements come from the schedule: recomputing them as 1 - alpha_bar
+        # would reintroduce the float32 cancellation this reference is meant to
+        # be free of.
+        one_minus_bar_t = schedule.one_minus_alphas_cumprod[t]
+        one_minus_bar_prev = schedule.one_minus_alphas_cumprod_prev[t]
+
+        x0 = (x - predicted_noise * jnp.sqrt(one_minus_bar_t)) / jnp.sqrt(alpha_bar_t)
+        coef_x0 = beta_t * jnp.sqrt(alpha_bar_prev) / one_minus_bar_t
+        coef_xt = one_minus_bar_prev * jnp.sqrt(alpha_t) / one_minus_bar_t
+        return coef_x0 * x0 + coef_xt * x
+
+    @pytest.mark.parametrize("t", [1, 25, 50, 99])
+    def test_step_mean_matches_closed_form(self, base_sampler, t):
+        """The reported mean must equal the analytic posterior mean."""
+        x = jax.random.normal(jax.random.key(3), (4, 16))
+        state = {"x": x, "key": jax.random.key(0), "t": t}
+
+        _, aux_info = base_sampler.step(state)
+
+        expected = self._reference_mean(base_sampler, x, jnp.zeros_like(x), t)
+        assert jnp.allclose(aux_info["mean"], expected, rtol=1e-5, atol=1e-6)
+
+    def test_step_mean_matches_epsilon_parameterisation(self, base_sampler):
+        """The equivalent eps-form of the posterior mean must agree."""
+        t = 40
+        x = jax.random.normal(jax.random.key(5), (4, 16))
+        state = {"x": x, "key": jax.random.key(0), "t": t}
+
+        _, aux_info = base_sampler.step(state)
+
+        alpha_t = base_sampler.alphas[t]
+        beta_t = base_sampler.betas[t]
+        alpha_bar_t = base_sampler.alphas_cumprod[t]
+        # predicted noise is zero for the dummy predictor
+        expected = (1.0 / jnp.sqrt(alpha_t)) * (x - beta_t / jnp.sqrt(1 - alpha_bar_t) * 0.0)
+        assert jnp.allclose(aux_info["mean"], expected, rtol=1e-5, atol=1e-6)
+
+    def test_perfect_predictor_recovers_clean_data_at_final_step(self):
+        """A perfect noise predictor must denoise back to x_0 exactly."""
+        x0 = jnp.array([[0.4, -0.7, 0.1, 0.9]])
+        true_noise = jnp.array([[0.2, 1.1, -0.3, 0.5]])
+        t = 0
+
+        sampler = DiffusionSampler(
+            predict_noise_fn=lambda x, step: true_noise,
+            num_timesteps=100,
+        )
+
+        # Build a genuinely consistent x_t so the predictor really is perfect.
+        alpha_bar_t = sampler.alphas_cumprod[t]
+        x_t = jnp.sqrt(alpha_bar_t) * x0 + jnp.sqrt(1 - alpha_bar_t) * true_noise
+
+        next_state, aux_info = sampler.step({"x": x_t, "key": jax.random.key(0), "t": t})
+
+        # At t=0, alpha_bar_prev is 1, so the posterior mean collapses to x_0 and
+        # no noise is added. Any coefficient error shows up directly here.
+        assert jnp.allclose(aux_info["x0_prediction"], x0, rtol=1e-5, atol=1e-6)
+        assert jnp.allclose(next_state["x"], x0, rtol=1e-5, atol=1e-6)
