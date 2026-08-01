@@ -143,7 +143,7 @@ class TestFeedForwardNetwork:
         with pytest.raises(KeyError, match="dropout"):
             FeedForwardNetwork(in_features=4, dropout_rate=0.1, rngs=rngs_params_only)
 
-        # Test that normal operation works with no dropout
+        # The same Rngs is fine when no dropout is requested.
         ffn_no_dropout = FeedForwardNetwork(in_features=4, dropout_rate=0.0, rngs=rngs_params_only)
         y = ffn_no_dropout(x, deterministic=False)
         assert y.shape == (2, 4)
@@ -787,8 +787,13 @@ class TestTransformerDecoder:
         seq_len = 1  # Single token for autoregressive decoding
         enc_len = 4
         hidden_dim = 8
+        max_length = 4
         x = jnp.ones((batch_size, seq_len, hidden_dim))
         encoder_output = jnp.ones((batch_size, enc_len, hidden_dim))
+
+        # The cache must be allocated once, for the full decoded length, before
+        # any decode=True pass. This mirrors the nnx.MultiHeadAttention contract.
+        decoder.init_cache((batch_size, max_length, hidden_dim))
 
         # Test decode mode
         y = decoder(x, encoder_output, deterministic=True, decode=True)
@@ -1171,3 +1176,43 @@ class TestDropoutStreamResolution:
 
         assert block.dropout is None
         assert block.mlp.dropout is None
+
+
+class TestDecoderCacheLifetime:
+    """The kv cache must survive across incremental decoding steps."""
+
+    def test_decode_requires_an_initialised_cache(self, rng_keys):
+        """``decode=True`` without a cache must fail loudly, not silently reset."""
+        decoder = TransformerDecoder(
+            num_layers=1,
+            hidden_dim=8,
+            num_heads=2,
+            pos_encoding_type="none",
+            rngs=nnx.Rngs(params=rng_keys["params"]),
+        )
+        token = jnp.ones((1, 1, 8))
+        encoder_output = jnp.ones((1, 4, 8))
+
+        with pytest.raises(ValueError, match="init_cache"):
+            decoder(token, encoder_output, deterministic=True, decode=True)
+
+    def test_cache_index_advances_across_decode_steps(self, rng_keys):
+        """Each decode step must append to the cache instead of rebuilding it."""
+        decoder = TransformerDecoder(
+            num_layers=1,
+            hidden_dim=8,
+            num_heads=2,
+            max_len=16,
+            pos_encoding_type="none",
+            rngs=nnx.Rngs(params=rng_keys["params"]),
+        )
+        encoder_output = jnp.ones((1, 4, 8))
+        decoder.init_cache((1, 6, 8))
+
+        self_attention = decoder.layers[0].self_attention
+        assert self_attention.cached_key[...].shape[1] == 6
+
+        for expected_index in range(1, 4):
+            token = jnp.ones((1, 1, 8))
+            decoder(token, encoder_output, deterministic=True, decode=True)
+            assert int(self_attention.cache_index[...]) == expected_index

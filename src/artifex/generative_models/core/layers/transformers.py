@@ -418,6 +418,20 @@ class TransformerDecoderBlock(nnx.Module):
         else:
             self.dropout: nnx.Dropout | None = None
 
+    def init_cache(self, input_shape: tuple[int, ...], dtype: jnp.dtype = jnp.float32) -> None:
+        """Allocate the self-attention cache used by autoregressive decoding.
+
+        Follows the `nnx.MultiHeadAttention` contract: call this once, with the
+        full shape the decoded sequence will reach, before any `decode=True`
+        forward pass. Calling it again discards previously decoded positions.
+
+        Args:
+            input_shape: Shape of the complete decoded sequence,
+                [batch, max_length, hidden_dim].
+            dtype: Data type of the cached keys and values.
+        """
+        self.self_attention.init_cache(input_shape, dtype=dtype)
+
     def __call__(
         self,
         x: jax.Array,
@@ -790,6 +804,21 @@ class TransformerDecoder(nnx.Module):
         # Final layer normalization
         self.norm = nnx.LayerNorm(num_features=hidden_dim, rngs=rngs)
 
+    def init_cache(self, input_shape: tuple[int, ...], dtype: jnp.dtype = jnp.float32) -> None:
+        """Allocate the self-attention cache for every decoder layer.
+
+        Follows the `nnx.MultiHeadAttention` contract: call this once, with the
+        full shape the decoded sequence will reach, before any `decode=True`
+        forward pass. Calling it again discards previously decoded positions.
+
+        Args:
+            input_shape: Shape of the complete decoded sequence,
+                [batch, max_length, hidden_dim].
+            dtype: Data type of the cached keys and values.
+        """
+        for layer in self.layers:
+            layer.init_cache(input_shape, dtype=dtype)
+
     def __call__(
         self,
         x: jax.Array,
@@ -819,11 +848,11 @@ class TransformerDecoder(nnx.Module):
         if hasattr(self, "pos_encoding"):
             x = self.pos_encoding(x, deterministic=deterministic, rngs=rngs)
 
-        # Initialize caches if decoding
-        if decode:
-            for layer in self.layers:
-                if hasattr(layer.self_attention, "init_cache"):
-                    layer.self_attention.init_cache(x.shape)
+        # The cache is deliberately not (re)allocated here. Doing so per call
+        # reset cache_index to zero on every step, so an incremental decode
+        # never accumulated context: each token attended only to itself.
+        # Callers must call init_cache(...) once before decoding; an
+        # uninitialised cache raises from nnx.MultiHeadAttention.
 
         # Apply decoder layers
         for layer in self.layers:
