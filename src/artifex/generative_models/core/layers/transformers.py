@@ -85,15 +85,11 @@ class FeedForwardNetwork(nnx.Module):
             rngs=rngs,
         )
 
-        # Only create dropout if rate > 0 and rngs has 'dropout' stream
+        # A requested dropout rate is the only condition for building the layer.
+        # nnx.Rngs resolves an unknown stream name to its 'default' stream, so a
+        # plain nnx.Rngs(seed) is already a complete source for nnx.Dropout.
         if dropout_rate > 0:
-            # Check if rngs has 'dropout' stream
-            # This allows creating the module even if dropout stream is missing
-            # (useful for deterministic-only usage)
-            if rngs is not None and "dropout" in rngs:
-                self.dropout = nnx.Dropout(rate=dropout_rate, rngs=rngs)
-            else:
-                self.dropout: nnx.Dropout | None = None
+            self.dropout = nnx.Dropout(rate=dropout_rate, rngs=rngs)
         else:
             self.dropout: nnx.Dropout | None = None
 
@@ -259,12 +255,10 @@ class TransformerEncoderBlock(nnx.Module):
         self.norm1 = nnx.LayerNorm(num_features=hidden_dim, rngs=rngs)
         self.norm2 = nnx.LayerNorm(num_features=hidden_dim, rngs=rngs)
 
-        # Dropout (only create if rate > 0 and rngs has 'dropout' stream)
+        # See FeedForwardNetwork: nnx.Rngs falls back to its 'default' stream, so
+        # the requested rate alone decides whether dropout exists.
         if dropout_rate > 0:
-            if rngs is not None and "dropout" in rngs:
-                self.dropout = nnx.Dropout(rate=dropout_rate, rngs=rngs)
-            else:
-                self.dropout: nnx.Dropout | None = None
+            self.dropout = nnx.Dropout(rate=dropout_rate, rngs=rngs)
         else:
             self.dropout: nnx.Dropout | None = None
 
@@ -417,12 +411,10 @@ class TransformerDecoderBlock(nnx.Module):
         self.norm2 = nnx.LayerNorm(num_features=hidden_dim, rngs=rngs)
         self.norm3 = nnx.LayerNorm(num_features=hidden_dim, rngs=rngs)
 
-        # Dropout (only create if rate > 0 and rngs has 'dropout' stream)
+        # See FeedForwardNetwork: nnx.Rngs falls back to its 'default' stream, so
+        # the requested rate alone decides whether dropout exists.
         if dropout_rate > 0:
-            if rngs is not None and "dropout" in rngs:
-                self.dropout = nnx.Dropout(rate=dropout_rate, rngs=rngs)
-            else:
-                self.dropout: nnx.Dropout | None = None
+            self.dropout = nnx.Dropout(rate=dropout_rate, rngs=rngs)
         else:
             self.dropout: nnx.Dropout | None = None
 

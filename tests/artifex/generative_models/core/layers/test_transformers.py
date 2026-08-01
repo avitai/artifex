@@ -134,14 +134,14 @@ class TestFeedForwardNetwork:
         """Test runtime error handling."""
         rngs_params_only = nnx.Rngs(params=rng_keys["params"])
 
-        # Test that dropout requires proper rngs when dropout_rate > 0
-        ffn = FeedForwardNetwork(in_features=4, dropout_rate=0.1, rngs=rngs_params_only)
-
         x = jnp.ones((2, 4))
 
-        # Should work fine in deterministic mode even without dropout rngs
-        y = ffn(x, deterministic=True)
-        assert y.shape == (2, 4)
+        # An Rngs carrying only named streams has no 'dropout' stream and no
+        # 'default' stream to fall back to, so it cannot supply dropout
+        # randomness. nnx.Dropout rejects it, and that rejection must surface
+        # rather than be swallowed into a silently disabled dropout layer.
+        with pytest.raises(KeyError, match="dropout"):
+            FeedForwardNetwork(in_features=4, dropout_rate=0.1, rngs=rngs_params_only)
 
         # Test that normal operation works with no dropout
         ffn_no_dropout = FeedForwardNetwork(in_features=4, dropout_rate=0.0, rngs=rngs_params_only)
@@ -1118,3 +1118,56 @@ class TestIntegration:
         # Process single token with decode=True
         dec_output = decoder(single_token, enc_output, deterministic=True, decode=True)
         assert dec_output.shape == (batch_size, 1, hidden_dim)
+
+
+class TestDropoutStreamResolution:
+    """Dropout must be built from whatever rng stream ``nnx.Rngs`` resolves.
+
+    ``nnx.Rngs`` falls back to its ``default`` stream for any unknown name, so a
+    plain ``nnx.Rngs(seed)`` is a complete source for ``nnx.Dropout``. Requiring a
+    literally-named ``dropout`` stream silently turned ``dropout_rate`` into a
+    no-op for every caller that did not happen to declare one.
+    """
+
+    @pytest.mark.parametrize(
+        "build",
+        [
+            lambda rngs: FeedForwardNetwork(in_features=32, dropout_rate=0.5, rngs=rngs),
+            lambda rngs: TransformerEncoderBlock(
+                hidden_dim=32, num_heads=2, dropout_rate=0.5, rngs=rngs
+            ),
+            lambda rngs: TransformerDecoderBlock(
+                hidden_dim=32, num_heads=2, dropout_rate=0.5, rngs=rngs
+            ),
+        ],
+        ids=["feed_forward", "encoder_block", "decoder_block"],
+    )
+    def test_dropout_is_built_without_a_named_dropout_stream(self, build):
+        """A plain ``nnx.Rngs`` must still produce a working dropout layer."""
+        block = build(nnx.Rngs(0))
+
+        assert block.dropout is not None
+        assert block.dropout.rate == 0.5
+
+    def test_encoder_block_dropout_is_active_with_a_plain_rngs(self, rng_keys):
+        """Requested dropout must actually perturb the forward pass."""
+        block = TransformerEncoderBlock(
+            hidden_dim=32, num_heads=2, dropout_rate=0.5, rngs=nnx.Rngs(0)
+        )
+        x = jax.random.normal(rng_keys["extra"], (2, 8, 32))
+
+        block.train()
+        first = block(x, deterministic=False)
+        second = block(x, deterministic=False)
+        block.eval()
+        evaluated = block(x, deterministic=True)
+
+        assert not jnp.allclose(first, second)
+        assert not jnp.allclose(first, evaluated)
+
+    def test_zero_rate_still_leaves_dropout_unbuilt(self):
+        """``dropout_rate=0`` remains the only reason to skip the dropout layer."""
+        block = TransformerEncoderBlock(hidden_dim=32, num_heads=2, rngs=nnx.Rngs(0))
+
+        assert block.dropout is None
+        assert block.mlp.dropout is None
