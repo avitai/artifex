@@ -22,7 +22,7 @@ Backbone System (Principle #4 compliant):
 from __future__ import annotations
 
 import dataclasses
-from typing import cast
+from typing import cast, Final
 
 from artifex.generative_models.core.configuration.backbone_config import (
     BackboneConfig,
@@ -42,6 +42,14 @@ from artifex.generative_models.core.configuration.validation import (
     validate_positive_int,
     validate_positive_tuple,
 )
+
+
+# Reconstruction losses a diffusion model can be trained against. Closed by
+# design, as in the reference implementations: openai/improved-diffusion keeps a
+# fixed LossType enum and raises on anything outside it, and the diffusers
+# training scripts expose the equivalent choice as a fixed argparse list. The
+# model layer maps these names onto callables and must cover every one of them.
+VALID_DIFFUSION_LOSS_TYPES: Final[tuple[str, ...]] = ("mse", "l1", "huber")
 
 
 @dataclasses.dataclass(frozen=True, slots=True, kw_only=True)
@@ -315,9 +323,11 @@ class DDPMConfig(DiffusionConfig):
         super(DDPMConfig, self).__post_init__()
 
         # Validate loss_type
-        valid_loss_types = {"mse", "l1", "huber"}
-        if self.loss_type not in valid_loss_types:
-            raise ValueError(f"loss_type must be one of {valid_loss_types}, got '{self.loss_type}'")
+        if self.loss_type not in VALID_DIFFUSION_LOSS_TYPES:
+            raise ValueError(
+                f"loss_type must be one of {set(VALID_DIFFUSION_LOSS_TYPES)}, "
+                f"got '{self.loss_type}'"
+            )
 
 
 @dataclasses.dataclass(frozen=True, slots=True, kw_only=True)

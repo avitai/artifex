@@ -1,5 +1,6 @@
 """Base Diffusion Model implementation."""
 
+from collections.abc import Callable
 from typing import Any
 
 import jax
@@ -8,6 +9,9 @@ from flax import nnx
 
 from artifex.generative_models.core.base import GenerativeModel
 from artifex.generative_models.core.configuration import DiffusionConfig
+from artifex.generative_models.core.configuration.diffusion_config import (
+    VALID_DIFFUSION_LOSS_TYPES,
+)
 from artifex.generative_models.core.losses.reconstruction import (
     huber_loss,
     mae_loss,
@@ -22,12 +26,22 @@ from artifex.generative_models.factory.builders.backbone_builder import create_b
 from artifex.generative_models.training.utils import extract_model_prediction
 
 
-# Reconstruction losses selectable through DDPMConfig.loss_type.
-DIFFUSION_LOSSES = {
+# Callables behind the loss names the configuration layer accepts. The
+# configuration owns the vocabulary; this table must cover all of it, so adding
+# a name there without a callable here fails at import rather than at the first
+# training step.
+DIFFUSION_LOSSES: dict[str, Callable[..., jax.Array]] = {
     "mse": mse_loss,
     "l1": mae_loss,
     "huber": huber_loss,
 }
+
+if set(DIFFUSION_LOSSES) != set(VALID_DIFFUSION_LOSS_TYPES):
+    raise RuntimeError(
+        "Diffusion loss dispatch is out of step with the configured vocabulary: "
+        f"configuration accepts {sorted(VALID_DIFFUSION_LOSS_TYPES)}, "
+        f"models implement {sorted(DIFFUSION_LOSSES)}"
+    )
 
 
 class DiffusionModel(GenerativeModel):
@@ -98,6 +112,11 @@ class DiffusionModel(GenerativeModel):
         # declares one; score-based configs have no epsilon objective, so the
         # base falls back to the DDPM default.
         self.loss_type = getattr(config, "loss_type", "mse")
+        if self.loss_type not in DIFFUSION_LOSSES:
+            raise ValueError(
+                f"Unsupported diffusion loss_type '{self.loss_type}'. "
+                f"Valid options are: {sorted(DIFFUSION_LOSSES)}"
+            )
 
     def __call__(
         self,
