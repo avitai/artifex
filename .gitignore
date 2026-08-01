@@ -132,6 +132,7 @@ celerybeat.pid
 .artifex.env
 .env.local
 .venv
+node_modules/
 env/
 venv/
 ENV/
@@ -147,6 +148,7 @@ venv.bak/
 
 # mkdocs documentation
 /site
+/site-offline
 
 # mypy
 .mypy_cache/
