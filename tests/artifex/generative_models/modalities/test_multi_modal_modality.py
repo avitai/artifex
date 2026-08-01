@@ -506,3 +506,57 @@ class TestMultiModalModality:
 
         fused = fusion(inputs)
         assert fused.shape == (768,)
+
+
+class TestCrossModalAttentionDimensions:
+    """CrossModalAttention must honour the key dimension it advertises.
+
+    `key_dim` was accepted and silently dropped: every projection was built from
+    `query_dim`, so attending from one modality to another of a different width
+    failed inside the attention kernel instead of at construction.
+    """
+
+    @staticmethod
+    def _attention(query_dim: int, key_dim: int, value_dim: int):
+        from artifex.generative_models.modalities.multi_modal.representations import (
+            CrossModalAttention,
+        )
+
+        return CrossModalAttention(
+            query_dim=query_dim,
+            key_dim=key_dim,
+            value_dim=value_dim,
+            num_heads=2,
+            rngs=nnx.Rngs(0),
+        )
+
+    def test_attends_across_modalities_of_different_widths(self):
+        """A 16-wide query must attend over an 8-wide context."""
+        attention = self._attention(query_dim=16, key_dim=8, value_dim=8)
+
+        attended = attention(
+            query=jnp.ones((4, 16)),
+            key=jnp.ones((6, 8)),
+            value=jnp.ones((6, 8)),
+            deterministic=True,
+        )
+
+        assert attended.shape == (4, 16)
+
+    def test_equal_widths_still_supported(self):
+        """The common case where all three widths agree keeps working."""
+        attention = self._attention(query_dim=16, key_dim=16, value_dim=16)
+
+        attended = attention(
+            query=jnp.ones((4, 16)),
+            key=jnp.ones((6, 16)),
+            value=jnp.ones((6, 16)),
+            deterministic=True,
+        )
+
+        assert attended.shape == (4, 16)
+
+    def test_mismatched_key_and_value_widths_are_rejected(self):
+        """Key and value project from one shared width, so a mismatch must fail."""
+        with pytest.raises(ValueError, match="key_dim"):
+            self._attention(query_dim=16, key_dim=8, value_dim=12)

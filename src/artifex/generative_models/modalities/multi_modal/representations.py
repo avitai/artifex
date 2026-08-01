@@ -390,23 +390,40 @@ class CrossModalAttention(nnx.Module):
     ):
         """Initialize cross-modal attention.
 
+        Keys and values are projected from a single shared input width, which is
+        how both `nnx.MultiHeadAttention` (`in_kv_features`) and reference
+        cross-attention designs model it. `key_dim` and `value_dim` must therefore
+        agree; a mismatch is rejected rather than silently resolved.
+
         Args:
-            query_dim: Query dimension
-            key_dim: Key dimension
-            value_dim: Value dimension
+            query_dim: Width of the query modality's features
+            key_dim: Width of the context modality's features, shared by keys and values
+            value_dim: Width of the value features; must equal key_dim
             num_heads: Number of attention heads
             dropout_rate: Dropout rate
             rngs: Random number generators
+
+        Raises:
+            ValueError: If key_dim and value_dim differ.
         """
         super().__init__()
+        if key_dim != value_dim:
+            raise ValueError(
+                "key_dim and value_dim must match because keys and values are "
+                f"projected from one shared input width; got key_dim={key_dim} "
+                f"and value_dim={value_dim}"
+            )
+
         self.num_heads = num_heads
         self.dropout_rate = dropout_rate
 
-        # Multi-head attention
+        # Multi-head attention. in_kv_features carries the context modality's
+        # width, so a query modality of a different width can attend over it.
         self.attention = nnx.MultiHeadAttention(
             in_features=query_dim,
+            in_kv_features=key_dim,
             num_heads=num_heads,
-            qkv_features=value_dim,
+            qkv_features=query_dim,
             out_features=query_dim,
             rngs=rngs,
         )
