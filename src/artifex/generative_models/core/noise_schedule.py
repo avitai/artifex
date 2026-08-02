@@ -427,8 +427,15 @@ class QuadraticNoiseSchedule(NoiseSchedule):
 class SqrtNoiseSchedule(NoiseSchedule):
     """Square root beta noise schedule.
 
-    Beta values follow a square root curve, providing a gentler increase
-    in noise at the beginning compared to linear schedules.
+    Interpolates beta as `beta_start + (beta_end - beta_start) * sqrt(t)` with t
+    normalised to [0, 1]. The derivative of sqrt is unbounded at zero and decays
+    afterwards, so beta climbs fastest at the very start and then flattens: over a
+    100-step schedule from 1e-4 to 0.02, the first ten steps cover roughly six
+    times as much of the beta range as the last ten.
+
+    This is a beta-space interpolant. Neither the DDPM reference implementations
+    nor diffusers register a beta schedule under this name, so its results are not
+    comparable to a published "sqrt" schedule.
     """
 
     def _compute_betas(
@@ -447,7 +454,7 @@ class SqrtNoiseSchedule(NoiseSchedule):
         Returns:
             Array of beta values with sqrt interpolation
         """
-        # Square root schedule: beta increases faster at the end
+        # sqrt is steepest at t=0, so beta rises fastest at the start
         t = jnp.linspace(0, 1, num_timesteps)
         return beta_start + (beta_end - beta_start) * jnp.sqrt(t)
 
