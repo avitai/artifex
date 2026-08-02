@@ -1,7 +1,8 @@
-"""Transformer implementation with flexible positional encodings - FINAL CORRECTED VERSION.
+"""Transformer encoder and decoder layers with flexible positional encodings.
 
-This module provides transformer encoder and decoder implementations that
-support various types of positional encodings using the latest Flax NNX API.
+Built on the Flax NNX API. Dropout is driven by whichever rng stream `nnx.Rngs`
+resolves, and autoregressive decoding requires `init_cache(...)` to be called
+once before the first `decode=True` pass.
 """
 
 import logging
