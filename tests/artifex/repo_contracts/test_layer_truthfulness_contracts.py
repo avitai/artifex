@@ -7,6 +7,7 @@ import subprocess
 import sys
 import textwrap
 from pathlib import Path
+from typing import cast
 
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
@@ -33,37 +34,69 @@ def _normalized_text(path: Path) -> str:
     return " ".join(path.read_text(encoding="utf-8").split())
 
 
-def test_flash_attention_surface_drops_fake_backend_switch() -> None:
-    """Flash attention should expose one honest helper path with no backend selector."""
+FLASH_RUNTIME = REPO_ROOT / "src/artifex/generative_models/core/layers/flash_attention.py"
+BACKEND_RUNTIME = REPO_ROOT / "src/artifex/generative_models/core/layers/attention_backend.py"
+
+
+def test_flash_attention_surface_drops_the_orphaned_triton_kernel() -> None:
+    """The Triton kernel was defined but never called, so it must be gone."""
     payload = _run_python(
         textwrap.dedent(
             """
-            import inspect
             import json
 
             import artifex.generative_models.core.layers.flash_attention as flash_attention_module
 
             print(json.dumps({
-                'has_backend_enum': hasattr(flash_attention_module, 'AttentionBackend'),
-                'has_flash_attention': hasattr(flash_attention_module, 'flash_attention'),
-                'has_flash_attention_triton': hasattr(flash_attention_module, 'flash_attention_triton'),
-                'init_signature': str(inspect.signature(flash_attention_module.FlashMultiHeadAttention.__init__)),
+                name: hasattr(flash_attention_module, name)
+                for name in (
+                    'flash_dot_product_attention',
+                    'flash_attention_triton',
+                    'flash_attention_forward_kernel',
+                    'TRITON_AVAILABLE',
+                    'FlashAttentionConfig',
+                    'AttentionMask',
+                    'PADDING_SEGMENT_ID',
+                )
             }))
             """
         )
     )
 
-    assert payload["has_backend_enum"] is False
-    assert payload["has_flash_attention"] is True
-    assert payload["has_flash_attention_triton"] is False
-    assert "backend:" not in payload["init_signature"]
+    assert payload["flash_dot_product_attention"] is True
+    for removed in (
+        "flash_attention_triton",
+        "flash_attention_forward_kernel",
+        "TRITON_AVAILABLE",
+        "FlashAttentionConfig",
+        "AttentionMask",
+        "PADDING_SEGMENT_ID",
+    ):
+        assert payload[removed] is False, f"{removed} should have been removed"
+
+    runtime = FLASH_RUNTIME.read_text(encoding="utf-8")
+    assert "triton" not in runtime.lower()
+
+    # The layers package must not export a symbol named after one of its own
+    # submodules: doing so rebinds the package attribute and makes
+    # `import ...layers.flash_attention as m` return the symbol, not the module.
+    exported = _run_python(
+        textwrap.dedent(
+            """
+            import json
+            import pkgutil
+
+            import artifex.generative_models.core.layers as layers
+
+            submodules = {info.name for info in pkgutil.iter_modules(layers.__path__)}
+            print(json.dumps(sorted(submodules & set(layers.__all__))))
+            """
+        )
+    )
+    assert exported == []
 
     flash_doc = _normalized_text(FLASH_DOC).lower()
-    assert "attentionbackend" not in flash_doc
-    assert "flash_attention" in flash_doc
-    assert "jax fallback" in flash_doc
     for banned in (
-        "flash_cudnn",
         "jax_native",
         "kvax optimizations",
         "significant performance improvements",
@@ -72,6 +105,86 @@ def test_flash_attention_surface_drops_fake_backend_switch() -> None:
         "flash_attention_triton",
     ):
         assert banned not in flash_doc
+
+
+def test_every_advertised_attention_backend_is_actually_dispatched() -> None:
+    """Each backend the enum names must be reachable in the runtime, not just declared.
+
+    The previous surface advertised backends that no code path could select. A
+    backend now counts as real only when the dispatcher passes its value to
+    ``jax.nn.dot_product_attention`` or delegates to the nnx kernel.
+    """
+    payload = _run_python(
+        textwrap.dedent(
+            """
+            import json
+
+            from artifex.generative_models.core.layers.attention_backend import AttentionBackend
+
+            print(json.dumps({'members': [backend.value for backend in AttentionBackend]}))
+            """
+        )
+    )
+
+    assert set(cast(list[str], payload["members"])) == {"cudnn", "xla"}
+
+    runtime = FLASH_RUNTIME.read_text(encoding="utf-8")
+    # The fused backend must be requested explicitly, since implementation=None
+    # silently falls back to XLA inside JAX.
+    assert 'implementation="cudnn"' in runtime
+    # The portable backend must delegate to the reference kernel rather than
+    # reimplementing dropout, masking and sowing.
+    assert "_nnx_attention(" in runtime
+
+    backend_runtime = BACKEND_RUNTIME.read_text(encoding="utf-8")
+    for constraint in ("CUDNN_SUPPORTED_DTYPES", "HEAD_DIM_MULTIPLE", "HEAD_DIM_MAX_HOPPER"):
+        assert constraint in backend_runtime
+
+
+def test_live_dropout_is_never_fused() -> None:
+    """The fused kernel bakes its dropout seed into the compiled executable.
+
+    ``jax/_src/cudnn/fused_attention_stablehlo.py`` marks ``seed`` a static
+    argument and serialises it into the custom-call backend config, so a jitted
+    training step would reuse one dropout mask forever. Selecting the fused
+    kernel with live dropout would be silently wrong, not merely fast.
+    """
+    payload = _run_python(
+        textwrap.dedent(
+            """
+            import json
+
+            import jax.numpy as jnp
+
+            from artifex.generative_models.core.layers.attention_backend import (
+                AttentionBackend,
+                select_attention_backend,
+            )
+
+            eligible = dict(
+                dtype=jnp.bfloat16,
+                head_dim=64,
+                device_kind='gpu',
+                compute_capability=(9, 0),
+            )
+            print(json.dumps({
+                'inference': select_attention_backend(
+                    **eligible, deterministic=True, dropout_rate=0.0, sow_weights=False
+                ).value,
+                'live_dropout': select_attention_backend(
+                    **eligible, deterministic=False, dropout_rate=0.1, sow_weights=False
+                ).value,
+                'sow_weights': select_attention_backend(
+                    **eligible, deterministic=True, dropout_rate=0.0, sow_weights=True
+                ).value,
+            }))
+            """
+        )
+    )
+
+    assert payload["inference"] == "cudnn"
+    assert payload["live_dropout"] == "xla"
+    assert payload["sow_weights"] == "xla"
 
 
 def test_masked_pixelcnn_residual_surface_is_local_to_pixelcnn() -> None:

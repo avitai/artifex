@@ -4,6 +4,8 @@ This module provides various layers that are used to build the generative models
 """
 
 # Causal utilities for autoregressive models
+# Flash attention
+from artifex.generative_models.core.layers.attention_backend import AttentionBackend
 from artifex.generative_models.core.layers.causal import (
     apply_causal_mask,
     create_attention_mask,
@@ -30,10 +32,8 @@ from artifex.generative_models.core.layers.clifford import (
     MultiVectorActivation,
 )
 from artifex.generative_models.core.layers.egnn import EGNNBlock, EGNNLayer
-
-# Flash attention
 from artifex.generative_models.core.layers.flash_attention import (
-    FlashAttentionConfig,
+    flash_dot_product_attention,
     FlashMultiHeadAttention,
 )
 
@@ -113,7 +113,8 @@ __all__ = [
     "TransformerDecoder",
     # Flash attention
     "FlashMultiHeadAttention",
-    "FlashAttentionConfig",
+    "flash_dot_product_attention",
+    "AttentionBackend",
     # EGNN layers
     "EGNNBlock",
     "EGNNLayer",

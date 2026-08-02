@@ -1,14 +1,12 @@
-"""
-Complete compatibility tests comparing Flash Attention with Flax NNX MultiHeadAttention.
+"""Integration tests placing flash attention inside real model structures.
 
-This test suite verifies:
-1. Correctness - outputs match within tolerance
-2. Feature parity - all MultiHeadAttention features work
-3. Drop-in replacement - can swap implementations seamlessly
-4. Performance characteristics - Flash Attention provides expected benefits
+Element-wise parity with :class:`flax.nnx.MultiHeadAttention` is asserted in
+``test_flash_attention.py``; this file covers what parity alone does not, namely
+that the module composes correctly inside transformer blocks and encoder-decoder
+stacks, and that it survives ``grad``, ``jit`` and ``vmap``.
 """
 
-import inspect
+from __future__ import annotations
 
 import jax
 import jax.numpy as jnp
@@ -17,792 +15,193 @@ import pytest
 from flax import nnx
 from flax.nnx.nn.attention import MultiHeadAttention as FlaxMultiHeadAttention
 
-from artifex.generative_models.core.layers.flash_attention import (
-    FlashAttentionConfig,
-    FlashMultiHeadAttention,
-    PADDING_SEGMENT_ID,
-)
+from artifex.generative_models.core.layers.flash_attention import FlashMultiHeadAttention
 
 
-# ============================================================================
-# Test Fixtures
-# ============================================================================
+DIM = 128
+NUM_HEADS = 8
 
 
 @pytest.fixture
-def rngs():
-    """Standard fixture for RNGs."""
+def rngs() -> nnx.Rngs:
+    """Seeded RNG collection."""
     return nnx.Rngs(42)
 
 
-@pytest.fixture
-def standard_config():
-    """Standard configuration for testing."""
-    return {
-        "num_heads": 8,
-        "in_features": 512,
-        "qkv_features": 512,
-        "out_features": 512,
-        "dropout_rate": 0.1,
-    }
-
-
-# ============================================================================
-# Helper Functions
-# ============================================================================
-
-
-def create_both_modules(config: dict, rngs: nnx.Rngs):
-    """Create both Flax and Flash attention modules with same config."""
-    # Ensure decode has a value for Flax
-    decode_value = config.get("decode", False)
-
-    # Create Flax NNX MultiHeadAttention
-    flax_module = FlaxMultiHeadAttention(
-        num_heads=config["num_heads"],
-        in_features=config["in_features"],
-        qkv_features=config.get("qkv_features"),
-        out_features=config.get("out_features"),
-        dropout_rate=config.get("dropout_rate", 0.0),
-        use_bias=config.get("use_bias", True),
-        normalize_qk=config.get("normalize_qk", False),
-        decode=decode_value,  # Explicitly set
-        rngs=rngs,
-    )
-
-    # Create Flash Attention module
-    flash_module = FlashMultiHeadAttention(
-        num_heads=config["num_heads"],
-        in_features=config["in_features"],
-        qkv_features=config.get("qkv_features"),
-        out_features=config.get("out_features"),
-        dropout_rate=config.get("dropout_rate", 0.0),
-        use_bias=config.get("use_bias", True),
-        normalize_qk=config.get("normalize_qk", False),
-        decode=decode_value,  # Explicitly set
-        causal=config.get("causal", False),
-        rngs=rngs,
-    )
-
-    return flax_module, flash_module
-
-
-def copy_weights(source_module, target_module):
-    """Copy weights from source to target module for fair comparison."""
-    # Copy query, key, value projections
-    if hasattr(source_module.query, "kernel"):
-        target_module.query.kernel[...] = source_module.query.kernel[...]
-    if hasattr(source_module.query, "bias") and hasattr(target_module.query, "bias"):
-        target_module.query.bias[...] = source_module.query.bias[...]
-
-    if hasattr(source_module.key, "kernel"):
-        target_module.key.kernel[...] = source_module.key.kernel[...]
-    if hasattr(source_module.key, "bias") and hasattr(target_module.key, "bias"):
-        target_module.key.bias[...] = source_module.key.bias[...]
-
-    if hasattr(source_module.value, "kernel"):
-        target_module.value.kernel[...] = source_module.value.kernel[...]
-    if hasattr(source_module.value, "bias") and hasattr(target_module.value, "bias"):
-        target_module.value.bias[...] = source_module.value.bias[...]
-
-    # Copy output projection
-    if hasattr(source_module.out, "kernel"):
-        target_module.out.kernel[...] = source_module.out.kernel[...]
-    if hasattr(source_module.out, "bias") and hasattr(target_module.out, "bias"):
-        target_module.out.bias[...] = source_module.out.bias[...]
-
-    # Copy layer norms if they exist
-    if source_module.query_ln is not None and target_module.query_ln is not None:
-        target_module.query_ln.scale[...] = source_module.query_ln.scale[...]
-    if source_module.key_ln is not None and target_module.key_ln is not None:
-        target_module.key_ln.scale[...] = source_module.key_ln.scale[...]
-
-
-# ============================================================================
-# Correctness Tests
-# ============================================================================
-
-
-class TestCorrectness:
-    """Test that Flash Attention produces correct outputs matching Flax NNX."""
-
-    def test_basic_forward_pass(self, rngs, standard_config):
-        """Test basic forward pass produces same outputs."""
-        flax_module, flash_module = create_both_modules(standard_config, rngs)
-        copy_weights(flax_module, flash_module)
-
-        # Create input
-        batch_size, seq_len = 2, 128
-        x = jax.random.normal(rngs(), (batch_size, seq_len, standard_config["in_features"]))
-
-        # Forward pass (deterministic mode for comparison)
-        flax_output = flax_module(x, deterministic=True)
-        flash_output = flash_module(x, deterministic=True)
-
-        # Check outputs match
-        # The attention computation itself is very close (~1e-4 differences)
-        # but gets amplified through layer norms and FFN layers
-        # These tolerances reflect realistic numerical precision for transformer blocks
-        np.testing.assert_allclose(flax_output, flash_output, rtol=1e-3, atol=1e-3)
-
-    def test_self_attention(self, rngs):
-        """Test self-attention (Q=K=V) produces same outputs."""
-        config = {"num_heads": 4, "in_features": 256}
-        flax_module, flash_module = create_both_modules(config, rngs)
-        copy_weights(flax_module, flash_module)
-
-        # Single input for self-attention
-        x = jax.random.normal(rngs(), (2, 64, 256))
-
-        # Both should handle self-attention identically
-        flax_output = flax_module(x, deterministic=True)
-        flash_output = flash_module(x, deterministic=True)
-
-        # The attention computation itself is very close (~1e-4 differences)
-        # but gets amplified through layer norms and FFN layers
-        # These tolerances reflect realistic numerical precision for transformer blocks
-        np.testing.assert_allclose(flax_output, flash_output, rtol=1e-3, atol=1e-3)
-
-    def test_cross_attention(self, rngs):
-        """Test cross-attention with different Q, K, V."""
-        config = {"num_heads": 4, "in_features": 256}
-        flax_module, flash_module = create_both_modules(config, rngs)
-        copy_weights(flax_module, flash_module)
-
-        # Different inputs for cross-attention
-        q = jax.random.normal(rngs(), (2, 32, 256))
-        k = jax.random.normal(rngs(), (2, 64, 256))
-        v = jax.random.normal(rngs(), (2, 64, 256))
-
-        flax_output = flax_module(q, k, v, deterministic=True)
-        flash_output = flash_module(q, k, v, deterministic=True)
-
-        # The attention computation itself is very close (~1e-4 differences)
-        # but gets amplified through layer norms and FFN layers
-        # These tolerances reflect realistic numerical precision for transformer blocks
-        np.testing.assert_allclose(flax_output, flash_output, rtol=1e-3, atol=1e-3)
-
-    def test_with_mask(self, rngs):
-        """Test attention with explicit mask."""
-        config = {"num_heads": 4, "in_features": 256}
-        flax_module, flash_module = create_both_modules(config, rngs)
-        copy_weights(flax_module, flash_module)
-
-        batch_size, seq_len = 2, 64
-        x = jax.random.normal(rngs(), (batch_size, seq_len, 256))
-
-        # Create causal mask
-        mask = jnp.tril(jnp.ones((seq_len, seq_len)))
-        mask = jnp.broadcast_to(mask[None, None, :, :], (batch_size, 4, seq_len, seq_len))
-
-        # Both modules should handle masks
-        flax_output = flax_module(x, mask=mask, deterministic=True, decode=False)
-        flash_output = flash_module(x, mask=mask, deterministic=True, decode=False)
-
-        # The attention computation itself is very close (~1e-4 differences)
-        # but gets amplified through layer norms and FFN layers
-        # These tolerances reflect realistic numerical precision for transformer blocks
-        np.testing.assert_allclose(flax_output, flash_output, rtol=1e-3, atol=1e-3)
-
-    def test_gradient_computation(self, rngs):
-        """Test that gradients match between implementations."""
-        config = {"num_heads": 4, "in_features": 256}
-        flax_module, flash_module = create_both_modules(config, rngs)
-        copy_weights(flax_module, flash_module)
-
-        x = jax.random.normal(rngs(), (2, 64, 256))
-
-        def loss_fn_flax(x):
-            return jnp.sum(flax_module(x, deterministic=True))
-
-        def loss_fn_flash(x):
-            return jnp.sum(flash_module(x, deterministic=True))
-
-        # Compute gradients
-        grad_flax = jax.grad(loss_fn_flax)(x)
-        grad_flash = jax.grad(loss_fn_flash)(x)
-
-        np.testing.assert_allclose(grad_flax, grad_flash, rtol=1e-4, atol=1e-5)
-
-
-# ============================================================================
-# Feature Parity Tests
-# ============================================================================
-
-
-class TestFeatureParity:
-    """Test that Flash Attention supports all MultiHeadAttention features."""
-
-    def test_dropout_support(self, rngs):
-        """Test dropout functionality."""
-        config = {"num_heads": 4, "in_features": 256, "dropout_rate": 0.5}
-        flax_module, flash_module = create_both_modules(config, rngs)
-
-        x = jnp.ones((2, 64, 256))
-
-        # Non-deterministic mode should have different outputs on different calls
-        flash_out1 = flash_module(x, deterministic=False, rngs=rngs)
-        flash_out2 = flash_module(x, deterministic=False, rngs=nnx.Rngs(123))
-
-        # Outputs should differ due to dropout
-        assert not jnp.allclose(flash_out1, flash_out2)
-
-        # Deterministic mode should have same outputs
-        flash_out3 = flash_module(x, deterministic=True)
-        flash_out4 = flash_module(x, deterministic=True)
-
-        assert jnp.allclose(flash_out3, flash_out4)
-
-    def test_qk_normalization(self, rngs):
-        """Test QK normalization feature."""
-        config = {
-            "num_heads": 4,
-            "in_features": 256,
-            "normalize_qk": True,
-        }
-
-        flax_module, flash_module = create_both_modules(config, rngs)
-        copy_weights(flax_module, flash_module)
-
-        # Both should have layer norms
-        assert flax_module.query_ln is not None
-        assert flax_module.key_ln is not None
-        assert flash_module.query_ln is not None
-        assert flash_module.key_ln is not None
-
-        x = jax.random.normal(rngs(), (2, 64, 256))
-
-        flax_output = flax_module(x, deterministic=True)
-        flash_output = flash_module(x, deterministic=True)
-
-        # The attention computation itself is very close (~1e-4 differences)
-        # but gets amplified through layer norms and FFN layers
-        # These tolerances reflect realistic numerical precision for transformer blocks
-        np.testing.assert_allclose(flax_output, flash_output, rtol=1e-3, atol=1e-3)
-
-    def test_bias_control(self, rngs):
-        """Test use_bias parameter."""
-        # With bias
-        config_with_bias = {
-            "num_heads": 4,
-            "in_features": 256,
-            "use_bias": True,
-        }
-        flax_with, flash_with = create_both_modules(config_with_bias, rngs)
-
-        # Check bias exists and is not None
-        assert flax_with.query.bias is not None
-        assert flash_with.query.bias is not None
-
-        # Without bias
-        config_without_bias = {
-            "num_heads": 4,
-            "in_features": 256,
-            "use_bias": False,
-        }
-        flax_without, flash_without = create_both_modules(config_without_bias, rngs)
-
-        # Check bias is None when use_bias=False
-        assert flax_without.query.bias is None
-        assert flash_without.query.bias is None
-
-    def test_decode_mode(self, rngs):
-        """Test autoregressive decoding mode."""
-        config = {
-            "num_heads": 4,
-            "in_features": 256,
-            "decode": True,
-        }
-
-        flax_module, flash_module = create_both_modules(config, rngs)
-        copy_weights(flax_module, flash_module)
-
-        batch_size = 2
-        max_length = 10
-
-        # Initialize caches
-        flax_module.init_cache((batch_size, max_length, 256))
-        flash_module.init_cache((batch_size, max_length, 256))
-
-        # Process tokens one by one
-        for i in range(5):
-            x = jax.random.normal(rngs(), (batch_size, 1, 256))
-
-            flax_out = flax_module(x, decode=True, deterministic=True)
-            flash_out = flash_module(x, decode=True, deterministic=True)
-
-            np.testing.assert_allclose(flax_out, flash_out, rtol=1e-4, atol=1e-5)
-
-    def test_different_qkv_features(self, rngs):
-        """Test with different QKV feature dimensions."""
-        config = {
-            "num_heads": 8,
-            "in_features": 256,
-            "qkv_features": 512,  # Different from in_features
-            "out_features": 384,  # Different from both
-        }
-
-        flax_module, flash_module = create_both_modules(config, rngs)
-        copy_weights(flax_module, flash_module)
-
-        x = jax.random.normal(rngs(), (2, 64, 256))
-
-        flax_output = flax_module(x, deterministic=True)
-        flash_output = flash_module(x, deterministic=True)
-
-        # Check output shape
-        assert flax_output.shape == (2, 64, 384)
-        assert flash_output.shape == (2, 64, 384)
-
-        # The attention computation itself is very close (~1e-4 differences)
-        # but gets amplified through layer norms and FFN layers
-        # These tolerances reflect realistic numerical precision for transformer blocks
-        np.testing.assert_allclose(flax_output, flash_output, rtol=1e-3, atol=1e-3)
-
-
-# ============================================================================
-# Drop-in Replacement Tests
-# ============================================================================
+def copy_attention_weights(source: nnx.Module, target: nnx.Module) -> None:
+    """Copy every projection weight from one attention module to another."""
+    for name in ("query", "key", "value", "out"):
+        source_layer = getattr(source, name)
+        target_layer = getattr(target, name)
+        target_layer.kernel[...] = source_layer.kernel[...]
+        if getattr(source_layer, "bias", None) is not None:
+            target_layer.bias[...] = source_layer.bias[...]
+
+
+class TransformerBlock(nnx.Module):
+    """A pre-norm transformer block parameterised by its attention class."""
+
+    def __init__(self, attention_cls, dim: int, num_heads: int, rngs: nnx.Rngs) -> None:
+        """Build the block."""
+        super().__init__()
+        self.attention = attention_cls(
+            num_heads=num_heads, in_features=dim, dropout_rate=0.0, decode=False, rngs=rngs
+        )
+        self.norm1 = nnx.LayerNorm(dim, rngs=rngs)
+        self.norm2 = nnx.LayerNorm(dim, rngs=rngs)
+        self.ffn = nnx.Sequential(
+            nnx.Linear(dim, dim * 4, rngs=rngs),
+            nnx.gelu,
+            nnx.Linear(dim * 4, dim, rngs=rngs),
+        )
+
+    def __call__(self, x: jax.Array, *, deterministic: bool = True) -> jax.Array:
+        """Apply attention and the feed-forward network with residuals."""
+        x = x + self.attention(self.norm1(x), deterministic=deterministic)
+        return x + self.ffn(self.norm2(x))
+
+
+class EncoderDecoder(nnx.Module):
+    """Encoder self-attention, decoder self-attention and cross-attention."""
+
+    def __init__(self, attention_cls, dim: int, num_heads: int, rngs: nnx.Rngs) -> None:
+        """Build the three attention stacks."""
+        super().__init__()
+        build = lambda: attention_cls(  # noqa: E731
+            num_heads=num_heads, in_features=dim, decode=False, rngs=rngs
+        )
+        self.encoder_attn = build()
+        self.decoder_attn = build()
+        self.cross_attn = build()
+
+    def __call__(
+        self, encoder_input: jax.Array, decoder_input: jax.Array, *, deterministic: bool = True
+    ) -> jax.Array:
+        """Encode, decode, then attend from the decoder to the encoder."""
+        encoded = self.encoder_attn(encoder_input, deterministic=deterministic)
+        decoded = self.decoder_attn(decoder_input, deterministic=deterministic)
+        return self.cross_attn(decoded, encoded, encoded, deterministic=deterministic)
 
 
 class TestDropInReplacement:
-    """Test that FlashMultiHeadAttention can replace MultiHeadAttention seamlessly."""
+    """Swapping the attention class must not change a model's output."""
 
-    def test_transformer_block_replacement(self, rngs):
-        """Test replacing attention in a transformer block."""
+    def test_transformer_block_replacement(self, rngs: nnx.Rngs) -> None:
+        """A transformer block must be unchanged by the swap.
 
-        class TransformerBlock(nnx.Module):
-            def __init__(self, attention_cls, dim: int, num_heads: int, rngs: nnx.Rngs):
-                # Use dropout_rate=0.0 for exact numerical matching
-                # (Flax uses different code path when dropout_rate > 0)
-                self.attention = attention_cls(
-                    num_heads=num_heads,
-                    in_features=dim,
-                    dropout_rate=0.0,
-                    rngs=rngs,
-                    decode=False,
-                )
-                self.norm1 = nnx.LayerNorm(dim, rngs=rngs)
-                self.norm2 = nnx.LayerNorm(dim, rngs=rngs)
-                self.ffn = nnx.Sequential(
-                    nnx.Linear(dim, dim * 4, rngs=rngs),
-                    nnx.gelu,
-                    nnx.Linear(dim * 4, dim, rngs=rngs),
-                )
+        The portable path delegates to the same nnx kernel, so the outputs agree
+        to floating-point noise rather than to the loose 1e-3 the previous
+        implementation needed.
+        """
+        flax_block = TransformerBlock(FlaxMultiHeadAttention, DIM, NUM_HEADS, rngs)
+        flash_block = TransformerBlock(FlashMultiHeadAttention, DIM, NUM_HEADS, rngs)
 
-            def __call__(self, x, deterministic=True):
-                # Self-attention with residual
-                attn_out = self.attention(self.norm1(x), deterministic=deterministic)
-                x = x + attn_out
+        copy_attention_weights(flax_block.attention, flash_block.attention)
+        for name in ("norm1", "norm2"):
+            getattr(flash_block, name).scale[...] = getattr(flax_block, name).scale[...]
+            getattr(flash_block, name).bias[...] = getattr(flax_block, name).bias[...]
+        for flash_layer, flax_layer in zip(flash_block.ffn.layers, flax_block.ffn.layers):
+            if isinstance(flash_layer, nnx.Linear) and isinstance(flax_layer, nnx.Linear):
+                flash_layer.kernel[...] = flax_layer.kernel[...]
+                if flash_layer.bias is not None and flax_layer.bias is not None:
+                    flash_layer.bias[...] = flax_layer.bias[...]
 
-                # FFN with residual
-                ffn_out = self.ffn(self.norm2(x))
-                x = x + ffn_out
+        x = jax.random.normal(rngs(), (2, 64, DIM))
+        np.testing.assert_allclose(flax_block(x), flash_block(x), rtol=1e-6, atol=1e-6)
 
-                return x
+    def test_encoder_decoder_replacement(self, rngs: nnx.Rngs) -> None:
+        """An encoder-decoder stack must be unchanged by the swap."""
+        flax_model = EncoderDecoder(FlaxMultiHeadAttention, DIM, NUM_HEADS, rngs)
+        flash_model = EncoderDecoder(FlashMultiHeadAttention, DIM, NUM_HEADS, rngs)
+        for name in ("encoder_attn", "decoder_attn", "cross_attn"):
+            copy_attention_weights(getattr(flax_model, name), getattr(flash_model, name))
 
-        # Create blocks with different attention implementations
-        flax_block = TransformerBlock(FlaxMultiHeadAttention, 256, 8, rngs)
-        flash_block = TransformerBlock(FlashMultiHeadAttention, 256, 8, rngs)
-
-        # Copy all weights for fair comparison
-        # Copy attention weights
-        copy_weights(flax_block.attention, flash_block.attention)
-
-        # Copy layer norm weights
-        flash_block.norm1.scale[...] = flax_block.norm1.scale[...]
-        flash_block.norm1.bias[...] = flax_block.norm1.bias[...]
-        flash_block.norm2.scale[...] = flax_block.norm2.scale[...]
-        flash_block.norm2.bias[...] = flax_block.norm2.bias[...]
-
-        # Copy FFN weights
-        # Access Sequential layers properly
-        for i, layer in enumerate(flash_block.ffn.layers):
-            if isinstance(layer, nnx.Linear):
-                # Find corresponding layer in flax_block
-                for j, flax_layer in enumerate(flax_block.ffn.layers):
-                    if isinstance(flax_layer, nnx.Linear) and i == j:
-                        layer.kernel[...] = flax_layer.kernel[...]
-                        if hasattr(layer, "bias") and layer.bias is not None:
-                            layer.bias[...] = flax_layer.bias[...]
-                        break
-
-        # Test with same input
-        x = jax.random.normal(rngs(), (2, 64, 256))
-
-        flax_output = flax_block(x, deterministic=True)
-        flash_output = flash_block(x, deterministic=True)
-
-        # The attention computation itself is very close (~1e-4 differences)
-        # but gets amplified through layer norms and FFN layers
-        # These tolerances reflect realistic numerical precision for transformer blocks
-        np.testing.assert_allclose(flax_output, flash_output, rtol=1e-3, atol=1e-3)
-
-    def test_encoder_decoder_replacement(self, rngs):
-        """Test replacing attention in encoder-decoder architecture."""
-
-        class EncoderDecoder(nnx.Module):
-            def __init__(self, attention_cls, dim: int, num_heads: int, rngs: nnx.Rngs):
-                # Encoder self-attention
-                self.encoder_attn = attention_cls(
-                    num_heads=num_heads,
-                    in_features=dim,
-                    rngs=rngs,
-                    decode=False,
-                )
-                # Decoder self-attention
-                self.decoder_attn = attention_cls(
-                    num_heads=num_heads,
-                    in_features=dim,
-                    rngs=rngs,
-                    decode=False,
-                )
-                # Cross-attention
-                self.cross_attn = attention_cls(
-                    num_heads=num_heads,
-                    in_features=dim,
-                    rngs=rngs,
-                    decode=False,
-                )
-
-            def __call__(self, encoder_input, decoder_input, deterministic=True):
-                # Encoder self-attention
-                encoder_out = self.encoder_attn(encoder_input, deterministic=deterministic)
-
-                # Decoder self-attention
-                decoder_out = self.decoder_attn(decoder_input, deterministic=deterministic)
-
-                # Cross-attention (decoder attends to encoder)
-                cross_out = self.cross_attn(
-                    decoder_out,  # query from decoder
-                    encoder_out,  # key from encoder
-                    encoder_out,  # value from encoder
-                    deterministic=deterministic,
-                )
-
-                return cross_out
-
-        # Create models with different attention implementations
-        flax_model = EncoderDecoder(FlaxMultiHeadAttention, 256, 8, rngs)
-        flash_model = EncoderDecoder(FlashMultiHeadAttention, 256, 8, rngs)
-
-        # Copy weights
-        copy_weights(flax_model.encoder_attn, flash_model.encoder_attn)
-        copy_weights(flax_model.decoder_attn, flash_model.decoder_attn)
-        copy_weights(flax_model.cross_attn, flash_model.cross_attn)
-
-        # Test
-        encoder_input = jax.random.normal(rngs(), (2, 32, 256))
-        decoder_input = jax.random.normal(rngs(), (2, 16, 256))
-
-        flax_output = flax_model(encoder_input, decoder_input, deterministic=True)
-        flash_output = flash_model(encoder_input, decoder_input, deterministic=True)
-
-        # The attention computation itself is very close (~1e-4 differences)
-        # but gets amplified through layer norms and FFN layers
-        # These tolerances reflect realistic numerical precision for transformer blocks
-        np.testing.assert_allclose(flax_output, flash_output, rtol=1e-3, atol=1e-3)
-
-    def test_api_compatibility(self, rngs):
-        """Test that all MultiHeadAttention APIs work with Flash version."""
-        config = {"num_heads": 4, "in_features": 256}
-        flax_module, flash_module = create_both_modules(config, rngs)
-
-        x = jax.random.normal(rngs(), (2, 64, 256))
-
-        # Test all call signatures
-        # 1. Single input (self-attention)
-        _ = flax_module(x, decode=False)
-        _ = flash_module(x, decode=False)
-
-        # 2. Q, K inputs (V defaults to K)
-        _ = flax_module(x, x, decode=False)
-        _ = flash_module(x, x, decode=False)
-
-        # 3. Q, K, V inputs
-        _ = flax_module(x, x, x, decode=False)
-        _ = flash_module(x, x, x, decode=False)
-
-        # 4. With mask
-        mask = jnp.ones((2, 4, 64, 64))
-        _ = flax_module(x, mask=mask, decode=False)
-        _ = flash_module(x, mask=mask, decode=False)
-
-        # 5. With deterministic flag
-        _ = flax_module(x, deterministic=True, decode=False)
-        _ = flash_module(x, deterministic=True, decode=False)
-
-        # 6. With RNGs
-        _ = flax_module(x, rngs=rngs, decode=False)
-        _ = flash_module(x, rngs=rngs, decode=False)
-
-        # All APIs work - test passes if no exceptions
-
-
-# ============================================================================
-# Flash-Specific Features Tests
-# ============================================================================
-
-
-class TestFlashSpecificFeatures:
-    """Test Flash Attention specific features not in standard MultiHeadAttention."""
-
-    def test_document_masks(self, rngs):
-        """Test document mask functionality unique to Flash Attention."""
-        flash_module = FlashMultiHeadAttention(
-            num_heads=4,
-            in_features=256,
-            use_segment_ids=True,
-            rngs=rngs,
+        encoder_input = jax.random.normal(rngs(), (2, 32, DIM))
+        decoder_input = jax.random.normal(rngs(), (2, 16, DIM))
+        np.testing.assert_allclose(
+            flax_model(encoder_input, decoder_input),
+            flash_model(encoder_input, decoder_input),
+            rtol=1e-6,
+            atol=1e-6,
         )
 
-        batch_size, seq_len = 2, 128
-        x = jax.random.normal(rngs(), (batch_size, seq_len, 256))
 
-        # Create segment IDs for multiple documents
-        segment_ids = jnp.zeros((batch_size, seq_len), dtype=jnp.int32)
-        # First half is document 0, second half is document 1
-        segment_ids = segment_ids.at[:, seq_len // 2 :].set(1)
+class TestTransformations:
+    """The module must survive the JAX transformations models rely on."""
 
-        positions = jnp.tile(jnp.arange(seq_len // 2), 2)[None, :].repeat(batch_size, axis=0)
-
-        # Should handle document boundaries
-        output = flash_module(
-            x,
-            query_segment_ids=segment_ids,
-            kv_segment_ids=segment_ids,
-            query_positions=positions,
-            kv_positions=positions,
-            deterministic=True,
+    def make_module(self, rngs: nnx.Rngs, **kwargs) -> FlashMultiHeadAttention:
+        """Build a module for transformation tests."""
+        return FlashMultiHeadAttention(
+            num_heads=NUM_HEADS, in_features=DIM, decode=False, rngs=rngs, **kwargs
         )
 
-        assert output.shape == (batch_size, seq_len, 256)
-
-    def test_padding_token_optimization(self, rngs):
-        """Test padding token handling unique to Flash Attention."""
-        flash_module = FlashMultiHeadAttention(
-            num_heads=4,
-            in_features=256,
-            use_segment_ids=True,
-            rngs=rngs,
-        )
-
-        batch_size, seq_len = 2, 64
-        x = jax.random.normal(rngs(), (batch_size, seq_len, 256))
-
-        # Mark last 16 tokens as padding
-        segment_ids = jnp.zeros((batch_size, seq_len), dtype=jnp.int32)
-        segment_ids = segment_ids.at[:, -16:].set(PADDING_SEGMENT_ID)
-
-        output = flash_module(
-            x,
-            query_segment_ids=segment_ids,
-            kv_segment_ids=segment_ids,
-            deterministic=True,
-        )
-
-        # Padding positions should have zero output
-        padding_output = output[:, -16:, :]
-        assert jnp.allclose(padding_output, 0.0)
-
-    def test_causal_mode(self, rngs):
-        """Test causal attention mode specific to Flash Attention."""
-        # Flash module with causal mode
-        flash_causal = FlashMultiHeadAttention(
-            num_heads=4,
-            in_features=256,
-            causal=True,  # Flash-specific parameter
-            rngs=rngs,
-        )
-
-        # Standard module needs explicit mask for causal
+    def test_gradients_match_reference(self, rngs: nnx.Rngs) -> None:
+        """Gradients must match those of the reference module."""
         flax_module = FlaxMultiHeadAttention(
-            num_heads=4,
-            in_features=256,
-            rngs=rngs,
+            num_heads=NUM_HEADS, in_features=DIM, decode=False, rngs=rngs
+        )
+        flash_module = self.make_module(rngs)
+        copy_attention_weights(flax_module, flash_module)
+        x = jax.random.normal(rngs(), (2, 16, DIM))
+
+        def loss(module: nnx.Module) -> jax.Array:
+            return jnp.sum(module(x) ** 2)
+
+        flax_grads = nnx.grad(loss)(flax_module)
+        flash_grads = nnx.grad(loss)(flash_module)
+        np.testing.assert_allclose(
+            flax_grads["query"]["kernel"].value,
+            flash_grads["query"]["kernel"].value,
+            rtol=1e-5,
+            atol=1e-5,
         )
 
-        # Copy weights
-        copy_weights(flax_module, flash_causal)
+    def test_gradients_are_finite(self, rngs: nnx.Rngs) -> None:
+        """Gradients must not contain NaN or infinity."""
+        module = self.make_module(rngs)
+        x = jax.random.normal(rngs(), (2, 16, DIM))
+        grads = nnx.grad(lambda m: jnp.sum(m(x) ** 2))(module)
+        assert jnp.all(jnp.isfinite(grads["query"]["kernel"].value))
 
-        batch_size, seq_len = 2, 64
-        x = jax.random.normal(rngs(), (batch_size, seq_len, 256))
+    def test_jit_is_stable(self, rngs: nnx.Rngs) -> None:
+        """Repeated jitted calls must agree, and match the eager result."""
+        module = self.make_module(rngs)
+        x = jax.random.normal(rngs(), (2, 64, DIM))
+        forward = nnx.jit(lambda m, inputs: m(inputs))
+        assert jnp.allclose(forward(module, x), forward(module, x))
+        assert jnp.allclose(forward(module, x), module(x), atol=1e-6)
 
-        # Flash with built-in causal
-        flash_output = flash_causal(x, deterministic=True)
+    def test_vmap_preserves_shape(self, rngs: nnx.Rngs) -> None:
+        """The module must vectorise over an extra leading axis."""
+        module = self.make_module(rngs)
+        x = jax.random.normal(rngs(), (8, 64, DIM))
+        vmapped = jax.vmap(lambda sample: module(sample[None, ...])[0])
+        assert vmapped(x).shape == (8, 64, DIM)
 
-        # Flax needs explicit causal mask
-        causal_mask = jnp.tril(jnp.ones((seq_len, seq_len)))
-        causal_mask = jnp.broadcast_to(
-            causal_mask[None, None, :, :], (batch_size, 4, seq_len, seq_len)
-        )
-        flax_output = flax_module(x, mask=causal_mask, deterministic=True, decode=False)
+    def test_training_step_produces_scalar_loss(self, rngs: nnx.Rngs) -> None:
+        """A realistic training step must run with dropout live."""
 
-        # Should produce same result
-        np.testing.assert_allclose(flash_output, flax_output, rtol=1e-5, atol=1e-6)
-
-    def test_block_size_configuration(self, rngs):
-        """Test configurable block sizes unique to Flash Attention."""
-        # Test different block sizes
-        for block_size in [64, 128, 256]:
-            config = FlashAttentionConfig(
-                query_block_size=block_size,
-                kv_block_size=block_size,
-            )
-
-            flash_module = FlashMultiHeadAttention(
-                num_heads=4,
-                in_features=256,
-                flash_config=config,
-                rngs=rngs,
-            )
-
-            x = jax.random.normal(rngs(), (1, 512, 256))
-            output = flash_module(x, deterministic=True)
-
-            assert output.shape == (1, 512, 256)
-
-    def test_constructor_does_not_expose_backend_switch(self):
-        """Flash Attention should expose one honest implementation path only."""
-        assert "backend" not in inspect.signature(FlashMultiHeadAttention.__init__).parameters
-
-
-# ============================================================================
-# Performance Comparison Tests
-# ============================================================================
-
-
-class TestPerformanceCharacteristics:
-    """Test performance characteristics of Flash Attention."""
-
-    def test_memory_efficient_for_long_sequences(self, rngs):
-        """Verify Flash Attention handles long sequences efficiently."""
-        # Flash should handle long sequences without OOM
-        flash_module = FlashMultiHeadAttention(
-            num_heads=8,
-            in_features=512,
-            rngs=rngs,
-        )
-
-        # Test with progressively longer sequences
-        for seq_len in [512, 1024, 2048]:
-            x = jax.random.normal(rngs(), (1, seq_len, 512))
-            output = flash_module(x, deterministic=True)
-            assert output.shape == (1, seq_len, 512)
-
-    def test_grouped_query_attention_efficiency(self, rngs):
-        """Test GQA reduces memory as expected."""
-        # Standard attention with all heads
-        standard_module = FlashMultiHeadAttention(
-            num_heads=16,
-            in_features=512,
-            rngs=rngs,
-        )
-
-        # GQA with fewer KV heads (simulated by using same architecture)
-        # In practice, GQA would use fewer KV heads internally
-        gqa_module = FlashMultiHeadAttention(
-            num_heads=16,
-            in_features=512,
-            in_kv_features=512,  # Could be optimized for GQA
-            rngs=rngs,
-        )
-
-        x = jax.random.normal(rngs(), (2, 1024, 512))
-
-        # Both should work but GQA would use less memory in practice
-        standard_out = standard_module(x, deterministic=True)
-        gqa_out = gqa_module(x, deterministic=True)
-
-        assert standard_out.shape == gqa_out.shape
-
-
-# ============================================================================
-# Integration Tests
-# ============================================================================
-
-
-class TestIntegration:
-    """Test Flash Attention in realistic scenarios."""
-
-    def test_in_training_loop(self, rngs):
-        """Test Flash Attention in a training scenario."""
-
-        # Simple model using Flash Attention
         class SimpleModel(nnx.Module):
-            def __init__(self, rngs: nnx.Rngs):
+            def __init__(self, rngs: nnx.Rngs) -> None:
+                super().__init__()
                 self.attention = FlashMultiHeadAttention(
-                    num_heads=4,
-                    in_features=256,
+                    num_heads=NUM_HEADS,
+                    in_features=DIM,
                     dropout_rate=0.1,
+                    decode=False,
                     rngs=rngs,
                 )
-                self.output_proj = nnx.Linear(256, 10, rngs=rngs)
+                self.output_proj = nnx.Linear(DIM, 10, rngs=rngs)
 
-            def __call__(self, x, training=True):
+            def __call__(self, x: jax.Array, *, training: bool = True) -> jax.Array:
                 x = self.attention(x, deterministic=not training)
-                x = jnp.mean(x, axis=1)  # Global pooling
-                return self.output_proj(x)
+                return self.output_proj(jnp.mean(x, axis=1))
 
         model = SimpleModel(rngs)
-
-        # Training step
-        def train_step(model, x, y):
-            def loss_fn(model):
-                logits = model(x, training=True)
-                return jnp.mean((logits - y) ** 2)
-
-            loss, grads = nnx.value_and_grad(loss_fn)(model)
-            # Would apply gradients here in real training
-            return loss
-
-        # Test data
-        x = jax.random.normal(rngs(), (4, 32, 256))
+        x = jax.random.normal(rngs(), (4, 32, DIM))
         y = jax.random.normal(rngs(), (4, 10))
+        loss, grads = nnx.value_and_grad(lambda m: jnp.mean((m(x) - y) ** 2))(model)
 
-        # Should complete without errors
-        loss = train_step(model, x, y)
         assert loss.shape == ()
-
-    def test_with_jit_compilation(self, rngs):
-        """Test Flash Attention works with JIT compilation."""
-        flash_module = FlashMultiHeadAttention(
-            num_heads=4,
-            in_features=256,
-            rngs=rngs,
-        )
-
-        @jax.jit
-        def forward(x):
-            return flash_module(x, deterministic=True)
-
-        x = jax.random.normal(rngs(), (2, 64, 256))
-
-        # First call compiles
-        output1 = forward(x)
-        # Second call uses compiled version
-        output2 = forward(x)
-
-        assert jnp.allclose(output1, output2)
-
-    def test_with_vmap(self, rngs):
-        """Test Flash Attention works with vmap."""
-        flash_module = FlashMultiHeadAttention(
-            num_heads=4,
-            in_features=256,
-            rngs=rngs,
-        )
-
-        # Single sample forward
-        def single_forward(x):
-            return flash_module(x[None, ...], deterministic=True)[0]
-
-        # Vectorized version
-        vmap_forward = jax.vmap(single_forward)
-
-        # Batch of inputs
-        x = jax.random.normal(rngs(), (8, 64, 256))
-
-        # Should handle vectorization
-        output = vmap_forward(x)
-        assert output.shape == (8, 64, 256)
+        assert jnp.isfinite(loss)
+        assert jnp.all(jnp.isfinite(grads["output_proj"]["kernel"].value))
