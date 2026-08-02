@@ -63,8 +63,19 @@ from artifex.generative_models.models.diffusion import DDPMModel
 rngs = nnx.Rngs(0)
 model = DDPMModel(config=DDPMConfig(), rngs=rngs)
 model.train()
-outputs = model(x, timesteps)
-losses = model.loss_fn({'x': x}, outputs)
+losses = model.loss_fn({'x': x})
 model.eval()
 samples = model.sample(4)
+```
+
+`loss_fn` runs the forward diffusion and the denoising pass itself. A prediction
+alone does not identify the timestep and noise it was produced from, so there is
+nothing meaningful to score in a finished output dictionary; the objective has to
+draw the pair and evaluate the model on that exact corruption. The reconstruction
+loss it applies comes from `DDPMConfig.loss_type` (`mse`, `l1`, or `huber`).
+
+Call the model directly when you want its outputs:
+
+```python
+outputs = model(x, timesteps)
 ```

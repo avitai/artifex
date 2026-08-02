@@ -29,3 +29,12 @@ sampler with a model that already owns a real `sample(...)` implementation.
 `init(...)` and `step(...)` still provide the retained low-level diffusion
 stepping utility for explicit state dictionaries containing `x`, `key`, and `t`.
 Use this surface when you want to own the outer loop yourself.
+
+`step(...)` reports `x0_prediction`, `mean`, and `variance` for the reverse
+transition. It does not derive those quantities itself: the sampler builds a
+`NoiseSchedule` from its `beta_schedule`, `beta_start`, `beta_end`, and
+`num_timesteps` arguments and delegates to `predict_start_from_noise(...)` and
+`q_posterior_mean_variance(...)`. The schedule algebra therefore exists in one
+place, and `sampler.noise_schedule` is available if you need the underlying
+arrays. The familiar `betas`, `alphas`, `alphas_cumprod`, `posterior_variance`
+and related attributes remain on the sampler.
