@@ -299,9 +299,11 @@ class RotaryPositionalEncoding(PositionalEncoding):
         self.cos = nnx.Param(cos_val, trainable=False)
 
     def _rotate_half(self, x: jax.Array) -> jax.Array:
-        """Helper function to apply rotation to one half of the features.
+        """Rotate the halves of the feature axis, mapping [x1; x2] to [-x2; x1].
 
-        Maps x_even, x_odd to -x_odd, x_even.
+        This is the split-half convention: the pairs being rotated are (i, i + dim/2)
+        rather than adjacent even/odd features. It matches the `rotate_half` helper
+        used by the reference RoPE implementations.
         """
         x_part1 = x[..., : x.shape[-1] // 2]
         x_part2 = x[..., x.shape[-1] // 2 :]
@@ -334,19 +336,15 @@ class RotaryPositionalEncoding(PositionalEncoding):
         sin_pos = self.sin[:seq_len, :]
         cos_pos = self.cos[:seq_len, :]
 
-        # Split input into two halves along the last dimension
-        # x_left, x_right shapes: [batch, seq_len, dim/2]
-        x_left, x_right = jnp.split(x, 2, axis=-1)
+        # Duplicate sin/cos across both halves so each feature pairs with its
+        # partner dim/2 positions away, then apply the rotation as
+        # x * cos + rotate_half(x) * sin. This is the same rotation matrix
+        # product as the explicit half-wise form, written the way the reference
+        # RoPE implementations write it.
+        sin_full = jnp.concatenate([sin_pos, sin_pos], axis=-1)
+        cos_full = jnp.concatenate([cos_pos, cos_pos], axis=-1)
 
-        # Apply rotary transformation
-        # This implements the rotation matrix multiplication:
-        # R(m, theta) @ [x_left; x_right] =
-        #   [x_left * cos - x_right * sin; x_left * sin + x_right * cos]
-        x_left_rotated = x_left * cos_pos - x_right * sin_pos
-        x_right_rotated = x_left * sin_pos + x_right * cos_pos
-
-        # Concatenate the rotated parts
-        x_rotated = jnp.concatenate([x_left_rotated, x_right_rotated], axis=-1)
+        x_rotated = x * cos_full + self._rotate_half(x) * sin_full
 
         # Apply dropout if not in deterministic mode and dropout_rate > 0
         if self.dropout_rate > 0 and not deterministic:
