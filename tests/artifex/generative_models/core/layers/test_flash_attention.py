@@ -185,20 +185,28 @@ class TestSowWeights:
 
 
 class TestDecode:
-    """Autoregressive decoding must be correct and traceable."""
+    """Autoregressive decoding must be correct and traceable.
+
+    Comparisons that reassociate the same arithmetic differently -- one long
+    sequence against many single-token steps -- run at ``highest`` matmul
+    precision. On CUDA, float32 matmuls default to TF32 tensor cores, which
+    carry roughly 3e-3 of error and would make the comparison measure the
+    tensor-core rounding rather than the decode logic.
+    """
 
     def test_decode_matches_full_causal_attention(self) -> None:
         """Token-by-token decoding must equal one causal forward pass."""
         flash, _ = make_pair()
         x = make_inputs()
-        mask = nnx.make_causal_mask(jnp.ones((BATCH, SEQ_LEN)))
-        expected = flash(x, mask=mask)
+        with jax.default_matmul_precision("highest"):
+            mask = nnx.make_causal_mask(jnp.ones((BATCH, SEQ_LEN)))
+            expected = flash(x, mask=mask)
 
-        flash.init_cache(x.shape)
-        flash.decode = True
-        decoded = jnp.stack(
-            [flash(x[:, step : step + 1, :])[:, 0, :] for step in range(SEQ_LEN)], axis=1
-        )
+            flash.init_cache(x.shape)
+            flash.decode = True
+            decoded = jnp.stack(
+                [flash(x[:, step : step + 1, :])[:, 0, :] for step in range(SEQ_LEN)], axis=1
+            )
         assert jnp.allclose(decoded, expected, atol=1e-5)
 
     def test_decode_is_jittable(self) -> None:
@@ -242,13 +250,14 @@ class TestDecode:
             rngs=nnx.Rngs(0),
         )
         x = make_inputs()
-        expected = causal(x)
+        with jax.default_matmul_precision("highest"):
+            expected = causal(x)
 
-        causal.init_cache(x.shape)
-        causal.decode = True
-        decoded = jnp.stack(
-            [causal(x[:, step : step + 1, :])[:, 0, :] for step in range(SEQ_LEN)], axis=1
-        )
+            causal.init_cache(x.shape)
+            causal.decode = True
+            decoded = jnp.stack(
+                [causal(x[:, step : step + 1, :])[:, 0, :] for step in range(SEQ_LEN)], axis=1
+            )
         assert jnp.allclose(decoded, expected, atol=1e-5)
 
     def test_decode_matches_reference(self) -> None:
@@ -313,9 +322,10 @@ class TestScale:
         """A non-default scale must match a hand-computed reference."""
         q, k, v = self.make_qkv()
         scale = 0.25
-        actual = flash_dot_product_attention(q, k, v, scale=scale)
-        scores = jnp.einsum("bqnh,bknh->bnqk", q, k) * scale
-        expected = jnp.einsum("bnqk,bknh->bqnh", jax.nn.softmax(scores, axis=-1), v)
+        with jax.default_matmul_precision("highest"):
+            actual = flash_dot_product_attention(q, k, v, scale=scale)
+            scores = jnp.einsum("bqnh,bknh->bnqk", q, k) * scale
+            expected = jnp.einsum("bnqk,bknh->bqnh", jax.nn.softmax(scores, axis=-1), v)
         assert jnp.allclose(actual, expected, atol=1e-5)
 
     def test_custom_scale_differs_from_default(self) -> None:

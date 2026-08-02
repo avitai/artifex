@@ -51,18 +51,31 @@ runs:
           editable_target="${{ inputs.macos-editable-target }}"
         fi
 
+        # Resolve from uv.lock rather than from the pyproject floors. Installing
+        # unpinned let every tool drift to its newest release between runs, so a
+        # run could fail on a dependency change no commit had made.
+        sync_args=(--locked)
+        if [[ "$editable_target" == *"["* ]]; then
+          extras="${editable_target#*[}"
+          extras="${extras%]}"
+          IFS=',' read -ra extra_names <<< "$extras"
+          for extra in "${extra_names[@]}"; do
+            sync_args+=(--extra "${extra// /}")
+          done
+        fi
+
         for attempt in 1 2 3 4 5; do
-          if uv pip install -e "$editable_target"; then
+          if uv sync "${sync_args[@]}"; then
             break
           fi
 
           if [[ "$attempt" -eq 5 ]]; then
-            echo "Failed to install $editable_target after 5 attempts" >&2
+            echo "Failed to sync $editable_target after 5 attempts" >&2
             exit 1
           fi
 
           delay=$((attempt * 10))
-          echo "Install attempt $attempt failed, retrying in ${delay} seconds..." >&2
+          echo "Sync attempt $attempt failed, retrying in ${delay} seconds..." >&2
           sleep "$delay"
         done
 
@@ -79,4 +92,8 @@ runs:
           echo "UV_PYTHON_DOWNLOADS=never"
           echo "UV_PYTHON_PREFERENCE=only-system"
           echo "UV_CONCURRENT_DOWNLOADS=4"
+          # This step owns installation. Without it, `uv run` re-syncs to the
+          # base dependency set and discards the extras installed above, so a
+          # tool such as ruff disappears between setup and the step that runs it.
+          echo "UV_NO_SYNC=1"
         } >> "$GITHUB_ENV"
