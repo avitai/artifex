@@ -459,31 +459,19 @@ dependencies = [
     { name = "calibrax" },
     { name = "dacite" },
     { name = "datarax" },
-    { name = "datasets" },
     { name = "distrax" },
     { name = "flax" },
     { name = "grain" },
     { name = "graphviz" },
-    { name = "huggingface-hub" },
     { name = "jax" },
     { name = "jaxtyping" },
     { name = "matplotlib" },
-    { name = "mlflow" },
-    { name = "mock" },
-    { name = "nglview" },
     { name = "numpy" },
     { name = "optax" },
     { name = "orbax-checkpoint" },
-    { name = "pandas" },
-    { name = "pre-commit" },
     { name = "psutil" },
-    { name = "py3dmol" },
     { name = "pyasn1" },
     { name = "pydantic" },
-    { name = "pytest" },
-    { name = "pytest-benchmark" },
-    { name = "pytest-cov" },
-    { name = "pytest-xdist" },
     { name = "python-dotenv" },
     { name = "requests" },
     { name = "scikit-learn" },
@@ -491,9 +479,7 @@ dependencies = [
     { name = "tqdm" },
     { name = "trimesh" },
     { name = "typer" },
-    { name = "types-psutil" },
     { name = "typing-extensions" },
-    { name = "wandb" },
 ]
 
 [package.optional-dependencies]
@@ -523,6 +509,7 @@ all = [
     { name = "mkdocs-material" },
     { name = "mkdocstrings" },
     { name = "mkdocstrings-python" },
+    { name = "mock" },
     { name = "nbconvert" },
     { name = "nvidia-cublas-cu12", marker = "sys_platform == 'linux'" },
     { name = "nvidia-cuda-cupti-cu12", marker = "sys_platform == 'linux'" },
@@ -584,6 +571,7 @@ all-cpu = [
     { name = "mkdocs-material" },
     { name = "mkdocstrings" },
     { name = "mkdocstrings-python" },
+    { name = "mock" },
     { name = "nbconvert" },
     { name = "pip-audit" },
     { name = "pydeps" },
@@ -634,6 +622,7 @@ all-macos = [
     { name = "mkdocs-material" },
     { name = "mkdocstrings" },
     { name = "mkdocstrings-python" },
+    { name = "mock" },
     { name = "nbconvert" },
     { name = "pip-audit" },
     { name = "pydeps" },
@@ -659,6 +648,10 @@ all-macos = [
     { name = "wemake-python-styleguide" },
     { name = "xenon" },
 ]
+benchmarks = [
+    { name = "datasets" },
+    { name = "huggingface-hub" },
+]
 cuda-dev = [
     { name = "bandit" },
     { name = "beartype" },
@@ -676,6 +669,7 @@ cuda-dev = [
     { name = "jaxlib", marker = "sys_platform == 'linux'" },
     { name = "jupyter" },
     { name = "jupytext" },
+    { name = "mock" },
     { name = "nbconvert" },
     { name = "nvidia-cublas-cu12", marker = "sys_platform == 'linux'" },
     { name = "nvidia-cuda-cupti-cu12", marker = "sys_platform == 'linux'" },
@@ -779,7 +773,9 @@ docs = [
     { name = "pymdown-extensions" },
 ]
 logging = [
+    { name = "mlflow" },
     { name = "tensorboard" },
+    { name = "wandb" },
 ]
 metal = [
     { name = "jax-metal", marker = "platform_machine == 'arm64' and sys_platform == 'darwin'" },
@@ -787,6 +783,7 @@ metal = [
 test = [
     { name = "beartype" },
     { name = "coverage" },
+    { name = "mock" },
     { name = "pytest" },
     { name = "pytest-asyncio" },
     { name = "pytest-benchmark" },
@@ -800,6 +797,8 @@ test = [
 [package.dev-dependencies]
 dev = [
     { name = "nbqa" },
+    { name = "pre-commit" },
+    { name = "types-psutil" },
     { name = "types-tqdm" },
 ]
 
@@ -818,7 +817,7 @@ requires-dist = [
     { name = "coverage", marker = "extra == 'test'", specifier = ">=7" },
     { name = "dacite", specifier = ">=1.8.0" },
     { name = "datarax", specifier = ">=0.1.4" },
-    { name = "datasets", specifier = ">=2.14.0" },
+    { name = "datasets", marker = "extra == 'benchmarks'", specifier = ">=2.14.0" },
     { name = "deadcode", marker = "extra == 'dev'", specifier = ">=2.4" },
     { name = "deptry", marker = "extra == 'dev'", specifier = ">=0.23" },
     { name = "detect-secrets", marker = "extra == 'dev'", specifier = ">=1.5.0" },
@@ -830,7 +829,7 @@ requires-dist = [
     { name = "graphviz", specifier = ">=0.20" },
     { name = "griffe", marker = "extra == 'docs'", specifier = ">=1.7.3" },
     { name = "hippogriffe", marker = "extra == 'docs'", specifier = ">=0.2" },
-    { name = "huggingface-hub", specifier = ">=0.25.0" },
+    { name = "huggingface-hub", marker = "extra == 'benchmarks'", specifier = ">=0.25.0" },
     { name = "import-linter", marker = "extra == 'dev'", specifier = ">=2.0" },
     { name = "interrogate", marker = "extra == 'dev'", specifier = ">=1.5" },
     { name = "ipykernel", marker = "extra == 'dev'", specifier = ">=6.29.5" },
@@ -849,10 +848,9 @@ requires-dist = [
     { name = "mkdocs-material", marker = "extra == 'docs'", specifier = ">=9.6.7,<10" },
     { name = "mkdocstrings", marker = "extra == 'docs'", specifier = ">=0.28.3" },
     { name = "mkdocstrings-python", marker = "extra == 'docs'", specifier = ">=1.1.2" },
-    { name = "mlflow", specifier = ">=2" },
-    { name = "mock", specifier = ">=5.2" },
+    { name = "mlflow", marker = "extra == 'logging'", specifier = ">=2" },
+    { name = "mock", marker = "extra == 'test'", specifier = ">=5.2" },
     { name = "nbconvert", marker = "extra == 'dev'", specifier = ">=7.16.4" },
-    { name = "nglview", specifier = ">=3" },
     { name = "numpy", specifier = ">=1.24,<2.4.0" },
     { name = "nvidia-cublas-cu12", marker = "sys_platform == 'linux' and extra == 'cuda12'", specifier = "==12.8.4.1" },
     { name = "nvidia-cuda-cupti-cu12", marker = "sys_platform == 'linux' and extra == 'cuda12'", specifier = "==12.8.90" },
@@ -868,11 +866,8 @@ requires-dist = [
     { name = "nvidia-nvshmem-cu12", marker = "sys_platform == 'linux' and extra == 'cuda12'", specifier = "==3.4.5" },
     { name = "optax", specifier = ">=0.2.0" },
     { name = "orbax-checkpoint", specifier = ">=0.11.0" },
-    { name = "pandas", specifier = ">=2.2.2" },
     { name = "pip-audit", marker = "extra == 'dev'", specifier = ">=2.10.1" },
-    { name = "pre-commit", specifier = ">=4.2" },
     { name = "psutil", specifier = ">=5.9.5" },
-    { name = "py3dmol", specifier = ">=1" },
     { name = "pyasn1", specifier = ">=0.6.4" },
     { name = "pydantic", specifier = ">=2" },
     { name = "pydeps", marker = "extra == 'dev'", specifier = ">=1.12.17" },
@@ -880,15 +875,12 @@ requires-dist = [
     { name = "pylint", marker = "extra == 'dev'", specifier = ">=3.3" },
     { name = "pymdown-extensions", marker = "extra == 'docs'", specifier = ">=10.14.3" },
     { name = "pyright", marker = "extra == 'dev'", specifier = ">=1.1.336" },
-    { name = "pytest", specifier = ">=8.3.5" },
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=8.3.5" },
     { name = "pytest", marker = "extra == 'test'", specifier = ">=8.3.5" },
     { name = "pytest-asyncio", marker = "extra == 'dev'", specifier = ">=0.23" },
     { name = "pytest-asyncio", marker = "extra == 'test'", specifier = ">=0.23" },
-    { name = "pytest-benchmark", specifier = ">=5.1" },
     { name = "pytest-benchmark", marker = "extra == 'dev'", specifier = ">=4" },
     { name = "pytest-benchmark", marker = "extra == 'test'", specifier = ">=4" },
-    { name = "pytest-cov", specifier = ">=6.1.1" },
     { name = "pytest-cov", marker = "extra == 'dev'", specifier = ">=6.1.1" },
     { name = "pytest-cov", marker = "extra == 'test'", specifier = ">=6.1.1" },
     { name = "pytest-env", marker = "extra == 'dev'", specifier = ">=1.0.1" },
@@ -898,7 +890,6 @@ requires-dist = [
     { name = "pytest-randomly", marker = "extra == 'dev'", specifier = ">=3.15" },
     { name = "pytest-timeout", marker = "extra == 'dev'", specifier = ">=2.1" },
     { name = "pytest-timeout", marker = "extra == 'test'", specifier = ">=2.1" },
-    { name = "pytest-xdist", specifier = ">=3.7" },
     { name = "pytest-xdist", marker = "extra == 'dev'", specifier = ">=3.6" },
     { name = "pytest-xdist", marker = "extra == 'test'", specifier = ">=3.6" },
     { name = "python-dotenv", specifier = ">=1.1" },
@@ -914,18 +905,19 @@ requires-dist = [
     { name = "trimesh", specifier = ">=3.30.1" },
     { name = "twine", marker = "extra == 'dev'", specifier = ">=4.0.2" },
     { name = "typer", specifier = ">=0.7" },
-    { name = "types-psutil", specifier = ">=5.10.10" },
     { name = "typing-extensions", specifier = ">=4.5" },
     { name = "vulture", marker = "extra == 'dev'", specifier = ">=2.14" },
-    { name = "wandb", specifier = ">=0.15" },
+    { name = "wandb", marker = "extra == 'logging'", specifier = ">=0.15" },
     { name = "wemake-python-styleguide", marker = "extra == 'dev'", specifier = ">=1.0" },
     { name = "xenon", marker = "extra == 'dev'", specifier = ">=0.9.3" },
 ]
-provides-extras = ["all", "all-cpu", "all-macos", "cuda-dev", "cuda12", "dev", "docs", "logging", "metal", "test"]
+provides-extras = ["all", "all-cpu", "all-macos", "cuda-dev", "cuda12", "dev", "docs", "benchmarks", "logging", "metal", "test"]
 
 [package.metadata.requires-dev]
 dev = [
     { name = "nbqa", specifier = ">=1.9.1" },
+    { name = "pre-commit", specifier = ">=4.2" },
+    { name = "types-psutil", specifier = ">=5.10.10" },
     { name = "types-tqdm", specifier = ">=4.67.0.20250809" },
 ]
 
@@ -4618,19 +4610,6 @@ wheels = [
 ]
 
 [[package]]
-name = "nglview"
-version = "4.0.1"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "ipywidgets" },
-    { name = "jupyterlab" },
-    { name = "jupyterlab-widgets" },
-    { name = "notebook" },
-    { name = "numpy" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/7f/6d/dc16ea83b25231ec0912e267429ea12e7b9cdd701cf8a4ff02f1d39e573d/nglview-4.0.1.tar.gz", hash = "sha256:1e15b819b9f8ada3e521e587d24cc3754573203cc99ee5d801cef28d992865a5", size = 26194241, upload-time = "2026-02-02T15:39:28.324Z" }
-
-[[package]]
 name = "nh3"
 version = "0.3.3"
 source = { registry = "https://pypi.org/simple" }
@@ -5668,15 +5647,6 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/73/21/d250cfca8ff30c2e5a7447bc13861541126ce9bd4426cd5d0c9f08b5547d/py_serializable-2.1.0.tar.gz", hash = "sha256:9d5db56154a867a9b897c0163b33a793c804c80cee984116d02d49e4578fc103", size = 52368, upload-time = "2025-07-21T09:56:48.07Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/9b/bf/7595e817906a29453ba4d99394e781b6fabe55d21f3c15d240f85dd06bb1/py_serializable-2.1.0-py3-none-any.whl", hash = "sha256:b56d5d686b5a03ba4f4db5e769dc32336e142fc3bd4d68a8c25579ebb0a67304", size = 23045, upload-time = "2025-07-21T09:56:46.848Z" },
-]
-
-[[package]]
-name = "py3dmol"
-version = "2.5.4"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/39/7a/d7be826cf33a917f4ff78fd07237368dfdf21e09ab463b9de9a33c61ec0c/py3dmol-2.5.4.tar.gz", hash = "sha256:6142e1605f51e0fd8ec000db5ab045a90a08bc6147176735631a20be301dd19d", size = 7851, upload-time = "2026-01-22T13:33:49.8Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/25/7d/cea3531f77df694ac7f169378250d85f19f69b09a5f4fa45f650837ae7cc/py3dmol-2.5.4-py2.py3-none-any.whl", hash = "sha256:32806726b5310524a2b5bfee320737f7feef635cafc945c991062806daa9e43a", size = 7154, upload-time = "2026-01-22T13:33:48.659Z" },
 ]
 
 [[package]]
