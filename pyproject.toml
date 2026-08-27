@@ -215,7 +215,15 @@ tooling_python = "3.11"
 
 [tool.artifex.ci.security]
 mode = "blocking"
-reviewed_ignores = []
+reviewed_ignores = [
+  # PKCS#7 EnvelopedData Bleichenbacher oracle in pkcs7_decrypt_der / _pem / _smime.
+  # cryptography reaches artifex only transitively, through mlflow, google-auth and
+  # secretstorage. Nothing under src/ imports cryptography or names pkcs7 or
+  # EnvelopedData, so the affected API is not reachable from this package.
+  # The fix is cryptography 50.0.0 and mlflow requires cryptography<50, so the
+  # resolver cannot take it. Revisit when mlflow relaxes that ceiling.
+  { id = "PYSEC-2026-3552", package = "cryptography", reviewed = "2026-08-27" },
+]
 
 [tool.artifex.repo_standards]
 line_length = 100
