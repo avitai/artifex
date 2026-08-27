@@ -263,3 +263,6 @@ sandbox/
 # JAX/XLA compilation caches (local development)
 .cache/jax/
 .cache/xla/
+
+# Private working notes and per-editor assistant configuration. Local only.
+AGENTS.md
