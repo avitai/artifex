@@ -11,7 +11,6 @@ from typing import Any, cast
 
 import jax.numpy as jnp
 import numpy as np
-from datasets import load_dataset
 from flax import nnx
 from PIL import Image
 
@@ -137,6 +136,11 @@ class CelebADataset:
 
             # Pin revision for security and reproducibility
             revision = os.environ.get("CELEBA_DATASET_REVISION", "main")
+            # Imported lazily so `datasets` (and the pandas/pyarrow tree behind it) stays
+            # an optional `benchmarks` extra rather than a runtime dependency of the whole
+            # library. Only this benchmark dataset needs it.
+            from datasets import load_dataset
+
             ds = load_dataset(  # nosec B615 - revision is pinned via environment variable
                 "flwrlabs/celeba",
                 split=hf_split,
