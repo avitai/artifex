@@ -11,15 +11,15 @@
 
 From Latin "artifex": craftsman, artist, maker.
 
-[Documentation](https://docs.avitai.bio/artifex) • [Getting Started](docs/getting-started/installation.md) • [Examples](docs/examples/index.md) • [Contributing](CONTRIBUTING.md)
+[Documentation](https://artifex.readthedocs.io/en/latest/) • [Getting Started](docs/getting-started/installation.md) • [Examples](docs/examples/index.md) • [Contributing](CONTRIBUTING.md)
 
 </div>
 
 ---
 
-> **⚠️ Major Refactoring in Progress**
->
-> Artifex is still in a heavy rebuild cycle. Stability is not guaranteed, and breaking changes are expected between commits.
+> **Research preview, mid-rebuild.** Artifex is in an active rebuild cycle, so breaking changes
+> between commits are expected and stability is not guaranteed. Pin a commit if you need it.
+> What that means concretely:
 >
 > | Area | Status | Current expectation |
 > |------|--------|---------------------|
@@ -59,7 +59,7 @@ Artifex prioritizes:
 ### Technical Principles
 
 - **Type Checking**: Pyright basic-mode reports track the supported source surface while repo-wide blocking enforcement is still being rebuilt
-- **JAX Native**: Leverages JAX's functional programming paradigm
+- **JAX Native**: Built on JAX's functional programming paradigm
 - **Flax NNX**: Modern object-oriented API for neural networks
 - **Configuration Management**: Frozen dataclass configs with validation
 - **Testing**: Blocking CI enforces repository contracts and an 80% repo-wide coverage floor
@@ -303,6 +303,6 @@ Artifex builds on several strong open-source projects:
 
 <div align="center">
 
-**[Documentation](https://docs.avitai.bio/artifex)** • **[GitHub](https://github.com/avitai/artifex)** • **[Issues](https://github.com/avitai/artifex/issues)**
+**[Documentation](https://artifex.readthedocs.io/en/latest/)** • **[GitHub](https://github.com/avitai/artifex)** • **[Issues](https://github.com/avitai/artifex/issues)**
 
 </div>
