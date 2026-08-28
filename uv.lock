@@ -509,6 +509,7 @@ all = [
     { name = "mkdocs-material" },
     { name = "mkdocstrings" },
     { name = "mkdocstrings-python" },
+    { name = "mlflow" },
     { name = "mock" },
     { name = "nbconvert" },
     { name = "nvidia-cublas-cu12", marker = "sys_platform == 'linux'" },
@@ -544,6 +545,7 @@ all = [
     { name = "tensorboard" },
     { name = "twine" },
     { name = "vulture" },
+    { name = "wandb" },
     { name = "wemake-python-styleguide" },
     { name = "xenon" },
 ]
@@ -571,6 +573,7 @@ all-cpu = [
     { name = "mkdocs-material" },
     { name = "mkdocstrings" },
     { name = "mkdocstrings-python" },
+    { name = "mlflow" },
     { name = "mock" },
     { name = "nbconvert" },
     { name = "pip-audit" },
@@ -594,6 +597,7 @@ all-cpu = [
     { name = "tensorboard" },
     { name = "twine" },
     { name = "vulture" },
+    { name = "wandb" },
     { name = "wemake-python-styleguide" },
     { name = "xenon" },
 ]
@@ -622,6 +626,7 @@ all-macos = [
     { name = "mkdocs-material" },
     { name = "mkdocstrings" },
     { name = "mkdocstrings-python" },
+    { name = "mlflow" },
     { name = "mock" },
     { name = "nbconvert" },
     { name = "pip-audit" },
@@ -645,6 +650,7 @@ all-macos = [
     { name = "tensorboard" },
     { name = "twine" },
     { name = "vulture" },
+    { name = "wandb" },
     { name = "wemake-python-styleguide" },
     { name = "xenon" },
 ]
@@ -669,6 +675,7 @@ cuda-dev = [
     { name = "jaxlib", marker = "sys_platform == 'linux'" },
     { name = "jupyter" },
     { name = "jupytext" },
+    { name = "mlflow" },
     { name = "mock" },
     { name = "nbconvert" },
     { name = "nvidia-cublas-cu12", marker = "sys_platform == 'linux'" },
@@ -703,6 +710,7 @@ cuda-dev = [
     { name = "tensorboard" },
     { name = "twine" },
     { name = "vulture" },
+    { name = "wandb" },
     { name = "wemake-python-styleguide" },
     { name = "xenon" },
 ]
@@ -783,6 +791,7 @@ metal = [
 test = [
     { name = "beartype" },
     { name = "coverage" },
+    { name = "mlflow" },
     { name = "mock" },
     { name = "pytest" },
     { name = "pytest-asyncio" },
@@ -792,6 +801,8 @@ test = [
     { name = "pytest-json-report" },
     { name = "pytest-timeout" },
     { name = "pytest-xdist" },
+    { name = "tensorboard" },
+    { name = "wandb" },
 ]
 
 [package.dev-dependencies]
@@ -808,6 +819,7 @@ requires-dist = [
     { name = "avitai-artifex", extras = ["dev", "docs", "metal", "test"], marker = "extra == 'all-macos'" },
     { name = "avitai-artifex", extras = ["dev", "docs", "test"], marker = "extra == 'all-cpu'" },
     { name = "avitai-artifex", extras = ["dev", "test", "cuda12"], marker = "extra == 'cuda-dev'" },
+    { name = "avitai-artifex", extras = ["logging"], marker = "extra == 'test'" },
     { name = "bandit", extras = ["toml"], marker = "extra == 'dev'", specifier = ">=1.8.6" },
     { name = "beartype", marker = "extra == 'test'", specifier = ">=0.14.1" },
     { name = "blackjax", specifier = ">=1.2.5" },
