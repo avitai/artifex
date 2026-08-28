@@ -150,8 +150,12 @@ class SpectralNormRegularization(nnx.Module):
         self.n_power_iterations = n_power_iterations
         self.eps = eps
 
-        # State for storing u vectors (will be initialized on first call)
-        self._u_states: dict[str, nnx.Variable] = {}
+        # State for storing u vectors (initialized on first call). nnx.Dict, not a plain
+        # dict: nnx only traverses its own containers, so Variables placed in a plain dict
+        # are invisible to nnx.split and are therefore never lifted by nnx.jit. Updating
+        # one inside a transform then mutates a Variable belonging to the outer trace,
+        # which flax rejects with TraceContextError.
+        self._u_states: nnx.Dict = nnx.Dict()
 
     def __call__(
         self, weight: jax.Array, weight_name: str = "weight", scale: float = 1.0

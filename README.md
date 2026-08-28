@@ -2,7 +2,7 @@
 
 <div align="center">
 
-[![Python](https://img.shields.io/badge/Python-3.11%2B-blue)](https://www.python.org/)
+[![Python](https://img.shields.io/badge/Python-3.12%2B-blue)](https://www.python.org/)
 [![JAX](https://img.shields.io/badge/JAX-0.4%2B-green)](https://github.com/google/jax)
 [![Flax](https://img.shields.io/badge/Flax-NNX-orange)](https://github.com/google/flax)
 [![License](https://img.shields.io/badge/License-MIT-yellow)](LICENSE)

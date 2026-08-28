@@ -174,12 +174,14 @@ class Distribution(nnx.Module):
 
     @staticmethod
     def _is_concrete_value(value: Any) -> bool:
-        if isinstance(value, jax_core.Tracer):
-            return False
-        try:
-            return bool(jax_core.is_concrete(value))
-        except TypeError:
-            return True
+        """Report whether ``value`` can be read on the host without concretizing a tracer.
+
+        This previously called ``jax.core.is_concrete``, which jax deprecated in 0.10 and
+        removed in 0.11. That helper was ``to_concrete_value(x) is not None``, and
+        ``to_concrete_value`` returns non-tracers unchanged -- so behind the tracer check
+        above it only ever asked whether the value was ``None``.
+        """
+        return not isinstance(value, jax_core.Tracer) and value is not None
 
     @classmethod
     def _check_finite(cls, x: jax.Array, name: str = "value") -> jax.Array:

@@ -36,9 +36,9 @@ def test_pyproject_declares_canonical_repo_standards_contract() -> None:
     standards = _repo_standards()
 
     assert standards["line_length"] == 100
-    assert standards["interpreter"]["minimum_supported"] == "3.11"
-    assert standards["interpreter"]["tooling"] == "3.11"
-    assert standards["interpreter"]["docs"] == "3.11"
+    assert standards["interpreter"]["minimum_supported"] == "3.12"
+    assert standards["interpreter"]["tooling"] == "3.12"
+    assert standards["interpreter"]["docs"] == "3.12"
     assert standards["coverage"]["project_fail_under"] == 80
     assert standards["coverage"]["new_code_target"] == 80
     assert standards["typing"]["pyright_mode"] == "basic"

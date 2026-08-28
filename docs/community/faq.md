@@ -33,7 +33,7 @@ See the [Installation Guide](../getting-started/installation.md) for more detail
 
 ### Q: Which Python version should I use?
 
-**A**: Python 3.10 or later. We test on Python 3.10, 3.11, and 3.12.
+**A**: Python 3.12 or later. Every job in CI runs Python 3.12.
 
 ## Models
 
