@@ -46,8 +46,11 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           cache-suffix: unit-${{ matrix.python-version }}-${{ matrix.os }}
-          linux-editable-target: ".[dev,test]"
-          macos-editable-target: ".[all-cpu]"
+          # logging carries wandb, mlflow and tensorboard. The callback tests mock the
+          # trackers with patch("wandb.init"), which still needs the module importable,
+          # so the extra has to be present even though no network call is made.
+          linux-editable-target: ".[dev,test,logging]"
+          macos-editable-target: ".[all-cpu,logging]"
 
       - name: Run unit tests with coverage
         shell: bash
