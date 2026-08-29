@@ -131,7 +131,12 @@ def run_jupytext_command(args: list[str], verbose: bool = False) -> tuple[bool, 
     Returns:
         Tuple of (success: bool, output: str)
     """
-    cmd = ["jupytext", *args]
+    # Invoke jupytext through the interpreter running this script, not the bare name.
+    # A bare "jupytext" resolves through PATH, which may find an installation belonging
+    # to a different environment -- a stale ~/.local/bin/jupytext whose interpreter no
+    # longer has the package fails with ModuleNotFoundError while the active virtualenv
+    # has it installed.
+    cmd = [sys.executable, "-m", "jupytext", *args]
 
     if verbose:
         print(f"Running: {' '.join(cmd)}")

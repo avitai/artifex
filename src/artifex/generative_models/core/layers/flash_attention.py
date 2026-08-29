@@ -18,7 +18,6 @@ Based on:
 
 from __future__ import annotations
 
-import functools
 from collections.abc import Callable
 from typing import Any
 
@@ -267,13 +266,34 @@ class FlashMultiHeadAttention(nnx.MultiHeadAttention):
             out_features,
             in_kv_features,
             attention_fn=(
-                attention_fn
-                if attention_fn is not None
-                else functools.partial(flash_dot_product_attention, is_causal=causal)
+                attention_fn if attention_fn is not None else flash_dot_product_attention
             ),
             **kwargs,
         )
         self.causal = causal
+
+    def __call__(self, *args: Any, is_causal: bool | None = None, **kwargs: Any) -> Array:
+        """Apply attention, defaulting ``is_causal`` to the ``causal`` given at construction.
+
+        In nnx, causality is a call-time property: ``MultiHeadAttention.__call__`` takes
+        ``is_causal`` and forwards it to ``attention_fn``. Binding it with
+        ``functools.partial`` on the kernel instead is silently overridden, because a
+        partial's keyword is only a default and the caller's explicit keyword wins -- so
+        ``causal=True`` produced non-causal attention from flax 0.12.9, which is the release
+        that added the argument. Forwarding it here keeps the constructor convenience while
+        letting an explicit call-site ``is_causal`` take precedence.
+
+        Args:
+            *args: Positional arguments for :class:`flax.nnx.MultiHeadAttention`.
+            is_causal: Override the constructor's ``causal`` for this call.
+            **kwargs: Keyword arguments for :class:`flax.nnx.MultiHeadAttention`.
+
+        Returns:
+            The attention output.
+        """
+        return super().__call__(
+            *args, is_causal=self.causal if is_causal is None else is_causal, **kwargs
+        )
 
     def resolve_backend(
         self,

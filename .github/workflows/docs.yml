@@ -28,7 +28,7 @@ jobs:
       - name: Set up Artifex docs environment
         uses: ./.github/actions/setup-artifex
         with:
-          python-version: '3.11'
+          python-version: '3.12'
           cache-suffix: docs-py311
           linux-editable-target: ".[docs]"
 
