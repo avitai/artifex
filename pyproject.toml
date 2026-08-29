@@ -95,8 +95,17 @@ cuda-dev = [
 ]
 cuda12 = [
   # Linux CUDA runtime managed through the official JAX extra.
-  # The NVIDIA wheel versions are pinned to the validated stack that passes
-  # GPU convolution tests on the supported Linux hosts.
+  # jax, jaxlib and the NVIDIA wheels are pinned together because this extra exists to freeze
+  # one validated stack, not to set a floor. Loosening any single line breaks that guarantee.
+  #
+  # Validated 2026-08-27 on an RTX 4090 (sm_89, driver 595.84, CUDA 13.2): the stack below
+  # installs through `./setup.sh --backend cuda12`, scripts/verify_gpu_setup.py reports the
+  # device, and 430 convolution and generative-model tests pass on GPU in 251s.
+  #
+  # CI cannot re-check this. Every runner is GitHub-hosted with no GPU, this extra is
+  # installed by no workflow, and each pytest call deselects `gpu`, `gpu_required` and
+  # `cuda`. The pin is therefore held by manual validation alone: re-run the check above on
+  # comparable hardware before moving any version here, and record the new date.
   "jax[cuda12]==0.9.1; sys_platform == 'linux'",
   "jaxlib==0.9.1; sys_platform == 'linux'",
   "nvidia-cublas-cu12==12.8.4.1; sys_platform == 'linux'",
