@@ -57,7 +57,7 @@ dependencies = [
   "tqdm>=4.67",
   "typer>=0.7",
   "psutil>=5.9.5",
-  "typing_extensions>=4.5",
+  "typing_extensions>=4.5"
 ]
 description = "ARTIFEX: Architectures + Generative + JAX - A modular generative modeling library"
 keywords = [
@@ -88,6 +88,11 @@ all-cpu = [
 all-macos = [
   # macOS with Metal acceleration (Apple Silicon M1/M2/M3+)
   "avitai-artifex[dev,docs,metal,test]"
+]
+benchmarks = [
+  # Only artifex.benchmarks needs these; both import sites are lazy.
+  "datasets>=2.14.0",
+  "huggingface-hub>=0.25.0"
 ]
 cuda-dev = [
   # Complete Linux CUDA development environment
@@ -171,12 +176,6 @@ docs = [
   "mkdocstrings-python>=1.1.2",
   "pymdown-extensions>=10.14.3"
 ]
-benchmarks = [
-  # Only artifex.benchmarks needs these; both import sites are lazy.
-  "datasets>=2.14.0",
-  "huggingface-hub>=0.25.0"
-]
-
 logging = [
   "mlflow>=2",
   "tensorboard>=2.16",
@@ -188,6 +187,11 @@ metal = [
   "jax-metal>=0.1.0; sys_platform == 'darwin' and platform_machine == 'arm64'"
 ]
 test = [
+  # The tracker callback tests patch `wandb.init`, and patching an attribute imports the real
+  # module, so the suite needs the logging stack even though src/ imports it lazily. Declared
+  # here rather than in a workflow so `uv sync --extra test` is enough to run the tests
+  # anywhere, and so the macOS jobs get it through all-cpu/all-macos.
+  "avitai-artifex[logging]",
   "beartype>=0.14.1",
   "mock>=5.2",
   "coverage>=7",
@@ -225,13 +229,10 @@ tooling_python = "3.11"
 [tool.artifex.ci.security]
 mode = "blocking"
 reviewed_ignores = [
-  # PKCS#7 EnvelopedData Bleichenbacher oracle in pkcs7_decrypt_der / _pem / _smime.
-  # cryptography reaches artifex only transitively, through mlflow, google-auth and
-  # secretstorage. Nothing under src/ imports cryptography or names pkcs7 or
-  # EnvelopedData, so the affected API is not reachable from this package.
-  # The fix is cryptography 50.0.0 and mlflow requires cryptography<50, so the
-  # resolver cannot take it. Revisit when mlflow relaxes that ceiling.
-  { id = "PYSEC-2026-3552", package = "cryptography", reviewed = "2026-08-27" },
+  # The rationale is a field rather than a comment because the contract in
+  # tests/artifex/repo_contracts/test_ci_workflow_contracts.py reads it, and a comment is
+  # invisible to every checker. review_after is when the mlflow ceiling should be re-tested.
+  {id = "PYSEC-2026-3552", owner = "repo-maintainers", package = "cryptography", rationale = "PKCS#7 EnvelopedData Bleichenbacher oracle in pkcs7_decrypt_der / _pem / _smime. cryptography reaches artifex only transitively, through mlflow, google-auth and secretstorage. Nothing under src/ imports cryptography or names pkcs7 or EnvelopedData, so the affected API is not reachable from this package. The fix is cryptography 50.0.0 and mlflow requires cryptography<50, so the resolver cannot take it.", review_after = "2026-11-27", reviewed = "2026-08-27"}
 ]
 
 [tool.artifex.repo_standards]
