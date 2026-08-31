@@ -2,6 +2,9 @@
 # Enhanced for complete code quality
 # Optimized for performance and reduced package installations
 
+default_language_version:
+  node: 22.21.1
+
 repos:
   # TOML formatting
   - repo: local
