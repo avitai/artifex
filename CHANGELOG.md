@@ -34,6 +34,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- artifex depends on `substrax` (device identity, meshes, SPMD helpers, the checkpoint
+  store, callbacks and trackers shared across the Avitai libraries) and raises its floors
+  to `calibrax>=0.1.3`, `jax>=0.11.1` and `orbax-checkpoint>=0.11.33`, the versions every
+  sibling tests and the lock already resolved.
 - `typer`, `trimesh` and `graphviz` leave the runtime dependencies for the `cli`,
   `geometric` and `analysis` extras (`benchmarks` includes the first two, `dev` the
   last, and `test` all three). Importing `artifex.cli`, `artifex.benchmarks` or
