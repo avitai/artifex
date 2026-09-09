@@ -1,60 +1,43 @@
-"""Runtime-oriented device helpers for generative-model workflows."""
+"""Runtime-oriented device helpers for generative-model workflows.
+
+Device identity, placement and the hardware batch-size table are substrax's
+(``substrax.devices``); this module keeps the one artifex-specific rule, scaling
+the hardware's batch size by model size.
+"""
 
 from __future__ import annotations
 
-from ...core.device_manager import (
-    DeviceCapabilities,
-    DeviceManager,
-    DeviceType,
-    get_default_device,
-    get_device_manager,
-    has_gpu,
-    print_device_info,
-)
-from ...core.device_testing import (
-    print_test_results,
-    run_device_tests,
-    TestResult,
-    TestSeverity,
-    TestSuite,
-)
+from substrax.devices import get_batch_size_recommendation
 
 
-__all__ = [
-    "DeviceCapabilities",
-    "DeviceManager",
-    "DeviceType",
-    "get_default_device",
-    "get_device_manager",
-    "has_gpu",
-    "print_device_info",
-    "TestResult",
-    "TestSeverity",
-    "TestSuite",
-    "print_test_results",
-    "run_device_tests",
-    "verify_device_setup",
-    "get_recommended_batch_size",
-]
+__all__ = ["get_recommended_batch_size"]
+
+# Parameter counts at which the hardware's batch size is halved or doubled.
+LARGE_MODEL_PARAMETERS = 100_000_000
+SMALL_MODEL_PARAMETERS = 1_000_000
 
 
-def verify_device_setup(critical_only: bool = False) -> bool:
-    """Run the device diagnostics suite and return its health verdict."""
-    suite = run_device_tests(critical_only=critical_only)
-    return suite.is_healthy
+def get_recommended_batch_size(model_params: int, base_batch_size: int | None = None) -> int:
+    """Return a batch size for the detected hardware, scaled by model size.
 
+    Args:
+        model_params: Number of trainable parameters in the model.
+        base_batch_size: Starting point. ``None`` takes substrax's optimal batch
+            size for the detected hardware.
 
-def get_recommended_batch_size(model_params: int, base_batch_size: int = 32) -> int:
-    """Return a simple runtime-aware batch-size heuristic."""
-    manager = get_device_manager()
-    multiplier = 1.0
-
-    if not manager.has_gpu:
-        multiplier *= 0.25
-
-    if model_params > 1e8:
-        multiplier *= 0.5
-    elif model_params < 1e6:
-        multiplier *= 2.0
-
-    return max(1, int(base_batch_size * multiplier))
+    Returns:
+        The starting point halved above 100M parameters and doubled below 1M,
+        never below 1 and never above the hardware's estimated memory ceiling
+        when substrax states one.
+    """
+    recommendation = get_batch_size_recommendation()
+    base = recommendation.optimal_batch_size if base_batch_size is None else base_batch_size
+    if model_params > LARGE_MODEL_PARAMETERS:
+        multiplier = 0.5
+    elif model_params < SMALL_MODEL_PARAMETERS:
+        multiplier = 2.0
+    else:
+        multiplier = 1.0
+    batch_size = max(1, int(base * multiplier))
+    ceiling = recommendation.max_memory_batch_size
+    return batch_size if ceiling is None else min(batch_size, ceiling)

@@ -707,8 +707,8 @@ graph TB
    `model_class` dispatch on the public surface.
 3. **Factory pattern**: centralized model construction via
    `artifex.generative_models.factory.create_model(config, *, rngs=...)`.
-4. **Hardware-aware**: a single `DeviceManager` that introspects the
-   active JAX backend (CPU / GPU / TPU).
+4. **Hardware-aware**: device identity comes from substrax's `detect_devices()`,
+   which reports the active JAX backend (CPU / GPU / TPU).
 5. **Modular composition**: encoders, decoders, backbones, schedules, and
    samplers are independent config-driven components.
 
@@ -766,21 +766,20 @@ config = VAEConfig(
 
 ### Device Management
 
-Artifex exposes the active JAX runtime through `DeviceManager`. JAX device
-semantics are documented in [Bradbury et al., 2018](#bradbury-2018) and
-the official [JAX docs](#jax-docs).
+The active JAX runtime is described by substrax's `detect_devices()`, which every
+Avitai library shares; JAX device semantics are documented in
+[Bradbury et al., 2018](#bradbury-2018) and the official [JAX docs](#jax-docs).
 
 ```python
 import jax
-from artifex.generative_models.core import DeviceManager
+from substrax.devices import DeviceKind, detect_devices
 
-manager = DeviceManager()
-info = manager.get_device_info()
-print(f"Backend:   {info['backend']}")        # 'cpu', 'gpu', or 'tpu'
-print(f"Devices:   {info['jax_devices']}")
-print(f"Default:   {manager.get_default_device()}")
-print(f"Has GPU:   {manager.has_gpu}")
-print(f"GPU count: {manager.gpu_count}")
+info = detect_devices()
+print(f"Platform:  {info.platform}")           # 'cpu', 'gpu', or 'tpu'
+print(f"Kind:      {info.kind}")               # a DeviceKind
+print(f"Devices:   {info.count}")
+print(f"Default:   {jax.devices()[0]}")
+print(f"Has GPU:   {info.kind is DeviceKind.GPU}")
 ```
 
 For explicit backend verification, use:

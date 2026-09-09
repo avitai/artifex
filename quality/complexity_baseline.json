@@ -414,24 +414,6 @@
       "qualname": "PatchGANDiscriminatorConfig.__post_init__",
       "rank": "C"
     },
-    "src/artifex/generative_models/core/device_manager.py:function:_collect_gpu_metadata": {
-      "complexity": 19,
-      "endline": 126,
-      "kind": "function",
-      "lineno": 75,
-      "path": "src/artifex/generative_models/core/device_manager.py",
-      "qualname": "_collect_gpu_metadata",
-      "rank": "C"
-    },
-    "src/artifex/generative_models/core/device_manager.py:function:_collect_runtime_state": {
-      "complexity": 14,
-      "endline": 193,
-      "kind": "function",
-      "lineno": 139,
-      "path": "src/artifex/generative_models/core/device_manager.py",
-      "qualname": "_collect_runtime_state",
-      "rank": "C"
-    },
     "src/artifex/generative_models/core/distributions/base.py:method:Distribution._get_param_hash": {
       "complexity": 13,
       "endline": 85,

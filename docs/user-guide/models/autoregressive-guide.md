@@ -1019,10 +1019,9 @@ print("Training complete!")
 
 ```python
 # Move to GPU
-from artifex.generative_models.core.device_manager import DeviceManager
+import jax
 
-device_manager = DeviceManager()
-device = device_manager.get_device()
+device = jax.devices()[0]
 
 # Move model and data to GPU
 model = jax.device_put(model, device)

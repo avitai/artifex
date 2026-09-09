@@ -278,15 +278,6 @@
       "PTH103": 3,
       "PTH123": 5
     },
-    "src/artifex/generative_models/core/device_manager.py": {
-      "ANN202": 2,
-      "C901": 1,
-      "PTH123": 1
-    },
-    "src/artifex/generative_models/core/device_testing.py": {
-      "B009": 3,
-      "BLE001": 1
-    },
     "src/artifex/generative_models/core/distributions/base.py": {
       "ANN001": 3,
       "ANN002": 1,

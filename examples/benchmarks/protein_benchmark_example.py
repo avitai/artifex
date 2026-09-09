@@ -1,16 +1,30 @@
 #!/usr/bin/env python
+# ---
+# jupyter:
+#   jupytext:
+#     formats: py:percent,ipynb
+#     text_representation:
+#       extension: .py
+#       format_name: percent
+#       format_version: '1.3'
+# ---
+
+# %%
 """Demo of protein model benchmarks with NNX-compatible clustering.
 
 This script demonstrates the protein benchmark suite with NNX models.
 """
 
+# %%
 import argparse
 import os
 
+# %%
 import flax.nnx as nnx
 import jax
 import matplotlib.pyplot as plt
 
+# %%
 from artifex.benchmarks.datasets.protein_dataset import (
     create_synthetic_protein_dataset,
 )
@@ -20,6 +34,7 @@ from artifex.benchmarks.suites.protein_benchmarks import (
 )
 
 
+# %%
 class MockProteinModel(nnx.Module):
     """Mock protein model for benchmark demonstration.
 
@@ -136,6 +151,7 @@ class MockProteinModel(nnx.Module):
         return template + noise
 
 
+# %%
 def parse_args():
     """Parse command line arguments."""
     parser = argparse.ArgumentParser(description="Run benchmarks on NNX protein models")
@@ -164,6 +180,7 @@ def parse_args():
     return parser.parse_args()
 
 
+# %%
 def main():
     """Run the benchmark demo."""
     # Parse command line arguments
@@ -181,9 +198,7 @@ def main():
     from flax import nnx
 
     from artifex.generative_models.core.configuration import DataConfig
-    from artifex.generative_models.core.device_manager import DeviceManager
 
-    DeviceManager()
     rngs = nnx.Rngs(seed)
 
     data_config = DataConfig(
@@ -293,5 +308,6 @@ def main():
     print("Benchmark demo completed successfully")
 
 
+# %%
 if __name__ == "__main__":
     main()

@@ -149,9 +149,7 @@ def main():
     from flax import nnx
 
     from artifex.generative_models.core.configuration import DataConfig
-    from artifex.generative_models.core.device_manager import DeviceManager
 
-    DeviceManager()
     rngs = nnx.Rngs(seed)
 
     data_config = DataConfig(

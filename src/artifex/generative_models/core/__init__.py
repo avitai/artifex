@@ -39,18 +39,6 @@ _LAZY_EXPORTS: dict[str, str | tuple[str, str]] = {
         "artifex.generative_models.core.gradient_checkpointing",
         "resolve_checkpoint_policy",
     ),
-    "DeviceManager": (
-        "artifex.generative_models.core.device_manager",
-        "DeviceManager",
-    ),
-    "print_test_results": (
-        "artifex.generative_models.core.device_testing",
-        "print_test_results",
-    ),
-    "run_device_tests": (
-        "artifex.generative_models.core.device_testing",
-        "run_device_tests",
-    ),
 }
 
 
@@ -71,9 +59,6 @@ __all__ = [
     "CHECKPOINT_POLICIES",
     "apply_remat",
     "resolve_checkpoint_policy",
-    "DeviceManager",
-    "print_test_results",
-    "run_device_tests",
 ]
 
 

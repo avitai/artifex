@@ -135,7 +135,6 @@ nav:
           - Base Classes: api/core/base.md
           - Configuration: api/core/configuration.md
           - Loss Functions: api/core/losses.md
-          - Device Management: api/core/device-manager.md
           - Sampling: api/sampling.md
       - Models:
           - VAE: api/models/vae.md
@@ -387,8 +386,6 @@ nav:
           - core/configuration.md
           - core/continuous.md
           - core/distribution_base.md
-          - core/device_manager.md
-          - core/device_testing.md
           - core/diffusion.md
           - core/discrete.md
           - core/distance.md

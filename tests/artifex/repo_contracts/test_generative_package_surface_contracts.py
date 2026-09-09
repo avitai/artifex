@@ -34,8 +34,6 @@ def test_core_package_import_keeps_children_lazy() -> None:
         "'protocols_loaded': 'artifex.generative_models.core.protocols' in sys.modules, "
         "'sampling_loaded': 'artifex.generative_models.core.sampling' in sys.modules, "
         "'checkpointing_loaded': 'artifex.generative_models.core.checkpointing' in sys.modules, "
-        "'device_manager_loaded': 'artifex.generative_models.core.device_manager' in sys.modules, "
-        "'device_testing_loaded': 'artifex.generative_models.core.device_testing' in sys.modules, "
         "'gradient_checkpointing_loaded': "
         "'artifex.generative_models.core.gradient_checkpointing' in sys.modules, "
         "'jax_loaded': 'jax' in sys.modules, "
@@ -52,8 +50,6 @@ def test_core_package_import_keeps_children_lazy() -> None:
     assert payload["protocols_loaded"] is False
     assert payload["sampling_loaded"] is False
     assert payload["checkpointing_loaded"] is False
-    assert payload["device_manager_loaded"] is False
-    assert payload["device_testing_loaded"] is False
     assert payload["gradient_checkpointing_loaded"] is False
     assert payload["jax_loaded"] is False
     assert payload["all"] == [
@@ -71,9 +67,6 @@ def test_core_package_import_keeps_children_lazy() -> None:
         "CHECKPOINT_POLICIES",
         "apply_remat",
         "resolve_checkpoint_policy",
-        "DeviceManager",
-        "print_test_results",
-        "run_device_tests",
     ]
 
 
@@ -84,18 +77,12 @@ def test_core_exports_resolve_lazily() -> None:
         "import artifex.generative_models.core as core; "
         "print(json.dumps({"
         "'sampling_module': core.sampling.__name__, "
-        "'load_checkpoint_module': core.load_checkpoint.__module__, "
-        "'device_manager_module': core.DeviceManager.__module__, "
-        "'run_device_tests_module': core.run_device_tests.__module__, "
-        "'print_test_results_module': core.print_test_results.__module__"
+        "'load_checkpoint_module': core.load_checkpoint.__module__"
         "}))"
     )
 
     assert payload["sampling_module"] == "artifex.generative_models.core.sampling"
     assert payload["load_checkpoint_module"] == "artifex.generative_models.core.checkpointing"
-    assert payload["device_manager_module"] == "artifex.generative_models.core.device_manager"
-    assert payload["run_device_tests_module"] == "artifex.generative_models.core.device_testing"
-    assert payload["print_test_results_module"] == "artifex.generative_models.core.device_testing"
 
 
 def test_core_overview_docs_match_live_core_surface() -> None:

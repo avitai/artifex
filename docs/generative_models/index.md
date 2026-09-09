@@ -283,13 +283,15 @@ adapted_model = image_modality.get_adapter("vae").adapt(model)
 
 ### 4. Hardware-Aware
 
-All components are hardware-aware with automatic device management:
+All components run on whatever JAX backend is active; device identity comes from
+substrax:
 
 ```python
-from artifex.generative_models.core import DeviceManager
+import jax
+from substrax.devices import detect_devices
 
-device_manager = DeviceManager()
-device = device_manager.get_device()  # Auto-selects GPU/CPU
+print(detect_devices())          # platform, device kind and count
+device = jax.devices()[0]        # the default device; jax.device_put(x, device) places data
 ```
 
 ## Related Documentation

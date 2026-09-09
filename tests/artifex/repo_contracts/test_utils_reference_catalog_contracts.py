@@ -18,7 +18,7 @@ RETAINED_RUNTIME_PAGES: dict[str, dict[str, object]] = {
     "device.md": {
         "module": "artifex.generative_models.utils.jax.device",
         "source": "src/artifex/generative_models/utils/jax/device.py",
-        "required": ["verify_device_setup", "get_recommended_batch_size"],
+        "required": ["get_recommended_batch_size", "substrax.devices"],
     },
     "file_utils.md": {
         "module": "artifex.utils.file_utils",

@@ -798,10 +798,9 @@ def preprocess_for_ebm(images):
 
 ```python
 # EBMs benefit significantly from GPU
-from artifex.generative_models.core.device_manager import DeviceManager
+import jax
 
-device_manager = DeviceManager()
-device = device_manager.get_device()
+device = jax.devices()[0]
 print(f"Using device: {device}")
 
 # Move data to GPU

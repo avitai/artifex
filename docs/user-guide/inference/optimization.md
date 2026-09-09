@@ -56,7 +56,6 @@ Inference optimization is critical for deploying generative models in production
 from flax import nnx
 import jax
 import jax.numpy as jnp
-from artifex.generative_models.core import DeviceManager
 ```
 
 ---
@@ -332,8 +331,7 @@ def find_optimal_batch_size(
     Returns:
         Optimal batch size
     """
-    device_manager = DeviceManager()
-    device = device_manager.get_device()
+    device = jax.devices()[0]
 
     batch_size = 1
     while batch_size <= max_batch_size:
@@ -510,8 +508,7 @@ class PipelineParallelModel(nnx.Module):
 
 
 # Create pipeline parallel model
-device_manager = DeviceManager()
-devices = device_manager.get_devices()
+devices = jax.devices()
 
 if len(devices) >= 2:
     pipeline_model = PipelineParallelModel(
@@ -606,8 +603,7 @@ class MultiDeviceInference:
 
     def __init__(self, model):
         self.model = model
-        self.device_manager = DeviceManager()
-        self.devices = self.device_manager.get_devices()
+        self.devices = jax.devices()
         self.num_devices = len(self.devices)
 
         # Replicate model on all devices

@@ -36,7 +36,7 @@ drift away from the live runtime inventory.
 | Losses, distributions, and sampling | Shipped | `artifex.generative_models.core.losses`, `core.distributions`, `core.sampling` | Retained runtime owners |
 | Layers and configuration | Shipped | `artifex.generative_models.core.layers`, `core.configuration` | Typed-config runtime surface |
 | Evaluation package | Experimental | `artifex.generative_models.core.evaluation` | Current top-level exports are only `benchmarks` and `metrics` |
-| Device management | Shipped | `artifex.generative_models.core.device_manager` | Retained runtime owner |
+| Device management | Moved | `substrax.devices` | Device identity and placement live in substrax; artifex keeps no copy |
 
 ### Training
 

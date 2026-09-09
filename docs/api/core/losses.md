@@ -834,7 +834,7 @@ contextual_loss(
 
     Optimize loss computation on GPU/TPU
 
-    [:octicons-arrow-right-24: Device Manager](device-manager.md)
+    [:octicons-arrow-right-24: Configuration](configuration.md)
 
 - :material-book-open: **Training**
 

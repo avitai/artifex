@@ -66,6 +66,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
+- `core.device_manager` and `core.device_testing` (`DeviceManager`, `DeviceCapabilities`,
+  `DeviceType`, `get_device_manager`, `get_default_device`, `has_gpu`, `print_device_info`,
+  `run_device_tests`, `print_test_results`, `TestSuite`, `TestResult`, `TestSeverity`), with
+  their three docs pages and the `core` lazy exports. Device identity and placement are
+  substrax's `substrax.devices`; `utils.jax.device` keeps one helper,
+  `get_recommended_batch_size(model_params, base_batch_size=None)`, which scales substrax's
+  hardware batch size by model size (`verify_device_setup` is gone). The runtime diagnostics
+  are developer tooling: `scripts/gpu_utils.py --test` and `--test-critical`.
 - `utils.logging.logger`, `utils.logging.wandb`, `utils.logging.mlflow` and `core.logging`,
   with their four docs pages. `Logger`, `ConsoleLogger`, `FileLogger`, `WandbLogger`,
   `MLFlowLogger` and `create_logger` are substrax's `substrax.tracking`, re-exported by

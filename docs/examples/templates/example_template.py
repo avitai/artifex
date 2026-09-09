@@ -98,9 +98,9 @@ except ImportError as e:
 
 # Import Artifex
 try:
-    from artifex.generative_models.core.device_manager import DeviceManager
+    import artifex.generative_models as generative_models
 
-    print("✅ Artifex imported successfully")
+    print(f"✅ Artifex imported successfully ({generative_models.__name__})")
 except ImportError as e:
     print(f"❌ Artifex import failed: {e}")
     print("Make sure the Artifex environment is active: source ./activate.sh")
@@ -172,8 +172,8 @@ import matplotlib.pyplot as plt
 from flax import nnx
 from IPython.display import display, Markdown
 
-# Artifex core
-from artifex.generative_models.core.device_manager import DeviceManager
+# Device identity (substrax)
+from substrax.devices import detect_devices
 
 
 # Progress tracking
@@ -263,16 +263,16 @@ Sets up the random number generator and device manager.
 
 🎓 KEY CONCEPTS:
 - RNG streams ensure reproducibility
-- DeviceManager handles GPU/CPU automatically
+- substrax's detect_devices() reports the active backend and device count
 - JAX uses functional random number generation
 """
 
 # Initialize RNG
 rngs = nnx.Rngs(RANDOM_SEED)
 
-# Setup device manager
-device_manager = DeviceManager()
-device = device_manager.get_device()
+# Inspect the runtime
+device_info = detect_devices()
+device = jax.devices()[0]
 
 display(
     Markdown(f"""

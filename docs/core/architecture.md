@@ -210,13 +210,17 @@ total_loss = reconstruction_loss + 0.1 * custom_loss
 
 ## Hardware Management
 
-### Device Manager
+### Devices
+
+Device identity and placement are substrax's (`substrax.devices`); models use JAX's
+own device API:
 
 ```python
-from artifex.generative_models.core import DeviceManager
+import jax
+from substrax.devices import detect_devices
 
-device_manager = DeviceManager()
-device = device_manager.get_device()  # Auto-selects GPU/CPU
+print(detect_devices())          # platform, device kind and count
+device = jax.devices()[0]        # the default device; jax.device_put(x, device) places data
 ```
 
 Handles:
