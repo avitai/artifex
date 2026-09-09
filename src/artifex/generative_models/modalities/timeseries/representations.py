@@ -228,6 +228,9 @@ class MultiScaleProcessor(nnx.Module):
 
         Returns:
             Dictionary mapping scale names to downsampled representations
+
+        Raises:
+            ValueError: If the configured aggregation method is unknown.
         """
         batch_size, seq_len, num_features = x.shape
         representations = {}
@@ -258,6 +261,8 @@ class MultiScaleProcessor(nnx.Module):
                     x_downsampled = jnp.max(x_reshaped, axis=2)
                 elif self.aggregation_method == "sum":
                     x_downsampled = jnp.sum(x_reshaped, axis=2)
+                else:
+                    raise ValueError(f"Unknown aggregation method: {self.aggregation_method}")
 
                 representations[f"scale_{scale}"] = x_downsampled
 
@@ -336,6 +341,9 @@ class TrendDecompositionProcessor(nnx.Module):
 
         Returns:
             Dictionary with 'trend', 'seasonal', and 'residual' components
+
+        Raises:
+            ValueError: If the configured decomposition method is unknown.
         """
         batch_size, seq_len, num_features = x.shape
 
@@ -354,6 +362,8 @@ class TrendDecompositionProcessor(nnx.Module):
             detrended = x - trend
             seasonal = self._seasonal_decomposition(detrended)
             residual = detrended - seasonal
+        else:
+            raise ValueError(f"Unknown decomposition method: {self.method}")
 
         return {
             "trend": trend,

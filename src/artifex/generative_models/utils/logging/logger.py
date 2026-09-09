@@ -260,9 +260,9 @@ class FileLogger(Logger):
         if log_dir is None:
             raise ValueError("FileLogger requires a valid log_dir")
 
-        # Create a unique filename if not provided
+        # One timestamp names both the log and the metrics file
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         if filename is None:
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             filename = f"{name}_{timestamp}.log"
 
         self.log_file = str(Path(log_dir) / filename)

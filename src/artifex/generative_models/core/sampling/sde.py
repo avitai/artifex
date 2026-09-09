@@ -188,10 +188,9 @@ def sde_sampling(
     t = t_start
 
     # For returning trajectory if needed
+    trajectory: jax.Array | None = None
     if return_trajectory:
-        time_points = jnp.linspace(t_start, t_end, n_steps + 1)
-        trajectory = jnp.zeros((n_steps + 1, *init_state.shape))
-        trajectory = trajectory.at[0].set(init_state)
+        trajectory = jnp.zeros((n_steps + 1, *init_state.shape)).at[0].set(init_state)
 
     # Integrate
     for i in range(n_steps):
@@ -205,9 +204,9 @@ def sde_sampling(
         t = t + dt
 
         # Store trajectory if needed
-        if return_trajectory:
+        if trajectory is not None:
             trajectory = trajectory.at[i + 1].set(state)
 
-    if return_trajectory:
-        return trajectory, time_points
+    if trajectory is not None:
+        return trajectory, jnp.linspace(t_start, t_end, n_steps + 1)
     return state

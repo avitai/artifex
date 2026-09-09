@@ -18,6 +18,35 @@ from artifex.generative_models.core.layers.egnn import EGNNLayer
 from artifex.generative_models.models.geometric.base import GeometricModel
 
 
+def _normalize_coordinates(coordinates: jax.Array, mask: jax.Array | None) -> jax.Array:
+    """Center the coordinates on their centroid and scale them to unit deviation.
+
+    Args:
+        coordinates: Node positions, shape ``[batch, num_nodes, 3]``.
+        mask: Optional ``[batch, num_nodes]`` validity mask; only valid nodes
+            contribute to the centroid and the deviation when it is given.
+
+    Returns:
+        The centred and scaled coordinates.
+    """
+    if mask is None:
+        centroid = jnp.mean(coordinates, axis=1, keepdims=True)
+        coordinates = coordinates - centroid
+        std = jnp.std(coordinates)
+    else:
+        mask_for_mean = mask[:, :, None]  # [batch, num_nodes, 1]
+        mask_sum = jnp.maximum(jnp.sum(mask_for_mean, axis=1), 1.0)  # [batch, 1]
+        centroid = (
+            jnp.sum(coordinates * mask_for_mean, axis=1, keepdims=True) / mask_sum[:, :, None]
+        )
+        coordinates = coordinates - centroid
+        squared_dist = jnp.sum((coordinates**2) * mask_for_mean, axis=1)
+        std = jnp.sqrt(jnp.mean(squared_dist))
+
+    # Avoid division by zero, then scale to unit standard deviation
+    return coordinates / jnp.maximum(std, 1e-6)
+
+
 class GraphModel(GeometricModel):
     """Graph model with E(n) equivariance support.
 
@@ -238,39 +267,7 @@ class GraphModel(GeometricModel):
 
         # Normalize coordinates if needed
         if self.norm_coordinates and coordinates is not None:
-            # Compute centroid for each graph in batch
-            if mask is not None:
-                # Only use valid nodes for centroid calculation
-                mask_sum = jnp.sum(mask, axis=1, keepdims=True)
-                mask_sum = jnp.maximum(mask_sum, 1.0)  # Avoid division by zero
-                mask_for_mean = mask[:, :, None]  # [batch, num_nodes, 1]
-
-                # Compute centroid with masked nodes
-                centroid = (
-                    jnp.sum(coordinates * mask_for_mean, axis=1, keepdims=True)
-                    / mask_sum[:, :, None]
-                )
-            else:
-                # Use all nodes for centroid calculation
-                centroid = jnp.mean(coordinates, axis=1, keepdims=True)
-
-            # Center coordinates
-            coordinates = coordinates - centroid
-
-            # Scale coordinates if needed
-            if mask is not None:
-                # Compute std with masked nodes
-                squared_dist = jnp.sum((coordinates**2) * mask_for_mean, axis=1)
-                std = jnp.sqrt(jnp.mean(squared_dist))
-            else:
-                # Compute std with all nodes
-                std = jnp.std(coordinates)
-
-            # Avoid division by zero
-            std = jnp.maximum(std, 1e-6)
-
-            # Scale to unit standard deviation
-            coordinates = coordinates / std
+            coordinates = _normalize_coordinates(coordinates, mask)
 
         # Apply EGNN layers
         for layer in self.egnn_layers:

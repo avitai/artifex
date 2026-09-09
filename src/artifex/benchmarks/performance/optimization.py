@@ -279,7 +279,9 @@ class OptimizationBenchmark(Benchmark):
 
         # Training loop
         iteration = 0
+        epochs_completed = 0
         for epoch in range(self.num_epochs):
+            epochs_completed = epoch + 1
             # Shuffle data indices
             epoch_key = jax.random.fold_in(key, epoch + (self.random_seed or 0))
             indices = jax.random.permutation(epoch_key, data_size)
@@ -440,7 +442,7 @@ class OptimizationBenchmark(Benchmark):
             "total_iterations": iteration,
             "total_time": total_time,
             "examples_processed": examples_processed,
-            "total_epochs": epoch + 1,
+            "total_epochs": epochs_completed,
         }
 
         # Create result

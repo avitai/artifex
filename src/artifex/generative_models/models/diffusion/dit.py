@@ -178,6 +178,7 @@ class DiTModel(GenerativeModel):
             noise_pred = self.backbone(x_t, t, y, deterministic=True)
 
         # If learning sigma, split the output
+        learned_var: jax.Array | None = None
         if self.learn_sigma:
             noise_pred, learned_var = jnp.split(noise_pred, 2, axis=-1)
 
@@ -208,7 +209,7 @@ class DiTModel(GenerativeModel):
 
             noise = jax.random.normal(key, x_t.shape)
 
-            if self.learn_sigma:
+            if learned_var is not None:
                 # Use learned variance
                 log_var = learned_var
                 std = jnp.exp(0.5 * log_var)

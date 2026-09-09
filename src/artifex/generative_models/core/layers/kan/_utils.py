@@ -249,6 +249,9 @@ def _init_glorot(
     sample = _generate_sample(scheme, sample_key)
     gain = scheme.get("gain") or float(sample.std())
     c_res = None
+    # Per-mode second moments (fine-grained) or their aggregate over all modes.
+    per_mode: tuple[jax.Array, jax.Array] | None = None
+    aggregate: tuple[float, float] = (1.0, 1.0)
 
     if basis_fn is not None:
         sample_ext = jnp.tile(sample[:, None], (1, n_in))
@@ -263,6 +266,7 @@ def _init_glorot(
 
             jac_fn = jax.jacrev(basis_scalar)
             mu1 = (jax.vmap(jac_fn)(sample) ** 2).mean(axis=0)
+            per_mode = (mu0, mu1)
         else:
             # Aggregated variance
             y_b = basis_fn(sample_ext)
@@ -280,9 +284,7 @@ def _init_glorot(
                 grad_batch = jax.vmap(jac_fn)(batch)
                 grad_sq_accum += (grad_batch**2).sum()
             grad_b_sq_mean = grad_sq_accum / (len(sample) * basis_dim)
-    else:
-        y_b_sq_mean = 1.0
-        grad_b_sq_mean = 1.0
+            aggregate = (y_b_sq_mean, float(grad_b_sq_mean))
 
     # Residual handling (same for both glorot variants)
     if residual_fn is not None:
@@ -305,11 +307,13 @@ def _init_glorot(
 
     shape = (n_in * n_out, basis_dim) if param_shape == "dense" else (n_out, n_in, basis_dim)
 
-    if fine_grained and basis_fn is not None:
+    if per_mode is not None:
+        mu0, mu1 = per_mode
         sigma_vec = gain * jnp.sqrt(1.0 / (scale_in * mu0 + scale_out * mu1))
         noise = nnx.initializers.normal(stddev=1.0)(rngs.params(), shape, jnp.float32)
         c_basis = noise * sigma_vec
     else:
+        y_b_sq_mean, grad_b_sq_mean = aggregate
         std_b = gain * jnp.sqrt(2.0 / (scale_in * y_b_sq_mean + scale_out * grad_b_sq_mean))
         c_basis = nnx.initializers.normal(stddev=std_b)(rngs.params(), shape, jnp.float32)
 

@@ -321,6 +321,21 @@ class TestSpectralRegularization:
         assert "layer1/kernel" in regularizer._u_states
         assert regularizer._u_states["layer1/kernel"][...].shape == (weight.shape[0], 1)
 
+    def test_power_iteration_requires_at_least_one_round(self):
+        weight = jnp.array([[1.0, 2.0], [3.0, 4.0]])
+
+        with pytest.raises(ValueError, match="at least 1"):
+            spectral_norm_regularization(weight, n_power_iterations=0)
+        with pytest.raises(ValueError, match="at least 1"):
+            SpectralNormRegularization(n_power_iterations=0)(weight, "w")
+
+    def test_power_iteration_converges_to_the_largest_singular_value(self):
+        weight = jnp.array([[3.0, 0.0], [0.0, 1.0]])
+
+        loss, _ = spectral_norm_regularization(weight, n_power_iterations=20, scale=1.0)
+
+        assert float(loss) == pytest.approx(3.0, rel=1e-3)
+
 
 class TestTotalVariationLoss:
     """Test cases for total variation regularization."""

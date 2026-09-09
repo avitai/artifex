@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Every value is defined on every path in the source tree: the spectral-norm power
+  iteration requires at least one round and says so (`ValueError`) instead of failing on
+  an unbound name, an unknown timeseries aggregation or decomposition method raises
+  `ValueError` instead of leaving a component undefined, and the ODE and SDE samplers,
+  the DiT sampler, the neural spline flow, the graph model, the EGNN layer, the KAN
+  initialiser, the benchmark trainer and the file logger no longer read names that
+  exist on only one branch.
+
 ### Changed
 
 - CI runs every pre-commit hook and checks that `uv.lock` is current in the quality

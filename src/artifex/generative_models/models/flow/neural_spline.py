@@ -372,12 +372,9 @@ class SplineCouplingLayer(FlowLayer):
         # Use pre-computed indices for JIT compatibility
         unmasked_indices = jnp.array(self._unmasked_indices)
 
-        if len(x.shape) > 2:
-            batch_size = x.shape[0]
-            x_flat = jnp.reshape(x, (batch_size, -1))
-            x_unmasked = x_flat[:, unmasked_indices]
-        else:
-            x_unmasked = x[:, unmasked_indices]
+        # Flatten every trailing axis; for a 2-D input this is the identity.
+        x_flat = jnp.reshape(x, (x.shape[0], -1))
+        x_unmasked = x_flat[:, unmasked_indices]
 
         # Get spline parameters (uses masked indices internally)
         widths, heights, derivatives = self._get_spline_params(x)
@@ -388,13 +385,7 @@ class SplineCouplingLayer(FlowLayer):
         )
 
         # Reconstruct output (masked dimensions preserved automatically)
-        if len(x.shape) > 2:
-            x_flat_out = x_flat.copy()
-            x_flat_out = x_flat_out.at[:, unmasked_indices].set(x_transformed)
-            output = jnp.reshape(x_flat_out, x.shape)
-        else:
-            output = x.copy()
-            output = output.at[:, unmasked_indices].set(x_transformed)
+        output = jnp.reshape(x_flat.at[:, unmasked_indices].set(x_transformed), x.shape)
 
         # log_det from apply_spline is already summed across dimensions and has shape (batch_size,)
         return output, log_det
@@ -404,12 +395,9 @@ class SplineCouplingLayer(FlowLayer):
         # Use pre-computed indices for JIT compatibility
         unmasked_indices = jnp.array(self._unmasked_indices)
 
-        if len(y.shape) > 2:
-            batch_size = y.shape[0]
-            y_flat = jnp.reshape(y, (batch_size, -1))
-            y_unmasked = y_flat[:, unmasked_indices]
-        else:
-            y_unmasked = y[:, unmasked_indices]
+        # Flatten every trailing axis; for a 2-D input this is the identity.
+        y_flat = jnp.reshape(y, (y.shape[0], -1))
+        y_unmasked = y_flat[:, unmasked_indices]
 
         # Get spline parameters (uses masked indices internally)
         widths, heights, derivatives = self._get_spline_params(y)
@@ -420,13 +408,7 @@ class SplineCouplingLayer(FlowLayer):
         )
 
         # Reconstruct output (masked dimensions preserved automatically)
-        if len(y.shape) > 2:
-            y_flat_out = y_flat.copy()
-            y_flat_out = y_flat_out.at[:, unmasked_indices].set(x_transformed)
-            output = jnp.reshape(y_flat_out, y.shape)
-        else:
-            output = y.copy()
-            output = output.at[:, unmasked_indices].set(x_transformed)
+        output = jnp.reshape(y_flat.at[:, unmasked_indices].set(x_transformed), y.shape)
 
         # log_det from apply_spline is already summed across dimensions and has shape (batch_size,)
         return output, log_det

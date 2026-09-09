@@ -136,6 +136,37 @@ def l2_regularization(
         return jnp.asarray(scale) * jnp.asarray(l2_norm)
 
 
+def _power_iterate(
+    weight: jax.Array, u: jax.Array, iterations: int, eps: float
+) -> tuple[jax.Array, jax.Array]:
+    """Run ``iterations`` rounds of power iteration from ``u``.
+
+    Args:
+        weight: Weight matrix whose leading singular vectors are estimated.
+        u: Current estimate of the left singular vector, shape ``(rows, 1)``.
+        iterations: Number of rounds; at least one, so ``v`` is always defined.
+        eps: Small constant for numerical stability.
+
+    Returns:
+        The updated ``(u, v)`` estimates.
+
+    Raises:
+        ValueError: If ``iterations`` is below one.
+    """
+    if iterations < 1:
+        raise ValueError(f"n_power_iterations must be at least 1, got {iterations}")
+    v = jnp.matmul(weight.T, u)
+    v = v / (jnp.linalg.norm(v) + eps)
+    u = jnp.matmul(weight, v)
+    u = u / (jnp.linalg.norm(u) + eps)
+    for _ in range(iterations - 1):
+        v = jnp.matmul(weight.T, u)
+        v = v / (jnp.linalg.norm(v) + eps)
+        u = jnp.matmul(weight, v)
+        u = u / (jnp.linalg.norm(u) + eps)
+    return u, v
+
+
 class SpectralNormRegularization(nnx.Module):
     """Spectral norm regularization using NNX for stateful computation."""
 
@@ -179,15 +210,7 @@ class SpectralNormRegularization(nnx.Module):
 
         u = self._u_states[weight_name][...]
 
-        # Power iteration
-        for _ in range(self.n_power_iterations):
-            # v = W^T u / ||W^T u||
-            v = jnp.matmul(weight.T, u)
-            v = v / (jnp.linalg.norm(v) + self.eps)
-
-            # u = W v / ||W v||
-            u = jnp.matmul(weight, v)
-            u = u / (jnp.linalg.norm(u) + self.eps)
+        u, v = _power_iterate(weight, u, self.n_power_iterations, self.eps)
 
         # Update stored u vector
         self._u_states[weight_name][...] = u
@@ -231,15 +254,7 @@ def spectral_norm_regularization(
     else:
         u = u_vector
 
-    # Power iteration
-    for _ in range(n_power_iterations):
-        # v = W^T u / ||W^T u||
-        v = jnp.matmul(weight.T, u)
-        v = v / (jnp.linalg.norm(v) + eps)
-
-        # u = W v / ||W v||
-        u = jnp.matmul(weight, v)
-        u = u / (jnp.linalg.norm(u) + eps)
+    u, v = _power_iterate(weight, u, n_power_iterations, eps)
 
     # Compute spectral norm: u^T W v
     spectral_norm = jnp.matmul(jnp.matmul(u.T, weight), v).squeeze()

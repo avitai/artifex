@@ -252,8 +252,8 @@ class EGNNLayer(nnx.Module):
         new_edge_features = edge_messages
 
         # Step 4: Apply attention if enabled
-        if self.use_attention:
-            attention_weights = nnx.sigmoid(self.attention(edge_inputs))
+        attention_weights = nnx.sigmoid(self.attention(edge_inputs)) if self.use_attention else None
+        if attention_weights is not None:
             edge_messages = edge_messages * attention_weights
 
         # Mask by adjacency
@@ -279,13 +279,10 @@ class EGNNLayer(nnx.Module):
         normalized_rel_pos = rel_pos / norm
 
         # Compute coordinate update direction
-        if self.use_attention:
-            coord_update_dir = jnp.sum(
-                normalized_rel_pos * attention_weights * edge_index[:, :, :, None],
-                axis=2,
-            )
-        else:
-            coord_update_dir = jnp.sum(normalized_rel_pos * edge_index[:, :, :, None], axis=2)
+        edge_weights = edge_index[:, :, :, None]
+        if attention_weights is not None:
+            edge_weights = edge_weights * attention_weights
+        coord_update_dir = jnp.sum(normalized_rel_pos * edge_weights, axis=2)
 
         coord_updates = coord_update_dir * coord_messages
 

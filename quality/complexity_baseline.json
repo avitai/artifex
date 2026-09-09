@@ -38,9 +38,9 @@
     },
     "src/artifex/benchmarks/datasets/celeba.py:method:CelebADataset._load_celeba_data": {
       "complexity": 20,
-      "endline": 229,
+      "endline": 233,
       "kind": "method",
-      "lineno": 122,
+      "lineno": 121,
       "path": "src/artifex/benchmarks/datasets/celeba.py",
       "qualname": "CelebADataset._load_celeba_data",
       "rank": "C"
@@ -110,7 +110,7 @@
     },
     "src/artifex/benchmarks/performance/optimization.py:class:OptimizationBenchmark": {
       "complexity": 22,
-      "endline": 454,
+      "endline": 456,
       "kind": "class",
       "lineno": 130,
       "path": "src/artifex/benchmarks/performance/optimization.py",
@@ -119,7 +119,7 @@
     },
     "src/artifex/benchmarks/performance/optimization.py:method:OptimizationBenchmark.run": {
       "complexity": 38,
-      "endline": 454,
+      "endline": 456,
       "kind": "method",
       "lineno": 181,
       "path": "src/artifex/benchmarks/performance/optimization.py",
@@ -128,9 +128,9 @@
     },
     "src/artifex/benchmarks/performance/optimization.py:method:OptimizerComparisonBenchmark.run": {
       "complexity": 13,
-      "endline": 678,
+      "endline": 680,
       "kind": "method",
-      "lineno": 572,
+      "lineno": 574,
       "path": "src/artifex/benchmarks/performance/optimization.py",
       "qualname": "OptimizerComparisonBenchmark.run",
       "rank": "C"
@@ -443,9 +443,9 @@
     },
     "src/artifex/generative_models/core/distributions/base.py:method:Distribution._validate_parameters": {
       "complexity": 11,
-      "endline": 227,
+      "endline": 229,
       "kind": "method",
-      "lineno": 203,
+      "lineno": 205,
       "path": "src/artifex/generative_models/core/distributions/base.py",
       "qualname": "Distribution._validate_parameters",
       "rank": "C"
@@ -475,33 +475,6 @@
       "lineno": 74,
       "path": "src/artifex/generative_models/core/layers/clifford/norm.py",
       "qualname": "CliffordBatchNorm.__call__",
-      "rank": "C"
-    },
-    "src/artifex/generative_models/core/layers/flash_attention.py:class:FlashMultiHeadAttention": {
-      "complexity": 11,
-      "endline": 871,
-      "kind": "class",
-      "lineno": 565,
-      "path": "src/artifex/generative_models/core/layers/flash_attention.py",
-      "qualname": "FlashMultiHeadAttention",
-      "rank": "C"
-    },
-    "src/artifex/generative_models/core/layers/flash_attention.py:method:FlashMultiHeadAttention.__call__": {
-      "complexity": 23,
-      "endline": 842,
-      "kind": "method",
-      "lineno": 683,
-      "path": "src/artifex/generative_models/core/layers/flash_attention.py",
-      "qualname": "FlashMultiHeadAttention.__call__",
-      "rank": "D"
-    },
-    "src/artifex/generative_models/core/layers/flash_attention.py:method:FlashMultiHeadAttention.__init__": {
-      "complexity": 14,
-      "endline": 678,
-      "kind": "method",
-      "lineno": 568,
-      "path": "src/artifex/generative_models/core/layers/flash_attention.py",
-      "qualname": "FlashMultiHeadAttention.__init__",
       "rank": "C"
     },
     "src/artifex/generative_models/core/layers/kan/_utils.py:function:_initialize_kan_params": {
@@ -578,7 +551,7 @@
     },
     "src/artifex/generative_models/core/sampling/sde.py:function:sde_sampling": {
       "complexity": 13,
-      "endline": 213,
+      "endline": 212,
       "kind": "function",
       "lineno": 130,
       "path": "src/artifex/generative_models/core/sampling/sde.py",
@@ -793,10 +766,10 @@
       "rank": "C"
     },
     "src/artifex/generative_models/models/geometric/graph.py:method:GraphModel._forward_graph_core": {
-      "complexity": 16,
-      "endline": 296,
+      "complexity": 14,
+      "endline": 293,
       "kind": "method",
-      "lineno": 153,
+      "lineno": 182,
       "path": "src/artifex/generative_models/models/geometric/graph.py",
       "qualname": "GraphModel._forward_graph_core",
       "rank": "C"
