@@ -15,7 +15,7 @@ from artifex.generative_models.core.checkpointing import (
     save_checkpoint,
     setup_checkpoint_manager,
 )
-from artifex.generative_models.training.callbacks.base import BaseCallback, TrainerLike
+from substrax.callbacks import BaseCallback, TrainerLike
 
 
 @dataclass(slots=True)

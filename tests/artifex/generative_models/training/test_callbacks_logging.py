@@ -496,7 +496,7 @@ class TestLoggingCallbacksIntegration:
 
     def test_multiple_loggers_can_be_combined(self) -> None:
         """Test multiple logging callbacks can be used together."""
-        from artifex.generative_models.training.callbacks.base import CallbackList
+        from artifex.generative_models.training.callbacks import CallbackList
         from artifex.generative_models.training.callbacks.logging import (
             LoggerCallback,
             ProgressBarCallback,

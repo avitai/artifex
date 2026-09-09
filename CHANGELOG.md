@@ -65,6 +65,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
+- `training.callbacks.base` and `training.callbacks.early_stopping`, with their two docs
+  pages. `BaseCallback`, `CallbackList`, `TrainerLike`, `TrainingCallback`,
+  `EarlyStoppingConfig` and the early-stopping callback are substrax's and are re-exported
+  by `artifex.generative_models.training.callbacks`; the callback is now named
+  `EarlyStoppingCallback` (substrax's `EarlyStopping` is the best-metric tracker it is
+  built on).
 - `artifex.generative_models.scaling` (`mesh_utils`, `sharding`: `ShardingConfig`,
   `ParallelismConfig`, `ShardingStrategy`, `DataParallelStrategy`, `FSDPStrategy`,
   `TensorParallelStrategy`, `PipelineParallelStrategy`, `MultiDimensionalStrategy`) and

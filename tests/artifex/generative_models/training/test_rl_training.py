@@ -1989,7 +1989,7 @@ class TestCallbackIntegration:
     def test_training_with_early_stopping_check(self, policy_model: SimpleSequencePolicy) -> None:
         """RL trainers should produce metrics compatible with early stopping."""
         from artifex.generative_models.training.callbacks import (
-            EarlyStopping,
+            EarlyStoppingCallback,
             EarlyStoppingConfig,
         )
         from artifex.generative_models.training.rl import REINFORCEConfig, REINFORCETrainer
@@ -1997,7 +1997,7 @@ class TestCallbackIntegration:
         optimizer = nnx.Optimizer(policy_model, optax.adam(1e-3), wrt=nnx.Param)
         trainer = REINFORCETrainer(policy_model, optimizer, REINFORCEConfig())
 
-        EarlyStopping(
+        EarlyStoppingCallback(
             EarlyStoppingConfig(
                 monitor="policy_loss",
                 patience=3,

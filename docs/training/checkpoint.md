@@ -124,7 +124,7 @@ from artifex.generative_models.training.callbacks import (
     CallbackList,
     ModelCheckpoint,
     CheckpointConfig,
-    EarlyStopping,
+    EarlyStoppingCallback,
     EarlyStoppingConfig,
     ProgressBarCallback,
     ProgressBarConfig,
@@ -136,7 +136,7 @@ callbacks = CallbackList([
         monitor="val_loss",
         save_top_k=3,
     )),
-    EarlyStopping(EarlyStoppingConfig(
+    EarlyStoppingCallback(EarlyStoppingConfig(
         monitor="val_loss",
         patience=10,
     )),

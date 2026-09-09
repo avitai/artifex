@@ -581,11 +581,12 @@ for epoch in range(num_epochs):
 
 ## Early Stopping
 
-Artifex provides a built-in `EarlyStopping` callback to prevent overfitting:
+The callbacks package re-exports substrax's `EarlyStoppingCallback`, which stops
+training when a monitored metric stops improving:
 
 ```python
 from artifex.generative_models.training.callbacks import (
-    EarlyStopping,
+    EarlyStoppingCallback,
     EarlyStoppingConfig,
     CallbackList,
 )
@@ -602,7 +603,7 @@ early_stopping_config = EarlyStoppingConfig(
 )
 
 # Create callback
-early_stopping = EarlyStopping(early_stopping_config)
+early_stopping = EarlyStoppingCallback(early_stopping_config)
 
 # Use in training loop
 for epoch in range(max_epochs):
@@ -627,7 +628,7 @@ Combine callbacks with `CallbackList`:
 ```python
 from artifex.generative_models.training.callbacks import (
     CallbackList,
-    EarlyStopping,
+    EarlyStoppingCallback,
     EarlyStoppingConfig,
     ModelCheckpoint,
     CheckpointConfig,
@@ -635,7 +636,7 @@ from artifex.generative_models.training.callbacks import (
 
 # Create callbacks
 callbacks = CallbackList([
-    EarlyStopping(EarlyStoppingConfig(patience=10, monitor="val_loss")),
+    EarlyStoppingCallback(EarlyStoppingConfig(patience=10, monitor="val_loss")),
     ModelCheckpoint(CheckpointConfig(
         dirpath="./checkpoints",
         monitor="val_loss",
@@ -961,7 +962,7 @@ Logging callbacks can be combined with other callbacks:
 ```python
 from artifex.generative_models.training.callbacks import (
     CallbackList,
-    EarlyStopping,
+    EarlyStoppingCallback,
     EarlyStoppingConfig,
     ModelCheckpoint,
     CheckpointConfig,
@@ -980,7 +981,7 @@ callbacks = CallbackList([
     ProgressBarCallback(),
 
     # Training control
-    EarlyStopping(EarlyStoppingConfig(
+    EarlyStoppingCallback(EarlyStoppingConfig(
         monitor="val_loss",
         patience=10,
     )),
@@ -1123,7 +1124,7 @@ from artifex.generative_models.training.callbacks import (
     MemoryProfiler,
     MemoryProfileConfig,
     ProgressBarCallback,
-    EarlyStopping,
+    EarlyStoppingCallback,
     EarlyStoppingConfig,
 )
 
@@ -1136,7 +1137,7 @@ callbacks = CallbackList([
     ProgressBarCallback(),
 
     # Training control
-    EarlyStopping(EarlyStoppingConfig(monitor="val_loss", patience=10)),
+    EarlyStoppingCallback(EarlyStoppingConfig(monitor="val_loss", patience=10)),
 ])
 
 trainer = Trainer(

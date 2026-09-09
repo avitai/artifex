@@ -14,7 +14,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Literal
 
-from artifex.generative_models.training.callbacks.base import BaseCallback, TrainerLike
+from substrax.callbacks import BaseCallback, TrainerLike
 from artifex.generative_models.utils.logging.logger import Logger
 
 

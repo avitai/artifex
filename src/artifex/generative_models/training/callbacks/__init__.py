@@ -1,21 +1,22 @@
 """Training callbacks for generative models.
 
-Provides a lightweight, Protocol-based callback system for training loops.
+The callback protocol, the base class, the callback list and the early-stopping
+callback are substrax's; this package re-exports them next to the checkpoint,
+logging and profiling callbacks that are specific to artifex trainers.
 """
 
-from artifex.generative_models.training.callbacks.base import (
+from substrax.callbacks import (
     BaseCallback,
     CallbackList,
+    EarlyStoppingCallback,
+    EarlyStoppingConfig,
     TrainerLike,
     TrainingCallback,
 )
+
 from artifex.generative_models.training.callbacks.checkpoint import (
     CheckpointConfig,
     ModelCheckpoint,
-)
-from artifex.generative_models.training.callbacks.early_stopping import (
-    EarlyStopping,
-    EarlyStoppingConfig,
 )
 from artifex.generative_models.training.callbacks.logging import (
     LoggerCallback,
@@ -42,7 +43,7 @@ __all__ = [
     "BaseCallback",
     "CallbackList",
     # Early stopping
-    "EarlyStopping",
+    "EarlyStoppingCallback",
     "EarlyStoppingConfig",
     # Checkpointing
     "ModelCheckpoint",

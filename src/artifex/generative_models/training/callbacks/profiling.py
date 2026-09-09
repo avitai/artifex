@@ -17,7 +17,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from .base import BaseCallback, TrainerLike
+from substrax.callbacks import BaseCallback, TrainerLike
 
 
 # Detect platform for conditional profiler behavior

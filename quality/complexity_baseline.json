@@ -819,15 +819,6 @@
       "qualname": "create_encoder",
       "rank": "C"
     },
-    "src/artifex/generative_models/training/callbacks/early_stopping.py:method:EarlyStopping.on_epoch_end": {
-      "complexity": 12,
-      "endline": 119,
-      "kind": "method",
-      "lineno": 70,
-      "path": "src/artifex/generative_models/training/callbacks/early_stopping.py",
-      "qualname": "EarlyStopping.on_epoch_end",
-      "rank": "C"
-    },
     "src/artifex/generative_models/training/callbacks/logging.py:method:ProgressBarCallback.on_batch_end": {
       "complexity": 11,
       "endline": 686,

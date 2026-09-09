@@ -7,10 +7,6 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 DOCS_ROOT = REPO_ROOT / "docs" / "training"
 
 RETAINED_RUNTIME_PAGES: dict[str, dict[str, object]] = {
-    "base.md": {
-        "modules": ["artifex.generative_models.training.callbacks.base"],
-        "sources": ["src/artifex/generative_models/training/callbacks/base.py"],
-    },
     "checkpoint.md": {
         "modules": ["artifex.generative_models.training.callbacks.checkpoint"],
         "sources": ["src/artifex/generative_models/training/callbacks/checkpoint.py"],
@@ -22,10 +18,6 @@ RETAINED_RUNTIME_PAGES: dict[str, dict[str, object]] = {
     "dpo.md": {
         "modules": ["artifex.generative_models.training.rl.dpo"],
         "sources": ["src/artifex/generative_models/training/rl/dpo.py"],
-    },
-    "early_stopping.md": {
-        "modules": ["artifex.generative_models.training.callbacks.early_stopping"],
-        "sources": ["src/artifex/generative_models/training/callbacks/early_stopping.py"],
     },
     "energy_trainer.md": {
         "modules": ["artifex.generative_models.training.trainers.energy_trainer"],

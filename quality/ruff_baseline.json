@@ -1170,19 +1170,14 @@
       "RET504": 1,
       "RET505": 1
     },
-    "src/artifex/generative_models/training/callbacks/base.py": {
-      "ANN204": 2
-    },
     "src/artifex/generative_models/training/callbacks/checkpoint.py": {
       "ANN204": 1,
+      "I001": 1,
       "RET505": 1
     },
-    "src/artifex/generative_models/training/callbacks/early_stopping.py": {
-      "ANN204": 1,
-      "RET505": 2
-    },
     "src/artifex/generative_models/training/callbacks/logging.py": {
-      "ANN204": 4
+      "ANN204": 4,
+      "I001": 1
     },
     "src/artifex/generative_models/training/callbacks/profiling.py": {
       "PTH123": 1

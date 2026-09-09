@@ -161,7 +161,7 @@ from artifex.generative_models.training import Trainer
 from artifex.generative_models.training.callbacks import CallbackList
 from artifex.generative_models.training.trainers import VAETrainer, VAETrainingConfig
 from artifex.generative_models.training.callbacks import (
-    EarlyStopping,
+    EarlyStoppingCallback,
     EarlyStoppingConfig,
     ModelCheckpoint,
     CheckpointConfig,
@@ -176,7 +176,7 @@ loss_fn = vae_trainer.create_loss_fn()
 
 # Use with base Trainer for callbacks
 callbacks = CallbackList([
-    EarlyStopping(EarlyStoppingConfig(monitor="val_loss", patience=10)),
+    EarlyStoppingCallback(EarlyStoppingConfig(monitor="val_loss", patience=10)),
     ModelCheckpoint(CheckpointConfig(dirpath="checkpoints", monitor="val_loss")),
 ])
 

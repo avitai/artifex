@@ -157,11 +157,9 @@ nav:
               - GRPO: training/grpo.md
               - DPO: training/dpo.md
           - Callbacks:
-              - Base Classes: training/base.md
               - Logging: training/logging.md
               - Profiling: training/profiling.md
               - Checkpointing: training/checkpoint.md
-              - Early Stopping: training/early_stopping.md
       - Data:
           - Data Loaders: api/data/loaders.md
 
@@ -606,9 +604,7 @@ nav:
       - Training Reference:
           - Current Training Pages:
               - training/index.md
-              - training/base.md
               - training/checkpoint.md
-              - training/early_stopping.md
               - training/logging.md
               - training/profiling.md
               - training/factory.md

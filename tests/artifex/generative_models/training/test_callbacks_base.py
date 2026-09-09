@@ -141,7 +141,7 @@ class TestCallbackList:
         from artifex.generative_models.training.callbacks import CallbackList
 
         callback_list = CallbackList()
-        assert len(callback_list.callbacks) == 0
+        assert len(callback_list) == 0
 
     def test_callback_list_with_callbacks(self):
         """CallbackList should accept callbacks on initialization."""
@@ -153,7 +153,7 @@ class TestCallbackList:
         cb1 = BaseCallback()
         cb2 = BaseCallback()
         callback_list = CallbackList(callbacks=[cb1, cb2])
-        assert len(callback_list.callbacks) == 2
+        assert len(callback_list) == 2
 
     def test_callback_list_add(self):
         """CallbackList should allow adding callbacks."""
@@ -165,7 +165,7 @@ class TestCallbackList:
         callback_list = CallbackList()
         cb = BaseCallback()
         callback_list.add(cb)
-        assert cb in callback_list.callbacks
+        assert cb in list(callback_list)
 
     def test_callback_list_remove(self):
         """CallbackList should allow removing callbacks."""
@@ -177,7 +177,7 @@ class TestCallbackList:
         cb = BaseCallback()
         callback_list = CallbackList(callbacks=[cb])
         callback_list.remove(cb)
-        assert cb not in callback_list.callbacks
+        assert cb not in list(callback_list)
 
     def test_callback_list_dispatches_on_train_begin(self):
         """CallbackList should dispatch on_train_begin to all callbacks."""

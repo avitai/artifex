@@ -101,11 +101,11 @@ see the [Distributed Training guide](../user-guide/advanced/distributed.md).
 
 - gradient accumulation and loss scaling are `optax.MultiSteps` and `flax.training.dynamic_scale.DynamicScale`, used through the optimizer and the loss function; see the [Advanced Features guide](../user-guide/training/advanced-features.md)
 - shared helper functions such as `sample_logit_normal` live in [utils.md](utils.md)
-- callback surfaces live in [base.md](base.md), [checkpoint.md](checkpoint.md), [early_stopping.md](early_stopping.md), [logging.md](logging.md), and [profiling.md](profiling.md)
+- callback surfaces live in [checkpoint.md](checkpoint.md), [logging.md](logging.md), and [profiling.md](profiling.md); the callback protocol, `CallbackList` and `EarlyStoppingCallback` are substrax's, re-exported by `artifex.generative_models.training.callbacks`
 
 ## Current Training Pages
 
-- Callbacks: [base](base.md), [checkpoint](checkpoint.md), [early_stopping](early_stopping.md), [logging](logging.md), [profiling](profiling.md)
+- Callbacks: [checkpoint](checkpoint.md), [logging](logging.md), [profiling](profiling.md)
 - Factories and helpers: [factory](factory.md), [utils](utils.md)
 - Family trainers: [vae_trainer](vae_trainer.md), [gan_trainer](gan_trainer.md), [diffusion_trainer](diffusion_trainer.md), [flow_trainer](flow_trainer.md), [energy_trainer](energy_trainer.md), [autoregressive_trainer](autoregressive_trainer.md)
 - RL trainers: [reinforce](reinforce.md), [ppo](ppo.md), [grpo](grpo.md), [dpo](dpo.md)
