@@ -46,7 +46,7 @@ def test_pyproject_declares_reviewed_ci_roles_and_security_triage_policy() -> No
     reviewed_ignores = security["reviewed_ignores"]
 
     assert policy["tooling_python"] == "3.12"
-    assert policy["compatibility_python"] == ["3.12"]
+    assert policy["compatibility_python"] == ["3.12", "3.13"]
     assert policy["pyright_enforcement"] == "informational"
     assert policy["smoke_package"] == "artifex"
     assert policy["smoke_exports"] == ["generative_models"]

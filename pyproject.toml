@@ -236,7 +236,7 @@ blocking_workflows = [
   ".github/workflows/build-verification.yml",
   ".github/workflows/security.yml"
 ]
-compatibility_python = ["3.12"]
+compatibility_python = ["3.12", "3.13"]
 informational_workflows = [
   ".github/workflows/quality-checks.yml"
 ]

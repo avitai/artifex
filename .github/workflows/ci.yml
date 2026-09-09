@@ -22,20 +22,28 @@ jobs:
           cache-suffix: quality
           linux-editable-target: ".[dev]"
 
+      - name: Lock file is current
+        run: uv lock --check
+
       - name: Run Ruff
         run: uv run ruff check --output-format=github
 
       - name: Check formatting
         run: uv run ruff format --check
 
+      - name: Run pre-commit hooks
+        env:
+          PRE_COMMIT_HOME: /tmp/pre-commit-cache
+        run: uv run pre-commit run --all-files --show-diff-on-failure --color=always
+
   unit_tests:
-    name: Unit Tests (${{ matrix.os }})
+    name: Unit Tests (${{ matrix.os }}, Python ${{ matrix.python-version }})
     needs: quality
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os: [ubuntu-latest, macos-14]
-        python-version: ["3.12"]
+        python-version: ["3.12", "3.13"]
       fail-fast: false
 
     steps:
@@ -62,7 +70,7 @@ jobs:
         uses: codecov/codecov-action@v4
         with:
           file: ./coverage.xml
-          flags: unittests-${{ matrix.os }}
+          flags: unittests-${{ matrix.os }}-py${{ matrix.python-version }}
           fail_ci_if_error: false
         if: always()
 
