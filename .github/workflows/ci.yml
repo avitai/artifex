@@ -36,6 +36,9 @@ jobs:
           PRE_COMMIT_HOME: /tmp/pre-commit-cache
         run: uv run pre-commit run --all-files --show-diff-on-failure --color=always
 
+      - name: Documented model surface matches the tree
+        run: uv run python scripts/derive_status.py --check
+
   unit_tests:
     name: Unit Tests (${{ matrix.os }}, Python ${{ matrix.python-version }})
     needs: quality

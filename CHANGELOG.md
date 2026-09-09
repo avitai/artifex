@@ -13,6 +13,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Kolmogorov-Arnold Network layers and the Clifford-algebra layers, listing every export
   with its input layout; the layers package docstring states the backbone rule that keeps
   them here.
+- `scripts/derive_status.py` measures the model-family surface (each family package, its
+  documented exports, and whether it ships a trainer, default configs, tests and examples)
+  and fails the quality gate when `docs/models/index.md` names a package or export the
+  tree does not have, or omits a family package. Its first run found the audio family
+  missing from the table.
+- A weekly `upstream-compat.yml` workflow runs the unit test subset against the newest
+  jax, flax, optax and orbax-checkpoint releases ahead of the lock. It gates nothing; it
+  is where a change like flax 0.12.9 forwarding `is_causal` surfaces first.
 
 ### Fixed
 

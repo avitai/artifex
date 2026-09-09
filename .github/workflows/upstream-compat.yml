@@ -1,0 +1,45 @@
+# Runs the unit test subset against the newest JAX, Flax, Optax and Orbax releases,
+# ahead of the lock. A failure here is a heads-up that the next `uv lock --upgrade`
+# will need work, not a gate on merges: nothing depends on this job. Flax 0.12.9
+# silently disabled causal attention through an argument it started forwarding;
+# this is where that class of change surfaces first.
+name: Upstream Compatibility
+
+on:
+  schedule:
+    - cron: "0 6 * * 1"  # Mondays, 06:00 UTC
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  latest-jax-stack:
+    name: Latest jax, flax, optax and orbax-checkpoint
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      JAX_PLATFORMS: cpu
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Artifex
+        uses: ./.github/actions/setup-artifex
+        with:
+          python-version: "3.12"
+          cache-suffix: upstream-compat
+          linux-editable-target: ".[dev,test]"
+
+      # `uv pip install` on top of the locked environment; the setup action exports
+      # UV_NO_SYNC=1, so `uv run` will not re-sync to the lock and undo the upgrade.
+      - name: Upgrade the JAX stack to its newest releases
+        run: |
+          uv pip install --upgrade jax jaxlib flax optax orbax-checkpoint
+          uv run python -c "import jax, flax, optax, orbax.checkpoint as ocp; print('jax', jax.__version__); print('flax', flax.__version__); print('optax', optax.__version__); print('orbax-checkpoint', ocp.__version__)"
+
+      - name: Run the unit test subset
+        run: |
+          uv run pytest tests/ -m "not gpu and not gpu_required and not cuda and not slow and not blackjax" \
+            --no-cov --ignore=tests/artifex/generative_models/training/distributed/

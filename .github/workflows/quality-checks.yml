@@ -32,8 +32,9 @@ jobs:
           {
             echo "## Informational quality report"
             echo
-            echo "Blocking enforcement lives in .github/workflows/ci.yml."
-            echo "Pyright remains report-only while repo-wide typing debt is still being reduced."
+            echo "Blocking enforcement lives in .github/workflows/ci.yml, where the hook set runs"
+            echo "pyright (standard) and ruff (the shared rule set over the per-file baseline)."
+            echo "This report is a dashboard of the same tools with their full counts."
             echo
             echo "### Pyright"
           } >> "$GITHUB_STEP_SUMMARY"

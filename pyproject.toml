@@ -252,7 +252,8 @@ blocking_workflows = [
 ]
 compatibility_python = ["3.12", "3.13"]
 informational_workflows = [
-  ".github/workflows/quality-checks.yml"
+  ".github/workflows/quality-checks.yml",
+  ".github/workflows/upstream-compat.yml"
 ]
 pyright_enforcement = "blocking"
 smoke_exports = ["generative_models"]

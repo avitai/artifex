@@ -57,6 +57,7 @@ def test_pyproject_declares_reviewed_ci_roles_and_security_triage_policy() -> No
     ]
     assert policy["informational_workflows"] == [
         ".github/workflows/quality-checks.yml",
+        ".github/workflows/upstream-compat.yml",
     ]
     assert security["mode"] == "blocking"
 

@@ -15,6 +15,7 @@ roadmap-only standalone pages as supported model API.
 | Energy | `artifex.generative_models.models.energy` | `EBM`, `DeepEBM`, `EnergyBasedModel`, Langevin helpers |
 | Autoregressive | `artifex.generative_models.models.autoregressive` | `PixelCNN`, `WaveNet`, `TransformerAutoregressiveModel` |
 | Geometric | `artifex.generative_models.models.geometric` | `GraphModel`, `MeshModel`, `PointCloudModel`, `VoxelModel`, protein geometric models |
+| Audio | `artifex.generative_models.models.audio` | `WaveNetAudioModel`, `AudioDiffusionModel`, `BaseAudioModel` |
 
 ## Diffusion Surface
 
