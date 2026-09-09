@@ -808,7 +808,7 @@ requires-dist = [
     { name = "beartype", marker = "extra == 'test'", specifier = ">=0.14.1" },
     { name = "blackjax", specifier = ">=1.2.5" },
     { name = "build", marker = "extra == 'dev'", specifier = ">=1.0.3" },
-    { name = "calibrax", specifier = ">=0.1.4" },
+    { name = "calibrax", specifier = ">=0.1.5" },
     { name = "coverage", marker = "extra == 'dev'", specifier = ">=7" },
     { name = "coverage", marker = "extra == 'test'", specifier = ">=7" },
     { name = "dacite", specifier = ">=1.8.0" },
@@ -1075,7 +1075,7 @@ wheels = [
 
 [[package]]
 name = "calibrax"
-version = "0.1.4"
+version = "0.1.5"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "click" },
@@ -1088,9 +1088,9 @@ dependencies = [
     { name = "substrax" },
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/a0/fa/bc55139e9f94402716301c227e185ba4c188567d4fb132de245d1a31eeb9/calibrax-0.1.4.tar.gz", hash = "sha256:5b00b435a851250b69f7217bce85408ea22c205dbde7b48ba7ef02a7d1203330", size = 161549, upload-time = "2026-09-09T04:22:59.108Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/7d/0e/d7858273fc6745e4e8fdc08287d91e4f628327404a981b731398cd6a6129/calibrax-0.1.5.tar.gz", hash = "sha256:72519696fb6d7afb4b414a208770937d400090462d267fb625fea907a633bf74", size = 161844, upload-time = "2026-09-09T05:17:48.74Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/26/c7/c63a6c6e307018c79b54b2fc70d696409a0d8fd3c26c5c67ca3c6aa10299/calibrax-0.1.4-py3-none-any.whl", hash = "sha256:fb249c2c9f84d1fc66056406131c4589c93af9e555c8907e354d8ec883eff537", size = 201551, upload-time = "2026-09-09T04:22:56.516Z" },
+    { url = "https://files.pythonhosted.org/packages/86/f2/7ab96dba3df68418b0fc558f9bdf177f34200e23c0b461bebb5d19bbc243/calibrax-0.1.5-py3-none-any.whl", hash = "sha256:912830f73a804421f55df898e629054bc6edfece42d544e2bda96bdc05ab65c4", size = 201937, upload-time = "2026-09-09T05:17:47.011Z" },
 ]
 
 [[package]]

@@ -48,18 +48,6 @@ src/artifex/benchmarks/metrics/molecular_flows.py
     DOC106: Method `MolecularFlowsMetrics.validate_inputs`: The option `--arg-type-hints-in-signature` is `True` but there are no argument type hints in the signature
     DOC107: Method `MolecularFlowsMetrics.validate_inputs`: The option `--arg-type-hints-in-signature` is `True` but not all args in the signature have type hints
 --------------------
-src/artifex/benchmarks/metrics/precision_recall.py
-    DOC106: Function `compute_precision_recall`: The option `--arg-type-hints-in-signature` is `True` but there are no argument type hints in the signature
-    DOC107: Function `compute_precision_recall`: The option `--arg-type-hints-in-signature` is `True` but not all args in the signature have type hints
-    DOC106: Function `compute_distance_based_metrics`: The option `--arg-type-hints-in-signature` is `True` but there are no argument type hints in the signature
-    DOC107: Function `compute_distance_based_metrics`: The option `--arg-type-hints-in-signature` is `True` but not all args in the signature have type hints
-    DOC106: Function `is_well_separated_clusters`: The option `--arg-type-hints-in-signature` is `True` but there are no argument type hints in the signature
-    DOC107: Function `is_well_separated_clusters`: The option `--arg-type-hints-in-signature` is `True` but not all args in the signature have type hints
-    DOC106: Function `compute_cluster_based_metrics`: The option `--arg-type-hints-in-signature` is `True` but there are no argument type hints in the signature
-    DOC107: Function `compute_cluster_based_metrics`: The option `--arg-type-hints-in-signature` is `True` but not all args in the signature have type hints
-    DOC501: Method `PrecisionRecallBenchmark.run` has raise statements, but the docstring does not have a "Raises" section
-    DOC503: Method `PrecisionRecallBenchmark.run` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
---------------------
 src/artifex/benchmarks/metrics/protein_ligand.py
     DOC101: Method `BindingAffinityMetric.validate_inputs`: Docstring contains fewer arguments than in function signature.
     DOC106: Method `BindingAffinityMetric.validate_inputs`: The option `--arg-type-hints-in-signature` is `True` but there are no argument type hints in the signature
@@ -116,12 +104,6 @@ src/artifex/benchmarks/metrics/text.py
     DOC106: Method `ROUGEMetric.validate_inputs`: The option `--arg-type-hints-in-signature` is `True` but there are no argument type hints in the signature
     DOC107: Method `ROUGEMetric.validate_inputs`: The option `--arg-type-hints-in-signature` is `True` but not all args in the signature have type hints
     DOC103: Method `ROUGEMetric.validate_inputs`: Docstring arguments are different from function arguments. (Or could be other formatting issues: https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). Arguments in the function signature but not in the docstring: [generated_data: , real_data: ].
-    DOC501: Method `PerplexityMetric.__init__` has raise statements, but the docstring does not have a "Raises" section
-    DOC503: Method `PerplexityMetric.__init__` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['RuntimeError'].
-    DOC101: Method `PerplexityMetric.validate_inputs`: Docstring contains fewer arguments than in function signature.
-    DOC106: Method `PerplexityMetric.validate_inputs`: The option `--arg-type-hints-in-signature` is `True` but there are no argument type hints in the signature
-    DOC107: Method `PerplexityMetric.validate_inputs`: The option `--arg-type-hints-in-signature` is `True` but not all args in the signature have type hints
-    DOC103: Method `PerplexityMetric.validate_inputs`: Docstring arguments are different from function arguments. (Or could be other formatting issues: https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). Arguments in the function signature but not in the docstring: [generated_data: , real_data: ].
     DOC101: Method `DiversityMetric.validate_inputs`: Docstring contains fewer arguments than in function signature.
     DOC106: Method `DiversityMetric.validate_inputs`: The option `--arg-type-hints-in-signature` is `True` but there are no argument type hints in the signature
     DOC107: Method `DiversityMetric.validate_inputs`: The option `--arg-type-hints-in-signature` is `True` but not all args in the signature have type hints

@@ -44,14 +44,12 @@ def test_preprint_separates_shipped_experimental_and_roadmap_surfaces() -> None:
         "from artifex.generative_models.modalities.base import ModelAdapter; "
         "from artifex.generative_models.inference.optimization.production import ProductionOptimizer; "
         "from artifex.benchmarks import BenchmarkRegistry; "
-        "import artifex.generative_models.core.evaluation as evaluation; "
         "print(json.dumps({"
         "'model_protocol': GenerativeModelProtocol.__name__, "
         "'trainable_protocol': TrainableGenerativeModelProtocol.__name__, "
         "'adapter_protocol': ModelAdapter.__name__, "
         "'optimizer': ProductionOptimizer.__name__, "
-        "'benchmark_registry': BenchmarkRegistry.__name__, "
-        "'evaluation_exports': sorted(evaluation.__all__)"
+        "'benchmark_registry': BenchmarkRegistry.__name__"
         "}))"
     )
 
@@ -69,15 +67,12 @@ def test_preprint_separates_shipped_experimental_and_roadmap_surfaces() -> None:
     adapter_protocol = payload["adapter_protocol"]
     optimizer = payload["optimizer"]
     benchmark_registry = payload["benchmark_registry"]
-    evaluation_exports = payload["evaluation_exports"]
 
     assert isinstance(model_protocol, str)
     assert isinstance(trainable_protocol, str)
     assert isinstance(adapter_protocol, str)
     assert isinstance(optimizer, str)
     assert isinstance(benchmark_registry, str)
-    assert isinstance(evaluation_exports, list)
-    assert all(isinstance(name, str) for name in evaluation_exports)
 
     required_tokens = [
         model_protocol,
@@ -87,7 +82,7 @@ def test_preprint_separates_shipped_experimental_and_roadmap_surfaces() -> None:
         benchmark_registry,
         "create(",
         "jit_compilation",
-        *evaluation_exports,
+        "artifex.benchmarks.metrics",
     ]
 
     for token in required_tokens:

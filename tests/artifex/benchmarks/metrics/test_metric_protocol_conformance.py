@@ -592,27 +592,3 @@ class TestStyleMetricsDRY:
 # ---------------------------------------------------------------------------
 # Evaluation infrastructure metrics
 # ---------------------------------------------------------------------------
-
-
-class TestEvalInfraMetricConformance:
-    """Test evaluation infrastructure metrics conform to MetricProtocol."""
-
-    def test_feature_based_extends_metric_base(self) -> None:
-        from artifex.generative_models.core.evaluation.metrics.base import FeatureBasedMetric
-
-        assert issubclass(FeatureBasedMetric, MetricBase)
-        assert isinstance(FeatureBasedMetric(name="test", batch_size=4), MetricProtocol)
-
-    def test_distribution_metric_extends_metric_base(self) -> None:
-        from artifex.generative_models.core.evaluation.metrics.base import DistributionMetric
-
-        assert issubclass(DistributionMetric, MetricBase)
-        assert DistributionMetric.__init__ is MetricBase.__init__
-        assert isinstance(DistributionMetric(name="test", batch_size=4), MetricProtocol)
-
-    def test_sequence_metric_extends_metric_base(self) -> None:
-        from artifex.generative_models.core.evaluation.metrics.base import SequenceMetric
-
-        assert issubclass(SequenceMetric, MetricBase)
-        assert SequenceMetric.__init__ is MetricBase.__init__
-        assert isinstance(SequenceMetric(name="test", batch_size=4), MetricProtocol)

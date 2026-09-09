@@ -72,24 +72,6 @@
       "qualname": "MolecularFlowsMetrics._check_bond_angles",
       "rank": "C"
     },
-    "src/artifex/benchmarks/metrics/precision_recall.py:function:compute_precision_recall": {
-      "complexity": 13,
-      "endline": 237,
-      "kind": "function",
-      "lineno": 146,
-      "path": "src/artifex/benchmarks/metrics/precision_recall.py",
-      "qualname": "compute_precision_recall",
-      "rank": "C"
-    },
-    "src/artifex/benchmarks/metrics/precision_recall.py:function:is_well_separated_clusters": {
-      "complexity": 18,
-      "endline": 421,
-      "kind": "function",
-      "lineno": 341,
-      "path": "src/artifex/benchmarks/metrics/precision_recall.py",
-      "qualname": "is_well_separated_clusters",
-      "rank": "C"
-    },
     "src/artifex/benchmarks/model_adapters/protein_adapters.py:method:ProteinPointCloudAdapter._convert_protein_output_to_benchmark_format": {
       "complexity": 18,
       "endline": 133,
@@ -164,9 +146,9 @@
     },
     "src/artifex/benchmarks/suites/protein_benchmarks.py:method:ProteinBenchmarkSuite.visualize_results": {
       "complexity": 17,
-      "endline": 396,
+      "endline": 394,
       "kind": "method",
-      "lineno": 315,
+      "lineno": 313,
       "path": "src/artifex/benchmarks/suites/protein_benchmarks.py",
       "qualname": "ProteinBenchmarkSuite.visualize_results",
       "rank": "C"

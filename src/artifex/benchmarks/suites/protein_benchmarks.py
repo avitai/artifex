@@ -70,7 +70,7 @@ class ProteinStructureBenchmark(Benchmark):
 
         # Initialize the precision-recall benchmark as a component
         self.pr_benchmark = PrecisionRecallBenchmark(
-            num_clusters=10, num_samples=num_samples, random_seed=random_seed
+            k=3, num_samples=num_samples, random_seed=random_seed
         )
 
     def run(
@@ -277,9 +277,7 @@ class ProteinBenchmarkSuite:
                 random_seed=random_seed,
                 demo_mode=demo_mode,
             ),
-            PrecisionRecallBenchmark(
-                num_clusters=10, num_samples=num_samples, random_seed=random_seed
-            ),
+            PrecisionRecallBenchmark(k=3, num_samples=num_samples, random_seed=random_seed),
         ]
 
         # Store results

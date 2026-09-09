@@ -8,6 +8,7 @@ from dataclasses import dataclass
 
 import jax
 import jax.numpy as jnp
+from calibrax.metrics.functional.text import perplexity
 from flax import nnx
 
 from artifex.generative_models.core.configuration import ModalityConfig
@@ -135,34 +136,12 @@ class TextEvaluationSuite(nnx.Module):
             log_probs: Log probabilities [batch_size, seq_len, vocab_size]
 
         Returns:
-            Perplexity values
+            Perplexity per sequence over its non-padding tokens; infinite for a
+            sequence of padding only
         """
-        batch_size, seq_len = tokens.shape
-        perplexities = []
-
-        for i in range(batch_size):
-            token_seq = tokens[i]
-            log_prob_seq = log_probs[i]
-
-            # Remove padding and compute log likelihood
-            valid_mask = token_seq != self.text_params.get("pad_token_id", 0)
-            valid_tokens = token_seq[valid_mask]
-            valid_log_probs = log_prob_seq[valid_mask]
-
-            if len(valid_tokens) == 0:
-                perplexities.append(float("inf"))
-                continue
-
-            # Get log probabilities for actual tokens
-            token_log_probs = []
-            for j, token in enumerate(valid_tokens):
-                token_log_probs.append(valid_log_probs[j, int(token)])
-
-            avg_log_prob = jnp.mean(jnp.array(token_log_probs))
-            perplexity = jnp.exp(-avg_log_prob)
-            perplexities.append(float(perplexity))
-
-        return jnp.array(perplexities)
+        token_log_probs = jnp.take_along_axis(log_probs, tokens[..., None], axis=-1)[..., 0]
+        scored = tokens != self.text_params.get("pad_token_id", 0)
+        return jax.vmap(lambda row, mask: perplexity(row, mask=mask))(token_log_probs, scored)
 
     def compute_distinct_ngrams(
         self,

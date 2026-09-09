@@ -99,7 +99,7 @@
       "ARG002": 6,
       "PLR0402": 1,
       "PLR0913": 1,
-      "RET504": 2
+      "RET504": 1
     },
     "src/artifex/benchmarks/metrics/molecular_flows.py": {
       "ANN001": 4,
@@ -111,16 +111,8 @@
       "RET505": 1
     },
     "src/artifex/benchmarks/metrics/precision_recall.py": {
-      "ANN001": 18,
-      "ANN204": 1,
-      "ARG001": 2,
-      "B007": 1,
-      "C901": 1,
       "PLR0402": 1,
-      "PLR0912": 1,
-      "PLR0913": 1,
-      "RET504": 1,
-      "RET505": 1
+      "PLR0913": 1
     },
     "src/artifex/benchmarks/metrics/protein_ligand.py": {
       "ANN001": 6,
@@ -137,9 +129,9 @@
       "RET504": 2
     },
     "src/artifex/benchmarks/metrics/text.py": {
-      "ANN001": 16,
-      "ANN003": 4,
-      "ANN204": 4,
+      "ANN001": 12,
+      "ANN003": 3,
+      "ANN204": 3,
       "ARG002": 9,
       "B905": 2,
       "PLR0402": 1,
@@ -298,30 +290,6 @@
     },
     "src/artifex/generative_models/core/distributions/transformations.py": {
       "ANN204": 2
-    },
-    "src/artifex/generative_models/core/evaluation/metrics/base.py": {
-      "PLR0402": 1,
-      "PLR0913": 1
-    },
-    "src/artifex/generative_models/core/evaluation/metrics/general/precision_recall.py": {
-      "ANN204": 2,
-      "PLR0402": 1
-    },
-    "src/artifex/generative_models/core/evaluation/metrics/image/fid.py": {
-      "ANN204": 1,
-      "PLR0402": 1
-    },
-    "src/artifex/generative_models/core/evaluation/metrics/image/inception_score.py": {
-      "ANN204": 1,
-      "PLR0402": 1
-    },
-    "src/artifex/generative_models/core/evaluation/metrics/pipeline.py": {
-      "ANN204": 1,
-      "PLR0402": 1
-    },
-    "src/artifex/generative_models/core/evaluation/metrics/text/perplexity.py": {
-      "ANN204": 1,
-      "PLR0402": 1
     },
     "src/artifex/generative_models/core/jax_config.py": {
       "ANN202": 2

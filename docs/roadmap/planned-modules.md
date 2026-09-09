@@ -35,7 +35,7 @@ drift away from the live runtime inventory.
 | Base protocols and classes | Shipped | `artifex.generative_models.models.base`, `artifex.generative_models.core.base` | Current public protocol split includes `GenerativeModelProtocol` and `TrainableGenerativeModelProtocol` |
 | Losses, distributions, and sampling | Shipped | `artifex.generative_models.core.losses`, `core.distributions`, `core.sampling` | Retained runtime owners |
 | Layers and configuration | Shipped | `artifex.generative_models.core.layers`, `core.configuration` | Typed-config runtime surface |
-| Evaluation package | Experimental | `artifex.generative_models.core.evaluation` | Current top-level exports are only `benchmarks` and `metrics` |
+| Evaluation metrics | Shipped | `artifex.benchmarks.metrics` | One metric class layer over calibrax's functions; the backbone metrics register as calibrax Tier 1 |
 | Device management | Moved | `substrax.devices` | Device identity and placement live in substrax; artifex keeps no copy |
 
 ### Training

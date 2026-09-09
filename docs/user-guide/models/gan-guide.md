@@ -1031,14 +1031,19 @@ plt.show()
 Measures quality and diversity:
 
 ```python
-from artifex.generative_models.core.evaluation.metrics.image import InceptionScore
+from flax import nnx
 
-# Create IS metric with a classifier function
-is_metric = InceptionScore(classifier=inception_classifier_fn)
+from artifex.benchmarks.metrics.image import create_is_metric
 
-# Compute IS
-results = is_metric.compute(generated_samples, splits=10)
-print(f"Inception Score: {results['is_mean']:.2f} ± {results['is_std']:.2f}")
+# Create IS metric with a classifier returning class logits
+is_metric = create_is_metric(nnx.Rngs(0), classifier=inception_classifier_fn, splits=10)
+
+# Compute IS (the score reads generated images only)
+results = is_metric.compute(real_images, generated_samples)
+print(
+    f"Inception Score: {results['inception_score']:.2f} "
+    f"± {results['inception_score_std']:.2f}"
+)
 ```
 
 **Higher is better** (good models: 8-10 for ImageNet)
@@ -1048,14 +1053,16 @@ print(f"Inception Score: {results['is_mean']:.2f} ± {results['is_std']:.2f}")
 Measures similarity to real data:
 
 ```python
-from artifex.generative_models.core.evaluation.metrics.image import FrechetInceptionDistance
+from flax import nnx
+
+from artifex.benchmarks.metrics.image import create_fid_metric
 
 # Create FID metric with a feature extractor function
-fid_metric = FrechetInceptionDistance(feature_extractor=feature_extractor_fn)
+fid_metric = create_fid_metric(nnx.Rngs(0), feature_extractor=feature_extractor_fn)
 
 # Compute FID between real and generated images
 results = fid_metric.compute(real_images, generated_samples)
-print(f"FID Score: {results['fid']:.2f}")
+print(f"FID Score: {results['fid_score']:.2f}")
 ```
 
 **Lower is better** (good models: < 50, excellent: < 10)

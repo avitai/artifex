@@ -1,68 +1,80 @@
 # Metrics
 
-Artifex ships a narrow evaluation surface with explicit dependencies. It is
-not a full built-in evaluation catalog with pretrained backends.
+Artifex ships one metric class layer, `artifex.benchmarks.metrics`, and computes
+every score through calibrax's functions. There is no second metric layer under
+`core`: the benchmark metrics are the runtime metrics.
 
-## Supported Runtime Metrics
+## The Layer
 
-- `image:fid` via `FrechetInceptionDistance` with a caller-supplied
-  `feature_extractor`
-- `image:is` via `InceptionScore` with a caller-supplied `classifier`
-- `text:perplexity` via `Perplexity` with a caller-supplied `model` or
-  explicit `log_probs` at compute time
+Each metric is a `MetricBase` subclass built from an `EvaluationConfig` whose
+`metric_params` carry the metric's settings. Backbones are caller-supplied:
+artifex does not ship an Inception network, a perceptual network or a language
+model, and it does not fall back to a placeholder outside an explicit demo mode.
 
-Unsupported metric specs raise during pipeline construction. The retained
-pipeline does not silently skip `bleu`, `rouge`, or other unimplemented
-names.
+| Metric | Class | Caller-supplied dependency | calibrax function |
+| --- | --- | --- | --- |
+| FID | `FIDMetric` | `feature_extractor` | `generative.frechet_feature_distance` |
+| Inception score | `ISMetric` | `classifier` (logits) | `generative.inception_score_per_split` |
+| Precision and recall | `PrecisionRecallMetric` | `feature_extractor` (optional) | `generative.manifold_precision`, `manifold_recall` and the density-weighted pair |
+| Perplexity | `PerplexityMetric` | `model` (token log-probabilities) | `text.perplexity` with its mask |
+| SSIM | `SSIMMetric` | none | `image.ssim` |
 
-## Explicit Dependency Example
+The `create_*_metric` factories build the configuration for you:
 
 ```python
-import jax.numpy as jnp
 from flax import nnx
 
-from artifex.generative_models.core.configuration import EvaluationConfig
-from artifex.generative_models.core.evaluation.metrics import EvaluationPipeline
+from artifex.benchmarks.metrics.image import create_fid_metric, create_is_metric
+from artifex.benchmarks.metrics.precision_recall import create_precision_recall_metric
+from artifex.benchmarks.metrics.text import create_perplexity_metric
 
+rngs = nnx.Rngs(0)
+fid = create_fid_metric(rngs, feature_extractor=feature_extractor)
+inception = create_is_metric(rngs, classifier=classifier, splits=10)
+precision_recall = create_precision_recall_metric(rngs, feature_extractor=feature_extractor, k=3)
+perplexity = create_perplexity_metric(rngs=rngs, model=language_model)
 
-def feature_extractor(images):
-    means = jnp.mean(images, axis=(1, 2, 3))
-    stds = jnp.std(images, axis=(1, 2, 3))
-    return jnp.stack([means, stds], axis=1)
-
-
-def classifier(images):
-    logits = jnp.mean(images, axis=(1, 2, 3), keepdims=True)
-    return jnp.tile(logits, (1, 10))
-
-
-def language_model(inputs):
-    return jnp.full(inputs.shape, -0.5)
-
-
-config = EvaluationConfig(
-    name="eval",
-    metrics=["image:fid", "image:is", "text:perplexity"],
-    metric_params={
-        "fid": {"feature_extractor": feature_extractor},
-        "is": {"classifier": classifier},
-        "perplexity": {"model": language_model},
-    },
-)
-
-pipeline = EvaluationPipeline(config, rngs=nnx.Rngs(0))
+fid.compute(real_images, generated_images)          # {"fid_score": ...}
+inception.compute(real_images, generated_images)    # {"inception_score": ..., "inception_score_std": ...}
+precision_recall.compute(real_images, generated_images)  # {"precision", "recall", "f1_score"}
+perplexity.compute(None, token_ids, mask=attention_mask)  # {"perplexity": ...}
 ```
 
-## Pipeline Rules
+A missing dependency raises at construction (`ValueError` naming the parameter);
+a non-callable one raises `TypeError`. `ISMetric` raises when `splits` exceeds
+the number of samples instead of shrinking the split count.
 
-- `EvaluationPipeline` requires `modality:metric` specs.
-- Supported metric specs are `image:fid`, `image:is`, and
-  `text:perplexity`.
-- Unsupported metric specs raise instead of being skipped.
+## Tier 1 Registration
 
-## Registry Ownership
+Importing `artifex.benchmarks.metrics` registers the backbone-based scores in
+`calibrax.metrics.MetricRegistry` under the `frozen_backbone` tier, next to
+calibrax's own Tier 0 functions:
 
-Registry-backed lookup, collections, and suites live in
-`calibrax.metrics.MetricRegistry` and the surrounding Calibrax metric
-composition helpers. Artifex does not ship a parallel registry wrapper in the
-core evaluation package.
+| Registered name | Signature |
+| --- | --- |
+| `fid_from_backbone` | `(real, generated, *, feature_extractor)` |
+| `inception_score_from_backbone` | `(generated, *, classifier, splits=10)` |
+| `precision_from_backbone` | `(real, generated, *, feature_extractor=None, k=3, density_weighted=False)` |
+| `recall_from_backbone` | `(real, generated, *, feature_extractor=None, k=3, density_weighted=False)` |
+| `perplexity_from_model` | `(inputs, *, model, mask=None)` |
+
+```python
+from calibrax.metrics import MetricRegistry, MetricTier
+
+import artifex.benchmarks.metrics  # registers the Tier 1 entries
+
+registry = MetricRegistry()
+score = registry.get_function("fid_from_backbone")
+fid_value = score(real_images, generated_images, feature_extractor=feature_extractor)
+tier_one = [entry.name for entry in registry.list_by_tier(MetricTier.FROZEN_BACKBONE)]
+```
+
+The Tier 0 functions themselves (`frechet_feature_distance`, `inception_score`,
+`manifold_precision`, `perplexity`, ...) stay calibrax's; artifex adds the
+feature-extraction step and the config-driven classes, nothing else.
+
+## Demo Mode
+
+`mock_inception=True`, `mock_implementation=True` and `use_mock=True` select
+retained demo backends for the example suites. They are explicit opt-ins and
+never a default; see the [benchmarks overview](../benchmarks/index.md).

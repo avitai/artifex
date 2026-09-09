@@ -272,14 +272,13 @@ class StyleGAN3Benchmark(BenchmarkBase):
         # Compute StyleGAN-specific metrics
         results = {}
 
-        # FID (compute statistics first, using smaller samples)
+        # FID on small samples
         real_sample = real_images[: min(10, len(real_images))]  # Use only 10 real images
         fake_sample = sample_images[: min(10, len(sample_images))]  # Use only 10 fake images
 
-        real_mean, real_cov = self.metrics.fid_metric.compute_statistics(real_sample)
-        fake_mean, fake_cov = self.metrics.fid_metric.compute_statistics(fake_sample)
-        fid_score = self.metrics.fid_metric.compute_fid(real_mean, real_cov, fake_mean, fake_cov)
-        results["fid_score"] = float(fid_score)  # Fixed: changed from "fid" to "fid_score"
+        results["fid_score"] = self.metrics.fid_metric.compute(real_sample, fake_sample)[
+            "fid_score"
+        ]
 
         # Style mixing quality (reduced samples)
         style_quality = self.metrics.style_mixing_metric.compute_style_mixing_quality(

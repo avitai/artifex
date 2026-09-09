@@ -199,10 +199,24 @@ class TestImageMetricsUnifiedConfig:
         metric = ISMetric(rngs=rngs, config=config)
         real_images, generated_images = test_images
 
+        with pytest.raises(ValueError, match="splits"):
+            metric.compute(real_images, generated_images)
+
+        metric = ISMetric(
+            rngs=rngs,
+            config=EvaluationConfig(
+                name="is_metric",
+                metrics=["inception_score"],
+                metric_params={
+                    "inception_score": {"mock_inception": True, "demo_mode": True, "splits": 2}
+                },
+            ),
+        )
         result = metric.compute(real_images, generated_images)
 
-        assert "inception_score" in result
-        assert result["inception_score"] > 0
+        assert set(result) == {"inception_score", "inception_score_std"}
+        assert result["inception_score"] >= 1.0
+        assert result["inception_score_std"] >= 0.0
 
     def test_is_metric_supported_mode_requires_classifier(self, rngs, test_images):
         """Test Inception Score supported mode requires an explicit classifier."""

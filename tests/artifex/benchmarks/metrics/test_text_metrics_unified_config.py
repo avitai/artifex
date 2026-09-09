@@ -117,12 +117,7 @@ class TestTextMetricsUnifiedConfig:
         config = EvaluationConfig(
             name="perplexity_metric",
             metrics=["perplexity"],
-            metric_params={
-                "perplexity": {
-                    "model_name": "gpt2",
-                    "use_mock": True,  # For testing
-                }
-            },
+            metric_params={"perplexity": {"use_mock": True}},
             eval_batch_size=8,
         )
 
@@ -175,11 +170,9 @@ class TestTextMetricsUnifiedConfig:
         assert "rouge1" in rouge.rouge_types
 
         # Perplexity factory
-        perplexity = create_perplexity_metric(
-            rngs=rngs, model_name="gpt2", use_mock=True, batch_size=16
-        )
+        perplexity = create_perplexity_metric(rngs=rngs, use_mock=True, batch_size=16)
         assert perplexity.config.eval_batch_size == 16
-        assert perplexity.model_name == "gpt2"
+        assert perplexity.use_mock
 
         # Diversity factory
         diversity = create_diversity_metric(rngs=rngs, n_gram_sizes=[1, 2], batch_size=32)

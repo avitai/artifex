@@ -28,7 +28,6 @@ def test_core_package_import_keeps_children_lazy() -> None:
         "'cli_loaded': 'artifex.generative_models.core.cli' in sys.modules, "
         "'configuration_loaded': 'artifex.generative_models.core.configuration' in sys.modules, "
         "'distributions_loaded': 'artifex.generative_models.core.distributions' in sys.modules, "
-        "'evaluation_loaded': 'artifex.generative_models.core.evaluation' in sys.modules, "
         "'layers_loaded': 'artifex.generative_models.core.layers' in sys.modules, "
         "'losses_loaded': 'artifex.generative_models.core.losses' in sys.modules, "
         "'protocols_loaded': 'artifex.generative_models.core.protocols' in sys.modules, "
@@ -43,7 +42,6 @@ def test_core_package_import_keeps_children_lazy() -> None:
     assert payload["cli_loaded"] is False
     assert payload["configuration_loaded"] is False
     assert payload["distributions_loaded"] is False
-    assert payload["evaluation_loaded"] is False
     assert payload["layers_loaded"] is False
     assert payload["losses_loaded"] is False
     assert payload["protocols_loaded"] is False
@@ -54,7 +52,6 @@ def test_core_package_import_keeps_children_lazy() -> None:
         "cli",
         "configuration",
         "distributions",
-        "evaluation",
         "layers",
         "losses",
         "protocols",
@@ -88,8 +85,6 @@ def test_core_overview_docs_match_live_core_surface() -> None:
         "from artifex.generative_models import core; "
         "from artifex.generative_models.core.sampling import "
         "BlackJAXNUTS, mcmc_sampling, sde_sampling; "
-        "from artifex.generative_models.core.evaluation.metrics import "
-        "FrechetInceptionDistance, InceptionScore, PrecisionRecall; "
         "from artifex.generative_models.core.layers import "
         "FlashMultiHeadAttention, TransformerEncoder, ResNetBlock; "
         "from artifex.generative_models.core.protocols import "
@@ -99,9 +94,6 @@ def test_core_overview_docs_match_live_core_surface() -> None:
         "'sampling_module': BlackJAXNUTS.__module__, "
         "'mcmc_module': mcmc_sampling.__module__, "
         "'sde_module': sde_sampling.__module__, "
-        "'fid_module': FrechetInceptionDistance.__module__, "
-        "'inception_module': InceptionScore.__module__, "
-        "'precision_recall_module': PrecisionRecall.__module__, "
         "'flash_attention_module': FlashMultiHeadAttention.__module__, "
         "'transformer_module': TransformerEncoder.__module__, "
         "'resnet_module': ResNetBlock.__module__, "
@@ -114,16 +106,13 @@ def test_core_overview_docs_match_live_core_surface() -> None:
     required_terms = [
         "from artifex.generative_models import core",
         "core.sampling",
-        "artifex.generative_models.core.evaluation.metrics",
         "BlackJAXNUTS",
         "mcmc_sampling",
         "sde_sampling",
-        "FrechetInceptionDistance",
-        "InceptionScore",
-        "PrecisionRecall",
         "FlashMultiHeadAttention",
         "TransformerEncoder",
         "ResNetBlock",
+        "artifex.benchmarks.metrics",
         "BatchableDatasetProtocol",
         "MetricBase",
         "NoiseScheduleProtocol",
@@ -136,6 +125,8 @@ def test_core_overview_docs_match_live_core_surface() -> None:
         r"\bode_solver\b",
         r"\bsde_solver\b",
         r"\bartifex\.generative_models\.core\.metrics\b",
+        r"\bcore\.evaluation\b",
+        r"\bEvaluationPipeline\b",
         r"\bMultiHeadAttention\b",
         r"\bFlashAttention\b",
         r"\bCrossAttention\b",
@@ -150,21 +141,11 @@ def test_core_overview_docs_match_live_core_surface() -> None:
         assert re.search(banned, docs) is None
 
     assert "sampling" in payload["core_exports"]
-    assert "evaluation" in payload["core_exports"]
     assert "layers" in payload["core_exports"]
     assert "protocols" in payload["core_exports"]
     assert payload["sampling_module"] == "artifex.generative_models.core.sampling.blackjax_samplers"
     assert payload["mcmc_module"] == "artifex.generative_models.core.sampling.mcmc"
     assert payload["sde_module"] == "artifex.generative_models.core.sampling.sde"
-    assert payload["fid_module"].startswith(
-        "artifex.generative_models.core.evaluation.metrics.image"
-    )
-    assert payload["inception_module"].startswith(
-        "artifex.generative_models.core.evaluation.metrics.image"
-    )
-    assert payload["precision_recall_module"].startswith(
-        "artifex.generative_models.core.evaluation.metrics.general"
-    )
     assert (
         payload["flash_attention_module"] == "artifex.generative_models.core.layers.flash_attention"
     )

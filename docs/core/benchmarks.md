@@ -14,8 +14,9 @@ now lives in `artifex.benchmarks.core`.
 
 ## Core Boundary
 
-`core.evaluation` is metrics-only. `core.protocols` no longer owns a
-benchmark base layer.
+`core` owns no evaluation package. Metric classes live in
+`artifex.benchmarks.metrics`, and `core.protocols` keeps only the `MetricBase`
+protocol, not a benchmark base layer.
 
 ## Use This Surface
 

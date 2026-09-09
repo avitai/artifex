@@ -37,6 +37,9 @@ class LPIPSMetric
 class MockInceptionModel
 ```
 
+Demo-only stand-in for an Inception backbone: one key for the life of the model, so
+the same images map to the same features and logits.
+
 ### SSIMMetric
 
 ```python
@@ -110,6 +113,22 @@ def create_fid_metric()
 ```python
 def create_is_metric()
 ```
+
+### fid_from_backbone
+
+```python
+def fid_from_backbone(real, generated, *, feature_extractor) -> float
+```
+
+### inception_score_from_backbone
+
+```python
+def inception_score_from_backbone(generated, *, classifier, splits=10) -> float
+```
+
+Both register in `calibrax.metrics.MetricRegistry` as `frozen_backbone` metrics;
+`ISMetric.compute` reports `inception_score` and `inception_score_std` over the
+splits and raises when `splits` exceeds the sample count.
 
 ### create_lpips_metric
 

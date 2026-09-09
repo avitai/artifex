@@ -11,8 +11,12 @@ from typing import cast
 import flax.nnx as nnx
 import jax
 import jax.numpy as jnp
-import numpy as np
-from calibrax.metrics.functional.generative import frechet_distance, frechet_feature_distance
+from calibrax.core.models import MetricDirection
+from calibrax.metrics import MetricProperties, MetricSignature, MetricTier, register_metric
+from calibrax.metrics.functional.generative import (
+    frechet_feature_distance,
+    inception_score_per_split,
+)
 from calibrax.metrics.functional.image import ssim as calibrax_ssim
 
 from artifex.benchmarks.metrics.core import _init_metric_from_config, MetricBase
@@ -68,6 +72,78 @@ def _demo_perceptual_distance(images1: jax.Array, images2: jax.Array) -> jax.Arr
     lpips_approx = 0.1 * jnp.sqrt(weighted_mse)
 
     return jnp.mean(lpips_approx)
+
+
+_BACKBONE_PROPERTIES = MetricProperties(is_differentiable=False, is_jit_compatible=False)
+
+
+@register_metric(
+    "fid_from_backbone",
+    tier=MetricTier.FROZEN_BACKBONE,
+    domain="image",
+    direction=MetricDirection.LOWER,
+    description="Fréchet distance between the features a caller-supplied backbone extracts",
+    signature=MetricSignature.CUSTOM,
+    properties=_BACKBONE_PROPERTIES,
+)
+def fid_from_backbone(
+    real: jax.Array,
+    generated: jax.Array,
+    *,
+    feature_extractor: Callable[[jax.Array], jax.Array],
+) -> float:
+    """Fréchet Inception Distance with the backbone the caller supplies.
+
+    Args:
+        real: Real images ``[batch, height, width, channels]``.
+        generated: Generated images with the same layout.
+        feature_extractor: Backbone mapping an image batch to ``[batch, features]``.
+
+    Returns:
+        Fréchet distance between the two feature distributions; lower is better.
+    """
+    real_features = jnp.asarray(feature_extractor(real))
+    generated_features = jnp.asarray(feature_extractor(generated))
+    return float(frechet_feature_distance(real_features, generated_features))
+
+
+def _inception_scores(
+    generated: jax.Array,
+    *,
+    classifier: Callable[[jax.Array], jax.Array],
+    splits: int,
+) -> jax.Array:
+    """Per-split inception scores from the softmax of the classifier's logits."""
+    probabilities = nnx.softmax(jnp.asarray(classifier(generated)), axis=-1)
+    return inception_score_per_split(probabilities, splits=splits)
+
+
+@register_metric(
+    "inception_score_from_backbone",
+    tier=MetricTier.FROZEN_BACKBONE,
+    domain="image",
+    direction=MetricDirection.HIGHER,
+    description="Inception score from the logits a caller-supplied classifier returns",
+    signature=MetricSignature.CUSTOM,
+    properties=_BACKBONE_PROPERTIES,
+)
+def inception_score_from_backbone(
+    generated: jax.Array,
+    *,
+    classifier: Callable[[jax.Array], jax.Array],
+    splits: int = 10,
+) -> float:
+    """Inception score with the classifier the caller supplies.
+
+    Args:
+        generated: Generated images ``[batch, height, width, channels]``.
+        classifier: Backbone mapping an image batch to class logits ``[batch, classes]``.
+        splits: Number of equal chunks the score is averaged over.
+
+    Returns:
+        Mean inception score over the splits; higher is better.
+    """
+    return float(jnp.mean(_inception_scores(generated, classifier=classifier, splits=splits)))
 
 
 def _resolved_metric_rngs(rngs: nnx.Rngs | None) -> nnx.Rngs:
@@ -151,14 +227,11 @@ class FIDMetric(MetricBase):
         Returns:
             dictionary with FID score
         """
-        # Extract features
-        gen_features = self._extract_features(generated_data)
-        real_features = self._extract_features(real_data)
-
-        # Calculate FID
-        fid_score = float(frechet_feature_distance(real_features, gen_features))
-
-        return {"fid_score": fid_score}
+        return {
+            "fid_score": fid_from_backbone(
+                real_data, generated_data, feature_extractor=self.feature_extractor
+            )
+        }
 
     def validate_inputs(self, real_data: jax.Array, generated_data: jax.Array) -> None:
         """Validate input data compatibility.
@@ -179,83 +252,6 @@ class FIDMetric(MetricBase):
         if real_data.shape[0] != generated_data.shape[0]:
             raise ValueError("Batch sizes must match")
 
-    def compute_statistics(self, images: jax.Array) -> tuple[jax.Array, jax.Array]:
-        """Compute mean and covariance of Inception features for a set of images.
-
-        Args:
-            images: Images [batch_size, height, width, channels]
-
-        Returns:
-            Tuple of (mean, covariance) of extracted features
-        """
-        features = self._extract_features(images)
-        mean = jnp.mean(features, axis=0)
-        # Covariance with small regularisation for numerical stability
-        centered = features - mean
-        cov = (centered.T @ centered) / max(features.shape[0] - 1, 1)
-        return mean, cov
-
-    def compute_fid(
-        self,
-        real_mean: jax.Array,
-        real_cov: jax.Array,
-        fake_mean: jax.Array,
-        fake_cov: jax.Array,
-    ) -> float:
-        """Compute FID from pre-computed statistics.
-
-        Args:
-            real_mean: Mean of real image features
-            real_cov: Covariance of real image features
-            fake_mean: Mean of generated image features
-            fake_cov: Covariance of generated image features
-
-        Returns:
-            FID score (lower is better, non-negative)
-        """
-        return float(frechet_distance(real_mean, real_cov, fake_mean, fake_cov))
-
-    def _extract_features(self, images: jax.Array) -> jax.Array:
-        """Extract features from images using Inception model.
-
-        Args:
-            images: Images to extract features from [batch_size, height, width, channels]
-
-        Returns:
-            Extracted features [batch_size, feature_dim]
-        """
-        return jnp.asarray(self.feature_extractor(images))
-
-    def _resize_images(self, images: jax.Array, target_size: tuple[int, int]) -> jax.Array:
-        """Resize images to target size.
-
-        Args:
-            images: Images to resize [batch_size, height, width, channels]
-            target_size: Target size (height, width)
-
-        Returns:
-            Resized images
-        """
-        try:
-            from PIL import Image
-
-            batch_size = images.shape[0]
-            resized_images = jnp.zeros(
-                (batch_size, target_size[0], target_size[1], images.shape[3])
-            )
-
-            for i in range(batch_size):
-                image_uint8 = np.asarray(images[i] * 255, dtype=np.uint8)
-                img = Image.fromarray(image_uint8)
-                img_resized = img.resize(target_size)
-                resized_images[i] = jnp.array(img_resized) / 255.0
-
-            return resized_images
-        except ImportError:
-            # Fallback to simple resizing using interpolation
-            logger.info("PIL not available, using simple resize")
-            return images  # Return original images for testing
-
 
 class MockInceptionModel:
     """Mock Inception model for testing FID metric.
@@ -273,6 +269,17 @@ class MockInceptionModel:
         """
         self.feature_dim = feature_dim
         self.rngs = rngs
+        # One key for the life of the model: the same images map to the same features.
+        self.key = self._draw_key(rngs)
+
+    @staticmethod
+    def _draw_key(rngs: nnx.Rngs) -> jax.Array:
+        """Take one key from the inception stream, else params, else a fixed seed."""
+        if hasattr(rngs, "inception"):
+            return rngs.inception()
+        if hasattr(rngs, "params"):
+            return rngs.params()
+        return jax.random.key(42)
 
     def extract_features(self, images: jax.Array) -> jax.Array:
         """Extract mock features from images.
@@ -284,18 +291,7 @@ class MockInceptionModel:
             Mock features [batch_size, feature_dim]
         """
         batch_size = images.shape[0]
-
-        # Generate deterministic features based on image content
-        # This ensures the same image gets the same features
-        # Use params key if inception key is not available
-        if hasattr(self.rngs, "inception"):
-            key = self.rngs.inception()
-        elif hasattr(self.rngs, "params"):
-            key = self.rngs.params()
-        else:
-            key = jax.random.key(42)  # Fallback to a default key
-
-        features = jax.random.normal(key, (batch_size, self.feature_dim))
+        features = jax.random.normal(self.key, (batch_size, self.feature_dim))
 
         # Make features somewhat dependent on image content for better testing
         image_means = jnp.mean(images, axis=(1, 2, 3))
@@ -307,20 +303,11 @@ class MockInceptionModel:
         return jnp.array(scaled_features)
 
     def predict(self, images: jax.Array) -> jax.Array:
-        """Return deterministic mock class probabilities for generated images."""
+        """Return deterministic mock class logits for generated images."""
         batch_size = images.shape[0]
-        if hasattr(self.rngs, "inception"):
-            key = self.rngs.inception()
-        elif hasattr(self.rngs, "params"):
-            key = self.rngs.params()
-        else:
-            key = jax.random.key(42)
-
-        logits = jax.random.normal(key, (batch_size, 1000))
-        probabilities = nnx.softmax(logits, axis=-1)
+        logits = jax.random.normal(self.key, (batch_size, 1000))
         image_means = jnp.mean(images, axis=(1, 2, 3))
-        scaled = probabilities * (1.0 + 0.1 * image_means[:, None])
-        return scaled / jnp.sum(scaled, axis=-1, keepdims=True)
+        return logits * (1.0 + 0.1 * image_means[:, None])
 
 
 class LPIPSMetric(MetricBase):
@@ -594,24 +581,21 @@ class ISMetric(MetricBase):
     def compute(
         self, real_data: jax.Array, generated_data: jax.Array, **kwargs
     ) -> dict[str, float]:
-        """Compute the Inception Score.
+        """Compute the Inception Score of the generated images.
 
         Args:
-            real_data: Real images [batch_size, height, width, channels]
+            real_data: Real images; unused, the score reads generated images only
             generated_data: Generated images [batch_size, height, width, channels]
             **kwargs: Additional parameters
 
         Returns:
-            dictionary with Inception Score
+            dictionary with the mean score and its spread over the splits
         """
-        # For IS, we only need generated images
-        # Extract class probabilities
-        preds = self._get_inception_predictions(generated_data)
-
-        # Calculate IS
-        is_score = self._calculate_inception_score(preds)
-
-        return {"inception_score": is_score}
+        scores = _inception_scores(generated_data, classifier=self.classifier, splits=self.splits)
+        return {
+            "inception_score": float(jnp.mean(scores)),
+            "inception_score_std": float(jnp.std(scores)),
+        }
 
     def validate_inputs(self, real_data: jax.Array, generated_data: jax.Array) -> None:
         """Validate input data compatibility.
@@ -629,62 +613,6 @@ class ISMetric(MetricBase):
             raise ValueError("Images must be 4D (batch, height, width, channels)")
         if generated_data.shape[-1] != 3:
             raise ValueError("Images must have 3 channels (RGB)")
-
-    def _get_inception_predictions(self, images: jax.Array) -> jax.Array:
-        """Get Inception model predictions for images.
-
-        Args:
-            images: Images to get predictions for [batch_size, height, width, channels]
-
-        Returns:
-            Inception predictions [batch_size, num_classes]
-        """
-        predictions = jnp.asarray(self.classifier(images))
-        if self.mock_inception:
-            return predictions
-        return nnx.softmax(predictions, axis=-1)
-
-    def _calculate_inception_score(self, preds: jax.Array) -> float:
-        """Calculate Inception Score from predictions.
-
-        Args:
-            preds: Inception model predictions [batch_size, num_classes]
-
-        Returns:
-            Inception Score
-        """
-        # Split predictions into groups
-        batch_size = preds.shape[0]
-        split_size = batch_size // self.splits
-
-        # Handle case where batch is too small for requested splits
-        if split_size < 1:
-            self.splits = batch_size
-            split_size = 1
-
-        scores = []
-
-        # Calculate IS for each split
-        for i in range(self.splits):
-            start = i * split_size
-            end = start + split_size
-            if i == self.splits - 1:  # Last split might be larger
-                end = batch_size
-
-            split_preds = preds[start:end]
-
-            # Calculate KL divergence
-            p_y = jnp.mean(split_preds, axis=0, keepdims=True)  # Marginal probability
-            kl_div = split_preds * (jnp.log(split_preds + 1e-10) - jnp.log(p_y + 1e-10))
-            kl_div = jnp.mean(jnp.sum(kl_div, axis=1))
-
-            # IS is exp(KL)
-            scores.append(jnp.exp(kl_div))
-
-        # Return mean and std of scores
-        mean_score = float(jnp.mean(jnp.array(scores)))
-
-        return mean_score
 
 
 # Factory functions for creating metrics with unified configuration

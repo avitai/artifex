@@ -124,22 +124,13 @@ class TestProteinModelAdapter:
         # Combine clusters and add noise
         self.real_proteins = jnp.concatenate([cluster1 + cluster1_noise, cluster2 + cluster2_noise])
 
-        # Create perfect match test data (generate batched data of the same dim)
-        # Each sample has batch_size=1, with num_points=10 and feature_dim=1
-        # This shape works with our adapter conversion
-
-        # Create points matching the real data clustered structure
-        perfect_cluster1 = jnp.ones((5, 1, self.real_data_dim)) * 0.8
-        perfect_cluster2 = jnp.ones((5, 1, self.real_data_dim)) * -0.8
-        key, _ = jax.random.split(key)
-        perfect_noise1 = jax.random.normal(key, (5, 1, self.real_data_dim)) * 0.05
-        key, _ = jax.random.split(key)
-        perfect_noise2 = jax.random.normal(key, (5, 1, self.real_data_dim)) * 0.05
-
-        # Create perfect match protein samples
-        self.perfect_proteins = jnp.concatenate(
-            [perfect_cluster1 + perfect_noise1, perfect_cluster2 + perfect_noise2]
-        )
+        # Perfect-match proteins are members of the real set, one point cloud each
+        # ([batch, num_points=1, feature_dim]), so they sit inside every manifold
+        # estimate of the real data; the tests below exercise the adapter plumbing,
+        # not the estimator, which calibrax pins on its own.
+        perfect_cluster1 = self.real_proteins[:5][:, None, :]
+        perfect_cluster2 = self.real_proteins[15:20][:, None, :]
+        self.perfect_proteins = jnp.concatenate([perfect_cluster1, perfect_cluster2])
 
         # Create proteins with extra cluster (low precision case)
         extra_cluster = jnp.ones((5, 1, self.real_data_dim)) * 0.0
@@ -147,15 +138,11 @@ class TestProteinModelAdapter:
         extra_noise = jax.random.normal(key, (5, 1, self.real_data_dim)) * 0.05
 
         self.extra_cluster_proteins = jnp.concatenate(
-            [
-                perfect_cluster1 + perfect_noise1,
-                perfect_cluster2 + perfect_noise2,
-                extra_cluster + extra_noise,
-            ]
+            [perfect_cluster1, perfect_cluster2, extra_cluster + extra_noise]
         )
 
         # Create proteins with missing cluster (low recall case)
-        self.missing_cluster_proteins = perfect_cluster1 + perfect_noise1
+        self.missing_cluster_proteins = perfect_cluster1
 
         # Set up NNX compatibility
         self.rngs = nnx.Rngs(params=key, sample=key)
@@ -212,7 +199,7 @@ class TestProteinModelAdapter:
         adapter = ProteinPointCloudAdapter(model, point_dim=self.real_data_dim)
 
         # Create benchmark
-        benchmark = PrecisionRecallBenchmark(num_clusters=2, num_samples=10, random_seed=42)
+        benchmark = PrecisionRecallBenchmark(k=3, num_samples=10, random_seed=42)
 
         # Run benchmark with perfect match
         result = benchmark.run(model=adapter, dataset=self.real_proteins)
@@ -238,7 +225,7 @@ class TestProteinModelAdapter:
 
         # Create benchmark
         benchmark = PrecisionRecallBenchmark(
-            num_clusters=3,  # Include the extra cluster
+            k=3,
             num_samples=15,
             random_seed=42,
         )
@@ -261,7 +248,7 @@ class TestProteinModelAdapter:
 
         # Create benchmark
         benchmark = PrecisionRecallBenchmark(
-            num_clusters=2,
+            k=3,
             num_samples=5,  # Smaller sample size as we only have one cluster
             random_seed=42,
         )

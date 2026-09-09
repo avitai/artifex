@@ -398,19 +398,20 @@ the complete training state as one pytree, with the step in its metadata:
 Artifex includes structured logging:
 
 ```python
-from artifex.generative_models.core.evaluation.metrics.general import PrecisionRecall
-from artifex.generative_models.core.evaluation.metrics.image import (
-    FrechetInceptionDistance,
-)
+from flax import nnx
+
+from artifex.benchmarks.metrics.image import create_fid_metric
+from artifex.benchmarks.metrics.precision_recall import create_precision_recall_metric
 from artifex.generative_models.utils.logging import FileLogger, MetricsLogger
 
-# Create loggers
+# Create loggers; the metrics take the feature extractor you evaluate with
+rngs = nnx.Rngs(0)
 logger = FileLogger(name="training_logger", log_dir="./logs")
 metrics_logger = MetricsLogger(
     logger=logger,
     metrics={
-        "fid": FrechetInceptionDistance(),
-        "precision_recall": PrecisionRecall(),
+        "fid": create_fid_metric(rngs, feature_extractor=feature_extractor),
+        "precision_recall": create_precision_recall_metric(rngs, feature_extractor=feature_extractor),
     },
 )
 loss_fn = task_loss_fn

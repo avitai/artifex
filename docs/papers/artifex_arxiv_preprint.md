@@ -112,14 +112,11 @@ narrow experimental runtime pockets rather than complete platform guarantees.
 
 ### Evaluation and benchmarks
 
-`artifex.generative_models.core.evaluation` currently exports only the
-`benchmarks` and `metrics` packages:
-
-```python
-import artifex.generative_models.core.evaluation as evaluation
-
-assert evaluation.__all__ == ["benchmarks", "metrics"]
-```
+Evaluation metrics live in `artifex.benchmarks.metrics`, one class layer whose
+scores are calibrax's functions; the backbone-based scores (FID, inception
+score, manifold precision and recall, model perplexity) register in calibrax's
+metric registry as `frozen_backbone` entries. `artifex.generative_models.core`
+has no evaluation package.
 
 The retained benchmark layer lives in `artifex.benchmarks` and currently exposes
 registry helpers plus a small set of retained suites such as

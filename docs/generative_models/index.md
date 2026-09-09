@@ -121,7 +121,7 @@ Foundational abstractions and utilities.
 | [Losses](../core/reconstruction.md) | Loss functions |
 | [Distributions](../core/continuous.md) | Probability distributions |
 | [Sampling](../core/ancestral.md) | Sampling methods |
-| [Metrics](../core/fid.md) | Evaluation metrics |
+| [Metrics](../core/metrics.md) | Evaluation metrics |
 | [Layers](../core/flash_attention.md) | Neural network layers |
 
 [:octicons-arrow-right-24: Core Reference](../core/index.md)

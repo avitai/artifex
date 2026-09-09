@@ -313,7 +313,6 @@ nav:
           - benchmarks/image_protocols.md
           - benchmarks/image_suite.md
           - benchmarks/image_unified.md
-          - benchmarks/inception_metrics.md
           - benchmarks/latency.md
           - benchmarks/likelihood.md
           - benchmarks/memory.md
@@ -326,7 +325,6 @@ nav:
           - benchmarks/optimization.md
           - benchmarks/optimization_benchmark.md
           - benchmarks/optimization_plots.md
-          - benchmarks/perplexity.md
           - benchmarks/plots.md
           - benchmarks/precision_recall.md
           - benchmarks/protein_adapters.md
@@ -389,11 +387,9 @@ nav:
           - core/discrete.md
           - core/divergence.md
           - core/evaluation.md
-          - core/fid.md
           - core/flash_attention.md
           - core/gan.md
           - core/geometric.md
-          - core/inception_score.md
           - core/index.md
           - core/jax_config.md
           - core/kan.md
@@ -402,10 +398,7 @@ nav:
           - core/mixture.md
           - core/ode.md
           - core/perceptual.md
-          - core/perplexity.md
-          - core/pipeline.md
           - core/positional.md
-          - core/precision_recall.md
           - core/reconstruction.md
           - core/registry.md
           - core/regularization.md

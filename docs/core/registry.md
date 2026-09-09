@@ -7,8 +7,9 @@ Registry ownership for evaluation metrics lives in Calibrax.
 - use `calibrax.metrics.MetricRegistry` for registry-backed metric lookup
 - use Calibrax metric entries, collections, or suites when you need grouped
   metric execution
-- Artifex does not ship a second local registry in
-  `core.evaluation.metrics`
+- Artifex does not ship a second registry; its backbone metrics register in
+  calibrax's under the `frozen_backbone` tier when `artifex.benchmarks.metrics`
+  is imported (see [Metrics](metrics.md))
 
 ## Example
 

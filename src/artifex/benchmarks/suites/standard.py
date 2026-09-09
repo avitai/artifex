@@ -17,11 +17,7 @@ def get_quality_suite() -> list[Benchmark]:
         list of benchmarks in the suite.
     """
     return [
-        PrecisionRecallBenchmark(
-            num_clusters=10,
-            num_samples=1000,
-            random_seed=42,
-        ),
+        PrecisionRecallBenchmark(k=3, num_samples=1000, random_seed=42),
     ]
 
 

@@ -40,8 +40,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   sibling tests and the lock already resolved; the substrax floor is 0.1.3, the release whose
   W&B logger forwards init options and whose store keeps every checkpoint on request.
 - The datarax floor is 0.1.6, the release whose distributed and checkpoint code is substrax's.
-- The calibrax floor is 0.1.4, the release carrying the Fréchet, inception-score, correlation,
-  autocorrelation, skewness and RMSD functions the evaluations now call.
+- The calibrax floor is 0.1.5, the release carrying the Fréchet, inception-score, correlation,
+  autocorrelation, skewness, RMSD and masked-perplexity functions the evaluations now call.
 - `typer`, `trimesh` and `graphviz` leave the runtime dependencies for the `cli`,
   `geometric` and `analysis` extras (`benchmarks` includes the first two, `dev` the
   last, and `test` all three). Importing `artifex.cli`, `artifex.benchmarks` or
@@ -69,6 +69,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
+- `artifex.generative_models.core.evaluation` (`FrechetInceptionDistance`, `InceptionScore`,
+  `PrecisionRecall`, `DensityPrecisionRecall`, `Perplexity`, `EvaluationPipeline`, the
+  `FeatureBasedMetric`/`DistributionMetric`/`SequenceMetric` helpers) with its five docs
+  pages and the `core` lazy export. `artifex.benchmarks.metrics` is the one metric class
+  layer: `FIDMetric`, `ISMetric`, `PrecisionRecallMetric` (new, with `density_weighted`)
+  and `PerplexityMetric` compute through calibrax and register `fid_from_backbone`,
+  `inception_score_from_backbone`, `precision_from_backbone`, `recall_from_backbone` and
+  `perplexity_from_model` as `frozen_backbone` entries of `calibrax.metrics.MetricRegistry`.
+  `ISMetric` reports `inception_score_std` and raises when `splits` exceeds the sample
+  count instead of shrinking it; `PerplexityMetric` takes a caller-supplied `model` returning
+  token log-probabilities (and a `mask`) in supported mode, and its idle `model_name` is
+  gone. The k-means precision-recall heuristic (`KMeansModule`, `compute_precision_recall`,
+  the cluster-separation and distance-based scorers) is replaced by the k-NN manifold
+  estimator of Kynkäänniemi et al. through calibrax; `PrecisionRecallBenchmark` takes `k`
+  instead of `num_clusters`, raises on empty or too-small sample sets, and no longer
+  returns fixed scores for a model named `mock_model`. `FIDMetric.compute_statistics`,
+  `compute_fid` and the unused `_resize_images` are gone (`compute` is the API); the demo
+  Inception mock draws one key so the same images map to the same features. Requires
+  calibrax 0.1.5 (masked perplexity).
 - The evaluation helper modules `core.evaluation.metrics.{metric_ops,statistical,distance,
   quality,information}` with their pages. Their computations are calibrax's:
   `kolmogorov_smirnov_distance`, `correlation_preservation`, `distance_to_closest_record`,

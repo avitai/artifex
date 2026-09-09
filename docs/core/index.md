@@ -8,7 +8,6 @@ The retained `artifex.generative_models.core` package is a narrower shared-runti
 from artifex.generative_models import core
 
 configuration = core.configuration
-evaluation = core.evaluation
 layers = core.layers
 losses = core.losses
 protocols = core.protocols
@@ -28,15 +27,12 @@ from artifex.generative_models.core.sampling import BlackJAXNUTS, mcmc_sampling,
 
 ## Evaluation Metrics
 
-Evaluation metrics live under `core.evaluation.metrics`.
+Evaluation metrics are not a `core` concern: the one metric layer is
+`artifex.benchmarks.metrics`, computing through calibrax (see [Metrics](metrics.md)).
 
 ```python
-from artifex.generative_models.core.evaluation.metrics import (
-    EvaluationPipeline,
-    FrechetInceptionDistance,
-    InceptionScore,
-    PrecisionRecall,
-)
+from artifex.benchmarks.metrics.image import create_fid_metric, create_is_metric
+from artifex.benchmarks.metrics.precision_recall import create_precision_recall_metric
 ```
 
 ## Layers
@@ -74,8 +70,8 @@ protocol_types = (BatchableDatasetProtocol, MetricBase, NoiseScheduleProtocol)
 The remaining model-facing evaluation protocol surface includes
 `BenchmarkModelProtocol` and `DatasetProtocol`.
 
-Benchmark runtime types now live under `artifex.benchmarks.core`, not under
-`core.protocols` or `core.evaluation`. Device meshes and sharding strategies are
+Benchmark runtime types live under `artifex.benchmarks.core` and metric classes
+under `artifex.benchmarks.metrics`, not under `core.protocols`. Device meshes and sharding strategies are
 substrax's (`substrax.mesh`), not artifex's.
 
 [:octicons-arrow-right-24: Evaluation Protocols](evaluation.md) | [:octicons-arrow-right-24: Benchmark Runtime](benchmarks.md)
@@ -96,12 +92,12 @@ See the owner pages in this section for the detailed module-level contracts.
 | --- | --- |
 | `core.configuration` | shared configuration package and typed config helpers |
 | `core.distributions` | distribution implementations and transforms |
-| `core.evaluation.metrics` | evaluation metrics and explicit dependency pipelines |
 | `core.layers` | shared layers and architectural building blocks |
 | `core.losses` | loss primitives and objective helpers |
-| `core.protocols` | evaluation, metric, and training protocols |
+| `core.protocols` | evaluation, metric, and training protocols (`MetricBase` is the metric base) |
 | `core.sampling` | BlackJAX, MCMC, and SDE sampling helpers |
 | `artifex.benchmarks.core` | benchmark configs, results, NNX benchmark bases, and runners |
+| `artifex.benchmarks.metrics` | the metric classes, over calibrax's functions |
 | `core` top-level helpers | checkpointing, rematerialization, and device helpers |
 
 ## Related Documentation

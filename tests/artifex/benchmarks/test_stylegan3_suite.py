@@ -321,17 +321,14 @@ class TestStyleGANMetrics:
             jax.random.fold_in(rngs.sample(), 1), (batch_size, 64, 64, 3)
         )
 
-        # Compute statistics
-        real_mean, real_cov = fid_metric.compute_statistics(real_images)
-        fake_mean, fake_cov = fid_metric.compute_statistics(fake_images)
+        result = fid_metric.compute(real_images, fake_images)
 
-        assert real_mean.shape == (2048,)
-        assert real_cov.shape == (2048, 2048)
-
-        # Compute FID
-        fid_score = fid_metric.compute_fid(real_mean, real_cov, fake_mean, fake_cov)
-        assert isinstance(fid_score, float)
-        assert fid_score >= 0.0
+        assert set(result) == {"fid_score"}
+        assert isinstance(result["fid_score"], float)
+        assert result["fid_score"] >= 0.0
+        assert fid_metric.compute(real_images, real_images)["fid_score"] == pytest.approx(
+            0.0, abs=1e-3
+        )
 
     def test_lpips_metric(self, rngs):
         """Test LPIPS perceptual distance metric."""

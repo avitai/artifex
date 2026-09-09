@@ -1,12 +1,20 @@
 """Text-specific metrics for generative model evaluation."""
 
+from __future__ import annotations
+
 import math
 import re
+from collections.abc import Callable
+from typing import Any, cast
 
 import flax.nnx as nnx
+import jax
 import jax.numpy as jnp
+from calibrax.core.models import MetricDirection
+from calibrax.metrics import MetricProperties, MetricSignature, MetricTier, register_metric
 from calibrax.metrics.functional.text import (
     bleu as calibrax_bleu,
+    perplexity,
     rouge_l as calibrax_rouge_l,
     rouge_n as calibrax_rouge_n,
 )
@@ -14,6 +22,11 @@ from calibrax.metrics.functional.text import (
 from artifex.benchmarks.metrics.core import _init_metric_from_config, MetricBase
 from artifex.benchmarks.runtime_guards import demo_mode_from_mapping, require_demo_mode
 from artifex.generative_models.core.configuration import EvaluationConfig
+
+
+def _words(text: str) -> list[str]:
+    """Lower-cased word tokens."""
+    return re.findall(r"\w+", text.lower())
 
 
 class BLEUMetric(MetricBase):
@@ -78,8 +91,8 @@ class BLEUMetric(MetricBase):
         return {"bleu_score": float(bleu_score)}
 
     def _tokenize(self, text: str) -> list[str]:
-        """Simple tokenization."""
-        return re.findall(r"\w+", text.lower())
+        """Lower-cased word tokens."""
+        return _words(text)
 
     def _compute_bleu_score(self, reference: list[str], generated: list[str]) -> float:
         """Compute BLEU score for a single text pair."""
@@ -181,8 +194,8 @@ class ROUGEMetric(MetricBase):
         return self._ROUGE_ALIASES.get(rouge_type.lower(), (None, None))
 
     def _tokenize(self, text: str) -> list[str]:
-        """Simple tokenization."""
-        return re.findall(r"\w+", text.lower())
+        """Lower-cased word tokens."""
+        return _words(text)
 
     def _rouge_n(self, reference: list[str], generated: list[str], n: int) -> float:
         """Compute ROUGE-N score."""
@@ -193,17 +206,67 @@ class ROUGEMetric(MetricBase):
         return float(calibrax_rouge_l(generated, reference))
 
 
-class PerplexityMetric(MetricBase):
-    """Perplexity metric for language model evaluation."""
+LogProbabilityModel = Callable[[Any], jax.Array]
 
-    def __init__(self, *, config: EvaluationConfig, rngs: nnx.Rngs):
+_DEMO_VOCABULARY_SIZE = 10000
+_BACKBONE_PROPERTIES = MetricProperties(is_differentiable=False, is_jit_compatible=False)
+
+
+@register_metric(
+    "perplexity_from_model",
+    tier=MetricTier.FROZEN_BACKBONE,
+    domain="text",
+    direction=MetricDirection.LOWER,
+    description="Perplexity of the token log-probabilities a caller-supplied model returns",
+    signature=MetricSignature.CUSTOM,
+    properties=_BACKBONE_PROPERTIES,
+)
+def perplexity_from_model(
+    inputs: Any,
+    *,
+    model: LogProbabilityModel,
+    mask: Any | None = None,
+) -> float:
+    """Perplexity of ``inputs`` under the language model the caller supplies.
+
+    Args:
+        inputs: Token batch the model scores, typically ``[batch, sequence]``.
+        model: Callable returning one log-probability per input position.
+        mask: Optional weights with the log-probabilities' shape; padding is zero.
+
+    Returns:
+        ``exp`` of the mean negative log-likelihood over the scored positions.
+    """
+    return float(perplexity(jnp.asarray(model(inputs)), mask=mask))
+
+
+def _demo_token_log_probabilities(texts: list[str]) -> jax.Array:
+    """Uniform log-probability for every word of the texts (the retained demo backend)."""
+    token_count = sum(len(_words(text)) for text in texts)
+    return jnp.full((token_count,), -math.log(_DEMO_VOCABULARY_SIZE), dtype=jnp.float32)
+
+
+class PerplexityMetric(MetricBase):
+    """Perplexity of generated tokens under a caller-supplied language model.
+
+    Config parameters under ``metric_params["perplexity"]``: ``model``, a callable
+    returning one log-probability per input position; or ``use_mock=True`` for the
+    retained demo backend that scores every word of a text list as a uniform draw
+    from a fixed vocabulary.
+    """
+
+    def __init__(self, *, config: EvaluationConfig, rngs: nnx.Rngs) -> None:
         """Initialize perplexity metric.
 
         Args:
             config: Evaluation configuration (must be EvaluationConfig)
             rngs: NNX Rngs for stochastic operations
+
+        Raises:
+            TypeError: If ``model`` is not callable.
+            ValueError: If neither a model nor the demo mock is configured.
         """
-        perplexity_params = _init_metric_from_config(
+        params = _init_metric_from_config(
             self,
             config=config,
             rngs=rngs,
@@ -211,11 +274,9 @@ class PerplexityMetric(MetricBase):
             modality="text",
             higher_is_better=False,
         )
-
-        # Perplexity parameters from config
-        self.model_name = perplexity_params.get("model_name", "mock")
-        self.use_mock = perplexity_params.get("use_mock", False)
-        self.demo_mode = demo_mode_from_mapping(perplexity_params)
+        self.use_mock = bool(params.get("use_mock", False))
+        self.demo_mode = demo_mode_from_mapping(params)
+        self.model: LogProbabilityModel | None = None
 
         if self.use_mock:
             require_demo_mode(
@@ -226,18 +287,30 @@ class PerplexityMetric(MetricBase):
                     "and is demo-only."
                 ),
             )
-        else:
-            raise RuntimeError(
-                "PerplexityMetric does not ship a benchmark-grade language-model backend. Pass "
-                "use_mock=True only for the retained demo workflow."
-            )
+            return
 
-    def validate_inputs(self, real_data, generated_data) -> None:
-        """Validate input data for perplexity computation.
+        model = params.get("model")
+        if model is None:
+            raise ValueError(
+                "PerplexityMetric requires a callable model returning token log-probabilities. "
+                "Pass use_mock=True only for the retained demo workflow."
+            )
+        if not callable(model):
+            raise TypeError(f"model must be callable, got {type(model).__name__}")
+        self.model = cast(LogProbabilityModel, model)
+
+    def validate_inputs(self, real_data: Any, generated_data: Any) -> None:
+        """Validate the generated batch.
+
+        Args:
+            real_data: Unused; perplexity reads the generated batch only.
+            generated_data: Token batch, or a list of texts in demo mode.
 
         Raises:
-            ValueError: If inputs are invalid
+            ValueError: If the demo backend receives anything but a non-empty list of strings.
         """
+        if not self.use_mock:
+            return
         if not isinstance(generated_data, list):
             raise ValueError("Generated data must be a list")
         if len(generated_data) == 0:
@@ -245,38 +318,31 @@ class PerplexityMetric(MetricBase):
         if not all(isinstance(text, str) for text in generated_data):
             raise ValueError("All generated items must be strings")
 
-    def compute(self, real_data, generated_data, **kwargs) -> dict[str, float]:
-        """Compute perplexity of generated text."""
-        total_log_prob = 0.0
-        total_tokens = 0
+    def compute(
+        self,
+        real_data: Any,
+        generated_data: Any,
+        *,
+        mask: Any | None = None,
+        **kwargs: Any,
+    ) -> dict[str, float]:
+        """Score the generated tokens (or, in demo mode, texts).
 
-        for text in generated_data:
-            tokens = self._tokenize(text)
-            if len(tokens) == 0:
-                continue
+        Args:
+            real_data: Unused; perplexity reads the generated batch only.
+            generated_data: Token batch for the model, or a list of texts in demo mode.
+            mask: Optional weights with the log-probabilities' shape; padding is zero.
+            **kwargs: Ignored.
 
-            # Mock language model probability computation
-            log_prob = self._compute_log_probability(tokens)
-            total_log_prob += log_prob
-            total_tokens += len(tokens)
-
-        # exp of the mean negative log-likelihood; no tokens means an undefined model
-        perplexity = float("inf") if total_tokens == 0 else math.exp(-total_log_prob / total_tokens)
-
-        return {"perplexity": perplexity}
-
-    def _tokenize(self, text: str) -> list[str]:
-        """Simple tokenization."""
-        return re.findall(r"\w+", text.lower())
-
-    def _compute_log_probability(self, tokens: list[str]) -> float:
-        """Mock computation of log probability for tokens."""
-        # In real implementation, this would use a language model
-        # Mock with simple uniform probability
-        vocab_size = 10000  # Assumed vocabulary size
-        uniform_prob = 1.0 / vocab_size
-        log_prob = len(tokens) * jnp.log(uniform_prob)
-        return float(log_prob)
+        Returns:
+            Dictionary with the perplexity.
+        """
+        if self.model is None:
+            log_probs = _demo_token_log_probabilities(generated_data)
+            score = float(perplexity(log_probs, mask=jnp.ones_like(log_probs)))
+        else:
+            score = perplexity_from_model(generated_data, model=self.model, mask=mask)
+        return {"perplexity": score}
 
 
 class DiversityMetric(MetricBase):
@@ -338,8 +404,8 @@ class DiversityMetric(MetricBase):
         return results
 
     def _tokenize(self, text: str) -> list[str]:
-        """Simple tokenization."""
-        return re.findall(r"\w+", text.lower())
+        """Lower-cased word tokens."""
+        return _words(text)
 
     def _compute_ngram_diversity(self, texts: list[str], n: int) -> float:
         """Compute n-gram diversity across texts."""
@@ -458,7 +524,7 @@ def create_rouge_metric(
 def create_perplexity_metric(
     *,
     rngs: nnx.Rngs,
-    model_name: str = "mock",
+    model: LogProbabilityModel | None = None,
     use_mock: bool = False,
     batch_size: int = 8,
     config_name: str = "perplexity_metric",
@@ -467,24 +533,21 @@ def create_perplexity_metric(
 
     Args:
         rngs: NNX Rngs for stochastic operations
-        model_name: Name of the language model
-        use_mock: Whether to use mock implementation
+        model: Callable returning one log-probability per input position
+        use_mock: Use the retained demo backend instead of a model
         batch_size: Evaluation batch size
         config_name: Name for the configuration
 
     Returns:
         Configured PerplexityMetric instance
     """
+    params: dict[str, object] = {"use_mock": use_mock, "higher_is_better": False}
+    if model is not None:
+        params["model"] = model
     config = EvaluationConfig(
         name=config_name,
         metrics=["perplexity"],
-        metric_params={
-            "perplexity": {
-                "model_name": model_name,
-                "use_mock": use_mock,
-                "higher_is_better": False,
-            }
-        },
+        metric_params={"perplexity": params},
         eval_batch_size=batch_size,
     )
 

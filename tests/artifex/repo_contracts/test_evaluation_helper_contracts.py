@@ -1,4 +1,4 @@
-"""Contracts for the evaluation helpers artifex delegates to calibrax."""
+"""Contracts for the evaluation code artifex delegates to calibrax."""
 
 from __future__ import annotations
 
@@ -8,6 +8,15 @@ import pytest
 
 
 HELPER_MODULES = (
+    "artifex.generative_models.core.evaluation",
+    "artifex.generative_models.core.evaluation.metrics",
+    "artifex.generative_models.core.evaluation.metrics.base",
+    "artifex.generative_models.core.evaluation.metrics.pipeline",
+    "artifex.generative_models.core.evaluation.metrics.registry",
+    "artifex.generative_models.core.evaluation.metrics.image.fid",
+    "artifex.generative_models.core.evaluation.metrics.image.inception_score",
+    "artifex.generative_models.core.evaluation.metrics.general.precision_recall",
+    "artifex.generative_models.core.evaluation.metrics.text.perplexity",
     "artifex.generative_models.core.evaluation.metrics.metric_ops",
     "artifex.generative_models.core.evaluation.metrics.statistical",
     "artifex.generative_models.core.evaluation.metrics.distance",
@@ -57,15 +66,45 @@ DELEGATIONS = (
     ),
     (
         "artifex.benchmarks.metrics.image",
-        "frechet_distance",
+        "inception_score_per_split",
         "calibrax.metrics.functional.generative",
+    ),
+    (
+        "artifex.benchmarks.metrics.precision_recall",
+        "manifold_precision",
+        "calibrax.metrics.functional.generative",
+    ),
+    (
+        "artifex.benchmarks.metrics.precision_recall",
+        "manifold_recall",
+        "calibrax.metrics.functional.generative",
+    ),
+    (
+        "artifex.benchmarks.metrics.precision_recall",
+        "density_weighted_precision",
+        "calibrax.metrics.functional.generative",
+    ),
+    (
+        "artifex.benchmarks.metrics.precision_recall",
+        "density_weighted_recall",
+        "calibrax.metrics.functional.generative",
+    ),
+    (
+        "artifex.benchmarks.metrics.text",
+        "perplexity",
+        "calibrax.metrics.functional.text",
+    ),
+    (
+        "artifex.generative_models.modalities.text.evaluation",
+        "perplexity",
+        "calibrax.metrics.functional.text",
     ),
 )
 
 
 @pytest.mark.parametrize("module", HELPER_MODULES)
 def test_the_helper_modules_are_gone(module: str) -> None:
-    """The statistical, distance, quality and information helpers have one home: calibrax."""
+    """The core evaluation package and its helpers are gone; the metric math is calibrax's."""
     with pytest.raises(ModuleNotFoundError):
         importlib.import_module(module)
 
