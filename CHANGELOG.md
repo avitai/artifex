@@ -39,6 +39,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   to `calibrax>=0.1.3`, `jax>=0.11.1` and `orbax-checkpoint>=0.11.33`, the versions every
   sibling tests and the lock already resolved; the substrax floor is 0.1.3, the release whose
   W&B logger forwards init options and whose store keeps every checkpoint on request.
+- The datarax floor is 0.1.6, the release whose distributed and checkpoint code is substrax's.
 - `typer`, `trimesh` and `graphviz` leave the runtime dependencies for the `cli`,
   `geometric` and `analysis` extras (`benchmarks` includes the first two, `dev` the
   last, and `test` all three). Importing `artifex.cli`, `artifex.benchmarks` or

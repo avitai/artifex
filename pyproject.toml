@@ -35,7 +35,7 @@ dependencies = [
   "blackjax>=1.2.5",
   "calibrax>=0.1.3",
   "dacite>=1.8.0",
-  "datarax>=0.1.5",
+  "datarax>=0.1.6",
   # 0.1.7 calls jax.core.is_concrete and jax.core.valid_jaxtype, which jax deprecated in
   # 0.10 and removed in 0.11; every distrax-backed distribution raises AttributeError on
   # the jax this project now resolves. 0.1.9 no longer references either.
