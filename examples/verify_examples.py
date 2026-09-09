@@ -114,23 +114,16 @@ def test_root_examples_readme_contract() -> None:
 
 def test_hardware_detection() -> None:
     """Test hardware detection example."""
-    from artifex.generative_models.core.performance import HardwareDetector, PerformanceEstimator
+    from calibrax.profiling import detect_hardware_specs
+    from substrax.devices import detect_devices
 
-    detector = HardwareDetector()
-    estimator = PerformanceEstimator()
+    info = detect_devices()
+    assert info.platform in ("cpu", "gpu", "tpu"), f"Invalid platform: {info.platform}"
+    assert info.count > 0, "Device count should be positive"
 
-    specs = detector.detect_hardware()
-    valid_platforms = ["cpu", "gpu", "tpu"]
-    assert specs.platform in valid_platforms, f"Invalid platform: {specs.platform}"
-    assert specs.device_count > 0, "Device count should be positive"
-
-    flops = estimator.estimate_flops_linear(batch_size=32, input_size=784, output_size=128)
-    assert flops > 0, "FLOPs should be positive"
-
-    memory_usage = detector.estimate_memory_usage(
-        batch_size=32, sequence_length=512, hidden_size=768, num_layers=12
-    )
-    assert memory_usage > 0, "Memory usage should be positive"
+    specs = detect_hardware_specs()
+    assert specs["peak_flops"] > 0, "Peak FLOP/s should be positive"
+    assert specs["critical_intensity"] > 0, "Ridge point should be positive"
 
 
 def test_ddpm_model() -> None:
@@ -240,12 +233,12 @@ def test_ebm_configuration() -> None:
 
 def test_production_optimization() -> None:
     """Test production optimization components."""
-    from artifex.generative_models.core.performance import HardwareDetector
+    from calibrax.profiling import detect_hardware_specs
+
     from artifex.generative_models.inference.optimization.production import ProductionOptimizer
 
-    detector = HardwareDetector()
-    specs = detector.detect_hardware()
-    assert specs is not None, "Hardware specs should be available"
+    specs = detect_hardware_specs()
+    assert specs["peak_flops"] > 0, "Hardware specs should be available"
 
     optimizer = ProductionOptimizer()
     assert optimizer is not None, "ProductionOptimizer should be created"

@@ -12,13 +12,8 @@ from typing import Any, cast
 
 import flax.nnx as nnx
 import jax
+from calibrax.profiling import detect_hardware_specs
 from substrax.mesh import ParallelismConfig
-
-from ...core.performance import (
-    HardwareDetector,
-    HardwareSpecs,
-    PerformanceEstimator,
-)
 
 
 def _call_model(model: nnx.Module, inputs: jax.Array) -> jax.Array:
@@ -92,18 +87,19 @@ class ProductionOptimizer:
 
     def __init__(
         self,
-        hardware_specs: HardwareSpecs | None = None,
+        hardware_specs: dict[str, Any] | None = None,
         parallelism_config: ParallelismConfig | None = None,
     ) -> None:
         """Initialize production optimizer.
 
         Args:
-            hardware_specs: Hardware specifications for optimization
+            hardware_specs: A calibrax hardware specification (``peak_flops``,
+                ``memory_bandwidth``, ``critical_intensity``); ``None`` detects the
+                accelerator class through ``calibrax.profiling.detect_hardware_specs``.
             parallelism_config: Parallelism configuration for scaling
         """
-        self.hardware_specs = hardware_specs or HardwareDetector().detect_hardware()
+        self.hardware_specs = hardware_specs or detect_hardware_specs()
         self.parallelism_config = parallelism_config
-        self.performance_estimator = PerformanceEstimator()
         self._optimization_cache: dict[str, Any] = {}
 
     def optimize_for_production(
@@ -288,7 +284,7 @@ class ProductionPipeline:
     def __init__(
         self,
         model: nnx.Module,
-        hardware_specs: HardwareSpecs,
+        hardware_specs: dict[str, Any],
         parallelism_config: ParallelismConfig | None = None,
         optimization_techniques: list[str] | None = None,
     ) -> None:
@@ -296,7 +292,7 @@ class ProductionPipeline:
 
         Args:
             model: Optimized model for inference
-            hardware_specs: Hardware specifications
+            hardware_specs: The calibrax hardware specification the model was optimised for
             parallelism_config: Parallelism configuration
             optimization_techniques: Applied optimization techniques
         """
@@ -466,13 +462,13 @@ class ProductionMonitor:
 
 # Factory functions for easy creation
 def create_production_optimizer(
-    hardware_specs: HardwareSpecs | None = None,
+    hardware_specs: dict[str, Any] | None = None,
     parallelism_config: ParallelismConfig | None = None,
 ) -> ProductionOptimizer:
     """Create production optimizer with automatic hardware detection.
 
     Args:
-        hardware_specs: Optional hardware specifications
+        hardware_specs: Optional calibrax hardware specification
         parallelism_config: Optional parallelism configuration
 
     Returns:

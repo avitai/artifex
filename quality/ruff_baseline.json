@@ -476,11 +476,6 @@
       "ANN204": 1,
       "ARG002": 2
     },
-    "src/artifex/generative_models/core/performance.py": {
-      "BLE001": 1,
-      "PLR0913": 1,
-      "RET505": 1
-    },
     "src/artifex/generative_models/core/protocols/metrics.py": {
       "ANN002": 3,
       "ANN003": 3,

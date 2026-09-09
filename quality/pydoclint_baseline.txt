@@ -382,14 +382,6 @@ src/artifex/generative_models/core/losses/regularization.py
     DOC501: Function `gradient_penalty` has raise statements, but the docstring does not have a "Raises" section
     DOC503: Function `gradient_penalty` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
 --------------------
-src/artifex/generative_models/core/performance.py
-    DOC501: Method `HardwareDetector.get_critical_batch_size` has raise statements, but the docstring does not have a "Raises" section
-    DOC503: Method `HardwareDetector.get_critical_batch_size` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
-    DOC501: Method `HardwareDetector.get_batch_size_recommendation` has raise statements, but the docstring does not have a "Raises" section
-    DOC503: Method `HardwareDetector.get_batch_size_recommendation` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
-    DOC501: Method `PerformanceEstimator.analyze_roofline` has raise statements, but the docstring does not have a "Raises" section
-    DOC503: Method `PerformanceEstimator.analyze_roofline` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
---------------------
 src/artifex/generative_models/core/sampling/sde.py
     DOC501: Function `sde_sampling` has raise statements, but the docstring does not have a "Raises" section
     DOC503: Function `sde_sampling` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].

@@ -406,7 +406,6 @@ nav:
           - core/mixture.md
           - core/ode.md
           - core/perceptual.md
-          - core/performance.md
           - core/perplexity.md
           - core/pipeline.md
           - core/positional.md

@@ -9,22 +9,8 @@ def normalized_text(path: Path) -> str:
 
 
 def test_core_runtime_docs_publish_explicit_estimation_and_sampling_contracts() -> None:
-    performance = normalized_text(REPO_ROOT / "docs/core/performance.md")
     diffusion = normalized_text(REPO_ROOT / "docs/core/diffusion.md")
     trainer = normalized_text(REPO_ROOT / "docs/training/diffusion_trainer.md")
-
-    performance_fragments = [
-        "heuristic estimates rather than measured hardware facts",
-        "`memory_source`",
-        "`peak_flops_source`",
-        "`memory_bandwidth_source`",
-        (
-            "`analyze_roofline(...)` requires explicit `peak_flops_per_second` and "
-            "`memory_bandwidth_gb_per_second` values"
-        ),
-    ]
-    for fragment in performance_fragments:
-        assert fragment in performance
 
     diffusion_fragments = [
         "wrapper-only",

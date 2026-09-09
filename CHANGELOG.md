@@ -67,6 +67,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
+- `core.performance` (`HardwareSpecs`, `RooflineMetrics`, `HardwareDetector`,
+  `PerformanceEstimator`) with its tests and page. Hardware specs, FLOP counting and
+  roofline analysis are calibrax's `calibrax.profiling`; `ProductionOptimizer`,
+  `ProductionPipeline` and `create_production_optimizer` take a calibrax specification
+  dict (`peak_flops`, `memory_bandwidth`, `critical_intensity`) and detect one through
+  `detect_hardware_specs()` by default. `PerformanceEstimator` had no consumer.
 - `core.device_manager` and `core.device_testing` (`DeviceManager`, `DeviceCapabilities`,
   `DeviceType`, `get_device_manager`, `get_default_device`, `has_gpu`, `print_device_info`,
   `run_device_tests`, `print_test_results`, `TestSuite`, `TestResult`, `TestSeverity`), with

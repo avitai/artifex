@@ -649,7 +649,6 @@ max-complexity = 10
 "src/artifex/generative_models/core/losses/regularization.py" = ["ANN001", "ANN202", "ANN204", "ARG001", "ARG002", "ARG005", "PLR0913", "PLR1714", "RET505"]
 "src/artifex/generative_models/core/losses/vae.py" = ["PLR0913"]
 "src/artifex/generative_models/core/noise_schedule.py" = ["ANN204", "ARG002"]
-"src/artifex/generative_models/core/performance.py" = ["BLE001", "PLR0913", "RET505"]
 "src/artifex/generative_models/core/protocols/metrics.py" = ["ANN002", "ANN003", "PLR0402"]
 "src/artifex/generative_models/core/sampling/blackjax_samplers.py" = ["ANN001", "ANN202", "ANN204", "C901", "PLR0913", "PLR5501"]
 "src/artifex/generative_models/core/sampling/diffusion.py" = ["ANN001", "ANN201", "ANN204", "PLR0913"]

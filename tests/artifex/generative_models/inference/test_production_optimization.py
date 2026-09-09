@@ -4,8 +4,8 @@ import flax.nnx as nnx
 import jax
 import jax.numpy as jnp
 import pytest
+from calibrax.profiling import HARDWARE_SPECS
 
-from artifex.generative_models.core.performance import HardwareSpecs
 from artifex.generative_models.inference.optimization.production import (
     create_production_optimizer,
     create_production_pipeline,
@@ -32,14 +32,7 @@ class SimpleModel(nnx.Module):
 @pytest.fixture
 def hardware_specs():
     """Create test hardware specifications."""
-    return HardwareSpecs(
-        platform="gpu",
-        device_count=1,
-        memory_gb=16.0,
-        compute_capability="8.6",
-        peak_flops_per_second=100e12,
-        memory_bandwidth_gb_per_second=500.0,
-    )
+    return HARDWARE_SPECS["a100_80g"]
 
 
 @pytest.fixture
@@ -138,16 +131,16 @@ class TestProductionOptimizer:
 
         assert optimizer.hardware_specs == hardware_specs
         assert optimizer.parallelism_config is None
-        assert optimizer.performance_estimator is not None
+        assert optimizer.hardware_specs["peak_flops"] > 0
         assert isinstance(optimizer._optimization_cache, dict)
 
     def test_optimizer_auto_hardware_detection(self):
         """Test optimizer with automatic hardware detection."""
         optimizer = ProductionOptimizer()
 
-        assert optimizer.hardware_specs is not None
-        assert optimizer.hardware_specs.platform in ["cpu", "gpu", "tpu"]
-        assert optimizer.hardware_specs.device_count > 0
+        # Detection resolves to one of calibrax's specification entries for the platform.
+        assert optimizer.hardware_specs in HARDWARE_SPECS.values()
+        assert optimizer.hardware_specs["critical_intensity"] > 0
 
     def test_optimize_for_production(
         self, simple_model, optimization_target, sample_inputs, hardware_specs
@@ -449,30 +442,14 @@ class TestIntegration:
 
     def test_hardware_aware_optimization(self):
         """Test hardware-aware optimization selection."""
-        # Test with high-memory GPU
-        gpu_specs = HardwareSpecs(
-            platform="gpu",
-            device_count=1,
-            memory_gb=80.0,  # High memory
-            peak_flops_per_second=300e12,
-        )
-
+        gpu_specs = HARDWARE_SPECS["h100"]
         optimizer = ProductionOptimizer(hardware_specs=gpu_specs)
+        assert optimizer.hardware_specs is gpu_specs
+        assert optimizer.hardware_specs["peak_flops"] == 989.0e12
 
-        # Should handle larger models with GPU specs
-        assert optimizer.hardware_specs.memory_gb == 80.0
-        assert optimizer.hardware_specs.platform == "gpu"
-
-        # Test with CPU specs
-        cpu_specs = HardwareSpecs(
-            platform="cpu",
-            device_count=8,
-            memory_gb=128.0,
-            peak_flops_per_second=10e12,
-        )
-
+        cpu_specs = HARDWARE_SPECS["cpu_generic"]
         optimizer = ProductionOptimizer(hardware_specs=cpu_specs)
-        assert optimizer.hardware_specs.platform == "cpu"
+        assert optimizer.hardware_specs["critical_intensity"] == cpu_specs["critical_intensity"]
 
     def test_multi_target_optimization(self, simple_model, sample_inputs):
         """Test optimization with multiple conflicting targets."""
