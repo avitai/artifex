@@ -2,10 +2,15 @@
 
 from __future__ import annotations
 
-import typer
-
 from artifex.benchmarks.registry import list_benchmarks
 from artifex.benchmarks.suites.registry import list_suites
+from artifex.utils.extras import missing_extra
+
+
+try:
+    import typer
+except ImportError as error:
+    raise missing_extra("typer", "cli") from error
 
 
 UNSUPPORTED_BENCHMARK_CLI_MESSAGE = (

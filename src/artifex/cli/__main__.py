@@ -4,9 +4,14 @@ from __future__ import annotations
 
 from typing import Optional
 
-import typer
-
 from artifex.cli.config import app as config_app
+from artifex.utils.extras import missing_extra
+
+
+try:
+    import typer
+except ImportError as error:
+    raise missing_extra("typer", "cli") from error
 
 
 app = typer.Typer(

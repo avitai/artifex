@@ -410,7 +410,6 @@ dependencies = [
     { name = "distrax" },
     { name = "flax" },
     { name = "grain" },
-    { name = "graphviz" },
     { name = "jax" },
     { name = "jaxtyping" },
     { name = "matplotlib" },
@@ -425,8 +424,6 @@ dependencies = [
     { name = "scikit-learn" },
     { name = "scipy" },
     { name = "tqdm" },
-    { name = "trimesh" },
-    { name = "typer" },
     { name = "typing-extensions" },
 ]
 
@@ -441,6 +438,7 @@ all = [
     { name = "detect-secrets" },
     { name = "flake8" },
     { name = "flake8-functions-names" },
+    { name = "graphviz" },
     { name = "griffe" },
     { name = "hippogriffe" },
     { name = "hypothesis" },
@@ -493,7 +491,9 @@ all = [
     { name = "radon" },
     { name = "ruff" },
     { name = "tensorboard" },
+    { name = "trimesh" },
     { name = "twine" },
+    { name = "typer" },
     { name = "vulture" },
     { name = "wandb" },
     { name = "wemake-python-styleguide" },
@@ -509,6 +509,7 @@ all-cpu = [
     { name = "detect-secrets" },
     { name = "flake8" },
     { name = "flake8-functions-names" },
+    { name = "graphviz" },
     { name = "griffe" },
     { name = "hippogriffe" },
     { name = "hypothesis" },
@@ -546,7 +547,9 @@ all-cpu = [
     { name = "radon" },
     { name = "ruff" },
     { name = "tensorboard" },
+    { name = "trimesh" },
     { name = "twine" },
+    { name = "typer" },
     { name = "vulture" },
     { name = "wandb" },
     { name = "wemake-python-styleguide" },
@@ -562,6 +565,7 @@ all-macos = [
     { name = "detect-secrets" },
     { name = "flake8" },
     { name = "flake8-functions-names" },
+    { name = "graphviz" },
     { name = "griffe" },
     { name = "hippogriffe" },
     { name = "hypothesis" },
@@ -600,15 +604,25 @@ all-macos = [
     { name = "radon" },
     { name = "ruff" },
     { name = "tensorboard" },
+    { name = "trimesh" },
     { name = "twine" },
+    { name = "typer" },
     { name = "vulture" },
     { name = "wandb" },
     { name = "wemake-python-styleguide" },
     { name = "xenon" },
 ]
+analysis = [
+    { name = "graphviz" },
+]
 benchmarks = [
     { name = "datasets" },
     { name = "huggingface-hub" },
+    { name = "trimesh" },
+    { name = "typer" },
+]
+cli = [
+    { name = "typer" },
 ]
 cuda-dev = [
     { name = "bandit" },
@@ -620,6 +634,7 @@ cuda-dev = [
     { name = "detect-secrets" },
     { name = "flake8" },
     { name = "flake8-functions-names" },
+    { name = "graphviz" },
     { name = "hypothesis" },
     { name = "import-linter" },
     { name = "interrogate" },
@@ -662,7 +677,9 @@ cuda-dev = [
     { name = "radon" },
     { name = "ruff" },
     { name = "tensorboard" },
+    { name = "trimesh" },
     { name = "twine" },
+    { name = "typer" },
     { name = "vulture" },
     { name = "wandb" },
     { name = "wemake-python-styleguide" },
@@ -694,6 +711,7 @@ dev = [
     { name = "detect-secrets" },
     { name = "flake8" },
     { name = "flake8-functions-names" },
+    { name = "graphviz" },
     { name = "import-linter" },
     { name = "interrogate" },
     { name = "ipykernel" },
@@ -735,6 +753,9 @@ docs = [
     { name = "mkdocstrings-python" },
     { name = "pymdown-extensions" },
 ]
+geometric = [
+    { name = "trimesh" },
+]
 logging = [
     { name = "mlflow" },
     { name = "tensorboard" },
@@ -746,6 +767,7 @@ metal = [
 test = [
     { name = "beartype" },
     { name = "coverage" },
+    { name = "graphviz" },
     { name = "hypothesis" },
     { name = "mlflow" },
     { name = "mock" },
@@ -758,6 +780,8 @@ test = [
     { name = "pytest-timeout" },
     { name = "pytest-xdist" },
     { name = "tensorboard" },
+    { name = "trimesh" },
+    { name = "typer" },
     { name = "wandb" },
 ]
 
@@ -771,6 +795,9 @@ dev = [
 
 [package.metadata]
 requires-dist = [
+    { name = "avitai-artifex", extras = ["analysis"], marker = "extra == 'dev'" },
+    { name = "avitai-artifex", extras = ["analysis", "cli", "geometric"], marker = "extra == 'test'" },
+    { name = "avitai-artifex", extras = ["cli", "geometric"], marker = "extra == 'benchmarks'" },
     { name = "avitai-artifex", extras = ["cuda-dev", "docs"], marker = "extra == 'all'" },
     { name = "avitai-artifex", extras = ["dev", "docs", "metal", "test"], marker = "extra == 'all-macos'" },
     { name = "avitai-artifex", extras = ["dev", "docs", "test"], marker = "extra == 'all-cpu'" },
@@ -794,7 +821,7 @@ requires-dist = [
     { name = "flake8-functions-names", marker = "extra == 'dev'", specifier = ">=0.4" },
     { name = "flax", specifier = ">=0.12.9" },
     { name = "grain", specifier = ">=0.2.18" },
-    { name = "graphviz", specifier = ">=0.20" },
+    { name = "graphviz", marker = "extra == 'analysis'", specifier = ">=0.20" },
     { name = "griffe", marker = "extra == 'docs'", specifier = ">=1.7.3" },
     { name = "hippogriffe", marker = "extra == 'docs'", specifier = ">=0.2" },
     { name = "huggingface-hub", marker = "extra == 'benchmarks'", specifier = ">=0.25.0" },
@@ -872,16 +899,16 @@ requires-dist = [
     { name = "tensorboard", marker = "extra == 'dev'", specifier = ">=2.16" },
     { name = "tensorboard", marker = "extra == 'logging'", specifier = ">=2.16" },
     { name = "tqdm", specifier = ">=4.67" },
-    { name = "trimesh", specifier = ">=3.30.1" },
+    { name = "trimesh", marker = "extra == 'geometric'", specifier = ">=3.30.1" },
     { name = "twine", marker = "extra == 'dev'", specifier = ">=4.0.2" },
-    { name = "typer", specifier = ">=0.7" },
+    { name = "typer", marker = "extra == 'cli'", specifier = ">=0.7" },
     { name = "typing-extensions", specifier = ">=4.5" },
     { name = "vulture", marker = "extra == 'dev'", specifier = ">=2.14" },
     { name = "wandb", marker = "extra == 'logging'", specifier = ">=0.15" },
     { name = "wemake-python-styleguide", marker = "extra == 'dev'", specifier = ">=1.0" },
     { name = "xenon", marker = "extra == 'dev'", specifier = ">=0.9.3" },
 ]
-provides-extras = ["all", "all-cpu", "all-macos", "benchmarks", "cuda-dev", "cuda12", "dev", "docs", "logging", "metal", "test"]
+provides-extras = ["all", "all-cpu", "all-macos", "analysis", "benchmarks", "cli", "cuda-dev", "cuda12", "dev", "docs", "geometric", "logging", "metal", "test"]
 
 [package.metadata.requires-dev]
 dev = [

@@ -13,11 +13,17 @@ import flax.nnx as nnx
 import jax
 import jax.numpy as jnp
 import numpy as np
-import trimesh
 
 from artifex.benchmarks.runtime_guards import demo_mode_from_mapping, require_demo_mode
 from artifex.generative_models.core.configuration import DataConfig
+from artifex.utils.extras import missing_extra
 from artifex.utils.file_utils import ensure_valid_output_path
+
+
+try:
+    import trimesh
+except ImportError as error:
+    raise missing_extra("trimesh", "benchmarks") from error
 
 
 logger = logging.getLogger(__name__)
@@ -581,8 +587,6 @@ class ShapeNetDataset:
 
             # Create a simple cube mesh
             try:
-                import trimesh
-
                 mesh = trimesh.creation.box(extents=[1, 1, 1])
                 obj_file = model_dir / "model.obj"
                 mesh.export(str(obj_file))

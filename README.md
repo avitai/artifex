@@ -113,6 +113,25 @@ pip install "avitai-artifex[cuda12]"
 The PyPI distribution is named `avitai-artifex`; the Python import package remains
 `artifex`.
 
+### Optional extras
+
+The base install carries the generative-model library only. Subsystems with their own
+dependencies ship behind extras:
+
+| Extra | Installs | Needed for |
+| --- | --- | --- |
+| `cli` | typer | the `artifex` command and `python -m artifex.cli` |
+| `geometric` | trimesh | the mesh datasets under `artifex.benchmarks.datasets` |
+| `benchmarks` | `cli`, `geometric`, datasets, huggingface-hub | `artifex.benchmarks` |
+| `analysis` | graphviz | `artifex.generative_models.utils.code_analysis` |
+| `logging` | mlflow, wandb, tensorboard | the experiment trackers |
+
+Importing a subsystem without its extra raises an `ImportError` that names the extra:
+
+```bash
+pip install "avitai-artifex[cli,benchmarks]"
+```
+
 If you are contributing from a source checkout instead:
 
 ```bash

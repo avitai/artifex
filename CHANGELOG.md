@@ -19,6 +19,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- `typer`, `trimesh` and `graphviz` leave the runtime dependencies for the `cli`,
+  `geometric` and `analysis` extras (`benchmarks` includes the first two, `dev` the
+  last, and `test` all three). Importing `artifex.cli`, `artifex.benchmarks` or
+  `artifex.generative_models.utils.code_analysis` without the package raises an
+  `ImportError` that names the extra; `artifex` and `artifex.generative_models` never
+  needed them.
 - Pyright runs in `standard` mode and blocks through the pre-commit hook CI runs;
   the policy table, the contracts and the README say so. The hook set gains
   import-linter (a second contract: `core.layers` never imports `models`), pydoclint

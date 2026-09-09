@@ -8,8 +8,14 @@ from collections import defaultdict
 from dataclasses import dataclass
 from pathlib import Path
 
-import graphviz
-from graphviz.backend import ExecutableNotFound
+from artifex.utils.extras import missing_extra
+
+
+try:
+    import graphviz
+    from graphviz.backend import ExecutableNotFound
+except ImportError as error:
+    raise missing_extra("graphviz", "analysis") from error
 
 
 logger = logging.getLogger(__name__)

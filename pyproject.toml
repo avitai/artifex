@@ -47,7 +47,6 @@ dependencies = [
   # which datarax calls from its pipeline iteration path.
   "flax>=0.12.9",
   "grain>=0.2.18",
-  "graphviz>=0.20",
   "jax>=0.4.0",
   "jaxtyping>=0.2.20",
   "matplotlib>=3.8",
@@ -63,9 +62,7 @@ dependencies = [
   "python-dotenv>=1.1",
   "scikit-learn>=1.6.1",
   "scipy>=1.12.1",
-  "trimesh>=3.30.1",
   "tqdm>=4.67",
-  "typer>=0.7",
   "psutil>=5.9.5",
   "typing_extensions>=4.5"
 ]
@@ -99,10 +96,20 @@ all-macos = [
   # macOS with Metal acceleration (Apple Silicon M1/M2/M3+)
   "avitai-artifex[dev,docs,metal,test]"
 ]
+analysis = [
+  # artifex.generative_models.utils.code_analysis renders import graphs with graphviz.
+  "graphviz>=0.20"
+]
 benchmarks = [
-  # Only artifex.benchmarks needs these; both import sites are lazy.
+  # Only artifex.benchmarks needs these. datasets and huggingface-hub are imported lazily;
+  # the mesh datasets and the benchmark CLI import trimesh and typer at module level.
+  "avitai-artifex[cli,geometric]",
   "datasets>=2.14.0",
   "huggingface-hub>=0.25.0"
+]
+cli = [
+  # The `artifex` console script and the benchmark runner are Typer applications.
+  "typer>=0.7"
 ]
 cuda-dev = [
   # Complete Linux CUDA development environment
@@ -146,6 +153,7 @@ cuda12 = [
   "nvidia-nvshmem-cu12==3.7.2; sys_platform == 'linux'"
 ]
 dev = [
+  "avitai-artifex[analysis]",
   "build>=1.0.3",
   "coverage>=7",
   "bandit[toml]>=1.8.6",
@@ -195,6 +203,10 @@ docs = [
   "mkdocstrings-python>=1.1.2",
   "pymdown-extensions>=10.14.3"
 ]
+geometric = [
+  # ShapeNet-style mesh datasets under artifex.benchmarks.datasets.
+  "trimesh>=3.30.1"
+]
 logging = [
   "mlflow>=2",
   "tensorboard>=2.16",
@@ -210,6 +222,7 @@ test = [
   # module, so the suite needs the logging stack even though src/ imports it lazily. Declared
   # here rather than in a workflow so `uv sync --extra test` is enough to run the tests
   # anywhere, and so the macOS jobs get it through all-cpu/all-macos.
+  "avitai-artifex[analysis,cli,geometric]",
   "avitai-artifex[logging]",
   "beartype>=0.14.1",
   "mock>=5.2",

@@ -5,8 +5,6 @@ from __future__ import annotations
 from pathlib import Path
 from types import SimpleNamespace
 
-import typer
-
 from artifex.generative_models.core.cli.config_commands import (
     create_config,
     diff_config,
@@ -16,6 +14,13 @@ from artifex.generative_models.core.cli.config_commands import (
     validate_config_file,
     version_config,
 )
+from artifex.utils.extras import missing_extra
+
+
+try:
+    import typer
+except ImportError as error:
+    raise missing_extra("typer", "cli") from error
 
 
 app = typer.Typer(help="Configuration management commands")

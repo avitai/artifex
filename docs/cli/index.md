@@ -2,7 +2,8 @@
 
 The retained runtime owners are `artifex.cli.__main__` and `artifex.cli.config`.
 
-The retained top-level CLI is intentionally small. `python -m artifex.cli --help`
+The CLI needs the `cli` extra (`pip install "avitai-artifex[cli]"`), which installs
+Typer. The retained top-level CLI is intentionally small. `python -m artifex.cli --help`
 currently exposes only the `config` sub-app for Configuration management commands.
 
 ## Retained Surface
