@@ -12,6 +12,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CI runs every pre-commit hook and checks that `uv.lock` is current in the quality
   gate, runs the unit tests and the package build on Python 3.13 as well as 3.12, and
   checks distributions with `twine check --strict`.
+- Publishing uses PyPI trusted publishing (OIDC) instead of an API token, with a
+  `github-release` dispatch target that creates the GitHub Release for an existing
+  tag and then uploads; `RELEASING.md` records the checklist.
 
 ## [0.1.4] - 2026-08-29
 
