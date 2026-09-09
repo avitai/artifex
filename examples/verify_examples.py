@@ -253,7 +253,7 @@ def test_production_optimization() -> None:
 
 def test_sharding_strategies() -> None:
     """Test sharding strategy imports."""
-    from artifex.generative_models.scaling.sharding import (
+    from substrax.mesh import (
         DataParallelStrategy,
         MultiDimensionalStrategy,
         ParallelismConfig,

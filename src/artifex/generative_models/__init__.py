@@ -10,7 +10,6 @@ _LAZY_EXPORTS = {
     "core": "artifex.generative_models.core",
     "extensions": "artifex.generative_models.extensions",
     "models": "artifex.generative_models.models",
-    "scaling": "artifex.generative_models.scaling",
     "utils": "artifex.generative_models.utils",
     "jax_config": "artifex.generative_models.core.jax_config",
 }

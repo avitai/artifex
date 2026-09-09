@@ -358,7 +358,6 @@ def test_import_generative_models_keeps_subpackages_lazy() -> None:
                 "'core_loaded': 'artifex.generative_models.core' in sys.modules, "
                 "'models_loaded': 'artifex.generative_models.models' in sys.modules, "
                 "'extensions_loaded': 'artifex.generative_models.extensions' in sys.modules, "
-                "'scaling_loaded': 'artifex.generative_models.scaling' in sys.modules, "
                 "'utils_loaded': 'artifex.generative_models.utils' in sys.modules, "
                 "'jax_loaded': 'jax' in sys.modules, "
                 "'all': list(getattr(gm, '__all__'))"
@@ -375,10 +374,9 @@ def test_import_generative_models_keeps_subpackages_lazy() -> None:
     assert payload["core_loaded"] is False
     assert payload["models_loaded"] is False
     assert payload["extensions_loaded"] is False
-    assert payload["scaling_loaded"] is False
     assert payload["utils_loaded"] is False
     assert payload["jax_loaded"] is False
-    assert payload["all"] == ["core", "extensions", "models", "scaling", "utils", "jax_config"]
+    assert payload["all"] == ["core", "extensions", "models", "utils", "jax_config"]
 
 
 def test_generative_models_exports_resolve_lazily() -> None:

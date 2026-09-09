@@ -162,12 +162,6 @@ nav:
               - Profiling: training/profiling.md
               - Checkpointing: training/checkpoint.md
               - Early Stopping: training/early_stopping.md
-          - Distributed:
-              - Device Mesh: training/mesh.md
-              - Data Parallel: training/data_parallel.md
-              - Device Placement: training/device_placement.md
-              - Distributed Metrics: training/distributed_metrics.md
-              - Model Parallel: training/model_parallel.md
       - Data:
           - Data Loaders: api/data/loaders.md
 
@@ -236,7 +230,6 @@ nav:
       - Performance Profiling: user-guide/training/profiling.md
       - RL Training: user-guide/training/rl-training.md
       - Trainer API: api/training/trainer.md
-      - Distributed Training: scaling/index.md
       - Fine-Tuning: fine_tuning/index.md
 
   - Data & Modalities:
@@ -607,9 +600,6 @@ nav:
       - Roadmap:
           - roadmap/planned-modules.md
           - roadmap/planned-examples.md
-      - Scaling Reference:
-          - scaling/mesh_utils.md
-          - scaling/sharding.md
       - Theory:
           - theory/molecular-constraints.md
 
@@ -622,10 +612,6 @@ nav:
               - training/logging.md
               - training/profiling.md
               - training/factory.md
-              - training/data_parallel.md
-              - training/device_placement.md
-              - training/distributed_metrics.md
-              - training/mesh.md
               - training/utils.md
               - training/vae_trainer.md
               - training/gan_trainer.md
@@ -648,7 +634,6 @@ nav:
               - training/cosine.md
               - training/tracking.md
               - training/visualization.md
-              - training/model_parallel.md
       - Tutorials:
           - tutorials/protein-modeling.md
       - Utilities Reference:

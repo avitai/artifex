@@ -47,18 +47,18 @@
     },
     "src/artifex/benchmarks/datasets/geometric.py:method:ShapeNetDataset._create_synthetic_shape": {
       "complexity": 11,
-      "endline": 534,
+      "endline": 540,
       "kind": "method",
-      "lineno": 459,
+      "lineno": 465,
       "path": "src/artifex/benchmarks/datasets/geometric.py",
       "qualname": "ShapeNetDataset._create_synthetic_shape",
       "rank": "C"
     },
     "src/artifex/benchmarks/datasets/geometric.py:method:ShapeNetDataset._download_shapenet_core": {
       "complexity": 13,
-      "endline": 283,
+      "endline": 289,
       "kind": "method",
-      "lineno": 220,
+      "lineno": 226,
       "path": "src/artifex/benchmarks/datasets/geometric.py",
       "qualname": "ShapeNetDataset._download_shapenet_core",
       "rank": "C"
@@ -819,15 +819,6 @@
       "qualname": "create_encoder",
       "rank": "C"
     },
-    "src/artifex/generative_models/scaling/sharding.py:method:MultiDimensionalStrategy._validate_strategies": {
-      "complexity": 12,
-      "endline": 445,
-      "kind": "method",
-      "lineno": 404,
-      "path": "src/artifex/generative_models/scaling/sharding.py",
-      "qualname": "MultiDimensionalStrategy._validate_strategies",
-      "rank": "C"
-    },
     "src/artifex/generative_models/training/callbacks/early_stopping.py:method:EarlyStopping.on_epoch_end": {
       "complexity": 12,
       "endline": 119,
@@ -844,33 +835,6 @@
       "lineno": 648,
       "path": "src/artifex/generative_models/training/callbacks/logging.py",
       "qualname": "ProgressBarCallback.on_batch_end",
-      "rank": "C"
-    },
-    "src/artifex/generative_models/training/distributed/device_placement.py:method:DevicePlacement._detect_hardware_type": {
-      "complexity": 14,
-      "endline": 186,
-      "kind": "method",
-      "lineno": 151,
-      "path": "src/artifex/generative_models/training/distributed/device_placement.py",
-      "qualname": "DevicePlacement._detect_hardware_type",
-      "rank": "C"
-    },
-    "src/artifex/generative_models/training/distributed/metrics.py:method:DistributedMetrics.reduce_custom": {
-      "complexity": 11,
-      "endline": 246,
-      "kind": "method",
-      "lineno": 209,
-      "path": "src/artifex/generative_models/training/distributed/metrics.py",
-      "qualname": "DistributedMetrics.reduce_custom",
-      "rank": "C"
-    },
-    "src/artifex/generative_models/training/distributed/metrics.py:method:DistributedMetrics.reduce_custom_static": {
-      "complexity": 11,
-      "endline": 290,
-      "kind": "method",
-      "lineno": 249,
-      "path": "src/artifex/generative_models/training/distributed/metrics.py",
-      "qualname": "DistributedMetrics.reduce_custom_static",
       "rank": "C"
     },
     "src/artifex/generative_models/training/schedulers/factory.py:function:create_scheduler": {
@@ -902,36 +866,36 @@
     },
     "src/artifex/generative_models/utils/code_analysis/dependency_analyzer.py:function:_resolve_import_from_targets": {
       "complexity": 19,
-      "endline": 96,
+      "endline": 102,
       "kind": "function",
-      "lineno": 52,
+      "lineno": 58,
       "path": "src/artifex/generative_models/utils/code_analysis/dependency_analyzer.py",
       "qualname": "_resolve_import_from_targets",
       "rank": "C"
     },
     "src/artifex/generative_models/utils/code_analysis/dependency_analyzer.py:function:detect_circular_dependencies": {
       "complexity": 17,
-      "endline": 346,
+      "endline": 352,
       "kind": "function",
-      "lineno": 268,
+      "lineno": 274,
       "path": "src/artifex/generative_models/utils/code_analysis/dependency_analyzer.py",
       "qualname": "detect_circular_dependencies",
       "rank": "C"
     },
     "src/artifex/generative_models/utils/code_analysis/dependency_analyzer.py:function:get_module_dependencies": {
       "complexity": 11,
-      "endline": 157,
+      "endline": 163,
       "kind": "function",
-      "lineno": 99,
+      "lineno": 105,
       "path": "src/artifex/generative_models/utils/code_analysis/dependency_analyzer.py",
       "qualname": "get_module_dependencies",
       "rank": "C"
     },
     "src/artifex/generative_models/utils/code_analysis/dependency_analyzer.py:method:DependencyAnalyzer.generate_graph": {
       "complexity": 15,
-      "endline": 265,
+      "endline": 271,
       "kind": "method",
-      "lineno": 206,
+      "lineno": 212,
       "path": "src/artifex/generative_models/utils/code_analysis/dependency_analyzer.py",
       "qualname": "DependencyAnalyzer.generate_graph",
       "rank": "C"

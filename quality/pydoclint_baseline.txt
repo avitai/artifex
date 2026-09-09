@@ -845,10 +845,6 @@ src/artifex/generative_models/models/vae/vq_vae.py
     DOC501: Method `VQVAE.decode` has raise statements, but the docstring does not have a "Raises" section
     DOC503: Method `VQVAE.decode` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
 --------------------
-src/artifex/generative_models/scaling/mesh_utils.py
-    DOC501: Method `DeviceMeshManager.create_mesh` has raise statements, but the docstring does not have a "Raises" section
-    DOC503: Method `DeviceMeshManager.create_mesh` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
---------------------
 src/artifex/generative_models/training/callbacks/logging.py
     DOC501: Method `WandbLoggerCallback.__init__` has raise statements, but the docstring does not have a "Raises" section
     DOC503: Method `WandbLoggerCallback.__init__` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ImportError'].
@@ -856,11 +852,6 @@ src/artifex/generative_models/training/callbacks/logging.py
     DOC503: Method `TensorBoardLoggerCallback.on_train_begin` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ImportError'].
     DOC501: Method `ProgressBarCallback.on_train_begin` has raise statements, but the docstring does not have a "Raises" section
     DOC503: Method `ProgressBarCallback.on_train_begin` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ImportError'].
---------------------
-src/artifex/generative_models/training/distributed/mesh.py
-    DOC502: Method `DeviceMeshManager.create_data_parallel_mesh` has a "Raises" section in the docstring, but there are not "raise" statements in the body
-    DOC502: Method `DeviceMeshManager.create_model_parallel_mesh` has a "Raises" section in the docstring, but there are not "raise" statements in the body
-    DOC502: Method `DeviceMeshManager.create_hybrid_mesh` has a "Raises" section in the docstring, but there are not "raise" statements in the body
 --------------------
 src/artifex/generative_models/training/optimizers/factory.py
     DOC502: Function `create_optimizer` has a "Raises" section in the docstring, but there are not "raise" statements in the body

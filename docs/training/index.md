@@ -2,7 +2,7 @@
 
 **Status:** `Supported runtime training reference`
 
-`artifex.generative_models.training` keeps the shared owner set narrow: the shared package owns `Trainer`, typed optimizer and scheduler factories, callback modules, gradient accumulation helpers, distributed utilities, staged and streaming loop helpers, and typed RL trainer contracts. Family-specific trainer implementations live under `artifex.generative_models.training.trainers`.
+`artifex.generative_models.training` keeps the shared owner set narrow: the shared package owns `Trainer`, typed optimizer and scheduler factories, callback modules, staged and streaming loop helpers, and typed RL trainer contracts. Family-specific trainer implementations live under `artifex.generative_models.training.trainers`.
 
 ## Shared Trainer
 
@@ -90,12 +90,12 @@ The shared package does not hide model-specific objectives behind one universal 
 
 ## Distributed Utilities
 
-Artifex ships distributed helpers as utilities, not as trainer subclasses. The retained owners are:
-
-- `DeviceMeshManager` in [mesh.md](mesh.md)
-- `DataParallel` in [data_parallel.md](data_parallel.md)
-- `DevicePlacement` in [device_placement.md](device_placement.md)
-- `DistributedMetrics` in [distributed_metrics.md](distributed_metrics.md)
+Device meshes, sharding strategies, batch placement and cross-device
+collectives are substrax's: `substrax.mesh` (`DeviceMeshManager`, `MeshRules`,
+the sharding strategies and `ParallelismConfig`), `substrax.spmd` (data-parallel
+sharding, `spmd_train_step`, gradient and metric reductions) and
+`substrax.devices` (`DevicePlacement`, device identity). artifex ships no copy;
+see the [Distributed Training guide](../user-guide/advanced/distributed.md).
 
 ## Advanced Shared Utilities
 
@@ -107,7 +107,6 @@ Artifex ships distributed helpers as utilities, not as trainer subclasses. The r
 
 - Callbacks: [base](base.md), [checkpoint](checkpoint.md), [early_stopping](early_stopping.md), [logging](logging.md), [profiling](profiling.md)
 - Factories and helpers: [factory](factory.md), [utils](utils.md)
-- Distributed utilities: [data_parallel](data_parallel.md), [device_placement](device_placement.md), [distributed_metrics](distributed_metrics.md), [mesh](mesh.md)
 - Family trainers: [vae_trainer](vae_trainer.md), [gan_trainer](gan_trainer.md), [diffusion_trainer](diffusion_trainer.md), [flow_trainer](flow_trainer.md), [energy_trainer](energy_trainer.md), [autoregressive_trainer](autoregressive_trainer.md)
 - RL trainers: [reinforce](reinforce.md), [ppo](ppo.md), [grpo](grpo.md), [dpo](dpo.md)
 
@@ -115,4 +114,4 @@ Artifex ships distributed helpers as utilities, not as trainer subclasses. The r
 
 Standalone optimizer and scheduler module pages remain roadmap-only until real modules exist. Use the current factory owners instead.
 
-- Planned-only or future pages: [adamw](adamw.md), [adafactor](adafactor.md), [lion](lion.md), [scheduler](scheduler.md), [optax_wrappers](optax_wrappers.md), [exponential](exponential.md), [linear](linear.md), [cosine](cosine.md), [tracking](tracking.md), [visualization](visualization.md), [model_parallel](model_parallel.md)
+- Planned-only or future pages: [adamw](adamw.md), [adafactor](adafactor.md), [lion](lion.md), [scheduler](scheduler.md), [optax_wrappers](optax_wrappers.md), [exponential](exponential.md), [linear](linear.md), [cosine](cosine.md), [tracking](tracking.md), [visualization](visualization.md)

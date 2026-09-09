@@ -916,13 +916,15 @@ from jax import devices
 # Check available devices
 print(f"Available devices: {jax.devices()}")
 
-# For multi-GPU training, use JAX's sharding API
-# with Artifex's distributed training utilities
-from artifex.generative_models.training.distributed import (
-    DataParallel,
-    DeviceMeshManager,
-)
+# For multi-GPU training, build a mesh and shard batches with substrax
+from substrax.mesh import DeviceMeshManager
+from substrax.spmd import create_data_parallel_sharding, place_batch_on_shards
+
+mesh = DeviceMeshManager.create_data_parallel_mesh()
+sharding = create_data_parallel_sharding(mesh)
 ```
+
+See the [Distributed Training guide](../advanced/distributed.md) for the full loop.
 
 ### Checkpointing
 

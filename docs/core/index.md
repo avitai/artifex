@@ -75,10 +75,10 @@ The remaining model-facing evaluation protocol surface includes
 `BenchmarkModelProtocol` and `DatasetProtocol`.
 
 Benchmark runtime types now live under `artifex.benchmarks.core`, not under
-`core.protocols` or `core.evaluation`. Scaling and sharding APIs live under
-`artifex.generative_models.scaling`, not under `core`.
+`core.protocols` or `core.evaluation`. Device meshes and sharding strategies are
+substrax's (`substrax.mesh`), not artifex's.
 
-[:octicons-arrow-right-24: Evaluation Protocols](evaluation.md) | [:octicons-arrow-right-24: Benchmark Runtime](benchmarks.md) | [:octicons-arrow-right-24: Scaling Package](../scaling/index.md)
+[:octicons-arrow-right-24: Evaluation Protocols](evaluation.md) | [:octicons-arrow-right-24: Benchmark Runtime](benchmarks.md)
 
 ## Configuration, Losses, And Distributions
 

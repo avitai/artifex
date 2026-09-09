@@ -12,13 +12,13 @@ from typing import Any, cast
 
 import flax.nnx as nnx
 import jax
+from substrax.mesh import ParallelismConfig
 
 from ...core.performance import (
     HardwareDetector,
     HardwareSpecs,
     PerformanceEstimator,
 )
-from ...scaling.sharding import ParallelismConfig
 
 
 def _call_model(model: nnx.Module, inputs: jax.Array) -> jax.Array:

@@ -41,5 +41,4 @@ jobs:
 
       - name: Run the unit test subset
         run: |
-          uv run pytest tests/ -m "not gpu and not gpu_required and not cuda and not slow and not blackjax" \
-            --no-cov --ignore=tests/artifex/generative_models/training/distributed/
+          uv run pytest tests/ -m "not gpu and not gpu_required and not cuda and not slow and not blackjax" --no-cov

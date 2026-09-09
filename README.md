@@ -222,7 +222,6 @@ artifex/
 │   │   ├── inference/      # Inference and optimization helpers
 │   │   ├── modalities/     # Image, text, audio, protein, tabular, timeseries, multimodal
 │   │   ├── models/         # VAE, GAN, diffusion, flow, energy, autoregressive, geometric
-│   │   ├── scaling/        # Distributed and scaling helpers
 │   │   ├── training/       # Loops, callbacks, optimizers, schedulers, RL, trainers
 │   │   ├── utils/          # Logging, JAX helpers, visualization, analysis utilities
 │   │   └── zoo/            # Checked-in model zoo configs

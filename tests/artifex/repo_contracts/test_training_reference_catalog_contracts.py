@@ -15,21 +15,9 @@ RETAINED_RUNTIME_PAGES: dict[str, dict[str, object]] = {
         "modules": ["artifex.generative_models.training.callbacks.checkpoint"],
         "sources": ["src/artifex/generative_models/training/callbacks/checkpoint.py"],
     },
-    "data_parallel.md": {
-        "modules": ["artifex.generative_models.training.distributed.data_parallel"],
-        "sources": ["src/artifex/generative_models/training/distributed/data_parallel.py"],
-    },
-    "device_placement.md": {
-        "modules": ["artifex.generative_models.training.distributed.device_placement"],
-        "sources": ["src/artifex/generative_models/training/distributed/device_placement.py"],
-    },
     "diffusion_trainer.md": {
         "modules": ["artifex.generative_models.training.trainers.diffusion_trainer"],
         "sources": ["src/artifex/generative_models/training/trainers/diffusion_trainer.py"],
-    },
-    "distributed_metrics.md": {
-        "modules": ["artifex.generative_models.training.distributed.metrics"],
-        "sources": ["src/artifex/generative_models/training/distributed/metrics.py"],
     },
     "dpo.md": {
         "modules": ["artifex.generative_models.training.rl.dpo"],
@@ -68,10 +56,6 @@ RETAINED_RUNTIME_PAGES: dict[str, dict[str, object]] = {
     "logging.md": {
         "modules": ["artifex.generative_models.training.callbacks.logging"],
         "sources": ["src/artifex/generative_models/training/callbacks/logging.py"],
-    },
-    "mesh.md": {
-        "modules": ["artifex.generative_models.training.distributed.mesh"],
-        "sources": ["src/artifex/generative_models/training/distributed/mesh.py"],
     },
     "ppo.md": {
         "modules": ["artifex.generative_models.training.rl.ppo"],
@@ -123,10 +107,6 @@ COMING_SOON_PAGES = {
     "lion.md": {
         "planned_module": "artifex.generative_models.training.optimizers.lion",
         "current_owner": "artifex.generative_models.training.optimizers.factory",
-    },
-    "model_parallel.md": {
-        "planned_module": "artifex.generative_models.training.distributed.model_parallel",
-        "current_owner": "artifex.generative_models.training.distributed.mesh",
     },
     "optax_wrappers.md": {
         "planned_module": "artifex.generative_models.training.optimizers.optax_wrappers",
@@ -184,7 +164,8 @@ def test_training_index_and_example_docs_use_live_training_surface() -> None:
         "DataParallelTrainer",
         "ModelParallelTrainer",
         "DeviceMesh(",
-        "artifex.generative_models.training.distributed.model_parallel",
+        "artifex.generative_models.training.distributed",
+        "artifex.generative_models.scaling",
         "artifex.generative_models.training.mixed_precision",
         "artifex.generative_models.training.tracking",
         "artifex.generative_models.training.callbacks.visualization",
@@ -196,9 +177,8 @@ def test_training_index_and_example_docs_use_live_training_surface() -> None:
         assert banned not in combined_docs
 
     for required in [
-        "DeviceMeshManager",
-        "DataParallel",
-        "DevicePlacement",
+        "substrax.mesh",
+        "substrax.spmd",
         "optax.MultiSteps",
         "flax.training.dynamic_scale.DynamicScale",
         "OptimizerConfig",

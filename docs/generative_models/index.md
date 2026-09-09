@@ -152,7 +152,7 @@ Training infrastructure and utilities.
 | [GAN Trainer](../training/gan_trainer.md) | GAN model trainer |
 | [Diffusion Trainer](../training/diffusion_trainer.md) | Diffusion model trainer |
 | [Checkpoint](../training/checkpoint.md) | Training checkpointing |
-| [Data Parallel](../training/data_parallel.md) | Multi-device training |
+| [Distributed Training](../user-guide/advanced/distributed.md) | Multi-device training on substrax meshes |
 | [AdamW](../training/adamw.md) | Optimization algorithms |
 | [Scheduler](../training/scheduler.md) | Learning rate schedules |
 

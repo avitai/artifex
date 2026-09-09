@@ -65,6 +65,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
+- `artifex.generative_models.scaling` (`mesh_utils`, `sharding`: `ShardingConfig`,
+  `ParallelismConfig`, `ShardingStrategy`, `DataParallelStrategy`, `FSDPStrategy`,
+  `TensorParallelStrategy`, `PipelineParallelStrategy`, `MultiDimensionalStrategy`) and
+  `artifex.generative_models.training.distributed` (`DeviceMeshManager`, `DataParallel`,
+  `DevicePlacement`, `HardwareType`, `BatchSizeRecommendation`, `place_on_device`,
+  `distribute_batch`, `get_batch_size_recommendation`, `DistributedMetrics`), with their
+  tests and nine docs pages. The same code, moved with its tests, is `substrax.mesh`,
+  `substrax.spmd` and `substrax.devices`; `ProductionOptimizer` reads `ParallelismConfig`
+  from `substrax.mesh`, and the distributed training guide teaches the substrax surface.
 - `GradientAccumulator`, `GradientAccumulatorConfig`, `DynamicLossScaler` and
   `DynamicLossScalerConfig`, with the `training.gradient_accumulation` module and its
   two docs pages. Both duplicated upstream-owned tools: wrap the optimizer in

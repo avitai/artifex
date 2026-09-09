@@ -44,7 +44,7 @@ drift away from the live runtime inventory.
 | --- | --- | --- | --- |
 | Trainers and training loops | Shipped | `artifex.generative_models.training` | Retained trainer and loop surface |
 | Callbacks | Shipped | `artifex.generative_models.training.callbacks` | Current callback surface |
-| Distributed data parallel helper | Shipped | `artifex.generative_models.training.distributed.data_parallel` | Narrow retained distributed helper |
+| Distributed data parallel helper | Moved | `substrax.spmd` | Meshes, sharding and collectives live in substrax; artifex keeps no copy |
 
 ### Extensions
 

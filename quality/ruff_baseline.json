@@ -1170,15 +1170,6 @@
       "RET504": 1,
       "RET505": 1
     },
-    "src/artifex/generative_models/scaling/mesh_utils.py": {
-      "ARG002": 1,
-      "RET505": 5
-    },
-    "src/artifex/generative_models/scaling/sharding.py": {
-      "ARG002": 2,
-      "B007": 2,
-      "RET505": 3
-    },
     "src/artifex/generative_models/training/callbacks/base.py": {
       "ANN204": 2
     },
@@ -1195,20 +1186,6 @@
     },
     "src/artifex/generative_models/training/callbacks/profiling.py": {
       "PTH123": 1
-    },
-    "src/artifex/generative_models/training/distributed/data_parallel.py": {
-      "PLR0402": 1,
-      "RET505": 2
-    },
-    "src/artifex/generative_models/training/distributed/device_placement.py": {
-      "ANN204": 1,
-      "C901": 1,
-      "PLR0911": 1,
-      "PLR1714": 1,
-      "RET505": 3
-    },
-    "src/artifex/generative_models/training/distributed/metrics.py": {
-      "PLR0402": 1
     },
     "src/artifex/generative_models/training/loops/staged.py": {
       "PLR0913": 3
