@@ -966,8 +966,8 @@ for batch in dataloader:  # batch_size = 32
     )
 ```
 
-!!! tip "GradientAccumulator Utility"
-    Artifex provides a dedicated `GradientAccumulator` class for cleaner gradient accumulation with automatic normalization. See [Advanced Features](../training/advanced-features.md#gradient-accumulation) for details.
+!!! tip "Accumulate in the optimizer"
+    `optax.MultiSteps` wraps any optax optimizer to accumulate and average microbatch gradients, so the training step stays the plain one. See [Advanced Features](../training/advanced-features.md#gradient-accumulation) for details.
 
 ### Memory-Efficient Training
 
@@ -1008,7 +1008,7 @@ def mixed_precision_train_step(model_state, batch):
 ```
 
 !!! tip "Dynamic Loss Scaling"
-    For numerical stability in mixed-precision distributed training, use the `DynamicLossScaler` class which automatically adjusts loss scaling to prevent overflow/underflow. See [Advanced Features](../training/advanced-features.md#dynamic-loss-scaling) for details.
+    For numerical stability in mixed-precision distributed training, differentiate through `flax.training.dynamic_scale.DynamicScale`, which adjusts the loss scale to prevent overflow and underflow and takes an `axis_name` for the cross-device finiteness check. See [Advanced Features](../training/advanced-features.md#dynamic-loss-scaling) for details.
 
 ## Troubleshooting
 

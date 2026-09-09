@@ -61,10 +61,6 @@ RETAINED_RUNTIME_PAGES: dict[str, dict[str, object]] = {
         "modules": ["artifex.generative_models.training.trainers.gan_trainer"],
         "sources": ["src/artifex/generative_models/training/trainers/gan_trainer.py"],
     },
-    "gradient_accumulation.md": {
-        "modules": ["artifex.generative_models.training.gradient_accumulation"],
-        "sources": ["src/artifex/generative_models/training/gradient_accumulation.py"],
-    },
     "grpo.md": {
         "modules": ["artifex.generative_models.training.rl.grpo"],
         "sources": ["src/artifex/generative_models/training/rl/grpo.py"],
@@ -127,10 +123,6 @@ COMING_SOON_PAGES = {
     "lion.md": {
         "planned_module": "artifex.generative_models.training.optimizers.lion",
         "current_owner": "artifex.generative_models.training.optimizers.factory",
-    },
-    "mixed_precision.md": {
-        "planned_module": "artifex.generative_models.training.mixed_precision",
-        "current_owner": "artifex.generative_models.training.gradient_accumulation",
     },
     "model_parallel.md": {
         "planned_module": "artifex.generative_models.training.distributed.model_parallel",
@@ -207,8 +199,8 @@ def test_training_index_and_example_docs_use_live_training_surface() -> None:
         "DeviceMeshManager",
         "DataParallel",
         "DevicePlacement",
-        "GradientAccumulator",
-        "DynamicLossScaler",
+        "optax.MultiSteps",
+        "flax.training.dynamic_scale.DynamicScale",
         "OptimizerConfig",
         "SchedulerConfig",
         "create_optimizer",

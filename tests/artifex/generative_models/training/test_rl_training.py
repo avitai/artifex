@@ -1902,26 +1902,23 @@ class TestMultiStepTrainingIntegration:
 
 
 class TestGradientAccumulationIntegration:
-    """Integration tests for RL trainers with gradient accumulation."""
+    """RL trainers accumulate gradients through ``optax.MultiSteps`` in the optimizer."""
 
     def test_reinforce_with_gradient_accumulation(self, policy_model: SimpleSequencePolicy) -> None:
-        """REINFORCE should work with gradient accumulation."""
-        from artifex.generative_models.training import (
-            GradientAccumulator,
-            GradientAccumulatorConfig,
-        )
+        """REINFORCE applies one update per k microbatches when the optimizer accumulates."""
         from artifex.generative_models.training.rl import REINFORCEConfig, REINFORCETrainer
 
-        optimizer = nnx.Optimizer(policy_model, optax.adam(1e-3), wrt=nnx.Param)
-        trainer = REINFORCETrainer(policy_model, optimizer, REINFORCEConfig())
-
-        accumulator = GradientAccumulator(
-            GradientAccumulatorConfig(accumulation_steps=4, normalize_gradients=True)
+        accumulation_steps = 4
+        optimizer = nnx.Optimizer(
+            policy_model,
+            optax.MultiSteps(optax.adam(1e-3), every_k_schedule=accumulation_steps),
+            wrt=nnx.Param,
         )
+        trainer = REINFORCETrainer(policy_model, optimizer, REINFORCEConfig())
+        before = jax.tree.map(lambda leaf: leaf.copy(), nnx.state(policy_model, nnx.Param))
 
-        # Simulate gradient accumulation workflow
-        accumulated_losses = []
-        for micro_step in range(8):  # 2 full accumulation cycles
+        changed_after_step = []
+        for micro_step in range(2 * accumulation_steps):
             trajectory = make_sequence_rollout_batch(
                 4,
                 sequence_offset=micro_step,
@@ -1930,34 +1927,30 @@ class TestGradientAccumulationIntegration:
                     (4, SEQ_LEN - 1),
                 ),
             )
+            loss, _ = trainer.train_step(trajectory)
+            assert jnp.isfinite(loss)
+            after = nnx.state(policy_model, nnx.Param)
+            moved = jax.tree.leaves(
+                jax.tree.map(lambda a, b: not bool(jnp.allclose(a, b)), before, after)
+            )
+            changed_after_step.append(any(moved))
+            before = jax.tree.map(lambda leaf: leaf.copy(), after)
 
-            # Compute loss and metrics (without updating)
-            loss, metrics = trainer.train_step(trajectory)
-            accumulated_losses.append(float(loss))
-
-            if accumulator.should_update(micro_step):
-                # Would apply accumulated gradients here in real workflow
-                pass
-
-        assert len(accumulated_losses) == 8
-        assert all(jnp.isfinite(l) for l in accumulated_losses)
+        # Parameters move only on the k-th microbatch of every window.
+        assert changed_after_step == [False, False, False, True] * 2
 
     def test_ppo_with_gradient_accumulation(
         self, actor_critic_model: SimpleSequenceActorCritic
     ) -> None:
-        """PPO should work with gradient accumulation."""
-        from artifex.generative_models.training import (
-            GradientAccumulator,
-            GradientAccumulatorConfig,
-        )
+        """PPO metrics stay complete while the optimizer accumulates over two microbatches."""
         from artifex.generative_models.training.rl import PPOConfig, PPOTrainer
 
-        optimizer = nnx.Optimizer(actor_critic_model, optax.adam(1e-3), wrt=nnx.Param)
-        trainer = PPOTrainer(actor_critic_model, optimizer, PPOConfig())
-
-        GradientAccumulator(
-            GradientAccumulatorConfig(accumulation_steps=2, normalize_gradients=True)
+        optimizer = nnx.Optimizer(
+            actor_critic_model,
+            optax.MultiSteps(optax.adam(1e-3), every_k_schedule=2),
+            wrt=nnx.Param,
         )
+        trainer = PPOTrainer(actor_critic_model, optimizer, PPOConfig())
 
         metrics_history = []
         for micro_step in range(4):
@@ -2397,24 +2390,21 @@ class TestEndToEndWorkflows:
 
 
 class TestDynamicLossScalingIntegration:
-    """Integration tests for RL trainers with dynamic loss scaling."""
+    """RL losses run under ``flax.training.dynamic_scale.DynamicScale``."""
 
     def test_reinforce_with_loss_scaling(self, policy_model: SimpleSequencePolicy) -> None:
-        """REINFORCE losses should be compatible with loss scaling."""
-        from artifex.generative_models.training import (
-            DynamicLossScaler,
-            DynamicLossScalerConfig,
-        )
+        """REINFORCE gradients are finite under loss scaling, so the scale never backs off."""
+        from flax.training.dynamic_scale import DynamicScale
+
         from artifex.generative_models.training.rl import REINFORCEConfig, REINFORCETrainer
 
         optimizer = nnx.Optimizer(policy_model, optax.adam(1e-3), wrt=nnx.Param)
         trainer = REINFORCETrainer(policy_model, optimizer, REINFORCEConfig())
+        loss_fn = trainer.create_loss_fn()
+        graphdef, params = nnx.split(policy_model, nnx.Param)
+        dynamic_scale = DynamicScale(growth_interval=100)
+        initial_scale = float(dynamic_scale.scale)
 
-        scaler = DynamicLossScaler(
-            DynamicLossScalerConfig(initial_scale=2**15, growth_interval=100)
-        )
-
-        # Training loop with loss scaling
         for step in range(5):
             trajectory = make_sequence_rollout_batch(
                 4,
@@ -2425,19 +2415,18 @@ class TestDynamicLossScalingIntegration:
                 ),
             )
 
-            loss, metrics = trainer.train_step(trajectory)
+            def scaled_loss(p: nnx.State, trajectory=trajectory) -> tuple[jax.Array, dict]:
+                return loss_fn(nnx.merge(graphdef, p), trajectory)
 
-            # Scale and unscale loss (simulating mixed precision)
-            scaled_loss = scaler.scale_loss(loss)
-            assert jnp.isfinite(scaled_loss)
+            dynamic_scale, is_finite, (loss, _), grads = dynamic_scale.value_and_grad(
+                scaled_loss, has_aux=True
+            )(params)
 
-            # Check for overflow
-            overflow = scaler.check_overflow(jnp.array([scaled_loss]))
-            scaler.update_scale(overflow)
-
-            # Scale should remain reasonable
-            assert scaler.scale >= scaler.config.min_scale
-            assert scaler.scale <= scaler.config.max_scale
+            assert bool(is_finite)
+            assert jnp.isfinite(loss)
+            assert all(bool(jnp.all(jnp.isfinite(leaf))) for leaf in jax.tree.leaves(grads))
+            assert float(dynamic_scale.scale) == initial_scale
+            assert int(dynamic_scale.fin_steps) == step + 1
 
 
 # =============================================================================

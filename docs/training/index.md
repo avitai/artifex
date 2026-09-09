@@ -99,14 +99,14 @@ Artifex ships distributed helpers as utilities, not as trainer subclasses. The r
 
 ## Advanced Shared Utilities
 
-- `GradientAccumulator` and `DynamicLossScaler` live in [gradient_accumulation.md](gradient_accumulation.md)
+- gradient accumulation and loss scaling are `optax.MultiSteps` and `flax.training.dynamic_scale.DynamicScale`, used through the optimizer and the loss function; see the [Advanced Features guide](../user-guide/training/advanced-features.md)
 - shared helper functions such as `sample_logit_normal` live in [utils.md](utils.md)
 - callback surfaces live in [base.md](base.md), [checkpoint.md](checkpoint.md), [early_stopping.md](early_stopping.md), [logging.md](logging.md), and [profiling.md](profiling.md)
 
 ## Current Training Pages
 
 - Callbacks: [base](base.md), [checkpoint](checkpoint.md), [early_stopping](early_stopping.md), [logging](logging.md), [profiling](profiling.md)
-- Factories and helpers: [factory](factory.md), [gradient_accumulation](gradient_accumulation.md), [utils](utils.md)
+- Factories and helpers: [factory](factory.md), [utils](utils.md)
 - Distributed utilities: [data_parallel](data_parallel.md), [device_placement](device_placement.md), [distributed_metrics](distributed_metrics.md), [mesh](mesh.md)
 - Family trainers: [vae_trainer](vae_trainer.md), [gan_trainer](gan_trainer.md), [diffusion_trainer](diffusion_trainer.md), [flow_trainer](flow_trainer.md), [energy_trainer](energy_trainer.md), [autoregressive_trainer](autoregressive_trainer.md)
 - RL trainers: [reinforce](reinforce.md), [ppo](ppo.md), [grpo](grpo.md), [dpo](dpo.md)
@@ -115,4 +115,4 @@ Artifex ships distributed helpers as utilities, not as trainer subclasses. The r
 
 Standalone optimizer and scheduler module pages remain roadmap-only until real modules exist. Use the current factory owners instead.
 
-- Planned-only or future pages: [adamw](adamw.md), [adafactor](adafactor.md), [lion](lion.md), [scheduler](scheduler.md), [optax_wrappers](optax_wrappers.md), [exponential](exponential.md), [linear](linear.md), [cosine](cosine.md), [mixed_precision](mixed_precision.md), [tracking](tracking.md), [visualization](visualization.md), [model_parallel](model_parallel.md)
+- Planned-only or future pages: [adamw](adamw.md), [adafactor](adafactor.md), [lion](lion.md), [scheduler](scheduler.md), [optax_wrappers](optax_wrappers.md), [exponential](exponential.md), [linear](linear.md), [cosine](cosine.md), [tracking](tracking.md), [visualization](visualization.md), [model_parallel](model_parallel.md)

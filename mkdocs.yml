@@ -622,7 +622,6 @@ nav:
               - training/logging.md
               - training/profiling.md
               - training/factory.md
-              - training/gradient_accumulation.md
               - training/data_parallel.md
               - training/device_placement.md
               - training/distributed_metrics.md
@@ -647,7 +646,6 @@ nav:
               - training/exponential.md
               - training/linear.md
               - training/cosine.md
-              - training/mixed_precision.md
               - training/tracking.md
               - training/visualization.md
               - training/model_parallel.md

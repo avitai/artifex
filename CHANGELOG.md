@@ -51,6 +51,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `github-release` dispatch target that creates the GitHub Release for an existing
   tag and then uploads; `RELEASING.md` records the checklist.
 
+### Removed
+
+- `GradientAccumulator`, `GradientAccumulatorConfig`, `DynamicLossScaler` and
+  `DynamicLossScalerConfig`, with the `training.gradient_accumulation` module and its
+  two docs pages. Both duplicated upstream-owned tools: wrap the optimizer in
+  `optax.MultiSteps(tx, every_k_schedule=k)` for accumulation and differentiate through
+  `flax.training.dynamic_scale.DynamicScale` for loss scaling. The Advanced Features
+  guide shows both, and tests pin that `k` microbatches through `MultiSteps` equal one
+  step on the mean gradient and that `DynamicScale` returns unscaled gradients.
+
 ## [0.1.4] - 2026-08-29
 
 Releases up to 0.1.4 predate this file; their notes are the

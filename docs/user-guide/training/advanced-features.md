@@ -1,408 +1,191 @@
 # Advanced Training Features
 
-This guide covers advanced training utilities in Artifex for optimizing training performance and handling challenging scenarios like large batch training and mixed-precision optimization.
+This guide covers two techniques for training under memory and precision
+limits: accumulating gradients across microbatches for a larger effective batch,
+and dynamic loss scaling for float16 or bfloat16 training. Artifex ships neither
+as its own class. Both come from the libraries every artifex trainer already
+builds on, and the trainers accept them through the optimizer and the loss
+function they are given.
 
 ## Overview
 
-Artifex provides two key utilities for advanced training:
-
-- **GradientAccumulator**: Enables training with larger effective batch sizes by accumulating gradients across multiple forward/backward passes
-- **DynamicLossScaler**: Handles numerical stability for mixed-precision training (float16/bfloat16) through automatic loss scaling
+- **Gradient accumulation**: `optax.MultiSteps` wraps any optax optimizer so it
+  accumulates `k` microbatch gradients and applies one averaged update on the
+  `k`-th call. Wrapped in `nnx.Optimizer`, it drops into every artifex trainer
+  unchanged.
+- **Dynamic loss scaling**: `flax.training.dynamic_scale.DynamicScale` scales the
+  loss before differentiation, returns unscaled gradients with a finiteness flag,
+  and adapts the scale after overflows and after runs of finite steps.
 
 ## Gradient Accumulation
 
 ### Why Use Gradient Accumulation?
 
-When training large models or using high-resolution inputs, GPU memory often limits the batch size you can use. Gradient accumulation solves this by:
+When training large models or using high-resolution inputs, GPU memory often
+limits the batch size you can use. Gradient accumulation solves this by:
 
 1. Running multiple forward/backward passes with smaller batches
 2. Accumulating the gradients from each pass
 3. Applying a single optimizer update with the accumulated gradients
-
-This simulates training with a larger effective batch size without requiring more memory.
 
 Effective batch size = `micro_batch_size * accumulation_steps`.
 
 ### Basic Usage
 
 ```python
-from artifex.generative_models.training import (
-    GradientAccumulator,
-    GradientAccumulatorConfig,
-)
+import optax
+from flax import nnx
 
-# Configure accumulation
-config = GradientAccumulatorConfig(
-    accumulation_steps=4,      # Accumulate over 4 micro-batches
-    normalize_gradients=True,  # Average gradients (recommended)
+accumulation_steps = 4
+optimizer = nnx.Optimizer(
+    model,
+    optax.MultiSteps(optax.adam(1e-3), every_k_schedule=accumulation_steps),
+    wrt=nnx.Param,
 )
-
-# Create accumulator
-accumulator = GradientAccumulator(config)
 ```
 
-### GradientAccumulatorConfig
+`MultiSteps` keeps the running sum inside the optimizer state. The first `k - 1`
+calls to `optimizer.update` apply a zero update; the `k`-th applies the inner
+optimizer to the mean of the `k` gradients. The repository test
+`test_gradient_accumulation.py` pins that `k` microbatches through `MultiSteps`
+equal one Adam step on the averaged gradient.
 
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `accumulation_steps` | `int` | `1` | Number of steps to accumulate before update |
-| `normalize_gradients` | `bool` | `True` | Whether to average gradients by accumulation_steps |
+`every_k_schedule` also accepts a function of the step, so the accumulation
+window can change over training; `use_grad_mean=False` sums instead of averaging.
 
 ### Training Loop Integration
 
+Because accumulation lives in the optimizer, the training loop is the plain one:
+
 ```python
-import jax
-import jax.numpy as jnp
-from flax import nnx
 import optax
-from artifex.generative_models.training import (
-    GradientAccumulator,
-    GradientAccumulatorConfig,
-)
+from flax import nnx
 
-def train_with_accumulation(
-    model: nnx.Module,
-    train_loader,
-    num_epochs: int,
-    micro_batch_size: int = 32,
-    accumulation_steps: int = 4,
-    learning_rate: float = 1e-3,
-):
+
+def train_with_accumulation(model, train_loader, num_epochs, accumulation_steps=4, learning_rate=1e-3):
     """Training with gradient accumulation."""
-    # Setup optimizer
-    optimizer = optax.adam(learning_rate)
-    opt_state = optimizer.init(nnx.state(model))
-
-    # Setup accumulator
-    accumulator = GradientAccumulator(
-        GradientAccumulatorConfig(
-            accumulation_steps=accumulation_steps,
-            normalize_gradients=True,
-        )
+    optimizer = nnx.Optimizer(
+        model,
+        optax.MultiSteps(optax.adam(learning_rate), every_k_schedule=accumulation_steps),
+        wrt=nnx.Param,
     )
 
     @nnx.jit
-    def compute_gradients(model, batch):
-        """Compute gradients for a single micro-batch."""
+    def train_step(model, optimizer, batch):
         def loss_fn(model):
             outputs = model(batch["images"], training=True)
             loss_dict = model.loss_fn(batch, outputs)
             return loss_dict["total_loss"], loss_dict
 
         (loss, loss_dict), grads = nnx.value_and_grad(loss_fn, has_aux=True)(model)
-        return grads, loss, loss_dict
+        optimizer.update(model, grads)
+        return loss
 
-    @nnx.jit
-    def apply_gradients(model, opt_state, grads):
-        """Apply accumulated gradients to model."""
-        updates, new_opt_state = optimizer.update(grads, opt_state)
-        nnx.update(model, nnx.apply_updates(nnx.state(model), updates))
-        return new_opt_state
-
-    # Training loop
-    global_step = 0
-    for epoch in range(num_epochs):
-        for batch in train_loader(batch_size=micro_batch_size):
-            # Compute and accumulate gradients
-            grads, loss, outputs = compute_gradients(model, batch)
-            accumulator.accumulate(grads)
-            global_step += 1
-
-            # Apply update when accumulation is complete
-            if accumulator.should_update(global_step):
-                accumulated_grads = accumulator.get_gradients()
-                opt_state = apply_gradients(model, opt_state, accumulated_grads)
-                accumulator.reset()
-
-                effective_step = global_step // accumulation_steps
-                if effective_step % 100 == 0:
-                    print(f"Step {effective_step}: Loss = {loss:.4f}")
+    for _epoch in range(num_epochs):
+        for step, batch in enumerate(train_loader()):
+            loss = train_step(model, optimizer, batch)
+            if (step + 1) % accumulation_steps == 0 and (step + 1) % (100 * accumulation_steps) == 0:
+                print(f"Update {(step + 1) // accumulation_steps}: Loss = {loss:.4f}")
 
     return model
 ```
 
-### Key Methods
-
-#### `accumulate(grads)`
-
-Add gradients from a micro-batch to the accumulator.
-
-```python
-grads, loss = compute_gradients(model, batch)
-accumulator.accumulate(grads)
-```
-
-#### `should_update(step)`
-
-Check if enough gradients have been accumulated. Returns `True` when `step % accumulation_steps == 0`.
-
-```python
-if accumulator.should_update(global_step):
-    # Time to apply optimizer update
-    ...
-```
-
-#### `get_gradients()`
-
-Retrieve the accumulated (and optionally normalized) gradients.
-
-```python
-accumulated_grads = accumulator.get_gradients()
-# If normalize_gradients=True, returns grads / accumulation_steps
-```
-
-#### `reset()`
-
-Clear the accumulator after applying an update.
-
-```python
-accumulator.reset()
-```
+Every artifex trainer takes an `nnx.Optimizer`, so the same wrapper gives the
+REINFORCE, PPO, GRPO and DPO trainers accumulation without any change to their
+`train_step`.
 
 ## Dynamic Loss Scaling
 
 ### Why Use Dynamic Loss Scaling?
 
-Mixed-precision training with float16 or bfloat16 provides significant speedups but introduces numerical challenges:
+Mixed-precision training with float16 or bfloat16 provides significant speedups
+but introduces numerical challenges:
 
-- **Underflow**: Small gradients become zero in lower precision
-- **Overflow**: Large values exceed the representable range
+- **Underflow**: small gradients become zero in lower precision
+- **Overflow**: large values exceed the representable range
 
-Dynamic loss scaling addresses these issues by:
-
-1. **Scaling up** the loss before backward pass (prevents underflow)
-2. **Unscaling** gradients before optimizer update
-3. **Adjusting scale dynamically** based on gradient overflow detection
+Dynamic loss scaling multiplies the loss before differentiation so small
+gradients survive, divides the gradients back afterwards, skips the update when
+a gradient is not finite, and adapts the scale from what it observes.
 
 ### Basic Usage
 
 ```python
-from artifex.generative_models.training import (
-    DynamicLossScaler,
-    DynamicLossScalerConfig,
-)
+from flax.training.dynamic_scale import DynamicScale
 
-# Configure loss scaler
-config = DynamicLossScalerConfig(
-    initial_scale=2**15,      # Starting loss scale
-    growth_factor=2.0,        # Scale growth multiplier
-    backoff_factor=0.5,       # Scale reduction on overflow
-    growth_interval=2000,     # Steps before attempting scale increase
-    min_scale=1.0,            # Minimum allowed scale
-    max_scale=2**24,          # Maximum allowed scale
+dynamic_scale = DynamicScale(
+    growth_factor=2.0,      # multiplier after growth_interval finite steps
+    backoff_factor=0.5,     # multiplier after a non-finite step
+    growth_interval=2000,   # finite steps between growth attempts
+    scale=65536.0,          # starting loss scale (2**16)
 )
-
-# Create scaler
-scaler = DynamicLossScaler(config)
 ```
 
-### DynamicLossScalerConfig
-
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `initial_scale` | `float` | `2**15` | Starting loss scale value |
-| `growth_factor` | `float` | `2.0` | Multiplier when increasing scale |
-| `backoff_factor` | `float` | `0.5` | Multiplier when reducing scale (on overflow) |
-| `growth_interval` | `int` | `2000` | Steps without overflow before increasing scale |
-| `min_scale` | `float` | `1.0` | Minimum allowed scale value |
-| `max_scale` | `float` | `2**24` | Maximum allowed scale value |
+`DynamicScale` is an immutable Flax struct: every step returns a new instance
+carrying the updated `scale` and `fin_steps`.
 
 ### Training Loop Integration
 
+`DynamicScale.value_and_grad` differentiates a function of a parameter pytree,
+so split the module into its graph definition and parameters, differentiate the
+merged model, and apply the update only when the gradients are finite:
+
 ```python
 import jax
-import jax.numpy as jnp
-from flax import nnx
 import optax
-from artifex.generative_models.training import (
-    DynamicLossScaler,
-    DynamicLossScalerConfig,
-)
+from flax import nnx
+from flax.training.dynamic_scale import DynamicScale
 
-def train_with_mixed_precision(
-    model: nnx.Module,
-    train_loader,
-    num_epochs: int,
-    learning_rate: float = 1e-3,
-):
+
+def train_with_mixed_precision(model, train_loader, num_epochs, learning_rate=1e-3):
     """Training with dynamic loss scaling for mixed precision."""
-    # Setup optimizer
-    optimizer = optax.adam(learning_rate)
-    opt_state = optimizer.init(nnx.state(model))
+    optimizer = nnx.Optimizer(model, optax.adam(learning_rate), wrt=nnx.Param)
+    dynamic_scale = DynamicScale()
+    graphdef, params = nnx.split(model, nnx.Param)
 
-    # Setup loss scaler
-    scaler = DynamicLossScaler(DynamicLossScalerConfig())
-
-    def train_step(model, opt_state, batch):
-        """Single training step with loss scaling."""
-        def loss_fn(model):
-            # Forward pass (in lower precision if model uses fp16/bf16)
-            outputs = model(batch["images"], training=True)
+    def train_step(dynamic_scale, params, batch):
+        def loss_fn(params):
+            outputs = nnx.merge(graphdef, params)(batch["images"], training=True)
             loss_dict = model.loss_fn(batch, outputs)
             return loss_dict["total_loss"], loss_dict
 
-        # Compute loss and gradients
-        (loss, loss_dict), grads = nnx.value_and_grad(loss_fn, has_aux=True)(model)
+        dynamic_scale, is_finite, (loss, _), grads = dynamic_scale.value_and_grad(
+            loss_fn, has_aux=True
+        )(params)
+        if bool(is_finite):
+            optimizer.update(model, grads)
+        return dynamic_scale, nnx.state(model, nnx.Param), loss, bool(is_finite)
 
-        # Scale loss for numerical stability
-        scaled_loss = scaler.scale_loss(loss)
-
-        # Unscale gradients before optimizer update
-        unscaled_grads = scaler.unscale_gradients(grads)
-
-        # Check for overflow (NaN or Inf in gradients)
-        overflow = scaler.check_overflow(unscaled_grads)
-
-        # Update scale based on overflow status
-        scaler.update_scale(overflow)
-
-        if not overflow:
-            # Apply gradients only if no overflow
-            updates, opt_state = optimizer.update(unscaled_grads, opt_state)
-            nnx.update(model, nnx.apply_updates(nnx.state(model), updates))
-
-        return opt_state, loss, overflow
-
-    # Training loop
     for epoch in range(num_epochs):
-        total_overflow_steps = 0
+        skipped = 0
         for step, batch in enumerate(train_loader()):
-            opt_state, loss, overflow = train_step(model, opt_state, batch)
-
-            if overflow:
-                total_overflow_steps += 1
-
+            dynamic_scale, params, loss, is_finite = train_step(dynamic_scale, params, batch)
+            skipped += not is_finite
             if step % 100 == 0:
-                print(f"Step {step}: Loss = {loss:.4f}, Scale = {scaler.scale:.0f}")
-
-        print(f"Epoch {epoch}: Overflow steps = {total_overflow_steps}")
+                print(f"Step {step}: Loss = {loss:.4f}, Scale = {float(dynamic_scale.scale):.0f}")
+        print(f"Epoch {epoch}: skipped {skipped} non-finite steps")
 
     return model
 ```
 
-### Key Methods
-
-#### `scale_loss(loss)`
-
-Multiply the loss by the current scale factor before backward pass.
-
-```python
-scaled_loss = scaler.scale_loss(loss)
-# Now compute gradients with respect to scaled_loss
-```
-
-#### `unscale_gradients(grads)`
-
-Divide gradients by the scale factor to get the true gradient values.
-
-```python
-unscaled_grads = scaler.unscale_gradients(grads)
-```
-
-#### `check_overflow(grads)`
-
-Check if any gradient contains NaN or Inf values.
-
-```python
-overflow = scaler.check_overflow(unscaled_grads)
-if overflow:
-    # Skip this update, reduce scale
-    pass
-```
-
-#### `update_scale(overflow_detected)`
-
-Adjust the scale based on whether overflow was detected.
-
-```python
-scaler.update_scale(overflow)
-# If overflow: scale *= backoff_factor
-# If no overflow for growth_interval steps: scale *= growth_factor
-```
+The gradients `value_and_grad` returns are already divided by the scale, so the
+optimizer sees true gradient magnitudes; `test_gradient_accumulation.py` checks
+them against `jax.grad` of the unscaled loss. Inside `jax.jit`, replace the
+Python `if` with `jax.lax.cond` on `is_finite`, or use
+`optax.apply_if_finite` around the optimizer.
 
 ## Combining Both Features
 
-For optimal training of large models, combine gradient accumulation with dynamic loss scaling:
-
-```python
-from artifex.generative_models.training import (
-    GradientAccumulator,
-    GradientAccumulatorConfig,
-    DynamicLossScaler,
-    DynamicLossScalerConfig,
-)
-
-def train_with_accumulation_and_scaling(
-    model: nnx.Module,
-    train_loader,
-    num_epochs: int,
-    accumulation_steps: int = 4,
-    learning_rate: float = 1e-3,
-):
-    """Combined gradient accumulation and dynamic loss scaling."""
-    optimizer = optax.adam(learning_rate)
-    opt_state = optimizer.init(nnx.state(model))
-
-    # Initialize utilities
-    accumulator = GradientAccumulator(
-        GradientAccumulatorConfig(
-            accumulation_steps=accumulation_steps,
-            normalize_gradients=True,
-        )
-    )
-    scaler = DynamicLossScaler(DynamicLossScalerConfig())
-
-    def compute_scaled_gradients(model, batch):
-        """Compute gradients with loss scaling."""
-        def loss_fn(model):
-            outputs = model(batch["images"], training=True)
-            loss_dict = model.loss_fn(batch, outputs)
-            # Scale loss before backward pass
-            scaled_loss = scaler.scale_loss(loss_dict["total_loss"])
-            return scaled_loss, loss_dict
-
-        (_, loss_dict), grads = nnx.value_and_grad(loss_fn, has_aux=True)(model)
-
-        # Unscale gradients immediately
-        unscaled_grads = scaler.unscale_gradients(grads)
-        return unscaled_grads, loss_dict["total_loss"]
-
-    # Training loop
-    global_step = 0
-    for epoch in range(num_epochs):
-        for batch in train_loader():
-            # Compute and accumulate gradients
-            grads, loss = compute_scaled_gradients(model, batch)
-            accumulator.accumulate(grads)
-            global_step += 1
-
-            # Apply update when accumulation is complete
-            if accumulator.should_update(global_step):
-                accumulated_grads = accumulator.get_gradients()
-
-                # Check for overflow in accumulated gradients
-                overflow = scaler.check_overflow(accumulated_grads)
-                scaler.update_scale(overflow)
-
-                if not overflow:
-                    updates, opt_state = optimizer.update(
-                        accumulated_grads, opt_state
-                    )
-                    nnx.update(
-                        model,
-                        nnx.apply_updates(nnx.state(model), updates)
-                    )
-
-                accumulator.reset()
-
-    return model
-```
+Accumulation lives in the optimizer and scaling in the loss, so they compose
+without extra code: build the optimizer with `MultiSteps` and take gradients
+through `DynamicScale`. A non-finite microbatch is skipped and does not enter
+the running sum; the window closes on the next finite `k`-th call.
 
 ## Best Practices
 
 ### Gradient Accumulation
 
-1. **Choose accumulation steps based on target batch size**:
+1. **Choose accumulation steps from the target batch size**:
 
    ```python
    target_batch_size = 256
@@ -410,20 +193,22 @@ def train_with_accumulation_and_scaling(
    accumulation_steps = target_batch_size // micro_batch_size  # = 8
    ```
 
-2. **Always normalize gradients** unless you have a specific reason not to. This ensures consistent gradient magnitudes regardless of accumulation steps.
+2. **Keep the default averaging** (`use_grad_mean=True`) so gradient magnitudes
+   do not depend on the window size.
 
-3. **Adjust learning rate** when changing effective batch size. The linear scaling rule suggests scaling learning rate proportionally with batch size.
+3. **Adjust the learning rate** when changing the effective batch size. The
+   linear scaling rule suggests scaling the learning rate with batch size.
 
 ### Dynamic Loss Scaling
 
-1. **Start with moderate initial scale** (default `2**15` works well for most cases).
+1. **Start with the default scale** (`2**16`); it works for most models.
 
-2. **Monitor overflow frequency**. Frequent overflows indicate:
-   - Learning rate may be too high
-   - Model may have numerical instability
-   - Initial scale may be too high
+2. **Monitor skipped steps.** Frequent non-finite steps indicate a learning rate
+   that is too high, a numerically unstable model, or an initial scale that is
+   too high.
 
-3. **Use with bfloat16 when possible**. bfloat16 has the same dynamic range as float32, reducing overflow issues compared to float16.
+3. **Use bfloat16 when possible.** It has the dynamic range of float32, so
+   overflow is rarer than with float16.
 
 4. **Consider gradient clipping** as a complementary technique:
 
@@ -434,58 +219,11 @@ def train_with_accumulation_and_scaling(
    )
    ```
 
-## Integration with Model-Specific Trainers
-
-The advanced features integrate cleanly with Artifex's explicit objective boundaries:
-
-```python
-from artifex.generative_models.training import (
-    GradientAccumulator,
-    GradientAccumulatorConfig,
-)
-from flax import nnx
-import jax
-import optax
-
-optimizer = optax.adam(learning_rate)
-opt_state = optimizer.init(nnx.state(model, nnx.Param))
-
-# Use accumulator in custom training loop
-accumulator = GradientAccumulator(
-    GradientAccumulatorConfig(accumulation_steps=4)
-)
-
-def loss_fn(model, batch, rng):
-    del rng
-    predictions = model(batch["input"])
-    return jax.numpy.mean((predictions - batch["target"]) ** 2), {}
-
-for step, batch in enumerate(dataloader):
-    rng = jax.random.key(step)
-    loss_value, grads = nnx.value_and_grad(loss_fn, has_aux=True)(model, batch, rng)
-    accumulator.accumulate(grads)
-
-    if accumulator.should_update(step):
-        params = nnx.state(model, nnx.Param)
-        updates, opt_state = optimizer.update(accumulator.get_gradients(), opt_state, params)
-        nnx.update(model, optax.apply_updates(params, updates))
-        accumulator.reset()
-```
-
 ## API Reference
 
-For complete API documentation, see the [Trainer API Reference](../../api/training/trainer.md).
-
-The gradient accumulation and dynamic loss scaling utilities are exported from the main training module:
-
-```python
-from artifex.generative_models.training import (
-    GradientAccumulator,
-    GradientAccumulatorConfig,
-    DynamicLossScaler,
-    DynamicLossScalerConfig,
-)
-```
+- [`optax.MultiSteps`](https://optax.readthedocs.io/en/latest/api/optimizer_wrappers.html#optax.MultiSteps)
+- [`flax.training.dynamic_scale.DynamicScale`](https://flax.readthedocs.io/en/latest/api_reference/flax.training.html#dynamic-scale)
+- [Trainer API Reference](../../api/training/trainer.md)
 
 ## Related Documentation
 

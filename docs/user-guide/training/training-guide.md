@@ -547,92 +547,37 @@ optimizer = optax.adam(learning_rate=one_cycle_schedule)
 
 ## Gradient Accumulation
 
-Accumulate gradients to simulate larger batch sizes:
+Accumulate gradients to simulate larger batch sizes by wrapping the optimizer in
+`optax.MultiSteps`; the loop itself does not change:
 
 ```python
-def training_with_gradient_accumulation(
+accumulation_steps = 4  # Effective batch size = 32 * 4 = 128
+optimizer = nnx.Optimizer(
     model,
-    train_loader,
-    num_epochs,
-    accumulation_steps=4,
-    learning_rate=1e-3,
-):
-    """Training with gradient accumulation."""
-    optimizer = optax.adam(learning_rate)
-    opt_state = optimizer.init(nnx.state(model))
-    rng = jax.random.PRNGKey(0)
-
-    @nnx.jit
-    def compute_gradients(model, batch, rng):
-        """Compute gradients for a batch."""
-        def loss_fn(model):
-            outputs = model(batch["images"], rngs=nnx.Rngs(rng), training=True)
-            return outputs["loss"], outputs
-
-        (loss, outputs), grads = nnx.value_and_grad(loss_fn, has_aux=True)(model)
-        return grads, loss, outputs
-
-    @nnx.jit
-    def apply_accumulated_gradients(model, opt_state, accumulated_grads):
-        """Apply accumulated gradients."""
-        # Average gradients
-        averaged_grads = jax.tree_map(
-            lambda g: g / accumulation_steps,
-            accumulated_grads
-        )
-
-        # Update model
-        updates, opt_state = optimizer.update(averaged_grads, opt_state)
-        model = nnx.apply_updates(model, updates)
-
-        return model, opt_state
-
-    # Training loop
-    for epoch in range(num_epochs):
-        accumulated_grads = None
-        step = 0
-
-        for batch in train_loader(batch_size=32):  # Smaller batch size
-            rng, step_rng = jax.random.split(rng)
-
-            # Compute gradients
-            grads, loss, outputs = compute_gradients(model, batch, step_rng)
-
-            # Accumulate gradients
-            if accumulated_grads is None:
-                accumulated_grads = grads
-            else:
-                accumulated_grads = jax.tree_map(
-                    lambda acc, g: acc + g,
-                    accumulated_grads,
-                    grads
-                )
-
-            step += 1
-
-            # Apply accumulated gradients
-            if step % accumulation_steps == 0:
-                model, opt_state = apply_accumulated_gradients(
-                    model, opt_state, accumulated_grads
-                )
-                accumulated_grads = None
-
-                if step % 100 == 0:
-                    print(f"Step {step // accumulation_steps}: Loss = {loss:.4f}")
-
-    return model
-
-# Train with gradient accumulation
-model = training_with_gradient_accumulation(
-    model=model,
-    train_loader=train_loader,
-    num_epochs=10,
-    accumulation_steps=4,  # Effective batch size = 32 * 4 = 128
+    optax.MultiSteps(optax.adam(1e-3), every_k_schedule=accumulation_steps),
+    wrt=nnx.Param,
 )
+
+@nnx.jit
+def train_step(model, optimizer, batch, rng):
+    def loss_fn(model):
+        outputs = model(batch["images"], rngs=nnx.Rngs(rng), training=True)
+        return outputs["loss"], outputs
+
+    (loss, outputs), grads = nnx.value_and_grad(loss_fn, has_aux=True)(model)
+    optimizer.update(model, grads)  # a real update every accumulation_steps calls
+    return loss
+
+rng = jax.random.key(0)
+for epoch in range(num_epochs):
+    for step, batch in enumerate(train_loader(batch_size=32)):
+        rng, step_rng = jax.random.split(rng)
+        loss = train_step(model, optimizer, batch, step_rng)
 ```
 
-!!! tip "Advanced Gradient Accumulation"
-    For production use, Artifex provides a `GradientAccumulator` class with configurable normalization and step tracking. See [Advanced Features](advanced-features.md#gradient-accumulation) for details.
+!!! tip "Accumulation and loss scaling"
+    `optax.MultiSteps` averages the accumulated gradients by default and accepts a
+    schedule for the window size. See [Advanced Features](advanced-features.md#gradient-accumulation) for details and for mixed-precision loss scaling with `flax.training.dynamic_scale.DynamicScale`.
 
 ## Early Stopping
 
@@ -769,7 +714,7 @@ model = mixed_precision_training(
 ```
 
 !!! tip "Dynamic Loss Scaling"
-    For robust mixed-precision training, Artifex provides a `DynamicLossScaler` class that automatically adjusts loss scaling to prevent overflow/underflow. See [Advanced Features](advanced-features.md#dynamic-loss-scaling) for details.
+    For robust mixed-precision training, differentiate through `flax.training.dynamic_scale.DynamicScale`, which scales the loss, skips non-finite steps and adapts the scale. See [Advanced Features](advanced-features.md#dynamic-loss-scaling) for details.
 
 ## Model Checkpointing
 
