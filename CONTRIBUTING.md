@@ -69,6 +69,10 @@ Then open a Pull Request on GitHub.
 - Follow PEP 8 guidelines
 - Use type annotations for all functions
 - Maximum line length: 100 characters (Ruff formatter)
+- The ruff rule set in `pyproject.toml` blocks on `src/`. A file listed in the generated
+  `[tool.ruff.lint.per-file-ignores]` table may not gain findings for its listed rules; when you
+  clear one, run `uv run python scripts/check_ruff_baseline.py --write-baseline` so the entry
+  leaves the baseline
 - Use descriptive variable names
 
 ### Framework Requirements

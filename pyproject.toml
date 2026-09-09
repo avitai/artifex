@@ -484,13 +484,52 @@ ignore = [
   "E741", # Ambiguous variable name
   "F722", # Forward annotation syntax error
   "W391", # Blank line at end of file
-  "E203" # Whitespace before ':'
+  "E203", # Whitespace before ':'
+  # --- Documented exemptions from the adopted rule set (shared with datarax) ---
+  "ANN401", # `Any` is legitimate for JAX pytree leaves and dynamic data payloads
+  "TRY003", # inline exception messages are the established, readable style here
+  "TRY300", # return-in-`else` restructuring adds no safety to guard-heavy flow
+  "TRY004", # validation intentionally raises ValueError for structural incompatibility
+  "PLR2004" # magic-value comparisons pervade numeric/array/scientific code
 ]
-# E: Pyflakes and pycodestyle errors
-# F: Pyflakes
-# I: isort
-# W: pycodestyle warnings
-select = ["E", "F", "I", "W", "D", "F841", "UP006", "UP007", "UP035", "BLE001", "T201"]
+# The shared rule set. C90 (mccabe, max-complexity 10) is active; files that carried
+# findings when the set was adopted are listed in the generated per-file-ignores table
+# below, which scripts/check_ruff_baseline.py keeps shrinking.
+select = [
+  "E",
+  "F",
+  "I",
+  "W",
+  "D",
+  "F841",
+  "UP006",
+  "UP007",
+  "UP035",
+  "BLE001",
+  "T201",
+  "ANN",
+  "ARG",
+  "B",
+  "C90",
+  "PLR",
+  "PTH",
+  "RET",
+  "TRY"
+]
+
+[tool.ruff.lint.extend-per-file-ignores]
+# Policy exemptions. The families ANN/ARG/B/C90/PLR/PTH/RET/TRY are enforced on the
+# library under src/; tests, examples, scripts, docs, deployment probes and notebooks
+# keep the correctness rules (E/F/I/W) and drop production-only strictness.
+"*.ipynb" = ["D", "F821", "F541", "T201", "UP006", "UP035", "BLE001", "ANN", "ARG", "B", "C90", "PLR", "PTH", "RET", "TRY"] # Notebooks are generated tutorial artifacts with markdown cells and cross-cell context
+"conftest.py" = ["ANN", "ARG", "B", "C90", "PLR", "PTH", "RET", "TRY"]
+"deploy/**/*.py" = ["T201", "BLE001", "ANN", "ARG", "B", "C90", "PLR", "PTH", "RET", "TRY"] # Remote GPU launchers and probes report to stdout and deliberately catch whatever a backend raises
+"docs/**/*.py" = ["D", "T201", "ANN", "ARG", "B", "C90", "PLR", "PTH", "RET", "TRY"] # Docs examples are tutorial sources; Ruff D is enforced on maintained src/ APIs
+"examples/**/*.py" = ["D", "T201", "BLE001", "ANN", "ARG", "B", "C90", "PLR", "PTH", "RET", "TRY"] # Examples are executable tutorials with user-facing output and demo error wrappers
+"scripts/**/*.py" = ["ANN", "ARG", "B", "C90", "PLR", "PTH", "RET", "TRY"] # Developer tooling; not shipped as library API
+"tests/**/*.py" = ["D", "E501", "T201", "BLE001", "ANN", "ARG", "B", "C90", "PLR", "PTH", "RET", "TRY"] # Tests allow readable fixture names, debugging output, broad assertion wrappers, and long fixtures
+"tests/*.py" = ["D", "E501", "T201", "BLE001", "ANN", "ARG", "B", "C90", "PLR", "PTH", "RET", "TRY"] # Tests allow readable fixture names, debugging output, broad assertion wrappers, and long fixtures
+"tests/artifex/generative_models/core/sampling/test_blackjax_samplers.py" = ["E501", "E402", "T201", "BLE001"] # BlackJAX tests use custom imports and debug-style assertions
 
 [tool.ruff.lint.isort]
 combine-as-imports = true
@@ -499,27 +538,252 @@ known-first-party = ["artifex"]
 lines-after-imports = 2
 order-by-type = false
 
+[tool.ruff.lint.mccabe]
+# Rule 2 (SRP/KISS): cyclomatic complexity ceiling; matches the radon rank-B boundary
+# behind quality/complexity_baseline.json.
+max-complexity = 10
+
 [tool.ruff.lint.per-file-ignores]
-"*.ipynb" = ["D", "F821", "F541", "T201", "UP006", "UP035", "BLE001"] # Notebooks are generated tutorial artifacts with markdown cells and cross-cell context
-"deploy/**/*.py" = ["T201", "BLE001"] # Remote GPU launchers and probes report to stdout and deliberately catch whatever a backend raises
-"docs/**/*.py" = ["D", "T201"] # Docs examples are tutorial sources; Ruff D is enforced on maintained src/ APIs
-"examples/**/*.py" = ["D", "T201", "BLE001"] # Examples are executable tutorials with user-facing output and demo error wrappers
-# BASELINE: Existing BLE001 (blind except) violations
-# T201 remains blocking for maintained runtime code under src/
-"src/artifex/cli/__main__.py" = ["T201"]
-"src/artifex/configs/utils/templates.py" = ["T201"]
-"src/artifex/generative_models/core/cli/config_commands.py" = ["T201"]
-"src/artifex/generative_models/core/device_testing.py" = ["BLE001"]
-"src/artifex/generative_models/core/performance.py" = ["BLE001"]
-"src/artifex/generative_models/extensions/protein/constraints.py" = ["BLE001"]
-"src/artifex/generative_models/modalities/timeseries/base.py" = ["BLE001"]
-"src/artifex/generative_models/utils/logging/logger.py" = ["BLE001"]
-"src/artifex/generative_models/utils/logging/metrics.py" = ["BLE001"]
-"src/artifex/generative_models/utils/logging/mlflow.py" = ["BLE001"]
-"src/artifex/generative_models/utils/logging/wandb.py" = ["BLE001"]
-"tests/**/*.py" = ["D", "E501", "T201", "BLE001"] # Tests allow readable fixture names, debugging output, broad assertion wrappers, and long fixtures
-"tests/*.py" = ["D", "E501", "T201", "BLE001"] # Tests allow readable fixture names, debugging output, broad assertion wrappers, and long fixtures
-"tests/artifex/generative_models/core/sampling/test_blackjax_samplers.py" = ["E501", "E402", "T201", "BLE001"] # BlackJAX tests use custom imports and debug-style assertions
+# Rendered by scripts/check_ruff_baseline.py from quality/ruff_baseline.json; regenerate with --write-baseline, never edit by hand.
+"src/artifex/benchmarks/__init__.py" = ["PLR0402"]
+"src/artifex/benchmarks/core/foundation.py" = ["ANN001", "ANN003", "ANN204", "B024", "B027", "PTH123"]
+"src/artifex/benchmarks/core/nnx.py" = ["ANN204", "PLR0402"]
+"src/artifex/benchmarks/core/runner.py" = ["ANN204"]
+"src/artifex/benchmarks/datasets/celeba.py" = ["ANN202", "ANN204", "C901", "PLR0912", "PLR0913", "PLR0915", "RET505"]
+"src/artifex/benchmarks/datasets/crossdocked.py" = ["ANN202", "ANN204"]
+"src/artifex/benchmarks/datasets/ffhq.py" = ["ANN202", "ANN204", "PLR0402", "PLR0913", "RET504"]
+"src/artifex/benchmarks/datasets/geometric.py" = ["ANN202", "ANN204", "ANN206", "B009", "PLR0402", "PTH123", "RET505", "TRY301", "TRY400"]
+"src/artifex/benchmarks/datasets/protein_dataset.py" = ["ANN202", "ARG002", "RET504"]
+"src/artifex/benchmarks/datasets/qm9.py" = ["ANN202", "ANN204", "B007"]
+"src/artifex/benchmarks/datasets/synthetic_datasets.py" = ["B007", "RET504"]
+"src/artifex/benchmarks/metrics/audio.py" = ["ANN001", "ANN003", "ANN202", "ANN204", "ARG002", "PLR0913", "RET504"]
+"src/artifex/benchmarks/metrics/core.py" = ["PLR0402", "PLR0913"]
+"src/artifex/benchmarks/metrics/disentanglement.py" = ["ANN204", "PLR0402", "PLR0913", "RET504"]
+"src/artifex/benchmarks/metrics/geometric.py" = ["ANN001", "ANN003", "ANN202", "ANN204", "ARG002", "PLR0402", "RET504"]
+"src/artifex/benchmarks/metrics/image.py" = ["ANN003", "ANN202", "ANN204", "ARG002", "PLR0402", "PLR0913", "RET504"]
+"src/artifex/benchmarks/metrics/molecular_flows.py" = ["ANN001", "ANN003", "ANN204", "ARG002", "PLR1714", "PLR5501", "RET505"]
+"src/artifex/benchmarks/metrics/precision_recall.py" = ["ANN001", "ANN204", "ARG001", "B007", "C901", "PLR0402", "PLR0912", "PLR0913", "RET504", "RET505"]
+"src/artifex/benchmarks/metrics/protein_ligand.py" = ["ANN001", "ANN003", "ARG002"]
+"src/artifex/benchmarks/metrics/style_metrics.py" = ["ANN001", "ANN003", "ARG002", "B905", "PLR0402", "PLR0913", "RET504"]
+"src/artifex/benchmarks/metrics/text.py" = ["ANN001", "ANN003", "ANN204", "ARG002", "B905", "PLR0402", "PLR0913", "RET504", "RET505"]
+"src/artifex/benchmarks/model_adapters/generative.py" = ["PLR0402"]
+"src/artifex/benchmarks/model_adapters/protein_adapters.py" = ["C901", "PLR0402", "PLR0912"]
+"src/artifex/benchmarks/performance/latency.py" = ["PLR0913", "RET504"]
+"src/artifex/benchmarks/performance/optimization.py" = ["C901", "PLR0402", "PLR0912", "PLR0913", "PLR0915", "RET504"]
+"src/artifex/benchmarks/suites/geometric_suite.py" = ["ANN001", "ANN204", "RET504"]
+"src/artifex/benchmarks/suites/multi_beta_vae_suite.py" = ["ANN001", "ANN003", "ANN202", "ANN204", "ARG002", "B004"]
+"src/artifex/benchmarks/suites/protein_benchmarks.py" = ["ARG002", "B905", "C901", "RET504", "RET505"]
+"src/artifex/benchmarks/suites/protein_ligand_suite.py" = ["ANN001", "ANN003", "ANN204"]
+"src/artifex/benchmarks/suites/se3_molecular_flows_suite.py" = ["ANN003", "ANN204", "ARG002", "B007", "C901", "RET504", "TRY400"]
+"src/artifex/benchmarks/suites/stylegan3_suite.py" = ["ANN201", "ANN204", "PLR0402"]
+"src/artifex/benchmarks/visualization/optimization_plots.py" = ["B905", "C901", "PLR0912", "PLR0913", "PLR0915"]
+"src/artifex/cli/config.py" = ["B008"]
+"src/artifex/configs/utils/config_loader.py" = ["C901", "PLR0911", "PLR0912", "PTH123"]
+"src/artifex/configs/utils/error_handling.py" = ["ANN204"]
+"src/artifex/data/protein/dataset.py" = ["PLR0402", "PTH123"]
+"src/artifex/generative_models/core/base.py" = ["ANN001", "ANN002", "ANN003", "ANN201", "ANN202", "ANN204", "PLR0913", "RET506"]
+"src/artifex/generative_models/core/checkpointing.py" = ["B014", "TRY301", "TRY401"]
+"src/artifex/generative_models/core/cli/config_commands.py" = ["ANN001", "ANN201", "C901", "PLR0911", "PLR0912", "PTH123", "T201"]
+"src/artifex/generative_models/core/configuration/base_dataclass.py" = ["PTH123", "RET505"]
+"src/artifex/generative_models/core/configuration/distributed_config.py" = ["C901"]
+"src/artifex/generative_models/core/configuration/energy_config.py" = ["B007", "RET504"]
+"src/artifex/generative_models/core/configuration/gan_config.py" = ["C901", "PLR0912"]
+"src/artifex/generative_models/core/configuration/management/templates.py" = ["ANN204", "C901", "PLR0912", "TRY301"]
+"src/artifex/generative_models/core/configuration/management/versioning.py" = ["ANN204", "PTH103", "PTH123"]
+"src/artifex/generative_models/core/device_manager.py" = ["ANN202", "C901", "PTH123"]
+"src/artifex/generative_models/core/device_testing.py" = ["B009", "BLE001"]
+"src/artifex/generative_models/core/distributions/base.py" = ["ANN001", "ANN002", "ANN003", "ANN202", "ANN204", "ANN205", "B905", "C901"]
+"src/artifex/generative_models/core/distributions/continuous.py" = ["ANN204"]
+"src/artifex/generative_models/core/distributions/discrete.py" = ["ANN204", "RET505"]
+"src/artifex/generative_models/core/distributions/mixture.py" = ["ANN204", "B007", "B905"]
+"src/artifex/generative_models/core/distributions/transformations.py" = ["ANN204"]
+"src/artifex/generative_models/core/evaluation/metrics/base.py" = ["PLR0402", "PLR0913"]
+"src/artifex/generative_models/core/evaluation/metrics/general/precision_recall.py" = ["ANN204", "PLR0402"]
+"src/artifex/generative_models/core/evaluation/metrics/image/fid.py" = ["ANN204", "PLR0402"]
+"src/artifex/generative_models/core/evaluation/metrics/image/inception_score.py" = ["ANN204", "PLR0402"]
+"src/artifex/generative_models/core/evaluation/metrics/metric_ops.py" = ["RET504"]
+"src/artifex/generative_models/core/evaluation/metrics/pipeline.py" = ["ANN204", "PLR0402"]
+"src/artifex/generative_models/core/evaluation/metrics/quality.py" = ["ANN001", "ANN202", "RET504", "TRY400"]
+"src/artifex/generative_models/core/evaluation/metrics/statistical.py" = ["RET504"]
+"src/artifex/generative_models/core/evaluation/metrics/text/perplexity.py" = ["ANN204", "PLR0402"]
+"src/artifex/generative_models/core/jax_config.py" = ["ANN202"]
+"src/artifex/generative_models/core/layers/attention_backend.py" = ["PLR0913"]
+"src/artifex/generative_models/core/layers/causal.py" = ["RET505"]
+"src/artifex/generative_models/core/layers/clifford/_functional.py" = ["PLR0913", "RET504"]
+"src/artifex/generative_models/core/layers/clifford/conv.py" = ["ARG002", "C901", "PLR0912", "PLR0913"]
+"src/artifex/generative_models/core/layers/clifford/linear.py" = ["ARG002", "RET504"]
+"src/artifex/generative_models/core/layers/clifford/norm.py" = ["ARG002", "PLR0913"]
+"src/artifex/generative_models/core/layers/clifford/spectral.py" = ["ANN001", "ANN202", "ARG002", "PLR0913", "PLR0915", "RET504"]
+"src/artifex/generative_models/core/layers/egnn.py" = ["PLR0913"]
+"src/artifex/generative_models/core/layers/flash_attention.py" = ["PLR0913"]
+"src/artifex/generative_models/core/layers/kan/_utils.py" = ["C901", "PLR0913", "PLR0915"]
+"src/artifex/generative_models/core/layers/kan/basis_layers.py" = ["ARG002", "B010", "PLR0913"]
+"src/artifex/generative_models/core/layers/kan/conv.py" = ["ARG002", "PLR0913", "RET504"]
+"src/artifex/generative_models/core/layers/kan/grids.py" = ["PLR0913"]
+"src/artifex/generative_models/core/layers/kan/spline.py" = ["ARG002", "PLR0913"]
+"src/artifex/generative_models/core/layers/positional.py" = ["ANN204", "B008"]
+"src/artifex/generative_models/core/layers/residual.py" = ["ANN003", "ANN204", "ARG002", "PLR0913", "RET505"]
+"src/artifex/generative_models/core/layers/resnet.py" = ["ANN003", "ANN204", "ARG002", "B008", "C901", "PLR0913", "RET504", "RET505"]
+"src/artifex/generative_models/core/layers/transformers.py" = ["ANN204", "ARG002", "B008", "PLR0913", "RET504"]
+"src/artifex/generative_models/core/losses/adversarial.py" = ["PLR0913"]
+"src/artifex/generative_models/core/losses/divergence.py" = ["ANN001", "ANN202", "PLR0913"]
+"src/artifex/generative_models/core/losses/geometric.py" = ["ANN003", "ANN204", "ARG001", "PLR0913", "RET505"]
+"src/artifex/generative_models/core/losses/perceptual.py" = ["ANN001", "ANN202", "ANN204", "B004", "B905", "C901", "PLR0912", "PLR0913"]
+"src/artifex/generative_models/core/losses/reconstruction.py" = ["PLR0913"]
+"src/artifex/generative_models/core/losses/regularization.py" = ["ANN001", "ANN202", "ANN204", "ARG001", "ARG002", "ARG005", "PLR0913", "PLR1714", "RET505"]
+"src/artifex/generative_models/core/losses/vae.py" = ["PLR0913"]
+"src/artifex/generative_models/core/noise_schedule.py" = ["ANN204", "ARG002"]
+"src/artifex/generative_models/core/performance.py" = ["BLE001", "PLR0913", "RET505"]
+"src/artifex/generative_models/core/protocols/metrics.py" = ["ANN002", "ANN003", "PLR0402"]
+"src/artifex/generative_models/core/sampling/blackjax_samplers.py" = ["ANN001", "ANN202", "ANN204", "C901", "PLR0913", "PLR5501"]
+"src/artifex/generative_models/core/sampling/diffusion.py" = ["ANN001", "ANN201", "ANN204", "PLR0913"]
+"src/artifex/generative_models/core/sampling/mcmc.py" = ["PLR0913"]
+"src/artifex/generative_models/core/sampling/ode.py" = ["PLR0913"]
+"src/artifex/generative_models/core/sampling/sde.py" = ["ANN002", "ARG001", "C901", "PLR0912", "PLR0913"]
+"src/artifex/generative_models/extensions/audio_processing/spectral.py" = ["ANN204", "ARG002", "RET504", "RET505"]
+"src/artifex/generative_models/extensions/audio_processing/temporal.py" = ["ANN204", "ARG002", "RET504", "RET505"]
+"src/artifex/generative_models/extensions/base/extensions.py" = ["ARG002", "PLR0911", "RET505"]
+"src/artifex/generative_models/extensions/chemical/constraints.py" = ["ANN202", "ANN204", "ARG002", "RET504", "RET505"]
+"src/artifex/generative_models/extensions/chemical/features.py" = ["ANN202", "ANN204", "ARG002", "RET504"]
+"src/artifex/generative_models/extensions/nlp/embeddings.py" = ["ANN204", "C901", "RET504"]
+"src/artifex/generative_models/extensions/nlp/tokenization.py" = ["ANN202", "ANN204", "C901", "PLR0912", "RET504", "RET505"]
+"src/artifex/generative_models/extensions/protein/backbone.py" = ["ARG002", "RET504"]
+"src/artifex/generative_models/extensions/protein/constraints.py" = ["ANN001", "ANN003", "ANN202", "ANN204", "ARG002", "C901", "PLR0915", "RET504", "RET505"]
+"src/artifex/generative_models/extensions/protein/mixin.py" = ["ARG002", "RET504", "RET505"]
+"src/artifex/generative_models/extensions/registry.py" = ["ANN201", "ANN202", "ANN204", "PLR0913"]
+"src/artifex/generative_models/extensions/vision/augmentation.py" = ["ANN204", "ARG002", "RET504"]
+"src/artifex/generative_models/factory/builders/autoregressive.py" = ["RET505"]
+"src/artifex/generative_models/factory/builders/diffusion.py" = ["RET505"]
+"src/artifex/generative_models/factory/builders/ebm.py" = ["RET505"]
+"src/artifex/generative_models/factory/builders/flow.py" = ["RET505"]
+"src/artifex/generative_models/factory/builders/gan.py" = ["RET505"]
+"src/artifex/generative_models/factory/builders/geometric.py" = ["RET505"]
+"src/artifex/generative_models/factory/builders/vae.py" = ["RET505"]
+"src/artifex/generative_models/factory/core.py" = ["ANN003", "ANN202", "ANN204", "PLR0911"]
+"src/artifex/generative_models/factory/registry.py" = ["ANN003", "ANN204"]
+"src/artifex/generative_models/inference/optimization/production.py" = ["ARG002", "B004", "PLR0402"]
+"src/artifex/generative_models/modalities/audio/base.py" = ["ANN003", "ANN204", "ARG002", "RET505"]
+"src/artifex/generative_models/modalities/audio/datasets.py" = ["RET505"]
+"src/artifex/generative_models/modalities/audio/evaluation.py" = ["ANN204"]
+"src/artifex/generative_models/modalities/audio/representations.py" = ["ANN001", "ANN202", "ANN204", "ARG002", "RET504", "RET505"]
+"src/artifex/generative_models/modalities/base.py" = ["ANN003", "ANN201", "ANN202", "ANN204", "ARG002", "B905"]
+"src/artifex/generative_models/modalities/image/adapters.py" = ["ANN003", "ANN204", "ARG002"]
+"src/artifex/generative_models/modalities/image/base.py" = ["ANN003", "ANN204", "ARG002", "RET505"]
+"src/artifex/generative_models/modalities/image/datasets.py" = ["RET505"]
+"src/artifex/generative_models/modalities/image/evaluation.py" = ["ANN204", "ARG002"]
+"src/artifex/generative_models/modalities/image/representations.py" = ["ANN001", "ANN202", "ANN204", "B905", "PLR0913", "RET504", "RET505"]
+"src/artifex/generative_models/modalities/molecular/adapters.py" = ["ANN001", "ANN204", "ARG002"]
+"src/artifex/generative_models/modalities/molecular/modality.py" = ["ARG002"]
+"src/artifex/generative_models/modalities/multi_modal/adapters.py" = ["ANN003", "ANN202", "ANN204", "ARG002", "C901", "PLR0912", "RET505"]
+"src/artifex/generative_models/modalities/multi_modal/base.py" = ["ANN202", "ANN204", "ARG002", "RET505"]
+"src/artifex/generative_models/modalities/multi_modal/datasets.py" = ["ARG001", "PLR0913", "RET504"]
+"src/artifex/generative_models/modalities/multi_modal/evaluation.py" = ["ANN003", "ANN202", "ANN204", "ARG002", "C901", "PLR0912", "PLR0915", "RET505"]
+"src/artifex/generative_models/modalities/multi_modal/representations.py" = ["ANN204", "B905", "PLR0913", "RET504", "RET505"]
+"src/artifex/generative_models/modalities/protein/adapters.py" = ["ARG002"]
+"src/artifex/generative_models/modalities/protein/config.py" = ["RET505"]
+"src/artifex/generative_models/modalities/protein/losses.py" = ["RET504"]
+"src/artifex/generative_models/modalities/protein/modality.py" = ["ANN003", "PLR1714", "RET505"]
+"src/artifex/generative_models/modalities/protein/utils.py" = ["PLR0911", "RET505"]
+"src/artifex/generative_models/modalities/registry.py" = ["ANN003"]
+"src/artifex/generative_models/modalities/tabular/base.py" = ["ANN204"]
+"src/artifex/generative_models/modalities/tabular/datasets.py" = ["ARG001", "C901", "PLR0913"]
+"src/artifex/generative_models/modalities/tabular/evaluation.py" = ["ANN003", "ANN204", "ARG002", "RET504"]
+"src/artifex/generative_models/modalities/tabular/representations.py" = ["ANN204", "ARG002", "RET505"]
+"src/artifex/generative_models/modalities/text/base.py" = ["ANN003", "ANN204", "ARG002", "PLR0913", "RET504", "RET507"]
+"src/artifex/generative_models/modalities/text/datasets.py" = ["PLR0913", "RET505"]
+"src/artifex/generative_models/modalities/text/evaluation.py" = ["ANN204", "RET504", "RET505"]
+"src/artifex/generative_models/modalities/text/representations.py" = ["ANN003", "ANN202", "ANN204", "B007", "PLR5501", "RET505", "RET507"]
+"src/artifex/generative_models/modalities/timeseries/adapters.py" = ["ANN204", "ARG002", "B010"]
+"src/artifex/generative_models/modalities/timeseries/base.py" = ["ANN204", "ARG002", "BLE001", "C901", "PLR0911", "PLR0912", "RET504"]
+"src/artifex/generative_models/modalities/timeseries/datasets.py" = ["PLR0913"]
+"src/artifex/generative_models/modalities/timeseries/evaluation.py" = ["ANN003", "ANN204", "ARG002", "RET504", "RET505"]
+"src/artifex/generative_models/modalities/timeseries/representations.py" = ["ANN003", "ANN204", "ARG002", "RET504", "RET505"]
+"src/artifex/generative_models/models/audio/base.py" = ["ANN003", "ANN204", "ARG002", "RET504", "RET505"]
+"src/artifex/generative_models/models/audio/diffusion.py" = ["ANN204", "ARG002", "PLR0913"]
+"src/artifex/generative_models/models/audio/wavenet.py" = ["ANN003", "ANN204", "ARG002", "RET504"]
+"src/artifex/generative_models/models/autoregressive/base.py" = ["ARG002", "PLR0913", "RET504"]
+"src/artifex/generative_models/models/autoregressive/pixel_cnn.py" = ["ANN003", "ANN204", "ARG002", "RET504"]
+"src/artifex/generative_models/models/autoregressive/transformer.py" = ["ANN002", "ANN003", "ANN204", "ARG002", "C901", "PLR0912", "PLR0913", "RET504"]
+"src/artifex/generative_models/models/autoregressive/wavenet.py" = ["ANN003", "ANN204", "ARG002", "B007", "RET504"]
+"src/artifex/generative_models/models/backbones/dit.py" = ["ANN204", "PLR0913", "RET504"]
+"src/artifex/generative_models/models/backbones/unet.py" = ["ANN003", "ANN204", "B905", "RET504"]
+"src/artifex/generative_models/models/backbones/unet_1d.py" = ["ANN204", "ARG002", "B905", "RET504"]
+"src/artifex/generative_models/models/backbones/unet_cross_attention.py" = ["ANN003", "ANN204", "B905", "PLR0913", "RET504"]
+"src/artifex/generative_models/models/base.py" = ["ANN003"]
+"src/artifex/generative_models/models/diffusion/base.py" = ["ANN204", "RET504", "RET505"]
+"src/artifex/generative_models/models/diffusion/clip_text_encoder.py" = ["ANN204", "PLR0913"]
+"src/artifex/generative_models/models/diffusion/ddim.py" = ["ANN204", "PLR0913", "RET504", "RET505"]
+"src/artifex/generative_models/models/diffusion/ddpm.py" = ["ANN204", "PLR0913", "RET504", "RET505"]
+"src/artifex/generative_models/models/diffusion/dit.py" = ["ANN204", "PLR0913"]
+"src/artifex/generative_models/models/diffusion/guidance.py" = ["ANN001", "ANN003", "ANN204", "B004", "B009", "RET504", "RET505"]
+"src/artifex/generative_models/models/diffusion/latent.py" = ["ANN201", "ANN204", "C901", "PLR5501", "RET505"]
+"src/artifex/generative_models/models/diffusion/score.py" = ["ANN204", "RET505"]
+"src/artifex/generative_models/models/diffusion/stable_diffusion.py" = ["ANN204", "RET504"]
+"src/artifex/generative_models/models/diffusion/stable_diffusion_pipeline.py" = ["ANN201", "ANN204", "PLR0913", "RET504"]
+"src/artifex/generative_models/models/energy/base.py" = ["ANN001", "ANN003", "ANN202", "ANN204", "ARG002", "PLR0913", "RET504"]
+"src/artifex/generative_models/models/energy/ebm.py" = ["ARG002", "PLR0913", "RET504"]
+"src/artifex/generative_models/models/energy/mcmc.py" = ["ANN204", "PLR0913"]
+"src/artifex/generative_models/models/flow/base.py" = ["ANN003", "ANN204", "ARG002", "C901", "RET504"]
+"src/artifex/generative_models/models/flow/conditional.py" = ["ANN001", "ANN003", "ARG002"]
+"src/artifex/generative_models/models/flow/glow.py" = ["ANN003", "ANN202", "ANN204", "ARG002"]
+"src/artifex/generative_models/models/flow/iaf.py" = ["ANN002", "ANN003", "ANN204", "ARG002"]
+"src/artifex/generative_models/models/flow/made.py" = ["ANN003", "ANN202", "ANN204", "ARG002", "PLR0913"]
+"src/artifex/generative_models/models/flow/maf.py" = ["ANN002", "ANN003", "ANN204", "ARG002"]
+"src/artifex/generative_models/models/flow/neural_spline.py" = ["ANN204", "ARG002", "PLR0913", "RET504"]
+"src/artifex/generative_models/models/flow/real_nvp.py" = ["ANN003", "ANN201", "ANN202", "ANN204", "ARG002"]
+"src/artifex/generative_models/models/flow/se3_molecular.py" = ["ANN003", "ANN204", "ARG002", "PLR0913", "RET504"]
+"src/artifex/generative_models/models/gan/base.py" = ["ANN204", "ARG002"]
+"src/artifex/generative_models/models/gan/conditional.py" = ["ANN204", "ARG002", "B007", "PLR0402", "RET504"]
+"src/artifex/generative_models/models/gan/cyclegan.py" = ["ANN003", "ANN204", "ARG002", "B007", "B905", "C901", "PLR0402", "PLR0915", "RET504", "RET505"]
+"src/artifex/generative_models/models/gan/dcgan.py" = ["ANN204", "PLR0402", "RET504"]
+"src/artifex/generative_models/models/gan/lsgan.py" = ["ANN202", "ANN204", "PLR0402", "RET504", "RET505"]
+"src/artifex/generative_models/models/gan/patchgan.py" = ["ANN204"]
+"src/artifex/generative_models/models/gan/stylegan3.py" = ["ANN003", "ANN204", "B007", "PLR0402", "RET504"]
+"src/artifex/generative_models/models/gan/wgan.py" = ["ANN001", "ANN202", "ANN204", "ARG002", "PLR0402", "RET504"]
+"src/artifex/generative_models/models/geometric/base.py" = ["ANN003", "ANN204"]
+"src/artifex/generative_models/models/geometric/graph.py" = ["ANN003", "ANN204", "B009", "C901", "PLR0912", "RET504"]
+"src/artifex/generative_models/models/geometric/mesh.py" = ["ANN001", "ANN003", "ANN202", "ANN204", "ARG002", "PLR5501"]
+"src/artifex/generative_models/models/geometric/point_cloud.py" = ["ANN003", "ANN204", "ARG002", "B007", "C901", "PLR0912", "PLR0915", "RET504", "TRY400"]
+"src/artifex/generative_models/models/geometric/protein_graph.py" = ["ANN003", "ANN204", "B007", "RET504"]
+"src/artifex/generative_models/models/geometric/protein_point_cloud.py" = ["ANN204", "ARG002", "B007", "C901", "RET504"]
+"src/artifex/generative_models/models/geometric/voxel.py" = ["ANN001", "ANN003", "ANN204", "ARG002", "B007", "B905"]
+"src/artifex/generative_models/models/vae/base.py" = ["ARG002", "RET505"]
+"src/artifex/generative_models/models/vae/conditional.py" = ["ANN003", "ANN204", "ARG002", "RET505"]
+"src/artifex/generative_models/models/vae/decoders.py" = ["ANN001", "ANN204", "RET504"]
+"src/artifex/generative_models/models/vae/encoders.py" = ["ANN001", "ANN204", "ARG002", "C901"]
+"src/artifex/generative_models/models/vae/spatial_autoencoder.py" = ["ANN001", "ANN204", "RET504"]
+"src/artifex/generative_models/models/vae/vq_vae.py" = ["ANN003", "ANN204", "ARG002", "RET504", "RET505"]
+"src/artifex/generative_models/scaling/mesh_utils.py" = ["ARG002", "RET505"]
+"src/artifex/generative_models/scaling/sharding.py" = ["ARG002", "B007", "RET505"]
+"src/artifex/generative_models/training/callbacks/base.py" = ["ANN204"]
+"src/artifex/generative_models/training/callbacks/checkpoint.py" = ["ANN204", "RET505"]
+"src/artifex/generative_models/training/callbacks/early_stopping.py" = ["ANN204", "RET505"]
+"src/artifex/generative_models/training/callbacks/logging.py" = ["ANN204"]
+"src/artifex/generative_models/training/callbacks/profiling.py" = ["PTH123"]
+"src/artifex/generative_models/training/distributed/data_parallel.py" = ["PLR0402", "RET505"]
+"src/artifex/generative_models/training/distributed/device_placement.py" = ["ANN204", "C901", "PLR0911", "PLR1714", "RET505"]
+"src/artifex/generative_models/training/distributed/metrics.py" = ["PLR0402"]
+"src/artifex/generative_models/training/loops/staged.py" = ["PLR0913"]
+"src/artifex/generative_models/training/loops/streaming.py" = ["PLR0913"]
+"src/artifex/generative_models/training/optimizers/factory.py" = ["PLR0911", "RET504", "RET505"]
+"src/artifex/generative_models/training/rl/dpo.py" = ["ANN201", "PLR0913"]
+"src/artifex/generative_models/training/rl/grpo.py" = ["ANN201", "PLR0913"]
+"src/artifex/generative_models/training/rl/ppo.py" = ["ANN001", "ANN201", "ANN202"]
+"src/artifex/generative_models/training/rl/reinforce.py" = ["ANN201"]
+"src/artifex/generative_models/training/rl/rewards.py" = ["B905", "RET505"]
+"src/artifex/generative_models/training/rl/types.py" = ["PLR0913"]
+"src/artifex/generative_models/training/schedulers/factory.py" = ["ANN001", "ANN202", "C901", "PLR0911", "PLR0912", "PLR1714", "RET505"]
+"src/artifex/generative_models/training/trainer.py" = ["ANN204", "B004", "C901", "PLR0912", "PLR0913", "PLR0915", "PTH123"]
+"src/artifex/generative_models/training/trainers/autoregressive_trainer.py" = ["PLR0913"]
+"src/artifex/generative_models/training/trainers/energy_trainer.py" = ["PLR0913", "RET504"]
+"src/artifex/generative_models/training/trainers/gan_trainer.py" = ["PLR0913"]
+"src/artifex/generative_models/utils/code_analysis/dependency_analyzer.py" = ["ANN204", "C901", "PLR0912", "PTH123", "PTH201"]
+"src/artifex/generative_models/utils/code_analysis/test_structure_analyzer.py" = ["ANN204", "C901", "PLR0912", "PTH123"]
+"src/artifex/generative_models/utils/logging/logger.py" = ["ANN003", "ANN204", "ARG002", "BLE001", "PTH123", "RET505"]
+"src/artifex/generative_models/utils/logging/metrics.py" = ["ANN003", "ANN204", "BLE001", "C901", "RET505", "TRY400"]
+"src/artifex/generative_models/utils/logging/mlflow.py" = ["ANN003", "ANN204", "ARG002", "BLE001", "C901", "PLR0912", "PLR0913", "PLR0915", "PTH123"]
+"src/artifex/generative_models/utils/logging/wandb.py" = ["ANN003", "ANN204", "ARG002", "BLE001", "PLR0913", "PTH123"]
+"src/artifex/visualization/protein_viz.py" = ["ANN205", "B028", "B905", "C901", "PLR0913", "PTH123"]
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"

@@ -141,14 +141,17 @@ def test_pre_commit_uses_shared_excludes_and_repo_pyright_environment() -> None:
 def test_ruff_per_file_policy_keeps_blocking_lint_focused_on_maintained_runtime_code() -> None:
     """Ruff should stay strict on runtime code while allowing interactive docs, examples, and tests."""
     pyproject = _load_pyproject()
-    per_file_ignores = pyproject["tool"]["ruff"]["lint"]["per-file-ignores"]
+    lint = pyproject["tool"]["ruff"]["lint"]
+    policy = lint["extend-per-file-ignores"]
+    baseline = lint["per-file-ignores"]
 
-    assert set(per_file_ignores["*.ipynb"]) >= {"F821", "F541", "T201", "UP006", "UP035", "BLE001"}
-    assert set(per_file_ignores["docs/**/*.py"]) >= {"T201"}
-    assert set(per_file_ignores["examples/**/*.py"]) >= {"T201", "BLE001"}
-    assert set(per_file_ignores["tests/*.py"]) >= {"E501", "T201", "BLE001"}
-    assert set(per_file_ignores["tests/**/*.py"]) >= {"E501", "T201", "BLE001"}
+    assert set(policy["*.ipynb"]) >= {"F821", "F541", "T201", "UP006", "UP035", "BLE001"}
+    assert set(policy["docs/**/*.py"]) >= {"T201"}
+    assert set(policy["examples/**/*.py"]) >= {"T201", "BLE001"}
+    assert set(policy["tests/*.py"]) >= {"E501", "T201", "BLE001"}
+    assert set(policy["tests/**/*.py"]) >= {"E501", "T201", "BLE001"}
 
-    assert "src/**/*.py" not in per_file_ignores
+    assert not any(pattern.startswith("src/") for pattern in policy)
+    assert all(path.startswith("src/") and "*" not in path for path in baseline)
     assert "T201" not in pyproject["tool"]["ruff"]["lint"]["ignore"]
     assert "BLE001" not in pyproject["tool"]["ruff"]["lint"]["ignore"]

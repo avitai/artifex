@@ -59,6 +59,7 @@ Artifex prioritizes:
 ### Technical Principles
 
 - **Type Checking**: Pyright standard-mode checks block on the whole source tree through the pre-commit hook CI runs
+- **Linting**: The shared ruff rule set (ANN, ARG, B, C90, PLR, PTH, RET, TRY on top of E/F/I/W/D) blocks on `src/`; files that carried findings when it was adopted sit in a generated per-file baseline that can only shrink
 - **JAX Native**: Built on JAX's functional programming paradigm
 - **Flax NNX**: Modern object-oriented API for neural networks
 - **Configuration Management**: Frozen dataclass configs with validation

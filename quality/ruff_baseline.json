@@ -1,0 +1,1336 @@
+{
+  "entries": {
+    "src/artifex/benchmarks/__init__.py": {
+      "PLR0402": 1
+    },
+    "src/artifex/benchmarks/core/foundation.py": {
+      "ANN001": 1,
+      "ANN003": 1,
+      "ANN204": 1,
+      "B024": 1,
+      "B027": 2,
+      "PTH123": 2
+    },
+    "src/artifex/benchmarks/core/nnx.py": {
+      "ANN204": 1,
+      "PLR0402": 1
+    },
+    "src/artifex/benchmarks/core/runner.py": {
+      "ANN204": 1
+    },
+    "src/artifex/benchmarks/datasets/celeba.py": {
+      "ANN202": 1,
+      "ANN204": 1,
+      "C901": 1,
+      "PLR0912": 1,
+      "PLR0913": 1,
+      "PLR0915": 1,
+      "RET505": 1
+    },
+    "src/artifex/benchmarks/datasets/crossdocked.py": {
+      "ANN202": 1,
+      "ANN204": 1
+    },
+    "src/artifex/benchmarks/datasets/ffhq.py": {
+      "ANN202": 2,
+      "ANN204": 2,
+      "PLR0402": 1,
+      "PLR0913": 2,
+      "RET504": 3
+    },
+    "src/artifex/benchmarks/datasets/geometric.py": {
+      "ANN202": 11,
+      "ANN204": 1,
+      "ANN206": 1,
+      "B009": 1,
+      "PLR0402": 1,
+      "PTH123": 1,
+      "RET505": 1,
+      "TRY301": 3,
+      "TRY400": 1
+    },
+    "src/artifex/benchmarks/datasets/protein_dataset.py": {
+      "ANN202": 1,
+      "ARG002": 1,
+      "RET504": 1
+    },
+    "src/artifex/benchmarks/datasets/qm9.py": {
+      "ANN202": 2,
+      "ANN204": 1,
+      "B007": 2
+    },
+    "src/artifex/benchmarks/datasets/synthetic_datasets.py": {
+      "B007": 1,
+      "RET504": 1
+    },
+    "src/artifex/benchmarks/metrics/audio.py": {
+      "ANN001": 14,
+      "ANN003": 2,
+      "ANN202": 6,
+      "ANN204": 2,
+      "ARG002": 2,
+      "PLR0913": 1,
+      "RET504": 2
+    },
+    "src/artifex/benchmarks/metrics/core.py": {
+      "PLR0402": 1,
+      "PLR0913": 1
+    },
+    "src/artifex/benchmarks/metrics/disentanglement.py": {
+      "ANN204": 3,
+      "PLR0402": 1,
+      "PLR0913": 1,
+      "RET504": 1
+    },
+    "src/artifex/benchmarks/metrics/geometric.py": {
+      "ANN001": 7,
+      "ANN003": 4,
+      "ANN202": 5,
+      "ANN204": 1,
+      "ARG002": 1,
+      "PLR0402": 1,
+      "RET504": 1
+    },
+    "src/artifex/benchmarks/metrics/image.py": {
+      "ANN003": 4,
+      "ANN202": 1,
+      "ANN204": 5,
+      "ARG002": 6,
+      "PLR0402": 1,
+      "PLR0913": 1,
+      "RET504": 1
+    },
+    "src/artifex/benchmarks/metrics/molecular_flows.py": {
+      "ANN001": 4,
+      "ANN003": 1,
+      "ANN204": 1,
+      "ARG002": 4,
+      "PLR1714": 2,
+      "PLR5501": 1,
+      "RET505": 1
+    },
+    "src/artifex/benchmarks/metrics/precision_recall.py": {
+      "ANN001": 18,
+      "ANN204": 1,
+      "ARG001": 2,
+      "B007": 1,
+      "C901": 1,
+      "PLR0402": 1,
+      "PLR0912": 1,
+      "PLR0913": 1,
+      "RET504": 1,
+      "RET505": 1
+    },
+    "src/artifex/benchmarks/metrics/protein_ligand.py": {
+      "ANN001": 6,
+      "ANN003": 3,
+      "ARG002": 8
+    },
+    "src/artifex/benchmarks/metrics/style_metrics.py": {
+      "ANN001": 24,
+      "ANN003": 4,
+      "ARG002": 9,
+      "B905": 1,
+      "PLR0402": 1,
+      "PLR0913": 1,
+      "RET504": 2
+    },
+    "src/artifex/benchmarks/metrics/text.py": {
+      "ANN001": 16,
+      "ANN003": 4,
+      "ANN204": 4,
+      "ARG002": 9,
+      "B905": 2,
+      "PLR0402": 1,
+      "PLR0913": 1,
+      "RET504": 1,
+      "RET505": 1
+    },
+    "src/artifex/benchmarks/model_adapters/generative.py": {
+      "PLR0402": 1
+    },
+    "src/artifex/benchmarks/model_adapters/protein_adapters.py": {
+      "C901": 1,
+      "PLR0402": 1,
+      "PLR0912": 1
+    },
+    "src/artifex/benchmarks/performance/latency.py": {
+      "PLR0913": 1,
+      "RET504": 1
+    },
+    "src/artifex/benchmarks/performance/optimization.py": {
+      "C901": 2,
+      "PLR0402": 1,
+      "PLR0912": 1,
+      "PLR0913": 2,
+      "PLR0915": 1,
+      "RET504": 2
+    },
+    "src/artifex/benchmarks/suites/geometric_suite.py": {
+      "ANN001": 2,
+      "ANN204": 2,
+      "RET504": 1
+    },
+    "src/artifex/benchmarks/suites/multi_beta_vae_suite.py": {
+      "ANN001": 3,
+      "ANN003": 4,
+      "ANN202": 1,
+      "ANN204": 2,
+      "ARG002": 1,
+      "B004": 1
+    },
+    "src/artifex/benchmarks/suites/protein_benchmarks.py": {
+      "ARG002": 1,
+      "B905": 2,
+      "C901": 1,
+      "RET504": 1,
+      "RET505": 1
+    },
+    "src/artifex/benchmarks/suites/protein_ligand_suite.py": {
+      "ANN001": 4,
+      "ANN003": 4,
+      "ANN204": 2
+    },
+    "src/artifex/benchmarks/suites/se3_molecular_flows_suite.py": {
+      "ANN003": 2,
+      "ANN204": 2,
+      "ARG002": 1,
+      "B007": 1,
+      "C901": 1,
+      "RET504": 1,
+      "TRY400": 1
+    },
+    "src/artifex/benchmarks/suites/stylegan3_suite.py": {
+      "ANN201": 1,
+      "ANN204": 2,
+      "PLR0402": 1
+    },
+    "src/artifex/benchmarks/visualization/optimization_plots.py": {
+      "B905": 1,
+      "C901": 3,
+      "PLR0912": 2,
+      "PLR0913": 2,
+      "PLR0915": 1
+    },
+    "src/artifex/cli/config.py": {
+      "B008": 7
+    },
+    "src/artifex/configs/utils/config_loader.py": {
+      "C901": 1,
+      "PLR0911": 1,
+      "PLR0912": 1,
+      "PTH123": 1
+    },
+    "src/artifex/configs/utils/error_handling.py": {
+      "ANN204": 4
+    },
+    "src/artifex/data/protein/dataset.py": {
+      "PLR0402": 1,
+      "PTH123": 3
+    },
+    "src/artifex/generative_models/core/base.py": {
+      "ANN001": 2,
+      "ANN002": 1,
+      "ANN003": 9,
+      "ANN201": 2,
+      "ANN202": 1,
+      "ANN204": 4,
+      "PLR0913": 2,
+      "RET506": 1
+    },
+    "src/artifex/generative_models/core/checkpointing.py": {
+      "B014": 2,
+      "TRY301": 2,
+      "TRY401": 11
+    },
+    "src/artifex/generative_models/core/cli/config_commands.py": {
+      "ANN001": 8,
+      "ANN201": 1,
+      "C901": 1,
+      "PLR0911": 2,
+      "PLR0912": 1,
+      "PTH123": 1,
+      "T201": 34
+    },
+    "src/artifex/generative_models/core/configuration/base_dataclass.py": {
+      "PTH123": 2,
+      "RET505": 1
+    },
+    "src/artifex/generative_models/core/configuration/distributed_config.py": {
+      "C901": 1
+    },
+    "src/artifex/generative_models/core/configuration/energy_config.py": {
+      "B007": 1,
+      "RET504": 1
+    },
+    "src/artifex/generative_models/core/configuration/gan_config.py": {
+      "C901": 1,
+      "PLR0912": 1
+    },
+    "src/artifex/generative_models/core/configuration/management/templates.py": {
+      "ANN204": 1,
+      "C901": 1,
+      "PLR0912": 1,
+      "TRY301": 1
+    },
+    "src/artifex/generative_models/core/configuration/management/versioning.py": {
+      "ANN204": 3,
+      "PTH103": 3,
+      "PTH123": 5
+    },
+    "src/artifex/generative_models/core/device_manager.py": {
+      "ANN202": 2,
+      "C901": 1,
+      "PTH123": 1
+    },
+    "src/artifex/generative_models/core/device_testing.py": {
+      "B009": 3,
+      "BLE001": 1
+    },
+    "src/artifex/generative_models/core/distributions/base.py": {
+      "ANN001": 3,
+      "ANN002": 1,
+      "ANN003": 1,
+      "ANN202": 1,
+      "ANN204": 1,
+      "ANN205": 1,
+      "B905": 1,
+      "C901": 2
+    },
+    "src/artifex/generative_models/core/distributions/continuous.py": {
+      "ANN204": 2
+    },
+    "src/artifex/generative_models/core/distributions/discrete.py": {
+      "ANN204": 3,
+      "RET505": 1
+    },
+    "src/artifex/generative_models/core/distributions/mixture.py": {
+      "ANN204": 2,
+      "B007": 1,
+      "B905": 1
+    },
+    "src/artifex/generative_models/core/distributions/transformations.py": {
+      "ANN204": 2
+    },
+    "src/artifex/generative_models/core/evaluation/metrics/base.py": {
+      "PLR0402": 1,
+      "PLR0913": 1
+    },
+    "src/artifex/generative_models/core/evaluation/metrics/general/precision_recall.py": {
+      "ANN204": 2,
+      "PLR0402": 1
+    },
+    "src/artifex/generative_models/core/evaluation/metrics/image/fid.py": {
+      "ANN204": 1,
+      "PLR0402": 1
+    },
+    "src/artifex/generative_models/core/evaluation/metrics/image/inception_score.py": {
+      "ANN204": 1,
+      "PLR0402": 1
+    },
+    "src/artifex/generative_models/core/evaluation/metrics/metric_ops.py": {
+      "RET504": 5
+    },
+    "src/artifex/generative_models/core/evaluation/metrics/pipeline.py": {
+      "ANN204": 1,
+      "PLR0402": 1
+    },
+    "src/artifex/generative_models/core/evaluation/metrics/quality.py": {
+      "ANN001": 1,
+      "ANN202": 1,
+      "RET504": 4,
+      "TRY400": 1
+    },
+    "src/artifex/generative_models/core/evaluation/metrics/statistical.py": {
+      "RET504": 2
+    },
+    "src/artifex/generative_models/core/evaluation/metrics/text/perplexity.py": {
+      "ANN204": 1,
+      "PLR0402": 1
+    },
+    "src/artifex/generative_models/core/jax_config.py": {
+      "ANN202": 2
+    },
+    "src/artifex/generative_models/core/layers/attention_backend.py": {
+      "PLR0913": 1
+    },
+    "src/artifex/generative_models/core/layers/causal.py": {
+      "RET505": 1
+    },
+    "src/artifex/generative_models/core/layers/clifford/_functional.py": {
+      "PLR0913": 2,
+      "RET504": 1
+    },
+    "src/artifex/generative_models/core/layers/clifford/conv.py": {
+      "ARG002": 1,
+      "C901": 1,
+      "PLR0912": 1,
+      "PLR0913": 4
+    },
+    "src/artifex/generative_models/core/layers/clifford/linear.py": {
+      "ARG002": 1,
+      "RET504": 1
+    },
+    "src/artifex/generative_models/core/layers/clifford/norm.py": {
+      "ARG002": 2,
+      "PLR0913": 3
+    },
+    "src/artifex/generative_models/core/layers/clifford/spectral.py": {
+      "ANN001": 9,
+      "ANN202": 3,
+      "ARG002": 2,
+      "PLR0913": 3,
+      "PLR0915": 1,
+      "RET504": 2
+    },
+    "src/artifex/generative_models/core/layers/egnn.py": {
+      "PLR0913": 3
+    },
+    "src/artifex/generative_models/core/layers/flash_attention.py": {
+      "PLR0913": 2
+    },
+    "src/artifex/generative_models/core/layers/kan/_utils.py": {
+      "C901": 1,
+      "PLR0913": 4,
+      "PLR0915": 1
+    },
+    "src/artifex/generative_models/core/layers/kan/basis_layers.py": {
+      "ARG002": 5,
+      "B010": 1,
+      "PLR0913": 7
+    },
+    "src/artifex/generative_models/core/layers/kan/conv.py": {
+      "ARG002": 1,
+      "PLR0913": 1,
+      "RET504": 1
+    },
+    "src/artifex/generative_models/core/layers/kan/grids.py": {
+      "PLR0913": 1
+    },
+    "src/artifex/generative_models/core/layers/kan/spline.py": {
+      "ARG002": 2,
+      "PLR0913": 2
+    },
+    "src/artifex/generative_models/core/layers/positional.py": {
+      "ANN204": 4,
+      "B008": 1
+    },
+    "src/artifex/generative_models/core/layers/residual.py": {
+      "ANN003": 4,
+      "ANN204": 3,
+      "ARG002": 3,
+      "PLR0913": 1,
+      "RET505": 2
+    },
+    "src/artifex/generative_models/core/layers/resnet.py": {
+      "ANN003": 2,
+      "ANN204": 2,
+      "ARG002": 2,
+      "B008": 2,
+      "C901": 1,
+      "PLR0913": 4,
+      "RET504": 2,
+      "RET505": 1
+    },
+    "src/artifex/generative_models/core/layers/transformers.py": {
+      "ANN204": 5,
+      "ARG002": 1,
+      "B008": 5,
+      "PLR0913": 8,
+      "RET504": 4
+    },
+    "src/artifex/generative_models/core/losses/adversarial.py": {
+      "PLR0913": 1
+    },
+    "src/artifex/generative_models/core/losses/divergence.py": {
+      "ANN001": 2,
+      "ANN202": 1,
+      "PLR0913": 5
+    },
+    "src/artifex/generative_models/core/losses/geometric.py": {
+      "ANN003": 2,
+      "ANN204": 1,
+      "ARG001": 1,
+      "PLR0913": 1,
+      "RET505": 5
+    },
+    "src/artifex/generative_models/core/losses/perceptual.py": {
+      "ANN001": 3,
+      "ANN202": 2,
+      "ANN204": 1,
+      "B004": 1,
+      "B905": 3,
+      "C901": 2,
+      "PLR0912": 2,
+      "PLR0913": 2
+    },
+    "src/artifex/generative_models/core/losses/reconstruction.py": {
+      "PLR0913": 3
+    },
+    "src/artifex/generative_models/core/losses/regularization.py": {
+      "ANN001": 10,
+      "ANN202": 7,
+      "ANN204": 2,
+      "ARG001": 2,
+      "ARG002": 2,
+      "ARG005": 4,
+      "PLR0913": 1,
+      "PLR1714": 1,
+      "RET505": 3
+    },
+    "src/artifex/generative_models/core/losses/vae.py": {
+      "PLR0913": 1
+    },
+    "src/artifex/generative_models/core/noise_schedule.py": {
+      "ANN204": 1,
+      "ARG002": 2
+    },
+    "src/artifex/generative_models/core/performance.py": {
+      "BLE001": 1,
+      "PLR0913": 1,
+      "RET505": 1
+    },
+    "src/artifex/generative_models/core/protocols/metrics.py": {
+      "ANN002": 3,
+      "ANN003": 3,
+      "PLR0402": 1
+    },
+    "src/artifex/generative_models/core/sampling/blackjax_samplers.py": {
+      "ANN001": 17,
+      "ANN202": 11,
+      "ANN204": 3,
+      "C901": 2,
+      "PLR0913": 3,
+      "PLR5501": 1
+    },
+    "src/artifex/generative_models/core/sampling/diffusion.py": {
+      "ANN001": 5,
+      "ANN201": 1,
+      "ANN204": 1,
+      "PLR0913": 1
+    },
+    "src/artifex/generative_models/core/sampling/mcmc.py": {
+      "PLR0913": 1
+    },
+    "src/artifex/generative_models/core/sampling/ode.py": {
+      "PLR0913": 1
+    },
+    "src/artifex/generative_models/core/sampling/sde.py": {
+      "ANN002": 1,
+      "ARG001": 1,
+      "C901": 1,
+      "PLR0912": 1,
+      "PLR0913": 5
+    },
+    "src/artifex/generative_models/extensions/audio_processing/spectral.py": {
+      "ANN204": 1,
+      "ARG002": 2,
+      "RET504": 5,
+      "RET505": 1
+    },
+    "src/artifex/generative_models/extensions/audio_processing/temporal.py": {
+      "ANN204": 1,
+      "ARG002": 2,
+      "RET504": 2,
+      "RET505": 3
+    },
+    "src/artifex/generative_models/extensions/base/extensions.py": {
+      "ARG002": 7,
+      "PLR0911": 1,
+      "RET505": 1
+    },
+    "src/artifex/generative_models/extensions/chemical/constraints.py": {
+      "ANN202": 1,
+      "ANN204": 1,
+      "ARG002": 6,
+      "RET504": 1,
+      "RET505": 1
+    },
+    "src/artifex/generative_models/extensions/chemical/features.py": {
+      "ANN202": 1,
+      "ANN204": 1,
+      "ARG002": 5,
+      "RET504": 1
+    },
+    "src/artifex/generative_models/extensions/nlp/embeddings.py": {
+      "ANN204": 1,
+      "C901": 1,
+      "RET504": 4
+    },
+    "src/artifex/generative_models/extensions/nlp/tokenization.py": {
+      "ANN202": 1,
+      "ANN204": 1,
+      "C901": 1,
+      "PLR0912": 1,
+      "RET504": 2,
+      "RET505": 3
+    },
+    "src/artifex/generative_models/extensions/protein/backbone.py": {
+      "ARG002": 6,
+      "RET504": 1
+    },
+    "src/artifex/generative_models/extensions/protein/constraints.py": {
+      "ANN001": 10,
+      "ANN003": 4,
+      "ANN202": 7,
+      "ANN204": 2,
+      "ARG002": 5,
+      "C901": 1,
+      "PLR0915": 1,
+      "RET504": 9,
+      "RET505": 2
+    },
+    "src/artifex/generative_models/extensions/protein/mixin.py": {
+      "ARG002": 2,
+      "RET504": 2,
+      "RET505": 1
+    },
+    "src/artifex/generative_models/extensions/registry.py": {
+      "ANN201": 1,
+      "ANN202": 1,
+      "ANN204": 1,
+      "PLR0913": 1
+    },
+    "src/artifex/generative_models/extensions/vision/augmentation.py": {
+      "ANN204": 1,
+      "ARG002": 2,
+      "RET504": 6
+    },
+    "src/artifex/generative_models/factory/builders/autoregressive.py": {
+      "RET505": 1
+    },
+    "src/artifex/generative_models/factory/builders/diffusion.py": {
+      "RET505": 1
+    },
+    "src/artifex/generative_models/factory/builders/ebm.py": {
+      "RET505": 1
+    },
+    "src/artifex/generative_models/factory/builders/flow.py": {
+      "RET505": 1
+    },
+    "src/artifex/generative_models/factory/builders/gan.py": {
+      "RET505": 1
+    },
+    "src/artifex/generative_models/factory/builders/geometric.py": {
+      "RET505": 1
+    },
+    "src/artifex/generative_models/factory/builders/vae.py": {
+      "RET505": 1
+    },
+    "src/artifex/generative_models/factory/core.py": {
+      "ANN003": 3,
+      "ANN202": 1,
+      "ANN204": 1,
+      "PLR0911": 1
+    },
+    "src/artifex/generative_models/factory/registry.py": {
+      "ANN003": 1,
+      "ANN204": 1
+    },
+    "src/artifex/generative_models/inference/optimization/production.py": {
+      "ARG002": 8,
+      "B004": 1,
+      "PLR0402": 1
+    },
+    "src/artifex/generative_models/modalities/audio/base.py": {
+      "ANN003": 4,
+      "ANN204": 1,
+      "ARG002": 2,
+      "RET505": 2
+    },
+    "src/artifex/generative_models/modalities/audio/datasets.py": {
+      "RET505": 1
+    },
+    "src/artifex/generative_models/modalities/audio/evaluation.py": {
+      "ANN204": 2
+    },
+    "src/artifex/generative_models/modalities/audio/representations.py": {
+      "ANN001": 2,
+      "ANN202": 2,
+      "ANN204": 2,
+      "ARG002": 1,
+      "RET504": 2,
+      "RET505": 2
+    },
+    "src/artifex/generative_models/modalities/base.py": {
+      "ANN003": 4,
+      "ANN201": 1,
+      "ANN202": 1,
+      "ANN204": 3,
+      "ARG002": 1,
+      "B905": 1
+    },
+    "src/artifex/generative_models/modalities/image/adapters.py": {
+      "ANN003": 1,
+      "ANN204": 1,
+      "ARG002": 1
+    },
+    "src/artifex/generative_models/modalities/image/base.py": {
+      "ANN003": 5,
+      "ANN204": 1,
+      "ARG002": 7,
+      "RET505": 2
+    },
+    "src/artifex/generative_models/modalities/image/datasets.py": {
+      "RET505": 2
+    },
+    "src/artifex/generative_models/modalities/image/evaluation.py": {
+      "ANN204": 4,
+      "ARG002": 1
+    },
+    "src/artifex/generative_models/modalities/image/representations.py": {
+      "ANN001": 2,
+      "ANN202": 1,
+      "ANN204": 3,
+      "B905": 1,
+      "PLR0913": 1,
+      "RET504": 2,
+      "RET505": 1
+    },
+    "src/artifex/generative_models/modalities/molecular/adapters.py": {
+      "ANN001": 9,
+      "ANN204": 3,
+      "ARG002": 11
+    },
+    "src/artifex/generative_models/modalities/molecular/modality.py": {
+      "ARG002": 2
+    },
+    "src/artifex/generative_models/modalities/multi_modal/adapters.py": {
+      "ANN003": 1,
+      "ANN202": 4,
+      "ANN204": 2,
+      "ARG002": 3,
+      "C901": 1,
+      "PLR0912": 1,
+      "RET505": 2
+    },
+    "src/artifex/generative_models/modalities/multi_modal/base.py": {
+      "ANN202": 1,
+      "ANN204": 1,
+      "ARG002": 2,
+      "RET505": 1
+    },
+    "src/artifex/generative_models/modalities/multi_modal/datasets.py": {
+      "ARG001": 1,
+      "PLR0913": 1,
+      "RET504": 2
+    },
+    "src/artifex/generative_models/modalities/multi_modal/evaluation.py": {
+      "ANN003": 1,
+      "ANN202": 2,
+      "ANN204": 2,
+      "ARG002": 1,
+      "C901": 1,
+      "PLR0912": 1,
+      "PLR0915": 1,
+      "RET505": 2
+    },
+    "src/artifex/generative_models/modalities/multi_modal/representations.py": {
+      "ANN204": 6,
+      "B905": 2,
+      "PLR0913": 4,
+      "RET504": 2,
+      "RET505": 1
+    },
+    "src/artifex/generative_models/modalities/protein/adapters.py": {
+      "ARG002": 1
+    },
+    "src/artifex/generative_models/modalities/protein/config.py": {
+      "RET505": 1
+    },
+    "src/artifex/generative_models/modalities/protein/losses.py": {
+      "RET504": 1
+    },
+    "src/artifex/generative_models/modalities/protein/modality.py": {
+      "ANN003": 1,
+      "PLR1714": 1,
+      "RET505": 1
+    },
+    "src/artifex/generative_models/modalities/protein/utils.py": {
+      "PLR0911": 1,
+      "RET505": 1
+    },
+    "src/artifex/generative_models/modalities/registry.py": {
+      "ANN003": 1
+    },
+    "src/artifex/generative_models/modalities/tabular/base.py": {
+      "ANN204": 1
+    },
+    "src/artifex/generative_models/modalities/tabular/datasets.py": {
+      "ARG001": 1,
+      "C901": 1,
+      "PLR0913": 1
+    },
+    "src/artifex/generative_models/modalities/tabular/evaluation.py": {
+      "ANN003": 1,
+      "ANN204": 1,
+      "ARG002": 1,
+      "RET504": 2
+    },
+    "src/artifex/generative_models/modalities/tabular/representations.py": {
+      "ANN204": 3,
+      "ARG002": 2,
+      "RET505": 2
+    },
+    "src/artifex/generative_models/modalities/text/base.py": {
+      "ANN003": 2,
+      "ANN204": 1,
+      "ARG002": 2,
+      "PLR0913": 2,
+      "RET504": 1,
+      "RET507": 1
+    },
+    "src/artifex/generative_models/modalities/text/datasets.py": {
+      "PLR0913": 3,
+      "RET505": 1
+    },
+    "src/artifex/generative_models/modalities/text/evaluation.py": {
+      "ANN204": 1,
+      "RET504": 1,
+      "RET505": 1
+    },
+    "src/artifex/generative_models/modalities/text/representations.py": {
+      "ANN003": 1,
+      "ANN202": 1,
+      "ANN204": 4,
+      "B007": 1,
+      "PLR5501": 1,
+      "RET505": 3,
+      "RET507": 1
+    },
+    "src/artifex/generative_models/modalities/timeseries/adapters.py": {
+      "ANN204": 4,
+      "ARG002": 4,
+      "B010": 2
+    },
+    "src/artifex/generative_models/modalities/timeseries/base.py": {
+      "ANN204": 1,
+      "ARG002": 2,
+      "BLE001": 1,
+      "C901": 1,
+      "PLR0911": 1,
+      "PLR0912": 1,
+      "RET504": 1
+    },
+    "src/artifex/generative_models/modalities/timeseries/datasets.py": {
+      "PLR0913": 3
+    },
+    "src/artifex/generative_models/modalities/timeseries/evaluation.py": {
+      "ANN003": 1,
+      "ANN204": 1,
+      "ARG002": 1,
+      "RET504": 2,
+      "RET505": 1
+    },
+    "src/artifex/generative_models/modalities/timeseries/representations.py": {
+      "ANN003": 1,
+      "ANN204": 4,
+      "ARG002": 7,
+      "RET504": 1,
+      "RET505": 1
+    },
+    "src/artifex/generative_models/models/audio/base.py": {
+      "ANN003": 2,
+      "ANN204": 1,
+      "ARG002": 2,
+      "RET504": 1,
+      "RET505": 2
+    },
+    "src/artifex/generative_models/models/audio/diffusion.py": {
+      "ANN204": 1,
+      "ARG002": 1,
+      "PLR0913": 1
+    },
+    "src/artifex/generative_models/models/audio/wavenet.py": {
+      "ANN003": 3,
+      "ANN204": 4,
+      "ARG002": 3,
+      "RET504": 3
+    },
+    "src/artifex/generative_models/models/autoregressive/base.py": {
+      "ARG002": 2,
+      "PLR0913": 1,
+      "RET504": 1
+    },
+    "src/artifex/generative_models/models/autoregressive/pixel_cnn.py": {
+      "ANN003": 1,
+      "ANN204": 1,
+      "ARG002": 7,
+      "RET504": 1
+    },
+    "src/artifex/generative_models/models/autoregressive/transformer.py": {
+      "ANN002": 1,
+      "ANN003": 6,
+      "ANN204": 1,
+      "ARG002": 5,
+      "C901": 1,
+      "PLR0912": 1,
+      "PLR0913": 2,
+      "RET504": 1
+    },
+    "src/artifex/generative_models/models/autoregressive/wavenet.py": {
+      "ANN003": 7,
+      "ANN204": 3,
+      "ARG002": 9,
+      "B007": 3,
+      "RET504": 1
+    },
+    "src/artifex/generative_models/models/backbones/dit.py": {
+      "ANN204": 5,
+      "PLR0913": 1,
+      "RET504": 5
+    },
+    "src/artifex/generative_models/models/backbones/unet.py": {
+      "ANN003": 1,
+      "ANN204": 5,
+      "B905": 2,
+      "RET504": 3
+    },
+    "src/artifex/generative_models/models/backbones/unet_1d.py": {
+      "ANN204": 4,
+      "ARG002": 3,
+      "B905": 2,
+      "RET504": 1
+    },
+    "src/artifex/generative_models/models/backbones/unet_cross_attention.py": {
+      "ANN003": 1,
+      "ANN204": 4,
+      "B905": 4,
+      "PLR0913": 3,
+      "RET504": 2
+    },
+    "src/artifex/generative_models/models/base.py": {
+      "ANN003": 3
+    },
+    "src/artifex/generative_models/models/diffusion/base.py": {
+      "ANN204": 1,
+      "RET504": 1,
+      "RET505": 1
+    },
+    "src/artifex/generative_models/models/diffusion/clip_text_encoder.py": {
+      "ANN204": 1,
+      "PLR0913": 1
+    },
+    "src/artifex/generative_models/models/diffusion/ddim.py": {
+      "ANN204": 1,
+      "PLR0913": 1,
+      "RET504": 2,
+      "RET505": 1
+    },
+    "src/artifex/generative_models/models/diffusion/ddpm.py": {
+      "ANN204": 1,
+      "PLR0913": 1,
+      "RET504": 1,
+      "RET505": 2
+    },
+    "src/artifex/generative_models/models/diffusion/dit.py": {
+      "ANN204": 1,
+      "PLR0913": 1
+    },
+    "src/artifex/generative_models/models/diffusion/guidance.py": {
+      "ANN001": 1,
+      "ANN003": 3,
+      "ANN204": 4,
+      "B004": 1,
+      "B009": 1,
+      "RET504": 2,
+      "RET505": 1
+    },
+    "src/artifex/generative_models/models/diffusion/latent.py": {
+      "ANN201": 1,
+      "ANN204": 3,
+      "C901": 1,
+      "PLR5501": 2,
+      "RET505": 1
+    },
+    "src/artifex/generative_models/models/diffusion/score.py": {
+      "ANN204": 1,
+      "RET505": 1
+    },
+    "src/artifex/generative_models/models/diffusion/stable_diffusion.py": {
+      "ANN204": 1,
+      "RET504": 1
+    },
+    "src/artifex/generative_models/models/diffusion/stable_diffusion_pipeline.py": {
+      "ANN201": 6,
+      "ANN204": 2,
+      "PLR0913": 1,
+      "RET504": 5
+    },
+    "src/artifex/generative_models/models/energy/base.py": {
+      "ANN001": 1,
+      "ANN003": 3,
+      "ANN202": 1,
+      "ANN204": 4,
+      "ARG002": 6,
+      "PLR0913": 2,
+      "RET504": 1
+    },
+    "src/artifex/generative_models/models/energy/ebm.py": {
+      "ARG002": 1,
+      "PLR0913": 2,
+      "RET504": 1
+    },
+    "src/artifex/generative_models/models/energy/mcmc.py": {
+      "ANN204": 1,
+      "PLR0913": 4
+    },
+    "src/artifex/generative_models/models/flow/base.py": {
+      "ANN003": 4,
+      "ANN204": 2,
+      "ARG002": 5,
+      "C901": 1,
+      "RET504": 3
+    },
+    "src/artifex/generative_models/models/flow/conditional.py": {
+      "ANN001": 2,
+      "ANN003": 2,
+      "ARG002": 11
+    },
+    "src/artifex/generative_models/models/flow/glow.py": {
+      "ANN003": 2,
+      "ANN202": 3,
+      "ANN204": 5,
+      "ARG002": 5
+    },
+    "src/artifex/generative_models/models/flow/iaf.py": {
+      "ANN002": 1,
+      "ANN003": 3,
+      "ANN204": 2,
+      "ARG002": 10
+    },
+    "src/artifex/generative_models/models/flow/made.py": {
+      "ANN003": 2,
+      "ANN202": 1,
+      "ANN204": 1,
+      "ARG002": 1,
+      "PLR0913": 1
+    },
+    "src/artifex/generative_models/models/flow/maf.py": {
+      "ANN002": 1,
+      "ANN003": 3,
+      "ANN204": 2,
+      "ARG002": 9
+    },
+    "src/artifex/generative_models/models/flow/neural_spline.py": {
+      "ANN204": 2,
+      "ARG002": 4,
+      "PLR0913": 1,
+      "RET504": 1
+    },
+    "src/artifex/generative_models/models/flow/real_nvp.py": {
+      "ANN003": 2,
+      "ANN201": 1,
+      "ANN202": 1,
+      "ANN204": 2,
+      "ARG002": 4
+    },
+    "src/artifex/generative_models/models/flow/se3_molecular.py": {
+      "ANN003": 2,
+      "ANN204": 3,
+      "ARG002": 2,
+      "PLR0913": 1,
+      "RET504": 4
+    },
+    "src/artifex/generative_models/models/gan/base.py": {
+      "ANN204": 3,
+      "ARG002": 2
+    },
+    "src/artifex/generative_models/models/gan/conditional.py": {
+      "ANN204": 3,
+      "ARG002": 1,
+      "B007": 1,
+      "PLR0402": 1,
+      "RET504": 1
+    },
+    "src/artifex/generative_models/models/gan/cyclegan.py": {
+      "ANN003": 2,
+      "ANN204": 3,
+      "ARG002": 3,
+      "B007": 3,
+      "B905": 3,
+      "C901": 1,
+      "PLR0402": 1,
+      "PLR0915": 1,
+      "RET504": 2,
+      "RET505": 1
+    },
+    "src/artifex/generative_models/models/gan/dcgan.py": {
+      "ANN204": 3,
+      "PLR0402": 1,
+      "RET504": 1
+    },
+    "src/artifex/generative_models/models/gan/lsgan.py": {
+      "ANN202": 1,
+      "ANN204": 3,
+      "PLR0402": 1,
+      "RET504": 1,
+      "RET505": 1
+    },
+    "src/artifex/generative_models/models/gan/patchgan.py": {
+      "ANN204": 2
+    },
+    "src/artifex/generative_models/models/gan/stylegan3.py": {
+      "ANN003": 1,
+      "ANN204": 6,
+      "B007": 1,
+      "PLR0402": 1,
+      "RET504": 5
+    },
+    "src/artifex/generative_models/models/gan/wgan.py": {
+      "ANN001": 1,
+      "ANN202": 1,
+      "ANN204": 3,
+      "ARG002": 1,
+      "PLR0402": 1,
+      "RET504": 3
+    },
+    "src/artifex/generative_models/models/geometric/base.py": {
+      "ANN003": 2,
+      "ANN204": 1
+    },
+    "src/artifex/generative_models/models/geometric/graph.py": {
+      "ANN003": 1,
+      "ANN204": 1,
+      "B009": 1,
+      "C901": 1,
+      "PLR0912": 1,
+      "RET504": 1
+    },
+    "src/artifex/generative_models/models/geometric/mesh.py": {
+      "ANN001": 1,
+      "ANN003": 2,
+      "ANN202": 1,
+      "ANN204": 3,
+      "ARG002": 2,
+      "PLR5501": 1
+    },
+    "src/artifex/generative_models/models/geometric/point_cloud.py": {
+      "ANN003": 1,
+      "ANN204": 2,
+      "ARG002": 1,
+      "B007": 1,
+      "C901": 3,
+      "PLR0912": 2,
+      "PLR0915": 3,
+      "RET504": 1,
+      "TRY400": 1
+    },
+    "src/artifex/generative_models/models/geometric/protein_graph.py": {
+      "ANN003": 1,
+      "ANN204": 1,
+      "B007": 1,
+      "RET504": 3
+    },
+    "src/artifex/generative_models/models/geometric/protein_point_cloud.py": {
+      "ANN204": 1,
+      "ARG002": 1,
+      "B007": 1,
+      "C901": 1,
+      "RET504": 1
+    },
+    "src/artifex/generative_models/models/geometric/voxel.py": {
+      "ANN001": 2,
+      "ANN003": 1,
+      "ANN204": 3,
+      "ARG002": 2,
+      "B007": 1,
+      "B905": 1
+    },
+    "src/artifex/generative_models/models/vae/base.py": {
+      "ARG002": 1,
+      "RET505": 2
+    },
+    "src/artifex/generative_models/models/vae/conditional.py": {
+      "ANN003": 1,
+      "ANN204": 1,
+      "ARG002": 2,
+      "RET505": 2
+    },
+    "src/artifex/generative_models/models/vae/decoders.py": {
+      "ANN001": 3,
+      "ANN204": 6,
+      "RET504": 2
+    },
+    "src/artifex/generative_models/models/vae/encoders.py": {
+      "ANN001": 6,
+      "ANN204": 10,
+      "ARG002": 2,
+      "C901": 1
+    },
+    "src/artifex/generative_models/models/vae/spatial_autoencoder.py": {
+      "ANN001": 2,
+      "ANN204": 4,
+      "RET504": 1
+    },
+    "src/artifex/generative_models/models/vae/vq_vae.py": {
+      "ANN003": 1,
+      "ANN204": 1,
+      "ARG002": 1,
+      "RET504": 1,
+      "RET505": 1
+    },
+    "src/artifex/generative_models/scaling/mesh_utils.py": {
+      "ARG002": 1,
+      "RET505": 5
+    },
+    "src/artifex/generative_models/scaling/sharding.py": {
+      "ARG002": 2,
+      "B007": 2,
+      "RET505": 3
+    },
+    "src/artifex/generative_models/training/callbacks/base.py": {
+      "ANN204": 2
+    },
+    "src/artifex/generative_models/training/callbacks/checkpoint.py": {
+      "ANN204": 1,
+      "RET505": 1
+    },
+    "src/artifex/generative_models/training/callbacks/early_stopping.py": {
+      "ANN204": 1,
+      "RET505": 2
+    },
+    "src/artifex/generative_models/training/callbacks/logging.py": {
+      "ANN204": 4
+    },
+    "src/artifex/generative_models/training/callbacks/profiling.py": {
+      "PTH123": 1
+    },
+    "src/artifex/generative_models/training/distributed/data_parallel.py": {
+      "PLR0402": 1,
+      "RET505": 2
+    },
+    "src/artifex/generative_models/training/distributed/device_placement.py": {
+      "ANN204": 1,
+      "C901": 1,
+      "PLR0911": 1,
+      "PLR1714": 1,
+      "RET505": 3
+    },
+    "src/artifex/generative_models/training/distributed/metrics.py": {
+      "PLR0402": 1
+    },
+    "src/artifex/generative_models/training/loops/staged.py": {
+      "PLR0913": 3
+    },
+    "src/artifex/generative_models/training/loops/streaming.py": {
+      "PLR0913": 1
+    },
+    "src/artifex/generative_models/training/optimizers/factory.py": {
+      "PLR0911": 1,
+      "RET504": 1,
+      "RET505": 2
+    },
+    "src/artifex/generative_models/training/rl/dpo.py": {
+      "ANN201": 1,
+      "PLR0913": 1
+    },
+    "src/artifex/generative_models/training/rl/grpo.py": {
+      "ANN201": 1,
+      "PLR0913": 1
+    },
+    "src/artifex/generative_models/training/rl/ppo.py": {
+      "ANN001": 1,
+      "ANN201": 1,
+      "ANN202": 1
+    },
+    "src/artifex/generative_models/training/rl/reinforce.py": {
+      "ANN201": 1
+    },
+    "src/artifex/generative_models/training/rl/rewards.py": {
+      "B905": 1,
+      "RET505": 1
+    },
+    "src/artifex/generative_models/training/rl/types.py": {
+      "PLR0913": 1
+    },
+    "src/artifex/generative_models/training/schedulers/factory.py": {
+      "ANN001": 1,
+      "ANN202": 1,
+      "C901": 1,
+      "PLR0911": 1,
+      "PLR0912": 1,
+      "PLR1714": 1,
+      "RET505": 4
+    },
+    "src/artifex/generative_models/training/trainer.py": {
+      "ANN204": 1,
+      "B004": 1,
+      "C901": 2,
+      "PLR0912": 1,
+      "PLR0913": 1,
+      "PLR0915": 1,
+      "PTH123": 2
+    },
+    "src/artifex/generative_models/training/trainers/autoregressive_trainer.py": {
+      "PLR0913": 1
+    },
+    "src/artifex/generative_models/training/trainers/energy_trainer.py": {
+      "PLR0913": 1,
+      "RET504": 1
+    },
+    "src/artifex/generative_models/training/trainers/gan_trainer.py": {
+      "PLR0913": 1
+    },
+    "src/artifex/generative_models/utils/code_analysis/dependency_analyzer.py": {
+      "ANN204": 1,
+      "C901": 2,
+      "PLR0912": 1,
+      "PTH123": 1,
+      "PTH201": 1
+    },
+    "src/artifex/generative_models/utils/code_analysis/test_structure_analyzer.py": {
+      "ANN204": 1,
+      "C901": 1,
+      "PLR0912": 1,
+      "PTH123": 1
+    },
+    "src/artifex/generative_models/utils/logging/logger.py": {
+      "ANN003": 18,
+      "ANN204": 2,
+      "ARG002": 12,
+      "BLE001": 2,
+      "PTH123": 3,
+      "RET505": 1
+    },
+    "src/artifex/generative_models/utils/logging/metrics.py": {
+      "ANN003": 1,
+      "ANN204": 1,
+      "BLE001": 2,
+      "C901": 1,
+      "RET505": 1,
+      "TRY400": 1
+    },
+    "src/artifex/generative_models/utils/logging/mlflow.py": {
+      "ANN003": 7,
+      "ANN204": 1,
+      "ARG002": 7,
+      "BLE001": 1,
+      "C901": 1,
+      "PLR0912": 1,
+      "PLR0913": 1,
+      "PLR0915": 1,
+      "PTH123": 1
+    },
+    "src/artifex/generative_models/utils/logging/wandb.py": {
+      "ANN003": 8,
+      "ANN204": 1,
+      "ARG002": 2,
+      "BLE001": 3,
+      "PLR0913": 1,
+      "PTH123": 1
+    },
+    "src/artifex/visualization/protein_viz.py": {
+      "ANN205": 1,
+      "B028": 1,
+      "B905": 1,
+      "C901": 1,
+      "PLR0913": 3,
+      "PTH123": 1
+    }
+  },
+  "scan_paths": [
+    "src"
+  ],
+  "version": 1
+}

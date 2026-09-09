@@ -132,6 +132,12 @@ repos:
         types: [python]
         pass_filenames: false
         always_run: true
+      - id: ruff-baseline
+        name: ruff-baseline (per-file ignores only shrink)
+        entry: uv run --no-sync python scripts/check_ruff_baseline.py
+        language: system
+        pass_filenames: false
+        files: ^(src/artifex/.*\.py|quality/ruff_baseline\.json|pyproject\.toml)$
       - id: lint-imports
         name: lint-imports (layering contracts)
         entry: uv run --no-sync lint-imports

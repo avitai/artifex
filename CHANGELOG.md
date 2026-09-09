@@ -24,6 +24,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   import-linter (a second contract: `core.layers` never imports `models`), pydoclint
   against a checked-in baseline that can only shrink, and validate-pyproject; the
   ruff hook runs the locked ruff. `hypothesis` joins the test extra.
+- Ruff selects the rule set shared with datarax (`ANN`, `ARG`, `B`, `C90`, `PLR`, `PTH`,
+  `RET`, `TRY`, with the same five documented exemptions and mccabe at 10). The 850
+  file-rule pairs `src/` carried at adoption are recorded in `quality/ruff_baseline.json`
+  and rendered into the per-file-ignores table; `scripts/check_ruff_baseline.py` fails when
+  a pair grows, when a cleared pair is still listed, or when the table drifts from the
+  baseline. Tests, examples, scripts, docs, deployment probes and notebooks keep the
+  correctness rules only.
 - CI runs every pre-commit hook and checks that `uv.lock` is current in the quality
   gate, runs the unit tests and the package build on Python 3.13 as well as 3.12, and
   checks distributions with `twine check --strict`.
