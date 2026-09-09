@@ -47,7 +47,7 @@ def test_pyproject_declares_reviewed_ci_roles_and_security_triage_policy() -> No
 
     assert policy["tooling_python"] == "3.12"
     assert policy["compatibility_python"] == ["3.12", "3.13"]
-    assert policy["pyright_enforcement"] == "informational"
+    assert policy["pyright_enforcement"] == "blocking"
     assert policy["smoke_package"] == "artifex"
     assert policy["smoke_exports"] == ["generative_models"]
     assert policy["blocking_workflows"] == [
@@ -245,7 +245,7 @@ def test_root_readme_claims_match_the_reviewed_ci_policy() -> None:
     readme_lower = readme.lower()
 
     required_references = [
-        "Pyright basic-mode reports track the supported source surface",
+        "Pyright standard-mode checks block on the whole source tree",
         "blocking CI enforces repository contracts",
         "80% repo-wide coverage floor",
         "Security workflow checks are blocking",

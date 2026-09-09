@@ -58,7 +58,7 @@ Artifex prioritizes:
 
 ### Technical Principles
 
-- **Type Checking**: Pyright basic-mode reports track the supported source surface while repo-wide blocking enforcement is still being rebuilt
+- **Type Checking**: Pyright standard-mode checks block on the whole source tree through the pre-commit hook CI runs
 - **JAX Native**: Built on JAX's functional programming paradigm
 - **Flax NNX**: Modern object-oriented API for neural networks
 - **Configuration Management**: Frozen dataclass configs with validation

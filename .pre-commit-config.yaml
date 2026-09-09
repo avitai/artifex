@@ -6,6 +6,11 @@ default_language_version:
   node: 22.21.1
 
 repos:
+  - repo: https://github.com/abravalheri/validate-pyproject
+    rev: v0.24.1
+    hooks:
+      - id: validate-pyproject
+
   # TOML formatting
   - repo: local
     hooks:
@@ -41,7 +46,7 @@ repos:
 
   # Artifex-inspired complete Python linting and formatting with auto-fix
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.11.13
+    rev: v0.15.5
     hooks:
       - id: ruff # linter with automatic fixes including whitespace and unused variables
         args: [--fix, --unsafe-fixes]
@@ -127,6 +132,18 @@ repos:
         types: [python]
         pass_filenames: false
         always_run: true
+      - id: lint-imports
+        name: lint-imports (layering contracts)
+        entry: uv run --no-sync lint-imports
+        language: system
+        pass_filenames: false
+        files: ^(src/artifex/|pyproject\.toml$)
+      - id: pydoclint
+        name: pydoclint (docstring sections match signatures; baseline only shrinks)
+        entry: uv run --no-sync pydoclint --config=pyproject.toml --baseline quality/pydoclint_baseline.txt src/
+        language: system
+        pass_filenames: false
+        files: ^(src/artifex/.*\.py|quality/pydoclint_baseline\.txt|pyproject\.toml)$
 
   # Reuse the checked-in environment for typing so pre-commit stays hermetic.
   - repo: local

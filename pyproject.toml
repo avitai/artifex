@@ -214,6 +214,7 @@ test = [
   "beartype>=0.14.1",
   "mock>=5.2",
   "coverage>=7",
+  "hypothesis>=6.100",
   "pytest>=8.3.5",
   "pytest-asyncio>=0.23",
   "pytest-benchmark>=4",
@@ -240,7 +241,7 @@ compatibility_python = ["3.12", "3.13"]
 informational_workflows = [
   ".github/workflows/quality-checks.yml"
 ]
-pyright_enforcement = "informational"
+pyright_enforcement = "blocking"
 smoke_exports = ["generative_models"]
 smoke_package = "artifex"
 tooling_python = "3.12"
@@ -274,7 +275,7 @@ minimum_supported = "3.12"
 tooling = "3.12"
 
 [tool.artifex.repo_standards.typing]
-pyright_mode = "basic"
+pyright_mode = "standard"
 
 [tool.bandit]
 exclude_dirs = ["tests", "examples", "notebooks", "scripts"]
@@ -352,6 +353,12 @@ name = "Core config must not import concrete models"
 source_modules = ["artifex.generative_models.core.configuration"]
 type = "forbidden"
 
+[[tool.importlinter.contracts]]
+forbidden_modules = ["artifex.generative_models.models"]
+name = "Backbone layers must not import concrete models"
+source_modules = ["artifex.generative_models.core.layers"]
+type = "forbidden"
+
 [tool.interrogate]
 exclude = ["tests", "scripts", "examples", "notebooks"]
 fail-under = 80
@@ -361,6 +368,17 @@ ignore-magic = true
 
 [tool.pydoclint]
 allow-init-docstring = true
+arg-type-hints-in-docstring = false
+# Instance attributes are documented under Attributes per the Google style; pydoclint would
+# compare them with class-level attributes only.
+check-class-attributes = false
+# Annotations are the source of truth for types; docstrings carry the prose.
+check-return-types = false
+check-yield-types = false
+# `# noqa: DOC...` is read from the def line, where propagated exceptions are annotated.
+native-mode-noqa-location = "definition"
+skip-checking-short-docstrings = true
+style = "google"
 
 [tool.pyright]
 exclude = ["tests"]
@@ -373,7 +391,7 @@ reportIncompatibleMethodOverride = false
 reportIncompatibleVariableOverride = false # Incompatible with eqx.AbstractVar
 reportMissingImports = false
 reportMissingTypeStubs = false
-typeCheckingMode = "basic"
+typeCheckingMode = "standard"
 
 [tool.pytest.ini_options]
 # Configuration with smart parallel execution and coverage

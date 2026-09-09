@@ -41,7 +41,7 @@ def test_pyproject_declares_canonical_repo_standards_contract() -> None:
     assert standards["interpreter"]["docs"] == "3.12"
     assert standards["coverage"]["project_fail_under"] == 80
     assert standards["coverage"]["new_code_target"] == 80
-    assert standards["typing"]["pyright_mode"] == "basic"
+    assert standards["typing"]["pyright_mode"] == "standard"
     assert standards["docs"]["main_strict"] is True
     assert standards["docs"]["development_strict"] is False
     assert standards["docs"]["rtd_fail_on_warning"] is True

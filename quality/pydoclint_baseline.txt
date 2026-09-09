@@ -1,0 +1,917 @@
+src/artifex/benchmarks/datasets/crossdocked.py
+    DOC501: Method `CrossDockedDataset.__init__` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `CrossDockedDataset.__init__` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['TypeError'].
+--------------------
+src/artifex/benchmarks/datasets/ffhq.py
+    DOC501: Method `FFHQDataset.__getitem__` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `FFHQDataset.__getitem__` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['IndexError'].
+--------------------
+src/artifex/benchmarks/datasets/geometric.py
+    DOC501: Method `ShapeNetDataset.__init__` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `ShapeNetDataset.__init__` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['TypeError'].
+    DOC501: Method `ShapeNetDataset.__getitem__` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `ShapeNetDataset.__getitem__` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['IndexError'].
+--------------------
+src/artifex/benchmarks/datasets/protein_dataset.py
+    DOC501: Method `SyntheticProteinDataset.__init__` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `SyntheticProteinDataset.__init__` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['TypeError'].
+    DOC501: Method `SyntheticProteinDataset.__getitem__` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `SyntheticProteinDataset.__getitem__` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['IndexError'].
+    DOC501: Method `SyntheticProteinDataset.get_raw_coordinates` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `SyntheticProteinDataset.get_raw_coordinates` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['IndexError'].
+    DOC501: Method `SyntheticProteinDataset.get_sample_with_metadata` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `SyntheticProteinDataset.get_sample_with_metadata` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['IndexError'].
+--------------------
+src/artifex/benchmarks/datasets/qm9.py
+    DOC501: Method `QM9Dataset.__init__` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `QM9Dataset.__init__` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['TypeError'].
+    DOC501: Method `QM9Dataset.__getitem__` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `QM9Dataset.__getitem__` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['IndexError'].
+--------------------
+src/artifex/benchmarks/metrics/audio.py
+    DOC101: Method `SpectralMetric.validate_inputs`: Docstring contains fewer arguments than in function signature.
+    DOC106: Method `SpectralMetric.validate_inputs`: The option `--arg-type-hints-in-signature` is `True` but there are no argument type hints in the signature
+    DOC107: Method `SpectralMetric.validate_inputs`: The option `--arg-type-hints-in-signature` is `True` but not all args in the signature have type hints
+    DOC103: Method `SpectralMetric.validate_inputs`: Docstring arguments are different from function arguments. (Or could be other formatting issues: https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). Arguments in the function signature but not in the docstring: [generated_data: , real_data: ].
+    DOC101: Method `MelCepstralMetric.validate_inputs`: Docstring contains fewer arguments than in function signature.
+    DOC106: Method `MelCepstralMetric.validate_inputs`: The option `--arg-type-hints-in-signature` is `True` but there are no argument type hints in the signature
+    DOC107: Method `MelCepstralMetric.validate_inputs`: The option `--arg-type-hints-in-signature` is `True` but not all args in the signature have type hints
+    DOC103: Method `MelCepstralMetric.validate_inputs`: Docstring arguments are different from function arguments. (Or could be other formatting issues: https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). Arguments in the function signature but not in the docstring: [generated_data: , real_data: ].
+--------------------
+src/artifex/benchmarks/metrics/image.py
+    DOC501: Method `LPIPSMetric.compute` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `LPIPSMetric.compute` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['RuntimeError'].
+--------------------
+src/artifex/benchmarks/metrics/molecular_flows.py
+    DOC106: Method `MolecularFlowsMetrics.compute`: The option `--arg-type-hints-in-signature` is `True` but there are no argument type hints in the signature
+    DOC107: Method `MolecularFlowsMetrics.compute`: The option `--arg-type-hints-in-signature` is `True` but not all args in the signature have type hints
+    DOC106: Method `MolecularFlowsMetrics.validate_inputs`: The option `--arg-type-hints-in-signature` is `True` but there are no argument type hints in the signature
+    DOC107: Method `MolecularFlowsMetrics.validate_inputs`: The option `--arg-type-hints-in-signature` is `True` but not all args in the signature have type hints
+--------------------
+src/artifex/benchmarks/metrics/precision_recall.py
+    DOC106: Function `compute_precision_recall`: The option `--arg-type-hints-in-signature` is `True` but there are no argument type hints in the signature
+    DOC107: Function `compute_precision_recall`: The option `--arg-type-hints-in-signature` is `True` but not all args in the signature have type hints
+    DOC106: Function `compute_distance_based_metrics`: The option `--arg-type-hints-in-signature` is `True` but there are no argument type hints in the signature
+    DOC107: Function `compute_distance_based_metrics`: The option `--arg-type-hints-in-signature` is `True` but not all args in the signature have type hints
+    DOC106: Function `is_well_separated_clusters`: The option `--arg-type-hints-in-signature` is `True` but there are no argument type hints in the signature
+    DOC107: Function `is_well_separated_clusters`: The option `--arg-type-hints-in-signature` is `True` but not all args in the signature have type hints
+    DOC106: Function `compute_cluster_based_metrics`: The option `--arg-type-hints-in-signature` is `True` but there are no argument type hints in the signature
+    DOC107: Function `compute_cluster_based_metrics`: The option `--arg-type-hints-in-signature` is `True` but not all args in the signature have type hints
+    DOC501: Method `PrecisionRecallBenchmark.run` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `PrecisionRecallBenchmark.run` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+--------------------
+src/artifex/benchmarks/metrics/protein_ligand.py
+    DOC101: Method `BindingAffinityMetric.validate_inputs`: Docstring contains fewer arguments than in function signature.
+    DOC106: Method `BindingAffinityMetric.validate_inputs`: The option `--arg-type-hints-in-signature` is `True` but there are no argument type hints in the signature
+    DOC107: Method `BindingAffinityMetric.validate_inputs`: The option `--arg-type-hints-in-signature` is `True` but not all args in the signature have type hints
+    DOC103: Method `BindingAffinityMetric.validate_inputs`: Docstring arguments are different from function arguments. (Or could be other formatting issues: https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). Arguments in the function signature but not in the docstring: [predictions: , targets: ].
+    DOC101: Method `MolecularValidityMetric.validate_inputs`: Docstring contains fewer arguments than in function signature.
+    DOC106: Method `MolecularValidityMetric.validate_inputs`: The option `--arg-type-hints-in-signature` is `True` but there are no argument type hints in the signature
+    DOC107: Method `MolecularValidityMetric.validate_inputs`: The option `--arg-type-hints-in-signature` is `True` but not all args in the signature have type hints
+    DOC103: Method `MolecularValidityMetric.validate_inputs`: Docstring arguments are different from function arguments. (Or could be other formatting issues: https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). Arguments in the function signature but not in the docstring: [atom_types: , coordinates: ].
+    DOC101: Method `DrugLikenessMetric.validate_inputs`: Docstring contains fewer arguments than in function signature.
+    DOC106: Method `DrugLikenessMetric.validate_inputs`: The option `--arg-type-hints-in-signature` is `True` but there are no argument type hints in the signature
+    DOC107: Method `DrugLikenessMetric.validate_inputs`: The option `--arg-type-hints-in-signature` is `True` but not all args in the signature have type hints
+    DOC103: Method `DrugLikenessMetric.validate_inputs`: Docstring arguments are different from function arguments. (Or could be other formatting issues: https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). Arguments in the function signature but not in the docstring: [atom_types: , coordinates: ].
+--------------------
+src/artifex/benchmarks/metrics/style_metrics.py
+    DOC106: Method `StyleMixingMetric.compute`: The option `--arg-type-hints-in-signature` is `True` but there are no argument type hints in the signature
+    DOC107: Method `StyleMixingMetric.compute`: The option `--arg-type-hints-in-signature` is `True` but not all args in the signature have type hints
+    DOC101: Method `StyleMixingMetric.validate_inputs`: Docstring contains fewer arguments than in function signature.
+    DOC106: Method `StyleMixingMetric.validate_inputs`: The option `--arg-type-hints-in-signature` is `True` but there are no argument type hints in the signature
+    DOC107: Method `StyleMixingMetric.validate_inputs`: The option `--arg-type-hints-in-signature` is `True` but not all args in the signature have type hints
+    DOC103: Method `StyleMixingMetric.validate_inputs`: Docstring arguments are different from function arguments. (Or could be other formatting issues: https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). Arguments in the function signature but not in the docstring: [generated_data: , real_data: ].
+    DOC502: Method `StyleMixingMetric.validate_inputs` has a "Raises" section in the docstring, but there are not "raise" statements in the body
+    DOC107: Method `StyleMixingMetric.compute_style_mixing_quality`: The option `--arg-type-hints-in-signature` is `True` but not all args in the signature have type hints
+    DOC106: Method `FewShotAdaptationMetric.compute`: The option `--arg-type-hints-in-signature` is `True` but there are no argument type hints in the signature
+    DOC107: Method `FewShotAdaptationMetric.compute`: The option `--arg-type-hints-in-signature` is `True` but not all args in the signature have type hints
+    DOC101: Method `FewShotAdaptationMetric.validate_inputs`: Docstring contains fewer arguments than in function signature.
+    DOC106: Method `FewShotAdaptationMetric.validate_inputs`: The option `--arg-type-hints-in-signature` is `True` but there are no argument type hints in the signature
+    DOC107: Method `FewShotAdaptationMetric.validate_inputs`: The option `--arg-type-hints-in-signature` is `True` but not all args in the signature have type hints
+    DOC103: Method `FewShotAdaptationMetric.validate_inputs`: Docstring arguments are different from function arguments. (Or could be other formatting issues: https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). Arguments in the function signature but not in the docstring: [generated_data: , real_data: ].
+    DOC502: Method `FewShotAdaptationMetric.validate_inputs` has a "Raises" section in the docstring, but there are not "raise" statements in the body
+    DOC107: Method `FewShotAdaptationMetric.evaluate_adaptation`: The option `--arg-type-hints-in-signature` is `True` but not all args in the signature have type hints
+    DOC106: Method `EquivarianceMetric.compute`: The option `--arg-type-hints-in-signature` is `True` but there are no argument type hints in the signature
+    DOC107: Method `EquivarianceMetric.compute`: The option `--arg-type-hints-in-signature` is `True` but not all args in the signature have type hints
+    DOC101: Method `EquivarianceMetric.validate_inputs`: Docstring contains fewer arguments than in function signature.
+    DOC106: Method `EquivarianceMetric.validate_inputs`: The option `--arg-type-hints-in-signature` is `True` but there are no argument type hints in the signature
+    DOC107: Method `EquivarianceMetric.validate_inputs`: The option `--arg-type-hints-in-signature` is `True` but not all args in the signature have type hints
+    DOC103: Method `EquivarianceMetric.validate_inputs`: Docstring arguments are different from function arguments. (Or could be other formatting issues: https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). Arguments in the function signature but not in the docstring: [generated_data: , real_data: ].
+    DOC502: Method `EquivarianceMetric.validate_inputs` has a "Raises" section in the docstring, but there are not "raise" statements in the body
+    DOC107: Method `EquivarianceMetric.evaluate_equivariance`: The option `--arg-type-hints-in-signature` is `True` but not all args in the signature have type hints
+    DOC106: Method `StyleGANMetrics.compute`: The option `--arg-type-hints-in-signature` is `True` but there are no argument type hints in the signature
+    DOC107: Method `StyleGANMetrics.compute`: The option `--arg-type-hints-in-signature` is `True` but not all args in the signature have type hints
+    DOC107: Method `StyleGANMetrics.compute_all_metrics`: The option `--arg-type-hints-in-signature` is `True` but not all args in the signature have type hints
+    DOC101: Method `StyleGANMetrics.validate_inputs`: Docstring contains fewer arguments than in function signature.
+    DOC106: Method `StyleGANMetrics.validate_inputs`: The option `--arg-type-hints-in-signature` is `True` but there are no argument type hints in the signature
+    DOC107: Method `StyleGANMetrics.validate_inputs`: The option `--arg-type-hints-in-signature` is `True` but not all args in the signature have type hints
+    DOC103: Method `StyleGANMetrics.validate_inputs`: Docstring arguments are different from function arguments. (Or could be other formatting issues: https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). Arguments in the function signature but not in the docstring: [generated_data: , real_data: ].
+--------------------
+src/artifex/benchmarks/metrics/text.py
+    DOC101: Method `BLEUMetric.validate_inputs`: Docstring contains fewer arguments than in function signature.
+    DOC106: Method `BLEUMetric.validate_inputs`: The option `--arg-type-hints-in-signature` is `True` but there are no argument type hints in the signature
+    DOC107: Method `BLEUMetric.validate_inputs`: The option `--arg-type-hints-in-signature` is `True` but not all args in the signature have type hints
+    DOC103: Method `BLEUMetric.validate_inputs`: Docstring arguments are different from function arguments. (Or could be other formatting issues: https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). Arguments in the function signature but not in the docstring: [generated_data: , real_data: ].
+    DOC101: Method `ROUGEMetric.validate_inputs`: Docstring contains fewer arguments than in function signature.
+    DOC106: Method `ROUGEMetric.validate_inputs`: The option `--arg-type-hints-in-signature` is `True` but there are no argument type hints in the signature
+    DOC107: Method `ROUGEMetric.validate_inputs`: The option `--arg-type-hints-in-signature` is `True` but not all args in the signature have type hints
+    DOC103: Method `ROUGEMetric.validate_inputs`: Docstring arguments are different from function arguments. (Or could be other formatting issues: https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). Arguments in the function signature but not in the docstring: [generated_data: , real_data: ].
+    DOC501: Method `PerplexityMetric.__init__` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `PerplexityMetric.__init__` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['RuntimeError'].
+    DOC101: Method `PerplexityMetric.validate_inputs`: Docstring contains fewer arguments than in function signature.
+    DOC106: Method `PerplexityMetric.validate_inputs`: The option `--arg-type-hints-in-signature` is `True` but there are no argument type hints in the signature
+    DOC107: Method `PerplexityMetric.validate_inputs`: The option `--arg-type-hints-in-signature` is `True` but not all args in the signature have type hints
+    DOC103: Method `PerplexityMetric.validate_inputs`: Docstring arguments are different from function arguments. (Or could be other formatting issues: https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). Arguments in the function signature but not in the docstring: [generated_data: , real_data: ].
+    DOC101: Method `DiversityMetric.validate_inputs`: Docstring contains fewer arguments than in function signature.
+    DOC106: Method `DiversityMetric.validate_inputs`: The option `--arg-type-hints-in-signature` is `True` but there are no argument type hints in the signature
+    DOC107: Method `DiversityMetric.validate_inputs`: The option `--arg-type-hints-in-signature` is `True` but not all args in the signature have type hints
+    DOC103: Method `DiversityMetric.validate_inputs`: Docstring arguments are different from function arguments. (Or could be other formatting issues: https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). Arguments in the function signature but not in the docstring: [generated_data: , real_data: ].
+--------------------
+src/artifex/benchmarks/model_adapters/generative.py
+    DOC502: Function `adapt_model` has a "Raises" section in the docstring, but there are not "raise" statements in the body
+--------------------
+src/artifex/benchmarks/performance/latency.py
+    DOC501: Function `measure_inference_latency` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Function `measure_inference_latency` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+    DOC501: Method `LatencyBenchmark.run` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `LatencyBenchmark.run` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+--------------------
+src/artifex/benchmarks/performance/optimization.py
+    DOC502: Method `TrainerProtocol.init` has a "Raises" section in the docstring, but there are not "raise" statements in the body
+    DOC502: Method `TrainerProtocol.train_step` has a "Raises" section in the docstring, but there are not "raise" statements in the body
+    DOC502: Method `TrainerProtocol.evaluate` has a "Raises" section in the docstring, but there are not "raise" statements in the body
+    DOC503: Method `OptimizationBenchmark.run` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: ['RuntimeError', 'TypeError', 'ValueError']. Raised exceptions in the body: ['TypeError', 'ValueError'].
+--------------------
+src/artifex/benchmarks/suites/geometric_suite.py
+    DOC107: Method `PointCloudGenerationBenchmark.__init__`: The option `--arg-type-hints-in-signature` is `True` but not all args in the signature have type hints
+    DOC104: Method `PointCloudGenerationBenchmark.__init__`: Arguments are the same in the docstring and the function signature, but are in a different order.
+    DOC105: Method `PointCloudGenerationBenchmark.__init__`: Argument names match, but type hints in these args do not match: rngs
+    DOC501: Method `PointCloudGenerationBenchmark.run_evaluation` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `PointCloudGenerationBenchmark.run_evaluation` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+    DOC107: Method `GeometricBenchmarkSuite.__init__`: The option `--arg-type-hints-in-signature` is `True` but not all args in the signature have type hints
+    DOC104: Method `GeometricBenchmarkSuite.__init__`: Arguments are the same in the docstring and the function signature, but are in a different order.
+    DOC105: Method `GeometricBenchmarkSuite.__init__`: Argument names match, but type hints in these args do not match: rngs
+--------------------
+src/artifex/benchmarks/suites/multi_beta_vae_suite.py
+    DOC501: Method `MultiBetaVAEBenchmark.run` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `MultiBetaVAEBenchmark.run` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+    DOC107: Method `MultiBetaVAEBenchmark._evaluate_batch`: The option `--arg-type-hints-in-signature` is `True` but not all args in the signature have type hints
+    DOC107: Method `MultiBetaVAEBenchmark._run_model_inference`: The option `--arg-type-hints-in-signature` is `True` but not all args in the signature have type hints
+    DOC501: Method `MultiBetaVAEBenchmark._run_model_inference` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `MultiBetaVAEBenchmark._run_model_inference` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['TypeError', 'ValueError'].
+    DOC106: Method `MultiBetaVAEBenchmarkSuite.run_all`: The option `--arg-type-hints-in-signature` is `True` but there are no argument type hints in the signature
+    DOC107: Method `MultiBetaVAEBenchmarkSuite.run_all`: The option `--arg-type-hints-in-signature` is `True` but not all args in the signature have type hints
+--------------------
+src/artifex/benchmarks/suites/protein_benchmarks.py
+    DOC501: Method `ProteinStructureBenchmark.run` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `ProteinStructureBenchmark.run` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+    DOC501: Method `ProteinBenchmarkSuite.visualize_results` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `ProteinBenchmarkSuite.visualize_results` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+--------------------
+src/artifex/benchmarks/suites/protein_ligand_suite.py
+    DOC106: Method `ProteinLigandCoDesignBenchmark.run`: The option `--arg-type-hints-in-signature` is `True` but there are no argument type hints in the signature
+    DOC107: Method `ProteinLigandCoDesignBenchmark.run`: The option `--arg-type-hints-in-signature` is `True` but not all args in the signature have type hints
+    DOC107: Method `ProteinLigandCoDesignBenchmark._evaluate_batch`: The option `--arg-type-hints-in-signature` is `True` but not all args in the signature have type hints
+    DOC107: Method `ProteinLigandCoDesignBenchmark._run_model_inference`: The option `--arg-type-hints-in-signature` is `True` but not all args in the signature have type hints
+    DOC501: Method `ProteinLigandCoDesignBenchmark._run_model_inference` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `ProteinLigandCoDesignBenchmark._run_model_inference` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['TypeError', 'ValueError'].
+    DOC106: Method `ProteinLigandBenchmarkSuite.run_all`: The option `--arg-type-hints-in-signature` is `True` but there are no argument type hints in the signature
+    DOC107: Method `ProteinLigandBenchmarkSuite.run_all`: The option `--arg-type-hints-in-signature` is `True` but not all args in the signature have type hints
+--------------------
+src/artifex/benchmarks/suites/registry.py
+    DOC502: Function `get_suite` has a "Raises" section in the docstring, but there are not "raise" statements in the body
+--------------------
+src/artifex/benchmarks/suites/se3_molecular_flows_suite.py
+    DOC104: Method `SE3MolecularFlowsBenchmark.__init__`: Arguments are the same in the docstring and the function signature, but are in a different order.
+    DOC105: Method `SE3MolecularFlowsBenchmark.__init__`: Argument names match, but type hints in these args do not match: rngs, config
+    DOC503: Method `SE3MolecularFlowsBenchmark.__init__` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: ['TypeError']. Raised exceptions in the body: ['TypeError', 'ValueError'].
+--------------------
+src/artifex/configs/utils/config_loader.py
+    DOC502: Function `load_yaml_config` has a "Raises" section in the docstring, but there are not "raise" statements in the body
+    DOC502: Function `get_data_config` has a "Raises" section in the docstring, but there are not "raise" statements in the body
+    DOC502: Function `get_training_config` has a "Raises" section in the docstring, but there are not "raise" statements in the body
+    DOC502: Function `get_inference_config` has a "Raises" section in the docstring, but there are not "raise" statements in the body
+    DOC502: Function `get_protein_extensions_config` has a "Raises" section in the docstring, but there are not "raise" statements in the body
+--------------------
+src/artifex/configs/utils/error_handling.py
+    DOC503: Function `safe_load_config` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: ['ConfigError']. Raised exceptions in the body: ['ConfigError', 'load_error', 'not_found_error', 'validation_error'].
+--------------------
+src/artifex/data/protein/dataset.py
+    DOC501: Function `protein_collate_fn` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Function `protein_collate_fn` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+--------------------
+src/artifex/generative_models/core/base.py
+    DOC107: Function `get_default_backbone`: The option `--arg-type-hints-in-signature` is `True` but not all args in the signature have type hints
+    DOC501: Method `GenerativeModule.__call__` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `GenerativeModule.__call__` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['NotImplementedError'].
+    DOC501: Method `GenerativeModel.__call__` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `GenerativeModel.__call__` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['NotImplementedError'].
+    DOC501: Method `GenerativeModel.generate` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `GenerativeModel.generate` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['NotImplementedError'].
+    DOC501: Method `GenerativeModel.loss_fn` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `GenerativeModel.loss_fn` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['NotImplementedError'].
+    DOC501: Method `GenerativeModel._extract_data_from_batch` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `GenerativeModel._extract_data_from_batch` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+    DOC501: Method `MLP.__init__` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `MLP.__init__` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+--------------------
+src/artifex/generative_models/core/checkpointing.py
+    DOC503: Function `save_checkpoint` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: ['OSError', 'TypeError', 'ValueError']. Raised exceptions in the body: ['AttributeError', 'FileNotFoundError', 'OSError', 'PermissionError', 'TypeError', 'ValueError'].
+    DOC503: Function `load_checkpoint` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: ['OSError', 'TypeError', 'ValueError']. Raised exceptions in the body: ['AttributeError', 'KeyError', 'OSError', 'TypeError', 'ValueError'].
+    DOC501: Function `save_checkpoint_with_optimizer` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Function `save_checkpoint_with_optimizer` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['AttributeError', 'FileNotFoundError', 'OSError', 'PermissionError', 'TypeError', 'ValueError'].
+    DOC501: Function `load_checkpoint_with_optimizer` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Function `load_checkpoint_with_optimizer` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['AttributeError', 'KeyError', 'OSError', 'TypeError', 'ValueError'].
+--------------------
+src/artifex/generative_models/core/configuration/diffusion_config.py
+    DOC503: Method `StableDiffusionConfig.__post_init__` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: ['ValueError']. Raised exceptions in the body: ['TypeError', 'ValueError'].
+--------------------
+src/artifex/generative_models/core/configuration/experiment_config.py
+    DOC503: Method `ExperimentConfig.__post_init__` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: ['ValueError']. Raised exceptions in the body: ['TypeError', 'ValueError'].
+--------------------
+src/artifex/generative_models/core/configuration/gan_config.py
+    DOC502: Method `GANConfig.from_dict` has a "Raises" section in the docstring, but there are not "raise" statements in the body
+    DOC503: Method `WGANConfig.__post_init__` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: ['TypeError', 'ValueError']. Raised exceptions in the body: ['TypeError'].
+    DOC503: Method `ConditionalGANConfig.__post_init__` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: ['TypeError', 'ValueError']. Raised exceptions in the body: ['TypeError'].
+    DOC503: Method `CycleGANConfig.__post_init__` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: ['ValueError']. Raised exceptions in the body: ['TypeError', 'ValueError'].
+--------------------
+src/artifex/generative_models/core/configuration/network_configs.py
+    DOC503: Method `ConvGeneratorConfig.__post_init__` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: ['ValueError']. Raised exceptions in the body: ['TypeError', 'ValueError'].
+    DOC503: Method `ConvDiscriminatorConfig.__post_init__` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: ['ValueError']. Raised exceptions in the body: ['TypeError', 'ValueError'].
+    DOC503: Method `PatchGANDiscriminatorConfig.__post_init__` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: ['ValueError']. Raised exceptions in the body: ['TypeError', 'ValueError'].
+--------------------
+src/artifex/generative_models/core/configuration/vae_config.py
+    DOC502: Method `VAEConfig.from_dict` has a "Raises" section in the docstring, but there are not "raise" statements in the body
+    DOC502: Method `BetaVAEWithCapacityConfig.__post_init__` has a "Raises" section in the docstring, but there are not "raise" statements in the body
+    DOC502: Method `VQVAEConfig.__post_init__` has a "Raises" section in the docstring, but there are not "raise" statements in the body
+--------------------
+src/artifex/generative_models/core/distributions/discrete.py
+    DOC501: Method `Bernoulli.__init__` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `Bernoulli.__init__` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+    DOC501: Method `Categorical.__init__` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `Categorical.__init__` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+    DOC501: Method `Categorical.mode` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `Categorical.mode` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+    DOC501: Method `OneHotCategorical.__init__` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `OneHotCategorical.__init__` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+    DOC501: Method `OneHotCategorical.mode` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `OneHotCategorical.mode` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+--------------------
+src/artifex/generative_models/core/distributions/mixture.py
+    DOC501: Method `Mixture._get_sample_key` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `Mixture._get_sample_key` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+--------------------
+src/artifex/generative_models/core/evaluation/metrics/text/perplexity.py
+    DOC501: Method `Perplexity.compute_log_probs` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `Perplexity.compute_log_probs` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+    DOC501: Method `Perplexity.compute` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `Perplexity.compute` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+--------------------
+src/artifex/generative_models/core/layers/causal.py
+    DOC501: Function `create_attention_mask` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Function `create_attention_mask` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+    DOC501: Function `apply_causal_mask` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Function `apply_causal_mask` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+--------------------
+src/artifex/generative_models/core/layers/clifford/_functional.py
+    DOC501: Function `whiten_data` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Function `whiten_data` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+--------------------
+src/artifex/generative_models/core/layers/clifford/algebra.py
+    DOC101: Function `_construct_cayley_table`: Docstring contains fewer arguments than in function signature.
+    DOC103: Function `_construct_cayley_table`: Docstring arguments are different from function arguments. (Or could be other formatting issues: https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). Arguments in the function signature but not in the docstring: [bbo: BasisBladeOrder, metric: jax.Array].
+--------------------
+src/artifex/generative_models/core/layers/clifford/conv.py
+    DOC501: Method `_CliffordConvNd.__call__` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `_CliffordConvNd.__call__` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+--------------------
+src/artifex/generative_models/core/layers/clifford/kernels.py
+    DOC501: Function `get_1d_clifford_kernel` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Function `get_1d_clifford_kernel` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+    DOC501: Function `get_2d_clifford_kernel` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Function `get_2d_clifford_kernel` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+    DOC501: Function `get_2d_clifford_rotation_kernel` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Function `get_2d_clifford_rotation_kernel` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+    DOC501: Function `get_3d_clifford_kernel` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Function `get_3d_clifford_kernel` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+--------------------
+src/artifex/generative_models/core/layers/clifford/linear.py
+    DOC304: Class `CliffordLinear`: Class docstring has an argument/parameter section; please put it in the __init__() docstring
+    DOC501: Method `CliffordLinear.__call__` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `CliffordLinear.__call__` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+--------------------
+src/artifex/generative_models/core/layers/clifford/norm.py
+    DOC304: Class `CliffordBatchNorm`: Class docstring has an argument/parameter section; please put it in the __init__() docstring
+    DOC501: Method `CliffordBatchNorm.__call__` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `CliffordBatchNorm.__call__` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+    DOC304: Class `CliffordGroupNorm`: Class docstring has an argument/parameter section; please put it in the __init__() docstring
+    DOC304: Class `MultiVectorActivation`: Class docstring has an argument/parameter section; please put it in the __init__() docstring
+    DOC501: Method `MultiVectorActivation.__call__` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `MultiVectorActivation.__call__` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+--------------------
+src/artifex/generative_models/core/layers/clifford/spectral.py
+    DOC304: Class `CliffordSpectralConv2d`: Class docstring has an argument/parameter section; please put it in the __init__() docstring
+    DOC304: Class `CliffordSpectralConv3d`: Class docstring has an argument/parameter section; please put it in the __init__() docstring
+--------------------
+src/artifex/generative_models/core/layers/egnn.py
+    DOC501: Method `EGNNLayer.__call__` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `EGNNLayer.__call__` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+--------------------
+src/artifex/generative_models/core/layers/kan/_utils.py
+    DOC501: Function `_initialize_kan_params` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Function `_initialize_kan_params` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+--------------------
+src/artifex/generative_models/core/layers/kan/basis_layers.py
+    DOC501: Method `ChebyshevKANLayer.basis` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `ChebyshevKANLayer.basis` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+    DOC501: Method `LegendreKANLayer.basis` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `LegendreKANLayer.basis` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+    DOC502: Method `RBFKANLayer.__init__` has a "Raises" section in the docstring, but there are not "raise" statements in the body
+--------------------
+src/artifex/generative_models/core/layers/positional.py
+    DOC501: Method `PositionalEncoding.__init__` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `PositionalEncoding.__init__` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+    DOC501: Method `PositionalEncoding.__call__` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `PositionalEncoding.__call__` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['NotImplementedError'].
+    DOC501: Method `SinusoidalPositionalEncoding.__call__` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `SinusoidalPositionalEncoding.__call__` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['RuntimeError', 'ValueError'].
+    DOC501: Method `LearnedPositionalEncoding.__call__` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `LearnedPositionalEncoding.__call__` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['RuntimeError', 'ValueError'].
+    DOC501: Method `RotaryPositionalEncoding.__init__` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `RotaryPositionalEncoding.__init__` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+    DOC501: Method `RotaryPositionalEncoding.__call__` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `RotaryPositionalEncoding.__call__` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['RuntimeError', 'ValueError'].
+--------------------
+src/artifex/generative_models/core/layers/resnet.py
+    DOC501: Method `ResNetBlock.__init__` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `ResNetBlock.__init__` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+    DOC501: Method `BottleneckBlock.__init__` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `BottleneckBlock.__init__` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+    DOC501: Function `create_resnet_stage` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Function `create_resnet_stage` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+--------------------
+src/artifex/generative_models/core/layers/transformers.py
+    DOC501: Method `TransformerEncoder.__init__` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `TransformerEncoder.__init__` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+    DOC501: Method `TransformerDecoder.__init__` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `TransformerDecoder.__init__` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+    DOC501: Function `create_transformer` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Function `create_transformer` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+--------------------
+src/artifex/generative_models/core/losses/divergence.py
+    DOC501: Function `js_divergence` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Function `js_divergence` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['NotImplementedError'].
+    DOC501: Function `wasserstein_distance` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Function `wasserstein_distance` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['NotImplementedError'].
+--------------------
+src/artifex/generative_models/core/losses/geometric.py
+    DOC501: Function `get_point_cloud_loss` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Function `get_point_cloud_loss` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+    DOC501: Function `get_voxel_loss` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Function `get_voxel_loss` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+--------------------
+src/artifex/generative_models/core/losses/perceptual.py
+    DOC501: Method `PerceptualLoss.__call__` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `PerceptualLoss.__call__` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['TypeError', 'ValueError'].
+--------------------
+src/artifex/generative_models/core/losses/regularization.py
+    DOC501: Function `orthogonal_regularization` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Function `orthogonal_regularization` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+    DOC501: Function `total_variation_loss` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Function `total_variation_loss` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+    DOC501: Function `gradient_penalty` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Function `gradient_penalty` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+--------------------
+src/artifex/generative_models/core/performance.py
+    DOC501: Method `HardwareDetector.get_critical_batch_size` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `HardwareDetector.get_critical_batch_size` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+    DOC501: Method `HardwareDetector.get_batch_size_recommendation` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `HardwareDetector.get_batch_size_recommendation` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+    DOC501: Method `PerformanceEstimator.analyze_roofline` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `PerformanceEstimator.analyze_roofline` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+--------------------
+src/artifex/generative_models/core/sampling/sde.py
+    DOC501: Function `sde_sampling` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Function `sde_sampling` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+--------------------
+src/artifex/generative_models/extensions/audio_processing/spectral.py
+    DOC501: Method `SpectralAnalysis.__init__` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `SpectralAnalysis.__init__` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['TypeError'].
+--------------------
+src/artifex/generative_models/extensions/audio_processing/temporal.py
+    DOC501: Method `TemporalAnalysis.__init__` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `TemporalAnalysis.__init__` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['TypeError'].
+--------------------
+src/artifex/generative_models/extensions/chemical/constraints.py
+    DOC501: Method `ChemicalConstraints.__init__` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `ChemicalConstraints.__init__` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['TypeError'].
+--------------------
+src/artifex/generative_models/extensions/chemical/features.py
+    DOC501: Method `MolecularFeatures.__init__` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `MolecularFeatures.__init__` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['TypeError'].
+    DOC501: Method `MolecularFeatures.__call__` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `MolecularFeatures.__call__` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+--------------------
+src/artifex/generative_models/extensions/nlp/embeddings.py
+    DOC501: Function `precompute_rope_freqs` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Function `precompute_rope_freqs` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+    DOC501: Method `TextEmbeddings.__init__` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `TextEmbeddings.__init__` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['TypeError'].
+    DOC501: Method `TextEmbeddings.compute_similarity` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `TextEmbeddings.compute_similarity` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+    DOC501: Method `TextEmbeddings.extract_sentence_embedding` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `TextEmbeddings.extract_sentence_embedding` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+--------------------
+src/artifex/generative_models/extensions/nlp/tokenization.py
+    DOC501: Method `AdvancedTokenization.__init__` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `AdvancedTokenization.__init__` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['TypeError'].
+--------------------
+src/artifex/generative_models/extensions/protein/backbone.py
+    DOC501: Method `BondLengthExtension.__init__` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `BondLengthExtension.__init__` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['TypeError'].
+    DOC501: Method `BondAngleExtension.__init__` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `BondAngleExtension.__init__` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['TypeError'].
+--------------------
+src/artifex/generative_models/extensions/protein/constraints.py
+    DOC106: Method `ProteinDihedralConstraint._calculate_omega_angles`: The option `--arg-type-hints-in-signature` is `True` but there are no argument type hints in the signature
+    DOC107: Method `ProteinDihedralConstraint._calculate_omega_angles`: The option `--arg-type-hints-in-signature` is `True` but not all args in the signature have type hints
+    DOC106: Method `ProteinDihedralConstraint._calculate_dihedral`: The option `--arg-type-hints-in-signature` is `True` but there are no argument type hints in the signature
+    DOC107: Method `ProteinDihedralConstraint._calculate_dihedral`: The option `--arg-type-hints-in-signature` is `True` but not all args in the signature have type hints
+    DOC106: Method `ProteinDihedralConstraint._calculate_phi_angles`: The option `--arg-type-hints-in-signature` is `True` but there are no argument type hints in the signature
+    DOC107: Method `ProteinDihedralConstraint._calculate_phi_angles`: The option `--arg-type-hints-in-signature` is `True` but not all args in the signature have type hints
+    DOC106: Method `ProteinDihedralConstraint._calculate_psi_angles`: The option `--arg-type-hints-in-signature` is `True` but there are no argument type hints in the signature
+    DOC107: Method `ProteinDihedralConstraint._calculate_psi_angles`: The option `--arg-type-hints-in-signature` is `True` but not all args in the signature have type hints
+    DOC106: Method `ProteinDihedralConstraint._phi_angle_loss`: The option `--arg-type-hints-in-signature` is `True` but there are no argument type hints in the signature
+    DOC107: Method `ProteinDihedralConstraint._phi_angle_loss`: The option `--arg-type-hints-in-signature` is `True` but not all args in the signature have type hints
+    DOC106: Method `ProteinDihedralConstraint._psi_angle_loss`: The option `--arg-type-hints-in-signature` is `True` but there are no argument type hints in the signature
+    DOC107: Method `ProteinDihedralConstraint._psi_angle_loss`: The option `--arg-type-hints-in-signature` is `True` but not all args in the signature have type hints
+    DOC106: Method `ProteinDihedralConstraint._omega_angle_loss`: The option `--arg-type-hints-in-signature` is `True` but there are no argument type hints in the signature
+    DOC107: Method `ProteinDihedralConstraint._omega_angle_loss`: The option `--arg-type-hints-in-signature` is `True` but not all args in the signature have type hints
+--------------------
+src/artifex/generative_models/extensions/protein/mixin.py
+    DOC501: Method `ProteinMixinExtension.__init__` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `ProteinMixinExtension.__init__` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['TypeError'].
+--------------------
+src/artifex/generative_models/extensions/registry.py
+    DOC501: Method `ExtensionsRegistry.register_extension` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `ExtensionsRegistry.register_extension` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+    DOC501: Method `ExtensionsRegistry.get_extension_info` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `ExtensionsRegistry.get_extension_info` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+--------------------
+src/artifex/generative_models/factory/builders/energy_builder.py
+    DOC503: Function `create_energy_function` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: ['ValueError', 'ValueError']. Raised exceptions in the body: ['ValueError'].
+--------------------
+src/artifex/generative_models/factory/core.py
+    DOC503: Method `ModelFactory.create` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: ['TypeError', 'ValueError']. Raised exceptions in the body: ['ValueError'].
+    DOC501: Method `ModelFactory._extract_model_type` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `ModelFactory._extract_model_type` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['TypeError'].
+    DOC502: Function `create_model` has a "Raises" section in the docstring, but there are not "raise" statements in the body
+    DOC502: Function `create_model_with_extensions` has a "Raises" section in the docstring, but there are not "raise" statements in the body
+--------------------
+src/artifex/generative_models/factory/registry.py
+    DOC502: Method `ModelBuilder.build` has a "Raises" section in the docstring, but there are not "raise" statements in the body
+--------------------
+src/artifex/generative_models/inference/optimization/production.py
+    DOC501: Function `_call_model` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Function `_call_model` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+    DOC501: Method `ProductionPipeline.predict` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `ProductionPipeline.predict` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['Exception'].
+    DOC501: Method `ProductionPipeline.predict_batch` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `ProductionPipeline.predict_batch` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['Exception'].
+--------------------
+src/artifex/generative_models/modalities/audio/base.py
+    DOC501: Method `AudioModality.generate` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `AudioModality.generate` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+    DOC501: Method `AudioModality.loss_fn` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `AudioModality.loss_fn` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+--------------------
+src/artifex/generative_models/modalities/audio/representations.py
+    DOC501: Method `AudioProcessor.to_representation` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `AudioProcessor.to_representation` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['NotImplementedError'].
+    DOC501: Method `AudioProcessor.from_representation` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `AudioProcessor.from_representation` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['NotImplementedError'].
+    DOC501: Method `SpectrogramProcessor.to_representation` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `SpectrogramProcessor.to_representation` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+    DOC501: Method `SpectrogramProcessor.from_representation` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `SpectrogramProcessor.from_representation` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+--------------------
+src/artifex/generative_models/modalities/base.py
+    DOC502: Method `BaseModalityImplementation.get_extensions` has a "Raises" section in the docstring, but there are not "raise" statements in the body
+    DOC501: Method `BaseModalityImplementation.create_batch_from_samples` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `BaseModalityImplementation.create_batch_from_samples` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+--------------------
+src/artifex/generative_models/modalities/image/base.py
+    DOC501: Method `ImageModality.generate` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `ImageModality.generate` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+    DOC501: Method `ImageModality.loss_fn` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `ImageModality.loss_fn` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+--------------------
+src/artifex/generative_models/modalities/image/datasets.py
+    DOC503: Function `generate_synthetic_images` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: ['ValueError', 'ValueError']. Raised exceptions in the body: ['ValueError'].
+--------------------
+src/artifex/generative_models/modalities/image/evaluation.py
+    DOC501: Method `ImageMetrics.compute_metric` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `ImageMetrics.compute_metric` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['NotImplementedError'].
+    DOC501: Method `MSEMetric.compute_metric` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `MSEMetric.compute_metric` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+    DOC501: Method `PSNRMetric.compute_metric` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `PSNRMetric.compute_metric` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+    DOC501: Method `SSIMMetric.compute_metric` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `SSIMMetric.compute_metric` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+    DOC501: Method `MSSSIMMetric.compute_metric` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `MSSSIMMetric.compute_metric` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+    DOC501: Method `PerceptualDistanceMetric.compute_metric` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `PerceptualDistanceMetric.compute_metric` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+    DOC501: Method `ImageEvaluationSuite.__init__` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `ImageEvaluationSuite.__init__` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+    DOC501: Method `ImageEvaluationSuite.evaluate` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `ImageEvaluationSuite.evaluate` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['TypeError'].
+--------------------
+src/artifex/generative_models/modalities/molecular/adapters.py
+    DOC501: Method `MolecularAdapter.create` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `MolecularAdapter.create` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['NotImplementedError'].
+    DOC107: Method `MolecularAdapter.adapt_loss`: The option `--arg-type-hints-in-signature` is `True` but not all args in the signature have type hints
+    DOC501: Method `MolecularDiffusionAdapter.create` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `MolecularDiffusionAdapter.create` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['NotImplementedError'].
+    DOC107: Method `MolecularDiffusionAdapter.adapt_loss`: The option `--arg-type-hints-in-signature` is `True` but not all args in the signature have type hints
+    DOC501: Method `MolecularGeometricAdapter.create` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `MolecularGeometricAdapter.create` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['NotImplementedError'].
+    DOC107: Method `MolecularGeometricAdapter.adapt_loss`: The option `--arg-type-hints-in-signature` is `True` but not all args in the signature have type hints
+--------------------
+src/artifex/generative_models/modalities/molecular/modality.py
+    DOC501: Method `PharmacophoreExtension.__init__` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `PharmacophoreExtension.__init__` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['TypeError'].
+    DOC501: Method `MolecularModality.get_extensions` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `MolecularModality.get_extensions` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['TypeError'].
+--------------------
+src/artifex/generative_models/modalities/multi_modal/adapters.py
+    DOC501: Method `MultiModalAdapter._init_model_components` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `MultiModalAdapter._init_model_components` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+--------------------
+src/artifex/generative_models/modalities/multi_modal/base.py
+    DOC501: Method `MultiModalModality.process` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `MultiModalModality.process` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+    DOC501: Method `MultiModalModality._fuse_modalities` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `MultiModalModality._fuse_modalities` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+--------------------
+src/artifex/generative_models/modalities/protein/modality.py
+    DOC106: Method `ProteinModality.__init__`: The option `--arg-type-hints-in-signature` is `True` but there are no argument type hints in the signature
+    DOC501: Method `ProteinModality.get_extensions` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `ProteinModality.get_extensions` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['TypeError'].
+--------------------
+src/artifex/generative_models/modalities/tabular/representations.py
+    DOC501: Method `NumericalProcessor.transform` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `NumericalProcessor.transform` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['RuntimeError', 'ValueError'].
+    DOC501: Method `NumericalProcessor.inverse_transform` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `NumericalProcessor.inverse_transform` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['RuntimeError', 'ValueError'].
+--------------------
+src/artifex/generative_models/modalities/text/representations.py
+    DOC501: Method `TokenizationProcessor.tokenize_text` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `TokenizationProcessor.tokenize_text` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+    DOC501: Method `PositionEncodingProcessor.__init__` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `PositionEncodingProcessor.__init__` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+    DOC501: Function `create_text_processor` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Function `create_text_processor` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+--------------------
+src/artifex/generative_models/modalities/timeseries/base.py
+    DOC501: Method `TimeseriesModality.preprocess` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `TimeseriesModality.preprocess` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+--------------------
+src/artifex/generative_models/modalities/timeseries/datasets.py
+    DOC503: Function `generate_synthetic_timeseries` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: ['ValueError', 'ValueError', 'ValueError']. Raised exceptions in the body: ['ValueError'].
+    DOC501: Function `_generate_single_timeseries` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Function `_generate_single_timeseries` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+--------------------
+src/artifex/generative_models/modalities/timeseries/evaluation.py
+    DOC501: Method `TimeseriesEvaluationSuite.compute_metrics` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `TimeseriesEvaluationSuite.compute_metrics` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+--------------------
+src/artifex/generative_models/modalities/timeseries/representations.py
+    DOC501: Method `TimeseriesProcessor.process` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `TimeseriesProcessor.process` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+    DOC501: Method `MultiScaleProcessor.__init__` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `MultiScaleProcessor.__init__` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+    DOC501: Method `TrendDecompositionProcessor.__init__` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `TrendDecompositionProcessor.__init__` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+--------------------
+src/artifex/generative_models/models/audio/base.py
+    DOC501: Method `BaseAudioModel.compute_reconstruction_loss` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `BaseAudioModel.compute_reconstruction_loss` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+    DOC501: Method `BaseAudioModel.loss_fn` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `BaseAudioModel.loss_fn` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+--------------------
+src/artifex/generative_models/models/autoregressive/base.py
+    DOC501: Method `AutoregressiveModel.__call__` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `AutoregressiveModel.__call__` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['NotImplementedError'].
+--------------------
+src/artifex/generative_models/models/autoregressive/transformer.py
+    DOC501: Method `TransformerAutoregressiveModel.generate_with_cache` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `TransformerAutoregressiveModel.generate_with_cache` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['NotImplementedError'].
+    DOC501: Method `TransformerAutoregressiveModel.get_attention_weights` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `TransformerAutoregressiveModel.get_attention_weights` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['NotImplementedError'].
+--------------------
+src/artifex/generative_models/models/autoregressive/wavenet.py
+    DOC501: Method `WaveNet.generate_fast` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `WaveNet.generate_fast` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['NotImplementedError'].
+--------------------
+src/artifex/generative_models/models/backbones/unet.py
+    DOC501: Method `ConvBlock.__call__` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `ConvBlock.__call__` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+--------------------
+src/artifex/generative_models/models/backbones/unet_cross_attention.py
+    DOC304: Class `UNet2DCondition`: Class docstring has an argument/parameter section; please put it in the __init__() docstring
+--------------------
+src/artifex/generative_models/models/diffusion/base.py
+    DOC501: Method `DiffusionModel.__init__` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `DiffusionModel.__init__` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+    DOC102: Method `DiffusionModel.p_mean_variance`: Docstring contains more arguments than in function signature.
+    DOC103: Method `DiffusionModel.p_mean_variance`: Docstring arguments are different from function arguments. (Or could be other formatting issues: https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). Arguments in the docstring but not in the function signature: [rngs: ].
+    DOC102: Method `DiffusionModel.p_sample`: Docstring contains more arguments than in function signature.
+    DOC103: Method `DiffusionModel.p_sample`: Docstring arguments are different from function arguments. (Or could be other formatting issues: https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). Arguments in the docstring but not in the function signature: [rngs: ].
+--------------------
+src/artifex/generative_models/models/diffusion/clip_text_encoder.py
+    DOC304: Class `CLIPTextEncoder`: Class docstring has an argument/parameter section; please put it in the __init__() docstring
+--------------------
+src/artifex/generative_models/models/diffusion/ddim.py
+    DOC501: Method `DDIMModel.get_ddim_timesteps` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `DDIMModel.get_ddim_timesteps` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+    DOC501: Method `DDIMModel.generate` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `DDIMModel.generate` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+    DOC501: Method `DDIMModel.sample` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `DDIMModel.sample` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+--------------------
+src/artifex/generative_models/models/diffusion/ddpm.py
+    DOC501: Method `DDPMModel.__init__` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `DDPMModel.__init__` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+    DOC501: Method `DDPMModel.sample` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `DDPMModel.sample` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+    DOC501: Method `DDPMModel._get_sample_shape` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `DDPMModel._get_sample_shape` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+--------------------
+src/artifex/generative_models/models/diffusion/dit.py
+    DOC104: Method `DiTModel.__init__`: Arguments are the same in the docstring and the function signature, but are in a different order.
+    DOC105: Method `DiTModel.__init__`: Argument names match, but type hints in these args do not match: config, backbone_fn, rngs
+--------------------
+src/artifex/generative_models/models/diffusion/guidance.py
+    DOC501: Method `ClassifierGuidance.__call__` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `ClassifierGuidance.__call__` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+    DOC501: Method `GuidedDiffusionModel.__init__` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `GuidedDiffusionModel.__init__` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+    DOC501: Method `GuidedDiffusionModel.guided_sample_step` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `GuidedDiffusionModel.guided_sample_step` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+    DOC107: Method `ConditionalDiffusionMixin.__init__`: The option `--arg-type-hints-in-signature` is `True` but not all args in the signature have type hints
+--------------------
+src/artifex/generative_models/models/diffusion/latent.py
+    DOC501: Method `SimpleEncoder.__init__` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `SimpleEncoder.__init__` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+    DOC501: Method `SimpleDecoder.__init__` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `SimpleDecoder.__init__` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+    DOC501: Method `SimpleDecoder.__call__` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `SimpleDecoder.__call__` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+    DOC501: Method `LDMModel.encode` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `LDMModel.encode` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['NotImplementedError'].
+    DOC501: Method `LDMModel.decode` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `LDMModel.decode` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['NotImplementedError'].
+--------------------
+src/artifex/generative_models/models/diffusion/stable_diffusion_pipeline.py
+    DOC501: Method `DDPMScheduler.__init__` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `DDPMScheduler.__init__` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+--------------------
+src/artifex/generative_models/models/energy/base.py
+    DOC501: Method `EnergyFunction.__call__` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `EnergyFunction.__call__` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['NotImplementedError'].
+--------------------
+src/artifex/generative_models/models/energy/ebm.py
+    DOC501: Method `EBM.sample_from_buffer` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `EBM.sample_from_buffer` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['RuntimeError'].
+--------------------
+src/artifex/generative_models/models/energy/mcmc.py
+    DOC501: Method `SampleBuffer.sample_initial` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `SampleBuffer.sample_initial` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+--------------------
+src/artifex/generative_models/models/flow/base.py
+    DOC501: Method `FlowLayer.forward` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `FlowLayer.forward` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['NotImplementedError'].
+    DOC501: Method `FlowLayer.inverse` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `FlowLayer.inverse` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['NotImplementedError'].
+--------------------
+src/artifex/generative_models/models/flow/conditional.py
+    DOC501: Method `ConditionalCouplingLayer.__init__` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `ConditionalCouplingLayer.__init__` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+    DOC501: Method `ConditionalCouplingLayer.forward` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `ConditionalCouplingLayer.forward` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+    DOC501: Method `ConditionalCouplingLayer.inverse` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `ConditionalCouplingLayer.inverse` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+    DOC107: Method `ConditionalNormalizingFlow.__init__`: The option `--arg-type-hints-in-signature` is `True` but not all args in the signature have type hints
+    DOC501: Method `ConditionalNormalizingFlow.__init__` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `ConditionalNormalizingFlow.__init__` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+    DOC501: Method `ConditionalNormalizingFlow._create_mask` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `ConditionalNormalizingFlow._create_mask` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+    DOC501: Method `ConditionalNormalizingFlow.loss_fn` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `ConditionalNormalizingFlow.loss_fn` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+    DOC107: Method `ConditionalRealNVP.__init__`: The option `--arg-type-hints-in-signature` is `True` but not all args in the signature have type hints
+--------------------
+src/artifex/generative_models/models/flow/glow.py
+    DOC501: Method `ActNormLayer._initialize_from_data` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `ActNormLayer._initialize_from_data` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+    DOC501: Method `ActNormLayer.forward` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `ActNormLayer.forward` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+    DOC501: Method `ActNormLayer.inverse` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `ActNormLayer.inverse` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+    DOC501: Method `InvertibleConv1x1.forward` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `InvertibleConv1x1.forward` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+    DOC501: Method `InvertibleConv1x1.inverse` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `InvertibleConv1x1.inverse` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+    DOC501: Method `AffineCouplingLayer._build_network` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `AffineCouplingLayer._build_network` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+    DOC501: Method `AffineCouplingLayer._scale_and_translate` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `AffineCouplingLayer._scale_and_translate` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['RuntimeError', 'ValueError'].
+    DOC501: Method `AffineCouplingLayer.forward` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `AffineCouplingLayer.forward` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+    DOC501: Method `AffineCouplingLayer.inverse` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `AffineCouplingLayer.inverse` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+    DOC501: Method `GlowBlock.forward` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `GlowBlock.forward` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+    DOC501: Method `GlowBlock.inverse` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `GlowBlock.inverse` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+--------------------
+src/artifex/generative_models/models/flow/made.py
+    DOC501: Method `MADE.__call__` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `MADE.__call__` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+--------------------
+src/artifex/generative_models/models/flow/neural_spline.py
+    DOC501: Method `NeuralSplineFlow.log_prob` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `NeuralSplineFlow.log_prob` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+    DOC501: Method `NeuralSplineFlow.sample` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `NeuralSplineFlow.sample` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+--------------------
+src/artifex/generative_models/models/flow/real_nvp.py
+    DOC501: Method `CouplingLayer.__init__` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `CouplingLayer.__init__` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+    DOC501: Method `RealNVP._create_mask` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `RealNVP._create_mask` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+--------------------
+src/artifex/generative_models/models/gan/conditional.py
+    DOC501: Method `ConditionalGenerator.__call__` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `ConditionalGenerator.__call__` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+    DOC501: Method `ConditionalDiscriminator.__call__` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `ConditionalDiscriminator.__call__` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+--------------------
+src/artifex/generative_models/models/gan/cyclegan.py
+    DOC501: Method `CycleGAN.generate` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `CycleGAN.generate` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+--------------------
+src/artifex/generative_models/models/gan/lsgan.py
+    DOC501: Method `LSGANGenerator._get_activation` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `LSGANGenerator._get_activation` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+--------------------
+src/artifex/generative_models/models/gan/stylegan3.py
+    DOC501: Method `StyleGAN3Generator.__init__` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `StyleGAN3Generator.__init__` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['TypeError'].
+    DOC501: Method `StyleGAN3Discriminator.__init__` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `StyleGAN3Discriminator.__init__` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['TypeError'].
+--------------------
+src/artifex/generative_models/models/geometric/base.py
+    DOC501: Method `GeometricModel.__call__` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `GeometricModel.__call__` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['NotImplementedError'].
+    DOC501: Method `GeometricModel.sample` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `GeometricModel.sample` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['NotImplementedError'].
+    DOC501: Method `GeometricModel.get_loss_fn` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `GeometricModel.get_loss_fn` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['NotImplementedError'].
+--------------------
+src/artifex/generative_models/models/geometric/graph.py
+    DOC503: Method `GraphModel.__init__` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: ['TypeError']. Raised exceptions in the body: ['ValueError'].
+--------------------
+src/artifex/generative_models/models/geometric/mesh.py
+    DOC106: Method `SiLU.__call__`: The option `--arg-type-hints-in-signature` is `True` but there are no argument type hints in the signature
+    DOC107: Method `SiLU.__call__`: The option `--arg-type-hints-in-signature` is `True` but not all args in the signature have type hints
+    DOC502: Method `MeshModel.__init__` has a "Raises" section in the docstring, but there are not "raise" statements in the body
+--------------------
+src/artifex/generative_models/models/geometric/point_cloud.py
+    DOC502: Method `PointCloudModel.__init__` has a "Raises" section in the docstring, but there are not "raise" statements in the body
+--------------------
+src/artifex/generative_models/models/geometric/protein_graph.py
+    DOC501: Method `ProteinGraphModel.__call__` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `ProteinGraphModel.__call__` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['TypeError'].
+--------------------
+src/artifex/generative_models/models/geometric/voxel.py
+    DOC502: Method `VoxelModel.__init__` has a "Raises" section in the docstring, but there are not "raise" statements in the body
+--------------------
+src/artifex/generative_models/models/vae/base.py
+    DOC501: Method `VAE.loss_fn` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `VAE.loss_fn` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['KeyError'].
+--------------------
+src/artifex/generative_models/models/vae/beta_vae.py
+    DOC501: Method `BetaVAE.loss_fn` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `BetaVAE.loss_fn` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['KeyError'].
+--------------------
+src/artifex/generative_models/models/vae/conditional.py
+    DOC501: Method `ConditionalVAE.encode` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `ConditionalVAE.encode` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+    DOC501: Method `ConditionalVAE.decode` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `ConditionalVAE.decode` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+--------------------
+src/artifex/generative_models/models/vae/decoders.py
+    DOC106: Method `ResNetDecoder.__call__`: The option `--arg-type-hints-in-signature` is `True` but there are no argument type hints in the signature
+    DOC107: Method `ResNetDecoder.__call__`: The option `--arg-type-hints-in-signature` is `True` but not all args in the signature have type hints
+    DOC106: Method `ConditionalDecoder.__call__`: The option `--arg-type-hints-in-signature` is `True` but there are no argument type hints in the signature
+    DOC107: Method `ConditionalDecoder.__call__`: The option `--arg-type-hints-in-signature` is `True` but not all args in the signature have type hints
+    DOC501: Function `create_decoder` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Function `create_decoder` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+--------------------
+src/artifex/generative_models/models/vae/encoders.py
+    DOC501: Method `MLPEncoder.__init__` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `MLPEncoder.__init__` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+    DOC106: Method `MLPEncoder.__call__`: The option `--arg-type-hints-in-signature` is `True` but there are no argument type hints in the signature
+    DOC107: Method `MLPEncoder.__call__`: The option `--arg-type-hints-in-signature` is `True` but not all args in the signature have type hints
+    DOC106: Method `CNNEncoder.__call__`: The option `--arg-type-hints-in-signature` is `True` but there are no argument type hints in the signature
+    DOC107: Method `CNNEncoder.__call__`: The option `--arg-type-hints-in-signature` is `True` but not all args in the signature have type hints
+    DOC106: Method `ResNetEncoder.__call__`: The option `--arg-type-hints-in-signature` is `True` but there are no argument type hints in the signature
+    DOC107: Method `ResNetEncoder.__call__`: The option `--arg-type-hints-in-signature` is `True` but not all args in the signature have type hints
+    DOC106: Method `ConditionalEncoder.__call__`: The option `--arg-type-hints-in-signature` is `True` but there are no argument type hints in the signature
+    DOC107: Method `ConditionalEncoder.__call__`: The option `--arg-type-hints-in-signature` is `True` but not all args in the signature have type hints
+    DOC501: Function `create_encoder` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Function `create_encoder` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+--------------------
+src/artifex/generative_models/models/vae/spatial_autoencoder.py
+    DOC106: Method `SpatialEncoder.__call__`: The option `--arg-type-hints-in-signature` is `True` but there are no argument type hints in the signature
+    DOC107: Method `SpatialEncoder.__call__`: The option `--arg-type-hints-in-signature` is `True` but not all args in the signature have type hints
+    DOC106: Method `SpatialDecoder.__call__`: The option `--arg-type-hints-in-signature` is `True` but there are no argument type hints in the signature
+    DOC107: Method `SpatialDecoder.__call__`: The option `--arg-type-hints-in-signature` is `True` but not all args in the signature have type hints
+--------------------
+src/artifex/generative_models/models/vae/vq_vae.py
+    DOC501: Method `VQVAE.encode` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `VQVAE.encode` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+    DOC501: Method `VQVAE.decode` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `VQVAE.decode` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+--------------------
+src/artifex/generative_models/scaling/mesh_utils.py
+    DOC501: Method `DeviceMeshManager.create_mesh` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `DeviceMeshManager.create_mesh` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+--------------------
+src/artifex/generative_models/training/callbacks/logging.py
+    DOC501: Method `WandbLoggerCallback.__init__` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `WandbLoggerCallback.__init__` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ImportError'].
+    DOC501: Method `TensorBoardLoggerCallback.on_train_begin` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `TensorBoardLoggerCallback.on_train_begin` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ImportError'].
+    DOC501: Method `ProgressBarCallback.on_train_begin` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `ProgressBarCallback.on_train_begin` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ImportError'].
+--------------------
+src/artifex/generative_models/training/distributed/mesh.py
+    DOC502: Method `DeviceMeshManager.create_data_parallel_mesh` has a "Raises" section in the docstring, but there are not "raise" statements in the body
+    DOC502: Method `DeviceMeshManager.create_model_parallel_mesh` has a "Raises" section in the docstring, but there are not "raise" statements in the body
+    DOC502: Method `DeviceMeshManager.create_hybrid_mesh` has a "Raises" section in the docstring, but there are not "raise" statements in the body
+--------------------
+src/artifex/generative_models/training/optimizers/factory.py
+    DOC502: Function `create_optimizer` has a "Raises" section in the docstring, but there are not "raise" statements in the body
+    DOC501: Function `_create_base_optimizer` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Function `_create_base_optimizer` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+--------------------
+src/artifex/generative_models/training/rl/rewards.py
+    DOC501: Method `CompositeReward.__init__` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `CompositeReward.__init__` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+--------------------
+src/artifex/generative_models/training/schedulers/factory.py
+    DOC501: Function `create_scheduler` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Function `create_scheduler` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+--------------------
+src/artifex/generative_models/training/trainer.py
+    DOC501: Method `Trainer.train_epoch` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `Trainer.train_epoch` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+    DOC501: Method `Trainer.save_checkpoint` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `Trainer.save_checkpoint` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+--------------------
+src/artifex/generative_models/training/trainers/autoregressive_trainer.py
+    DOC501: Method `AutoregressiveTrainer.compute_loss` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `AutoregressiveTrainer.compute_loss` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['KeyError'].
+--------------------
+src/artifex/generative_models/training/trainers/energy_trainer.py
+    DOC501: Method `ReplayBuffer.sample` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `ReplayBuffer.sample` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+    DOC501: Method `EnergyTrainer.generate_samples` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `EnergyTrainer.generate_samples` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+--------------------
+src/artifex/generative_models/training/trainers/gan_trainer.py
+    DOC501: Method `GANTrainer.compute_discriminator_loss` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `GANTrainer.compute_discriminator_loss` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+    DOC501: Method `GANTrainer.compute_generator_loss` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `GANTrainer.compute_generator_loss` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+--------------------
+src/artifex/generative_models/training/trainers/vae_trainer.py
+    DOC501: Method `VAETrainer.compute_loss` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `VAETrainer.compute_loss` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['TypeError'].
+--------------------
+src/artifex/generative_models/utils/logging/logger.py
+    DOC501: Method `FileLogger.__init__` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `FileLogger.__init__` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+    DOC501: Function `create_logger` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Function `create_logger` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+--------------------
+src/artifex/generative_models/utils/logging/mlflow.py
+    DOC501: Method `MLFlowLogger.log_image` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `MLFlowLogger.log_image` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['RuntimeError'].
+--------------------
+src/artifex/visualization/protein_viz.py
+    DOC501: Method `ProteinVisualizer.to_pdb_string` has raise statements, but the docstring does not have a "Raises" section
+    DOC503: Method `ProteinVisualizer.to_pdb_string` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+--------------------

@@ -19,6 +19,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Pyright runs in `standard` mode and blocks through the pre-commit hook CI runs;
+  the policy table, the contracts and the README say so. The hook set gains
+  import-linter (a second contract: `core.layers` never imports `models`), pydoclint
+  against a checked-in baseline that can only shrink, and validate-pyproject; the
+  ruff hook runs the locked ruff. `hypothesis` joins the test extra.
 - CI runs every pre-commit hook and checks that `uv.lock` is current in the quality
   gate, runs the unit tests and the package build on Python 3.13 as well as 3.12, and
   checks distributions with `twine check --strict`.
