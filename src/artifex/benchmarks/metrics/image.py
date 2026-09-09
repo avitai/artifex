@@ -12,21 +12,62 @@ import flax.nnx as nnx
 import jax
 import jax.numpy as jnp
 import numpy as np
+from calibrax.metrics.functional.generative import frechet_distance, frechet_feature_distance
 from calibrax.metrics.functional.image import ssim as calibrax_ssim
 
 from artifex.benchmarks.metrics.core import _init_metric_from_config, MetricBase
 from artifex.benchmarks.runtime_guards import demo_mode_from_mapping, require_demo_mode
 from artifex.generative_models.core.configuration import EvaluationConfig
-from artifex.generative_models.core.evaluation.metrics.metric_ops import (
-    frechet_distance_from_statistics,
-)
-from artifex.generative_models.core.evaluation.metrics.quality import (
-    calculate_fid_score,
-    compute_lpips_distance,
-)
 
 
 logger = logging.getLogger(__name__)
+
+
+def _demo_perceptual_distance(images1: jax.Array, images2: jax.Array) -> jax.Array:
+    """Demo-mode stand-in for a perceptual distance: MSE weighted by edge differences.
+
+    This is not LPIPS. It exists so the demo suites run without a learned backbone;
+    outside demo mode ``LPIPSMetric`` raises. calibrax's ``LPIPSMetric`` plugin is
+    the learned metric.
+
+    Args:
+        images1: First set of images
+        images2: Second set of images
+
+    Returns:
+        LPIPS distance
+    """
+    # Basic pixel-wise MSE
+    mse = jnp.mean((images1 - images2) ** 2, axis=(1, 2, 3))
+
+    # Add structure-based weighting to approximate perceptual similarity
+    # Higher weight for high-frequency differences
+
+    # Simple edge detection using gradient magnitude
+    def gradient_magnitude(image):
+        # Compute x and y gradients
+        grad_x = image[:, 1:, :-1] - image[:, :-1, :-1]
+        grad_y = image[:, :-1, 1:] - image[:, :-1, :-1]
+
+        # Compute gradient magnitude
+        grad_mag = jnp.sqrt(grad_x**2 + grad_y**2)
+
+        # Pad to original size
+        padded = jnp.pad(grad_mag, ((0, 0), (0, 1), (0, 1), (0, 0)))
+        return padded
+
+    # Compute edge maps
+    edges1 = gradient_magnitude(images1)
+    edges2 = gradient_magnitude(images2)
+
+    # Weight MSE by edge difference
+    edge_diff = jnp.mean(jnp.abs(edges1 - edges2), axis=(1, 2, 3))
+    weighted_mse = mse * (1.0 + edge_diff)
+
+    # Scale to approximate LPIPS range
+    lpips_approx = 0.1 * jnp.sqrt(weighted_mse)
+
+    return jnp.mean(lpips_approx)
 
 
 def _resolved_metric_rngs(rngs: nnx.Rngs | None) -> nnx.Rngs:
@@ -115,7 +156,7 @@ class FIDMetric(MetricBase):
         real_features = self._extract_features(real_data)
 
         # Calculate FID
-        fid_score = float(calculate_fid_score(gen_features, real_features))
+        fid_score = float(frechet_feature_distance(real_features, gen_features))
 
         return {"fid_score": fid_score}
 
@@ -172,7 +213,7 @@ class FIDMetric(MetricBase):
         Returns:
             FID score (lower is better, non-negative)
         """
-        return float(frechet_distance_from_statistics(real_mean, real_cov, fake_mean, fake_cov))
+        return float(frechet_distance(real_mean, real_cov, fake_mean, fake_cov))
 
     def _extract_features(self, images: jax.Array) -> jax.Array:
         """Extract features from images using Inception model.
@@ -350,7 +391,7 @@ class LPIPSMetric(MetricBase):
             dictionary with LPIPS score
         """
         if self.mock_implementation:
-            lpips_score = float(compute_lpips_distance(real_data, generated_data))
+            lpips_score = float(_demo_perceptual_distance(real_data, generated_data))
             return {"lpips_distance": lpips_score}
 
         raise RuntimeError(
@@ -373,7 +414,7 @@ class LPIPSMetric(MetricBase):
         for i in range(batch_size):
             img1 = images1[i : i + 1]
             img2 = images2[i : i + 1]
-            score = compute_lpips_distance(img1, img2)
+            score = _demo_perceptual_distance(img1, img2)
             distances = distances.at[i].set(score)
         return distances
 

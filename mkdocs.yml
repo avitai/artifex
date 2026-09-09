@@ -387,7 +387,6 @@ nav:
           - core/distribution_base.md
           - core/diffusion.md
           - core/discrete.md
-          - core/distance.md
           - core/divergence.md
           - core/evaluation.md
           - core/fid.md
@@ -396,11 +395,9 @@ nav:
           - core/geometric.md
           - core/inception_score.md
           - core/index.md
-          - core/information.md
           - core/jax_config.md
           - core/kan.md
           - core/mcmc.md
-          - core/metric_ops.md
           - core/migrate_configs.md
           - core/mixture.md
           - core/ode.md
@@ -409,7 +406,6 @@ nav:
           - core/pipeline.md
           - core/positional.md
           - core/precision_recall.md
-          - core/quality.md
           - core/reconstruction.md
           - core/registry.md
           - core/regularization.md
@@ -417,7 +413,6 @@ nav:
           - core/resnet.md
           - core/runner.md
           - core/sde.md
-          - core/statistical.md
           - core/templates.md
           - core/transformations.md
           - core/transformers.md

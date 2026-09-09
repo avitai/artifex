@@ -65,9 +65,9 @@
     },
     "src/artifex/benchmarks/metrics/molecular_flows.py:method:MolecularFlowsMetrics._check_bond_angles": {
       "complexity": 11,
-      "endline": 177,
+      "endline": 175,
       "kind": "method",
-      "lineno": 140,
+      "lineno": 138,
       "path": "src/artifex/benchmarks/metrics/molecular_flows.py",
       "qualname": "MolecularFlowsMetrics._check_bond_angles",
       "rank": "C"
@@ -659,9 +659,9 @@
     },
     "src/artifex/generative_models/modalities/tabular/evaluation.py:method:TabularEvaluationSuite._compute_overall_quality": {
       "complexity": 11,
-      "endline": 131,
+      "endline": 215,
       "kind": "method",
-      "lineno": 108,
+      "lineno": 192,
       "path": "src/artifex/generative_models/modalities/tabular/evaluation.py",
       "qualname": "TabularEvaluationSuite._compute_overall_quality",
       "rank": "C"

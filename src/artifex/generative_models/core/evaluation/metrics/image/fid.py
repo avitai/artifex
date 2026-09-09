@@ -8,9 +8,9 @@ from collections.abc import Callable
 
 import flax.nnx as nnx
 import jax
+from calibrax.metrics.functional.generative import frechet_distance
 
 from ..base import DistributionMetric, FeatureBasedMetric
-from ..metric_ops import frechet_distance_from_statistics
 
 
 class FrechetInceptionDistance(FeatureBasedMetric, DistributionMetric):
@@ -52,7 +52,7 @@ class FrechetInceptionDistance(FeatureBasedMetric, DistributionMetric):
         sigma2: jax.Array,
     ) -> jax.Array:
         """Calculate the Fréchet distance between two multivariate Gaussians."""
-        return frechet_distance_from_statistics(mu1, sigma1, mu2, sigma2)
+        return frechet_distance(mu1, sigma1, mu2, sigma2)
 
     def compute(
         self,

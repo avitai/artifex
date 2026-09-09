@@ -92,13 +92,14 @@
       "RET504": 1
     },
     "src/artifex/benchmarks/metrics/image.py": {
+      "ANN001": 1,
       "ANN003": 4,
-      "ANN202": 1,
+      "ANN202": 2,
       "ANN204": 5,
       "ARG002": 6,
       "PLR0402": 1,
       "PLR0913": 1,
-      "RET504": 1
+      "RET504": 2
     },
     "src/artifex/benchmarks/metrics/molecular_flows.py": {
       "ANN001": 4,
@@ -314,21 +315,9 @@
       "ANN204": 1,
       "PLR0402": 1
     },
-    "src/artifex/generative_models/core/evaluation/metrics/metric_ops.py": {
-      "RET504": 5
-    },
     "src/artifex/generative_models/core/evaluation/metrics/pipeline.py": {
       "ANN204": 1,
       "PLR0402": 1
-    },
-    "src/artifex/generative_models/core/evaluation/metrics/quality.py": {
-      "ANN001": 1,
-      "ANN202": 1,
-      "RET504": 4,
-      "TRY400": 1
-    },
-    "src/artifex/generative_models/core/evaluation/metrics/statistical.py": {
-      "RET504": 2
     },
     "src/artifex/generative_models/core/evaluation/metrics/text/perplexity.py": {
       "ANN204": 1,
@@ -746,7 +735,7 @@
       "ANN003": 1,
       "ANN204": 1,
       "ARG002": 1,
-      "RET504": 2
+      "RET504": 3
     },
     "src/artifex/generative_models/modalities/tabular/representations.py": {
       "ANN204": 3,

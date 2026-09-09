@@ -2,13 +2,11 @@
 
 import jax
 import jax.numpy as jnp
+from calibrax.metrics.functional.geometric import pairwise_rmsd
 from flax import nnx
 
 from artifex.benchmarks.metrics.core import _init_metric_from_config, MetricBase
 from artifex.generative_models.core.configuration import EvaluationConfig
-from artifex.generative_models.core.evaluation.metrics.distance import (
-    _calculate_rmsd_matrix,
-)
 
 
 class MolecularFlowsMetrics(MetricBase):
@@ -214,7 +212,7 @@ class MolecularFlowsMetrics(MetricBase):
         batch_size = coordinates.shape[0]
 
         # Calculate pairwise RMSD matrix
-        rmsd_matrix = _calculate_rmsd_matrix(coordinates, atom_mask)
+        rmsd_matrix = pairwise_rmsd(coordinates, jnp.asarray(atom_mask, dtype=bool))
 
         # Perform clustering based on RMSD threshold
         clusters = self._cluster_conformations(rmsd_matrix, clustering_threshold)

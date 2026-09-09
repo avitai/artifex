@@ -7,20 +7,102 @@ details until a real mixed-type public contract exists.
 
 import jax
 import jax.numpy as jnp
+from calibrax.metrics.functional.divergence import kolmogorov_smirnov_distance
+from calibrax.metrics.functional.generative import distance_to_closest_record, memorization_rate
+from calibrax.metrics.functional.statistical import correlation_preservation
 from flax import nnx
-
-from artifex.generative_models.core.evaluation.metrics.distance import (
-    _compute_dcr_score,
-    _compute_memorization_score,
-)
-from artifex.generative_models.core.evaluation.metrics.statistical import (
-    compute_chi2_statistic,
-    compute_correlation_preservation,
-    compute_ks_distance,
-)
 
 from ..base import BaseEvaluationSuite
 from .base import TabularModalityConfig
+
+
+def _stack_features(data: dict[str, jax.Array], features: list[str]) -> jax.Array:
+    """Stack the named columns of a feature dictionary into an ``(n, d)`` matrix."""
+    return jnp.stack([jnp.asarray(data[name]).reshape(-1) for name in features], axis=-1)
+
+
+def _shared_features(
+    real_data: dict[str, jax.Array], generated_data: dict[str, jax.Array], features: list[str]
+) -> list[str]:
+    """The named features present in both dictionaries."""
+    return [name for name in features if name in real_data and name in generated_data]
+
+
+def _correlation_preservation(
+    real_data: dict[str, jax.Array], generated_data: dict[str, jax.Array], features: list[str]
+) -> float:
+    """Correlation preservation (calibrax) over the shared numerical features, 1.0 below two."""
+    shared = _shared_features(real_data, generated_data, features)
+    if len(shared) < 2:  # noqa: PLR2004
+        return 1.0
+    return float(
+        correlation_preservation(
+            _stack_features(real_data, shared), _stack_features(generated_data, shared)
+        )
+    )
+
+
+def _distance_to_closest_record(
+    real_data: dict[str, jax.Array], generated_data: dict[str, jax.Array], features: list[str]
+) -> float:
+    """Distance to closest record (calibrax) over the shared numerical features."""
+    shared = _shared_features(real_data, generated_data, features)
+    if not shared:
+        return 1.0
+    return float(
+        distance_to_closest_record(
+            _stack_features(real_data, shared), _stack_features(generated_data, shared)
+        )
+    )
+
+
+def _memorization_rate(
+    real_data: dict[str, jax.Array], generated_data: dict[str, jax.Array], features: list[str]
+) -> float:
+    """Exact-match rate (calibrax) over the shared discrete features, 0.0 without any."""
+    shared = _shared_features(real_data, generated_data, features)
+    if not shared:
+        return 0.0
+    return float(
+        memorization_rate(
+            _stack_features(real_data, shared), _stack_features(generated_data, shared)
+        )
+    )
+
+
+def _chi2_statistic(
+    real_data: jax.Array,
+    gen_data: jax.Array,
+    vocab_size: int,
+) -> jax.Array:
+    """Compute Chi-square statistic for categorical data.
+
+    Args:
+        real_data: Real categorical data
+        gen_data: Generated categorical data
+        vocab_size: Size of categorical vocabulary
+
+    Returns:
+        Chi-square statistic as jax.Array
+    """
+    # Compute frequency counts
+    real_counts = jnp.bincount(real_data, length=vocab_size)
+    gen_counts = jnp.bincount(gen_data, length=vocab_size)
+
+    # Convert to frequencies
+    real_freq = real_counts / jnp.sum(real_counts)
+    # gen_freq = gen_counts / jnp.sum(gen_counts)
+
+    # Compute chi-square statistic (simplified version)
+    # Use expected frequencies from real data
+    expected = real_freq * len(gen_data)
+    observed = gen_counts
+
+    # Avoid division by zero
+    expected = jnp.where(expected < 1e-8, 1e-8, expected)
+    chi2 = jnp.sum((observed - expected) ** 2 / expected)
+
+    return chi2
 
 
 class TabularEvaluationSuite(BaseEvaluationSuite):
@@ -85,12 +167,14 @@ class TabularEvaluationSuite(BaseEvaluationSuite):
         # Feature-specific KS distance metrics for numerical features
         for feature_name in self.config.numerical_features:
             if feature_name in real_dict and feature_name in gen_dict:
-                ks_stat = compute_ks_distance(real_dict[feature_name], gen_dict[feature_name])
+                ks_stat = kolmogorov_smirnov_distance(
+                    real_dict[feature_name], gen_dict[feature_name]
+                )
                 metrics[f"ks_distance_{feature_name}"] = float(ks_stat)
 
         # Correlation preservation
         metrics["correlation_preservation"] = float(
-            compute_correlation_preservation(
+            _correlation_preservation(
                 real_dict,
                 gen_dict,
                 list(self.config.numerical_features),
@@ -192,7 +276,7 @@ class TabularEvaluationSuite(BaseEvaluationSuite):
         for feature in self.config.numerical_features:
             real_feature = real_data[feature]
             gen_feature = generated_data[feature]
-            ks_distance = compute_ks_distance(real_feature, gen_feature)
+            ks_distance = kolmogorov_smirnov_distance(real_feature, gen_feature)
             ks_distances.append(ks_distance)
             metrics[f"ks_distance_{feature}"] = float(ks_distance)
 
@@ -205,7 +289,7 @@ class TabularEvaluationSuite(BaseEvaluationSuite):
             real_feature = real_data[feature]
             gen_feature = generated_data[feature]
             vocab_size = self.config.categorical_vocab_sizes[feature]
-            chi2_stat = compute_chi2_statistic(real_feature, gen_feature, vocab_size)
+            chi2_stat = _chi2_statistic(real_feature, gen_feature, vocab_size)
             chi2_stats.append(chi2_stat)
             metrics[f"chi2_stat_{feature}"] = float(chi2_stat)
 
@@ -231,7 +315,7 @@ class TabularEvaluationSuite(BaseEvaluationSuite):
         metrics = {}
 
         # Correlation preservation
-        corr_preservation = compute_correlation_preservation(
+        corr_preservation = _correlation_preservation(
             real_data, generated_data, list(self.config.numerical_features)
         )
         metrics["correlation_preservation"] = float(corr_preservation)
@@ -277,7 +361,7 @@ class TabularEvaluationSuite(BaseEvaluationSuite):
         metrics = {}
 
         # Distance to closest record (DCR)
-        dcr_score = _compute_dcr_score(
+        dcr_score = _distance_to_closest_record(
             real_data,
             generated_data,
             list(self.config.numerical_features),
@@ -285,12 +369,12 @@ class TabularEvaluationSuite(BaseEvaluationSuite):
         metrics["dcr_score"] = float(dcr_score)
 
         # Memorization score (lower is better)
-        memorization_score = _compute_memorization_score(
+        memorization_score = _memorization_rate(
             real_data,
             generated_data,
-            list(self.config.categorical_features),
-            list(self.config.ordinal_features),
-            list(self.config.binary_features),
+            list(self.config.categorical_features)
+            + list(self.config.ordinal_features)
+            + list(self.config.binary_features),
         )
         metrics["memorization_score"] = float(memorization_score)
 

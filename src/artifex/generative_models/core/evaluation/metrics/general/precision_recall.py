@@ -11,10 +11,15 @@ from collections.abc import Callable
 
 import flax.nnx as nnx
 import jax
-import jax.numpy as jnp
+from calibrax.metrics.functional.generative import (
+    density_weighted_precision,
+    density_weighted_recall,
+    manifold_precision,
+    manifold_radii,
+    manifold_recall,
+)
 
 from ..base import FeatureBasedMetric
-from ..metric_ops import nearest_neighbors
 
 
 class PrecisionRecall(FeatureBasedMetric):
@@ -65,13 +70,7 @@ class PrecisionRecall(FeatureBasedMetric):
         Returns:
             Manifold radii for each feature point of shape (n_samples,)
         """
-        # Use JAX-based nearest neighbors
-        # We need k+1 neighbors to account for self at index 0
-        distances, _ = nearest_neighbors(features, features, k + 1)
-
-        # Return distances to k-th neighbor (excluding self)
-        # Index 0 is self, so k-th neighbor (1-indexed) is at index k
-        return distances[:, k]
+        return manifold_radii(features, k=k)
 
     def compute_precision(self, real_features: jax.Array, gen_features: jax.Array, k: int) -> float:
         """Compute precision: fraction of generated samples within real manifold.
@@ -84,21 +83,7 @@ class PrecisionRecall(FeatureBasedMetric):
         Returns:
             Precision value (0 to 1)
         """
-        # Compute radii for real manifold
-        real_radii = self.compute_manifold_radii(real_features, k)
-
-        # Find nearest real sample for each generated sample
-        min_distances, nearest_indices = nearest_neighbors(gen_features, real_features, 1)
-        min_distances = min_distances[:, 0]
-        nearest_indices = nearest_indices[:, 0]
-
-        # Get radius of each nearest real sample
-        nearest_radii = real_radii[nearest_indices]
-
-        # Precision: fraction of gen samples within real manifold
-        precision = jnp.mean(min_distances <= nearest_radii)
-
-        return float(precision)
+        return float(manifold_precision(real_features, gen_features, k=k))
 
     def compute_recall(self, real_features: jax.Array, gen_features: jax.Array, k: int) -> float:
         """Compute recall: fraction of real samples covered by generated manifold.
@@ -111,21 +96,7 @@ class PrecisionRecall(FeatureBasedMetric):
         Returns:
             Recall value (0 to 1)
         """
-        # Compute radii for generated manifold
-        gen_radii = self.compute_manifold_radii(gen_features, k)
-
-        # Find nearest generated sample for each real sample
-        min_distances, nearest_indices = nearest_neighbors(real_features, gen_features, 1)
-        min_distances = min_distances[:, 0]
-        nearest_indices = nearest_indices[:, 0]
-
-        # Get radius of each nearest generated sample
-        nearest_radii = gen_radii[nearest_indices]
-
-        # Recall: fraction of real samples within generated manifold
-        recall = jnp.mean(min_distances <= nearest_radii)
-
-        return float(recall)
+        return float(manifold_recall(real_features, gen_features, k=k))
 
     def compute_f1_score(self, precision: float, recall: float) -> float:
         """Compute F1 score from precision and recall.
@@ -275,22 +246,8 @@ class DensityPrecisionRecall(FeatureBasedMetric):
         Returns:
             Tuple of (radii, densities) for each feature point
         """
-        # Get k nearest neighbors (excluding self)
-        # We need k+1 to account for self at index 0
-        distances, _ = nearest_neighbors(features, features, k + 1)
-
-        # Get the k-th neighbor distance (excluding self)
-        # Index 0 is self, so k-th neighbor is at index k
-        kth_distances = distances[:, k]
-
-        # Density is inverse of k-th neighbor distance
-        epsilon = 1e-10
-        densities = 1.0 / (kth_distances + epsilon)
-
-        # Return k-th neighbor distance as radius
-        radii = kth_distances
-
-        return radii, densities
+        radii = manifold_radii(features, k=k)
+        return radii, 1.0 / (radii + 1e-10)
 
     def compute_improved_precision_recall(
         self, real_features: jax.Array, gen_features: jax.Array, k: int
@@ -305,39 +262,10 @@ class DensityPrecisionRecall(FeatureBasedMetric):
         Returns:
             Tuple of (precision, recall)
         """
-        # Estimate densities
-        real_radii, real_densities = self.estimate_densities(real_features, k)
-        gen_radii, gen_densities = self.estimate_densities(gen_features, k)
-
-        # For precision: find nearest real sample for each generated sample
-        gen_to_real_distances, gen_to_real_indices = nearest_neighbors(
-            gen_features, real_features, 1
+        return (
+            float(density_weighted_precision(real_features, gen_features, k=k)),
+            float(density_weighted_recall(real_features, gen_features, k=k)),
         )
-        gen_to_real_distances = gen_to_real_distances[:, 0]
-        gen_to_real_indices = gen_to_real_indices[:, 0]
-
-        # For recall: find nearest generated sample for each real sample
-        real_to_gen_distances, real_to_gen_indices = nearest_neighbors(
-            real_features, gen_features, 1
-        )
-        real_to_gen_distances = real_to_gen_distances[:, 0]
-        real_to_gen_indices = real_to_gen_indices[:, 0]
-
-        # Compute density-weighted precision
-        precision_weights = real_densities[gen_to_real_indices]
-        precision_weights = precision_weights / jnp.sum(precision_weights)
-
-        precision_mask = gen_to_real_distances <= real_radii[gen_to_real_indices]
-        precision = jnp.sum(precision_mask * precision_weights)
-
-        # Compute density-weighted recall
-        recall_weights = gen_densities[real_to_gen_indices]
-        recall_weights = recall_weights / jnp.sum(recall_weights)
-
-        recall_mask = real_to_gen_distances <= gen_radii[real_to_gen_indices]
-        recall = jnp.sum(recall_mask * recall_weights)
-
-        return float(precision), float(recall)
 
     def compute(
         self,

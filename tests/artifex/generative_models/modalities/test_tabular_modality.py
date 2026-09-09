@@ -5,13 +5,10 @@ import dataclasses
 import jax
 import jax.numpy as jnp
 import pytest
+from calibrax.metrics.functional.divergence import kolmogorov_smirnov_distance
 from datarax.sources import MemorySource
 from flax import nnx
 
-from artifex.generative_models.core.evaluation.metrics.statistical import (
-    compute_chi2_statistic,
-    compute_ks_distance,
-)
 from artifex.generative_models.modalities.tabular import (
     CategoricalEncoder,
     compute_feature_statistics,
@@ -26,6 +23,7 @@ from artifex.generative_models.modalities.tabular import (
     TabularProcessor,
 )
 from artifex.generative_models.modalities.tabular.base import ColumnType
+from artifex.generative_models.modalities.tabular.evaluation import _chi2_statistic
 
 
 @pytest.fixture
@@ -581,12 +579,12 @@ class TestTabularEvaluationSuite:
         # Identical distributions should have KS distance 0
         data1 = jnp.array([1.0, 2.0, 3.0, 4.0, 5.0])
         data2 = jnp.array([1.0, 2.0, 3.0, 4.0, 5.0])
-        ks_dist = compute_ks_distance(data1, data2)
+        ks_dist = kolmogorov_smirnov_distance(data1, data2)
         assert jnp.allclose(ks_dist, 0.0, atol=1e-6)
 
         # Different distributions should have KS distance > 0
         data3 = jnp.array([10.0, 20.0, 30.0, 40.0, 50.0])
-        ks_dist = compute_ks_distance(data1, data3)
+        ks_dist = kolmogorov_smirnov_distance(data1, data3)
         assert ks_dist > 0.0
 
     def test_chi2_statistic_computation(self, simple_config):
@@ -596,7 +594,7 @@ class TestTabularEvaluationSuite:
         # Identical categorical distributions should have low chi2
         data1 = jnp.array([0, 1, 2, 3, 0, 1, 2, 3])
         data2 = jnp.array([0, 1, 2, 3, 0, 1, 2, 3])
-        chi2 = compute_chi2_statistic(data1, data2, vocab_size=4)
+        chi2 = _chi2_statistic(data1, data2, vocab_size=4)
         assert chi2 < 1.0  # Should be very low for identical distributions
 
 

@@ -40,6 +40,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   sibling tests and the lock already resolved; the substrax floor is 0.1.3, the release whose
   W&B logger forwards init options and whose store keeps every checkpoint on request.
 - The datarax floor is 0.1.6, the release whose distributed and checkpoint code is substrax's.
+- The calibrax floor is 0.1.4, the release carrying the Fréchet, inception-score, correlation,
+  autocorrelation, skewness and RMSD functions the evaluations now call.
 - `typer`, `trimesh` and `graphviz` leave the runtime dependencies for the `cli`,
   `geometric` and `analysis` extras (`benchmarks` includes the first two, `dev` the
   last, and `test` all three). Importing `artifex.cli`, `artifex.benchmarks` or
@@ -67,6 +69,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
+- The evaluation helper modules `core.evaluation.metrics.{metric_ops,statistical,distance,
+  quality,information}` with their pages. Their computations are calibrax's:
+  `kolmogorov_smirnov_distance`, `correlation_preservation`, `distance_to_closest_record`,
+  `memorization_rate`, `autocorrelation`, `skewness`, `frechet_distance`,
+  `frechet_feature_distance`, `pairwise_rmsd`; the tabular, timeseries, image, text and
+  molecular evaluations call them directly (the tabular chi-square statistic stays with the
+  tabular suite, and the edge-weighted MSE that stood in for LPIPS is now the demo-mode
+  stand-in inside `benchmarks.metrics.image`, named as such). The tabular guards changed:
+  correlation preservation is 1.0 below two shared numerical features (was a constant
+  0.85 with none), and the memorization rate is 0.0 with no discrete feature (was 1.0,
+  every record matching vacuously). Requires calibrax 0.1.4.
 - `core.checkpointing` (`setup_checkpoint_manager`, `save_checkpoint`, `load_checkpoint`,
   `save_checkpoint_with_optimizer`, `load_checkpoint_with_optimizer`, `validate_checkpoint`,
   `recover_from_corruption`) with its tests, its page and the `core` lazy exports.

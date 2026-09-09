@@ -4,12 +4,8 @@ from typing import Any
 
 import jax
 import jax.numpy as jnp
+from calibrax.metrics.functional.statistical import autocorrelation, skewness
 from flax import nnx
-
-from artifex.generative_models.core.evaluation.metrics.statistical import (
-    _compute_autocorrelation,
-    _compute_skewness,
-)
 
 from ..base import BaseEvaluationSuite
 from .base import TimeseriesModalityConfig
@@ -234,8 +230,8 @@ class TimeseriesEvaluationSuite(BaseEvaluationSuite):
         variance_error = float(jnp.mean(jnp.abs(real_var - generated_var)))
 
         # Skewness and kurtosis preservation
-        real_skewness = _compute_skewness(real_data)
-        generated_skewness = _compute_skewness(generated_data)
+        real_skewness = skewness(real_data)
+        generated_skewness = skewness(generated_data)
         skewness_error = float(jnp.abs(real_skewness - generated_skewness))
 
         return {
@@ -257,8 +253,9 @@ class TimeseriesEvaluationSuite(BaseEvaluationSuite):
             Dictionary of autocorrelation metrics
         """
         # Compute autocorrelation functions
-        real_acf = _compute_autocorrelation(real_data, self.max_lag)
-        generated_acf = _compute_autocorrelation(generated_data, self.max_lag)
+        max_lag = min(self.max_lag, real_data.shape[1], generated_data.shape[1])
+        real_acf = autocorrelation(real_data, max_lag=max_lag)
+        generated_acf = autocorrelation(generated_data, max_lag=max_lag)
 
         # Autocorrelation distance
         acf_distance = float(jnp.mean(jnp.abs(real_acf - generated_acf)))

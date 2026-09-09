@@ -1,5 +1,6 @@
 """Text-specific metrics for generative model evaluation."""
 
+import math
 import re
 
 import flax.nnx as nnx
@@ -259,10 +260,8 @@ class PerplexityMetric(MetricBase):
             total_log_prob += log_prob
             total_tokens += len(tokens)
 
-        # Compute perplexity using centralized function
-        from artifex.generative_models.core.evaluation.metrics.information import compute_perplexity
-
-        perplexity = compute_perplexity(total_log_prob, total_tokens)
+        # exp of the mean negative log-likelihood; no tokens means an undefined model
+        perplexity = float("inf") if total_tokens == 0 else math.exp(-total_log_prob / total_tokens)
 
         return {"perplexity": perplexity}
 
