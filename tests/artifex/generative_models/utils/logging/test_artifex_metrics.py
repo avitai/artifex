@@ -253,7 +253,5 @@ def test_log_comparison(console_logger):
 def test_deleted_default_metrics_helper_is_not_reexported() -> None:
     """The public logging surface should require explicit metric objects."""
     utils_logging = importlib.import_module("artifex.generative_models.utils.logging")
-    core_logging = importlib.import_module("artifex.generative_models.core.logging")
 
     assert not hasattr(utils_logging, "get_default_metrics")
-    assert not hasattr(core_logging, "get_default_metrics")

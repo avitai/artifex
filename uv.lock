@@ -897,7 +897,7 @@ requires-dist = [
     { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.1.5" },
     { name = "scikit-learn", specifier = ">=1.6.1" },
     { name = "scipy", specifier = ">=1.12.1" },
-    { name = "substrax", specifier = ">=0.1.2" },
+    { name = "substrax", specifier = ">=0.1.3" },
     { name = "tensorboard", marker = "extra == 'dev'", specifier = ">=2.16" },
     { name = "tensorboard", marker = "extra == 'logging'", specifier = ">=2.16" },
     { name = "tqdm", specifier = ">=4.67" },
@@ -6321,7 +6321,7 @@ wheels = [
 
 [[package]]
 name = "substrax"
-version = "0.1.2"
+version = "0.1.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "flax" },
@@ -6330,9 +6330,9 @@ dependencies = [
     { name = "numpy" },
     { name = "orbax-checkpoint" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/82/35/3c52d3b96127345646eaf6bc3b9d9571ca40f9b73c86b0fd1e5fb71cea9b/substrax-0.1.2.tar.gz", hash = "sha256:0b549852dc1e1519ac72ebb5294aae03c2645f3e206e0f6673c4d1f0c7f2462e", size = 38050, upload-time = "2026-09-09T00:43:42.932Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/46/3b/28449bd9349635b683c44a0d6c41ea3c0fe918525cb7ac056eedfb6c5423/substrax-0.1.3.tar.gz", hash = "sha256:d3f84e5b46a8b65f3bc8457d8ee913e3a33251303fadf205a942cd6d1f1f0802", size = 38211, upload-time = "2026-09-09T04:13:58.325Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/43/36/a4fe47a84573d3796dca6f772edc60f1ad355f0dbfc91b7e8d6c34cf9655/substrax-0.1.2-py3-none-any.whl", hash = "sha256:3713dfa7b22a1b2fd6e661993b65b0d80705c36d700468002c544d5f69a80cb1", size = 45137, upload-time = "2026-09-09T00:43:41.12Z" },
+    { url = "https://files.pythonhosted.org/packages/f3/b4/13c06f7a4cefdd0e2eb80d32bb6d7f85399a53f3413e499373b818b35abb/substrax-0.1.3-py3-none-any.whl", hash = "sha256:174d56b2b46dda88f07538fd9f19ee2c25d7ef7405f8187d3b72480705dbe811", size = 45242, upload-time = "2026-09-09T04:13:56.584Z" },
 ]
 
 [[package]]

@@ -25,20 +25,10 @@ RETAINED_RUNTIME_PAGES: dict[str, dict[str, object]] = {
         "source": "src/artifex/utils/file_utils.py",
         "required": ["ensure_valid_output_path", "get_valid_output_dir"],
     },
-    "logger.md": {
-        "module": "artifex.generative_models.utils.logging.logger",
-        "source": "src/artifex/generative_models/utils/logging/logger.py",
-        "required": ["Logger", "create_logger"],
-    },
     "metrics.md": {
         "module": "artifex.generative_models.utils.logging.metrics",
         "source": "src/artifex/generative_models/utils/logging/metrics.py",
         "required": ["MetricsLogger", "log_distribution_metrics"],
-    },
-    "mlflow.md": {
-        "module": "artifex.generative_models.utils.logging.mlflow",
-        "source": "src/artifex/generative_models/utils/logging/mlflow.py",
-        "required": ["MLFlowLogger", "log_scalars"],
     },
     "protein.md": {
         "module": "artifex.visualization.protein_viz",
@@ -48,11 +38,6 @@ RETAINED_RUNTIME_PAGES: dict[str, dict[str, object]] = {
             "thin compatibility alias",
             "artifex.generative_models.utils.visualization.protein",
         ],
-    },
-    "wandb.md": {
-        "module": "artifex.generative_models.utils.logging.wandb",
-        "source": "src/artifex/generative_models/utils/logging/wandb.py",
-        "required": ["WandbLogger", "log_scalars"],
     },
 }
 
@@ -130,10 +115,7 @@ def test_utils_reference_pages_match_live_imports() -> None:
         "modules = ["
         "'artifex.generative_models.utils.code_analysis.dependency_analyzer',"
         "'artifex.generative_models.utils.jax.device',"
-        "'artifex.generative_models.utils.logging.logger',"
         "'artifex.generative_models.utils.logging.metrics',"
-        "'artifex.generative_models.utils.logging.mlflow',"
-        "'artifex.generative_models.utils.logging.wandb',"
         "'artifex.utils.file_utils',"
         "'artifex.visualization.protein_viz',"
         "'artifex.generative_models.utils.visualization.protein'"

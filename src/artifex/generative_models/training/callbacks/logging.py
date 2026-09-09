@@ -3,8 +3,8 @@
 Provides callbacks that integrate with the training loop to log metrics,
 images, and other training artifacts using various logging backends.
 
-These callbacks follow DRY by wrapping existing Logger implementations
-from `artifex.generative_models.utils.logging`.
+These callbacks wrap the substrax trackers re-exported by
+`artifex.generative_models.utils.logging`.
 """
 
 from __future__ import annotations
@@ -15,7 +15,7 @@ from pathlib import Path
 from typing import Any, Literal
 
 from substrax.callbacks import BaseCallback, TrainerLike
-from artifex.generative_models.utils.logging.logger import Logger
+from substrax.tracking import Logger, WandbLogger
 
 
 # =============================================================================
@@ -38,21 +38,22 @@ class LoggerCallbackConfig:
     prefix: str = ""
 
 
-@dataclass(slots=True)
-class WandbLoggerConfig:
-    """Configuration for W&B logging callback.
+@dataclass(slots=True, kw_only=True)
+class WandbLoggerConfig(LoggerCallbackConfig):
+    """Configuration for the W&B logging callback.
+
+    Extends the logger-callback settings (``log_every_n_steps``,
+    ``log_on_epoch_end``, ``prefix``) with what the run needs.
 
     Attributes:
         project: W&B project name (required).
         entity: W&B entity (username or team name).
-        name: Run name. If None, W&B auto-generates.
+        name: Run name; defaults to the project name.
         tags: List of tags for the run.
         notes: Notes about the run.
-        config: Dictionary of hyperparameters to log.
+        config: Dictionary of hyperparameters to record on the run.
         mode: W&B mode: "online", "offline", or "disabled".
-        resume: Whether to resume a previous run.
-        log_every_n_steps: Log metrics every N training steps.
-        log_on_epoch_end: Whether to log metrics at end of each epoch.
+        resume: W&B's run-resumption policy, or ``True`` to resume from the environment.
         log_dir: Local directory for W&B files.
     """
 
@@ -64,8 +65,6 @@ class WandbLoggerConfig:
     config: dict[str, Any] = field(default_factory=dict)
     mode: Literal["online", "offline", "disabled"] = "online"
     resume: Literal["allow", "never", "must", "auto"] | bool | None = None
-    log_every_n_steps: int = 1
-    log_on_epoch_end: bool = True
     log_dir: str | None = None
 
 
@@ -230,16 +229,12 @@ class LoggerCallback(BaseCallback):
 # =============================================================================
 
 
-class WandbLoggerCallback(BaseCallback):
-    """Weights & Biases experiment tracking callback.
+class WandbLoggerCallback(LoggerCallback):
+    """Weights & Biases experiment tracking through substrax's ``WandbLogger``.
 
-    Wraps the existing WandbLogger for training loop integration.
-
-    Features:
-        - Automatic metric logging
-        - Hyperparameter tracking
-        - Run resumption support
-        - Multiple run modes (online, offline, disabled)
+    The run is started when the callback is constructed, so a missing ``wandb``
+    install fails before training begins. Batch metrics are logged as they are;
+    epoch metrics carry an ``epoch/`` prefix.
 
     Example:
         config = WandbLoggerConfig(
@@ -251,80 +246,37 @@ class WandbLoggerCallback(BaseCallback):
         trainer.fit(callbacks=[callback])
     """
 
-    __slots__ = ("config", "_wandb", "_run", "_initialized")
+    __slots__ = ()
 
-    def __init__(self, config: WandbLoggerConfig):
-        """Initialize the W&B callback.
+    config: WandbLoggerConfig
+
+    def __init__(self, config: WandbLoggerConfig) -> None:
+        """Start the W&B run and wire it into the logger callback.
 
         Args:
             config: W&B configuration.
         """
-        self.config = config
-        self._wandb = None
-        self._run = None
-        self._initialized = False
-
-        # Import and initialize W&B eagerly to fail fast
-        try:
-            import wandb
-
-            self._wandb = wandb
-            self._run = wandb.init(
-                project=config.project,
-                entity=config.entity,
-                name=config.name,
-                tags=config.tags,
-                notes=config.notes,
-                config=config.config,
-                mode=config.mode,
-                resume=config.resume,
-                dir=config.log_dir,
-            )
-            self._initialized = True
-        except ImportError as err:
-            raise ImportError(
-                "Weights & Biases is required for WandbLoggerCallback. "
-                "Install with `pip install wandb`."
-            ) from err
+        logger = WandbLogger(
+            config.name or config.project,
+            config.project,
+            entity=config.entity,
+            log_dir=config.log_dir,
+            config=config.config,
+            tags=config.tags,
+            notes=config.notes,
+            mode=config.mode,
+            resume=config.resume,
+        )
+        super().__init__(logger, config)
 
     def on_train_begin(self, _trainer: TrainerLike) -> None:
-        """Log hyperparameters at the start of training.
-
-        Args:
-            _trainer: The trainer instance.
-        """
-        if not self._initialized or self._run is None:
-            return
-
-        # Log any hyperparams from config
-        if self.config.config:
-            for key, value in self.config.config.items():
-                self._run.config[key] = value
-
-    def on_batch_end(
-        self,
-        _trainer: TrainerLike,
-        batch: int,
-        logs: dict[str, Any],
-    ) -> None:
-        """Log metrics at the end of a training batch.
+        """Record the hyperparameters on the run at the start of training.
 
         Args:
             _trainer: The trainer instance (unused).
-            batch: Current batch number.
-            logs: Dictionary of metrics from this batch.
         """
-        if not self._initialized or self._wandb is None:
-            return
-
-        # Check if we should log at this step
-        if batch % self.config.log_every_n_steps != 0:
-            return
-
-        # Convert and log metrics
-        metrics = self._prepare_metrics(logs)
-        if metrics:
-            self._wandb.log(metrics, step=batch)
+        if self.config.config:
+            self.logger.log_hyperparams(self.config.config)
 
     def on_epoch_end(
         self,
@@ -332,56 +284,20 @@ class WandbLoggerCallback(BaseCallback):
         epoch: int,
         logs: dict[str, Any],
     ) -> None:
-        """Log metrics at the end of an epoch.
+        """Log epoch metrics under an ``epoch/`` prefix.
 
         Args:
             _trainer: The trainer instance (unused).
             epoch: Current epoch number.
             logs: Dictionary of metrics from this epoch.
         """
-        if not self._initialized or self._wandb is None:
-            return
-
         if not self.config.log_on_epoch_end:
             return
-
         metrics = self._prepare_metrics(logs)
         if metrics:
-            # Add epoch prefix for clarity
-            epoch_metrics = {f"epoch/{k}": v for k, v in metrics.items()}
-            self._wandb.log(epoch_metrics, step=epoch)
-
-    def on_train_end(self, _trainer: TrainerLike) -> None:
-        """Finish the W&B run at the end of training.
-
-        Args:
-            _trainer: The trainer instance (unused).
-        """
-        if self._initialized and self._wandb is not None:
-            self._wandb.finish()
-
-    def _prepare_metrics(self, logs: dict[str, Any]) -> dict[str, float]:
-        """Prepare metrics for logging.
-
-        Args:
-            logs: Raw metrics dictionary.
-
-        Returns:
-            Prepared metrics dictionary with only numeric values.
-        """
-        metrics = {}
-        for name, value in logs.items():
-            # Convert JAX arrays to Python floats
-            if hasattr(value, "item"):
-                value = float(value.item())
-            elif hasattr(value, "__float__"):
-                value = float(value)
-
-            # Only log numeric values
-            if isinstance(value, (int, float)):
-                metrics[name] = value
-
-        return metrics
+            self.logger.log_scalars(
+                {f"epoch/{key}": value for key, value in metrics.items()}, step=epoch
+            )
 
 
 # =============================================================================

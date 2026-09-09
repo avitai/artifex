@@ -9,10 +9,10 @@ top-level utility umbrella.
 ## Current Utility Pages
 
 - [Device Utilities](device.md) for `artifex.generative_models.utils.jax.device`
-- [Logger](logger.md) for `artifex.generative_models.utils.logging.logger`
-- [Metrics](metrics.md) for `artifex.generative_models.utils.logging.metrics`
-- [MLflow](mlflow.md) for `artifex.generative_models.utils.logging.mlflow`
-- [W&B](wandb.md) for `artifex.generative_models.utils.logging.wandb`
+- [Metrics](metrics.md) for `artifex.generative_models.utils.logging.metrics`; the loggers it
+  writes through (`Logger`, `ConsoleLogger`, `FileLogger`, `WandbLogger`, `MLFlowLogger`,
+  `create_logger`) are substrax's `substrax.tracking`, re-exported by
+  `artifex.generative_models.utils.logging`
 - [Protein Visualization Compatibility](protein.md) for the canonical
   `artifex.visualization.protein_viz` owner and its compatibility alias
 - [Dependency Analyzer](dependency_analyzer.md) for

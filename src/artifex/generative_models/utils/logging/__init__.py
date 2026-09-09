@@ -1,21 +1,26 @@
-"""Logging utilities for generative models."""
+"""Logging utilities for generative models.
 
-from artifex.generative_models.utils.logging.logger import (
+The loggers are substrax's trackers (console, file, Weights & Biases and MLflow),
+re-exported here; ``MetricsLogger`` bridges artifex's evaluation metrics into them.
+"""
+
+from substrax.tracking import (
     ConsoleLogger,
     create_logger,
     FileLogger,
     Logger,
+    MLFlowLogger,
+    WandbLogger,
 )
+
 from artifex.generative_models.utils.logging.metrics import (
     log_distribution_metrics,
     MetricsLogger,
 )
-from artifex.generative_models.utils.logging.mlflow import MLFlowLogger
-from artifex.generative_models.utils.logging.wandb import WandbLogger
 
 
 __all__ = [
-    # Logger base and implementations
+    # Loggers (substrax.tracking)
     "Logger",
     "ConsoleLogger",
     "FileLogger",

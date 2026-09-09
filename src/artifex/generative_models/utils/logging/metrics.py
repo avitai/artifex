@@ -7,9 +7,9 @@ evaluation metrics and integrating them with loggers.
 from typing import Any
 
 import numpy as np
+from substrax.tracking import Logger
 
 from artifex.generative_models.core.protocols.metrics import MetricBase as Metric
-from artifex.generative_models.utils.logging.logger import Logger
 
 
 class MetricsLogger:

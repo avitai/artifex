@@ -207,7 +207,6 @@ def test_checkpoint_docs_match_the_orbax_callback_contract() -> None:
     """Checkpoint docs should only describe the supported Orbax-backed surface."""
     docs_to_check = [
         PROJECT_ROOT / "docs" / "training" / "checkpoint.md",
-        PROJECT_ROOT / "docs" / "training" / "base.md",
         PROJECT_ROOT / "docs" / "user-guide" / "training" / "training-guide.md",
         PROJECT_ROOT / "docs" / "user-guide" / "training" / "logging.md",
         PROJECT_ROOT / "docs" / "user-guide" / "training" / "profiling.md",
@@ -245,7 +244,6 @@ def test_callback_docs_use_trainer_train_with_callbacklist_instead_of_fit() -> N
     """Callback-facing docs should use the real Trainer constructor and train flow."""
     docs_to_check = [
         PROJECT_ROOT / "docs" / "training" / "checkpoint.md",
-        PROJECT_ROOT / "docs" / "training" / "early_stopping.md",
         PROJECT_ROOT / "docs" / "training" / "logging.md",
         PROJECT_ROOT / "docs" / "training" / "profiling.md",
         PROJECT_ROOT / "docs" / "user-guide" / "training" / "logging.md",

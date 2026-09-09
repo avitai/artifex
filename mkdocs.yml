@@ -403,7 +403,6 @@ nav:
           - core/information.md
           - core/jax_config.md
           - core/kan.md
-          - core/logging.md
           - core/mcmc.md
           - core/metric_ops.md
           - core/migrate_configs.md
@@ -637,11 +636,8 @@ nav:
               - utils/dependency_analyzer.md
               - utils/device.md
               - utils/file_utils.md
-              - utils/logger.md
               - utils/metrics.md
-              - utils/mlflow.md
               - utils/protein.md
-              - utils/wandb.md
           - Coming Soon:
               - utils/attention_vis.md
               - utils/color.md

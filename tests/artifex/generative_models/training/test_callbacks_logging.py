@@ -61,7 +61,7 @@ class TestLoggerCallback:
     def test_logger_callback_init_with_logger(self) -> None:
         """Test LoggerCallback initialization with a logger instance."""
         from artifex.generative_models.training.callbacks.logging import LoggerCallback
-        from artifex.generative_models.utils.logging.logger import ConsoleLogger
+        from artifex.generative_models.utils.logging import ConsoleLogger
 
         logger = ConsoleLogger(name="test")
         callback = LoggerCallback(logger=logger)

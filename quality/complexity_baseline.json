@@ -821,9 +821,9 @@
     },
     "src/artifex/generative_models/training/callbacks/logging.py:method:ProgressBarCallback.on_batch_end": {
       "complexity": 11,
-      "endline": 686,
+      "endline": 602,
       "kind": "method",
-      "lineno": 648,
+      "lineno": 564,
       "path": "src/artifex/generative_models/training/callbacks/logging.py",
       "qualname": "ProgressBarCallback.on_batch_end",
       "rank": "C"
@@ -900,15 +900,6 @@
       "qualname": "find_source_module_mappings",
       "rank": "C"
     },
-    "src/artifex/generative_models/utils/logging/logger.py:method:FileLogger.log_image": {
-      "complexity": 13,
-      "endline": 395,
-      "kind": "method",
-      "lineno": 327,
-      "path": "src/artifex/generative_models/utils/logging/logger.py",
-      "qualname": "FileLogger.log_image",
-      "rank": "C"
-    },
     "src/artifex/generative_models/utils/logging/metrics.py:method:MetricsLogger.compute_metrics": {
       "complexity": 15,
       "endline": 153,
@@ -916,15 +907,6 @@
       "lineno": 79,
       "path": "src/artifex/generative_models/utils/logging/metrics.py",
       "qualname": "MetricsLogger.compute_metrics",
-      "rank": "C"
-    },
-    "src/artifex/generative_models/utils/logging/mlflow.py:method:MLFlowLogger.log_image": {
-      "complexity": 18,
-      "endline": 249,
-      "kind": "method",
-      "lineno": 148,
-      "path": "src/artifex/generative_models/utils/logging/mlflow.py",
-      "qualname": "MLFlowLogger.log_image",
       "rank": "C"
     },
     "src/artifex/visualization/protein_viz.py:method:ProteinVisualizer.calculate_dihedral_angles": {

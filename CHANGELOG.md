@@ -37,7 +37,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - artifex depends on `substrax` (device identity, meshes, SPMD helpers, the checkpoint
   store, callbacks and trackers shared across the Avitai libraries) and raises its floors
   to `calibrax>=0.1.3`, `jax>=0.11.1` and `orbax-checkpoint>=0.11.33`, the versions every
-  sibling tests and the lock already resolved.
+  sibling tests and the lock already resolved; the substrax floor is 0.1.3, the release whose
+  W&B logger forwards init options and whose store keeps every checkpoint on request.
 - `typer`, `trimesh` and `graphviz` leave the runtime dependencies for the `cli`,
   `geometric` and `analysis` extras (`benchmarks` includes the first two, `dev` the
   last, and `test` all three). Importing `artifex.cli`, `artifex.benchmarks` or
@@ -65,6 +66,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
+- `utils.logging.logger`, `utils.logging.wandb`, `utils.logging.mlflow` and `core.logging`,
+  with their four docs pages. `Logger`, `ConsoleLogger`, `FileLogger`, `WandbLogger`,
+  `MLFlowLogger` and `create_logger` are substrax's `substrax.tracking`, re-exported by
+  `artifex.generative_models.utils.logging`; `MetricsLogger` stays and takes one of them.
+  The substrax loggers take no `**kwargs`, `create_logger` has no `log_to_console`,
+  `WandbLogger` has no `anonymous` or `console_log`, `MLFlowLogger` has no `console_log` or
+  `log_model`, and `log_dir` attributes are `Path`s. `WandbLoggerCallback` is a
+  `LoggerCallback` over `WandbLogger` (its config extends `LoggerCallbackConfig`, so it
+  gains `prefix`; the run name defaults to the project name).
 - `training.callbacks.base` and `training.callbacks.early_stopping`, with their two docs
   pages. `BaseCallback`, `CallbackList`, `TrainerLike`, `TrainingCallback`,
   `EarlyStoppingConfig` and the early-stopping callback are substrax's and are re-exported

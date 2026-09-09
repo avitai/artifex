@@ -1176,8 +1176,7 @@
       "RET505": 1
     },
     "src/artifex/generative_models/training/callbacks/logging.py": {
-      "ANN204": 4,
-      "I001": 1
+      "ANN204": 3
     },
     "src/artifex/generative_models/training/callbacks/profiling.py": {
       "PTH123": 1
@@ -1257,14 +1256,6 @@
       "PLR0912": 1,
       "PTH123": 1
     },
-    "src/artifex/generative_models/utils/logging/logger.py": {
-      "ANN003": 18,
-      "ANN204": 2,
-      "ARG002": 12,
-      "BLE001": 2,
-      "PTH123": 3,
-      "RET505": 1
-    },
     "src/artifex/generative_models/utils/logging/metrics.py": {
       "ANN003": 1,
       "ANN204": 1,
@@ -1272,25 +1263,6 @@
       "C901": 1,
       "RET505": 1,
       "TRY400": 1
-    },
-    "src/artifex/generative_models/utils/logging/mlflow.py": {
-      "ANN003": 7,
-      "ANN204": 1,
-      "ARG002": 7,
-      "BLE001": 1,
-      "C901": 1,
-      "PLR0912": 1,
-      "PLR0913": 1,
-      "PLR0915": 1,
-      "PTH123": 1
-    },
-    "src/artifex/generative_models/utils/logging/wandb.py": {
-      "ANN003": 8,
-      "ANN204": 1,
-      "ARG002": 2,
-      "BLE001": 3,
-      "PLR0913": 1,
-      "PTH123": 1
     },
     "src/artifex/visualization/protein_viz.py": {
       "ANN205": 1,
