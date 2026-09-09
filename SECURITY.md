@@ -8,7 +8,7 @@ and the current `main` branch.
 ## Reporting a Vulnerability
 
 Please report suspected vulnerabilities privately by emailing
-security@avitai.bio.
+<security@avitai.bio>.
 
 Include:
 
