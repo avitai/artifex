@@ -391,6 +391,7 @@ nav:
           - core/blackjax_samplers.md
           - core/causal.md
           - core/checkpointing.md
+          - core/clifford.md
           - core/config_commands.md
           - core/configuration.md
           - core/continuous.md
@@ -410,6 +411,7 @@ nav:
           - core/index.md
           - core/information.md
           - core/jax_config.md
+          - core/kan.md
           - core/logging.md
           - core/mcmc.md
           - core/metric_ops.md

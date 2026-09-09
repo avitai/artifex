@@ -253,3 +253,70 @@ def test_egnn_layer_contract_is_hidden_dim_only() -> None:
     graph_doc = _normalized_text(GRAPH_DOC)
     assert "EGNNLayer" in graph_doc
     assert "node_dim" not in graph_doc
+
+
+KAN_DOC = REPO_ROOT / "docs/core/kan.md"
+CLIFFORD_DOC = REPO_ROOT / "docs/core/clifford.md"
+CORE_INDEX_DOC = REPO_ROOT / "docs/core/index.md"
+MKDOCS = REPO_ROOT / "mkdocs.yml"
+
+
+def _exported_names(package: str) -> list[str]:
+    payload = _run_python(
+        textwrap.dedent(
+            f"""
+            import importlib
+            import json
+
+            print(json.dumps(importlib.import_module({package!r}).__all__))
+            """
+        )
+    )
+    return cast(list[str], payload)
+
+
+def test_backbone_layer_families_are_documented() -> None:
+    """The KAN and Clifford families each have a page naming every export.
+
+    Neither family is consumed by an artifex model today; they stay in the
+    layers package as backbones (opifex builds PIKANs and Clifford FNOs on
+    them), so the page is the only place a reader learns they exist.
+    """
+    for package, doc in (
+        ("artifex.generative_models.core.layers.kan", KAN_DOC),
+        ("artifex.generative_models.core.layers.clifford", CLIFFORD_DOC),
+    ):
+        assert doc.exists(), doc
+        text = doc.read_text(encoding="utf-8")
+        assert f"**Module:** `{package.removeprefix('artifex.')}`" in text
+        missing = [name for name in _exported_names(package) if f"`{name}`" not in text]
+        assert missing == [], f"{doc.name} does not mention {missing}"
+
+    nav = MKDOCS.read_text(encoding="utf-8")
+    assert "- core/kan.md" in nav
+    assert "- core/clifford.md" in nav
+
+    core_index = _normalized_text(CORE_INDEX_DOC)
+    assert "kan.md" in core_index
+    assert "clifford.md" in core_index
+
+
+def test_layers_package_purpose_covers_backbones_no_model_uses_yet() -> None:
+    """The package docstring states the backbone rule rather than current consumers."""
+    payload = _run_python(
+        textwrap.dedent(
+            """
+            import json
+
+            import artifex.generative_models.core.layers as layers
+
+            print(json.dumps({"doc": layers.__doc__}))
+            """
+        )
+    )
+    doc = " ".join(cast(str, payload["doc"]).split()).lower()
+
+    assert "used to build the generative models" not in doc
+    assert "backbone" in doc
+    assert "kolmogorov-arnold" in doc
+    assert "clifford" in doc

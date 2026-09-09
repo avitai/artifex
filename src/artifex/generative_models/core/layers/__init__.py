@@ -1,6 +1,11 @@
-"""Layers module.
+"""Backbone layers.
 
-This module provides various layers that are used to build the generative models.
+The building blocks generative models are assembled from: attention, positional
+encodings, residual and ResNet blocks, transformers, and equivariant graph layers.
+The package also holds backbone families that no artifex model uses yet and that
+sibling libraries build on: the Kolmogorov-Arnold Network layers (``kan``) and the
+Clifford-algebra layers (``clifford``). A layer belongs here when it can serve as
+the backbone of a generative model, whichever library consumes it today.
 """
 
 # Causal utilities for autoregressive models

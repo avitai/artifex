@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Documentation pages for the two backbone families no artifex model uses yet, the
+  Kolmogorov-Arnold Network layers and the Clifford-algebra layers, listing every export
+  with its input layout; the layers package docstring states the backbone rule that keeps
+  them here.
+
 ### Fixed
 
 - Every value is defined on every path in the source tree: the spectral-norm power

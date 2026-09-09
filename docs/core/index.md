@@ -51,6 +51,12 @@ from artifex.generative_models.core.layers import (
 )
 ```
 
+Two backbone families ship without an artifex consumer yet: the
+Kolmogorov-Arnold Network layers and the Clifford-algebra layers. They are
+documented on their own pages.
+
+[:octicons-arrow-right-24: KAN Layers](kan.md) | [:octicons-arrow-right-24: Clifford Layers](clifford.md)
+
 ## Protocols
 
 Core protocol types live under `core.protocols`.
