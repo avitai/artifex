@@ -538,17 +538,16 @@ class TestExtensionStateSerialization:
         # Run a train step
         trainer.train_step(test_batch)
 
-        # Save checkpoint
-        checkpoint_path = tmp_path / "checkpoint.pkl"
-        trainer.save_checkpoint(str(checkpoint_path))
+        # Save checkpoint and read the payload back through the store
+        from substrax.checkpoint import OrbaxCheckpointStore
 
-        # Load checkpoint and verify extension state is included
-        import pickle
+        trainer.save_checkpoint()
+        with OrbaxCheckpointStore(tmp_path) as store:
+            payload, metadata = store.restore(step=trainer.step)
 
-        with open(checkpoint_path, "rb") as f:
-            checkpoint = pickle.load(f)
-
-        assert "extensions_state" in checkpoint
+        assert metadata["step"] == trainer.step
+        assert "test_ext" in payload["extensions"]
+        assert set(payload) == {"model", "opt_state", "rng", "extensions"}
 
 
 # =============================================================================

@@ -11,6 +11,7 @@ import jax.numpy as jnp
 import optax
 from datarax.sources import MemorySource, MemorySourceConfig
 from flax import nnx
+from substrax.checkpoint import OrbaxCheckpointStore
 
 from artifex.generative_models.core.configuration import (
     SchedulerConfig,
@@ -562,57 +563,68 @@ class Trainer:
 
         return avg_metrics
 
-    def save_checkpoint(self, path: str | None = None) -> None:
-        """Save a checkpoint.
-
-        Args:
-            path: Path to save the checkpoint (uses default if None)
-        """
-        if path is None and self.checkpoint_dir is None:
-            raise ValueError("No checkpoint directory specified.")
-
-        if path is None:
-            path = str(Path(self.checkpoint_dir) / f"checkpoint_{self.step}.pkl")
-
-        import pickle  # nosec B403
-
-        checkpoint = {
-            "step": self.step,
+    def _checkpoint_payload(self) -> dict[str, Any]:
+        """Return the training state a checkpoint carries, as a plain pytree."""
+        return {
+            "model": nnx.state(self.model),
             "opt_state": self.opt_state,
-            "model_state": nnx.state(self.model),
             "rng": self.rng,
-            "extensions_state": {name: nnx.state(ext) for name, ext in self.extensions.items()},
+            "extensions": {name: nnx.state(ext) for name, ext in self.extensions.items()},
         }
 
-        with open(path, "wb") as f:
-            pickle.dump(checkpoint, f)
+    def _checkpoint_store(self) -> OrbaxCheckpointStore:
+        """Open the store under ``checkpoint_dir``; every checkpoint is kept.
 
-        if self.logger:
-            self.logger.log_text("checkpoint", f"Saved checkpoint to {path}")
+        Raises:
+            ValueError: If the trainer has no checkpoint directory.
+        """
+        if self.checkpoint_dir is None:
+            raise ValueError("No checkpoint directory specified.")
+        return OrbaxCheckpointStore(self.checkpoint_dir, max_to_keep=None)
 
-    def load_checkpoint(self, path: str) -> None:
-        """Load a checkpoint.
+    def save_checkpoint(self, step: int | None = None) -> str:
+        """Save the model, optimizer, RNG and extension state under ``step``.
 
         Args:
-            path: Path to load the checkpoint from
+            step: Checkpoint step; defaults to the trainer's current step.
+
+        Returns:
+            Filesystem path of the saved checkpoint.
         """
-        import pickle  # nosec B403
+        step = self.step if step is None else step
+        with self._checkpoint_store() as store:
+            path = store.save(self._checkpoint_payload(), step)
+        if self.logger:
+            self.logger.log_text("checkpoint", f"Saved checkpoint to {path}")
+        return path
 
-        with open(path, "rb") as f:
-            checkpoint = pickle.load(f)  # nosec B301
+    def load_checkpoint(self, step: int | None = None) -> None:
+        """Restore the model, optimizer, RNG and extension state from ``step``.
 
-        self.step = checkpoint["step"]
-        self.opt_state = checkpoint["opt_state"]
-        self.rng = checkpoint["rng"]
+        Args:
+            step: Checkpoint step; defaults to the latest one in ``checkpoint_dir``.
 
-        # Restore model state
-        nnx.update(self.model, checkpoint["model_state"])
+        Raises:
+            FileNotFoundError: If no checkpoint exists at ``step``.
+        """
+        with self._checkpoint_store() as store:
+            step = store.latest_step() if step is None else step
+            restored = None
+            if step is not None:
+                restored, _ = store.restore(
+                    self._checkpoint_payload(), step, return_original_on_missing=False
+                )
+        if restored is None:
+            raise FileNotFoundError(f"No checkpoint at step {step} in {self.checkpoint_dir}")
 
-        # Restore extension state
-        if "extensions_state" in checkpoint:
-            for name, ext_state in checkpoint["extensions_state"].items():
-                if name in self.extensions:
-                    nnx.update(self.extensions[name], ext_state)
+        payload = cast(dict[str, Any], restored)
+        nnx.update(self.model, payload["model"])
+        self.opt_state = payload["opt_state"]
+        self.rng = payload["rng"]
+        for name, extension_state in payload["extensions"].items():
+            if name in self.extensions:
+                nnx.update(self.extensions[name], extension_state)
+        self.step = cast(int, step)
 
         if self.logger:
-            self.logger.log_text("checkpoint", f"Loaded checkpoint from {path}")
+            self.logger.log_text("checkpoint", f"Loaded checkpoint from step {step}")

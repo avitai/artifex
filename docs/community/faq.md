@@ -57,9 +57,10 @@ See [Models Overview](../user-guide/models/vae-guide.md) for details.
 **A**: Use the checkpointing system:
 
 ```python
-from artifex.generative_models.core.checkpointing import load_checkpoint
+from substrax.checkpoint import OrbaxCheckpointStore
 
-model, step = load_checkpoint(checkpoint_manager, model_template)
+with OrbaxCheckpointStore("./checkpoints") as store:
+    model, metadata = store.restore(model_template, store.latest_step())
 ```
 
 ## Training

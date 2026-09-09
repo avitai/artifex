@@ -147,9 +147,7 @@ def test_inference_index_and_connected_docs_only_publish_live_shared_surface() -
         "ProductionOptimizer",
         "family-owned generation entrypoints",
         "`artifex.generative_models.inference` exports no public helpers",
-        "setup_checkpoint_manager",
-        "save_checkpoint",
-        "load_checkpoint",
+        "OrbaxCheckpointStore",
         "application framework",
     ]:
         assert required in combined_docs

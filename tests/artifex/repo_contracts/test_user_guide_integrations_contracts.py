@@ -52,9 +52,9 @@ def test_deployment_and_huggingface_guides_match_live_helper_owners() -> None:
         assert banned not in huggingface_docs
 
     for required in [
-        "save_checkpoint",
-        "load_checkpoint",
-        "setup_checkpoint_manager",
+        "OrbaxCheckpointStore",
+        "store.save(",
+        "store.restore(",
         "ProductionOptimizer",
         "OptimizationTarget",
         "family-owned",
@@ -64,7 +64,7 @@ def test_deployment_and_huggingface_guides_match_live_helper_owners() -> None:
     for required in [
         "Status: Coming soon",
         "does not currently ship built-in HuggingFace Hub upload/download helpers",
-        "core.checkpointing",
+        "substrax.checkpoint",
         "deployment.md",
     ]:
         assert required in huggingface_docs

@@ -6,7 +6,7 @@ HuggingFace remains a relevant distribution target, but Artifex does not current
 
 ## What Exists Today
 
-- checkpoint artifacts through `artifex.generative_models.core.checkpointing`
+- checkpoint artifacts through `substrax.checkpoint.OrbaxCheckpointStore`
 - family-owned model construction from typed configs
 - the low-level deployment flow documented in [deployment.md](deployment.md)
 
@@ -15,7 +15,7 @@ HuggingFace remains a relevant distribution target, but Artifex does not current
 If you need HuggingFace Hub today, keep the integration in your application
 layer:
 
-1. Save checkpoints and sidecar metadata with `core.checkpointing`.
+1. Save checkpoints and sidecar metadata with `substrax.checkpoint`.
 2. Upload those artifacts with your own `huggingface_hub` client code.
 3. Restore the correct family model locally by rebuilding its typed config and
    loading the checkpointed state.

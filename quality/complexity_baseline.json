@@ -821,18 +821,18 @@
     },
     "src/artifex/generative_models/training/trainer.py:method:Trainer.__init__": {
       "complexity": 12,
-      "endline": 153,
+      "endline": 154,
       "kind": "method",
-      "lineno": 52,
+      "lineno": 53,
       "path": "src/artifex/generative_models/training/trainer.py",
       "qualname": "Trainer.__init__",
       "rank": "C"
     },
     "src/artifex/generative_models/training/trainer.py:method:Trainer.train": {
       "complexity": 27,
-      "endline": 528,
+      "endline": 529,
       "kind": "method",
-      "lineno": 414,
+      "lineno": 415,
       "path": "src/artifex/generative_models/training/trainer.py",
       "qualname": "Trainer.train",
       "rank": "D"

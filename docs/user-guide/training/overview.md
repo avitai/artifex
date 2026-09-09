@@ -358,11 +358,12 @@ trainer.train_epoch()
 Save and load checkpoints manually:
 
 ```python
-# Save checkpoint
-trainer.save_checkpoint("./checkpoints/my_checkpoint.pkl")
+# Save a checkpoint under the current step, in trainer.checkpoint_dir
+trainer.save_checkpoint()
 
-# Load checkpoint
-trainer.load_checkpoint("./checkpoints/my_checkpoint.pkl")
+# Load the latest checkpoint (or a specific step)
+trainer.load_checkpoint()
+trainer.load_checkpoint(step=5000)
 
 # Resume training
 trainer.train_epoch()  # Continues from loaded state
@@ -370,14 +371,15 @@ trainer.train_epoch()  # Continues from loaded state
 
 ### Checkpoint Contents
 
-Each checkpoint contains the complete training state:
+Each checkpoint is written through substrax's `OrbaxCheckpointStore` and carries
+the complete training state as one pytree, with the step in its metadata:
 
 ```python
 {
-    "step": 5000,
-    "params": {...},      # Model parameters
-    "opt_state": {...},   # Optimizer state
-    "rng": Array(...),    # RNG state
+    "model": nnx.State(...),      # Model state
+    "opt_state": (...),           # Optimizer state
+    "rng": Array(...),            # RNG key
+    "extensions": {...},          # Every extension's state
 }
 ```
 
@@ -386,7 +388,7 @@ Each checkpoint contains the complete training state:
 - Save checkpoints to fast storage (SSD) for quick I/O
 - Use `max_checkpoints` to limit disk usage
 - Save best model separately based on validation metrics
-- Include step number in checkpoint filenames
+- Checkpoints are addressed by step; keep the step in your run notes
 - Test checkpoint loading before long training runs
 
 ## Logging and Monitoring
@@ -732,7 +734,7 @@ for epoch in range(training_config.num_epochs):
     # Save best model
     if val_metrics['loss'] < best_val_loss:
         best_val_loss = val_metrics['loss']
-        trainer.save_checkpoint(f"./checkpoints/vae/best_model.pkl")
+        trainer.save_checkpoint()
 
 # 8. Use the model's generation surface after training
 samples = model.generate(num_samples=16)

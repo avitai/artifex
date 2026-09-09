@@ -67,6 +67,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
+- `core.checkpointing` (`setup_checkpoint_manager`, `save_checkpoint`, `load_checkpoint`,
+  `save_checkpoint_with_optimizer`, `load_checkpoint_with_optimizer`, `validate_checkpoint`,
+  `recover_from_corruption`) with its tests, its page and the `core` lazy exports.
+  Checkpoints go through substrax's `OrbaxCheckpointStore`: `ModelCheckpoint` saves into a
+  store whose newest `save_top_k` checkpoints are the best because it saves only on
+  improvement, and `Trainer.save_checkpoint(step=None)` / `load_checkpoint(step=None)`
+  persist the model, optimizer, RNG and extension state as one step-addressed Orbax
+  payload instead of a pickle file (`load_checkpoint` raises `FileNotFoundError` when the
+  step is absent). The guides teach the store; validation is a restore-and-compare, and
+  recovery a loop from the newest readable step.
 - `core.performance` (`HardwareSpecs`, `RooflineMetrics`, `HardwareDetector`,
   `PerformanceEstimator`) with its tests and page. Hardware specs, FLOP counting and
   roofline analysis are calibrax's `calibrax.profiling`; `ProductionOptimizer`,

@@ -54,267 +54,69 @@ Two types of checkpointing in Artifex:
 
 ## Model Checkpointing
 
-Save and restore model state using Orbax checkpoint manager.
+Model state is persisted through substrax's `OrbaxCheckpointStore`, the
+Orbax-backed, step-addressed store every Avitai library shares. A checkpoint is
+a `PyTreeSave` payload plus a JSON metadata sidecar (step, timestamp, loss when
+given, and anything passed as `additional_metadata`); restoring never executes
+code.
 
-### Basic Model Checkpointing
+### Basic Checkpointing
 
 ```python
-import orbax.checkpoint as ocp
 from flax import nnx
-from artifex.generative_models.core.checkpointing import (
-    setup_checkpoint_manager,
-    save_checkpoint,
-    load_checkpoint,
-)
+from substrax.checkpoint import OrbaxCheckpointStore
 
-# Create model
-model = create_vae_model(config, rngs=nnx.Rngs(0))
+model = create_model(config, rngs=nnx.Rngs(0))
 
-# Setup checkpoint manager
-checkpoint_manager, checkpoint_dir = setup_checkpoint_manager(
-    base_dir="./checkpoints/experiment_1"
-)
-
-# Training loop
-for step in range(num_steps):
-    # Training step
-    model_state, loss = train_step(nnx.state(model), batch)
-    nnx.update(model, model_state)
-
-    # Save checkpoint every N steps
-    if (step + 1) % save_every == 0:
-        checkpoint_manager = save_checkpoint(
-            checkpoint_manager,
-            model,
-            step=step + 1
-        )
-        print(f"Saved checkpoint at step {step + 1}")
-
-print(f"Training complete. Checkpoints saved to {checkpoint_dir}")
+with OrbaxCheckpointStore("./checkpoints/experiment_1", max_to_keep=5) as store:
+    for step in range(num_steps):
+        # ... training step ...
+        if (step + 1) % 1000 == 0:
+            store.save(model, step + 1, loss=float(loss))
+            print(f"Saved checkpoint at step {step + 1}")
 ```
+
+`max_to_keep` is Orbax's retention: the newest checkpoints are kept, `None`
+keeps them all.
 
 ### Loading Checkpoints
 
-```python
-from artifex.generative_models.core.checkpointing import (
-    load_checkpoint,
-    setup_checkpoint_manager,
-)
-from flax import nnx
-
-# Setup checkpoint manager (same directory)
-checkpoint_manager, _ = setup_checkpoint_manager(
-    base_dir="./checkpoints/experiment_1"
-)
-
-# Create model template (same structure as saved model)
-model_template = create_vae_model(config, rngs=nnx.Rngs(0))
-
-# Load latest checkpoint
-restored_model, step = load_checkpoint(
-    checkpoint_manager,
-    target_model_template=model_template,
-    step=None,  # None = load latest
-)
-
-if restored_model is not None:
-    print(f"Restored model from step {step}")
-    model = restored_model
-else:
-    print("No checkpoint found, starting from scratch")
-    model = model_template
-
-# Continue training from restored state
-for step in range(step + 1, num_steps):
-    model_state, loss = train_step(nnx.state(model), batch)
-    nnx.update(model, model_state)
-```
-
-### Loading Specific Checkpoints
+Build the same model template you trained and restore into it:
 
 ```python
-# Load specific checkpoint by step
-restored_model, step = load_checkpoint(
-    checkpoint_manager,
-    target_model_template=model_template,
-    step=5000,  # Load checkpoint from step 5000
-)
+model_template = create_model(config, rngs=nnx.Rngs(0))
 
-# List available checkpoints
-latest_step = checkpoint_manager.latest_step()
-all_steps = checkpoint_manager.all_steps()
+with OrbaxCheckpointStore("./checkpoints/experiment_1") as store:
+    step = store.latest_step()                       # or a specific step
+    restored_model, metadata = store.restore(model_template, step)
 
-print(f"Latest checkpoint: step {latest_step}")
-print(f"Available checkpoints: {all_steps}")
-
-# Load best checkpoint (based on external tracking)
-# You would track best step separately
-best_step = 7500  # From your tracking
-restored_model, step = load_checkpoint(
-    checkpoint_manager,
-    target_model_template=model_template,
-    step=best_step,
-)
+print(f"Restored from step {metadata['step']}")
 ```
 
-### Checkpointing with Optimizer State
+Without a target, `store.restore(step=step)` returns the payload as it was
+stored; `store.list_steps()` and `store.best_step("loss")` pick a checkpoint by
+step or by a metadata metric.
 
-Artifex provides built-in functions for saving and loading both model and optimizer state:
+### Trainer Checkpoints
 
-```python
-from flax import nnx
-import optax
-from artifex.generative_models.core.checkpointing import (
-    setup_checkpoint_manager,
-    save_checkpoint_with_optimizer,
-    load_checkpoint_with_optimizer,
-)
-
-# Create model and optimizer
-model = create_vae_model(config, rngs=nnx.Rngs(0))
-optimizer = nnx.Optimizer(model, optax.adam(1e-4), wrt=nnx.Param)
-
-# Setup checkpoint manager
-checkpoint_manager, _ = setup_checkpoint_manager(
-    base_dir="./checkpoints/with_optimizer"
-)
-
-# Training with optimizer checkpointing
-for step in range(num_steps):
-    # Training step
-    grads = nnx.grad(loss_fn)(model)
-    optimizer.update(model, grads)
-
-    # Save checkpoint with optimizer
-    if (step + 1) % save_every == 0:
-        save_checkpoint_with_optimizer(
-            checkpoint_manager, model, optimizer, step + 1
-        )
-
-# Load checkpoint with optimizer
-model_template = create_vae_model(config, rngs=nnx.Rngs(0))
-optimizer_template = nnx.Optimizer(model_template, optax.adam(1e-4), wrt=nnx.Param)
-
-model, optimizer, step = load_checkpoint_with_optimizer(
-    checkpoint_manager, model_template, optimizer_template
-)
-
-if model is not None:
-    print(f"Resumed from step {step}")
-else:
-    print("No checkpoint found, starting from scratch")
-```
+`Trainer.save_checkpoint()` writes the model state, the optimizer state, the RNG
+key and every extension's state as one payload under the current step, and
+`Trainer.load_checkpoint(step=None)` restores the latest (or a given) step into
+the live trainer. Both go through the same store under `checkpoint_dir`.
 
 ### Asynchronous Checkpointing
 
-Checkpoint without blocking training:
-
-```python
-import orbax.checkpoint as ocp
-from flax import nnx
-
-# Create checkpoint manager with async options
-options = ocp.CheckpointManagerOptions(
-    max_to_keep=5,
-    create=True,
-    save_interval_steps=1,  # Allow saving every step
-    # Async saving
-    enable_async_checkpointing=True,
-)
-
-checkpoint_manager = ocp.CheckpointManager(
-    directory="./checkpoints/async",
-    options=options,
-)
-
-# Training loop with async checkpointing
-for step in range(num_steps):
-    # Training step
-    loss, grads = nnx.value_and_grad(loss_fn)(model)
-    optimizer.update(model, grads)  # NNX 0.11.0+ API
-
-    # Save checkpoint asynchronously
-    if (step + 1) % save_every == 0:
-        model_state = nnx.state(model)
-
-        save_args = ocp.args.Composite(
-            model=ocp.args.StandardSave(model_state)
-        )
-
-        # Non-blocking save
-        checkpoint_manager.save(step + 1, args=save_args)
-
-        # Continue training immediately
-        # Checkpoint happens in background
-
-    # Optional: Check if previous save finished
-    if checkpoint_manager.check_for_errors():
-        print("Checkpoint error detected!")
-
-# Wait for final checkpoint to finish
-checkpoint_manager.wait_until_finished()
-print("All checkpoints saved")
-```
+`store.save` returns after Orbax has finished writing, so a training loop can
+mutate the model immediately afterwards. Orbax's own asynchronous save is not
+exposed: an in-place `nnx.update` racing a background write would corrupt the
+checkpoint silently.
 
 ### Checkpoint Retention Policies
 
-Control which checkpoints to keep:
-
-```python
-import orbax.checkpoint as ocp
-
-# Keep only last N checkpoints
-options = ocp.CheckpointManagerOptions(
-    max_to_keep=5,  # Keep last 5 checkpoints
-    create=True,
-)
-
-# Keep all checkpoints (be careful with disk space)
-options = ocp.CheckpointManagerOptions(
-    max_to_keep=None,  # Keep all
-    create=True,
-)
-
-# Custom retention: Keep specific checkpoints
-class CustomCheckpointManager:
-    """Checkpoint manager with custom retention policy."""
-
-    def __init__(self, base_dir: str):
-        self.base_dir = base_dir
-        self.manager = setup_checkpoint_manager(base_dir)[0]
-        self.keep_steps = set()  # Steps to always keep
-
-    def save(self, model, step: int, keep: bool = False):
-        """Save checkpoint, optionally marking it to keep."""
-        save_checkpoint(self.manager, model, step)
-
-        if keep:
-            self.keep_steps.add(step)
-
-        # Clean up old checkpoints not in keep_steps
-        all_steps = self.manager.all_steps()
-        if len(all_steps) > 10:  # Keep at most 10 checkpoints
-            # Remove oldest checkpoints not marked to keep
-            steps_to_remove = sorted(all_steps)[:-5]  # Keep 5 recent
-            for s in steps_to_remove:
-                if s not in self.keep_steps:
-                    self.manager.delete(s)
-
-
-# Usage
-manager = CustomCheckpointManager("./checkpoints/custom")
-
-for step in range(num_steps):
-    # Training
-    loss, grads = nnx.value_and_grad(loss_fn)(model)
-    optimizer.update(model, grads)  # NNX 0.11.0+ API
-
-    # Save checkpoint
-    if (step + 1) % save_every == 0:
-        # Mark checkpoints with best validation loss to keep
-        is_best = (val_loss < best_val_loss)
-        manager.save(model, step + 1, keep=is_best)
-```
+Retention is `max_to_keep`: the store keeps the newest checkpoints and deletes
+the rest. Keep a checkpoint outside that window by copying its step directory,
+or run two stores over two directories (frequent, short-lived checkpoints in
+one; milestones in another).
 
 ## Gradient Checkpointing
 
@@ -845,162 +647,74 @@ def load_sharded_checkpoint(
 
 ### Checkpoint Validation
 
-Artifex provides a built-in function to validate that checkpoints save and load correctly:
+A checkpoint's payload describes its own tree, and a tree that does not match
+the target raises `ValueError` from `store.restore`. To check that a checkpoint
+reproduces the model's outputs, restore it into a fresh template and compare:
 
 ```python
-from artifex.generative_models.core.checkpointing import (
-    setup_checkpoint_manager,
-    save_checkpoint,
-    validate_checkpoint,
-)
+import jax.numpy as jnp
+from flax import nnx
+from substrax.checkpoint import OrbaxCheckpointStore
 
-# Setup and save checkpoint
-checkpoint_manager, _ = setup_checkpoint_manager("./checkpoints")
-save_checkpoint(checkpoint_manager, model, step=100)
+sample = jnp.ones((2, 10))
+expected = model(sample)
 
-# Validate the checkpoint loads correctly
-validation_data = jnp.ones((2, 10))  # Sample input for validation
-is_valid = validate_checkpoint(
-    checkpoint_manager,
-    model,
-    step=100,
-    validation_data=validation_data,
-    tolerance=1e-5,  # Maximum allowed difference
-)
+with OrbaxCheckpointStore("./checkpoints") as store:
+    store.save(model, step=100)
+    restored, _ = store.restore(create_model(config, rngs=nnx.Rngs(0)), step=100)
 
-if is_valid:
-    print("Checkpoint validated successfully")
-else:
-    print("Checkpoint validation failed! Investigate before continuing.")
-
-# Use in training loop
-if (step + 1) % save_every == 0:
-    save_checkpoint(checkpoint_manager, model, step + 1)
-
-    validation_sample = next(val_dataloader)
-    is_valid = validate_checkpoint(
-        checkpoint_manager,
-        model,
-        step=step + 1,
-        validation_data=validation_sample["data"],
-    )
-
-    if not is_valid:
-        print("Warning: Checkpoint validation failed!")
+assert jnp.allclose(restored(sample), expected, atol=1e-6)
 ```
 
 ## Recovery and Resumption
 
-Recover from failures and resume training.
-
 ### Training Resumption
 
+`Trainer.load_checkpoint()` restores the model, optimizer, RNG and extension
+state from the latest step in `checkpoint_dir` and sets `trainer.step`, so a
+training script resumes with one call:
+
 ```python
-from artifex.generative_models.core.checkpointing import (
-    setup_checkpoint_manager,
-    load_checkpoint,
-    save_checkpoint,
-)
-from flax import nnx
-import optax
+from artifex.generative_models.training import Trainer
 
-def setup_training_from_checkpoint(
-    checkpoint_dir: str,
-    config: dict,
-) -> tuple:
-    """Setup training, resuming from checkpoint if available."""
-    # Setup checkpoint manager
-    checkpoint_manager, _ = setup_checkpoint_manager(checkpoint_dir)
+trainer = Trainer(model=model, training_config=config, loss_fn=loss_fn, checkpoint_dir="./checkpoints")
+try:
+    trainer.load_checkpoint()
+    print(f"Resumed from step {trainer.step}")
+except FileNotFoundError:
+    print("No checkpoint found, starting from scratch")
 
-    # Create model and optimizer templates
-    model = create_vae_model(config, rngs=nnx.Rngs(0))
-    optimizer = nnx.Optimizer(model, optax.adam(config.learning_rate), wrt=nnx.Param)
+trainer.train(train_data, num_epochs=num_epochs)
+```
 
-    # Try to load checkpoint
-    latest_step = checkpoint_manager.latest_step()
+Outside the trainer, save a dict payload and restore it into a template of the
+same structure:
 
-    if latest_step is not None:
-        print(f"Found checkpoint at step {latest_step}, resuming...")
+```python
+payload = {"model": nnx.state(model), "optimizer": nnx.state(optimizer)}
+with OrbaxCheckpointStore("./checkpoints/experiment_1") as store:
+    store.save(payload, step=step + 1, loss=float(loss))
 
-        # Load model and optimizer
-        model_state = nnx.state(model)
-        optimizer_state = nnx.state(optimizer)
-
-        restore_args = ocp.args.Composite(
-            model=ocp.args.StandardRestore(model_state),
-            optimizer=ocp.args.StandardRestore(optimizer_state),
-        )
-
-        restored_data = checkpoint_manager.restore(
-            latest_step,
-            args=restore_args
-        )
-
-        nnx.update(model, restored_data["model"])
-        nnx.update(optimizer, restored_data["optimizer"])
-
-        start_step = latest_step + 1
-        print(f"Resumed from step {latest_step}")
-    else:
-        print("No checkpoint found, starting from scratch")
-        start_step = 0
-
-    return model, optimizer, start_step, checkpoint_manager
-
-
-# Use in training script
-model, optimizer, start_step, checkpoint_manager = setup_training_from_checkpoint(
-    checkpoint_dir="./checkpoints/experiment_1",
-    config=config,
-)
-
-# Continue training from start_step
-for step in range(start_step, num_steps):
-    # Training step
-    loss, grads = nnx.value_and_grad(loss_fn)(model, batch)
-    optimizer.update(model, grads)  # NNX 0.11.0+ API
-
-    # Save checkpoint
-    if (step + 1) % save_every == 0:
-        # Save both model and optimizer
-        model_state = nnx.state(model)
-        optimizer_state = nnx.state(optimizer)
-
-        save_args = ocp.args.Composite(
-            model=ocp.args.StandardSave(model_state),
-            optimizer=ocp.args.StandardSave(optimizer_state),
-        )
-
-        checkpoint_manager.save(step + 1, args=save_args)
-        checkpoint_manager.wait_until_finished()
+with OrbaxCheckpointStore("./checkpoints/experiment_1") as store:
+    template = {"model": nnx.state(model), "optimizer": nnx.state(optimizer)}
+    restored, metadata = store.restore(template, store.latest_step())
+nnx.update(model, restored["model"])
+nnx.update(optimizer, restored["optimizer"])
 ```
 
 ### Checkpoint Corruption Recovery
 
-Artifex provides a built-in function to recover from corrupted checkpoints. It tries loading checkpoints from newest to oldest until one succeeds:
+A checkpoint that cannot be read raises from `store.restore` rather than being
+reported as missing, so recovery is a loop from the newest step to the oldest:
 
 ```python
-from artifex.generative_models.core.checkpointing import recover_from_corruption
-
-# Create a model template with the same structure as the saved model
-model_template = create_vae_model(config, rngs=nnx.Rngs(0))
-
-# Attempt to recover from any available checkpoint
-model, step = recover_from_corruption(
-    checkpoint_dir="./checkpoints/experiment_1",
-    model_template=model_template,
-)
-
-if model is not None:
-    print(f"Recovered from step {step}, continuing training...")
-    # Continue training from recovered state
-    for current_step in range(step + 1, num_steps):
-        # Training step...
-        pass
-else:
-    print("Recovery failed, starting from scratch...")
-    model = model_template
-    step = 0
+def restore_newest_readable(store, template):
+    for step in sorted(store.list_steps(), reverse=True):
+        try:
+            return store.restore(template, step)
+        except (ValueError, OSError) as error:
+            print(f"Checkpoint {step} unreadable: {error}")
+    return None, {}
 ```
 
 ## Best Practices

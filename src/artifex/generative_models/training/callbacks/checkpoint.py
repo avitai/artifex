@@ -1,8 +1,9 @@
 """Model checkpoint callback for training.
 
-Monitors a metric and saves Orbax-managed checkpoints on a fixed epoch cadence.
-Retention and best-step tracking are delegated to Orbax instead of reimplemented
-locally.
+Monitors a metric and saves checkpoints through substrax's Orbax-backed store on
+a fixed epoch cadence. Because a checkpoint is written only when the monitored
+metric improves, the store's most recent ``save_top_k`` checkpoints are the
+``save_top_k`` best; retention and best-step lookup are the store's.
 """
 
 from __future__ import annotations
@@ -11,11 +12,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Literal
 
-from artifex.generative_models.core.checkpointing import (
-    save_checkpoint,
-    setup_checkpoint_manager,
-)
 from substrax.callbacks import BaseCallback, TrainerLike
+from substrax.checkpoint import OrbaxCheckpointStore
 
 
 @dataclass(slots=True)
@@ -40,7 +38,8 @@ class CheckpointConfig:
 class ModelCheckpoint(BaseCallback):
     """Save model checkpoints based on monitored metrics.
 
-    Uses Orbax checkpointing under the hood. Minimal overhead when not saving.
+    Uses substrax's ``OrbaxCheckpointStore`` under the hood. Minimal overhead
+    when not saving.
     """
 
     __slots__ = (
@@ -48,11 +47,11 @@ class ModelCheckpoint(BaseCallback):
         "best_score",
         "best_checkpoint_step",
         "saved_checkpoint_steps",
-        "_checkpoint_manager",
+        "_store",
         "_dirpath",
     )
 
-    def __init__(self, config: CheckpointConfig):
+    def __init__(self, config: CheckpointConfig) -> None:
         """Initialize model checkpoint callback.
 
         Args:
@@ -62,7 +61,7 @@ class ModelCheckpoint(BaseCallback):
         self.best_score: float | None = None
         self.best_checkpoint_step: int | None = None
         self.saved_checkpoint_steps: list[int] = []
-        self._checkpoint_manager = None
+        self._store: OrbaxCheckpointStore | None = None
         self._dirpath: Path = Path(config.dirpath)
 
         # Create checkpoint directory
@@ -79,38 +78,27 @@ class ModelCheckpoint(BaseCallback):
         """
         if self.best_score is None:
             return True
-
         if self.config.mode == "min":
             return current < self.best_score
-        else:  # max mode
-            return current > self.best_score
+        return current > self.best_score
 
     def _save_checkpoint(self, trainer: TrainerLike, epoch: int, score: float) -> None:
-        """Save a checkpoint through Orbax.
+        """Save a checkpoint through the store.
 
         Args:
             trainer: The trainer instance.
             epoch: Current epoch number.
             score: Current metric score.
         """
-        # Setup checkpoint manager if not already done
-        if self._checkpoint_manager is None:
+        if self._store is None:
             max_to_keep = None if self.config.save_top_k < 0 else self.config.save_top_k
-            self._checkpoint_manager, _ = setup_checkpoint_manager(
-                str(self._dirpath),
-                max_to_keep=max_to_keep,
-                best_fn=lambda metrics: float(metrics[self.config.monitor]),
-                best_mode=self.config.mode,
-            )
+            self._store = OrbaxCheckpointStore(self._dirpath, max_to_keep=max_to_keep)
 
-        save_checkpoint(
-            self._checkpoint_manager,
-            trainer.model,
-            epoch,
-            metrics={self.config.monitor: score},
+        self._store.save(trainer.model, epoch, additional_metadata={self.config.monitor: score})
+        self.saved_checkpoint_steps = self._store.list_steps()
+        self.best_checkpoint_step = self._store.best_step(
+            self.config.monitor, minimize=self.config.mode == "min"
         )
-        self.saved_checkpoint_steps = list(self._checkpoint_manager.all_steps())
-        self.best_checkpoint_step = self._checkpoint_manager.best_step()
 
     def on_epoch_end(self, trainer: TrainerLike, epoch: int, logs: dict[str, Any]) -> None:
         """Check if checkpoint should be saved.
@@ -147,3 +135,13 @@ class ModelCheckpoint(BaseCallback):
             return
 
         self._save_checkpoint(trainer, epoch, current)
+
+    def on_train_end(self, _trainer: TrainerLike) -> None:
+        """Release the store's resources at the end of training.
+
+        Args:
+            _trainer: The trainer instance (unused).
+        """
+        if self._store is not None:
+            self._store.close()
+            self._store = None

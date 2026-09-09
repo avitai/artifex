@@ -33,7 +33,6 @@ def test_core_package_import_keeps_children_lazy() -> None:
         "'losses_loaded': 'artifex.generative_models.core.losses' in sys.modules, "
         "'protocols_loaded': 'artifex.generative_models.core.protocols' in sys.modules, "
         "'sampling_loaded': 'artifex.generative_models.core.sampling' in sys.modules, "
-        "'checkpointing_loaded': 'artifex.generative_models.core.checkpointing' in sys.modules, "
         "'gradient_checkpointing_loaded': "
         "'artifex.generative_models.core.gradient_checkpointing' in sys.modules, "
         "'jax_loaded': 'jax' in sys.modules, "
@@ -49,7 +48,6 @@ def test_core_package_import_keeps_children_lazy() -> None:
     assert payload["losses_loaded"] is False
     assert payload["protocols_loaded"] is False
     assert payload["sampling_loaded"] is False
-    assert payload["checkpointing_loaded"] is False
     assert payload["gradient_checkpointing_loaded"] is False
     assert payload["jax_loaded"] is False
     assert payload["all"] == [
@@ -61,9 +59,6 @@ def test_core_package_import_keeps_children_lazy() -> None:
         "losses",
         "protocols",
         "sampling",
-        "load_checkpoint",
-        "save_checkpoint",
-        "setup_checkpoint_manager",
         "CHECKPOINT_POLICIES",
         "apply_remat",
         "resolve_checkpoint_policy",
@@ -77,12 +72,12 @@ def test_core_exports_resolve_lazily() -> None:
         "import artifex.generative_models.core as core; "
         "print(json.dumps({"
         "'sampling_module': core.sampling.__name__, "
-        "'load_checkpoint_module': core.load_checkpoint.__module__"
+        "'apply_remat_module': core.apply_remat.__module__"
         "}))"
     )
 
     assert payload["sampling_module"] == "artifex.generative_models.core.sampling"
-    assert payload["load_checkpoint_module"] == "artifex.generative_models.core.checkpointing"
+    assert payload["apply_remat_module"] == "artifex.generative_models.core.gradient_checkpointing"
 
 
 def test_core_overview_docs_match_live_core_surface() -> None:

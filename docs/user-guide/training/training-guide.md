@@ -719,67 +719,55 @@ model = mixed_precision_training(
 
 ## Model Checkpointing
 
-Artifex provides robust checkpointing utilities using Orbax for saving and loading model state.
+Model state is persisted through substrax's `OrbaxCheckpointStore`, the
+Orbax-backed, step-addressed store every Avitai library shares. A checkpoint is
+a `PyTreeSave` payload plus a JSON metadata sidecar (step, timestamp, loss when
+given, and anything passed as `additional_metadata`); restoring never executes
+code.
 
 ### Basic Checkpointing
 
 ```python
-from artifex.generative_models.core.checkpointing import (
-    setup_checkpoint_manager,
-    save_checkpoint,
-    load_checkpoint,
-)
+from flax import nnx
+from substrax.checkpoint import OrbaxCheckpointStore
 
-# Setup checkpoint manager
-checkpoint_manager, checkpoint_dir = setup_checkpoint_manager(
-    base_dir="./checkpoints/experiment_1"
-)
+model = create_model(config, rngs=nnx.Rngs(0))
 
-# Save checkpoint during training
-for step in range(num_steps):
-    # ... training step ...
-
-    if (step + 1) % 1000 == 0:
-        save_checkpoint(checkpoint_manager, model, step + 1)
-        print(f"Saved checkpoint at step {step + 1}")
-
-# Load checkpoint into a model template
-model_template = create_model(config, rngs=nnx.Rngs(0))
-restored_model, loaded_step = load_checkpoint(
-    checkpoint_manager,
-    target_model_template=model_template,
-)
-print(f"Restored from step {loaded_step}")
+with OrbaxCheckpointStore("./checkpoints/experiment_1", max_to_keep=5) as store:
+    for step in range(num_steps):
+        # ... training step ...
+        if (step + 1) % 1000 == 0:
+            store.save(model, step + 1, loss=float(loss))
+            print(f"Saved checkpoint at step {step + 1}")
 ```
 
-### Checkpointing with Optimizer State
+`max_to_keep` is Orbax's retention: the newest checkpoints are kept, `None`
+keeps them all.
 
-Save and restore both model and optimizer state:
+### Loading Checkpoints
+
+Build the same model template you trained and restore into it:
 
 ```python
-from artifex.generative_models.core.checkpointing import (
-    setup_checkpoint_manager,
-    save_checkpoint_with_optimizer,
-    load_checkpoint_with_optimizer,
-)
-
-# Setup
-checkpoint_manager, _ = setup_checkpoint_manager("./checkpoints")
-optimizer = nnx.Optimizer(model, optax.adam(1e-4), wrt=nnx.Param)
-
-# Save both model and optimizer
-save_checkpoint_with_optimizer(checkpoint_manager, model, optimizer, step=100)
-
-# Load both model and optimizer
 model_template = create_model(config, rngs=nnx.Rngs(0))
-optimizer_template = nnx.Optimizer(model_template, optax.adam(1e-4), wrt=nnx.Param)
 
-restored_model, restored_optimizer, step = load_checkpoint_with_optimizer(
-    checkpoint_manager,
-    model_template,
-    optimizer_template,
-)
+with OrbaxCheckpointStore("./checkpoints/experiment_1") as store:
+    step = store.latest_step()                       # or a specific step
+    restored_model, metadata = store.restore(model_template, step)
+
+print(f"Restored from step {metadata['step']}")
 ```
+
+Without a target, `store.restore(step=step)` returns the payload as it was
+stored; `store.list_steps()` and `store.best_step("loss")` pick a checkpoint by
+step or by a metadata metric.
+
+### Trainer Checkpoints
+
+`Trainer.save_checkpoint()` writes the model state, the optimizer state, the RNG
+key and every extension's state as one payload under the current step, and
+`Trainer.load_checkpoint(step=None)` restores the latest (or a given) step into
+the live trainer. Both go through the same store under `checkpoint_dir`.
 
 ### ModelCheckpoint Callback
 
@@ -807,31 +795,11 @@ for epoch in range(num_epochs):
     checkpoint_callback.on_epoch_end(trainer, epoch, {"val_loss": val_loss})
 ```
 
-### Checkpoint Validation and Recovery
+### Resuming After a Failure
 
-Validate checkpoints and recover from corruption:
-
-```python
-from artifex.generative_models.core.checkpointing import (
-    validate_checkpoint,
-    recover_from_corruption,
-)
-
-# Validate a checkpoint produces consistent outputs
-is_valid = validate_checkpoint(
-    checkpoint_manager,
-    model,
-    step=100,
-    validation_data=sample_batch,
-    tolerance=1e-5,
-)
-
-# Recover from corrupted checkpoints (tries newest to oldest)
-recovered_model, recovered_step = recover_from_corruption(
-    checkpoint_dir="./checkpoints",
-    model_template=model_template,
-)
-```
+A checkpoint that cannot be read raises from `store.restore`; the store never
+reports it as missing. To resume from the newest readable checkpoint, walk
+`store.list_steps()` from newest to oldest and restore the first that succeeds.
 
 For more details, see the [Advanced Checkpointing Guide](../advanced/checkpointing.md).
 

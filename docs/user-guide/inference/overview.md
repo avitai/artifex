@@ -8,7 +8,7 @@ inference package surface today is the experimental production optimizer in
 ## What Exists Today
 
 - Family-owned loading: build the concrete model from its typed config, then
-  restore weights with `setup_checkpoint_manager(...)` and `load_checkpoint(...)`.
+  restore weights with substrax's `OrbaxCheckpointStore` (`store.restore(...)`).
 - Family-owned generation: call the retained model-native methods such as
   `generate(...)`, `sample(...)`, `encode(...)`, `decode(...)`, or
   `log_prob(...)`.
@@ -24,10 +24,8 @@ restore Orbax checkpoint state into that template.
 ```python
 from flax import nnx
 
-from artifex.generative_models.core.checkpointing import (
-    load_checkpoint,
-    setup_checkpoint_manager,
-)
+from substrax.checkpoint import OrbaxCheckpointStore
+
 from artifex.generative_models.core.configuration import (
     DecoderConfig,
     EncoderConfig,
@@ -59,12 +57,11 @@ def build_vae_template() -> VAE:
 
 
 def load_vae_from_checkpoint(checkpoint_dir: str) -> tuple[VAE, int]:
-    checkpoint_manager, _ = setup_checkpoint_manager(checkpoint_dir)
-    model_template = build_vae_template()
-    restored_model, step = load_checkpoint(checkpoint_manager, model_template)
-
-    if restored_model is None or step is None:
-        raise FileNotFoundError(f"No checkpoint found in {checkpoint_dir}")
+    with OrbaxCheckpointStore(checkpoint_dir) as store:
+        step = store.latest_step()
+        if step is None:
+            raise FileNotFoundError(f"No checkpoint found in {checkpoint_dir}")
+        restored_model, _ = store.restore(build_vae_template(), step)
 
     return restored_model, step
 ```

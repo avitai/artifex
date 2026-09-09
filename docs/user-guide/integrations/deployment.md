@@ -2,15 +2,15 @@
 
 Artifex does not currently ship a generic deployment framework, service
 scaffold, or deployment CLI. The retained deployment boundary is low-level and
-family-owned: save state with `artifex.generative_models.core.checkpointing`,
+family-owned: save state with substrax's `OrbaxCheckpointStore`,
 rebuild the concrete model template from its typed config, and optionally use
 `ProductionOptimizer` before wiring the model into your own application
 service.
 
 ## What Exists Today
 
-- low-level checkpoint persistence through `setup_checkpoint_manager(...)`,
-  `save_checkpoint(...)`, and `load_checkpoint(...)`
+- low-level checkpoint persistence through `substrax.checkpoint.OrbaxCheckpointStore`
+  (`store.save(...)` and `store.restore(...)`)
 - family-owned model loading and generation as described in
   [../inference/overview.md](../inference/overview.md)
 - experimental compiled-pipeline measurement through `OptimizationTarget` and
@@ -22,14 +22,11 @@ service.
 import json
 from pathlib import Path
 
-from artifex.generative_models.core.checkpointing import (
-    save_checkpoint,
-    setup_checkpoint_manager,
-)
+from substrax.checkpoint import OrbaxCheckpointStore
 
 export_dir = Path("./deployments/vae-v1")
-checkpoint_manager, checkpoint_path = setup_checkpoint_manager(export_dir)
-save_checkpoint(checkpoint_manager, model, step=final_step)
+with OrbaxCheckpointStore(export_dir) as store:
+    checkpoint_path = store.save(model, step=final_step)
 
 (export_dir / "metadata.json").write_text(
     json.dumps({"family": "vae", "step": final_step}, indent=2),
@@ -45,10 +42,8 @@ that template.
 ```python
 from flax import nnx
 
-from artifex.generative_models.core.checkpointing import (
-    load_checkpoint,
-    setup_checkpoint_manager,
-)
+from substrax.checkpoint import OrbaxCheckpointStore
+
 from artifex.generative_models.core.configuration import (
     DecoderConfig,
     EncoderConfig,
@@ -76,8 +71,9 @@ vae_config = VAEConfig(
 )
 
 model_template = VAE(vae_config, rngs=nnx.Rngs(0))
-checkpoint_manager, _ = setup_checkpoint_manager("./deployments/vae-v1")
-restored_model, step = load_checkpoint(checkpoint_manager, model_template)
+with OrbaxCheckpointStore("./deployments/vae-v1") as store:
+    restored_model, metadata = store.restore(model_template, store.latest_step())
+step = metadata["step"]
 ```
 
 ## Experimental Production Optimization

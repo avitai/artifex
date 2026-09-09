@@ -157,34 +157,32 @@ trainer.train(train_data=train_data, num_epochs=10, batch_size=64, val_data=val_
 ## How It Works
 
 1. **Metric Monitoring**: Tracks the specified metric (`monitor`) at the end of each epoch
-2. **Orbax Save**: Saves the model state through the shared Orbax checkpoint utilities
-3. **Retention Policy**: Orbax keeps the configured best `save_top_k` checkpoints
-4. **Best Tracking**: Orbax exposes the best retained step via `best_checkpoint_step`
+2. **Orbax Save**: Saves the model state through substrax's `OrbaxCheckpointStore`
+3. **Retention Policy**: the store keeps the newest `save_top_k` checkpoints, which are
+   the `save_top_k` best because a checkpoint is written only on improvement
+4. **Best Tracking**: `best_checkpoint_step` is the store's `best_step` over the monitored metric
 
 ---
 
 ## Integration with Orbax
 
-ModelCheckpoint uses the existing Orbax-based checkpointing infrastructure:
+ModelCheckpoint writes through substrax's `OrbaxCheckpointStore`:
 
 ```python
-from artifex.generative_models.core.checkpointing import (
-    save_checkpoint,
-    load_checkpoint,
-    setup_checkpoint_manager,
-)
+from substrax.checkpoint import OrbaxCheckpointStore
 
 # Checkpoints are stored under step-numbered Orbax directories
-checkpoint_manager, _ = setup_checkpoint_manager("./checkpoints")
-model = load_checkpoint(checkpoint_manager, model, step=10)
+with OrbaxCheckpointStore("./checkpoints") as store:
+    model, metadata = store.restore(model, step=10)
 ```
 
-See [Checkpointing Guide](../user-guide/advanced/checkpointing.md) for advanced checkpointing features including optimizer state and corruption recovery.
+See [Checkpointing Guide](../user-guide/advanced/checkpointing.md) for the store's
+full surface, including trainer checkpoints that carry optimizer state.
 
 ---
 
 ## Module Statistics
 
 - **Classes:** 2 (CheckpointConfig, ModelCheckpoint)
-- **Dependencies:** Orbax checkpointing infrastructure
+- **Dependencies:** substrax's Orbax checkpoint store
 - **Slots:** Uses `__slots__` for memory efficiency

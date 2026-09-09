@@ -380,7 +380,6 @@ nav:
           - core/benchmarks.md
           - core/blackjax_samplers.md
           - core/causal.md
-          - core/checkpointing.md
           - core/clifford.md
           - core/config_commands.md
           - core/configuration.md

@@ -238,11 +238,6 @@
       "PLR0913": 2,
       "RET506": 1
     },
-    "src/artifex/generative_models/core/checkpointing.py": {
-      "B014": 2,
-      "TRY301": 2,
-      "TRY401": 11
-    },
     "src/artifex/generative_models/core/cli/config_commands.py": {
       "ANN001": 8,
       "ANN201": 1,
@@ -1156,11 +1151,6 @@
       "RET504": 1,
       "RET505": 1
     },
-    "src/artifex/generative_models/training/callbacks/checkpoint.py": {
-      "ANN204": 1,
-      "I001": 1,
-      "RET505": 1
-    },
     "src/artifex/generative_models/training/callbacks/logging.py": {
       "ANN204": 3
     },
@@ -1216,8 +1206,7 @@
       "C901": 2,
       "PLR0912": 1,
       "PLR0913": 1,
-      "PLR0915": 1,
-      "PTH123": 2
+      "PLR0915": 1
     },
     "src/artifex/generative_models/training/trainers/autoregressive_trainer.py": {
       "PLR0913": 1

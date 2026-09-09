@@ -14,66 +14,45 @@ from flax import nnx
 from tests.artifex.generative_models.training.timing_utils import best_average_us_per_call
 
 
-class _FakeCheckpointManager:
-    """Minimal fake Orbax manager for callback unit tests."""
+class _FakeCheckpointStore:
+    """Minimal fake of substrax's store for callback unit tests.
 
-    def __init__(self, *, max_to_keep, best_fn, best_mode):
-        self._max_to_keep = max_to_keep
-        self._best_fn = best_fn
-        self._best_mode = best_mode
-        self._metrics_by_step: dict[int, dict[str, float]] = {}
+    Retention is by recency, as Orbax's ``max_to_keep`` is; ``best_step`` reads
+    the metric the callback records in the checkpoint metadata.
+    """
 
-    def save(self, step: int, metrics: dict[str, float]) -> None:
-        self._metrics_by_step[step] = metrics
-        if self._max_to_keep is not None and len(self._metrics_by_step) > self._max_to_keep:
-            sorted_steps = sorted(
-                self._metrics_by_step,
-                key=lambda s: self._best_fn(self._metrics_by_step[s]),
-                reverse=self._best_mode == "max",
-            )
-            kept_steps = set(sorted_steps[: self._max_to_keep])
-            self._metrics_by_step = {
-                step: metrics
-                for step, metrics in self._metrics_by_step.items()
-                if step in kept_steps
-            }
+    def __init__(self, checkpoint_dir, max_to_keep=5, create=True):
+        self.checkpoint_dir = checkpoint_dir
+        self.max_to_keep = max_to_keep
+        self._metadata_by_step: dict[int, dict[str, float]] = {}
+        self.closed = False
 
-    def all_steps(self) -> list[int]:
-        return sorted(self._metrics_by_step)
+    def save(self, model, step, loss=None, *, physics_metadata=None, additional_metadata=None):
+        self._metadata_by_step[step] = dict(additional_metadata or {})
+        if self.max_to_keep is not None:
+            for old in sorted(self._metadata_by_step)[: -self.max_to_keep or None]:
+                del self._metadata_by_step[old]
+        return str(step)
 
-    def best_step(self) -> int | None:
-        if not self._metrics_by_step:
+    def list_steps(self) -> list[int]:
+        return sorted(self._metadata_by_step)
+
+    def best_step(self, metric: str = "loss", *, minimize: bool = True) -> int | None:
+        if not self._metadata_by_step:
             return None
-        return sorted(
-            self._metrics_by_step,
-            key=lambda s: self._best_fn(self._metrics_by_step[s]),
-            reverse=self._best_mode == "max",
-        )[0]
+        chooser = min if minimize else max
+        return chooser(self._metadata_by_step, key=lambda s: self._metadata_by_step[s][metric])
+
+    def close(self) -> None:
+        self.closed = True
 
 
 @pytest.fixture(autouse=True)
 def _patch_checkpoint_backend(monkeypatch):
-    """Patch checkpoint backend so callback tests stay unit-scoped."""
-
-    def setup_checkpoint_manager(_dirpath, *, max_to_keep=5, best_fn=None, best_mode="max"):
-        manager = _FakeCheckpointManager(
-            max_to_keep=max_to_keep,
-            best_fn=best_fn or (lambda _metrics: 0.0),
-            best_mode=best_mode,
-        )
-        return manager, str(_dirpath)
-
-    def save_checkpoint(manager, _model, step, *, metrics=None):
-        manager.save(step, dict(metrics or {}))
-        return manager
-
+    """Patch the store so callback tests stay unit-scoped."""
     monkeypatch.setattr(
-        "artifex.generative_models.training.callbacks.checkpoint.setup_checkpoint_manager",
-        setup_checkpoint_manager,
-    )
-    monkeypatch.setattr(
-        "artifex.generative_models.training.callbacks.checkpoint.save_checkpoint",
-        save_checkpoint,
+        "artifex.generative_models.training.callbacks.checkpoint.OrbaxCheckpointStore",
+        _FakeCheckpointStore,
     )
 
 

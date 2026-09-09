@@ -215,14 +215,6 @@ src/artifex/generative_models/core/base.py
     DOC501: Method `MLP.__init__` has raise statements, but the docstring does not have a "Raises" section
     DOC503: Method `MLP.__init__` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
 --------------------
-src/artifex/generative_models/core/checkpointing.py
-    DOC503: Function `save_checkpoint` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: ['OSError', 'TypeError', 'ValueError']. Raised exceptions in the body: ['AttributeError', 'FileNotFoundError', 'OSError', 'PermissionError', 'TypeError', 'ValueError'].
-    DOC503: Function `load_checkpoint` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: ['OSError', 'TypeError', 'ValueError']. Raised exceptions in the body: ['AttributeError', 'KeyError', 'OSError', 'TypeError', 'ValueError'].
-    DOC501: Function `save_checkpoint_with_optimizer` has raise statements, but the docstring does not have a "Raises" section
-    DOC503: Function `save_checkpoint_with_optimizer` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['AttributeError', 'FileNotFoundError', 'OSError', 'PermissionError', 'TypeError', 'ValueError'].
-    DOC501: Function `load_checkpoint_with_optimizer` has raise statements, but the docstring does not have a "Raises" section
-    DOC503: Function `load_checkpoint_with_optimizer` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['AttributeError', 'KeyError', 'OSError', 'TypeError', 'ValueError'].
---------------------
 src/artifex/generative_models/core/configuration/diffusion_config.py
     DOC503: Method `StableDiffusionConfig.__post_init__` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: ['ValueError']. Raised exceptions in the body: ['TypeError', 'ValueError'].
 --------------------
@@ -859,8 +851,7 @@ src/artifex/generative_models/training/schedulers/factory.py
 src/artifex/generative_models/training/trainer.py
     DOC501: Method `Trainer.train_epoch` has raise statements, but the docstring does not have a "Raises" section
     DOC503: Method `Trainer.train_epoch` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
-    DOC501: Method `Trainer.save_checkpoint` has raise statements, but the docstring does not have a "Raises" section
-    DOC503: Method `Trainer.save_checkpoint` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
+    DOC201: Method `Trainer._checkpoint_store` does not have a return section in docstring
 --------------------
 src/artifex/generative_models/training/trainers/autoregressive_trainer.py
     DOC501: Method `AutoregressiveTrainer.compute_loss` has raise statements, but the docstring does not have a "Raises" section
