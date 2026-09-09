@@ -194,10 +194,9 @@ class LatencyBenchmark(Benchmark):
         }
 
         # Create result
-        result = BenchmarkResult(
-            benchmark_name=self.config.name,
-            model_name=getattr(model, "model_name", "unknown"),
-            metrics=metrics,
+        return self.result(
+            getattr(model, "model_name", "unknown"),
+            metrics,
             metadata={
                 "method": self.method,
                 "batch_size": self.batch_size,
@@ -205,5 +204,3 @@ class LatencyBenchmark(Benchmark):
                 "warmup_runs": self.warmup_runs,
             },
         )
-
-        return result

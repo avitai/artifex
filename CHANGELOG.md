@@ -69,6 +69,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
+- artifex's own `BenchmarkResult` and the bridge module `benchmarks.core.result_model`
+  (`to_calibrax_result`, `from_calibrax_result`, `sanitize_jax_value`, `config_to_dict`).
+  `artifex.benchmarks.core.BenchmarkResult` is `calibrax.core.BenchmarkResult`: the
+  benchmark name is `name`, the model name is `tags["model_name"]`, `metrics` maps to
+  calibrax `Metric` objects, and `save`/`load` use calibrax's JSON layout. Benchmarks build
+  results with `Benchmark.result(model_name, metrics, metadata=...)`, which names the result
+  after the config and records the config on it, or `benchmark_result(name, model_name,
+  metrics, ...)`; `metric_values(result)` reads the `name -> float` view. `timed_run`
+  returns a new result carrying `runtime` (results are frozen).
 - `artifex.generative_models.core.evaluation` (`FrechetInceptionDistance`, `InceptionScore`,
   `PrecisionRecall`, `DensityPrecisionRecall`, `Perplexity`, `EvaluationPipeline`, the
   `FeatureBasedMetric`/`DistributionMetric`/`SequenceMetric` helpers) with its five docs

@@ -8,8 +8,7 @@
       "ANN003": 1,
       "ANN204": 1,
       "B024": 1,
-      "B027": 2,
-      "PTH123": 2
+      "B027": 2
     },
     "src/artifex/benchmarks/core/nnx.py": {
       "ANN204": 1,
@@ -148,16 +147,14 @@
       "PLR0912": 1
     },
     "src/artifex/benchmarks/performance/latency.py": {
-      "PLR0913": 1,
-      "RET504": 1
+      "PLR0913": 1
     },
     "src/artifex/benchmarks/performance/optimization.py": {
       "C901": 2,
       "PLR0402": 1,
       "PLR0912": 1,
       "PLR0913": 2,
-      "PLR0915": 1,
-      "RET504": 2
+      "PLR0915": 1
     },
     "src/artifex/benchmarks/suites/geometric_suite.py": {
       "ANN001": 2,
@@ -176,7 +173,6 @@
       "ARG002": 1,
       "B905": 2,
       "C901": 1,
-      "RET504": 1,
       "RET505": 1
     },
     "src/artifex/benchmarks/suites/protein_ligand_suite.py": {

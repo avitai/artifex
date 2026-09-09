@@ -6,6 +6,7 @@ import jax.numpy as jnp
 import numpy as np
 from tests.utils.test_models import SimpleNNXModel
 
+from artifex.benchmarks.core import metric_values
 from artifex.benchmarks.performance.latency import (
     LatencyBenchmark,
     measure_inference_latency,
@@ -84,10 +85,10 @@ class TestLatencyBenchmarkWithNNX:
         result = benchmark.run(self.model)
 
         # Verify results
-        assert "inference_latency_ms" in result.metrics
-        assert "latency_std_dev_ms" in result.metrics
-        assert "samples_per_second" in result.metrics
-        assert result.model_name == "SimpleNNXModel"
+        assert "inference_latency_ms" in metric_values(result)
+        assert "latency_std_dev_ms" in metric_values(result)
+        assert "samples_per_second" in metric_values(result)
+        assert result.tags["model_name"] == "SimpleNNXModel"
 
     def test_latency_benchmark_predict(self):
         """Test the latency benchmark with predict method."""
@@ -104,7 +105,7 @@ class TestLatencyBenchmarkWithNNX:
         result = benchmark.run(self.model, dataset=self.dataset)
 
         # Verify results
-        assert "inference_latency_ms" in result.metrics
-        assert "latency_std_dev_ms" in result.metrics
-        assert "samples_per_second" in result.metrics
-        assert result.model_name == "SimpleNNXModel"
+        assert "inference_latency_ms" in metric_values(result)
+        assert "latency_std_dev_ms" in metric_values(result)
+        assert "samples_per_second" in metric_values(result)
+        assert result.tags["model_name"] == "SimpleNNXModel"

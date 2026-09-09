@@ -5,7 +5,6 @@ import pytest
 from artifex.benchmarks import (
     Benchmark,
     BenchmarkConfig,
-    BenchmarkResult,
 )
 from artifex.benchmarks.registry import (
     BenchmarkRegistry,
@@ -38,11 +37,7 @@ class TestBenchmarkRegistry:
 
             def run(self, model, dataset=None):
                 """Run the benchmark."""
-                return BenchmarkResult(
-                    benchmark_name=self.config.name,
-                    model_name="test_model",
-                    metrics={"metric1": 0.95},
-                )
+                return self.result("test_model", {"metric1": 0.95})
 
         config = BenchmarkConfig(
             name="test_benchmark",
@@ -77,11 +72,7 @@ class TestBenchmarkRegistry:
 
             def run(self, model, dataset=None):
                 """Run the benchmark."""
-                return BenchmarkResult(
-                    benchmark_name=self.config.name,
-                    model_name="test_model",
-                    metrics={"metric1": 0.95},
-                )
+                return self.result("test_model", {"metric1": 0.95})
 
         # Check that it's in the registry
         assert "decorated_benchmark" in list_benchmarks()
@@ -95,11 +86,7 @@ class TestBenchmarkRegistry:
 
             def run(self, model, dataset=None):
                 """Run the benchmark."""
-                return BenchmarkResult(
-                    benchmark_name=self.config.name,
-                    model_name="test_model",
-                    metrics={"metric1": 0.95},
-                )
+                return self.result("test_model", {"metric1": 0.95})
 
         config = BenchmarkConfig(
             name="test_benchmark",
@@ -128,22 +115,14 @@ class TestBenchmarkRegistry:
 
             def run(self, model, dataset=None):
                 """Run the benchmark."""
-                return BenchmarkResult(
-                    benchmark_name=self.config.name,
-                    model_name="test_model",
-                    metrics={"metric1": 0.95},
-                )
+                return self.result("test_model", {"metric1": 0.95})
 
         class TestBenchmark2(Benchmark):
             """Test benchmark 2."""
 
             def run(self, model, dataset=None):
                 """Run the benchmark."""
-                return BenchmarkResult(
-                    benchmark_name=self.config.name,
-                    model_name="test_model",
-                    metrics={"metric2": 0.85},
-                )
+                return self.result("test_model", {"metric2": 0.85})
 
         config1 = BenchmarkConfig(
             name="test_benchmark_1",

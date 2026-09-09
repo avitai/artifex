@@ -7,6 +7,7 @@ import jax
 import jax.numpy as jnp
 import pytest
 
+from artifex.benchmarks.core import metric_values
 from artifex.benchmarks.datasets.celeba import CelebADataset
 from artifex.benchmarks.metrics.disentanglement import (
     DisentanglementMetric,
@@ -341,13 +342,13 @@ def test_multi_beta_vae_benchmark(mock_dataset, mock_model, rngs):
     result = benchmark.run(mock_model)
 
     # Check result structure
-    assert result.benchmark_name == "multi_beta_vae_controllable_generation"
-    assert result.model_name == "MockVAE"
+    assert result.name == "multi_beta_vae_controllable_generation"
+    assert result.tags["model_name"] == "MockVAE"
     assert isinstance(result.metrics, dict)
     assert isinstance(result.metadata, dict)
 
     # Check metrics
-    metrics = result.metrics
+    metrics = metric_values(result)
     assert "mig_score" in metrics or "dci_score" in metrics
     assert "fid_score" in metrics
     assert "lpips_distance" in metrics  # Updated to use lpips_distance
@@ -386,10 +387,10 @@ def test_multi_beta_vae_benchmark_suite(mock_model, rngs):
 
     # Check result structure
     result = results[benchmark_name]
-    assert result.benchmark_name == "multi_beta_vae_controllable_generation"
-    assert result.model_name == "MockVAE"
+    assert result.name == "multi_beta_vae_controllable_generation"
+    assert result.tags["model_name"] == "MockVAE"
     assert isinstance(result.metrics, dict)
 
     # Check metrics
-    metrics = result.metrics
+    metrics = metric_values(result)
     assert len(metrics) > 0

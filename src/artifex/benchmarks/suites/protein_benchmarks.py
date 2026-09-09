@@ -12,7 +12,7 @@ import numpy as np
 from flax import nnx
 from matplotlib.figure import Figure
 
-from artifex.benchmarks.core import Benchmark, BenchmarkConfig, BenchmarkResult
+from artifex.benchmarks.core import Benchmark, BenchmarkConfig, BenchmarkResult, metric_values
 from artifex.benchmarks.metrics.precision_recall import PrecisionRecallBenchmark
 from artifex.benchmarks.model_adapters import adapt_model
 from artifex.benchmarks.runtime_guards import require_demo_mode
@@ -102,9 +102,10 @@ class ProteinStructureBenchmark(Benchmark):
         pr_result = self.pr_benchmark.run(model, dataset)
 
         # Extract precision, recall, and F1 scores
-        precision = pr_result.metrics["precision"]
-        recall = pr_result.metrics["recall"]
-        f1_score = pr_result.metrics["f1_score"]
+        pr_values = metric_values(pr_result)
+        precision = pr_values["precision"]
+        recall = pr_values["recall"]
+        f1_score = pr_values["f1_score"]
 
         # Calculate protein-specific metrics
         bond_length_rmsd, angle_rmsd, clash_score = self._calculate_structure_metrics(
@@ -121,14 +122,7 @@ class ProteinStructureBenchmark(Benchmark):
             "f1_score": f1_score,
         }
 
-        # Create result
-        result = BenchmarkResult(
-            benchmark_name=self.config.name,
-            model_name=model_name,
-            metrics=metrics,
-        )
-
-        return result
+        return self.result(model_name, metrics)
 
     def _calculate_structure_metrics(
         self, model: BenchmarkModelProtocol, dataset: DatasetProtocol, key: jax.Array
@@ -305,7 +299,7 @@ class ProteinBenchmarkSuite:
             results[benchmark.config.name] = result
 
         # Store results
-        model_name = results[self.benchmarks[0].config.name].model_name
+        model_name = results[self.benchmarks[0].config.name].tags["model_name"]
         self.results[model_name] = results
 
         return results
@@ -336,8 +330,8 @@ class ProteinBenchmarkSuite:
             # Get structure quality benchmark result
             struct_result = self.results[model_name].get("protein_structure_quality")
             if struct_result:
-                model_values = [struct_result.metrics.get(m, 0) for m in quality_metrics]
-                quality_values.append(model_values)
+                struct_values = metric_values(struct_result)
+                quality_values.append([struct_values.get(m, 0) for m in quality_metrics])
 
         # Only plot if we have structure quality results
         if quality_values:
@@ -363,11 +357,9 @@ class ProteinBenchmarkSuite:
             pr_result = self.results[model_name].get("precision_recall")
 
             if struct_result and all(m in struct_result.metrics for m in pr_metrics):
-                model_values = [struct_result.metrics.get(m, 0) for m in pr_metrics]
-                pr_values.append(model_values)
+                pr_values.append([metric_values(struct_result)[m] for m in pr_metrics])
             elif pr_result:
-                model_values = [pr_result.metrics.get(m, 0) for m in pr_metrics]
-                pr_values.append(model_values)
+                pr_values.append([metric_values(pr_result).get(m, 0) for m in pr_metrics])
 
         # Only plot if we have PR results
         if pr_values:

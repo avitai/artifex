@@ -287,12 +287,7 @@ class PrecisionRecallBenchmark(Benchmark):
         options = {"k": self.k, "density_weighted": self.density_weighted}
         precision = precision_from_backbone(real, generated, **options)
         recall = recall_from_backbone(real, generated, **options)
-        return BenchmarkResult(
-            benchmark_name=self.config.name,
-            model_name=getattr(model, "model_name", "unknown"),
-            metrics={
-                "precision": precision,
-                "recall": recall,
-                "f1_score": f1_score(precision, recall),
-            },
+        return self.result(
+            getattr(model, "model_name", "unknown"),
+            {"precision": precision, "recall": recall, "f1_score": f1_score(precision, recall)},
         )

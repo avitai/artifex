@@ -2,17 +2,13 @@
 
 from artifex.benchmarks.core.foundation import (
     Benchmark,
+    benchmark_result,
     BenchmarkConfig,
     BenchmarkResult,
     BenchmarkSuite,
+    metric_values,
 )
 from artifex.benchmarks.core.nnx import BenchmarkBase, BenchmarkWithValidation
-from artifex.benchmarks.core.result_model import (
-    config_to_dict,
-    from_calibrax_result,
-    sanitize_jax_value,
-    to_calibrax_result,
-)
 from artifex.benchmarks.core.runner import BenchmarkRunner, PerformanceTracker
 
 
@@ -25,8 +21,6 @@ __all__ = [
     "BenchmarkSuite",
     "BenchmarkWithValidation",
     "PerformanceTracker",
-    "config_to_dict",
-    "from_calibrax_result",
-    "sanitize_jax_value",
-    "to_calibrax_result",
+    "benchmark_result",
+    "metric_values",
 ]

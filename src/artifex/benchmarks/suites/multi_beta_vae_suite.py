@@ -14,7 +14,13 @@ from typing import Any, cast
 import numpy as np
 from flax import nnx
 
-from artifex.benchmarks.core import Benchmark, BenchmarkConfig, BenchmarkResult, BenchmarkSuite
+from artifex.benchmarks.core import (
+    Benchmark,
+    BenchmarkConfig,
+    BenchmarkResult,
+    BenchmarkSuite,
+    metric_values,
+)
 from artifex.benchmarks.datasets.celeba import CelebADataset
 from artifex.benchmarks.metrics.disentanglement import (
     DisentanglementMetric,
@@ -225,10 +231,9 @@ class MultiBetaVAEBenchmark(Benchmark):
                 final_metrics[metric_name] = float(np.mean(values))
 
         # Create benchmark result
-        result = BenchmarkResult(
-            benchmark_name=self.config.name,
-            model_name=getattr(model, "model_name", str(type(model).__name__)),
-            metrics=final_metrics,
+        result = self.result(
+            getattr(model, "model_name", str(type(model).__name__)),
+            final_metrics,
             metadata={
                 "num_samples": self.num_samples,
                 "batch_size": self.batch_size,
@@ -479,11 +484,12 @@ class MultiBetaVAEBenchmarkSuite(BenchmarkSuite):
             logger.info("%s:", benchmark_name)
 
             # Key metrics
-            mig = result.metrics.get("mig_score")
-            fid = result.metrics.get("fid_score")
-            lpips = result.metrics.get("lpips_score")
-            ssim = result.metrics.get("ssim_score")
-            training_time = result.metrics.get("training_time_per_epoch")
+            values = metric_values(result)
+            mig = values.get("mig_score")
+            fid = values.get("fid_score")
+            lpips = values.get("lpips_score")
+            ssim = values.get("ssim_score")
+            training_time = values.get("training_time_per_epoch")
 
             if mig is not None:
                 status = "PASS" if mig > 0.3 else "FAIL"

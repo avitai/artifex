@@ -4,18 +4,23 @@ Verifies that artifex benchmark infrastructure correctly implements
 or interoperates with calibrax's core protocols and registry.
 """
 
+import importlib
+
 import jax.numpy as jnp
 import pytest
 from calibrax.core import (
     BatchableDatasetProtocol,
+    BenchmarkResult as CalibraxBenchmarkResult,
     DatasetProtocol,
 )
 from flax import nnx
 
-from artifex.benchmarks.core import Benchmark, BenchmarkConfig, BenchmarkResult, BenchmarkSuite
-from artifex.benchmarks.core.result_model import (
-    from_calibrax_result,
-    to_calibrax_result,
+from artifex.benchmarks.core import (
+    Benchmark,
+    benchmark_result,
+    BenchmarkConfig,
+    BenchmarkResult,
+    BenchmarkSuite,
 )
 from artifex.benchmarks.registry import (
     BenchmarkRegistry,
@@ -48,11 +53,7 @@ class TestRegistryInterop:
 
         class DummyBenchmark(Benchmark):
             def run(self, model, dataset=None):
-                return BenchmarkResult(
-                    benchmark_name="dummy",
-                    model_name="m",
-                    metrics={"x": 1.0},
-                )
+                return benchmark_result("dummy", "m", {"x": 1.0})
 
         config = BenchmarkConfig(
             name="dummy",
@@ -70,11 +71,7 @@ class TestRegistryInterop:
 
         class DummyBenchmark(Benchmark):
             def run(self, model, dataset=None):
-                return BenchmarkResult(
-                    benchmark_name="d",
-                    model_name="m",
-                    metrics={},
-                )
+                return benchmark_result("d", "m", {})
 
         config = BenchmarkConfig(name="d", description="d", metric_names=[])
         register_benchmark("d", DummyBenchmark(config=config))
@@ -237,36 +234,41 @@ class TestMetricProtocolConformance:
 # ---------------------------------------------------------------------------
 
 
-class TestResultBridge:
-    """Tests that result conversion between artifex and calibrax works."""
+class TestResultType:
+    """Artifex benchmark results are calibrax's BenchmarkResult; there is no bridge."""
 
-    def test_round_trip_preserves_data(self) -> None:
-        """Converting to calibrax and back preserves key fields."""
-        original = BenchmarkResult(
-            benchmark_name="test_bench",
-            model_name="test_model",
-            metrics={"accuracy": 0.95, "loss": 0.05},
-            metadata={"epochs": 10},
+    def test_result_type_is_calibrax(self) -> None:
+        assert BenchmarkResult is CalibraxBenchmarkResult
+        assert BenchmarkResult.__module__ == "calibrax.core.result"
+
+    def test_no_bridge_module(self) -> None:
+        with pytest.raises(ModuleNotFoundError):
+            importlib.import_module("artifex.benchmarks.core.result_model")
+        import artifex.benchmarks.core as core
+
+        for name in (
+            "to_calibrax_result",
+            "from_calibrax_result",
+            "sanitize_jax_value",
+            "config_to_dict",
+        ):
+            assert not hasattr(core, name)
+
+    def test_benchmark_builds_calibrax_result_with_jax_values(self) -> None:
+        class _Bench(Benchmark):
+            def run(self, model, dataset=None):
+                return self.result(
+                    "model", {"val": jnp.float32(3.14)}, metadata={"n": jnp.int32(2)}
+                )
+
+        result = _Bench(BenchmarkConfig(name="jax_test", description="", metric_names=["val"])).run(
+            None
         )
 
-        calibrax_result = to_calibrax_result(original, domain="testing")
-        restored = from_calibrax_result(calibrax_result)
-
-        assert restored.benchmark_name == original.benchmark_name
-        assert restored.model_name == original.model_name
-        assert restored.metrics["accuracy"] == pytest.approx(0.95)
-        assert restored.metrics["loss"] == pytest.approx(0.05)
-
-    def test_jax_scalars_sanitized(self) -> None:
-        """JAX scalars are converted to Python primitives."""
-        original = BenchmarkResult(
-            benchmark_name="jax_test",
-            model_name="model",
-            metrics={"val": float(jnp.float32(3.14))},
-        )
-
-        calibrax_result = to_calibrax_result(original)
-        assert isinstance(calibrax_result.name, str)
+        assert isinstance(result, CalibraxBenchmarkResult)
+        assert result.metrics["val"].value == pytest.approx(3.14, abs=1e-6)
+        assert result.metadata == {"n": 2}
+        assert result.to_dict()["metrics"]["val"] == {"value": pytest.approx(3.14, abs=1e-6)}
 
 
 # ---------------------------------------------------------------------------

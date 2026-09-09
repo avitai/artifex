@@ -13,7 +13,13 @@ from typing import Any
 import numpy as np
 from flax import nnx
 
-from artifex.benchmarks.core import Benchmark, BenchmarkConfig, BenchmarkResult, BenchmarkSuite
+from artifex.benchmarks.core import (
+    Benchmark,
+    BenchmarkConfig,
+    BenchmarkResult,
+    BenchmarkSuite,
+    metric_values,
+)
 from artifex.benchmarks.datasets.crossdocked import CrossDockedDataset
 from artifex.benchmarks.metrics.protein_ligand import (
     BindingAffinityMetric,
@@ -158,10 +164,9 @@ class ProteinLigandCoDesignBenchmark(Benchmark):
                 final_metrics[metric_name] = float(np.mean(values))
 
         # Create benchmark result
-        result = BenchmarkResult(
-            benchmark_name=self.config.name,
-            model_name=getattr(model, "model_name", str(type(model).__name__)),
-            metrics=final_metrics,
+        result = self.result(
+            getattr(model, "model_name", str(type(model).__name__)),
+            final_metrics,
             metadata={
                 "num_samples": self.num_samples,
                 "batch_size": self.batch_size,
@@ -444,9 +449,10 @@ class ProteinLigandBenchmarkSuite(BenchmarkSuite):
             logger.info("%s:", benchmark_name)
 
             # Key metrics
-            rmse = result.metrics.get("binding_affinity_rmse")
-            validity = result.metrics.get("molecular_validity_rate")
-            qed = result.metrics.get("qed_score")
+            values = metric_values(result)
+            rmse = values.get("binding_affinity_rmse")
+            validity = values.get("molecular_validity_rate")
+            qed = values.get("qed_score")
 
             if rmse is not None:
                 status = "PASS" if rmse < 1.0 else "FAIL"

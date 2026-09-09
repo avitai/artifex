@@ -1,162 +1,170 @@
 #!/usr/bin/env python
-# %% [markdown]
-"""# Multi-β VAE Controllable Generation Benchmark Demo.
-
-**Level:** Intermediate | **Runtime:** ~2-3 minutes (CPU), ~1 minute (GPU)
-**Format:** Python + Jupyter
-
-## Overview
-
-This example demonstrates how to use the Multi-β VAE controllable generation
-benchmark system to evaluate models on disentanglement metrics and image quality.
-
-## Source Code Dependencies
-
-**Validated:** 2025-10-15
-
-This example depends on the following Artifex source files:
-- `src/artifex/benchmarks/suites/multi_beta_vae_suite.py` - Multi-β VAE benchmark suite
-
-**Validation Status:**
-- ✅ All dependencies validated against the internal Flax NNX compatibility guide
-- ✅ No anti-patterns detected (RNG handling fixed in Option A)
-- ✅ All tests passing for dependency files
-- ✅ 3 RNG fixes applied: lines 133-136, 178-181, 217-220
-
-**Note:** This example was fixed as part of Option A RNG verification.
-
-## What You'll Learn
-
-By running this example, you will understand:
-
-1. **Multi-β VAE Framework** - How β-VAE controls disentanglement vs. reconstruction trade-off
-2. **Disentanglement Metrics** - MIG score for measuring factor independence
-3. **Image Quality Metrics** - FID, LPIPS, and SSIM for evaluating generation quality
-4. **Benchmark Evaluation** - Systematic comparison of model quality levels
-5. **Model Trade-offs** - Balancing disentanglement, quality, and training time
-
-## Key Features Demonstrated
-
-- Multi-β VAE benchmark suite with controllable generation
-- Disentanglement evaluation using MIG (Mutual Information Gap) score
-- Image quality assessment with FID, LPIPS, and SSIM metrics
-- Comparison across low/medium/high quality model configurations
-- Mock model implementation for testing without full training
-
-## Prerequisites
-
-- Artifex installed (`source activate.sh`)
-- Understanding of VAEs and disentangled representations
-- Familiarity with image generation metrics
-- Basic knowledge of latent space manipulation
-
-## Usage
-
-```bash
-source activate.sh
-python examples/generative_models/vae/multi_beta_vae_benchmark_demo.py
-
-# Or run the Jupyter notebook for interactive exploration
-jupyter lab examples/generative_models/vae/multi_beta_vae_benchmark_demo.ipynb
-```
-
-## Expected Output
-
-The example will demonstrate:
-1. Benchmark suite initialization with 100 sample dataset
-2. Three models with different quality levels (low/medium/high)
-3. Complete evaluation across all metrics
-4. Comparison table showing performance trade-offs
-
-**Performance Targets:**
-- MIG Score: >0.3 (higher is better for disentanglement)
-- FID Score: <50 (lower is better for generation quality)
-- LPIPS Score: <0.2 (lower is better for perceptual similarity)
-- SSIM Score: >0.8 (higher is better for structural similarity)
-- Training Time: <8h per epoch
-
-## Estimated Runtime
-
-- CPU: ~2-3 minutes
-- GPU: ~1 minute
-
-## Key Concepts
-
-### Multi-β VAE
-
-β-VAE is a variant of VAE that adds a weight β to the KL divergence term:
-
-```
-Loss = Reconstruction_Loss + β × KL_Divergence
-```
-
-Higher β encourages more disentangled representations but may reduce
-reconstruction quality. Multi-β VAE explores multiple β values to find
-the optimal trade-off.
-
-### MIG Score (Mutual Information Gap)
-
-MIG measures how much each latent dimension encodes a single ground-truth
-factor of variation. Higher scores (>0.3) indicate better disentanglement.
-
-### FID (Fréchet Inception Distance)
-
-FID measures the distance between real and generated image distributions
-in feature space. Lower scores (<50) indicate better generation quality.
-
-### LPIPS (Learned Perceptual Image Patch Similarity)
-
-LPIPS uses deep features to measure perceptual similarity between images.
-Lower scores (<0.2) indicate better perceptual quality.
-
-### SSIM (Structural Similarity Index)
-
-SSIM measures structural similarity between images. Higher scores (>0.8)
-indicate better preservation of image structure.
-
-## Implementation Details
-
-This demo uses a mock model to demonstrate the benchmarking framework without
-requiring full VAE training. The mock model simulates different quality levels
-to show how metrics vary with model performance.
-
-## Further Reading
-
-- **β-VAE Paper**: "β-VAE: Learning Basic Visual Concepts with a Constrained VAE"
-- **Disentanglement Metrics**: "Disentangling by Factorising" (FactorVAE paper)
-- **Artifex VAE Guide**: `docs/user-guide/models/vae-guide.md`
-- **Related Examples**:
-  - `vae_mnist.py` - Basic VAE training
-  - `advanced_vae.py` - Advanced VAE techniques
-
-## Troubleshooting
-
-**Issue:** Slow benchmark execution
-**Solution:** Reduce `num_samples` in benchmark_config
-
-**Issue:** High memory usage
-**Solution:** Reduce `batch_size` or `image_size`
-
-**Issue:** Metrics not meeting targets
-**Solution:** Increase model quality_level or adjust architecture
-
-## Author
-
-Artifex Team
-
-## Last Updated
-
-2025-10-15
-"""
+# ---
+# jupyter:
+#   jupytext:
+#     formats: py:percent,ipynb
+#     text_representation:
+#       extension: .py
+#       format_name: percent
+#       format_version: '1.3'
+# ---
 
 # %% [markdown]
-"""## Section 1: Imports and Setup.
+# # Multi-β VAE Controllable Generation Benchmark Demo.
+#
+# **Level:** Intermediate | **Runtime:** ~2-3 minutes (CPU), ~1 minute (GPU)
+# **Format:** Python + Jupyter
+#
+# ## Overview
+#
+# This example demonstrates how to use the Multi-β VAE controllable generation
+# benchmark system to evaluate models on disentanglement metrics and image quality.
+#
+# ## Source Code Dependencies
+#
+# **Validated:** 2025-10-15
+#
+# This example depends on the following Artifex source files:
+# - `src/artifex/benchmarks/suites/multi_beta_vae_suite.py` - Multi-β VAE benchmark suite
+#
+# **Validation Status:**
+# - ✅ All dependencies validated against the internal Flax NNX compatibility guide
+# - ✅ No anti-patterns detected (RNG handling fixed in Option A)
+# - ✅ All tests passing for dependency files
+# - ✅ 3 RNG fixes applied: lines 133-136, 178-181, 217-220
+#
+# **Note:** This example was fixed as part of Option A RNG verification.
+#
+# ## What You'll Learn
+#
+# By running this example, you will understand:
+#
+# 1. **Multi-β VAE Framework** - How β-VAE controls disentanglement vs. reconstruction trade-off
+# 2. **Disentanglement Metrics** - MIG score for measuring factor independence
+# 3. **Image Quality Metrics** - FID, LPIPS, and SSIM for evaluating generation quality
+# 4. **Benchmark Evaluation** - Systematic comparison of model quality levels
+# 5. **Model Trade-offs** - Balancing disentanglement, quality, and training time
+#
+# ## Key Features Demonstrated
+#
+# - Multi-β VAE benchmark suite with controllable generation
+# - Disentanglement evaluation using MIG (Mutual Information Gap) score
+# - Image quality assessment with FID, LPIPS, and SSIM metrics
+# - Comparison across low/medium/high quality model configurations
+# - Mock model implementation for testing without full training
+#
+# ## Prerequisites
+#
+# - Artifex installed (`source activate.sh`)
+# - Understanding of VAEs and disentangled representations
+# - Familiarity with image generation metrics
+# - Basic knowledge of latent space manipulation
+#
+# ## Usage
+#
+# ```bash
+# source activate.sh
+# python examples/generative_models/vae/multi_beta_vae_benchmark_demo.py
+#
+# # Or run the Jupyter notebook for interactive exploration
+# jupyter lab examples/generative_models/vae/multi_beta_vae_benchmark_demo.ipynb
+# ```
+#
+# ## Expected Output
+#
+# The example will demonstrate:
+# 1. Benchmark suite initialization with 100 sample dataset
+# 2. Three models with different quality levels (low/medium/high)
+# 3. Complete evaluation across all metrics
+# 4. Comparison table showing performance trade-offs
+#
+# **Performance Targets:**
+# - MIG Score: >0.3 (higher is better for disentanglement)
+# - FID Score: <50 (lower is better for generation quality)
+# - LPIPS Score: <0.2 (lower is better for perceptual similarity)
+# - SSIM Score: >0.8 (higher is better for structural similarity)
+# - Training Time: <8h per epoch
+#
+# ## Estimated Runtime
+#
+# - CPU: ~2-3 minutes
+# - GPU: ~1 minute
+#
+# ## Key Concepts
+#
+# ### Multi-β VAE
+#
+# β-VAE is a variant of VAE that adds a weight β to the KL divergence term:
+#
+# ```
+# Loss = Reconstruction_Loss + β × KL_Divergence
+# ```
+#
+# Higher β encourages more disentangled representations but may reduce
+# reconstruction quality. Multi-β VAE explores multiple β values to find
+# the optimal trade-off.
+#
+# ### MIG Score (Mutual Information Gap)
+#
+# MIG measures how much each latent dimension encodes a single ground-truth
+# factor of variation. Higher scores (>0.3) indicate better disentanglement.
+#
+# ### FID (Fréchet Inception Distance)
+#
+# FID measures the distance between real and generated image distributions
+# in feature space. Lower scores (<50) indicate better generation quality.
+#
+# ### LPIPS (Learned Perceptual Image Patch Similarity)
+#
+# LPIPS uses deep features to measure perceptual similarity between images.
+# Lower scores (<0.2) indicate better perceptual quality.
+#
+# ### SSIM (Structural Similarity Index)
+#
+# SSIM measures structural similarity between images. Higher scores (>0.8)
+# indicate better preservation of image structure.
+#
+# ## Implementation Details
+#
+# This demo uses a mock model to demonstrate the benchmarking framework without
+# requiring full VAE training. The mock model simulates different quality levels
+# to show how metrics vary with model performance.
+#
+# ## Further Reading
+#
+# - **β-VAE Paper**: "β-VAE: Learning Basic Visual Concepts with a Constrained VAE"
+# - **Disentanglement Metrics**: "Disentangling by Factorising" (FactorVAE paper)
+# - **Artifex VAE Guide**: `docs/user-guide/models/vae-guide.md`
+# - **Related Examples**:
+#   - `vae_mnist.py` - Basic VAE training
+#   - `advanced_vae.py` - Advanced VAE techniques
+#
+# ## Troubleshooting
+#
+# **Issue:** Slow benchmark execution
+# **Solution:** Reduce `num_samples` in benchmark_config
+#
+# **Issue:** High memory usage
+# **Solution:** Reduce `batch_size` or `image_size`
+#
+# **Issue:** Metrics not meeting targets
+# **Solution:** Increase model quality_level or adjust architecture
+#
+# ## Author
+#
+# Artifex Team
+#
+# ## Last Updated
+#
+# 2025-10-15
 
-We import the necessary components for Multi-β VAE benchmarking:
-- JAX and Flax NNX for neural network operations
-- Artifex Multi-β VAE benchmark suite
-- Time tracking for performance measurement
-"""
+# %% [markdown]
+# ## Section 1: Imports and Setup.
+#
+# We import the necessary components for Multi-β VAE benchmarking:
+# - JAX and Flax NNX for neural network operations
+# - Artifex Multi-β VAE benchmark suite
+# - Time tracking for performance measurement
 
 # %%
 import time
@@ -165,23 +173,23 @@ import flax.nnx as nnx
 import jax
 import jax.numpy as jnp
 
+from artifex.benchmarks.core import metric_values
 from artifex.benchmarks.suites.multi_beta_vae_suite import (
     MultiBetaVAEBenchmarkSuite,
 )
 
 
 # %% [markdown]
-"""## Section 2: Mock Multi-β VAE Model.
-
-This mock model simulates a Multi-β VAE without requiring full training.
-It demonstrates the expected interface and behavior for benchmarking.
-
-**Key Features:**
-- Supports three quality levels (low/medium/high)
-- Generates controlled outputs with predictable metrics
-- Demonstrates proper RNG handling patterns
-- Shows encode-decode-generate pipeline
-"""
+# ## Section 2: Mock Multi-β VAE Model.
+#
+# This mock model simulates a Multi-β VAE without requiring full training.
+# It demonstrates the expected interface and behavior for benchmarking.
+#
+# **Key Features:**
+# - Supports three quality levels (low/medium/high)
+# - Generates controlled outputs with predictable metrics
+# - Demonstrates proper RNG handling patterns
+# - Shows encode-decode-generate pipeline
 
 
 # %%
@@ -500,17 +508,16 @@ class MockMultiBetaVAE(nnx.Module):
 
 
 # %% [markdown]
-"""## Section 3: Benchmark Demo Execution.
-
-This section demonstrates the complete benchmarking workflow:
-1. Initialize the benchmark suite with dataset configuration
-2. Create models with different quality levels
-3. Run complete evaluation for each model
-4. Compare results across all models
-
-The demo uses smaller dataset sizes for quick execution while still
-demonstrating the full benchmarking capabilities.
-"""
+# ## Section 3: Benchmark Demo Execution.
+#
+# This section demonstrates the complete benchmarking workflow:
+# 1. Initialize the benchmark suite with dataset configuration
+# 2. Create models with different quality levels
+# 3. Run complete evaluation for each model
+# 4. Compare results across all models
+#
+# The demo uses smaller dataset sizes for quick execution while still
+# demonstrating the full benchmarking capabilities.
 
 
 # %%
@@ -610,7 +617,7 @@ def run_benchmark_demo():
     for model_name, results in all_results.items():
         comparison["model"].append(model_name)
         for metric in metrics_to_compare:
-            value = results[benchmark_name].metrics.get(metric, "N/A")
+            value = metric_values(results[benchmark_name]).get(metric, "N/A")
             comparison[metric].append(value)
 
     # Print comparison table
@@ -639,7 +646,7 @@ def run_benchmark_demo():
     print("- Training Time: <8h per epoch")
 
     print("\nConclusion:")
-    high_quality_results = all_results["high_quality"][benchmark_name].metrics
+    high_quality_results = metric_values(all_results["high_quality"][benchmark_name])
     if (
         high_quality_results["mig_score"] > 0.3
         and high_quality_results["fid_score"] < 50
@@ -657,78 +664,77 @@ if __name__ == "__main__":
     run_benchmark_demo()
 
 # %% [markdown]
-"""## Summary and Key Takeaways.
-
-### What You Learned
-
-- ✅ **Multi-β VAE Framework**: Understanding the β parameter's role in
-  disentanglement
-- ✅ **MIG Score**: Measuring mutual information gap for disentanglement
-- ✅ **Image Quality Metrics**: FID, LPIPS, and SSIM for complete evaluation
-- ✅ **Quality Trade-offs**: Balancing disentanglement, reconstruction, and
-  training time
-- ✅ **Benchmark Suite**: Systematic evaluation across multiple metrics
-
-### Key Performance Insights
-
-From the comparison table, we observe:
-
-1. **Disentanglement vs. Quality**: Higher latent dimensionality generally
-   improves both disentanglement (MIG) and image quality (FID, LPIPS, SSIM)
-2. **Training Time**: Larger models require more training time per epoch
-3. **Target Achievement**: High-quality model meets all target metrics
-
-### Model Quality Levels
-
-- **Low Quality** (32D latent): Fast training but poor metrics across the board
-- **Medium Quality** (64D latent): Balanced performance, reasonable training time
-- **High Quality** (128D latent): Meets all targets but requires longer training
-
-### Experiments to Try
-
-1. **Adjust Latent Dimensions**: Test different `latent_dim` values (16, 64, 256)
-2. **Dataset Size**: Increase `num_samples` to see metric stability
-3. **Batch Size**: Experiment with different `batch_size` for performance
-4. **Quality Levels**: Create custom quality configurations
-5. **Real Models**: Replace mock model with actual β-VAE implementation
-
-### Next Steps
-
-- **β-VAE Training**: Implement and train actual β-VAE on real datasets
-- **Disentanglement Analysis**: Explore latent space traversals
-- **Advanced Techniques**: Try FactorVAE, β-TCVAE, or other variants
-- **Custom Benchmarks**: Create domain-specific evaluation metrics
-
-### Additional Resources
-
-- **Papers**:
-  - "β-VAE: Learning Basic Visual Concepts with a Constrained VAE"
-  - "Disentangling by Factorising" (FactorVAE)
-  - "Isolating Sources of Disentanglement in VAEs"
-- **Documentation**:
-  - Artifex VAE Guide: `docs/user-guide/models/vae-guide.md`
-  - Benchmark Documentation: `docs/user-guide/benchmarks/`
-- **Related Examples**:
-  - `vae_mnist.py` - Basic VAE training on MNIST
-  - `advanced_vae.py` - Advanced VAE techniques
-
-### Troubleshooting Common Issues
-
-**Problem:** Benchmark runs slowly
-**Solution:** Reduce `num_samples` or `batch_size`
-
-**Problem:** Models don't meet targets
-**Solution:** Increase `latent_dim` or adjust quality_level
-
-**Problem:** Memory issues
-**Solution:** Reduce `image_size` or `batch_size`
-
-**Problem:** Inconsistent results
-**Solution:** Use larger `num_samples` for more stable metrics
-
----
-
-**Congratulations!** You've completed the Multi-β VAE benchmark demonstration.
-You now understand how to evaluate controllable generation models using
-disentanglement and image quality metrics.
-"""
+# ## Summary and Key Takeaways.
+#
+# ### What You Learned
+#
+# - ✅ **Multi-β VAE Framework**: Understanding the β parameter's role in
+#   disentanglement
+# - ✅ **MIG Score**: Measuring mutual information gap for disentanglement
+# - ✅ **Image Quality Metrics**: FID, LPIPS, and SSIM for complete evaluation
+# - ✅ **Quality Trade-offs**: Balancing disentanglement, reconstruction, and
+#   training time
+# - ✅ **Benchmark Suite**: Systematic evaluation across multiple metrics
+#
+# ### Key Performance Insights
+#
+# From the comparison table, we observe:
+#
+# 1. **Disentanglement vs. Quality**: Higher latent dimensionality generally
+#    improves both disentanglement (MIG) and image quality (FID, LPIPS, SSIM)
+# 2. **Training Time**: Larger models require more training time per epoch
+# 3. **Target Achievement**: High-quality model meets all target metrics
+#
+# ### Model Quality Levels
+#
+# - **Low Quality** (32D latent): Fast training but poor metrics across the board
+# - **Medium Quality** (64D latent): Balanced performance, reasonable training time
+# - **High Quality** (128D latent): Meets all targets but requires longer training
+#
+# ### Experiments to Try
+#
+# 1. **Adjust Latent Dimensions**: Test different `latent_dim` values (16, 64, 256)
+# 2. **Dataset Size**: Increase `num_samples` to see metric stability
+# 3. **Batch Size**: Experiment with different `batch_size` for performance
+# 4. **Quality Levels**: Create custom quality configurations
+# 5. **Real Models**: Replace mock model with actual β-VAE implementation
+#
+# ### Next Steps
+#
+# - **β-VAE Training**: Implement and train actual β-VAE on real datasets
+# - **Disentanglement Analysis**: Explore latent space traversals
+# - **Advanced Techniques**: Try FactorVAE, β-TCVAE, or other variants
+# - **Custom Benchmarks**: Create domain-specific evaluation metrics
+#
+# ### Additional Resources
+#
+# - **Papers**:
+#   - "β-VAE: Learning Basic Visual Concepts with a Constrained VAE"
+#   - "Disentangling by Factorising" (FactorVAE)
+#   - "Isolating Sources of Disentanglement in VAEs"
+# - **Documentation**:
+#   - Artifex VAE Guide: `docs/user-guide/models/vae-guide.md`
+#   - Benchmark Documentation: `docs/user-guide/benchmarks/`
+# - **Related Examples**:
+#   - `vae_mnist.py` - Basic VAE training on MNIST
+#   - `advanced_vae.py` - Advanced VAE techniques
+#
+# ### Troubleshooting Common Issues
+#
+# **Problem:** Benchmark runs slowly
+# **Solution:** Reduce `num_samples` or `batch_size`
+#
+# **Problem:** Models don't meet targets
+# **Solution:** Increase `latent_dim` or adjust quality_level
+#
+# **Problem:** Memory issues
+# **Solution:** Reduce `image_size` or `batch_size`
+#
+# **Problem:** Inconsistent results
+# **Solution:** Use larger `num_samples` for more stable metrics
+#
+# ---
+#
+# **Congratulations!** You've completed the Multi-β VAE benchmark demonstration.
+# You now understand how to evaluate controllable generation models using
+# disentanglement and image quality metrics.

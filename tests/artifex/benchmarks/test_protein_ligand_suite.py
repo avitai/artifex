@@ -5,6 +5,7 @@ import jax.numpy as jnp
 import pytest
 from flax import nnx
 
+from artifex.benchmarks.core import metric_values
 from artifex.benchmarks.datasets.crossdocked import CrossDockedDataset
 from artifex.benchmarks.metrics.protein_ligand import (
     BindingAffinityMetric,
@@ -312,14 +313,14 @@ class TestProteinLigandBenchmark:
         result = benchmark.run(model)
 
         # Check result structure
-        assert result.benchmark_name == "protein_ligand_codesign"
+        assert result.name == "protein_ligand_codesign"
         assert isinstance(result.metrics, dict)
         assert isinstance(result.metadata, dict)
 
         # Check key metrics are present
-        assert "binding_affinity_rmse" in result.metrics
-        assert "molecular_validity_rate" in result.metrics
-        assert "qed_score" in result.metrics
+        assert "binding_affinity_rmse" in metric_values(result)
+        assert "molecular_validity_rate" in metric_values(result)
+        assert "qed_score" in metric_values(result)
 
         # Check metadata
         assert result.metadata["num_samples"] == 4
@@ -370,9 +371,9 @@ class TestProteinLigandBenchmarkSuite:
         # Check each result
         for benchmark_name, result in results.items():
             assert isinstance(result.metrics, dict)
-            assert "binding_affinity_rmse" in result.metrics
-            assert "molecular_validity_rate" in result.metrics
-            assert "qed_score" in result.metrics
+            assert "binding_affinity_rmse" in metric_values(result)
+            assert "molecular_validity_rate" in metric_values(result)
+            assert "qed_score" in metric_values(result)
 
 
 class TestIntegration:
@@ -405,7 +406,7 @@ class TestIntegration:
         assert len(results) > 0
 
         for benchmark_name, result in results.items():
-            metrics = result.metrics
+            metrics = metric_values(result)
 
             # Check v0.5-v0.8 target metrics are evaluated
             assert "binding_affinity_rmse" in metrics
@@ -449,7 +450,7 @@ class TestIntegration:
             assert target_metrics.get("qed_score") == 0.7
 
             # Actual metrics should be evaluated
-            actual_metrics = result.metrics
+            actual_metrics = metric_values(result)
             assert "binding_affinity_rmse" in actual_metrics
             assert "molecular_validity_rate" in actual_metrics
             assert "qed_score" in actual_metrics

@@ -17,7 +17,13 @@ from typing import Any
 import flax.nnx as nnx
 import jax.numpy as jnp
 
-from artifex.benchmarks.core import BenchmarkBase, BenchmarkConfig, BenchmarkResult
+from artifex.benchmarks.core import (
+    benchmark_result,
+    BenchmarkBase,
+    BenchmarkConfig,
+    BenchmarkResult,
+    metric_values,
+)
 from artifex.benchmarks.datasets.ffhq import CelebADataset, FFHQDataset
 from artifex.benchmarks.metrics.style_metrics import StyleGANMetrics
 from artifex.benchmarks.runtime_guards import require_demo_mode
@@ -367,10 +373,10 @@ class StyleGAN3Benchmark(BenchmarkBase):
         # Combine all metrics
         all_metrics = {**training_metrics, **evaluation_metrics}
 
-        return BenchmarkResult(
-            benchmark_name="stylegan3",
-            model_name=self.benchmark_config.name,
-            metrics=all_metrics,
+        return benchmark_result(
+            "stylegan3",
+            self.benchmark_config.name,
+            all_metrics,
             metadata={
                 "dataset_name": self.dataset_name,
                 "config": asdict(self.benchmark_config),
@@ -452,15 +458,13 @@ class StyleGAN3Suite:
 
             # Print progress
             logger.info("StyleGAN3 %dx%d benchmark completed", img_size, img_size)
-            fid_score = result.metrics.get("fid_score", "N/A")
+            values = metric_values(result)
+            fid_score = values.get("fid_score", "N/A")
             if isinstance(fid_score, (int, float)):
                 logger.info("   FID Score: %.2f", fid_score)
             else:
                 logger.info("   FID Score: %s", fid_score)
-            logger.info(
-                "   Style Mixing Quality: %s",
-                result.metrics.get("style_mixing_quality", "N/A"),
-            )
+            logger.info("   Style Mixing Quality: %s", values.get("style_mixing_quality", "N/A"))
 
         return results
 
@@ -482,8 +486,9 @@ class StyleGAN3Suite:
         }
 
         for img_size, result in results.items():
-            passed = result.metrics.get("overall_pass", False)
-            fid_score = result.metrics.get("fid_score", float("inf"))
+            values = metric_values(result)
+            passed = bool(values.get("overall_pass", False))
+            fid_score = values.get("fid_score", float("inf"))
 
             if passed:
                 summary["passed_benchmarks"] += 1
@@ -495,8 +500,8 @@ class StyleGAN3Suite:
             summary["results_by_size"][img_size] = {
                 "passed": passed,
                 "fid_score": fid_score,
-                "style_mixing_quality": result.metrics.get("style_mixing_quality", 0.0),
-                "equivariance_score": result.metrics.get("overall_equivariance", 0.0),
+                "style_mixing_quality": values.get("style_mixing_quality", 0.0),
+                "equivariance_score": values.get("overall_equivariance", 0.0),
             }
 
         summary["success_rate"] = summary["passed_benchmarks"] / summary["total_benchmarks"]

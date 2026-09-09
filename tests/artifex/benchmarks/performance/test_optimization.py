@@ -9,6 +9,7 @@ import numpy as np
 import pytest
 
 from artifex.benchmarks import DatasetProtocol
+from artifex.benchmarks.core import metric_values
 from artifex.benchmarks.performance.optimization import (
     OptimizationBenchmark,
     OptimizationMetricsConfig,
@@ -233,14 +234,14 @@ def test_optimization_benchmark_run(trainer, dataset):
 
     result = benchmark.run(trainer, dataset)
 
-    assert result.benchmark_name == "optimization"
-    assert result.model_name == "test_model"
-    assert "iterations_to_convergence" in result.metrics
-    assert "time_to_convergence" in result.metrics
-    assert "final_loss" in result.metrics
-    assert "training_throughput" in result.metrics
-    assert "loss" in result.metrics
-    assert "accuracy" in result.metrics
+    assert result.name == "optimization"
+    assert result.tags["model_name"] == "test_model"
+    assert "iterations_to_convergence" in metric_values(result)
+    assert "time_to_convergence" in metric_values(result)
+    assert "final_loss" in metric_values(result)
+    assert "training_throughput" in metric_values(result)
+    assert "loss" in metric_values(result)
+    assert "accuracy" in metric_values(result)
 
     # Verify training curve in metadata
     assert "training_curve" in result.metadata
@@ -310,10 +311,10 @@ def test_training_convergence_benchmark(dataset):
 
     result = benchmark.run(fast_trainer, dataset)
 
-    assert result.benchmark_name == "training_convergence"
-    assert "iterations_to_convergence" in result.metrics
-    assert result.metrics["iterations_to_convergence"] > 0
-    assert result.metrics["final_loss"] <= 0.1  # Should reach target loss
+    assert result.name == "training_convergence"
+    assert "iterations_to_convergence" in metric_values(result)
+    assert metric_values(result)["iterations_to_convergence"] > 0
+    assert metric_values(result)["final_loss"] <= 0.1  # Should reach target loss
 
 
 def test_training_convergence_invalid_params():
@@ -365,10 +366,10 @@ def test_optimizer_comparison_benchmark(dataset, optimizer_config):
 
     result = benchmark.run(None, dataset)
 
-    assert result.benchmark_name == "optimizer_comparison"
-    assert "best_optimizer" in result.metrics
+    assert result.name == "optimizer_comparison"
+    assert "best_optimizer" in metric_values(result)
     # Should be the fastest optimizer (index 2)
-    assert result.metrics["best_optimizer"] == 2
+    assert metric_values(result)["best_optimizer"] == 2
 
     # Check that the metadata contains information about all optimizers
     assert "optimizer_configs" in result.metadata
@@ -598,9 +599,9 @@ def test_rng_handling(dataset):
     assert trainer.evaluate_called, "evaluate method was not called"
 
     # Basic verification of benchmark results
-    assert "iterations_to_convergence" in result.metrics
-    assert "final_loss" in result.metrics
-    assert result.metrics["final_loss"] == 0.5
+    assert "iterations_to_convergence" in metric_values(result)
+    assert "final_loss" in metric_values(result)
+    assert metric_values(result)["final_loss"] == 0.5
 
 
 def test_none_rngs_handling(dataset):
@@ -640,5 +641,5 @@ def test_none_rngs_handling(dataset):
     result = benchmark.run(trainer, dataset)
 
     # Basic verification of benchmark results
-    assert "final_loss" in result.metrics
-    assert result.metrics["final_loss"] == 0.5
+    assert "final_loss" in metric_values(result)
+    assert metric_values(result)["final_loss"] == 0.5

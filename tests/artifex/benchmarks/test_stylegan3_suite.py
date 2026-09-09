@@ -18,6 +18,7 @@ import jax
 import jax.numpy as jnp
 import pytest
 
+from artifex.benchmarks.core import metric_values
 from artifex.benchmarks.datasets.ffhq import CelebADataset, FFHQDataset
 from artifex.benchmarks.metrics.image import FIDMetric, LPIPSMetric
 from artifex.benchmarks.metrics.style_metrics import (
@@ -546,15 +547,15 @@ class TestStyleGAN3Benchmark:
         result = benchmark.run_benchmark()
 
         # Check result structure
-        assert result.model_name == config.name
+        assert result.tags["model_name"] == config.name
         assert result.metadata["dataset_name"] == "FFHQ"
         assert result.metadata["config"]["image_size"] == config.image_size
         assert result.metadata["config"]["model_name"] == config.model_name
-        assert result.metrics is not None
+        assert metric_values(result) is not None
         assert result.metadata is not None
 
         # Check that key metrics are present
-        metrics = result.metrics
+        metrics = metric_values(result)
         expected_metrics = [
             "fid_score",
             "perceptual_diversity",
@@ -589,8 +590,8 @@ class TestStyleGAN3Benchmark:
 
         assert result.metadata["config"]["image_size"] == config.image_size
         assert result.metadata["config"]["model_name"] == config.model_name
-        assert result.metrics["train_metric"] == 1.0
-        assert result.metrics["eval_metric"] == 2.0
+        assert metric_values(result)["train_metric"] == 1.0
+        assert metric_values(result)["eval_metric"] == 2.0
 
     def test_benchmark_suite(self, rngs):
         """Test StyleGAN3Suite functionality."""

@@ -25,6 +25,7 @@ import jax
 import matplotlib.pyplot as plt
 
 # %%
+from artifex.benchmarks.core import metric_values
 from artifex.benchmarks.datasets.protein_dataset import (
     create_synthetic_protein_dataset,
 )
@@ -257,7 +258,7 @@ def main():
         # Print results
         for benchmark_name, result in results.items():
             print(f"\n{benchmark_name} metrics:")
-            for metric_name, value in result.metrics.items():
+            for metric_name, value in metric_values(result).items():
                 print(f"  {metric_name}: {value:.4f}")
 
             # Save results to file
@@ -296,7 +297,7 @@ def main():
                 f.write("| Metric | Value |\n")
                 f.write("|--------|-------|\n")
 
-                for metric_name, value in result.metrics.items():
+                for metric_name, value in metric_values(result).items():
                     f.write(f"| {metric_name} | {value:.4f} |\n")
 
                 f.write("\n")

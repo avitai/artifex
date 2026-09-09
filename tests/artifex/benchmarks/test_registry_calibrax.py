@@ -6,7 +6,7 @@ from calibrax.core import (
     Registry as CalibraxRegistry,
 )
 
-from artifex.benchmarks.core import Benchmark, BenchmarkConfig, BenchmarkResult
+from artifex.benchmarks.core import Benchmark, benchmark_result, BenchmarkConfig
 from artifex.benchmarks.registry import (
     BenchmarkRegistry,
     get_benchmark,
@@ -20,11 +20,7 @@ class _DummyBenchmark(Benchmark):
     """Minimal benchmark for registry tests."""
 
     def run(self, model, dataset=None):
-        return BenchmarkResult(
-            benchmark_name=self.config.name,
-            model_name="test",
-            metrics={"x": 1.0},
-        )
+        return self.result("test", {"x": 1.0})
 
 
 def _make_benchmark(name: str = "test") -> _DummyBenchmark:
@@ -108,11 +104,7 @@ class TestConvenienceFunctions:
                 super().__init__(config=config)
 
             def run(self, model, dataset=None):
-                return BenchmarkResult(
-                    benchmark_name="decorated",
-                    model_name="m",
-                    metrics={},
-                )
+                return benchmark_result("decorated", "m", {})
 
         assert "decorated" in list_benchmarks()
         assert isinstance(get_benchmark("decorated"), DecoratedBenchmark)

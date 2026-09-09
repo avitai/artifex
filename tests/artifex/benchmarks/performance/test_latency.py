@@ -10,6 +10,7 @@ from flax import nnx
 
 import artifex.benchmarks.performance.latency as latency_module
 from artifex.benchmarks import BenchmarkResult
+from artifex.benchmarks.core import metric_values
 from artifex.benchmarks.performance.latency import (
     LatencyBenchmark,
     measure_inference_latency,
@@ -134,15 +135,15 @@ class TestLatencyBenchmark:
         result = benchmark.run(model=model)
 
         assert isinstance(result, BenchmarkResult)
-        assert result.benchmark_name == "latency"
-        assert result.model_name == "mock_model"
-        assert "inference_latency_ms" in result.metrics
-        assert "latency_std_dev_ms" in result.metrics
-        assert "samples_per_second" in result.metrics
+        assert result.name == "latency"
+        assert result.tags["model_name"] == "mock_model"
+        assert "inference_latency_ms" in metric_values(result)
+        assert "latency_std_dev_ms" in metric_values(result)
+        assert "samples_per_second" in metric_values(result)
 
         # Latency should be positive
-        assert result.metrics["inference_latency_ms"] > 0
-        assert result.metrics["samples_per_second"] > 0
+        assert metric_values(result)["inference_latency_ms"] > 0
+        assert metric_values(result)["samples_per_second"] > 0
 
     def test_run_predict_method(self):
         """Test running benchmark with predict method."""
@@ -154,8 +155,8 @@ class TestLatencyBenchmark:
         result = benchmark.run(model=model, dataset=dataset)
 
         assert isinstance(result, BenchmarkResult)
-        assert "inference_latency_ms" in result.metrics
-        assert result.metrics["inference_latency_ms"] > 0
+        assert "inference_latency_ms" in metric_values(result)
+        assert metric_values(result)["inference_latency_ms"] > 0
 
     def test_run_with_different_batch_sizes(self):
         """Test running benchmark with different batch sizes."""
@@ -170,8 +171,8 @@ class TestLatencyBenchmark:
         result_large = benchmark_large.run(model=model)
 
         # Latency per sample should be lower for larger batch
-        samples_per_second_small = result_small.metrics["samples_per_second"]
-        samples_per_second_large = result_large.metrics["samples_per_second"]
+        samples_per_second_small = metric_values(result_small)["samples_per_second"]
+        samples_per_second_large = metric_values(result_large)["samples_per_second"]
 
         # Larger batch should have higher throughput
         assert samples_per_second_large > samples_per_second_small

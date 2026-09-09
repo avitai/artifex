@@ -1,26 +1,27 @@
 """Retained benchmark foundation for Artifex.
 
-This module owns the framework-local benchmark config, result, and suite
-abstractions that remain on top of the Calibrax registry and protocol
-layer.
+This module owns the framework-local benchmark config and suite abstractions
+that remain on top of the Calibrax registry and protocol layer. Results are
+calibrax's ``BenchmarkResult``; ``benchmark_result`` and ``Benchmark.result``
+build them from a metric dictionary.
 """
 
 from __future__ import annotations
 
-import json
 import logging
 import time
 from abc import ABC, abstractmethod
-from dataclasses import dataclass, field
-from pathlib import Path
+from collections.abc import Mapping
+from dataclasses import asdict, dataclass, field, replace
 from typing import Any
+
+from calibrax.core import BenchmarkResult, Metric
 
 from artifex.generative_models.core.protocols.evaluation import (
     BatchableDatasetProtocol,
     BenchmarkModelProtocol,
     DatasetProtocol,
 )
-from artifex.utils.file_utils import ensure_valid_output_path
 
 
 logger = logging.getLogger(__name__)
@@ -36,51 +37,51 @@ class BenchmarkConfig:
     metadata: dict[str, Any] = field(default_factory=dict)
 
 
-@dataclass
-class BenchmarkResult:
-    """Result of running a benchmark."""
+def _to_python(value: Any) -> Any:
+    """Convert JAX and numpy scalars (nested in dicts, lists and tuples) to Python values."""
+    if isinstance(value, Mapping):
+        return {key: _to_python(item) for key, item in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [_to_python(item) for item in value]
+    if isinstance(value, bool):
+        return value
+    if hasattr(value, "item"):
+        return value.item()
+    return value
 
-    benchmark_name: str
-    model_name: str
-    metrics: dict[str, float]
-    metadata: dict[str, Any] = field(default_factory=dict)
 
-    def save(self, path: str) -> None:
-        """Save the result to a file."""
-        valid_path = ensure_valid_output_path(path, base_dir="benchmark_results")
-        Path(valid_path).parent.mkdir(parents=True, exist_ok=True)
+def benchmark_result(
+    name: str,
+    model_name: str,
+    metrics: Mapping[str, Any],
+    *,
+    metadata: Mapping[str, Any] | None = None,
+    config: Mapping[str, Any] | None = None,
+) -> BenchmarkResult:
+    """Build a calibrax result from a benchmark's metric dictionary.
 
-        import jax
-        import jax.numpy as jnp
+    Args:
+        name: Benchmark name.
+        model_name: Name of the evaluated model, stored under ``tags["model_name"]``.
+        metrics: Metric values; each becomes a ``Metric`` with a float value.
+        metadata: Extra information; JAX and numpy scalars become Python values.
+        config: Benchmark configuration as a dictionary.
 
-        def is_jax_array(obj: Any) -> bool:
-            return isinstance(obj, (jnp.ndarray, jax.Array))
+    Returns:
+        The result with its metrics wrapped and its metadata sanitised.
+    """
+    return BenchmarkResult(
+        name=name,
+        tags={"model_name": model_name},
+        metrics={key: Metric(value=float(value)) for key, value in metrics.items()},
+        metadata=_to_python(dict(metadata or {})),
+        config=_to_python(dict(config or {})),
+    )
 
-        serializable_dict: dict[str, Any] = {}
-        for key, value in self.__dict__.items():
-            if is_jax_array(value):
-                serializable_dict[key] = float(value) if value.size == 1 else value.tolist()
-            elif isinstance(value, dict):
-                serializable_dict[key] = {
-                    nested_key: float(nested_value)
-                    if is_jax_array(nested_value) and nested_value.size == 1
-                    else nested_value.tolist()
-                    if is_jax_array(nested_value)
-                    else nested_value
-                    for nested_key, nested_value in value.items()
-                }
-            else:
-                serializable_dict[key] = value
 
-        with open(valid_path, "w", encoding="utf-8") as handle:
-            json.dump(serializable_dict, handle, indent=2)
-
-    @classmethod
-    def load(cls, path: str) -> "BenchmarkResult":
-        """Load a result from a file."""
-        with open(path, encoding="utf-8") as handle:
-            data = json.load(handle)
-        return cls(**data)
+def metric_values(result: BenchmarkResult) -> dict[str, float]:
+    """Plain ``name -> value`` view of a result's metrics."""
+    return {name: metric.value for name, metric in result.metrics.items()}
 
 
 class Benchmark(ABC):
@@ -89,6 +90,31 @@ class Benchmark(ABC):
     def __init__(self, config: BenchmarkConfig) -> None:
         """Initialize the benchmark with its configuration."""
         self.config = config
+
+    def result(
+        self,
+        model_name: str,
+        metrics: Mapping[str, Any],
+        *,
+        metadata: Mapping[str, Any] | None = None,
+    ) -> BenchmarkResult:
+        """Build this benchmark's result, named after its config and carrying it.
+
+        Args:
+            model_name: Name of the evaluated model.
+            metrics: Metric values keyed by metric name.
+            metadata: Extra information about the run.
+
+        Returns:
+            A calibrax ``BenchmarkResult``.
+        """
+        return benchmark_result(
+            self.config.name,
+            model_name,
+            metrics,
+            metadata=metadata,
+            config=asdict(self.config),
+        )
 
     def setup(self) -> None:
         """Set up benchmark resources before execution."""
@@ -125,9 +151,8 @@ class Benchmark(ABC):
         """Run the benchmark and measure runtime."""
         start_time = time.time()
         result = self.run(model, dataset)
-        end_time = time.time()
-        result.metadata["runtime"] = end_time - start_time
-        return result
+        runtime = time.time() - start_time
+        return replace(result, metadata={**result.metadata, "runtime": runtime})
 
     def validate_metrics(self, metrics: dict[str, float]) -> None:
         """Validate that returned metrics match the configured metric names."""
@@ -171,7 +196,7 @@ class BenchmarkSuite(ABC):
             "all_metrics": {},
         }
         for benchmark_name, result in results.items():
-            for metric_name, value in result.metrics.items():
+            for metric_name, value in metric_values(result).items():
                 summary["all_metrics"][f"{benchmark_name}_{metric_name}"] = value
         return summary
 
@@ -181,4 +206,6 @@ __all__ = [
     "BenchmarkConfig",
     "BenchmarkResult",
     "BenchmarkSuite",
+    "benchmark_result",
+    "metric_values",
 ]

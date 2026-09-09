@@ -99,10 +99,9 @@ class PointCloudGenerationBenchmark(Benchmark):
         evaluation_results = self.run_evaluation(model, dataset)
 
         # Create and return benchmark result
-        return BenchmarkResult(
-            model_name=getattr(model, "name", "unknown_model"),
-            benchmark_name=self.config.name,
-            metrics=evaluation_results,
+        return self.result(
+            getattr(model, "name", "unknown_model"),
+            evaluation_results,
             metadata={
                 "performance_targets": self.performance_targets,
                 "model_config": getattr(model, "config", {}),

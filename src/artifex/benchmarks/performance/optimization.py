@@ -7,19 +7,15 @@ loss curves, and training efficiency.
 
 import time
 from collections.abc import Callable
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from typing import Any, Protocol, runtime_checkable
 
 import flax.nnx as nnx
 import jax
 import jax.numpy as jnp
 
-from artifex.benchmarks import (
-    Benchmark,
-    BenchmarkConfig,
-    BenchmarkResult,
-    DatasetProtocol,
-)
+from artifex.benchmarks import Benchmark, BenchmarkConfig, BenchmarkResult, DatasetProtocol
+from artifex.benchmarks.core import metric_values
 
 
 @dataclass
@@ -445,15 +441,7 @@ class OptimizationBenchmark(Benchmark):
             "total_epochs": epochs_completed,
         }
 
-        # Create result
-        result = BenchmarkResult(
-            benchmark_name=self.config.name,
-            model_name=getattr(model, "model_name", "unknown"),
-            metrics=metrics,
-            metadata=metadata,
-        )
-
-        return result
+        return self.result(getattr(model, "model_name", "unknown"), metrics, metadata=metadata)
 
 
 class TrainingConvergenceBenchmark(OptimizationBenchmark):
@@ -631,19 +619,24 @@ class OptimizerComparisonBenchmark(Benchmark):
             except Exception as e:
                 raise ValueError(f"Error running benchmark for optimizer config {i}: {e}") from e
 
-            # Add optimizer configuration to metadata
-            result.metadata["optimizer_config"] = optimizer_config.copy()
-            optimizer_name = optimizer_config.get("name", f"optimizer_{i}")
-            result.metadata["optimizer_name"] = optimizer_name
-
-            results.append(result)
+            # Record the optimizer alongside the run
+            results.append(
+                replace(
+                    result,
+                    metadata={
+                        **result.metadata,
+                        "optimizer_config": optimizer_config.copy(),
+                        "optimizer_name": optimizer_config.get("name", f"optimizer_{i}"),
+                    },
+                )
+            )
 
         if not results:
             raise ValueError("No valid results obtained from any optimizer")
 
         # Find the best optimizer based on final loss
         try:
-            best_result = min(results, key=lambda r: r.metrics["final_loss"])
+            best_result = min(results, key=lambda r: r.metrics["final_loss"].value)
             best_optimizer_idx = results.index(best_result)
             best_optimizer_config = self.optimizer_configs[best_optimizer_idx]
         except (KeyError, ValueError) as e:
@@ -653,28 +646,21 @@ class OptimizerComparisonBenchmark(Benchmark):
             ) from e
 
         # Aggregate metrics
+        best_metrics = metric_values(best_result)
         metrics = {
             "best_optimizer": best_optimizer_idx,
-            "iterations_to_convergence": best_result.metrics["iterations_to_convergence"],
-            "time_to_convergence": best_result.metrics["time_to_convergence"],
-            "final_loss": best_result.metrics["final_loss"],
-            "training_throughput": best_result.metrics["training_throughput"],
+            "iterations_to_convergence": best_metrics["iterations_to_convergence"],
+            "time_to_convergence": best_metrics["time_to_convergence"],
+            "final_loss": best_metrics["final_loss"],
+            "training_throughput": best_metrics["training_throughput"],
         }
 
         # Create aggregated metadata
         metadata = {
             "optimizer_configs": self.optimizer_configs,
-            "individual_results": [r.metrics for r in results],
+            "individual_results": [metric_values(r) for r in results],
             "best_optimizer_config": best_optimizer_config,
             "num_optimizers": len(self.optimizer_configs),
         }
 
-        # Create result
-        result = BenchmarkResult(
-            benchmark_name=self.config.name,
-            model_name=getattr(model, "model_name", "unknown"),
-            metrics=metrics,
-            metadata=metadata,
-        )
-
-        return result
+        return self.result(getattr(model, "model_name", "unknown"), metrics, metadata=metadata)

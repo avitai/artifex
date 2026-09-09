@@ -145,10 +145,10 @@ def plot_optimizer_comparison(
         raise TypeError(f"Expected BenchmarkResult, got {type(result).__name__}")
 
     # Check for optimizer comparison data
-    if result.benchmark_name != "optimizer_comparison":
+    if result.name != "optimizer_comparison":
         raise ValueError(
             "Benchmark result is not from OptimizerComparisonBenchmark. "
-            f"Found benchmark_name: {result.benchmark_name}"
+            f"Found benchmark name: {result.name}"
         )
 
     if "individual_results" not in result.metadata:

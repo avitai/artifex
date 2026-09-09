@@ -10,166 +10,164 @@
 # ---
 
 # %% [markdown]
-"""# Protein-Ligand Co-Design Benchmark Demo.
-
-**Level:** Advanced | **Runtime:** ~3-5 minutes (CPU), ~1-2 minutes (GPU)
-**Format:** Python + Jupyter
-
-## Overview
-
-This example demonstrates a complete protein-ligand co-design benchmark suite,
-showcasing how to evaluate generative models for drug discovery applications.
-
-## Source Code Dependencies
-
-**Validated:** 2025-10-15
-
-This example depends on the following Artifex source files:
-- `src/artifex/benchmarks/datasets/crossdocked.py` - CrossDocked2020 dataset
-- `src/artifex/benchmarks/metrics/protein_ligand.py` - Protein-ligand metrics
-- `src/artifex/benchmarks/suites/protein_ligand_suite.py` - Benchmark suite
-- `src/artifex/generative_models/modalities/molecular.py` - Molecular modality
-
-**Validation Status:**
-- ✅ All dependencies validated against the internal Flax NNX compatibility guide
-- ✅ No anti-patterns detected (RNG handling, module init, etc.)
-- ✅ All tests passing for dependency files
-
-**Note:** This example was validated as part of v0 source dependency validation.
-
-## What You'll Learn
-
-By running this example, you will understand:
-
-1. **Molecular Modality Framework** - How to represent and manipulate molecular structures
-2. **CrossDocked2020 Dataset** - Accessing protein-ligand binding data for benchmarks
-3. **Protein-Ligand Metrics** - Evaluating binding affinity, molecular validity, and drug-likeness
-4. **Benchmark Suites** - Running complete evaluations across multiple metrics
-5. **Model Comparison** - Systematically comparing different model architectures
-
-## Key Features Demonstrated
-
-- CrossDocked2020 dataset with realistic protein-ligand complexes
-- Molecular modality framework for chemical structure representation
-- Binding affinity prediction metrics (RMSE target: <1.0 kcal/mol)
-- Molecular validity assessment (target: >95% valid structures)
-- Drug-likeness evaluation using QED score (target: >0.7)
-- Complete benchmark suite execution with multiple model qualities
-- Systematic model comparison across performance metrics
-
-## Prerequisites
-
-- Artifex installed (`source activate.sh`)
-- Understanding of protein-ligand interactions and drug discovery
-- Familiarity with molecular representations and binding affinities
-- Basic knowledge of generative models for molecules
-
-## Usage
-
-```bash
-source activate.sh
-python examples/generative_models/protein/protein_ligand_benchmark_demo.py
-
-# Or run the Jupyter notebook for interactive exploration
-jupyter lab examples/generative_models/protein/protein_ligand_benchmark_demo.ipynb
-```
-
-## Expected Output
-
-The example will demonstrate:
-1. Molecular modality initialization with extensions and adapters
-2. CrossDocked2020 dataset loading and statistics
-3. Three protein-ligand specific metrics in action
-4. Full benchmark suite execution with poor/good/excellent models
-5. Comparative analysis showing performance improvements
-
-**Performance Targets:**
-- Binding Affinity RMSE: <1.0 kcal/mol
-- Molecular Validity Rate: >95%
-- QED (Drug-likeness) Score: >0.7
-
-## Estimated Runtime
-
-- CPU: ~3-5 minutes
-- GPU: ~1-2 minutes
-
-## Key Concepts
-
-### Protein-Ligand Co-Design
-
-Protein-ligand co-design involves simultaneously optimizing both the protein binding
-site and the ligand molecule to achieve strong, specific binding. This is a critical
-challenge in computational drug discovery.
-
-### CrossDocked2020 Dataset
-
-A benchmark dataset containing 22.5 million docked protein-ligand pairs from the
-CrossDock2020 database, with experimentally determined binding affinities and
-3D structures.
-
-### Binding Affinity
-
-Binding affinity quantifies how strongly a ligand binds to a protein target, typically
-measured in kcal/mol. Lower (more negative) values indicate stronger binding.
-
-### Molecular Validity
-
-Checks whether generated molecular structures satisfy chemical constraints:
-- Valid bond lengths (1.2-2.0 Å for most bonds)
-- No atomic clashes (atoms too close together)
-- Chemically feasible atom connectivity
-
-### Drug-likeness (QED)
-
-Quantitative Estimate of Drug-likeness (QED) scores molecules based on properties
-like molecular weight, lipophilicity, and structural features that correlate with
-successful drugs.
-
-## Implementation Details
-
-This demo implements objectives from the generative models benchmark project:
-1. Molecular modality framework for chemical representations
-2. CrossDocked2020 dataset integration
-3. Protein-ligand co-design benchmark with three key metrics
-
-## Further Reading
-
-- **CrossDocked2020 Paper**: "Improving Protein-Ligand Docking with Deep Learning"
-- **Artifex Benchmarks**: `docs/user-guide/benchmarks/protein-ligand.md`
-- **Molecular Modalities**: `docs/user-guide/modalities/molecular.md`
-- **Related Examples**:
-  - `protein_folding_demo.py` - Protein structure prediction
-  - `geometric_benchmark_demo.py` - Geometric generative models
-
-## Troubleshooting
-
-**Issue:** ImportError for molecular modality
-**Solution:** Ensure Artifex is installed with molecular extras: `uv sync --extra molecular`
-
-**Issue:** Dataset loading too slow
-**Solution:** Reduce `num_samples` parameter in dataset initialization
-
-**Issue:** CUDA out of memory
-**Solution:** Reduce `batch_size` in benchmark configuration
-
-## Author
-
-Artifex Team
-
-## Last Updated
-
-2025-10-15
-"""
+# # Protein-Ligand Co-Design Benchmark Demo.
+#
+# **Level:** Advanced | **Runtime:** ~3-5 minutes (CPU), ~1-2 minutes (GPU)
+# **Format:** Python + Jupyter
+#
+# ## Overview
+#
+# This example demonstrates a complete protein-ligand co-design benchmark suite,
+# showcasing how to evaluate generative models for drug discovery applications.
+#
+# ## Source Code Dependencies
+#
+# **Validated:** 2025-10-15
+#
+# This example depends on the following Artifex source files:
+# - `src/artifex/benchmarks/datasets/crossdocked.py` - CrossDocked2020 dataset
+# - `src/artifex/benchmarks/metrics/protein_ligand.py` - Protein-ligand metrics
+# - `src/artifex/benchmarks/suites/protein_ligand_suite.py` - Benchmark suite
+# - `src/artifex/generative_models/modalities/molecular.py` - Molecular modality
+#
+# **Validation Status:**
+# - ✅ All dependencies validated against the internal Flax NNX compatibility guide
+# - ✅ No anti-patterns detected (RNG handling, module init, etc.)
+# - ✅ All tests passing for dependency files
+#
+# **Note:** This example was validated as part of v0 source dependency validation.
+#
+# ## What You'll Learn
+#
+# By running this example, you will understand:
+#
+# 1. **Molecular Modality Framework** - How to represent and manipulate molecular structures
+# 2. **CrossDocked2020 Dataset** - Accessing protein-ligand binding data for benchmarks
+# 3. **Protein-Ligand Metrics** - Evaluating binding affinity, molecular validity, and drug-likeness
+# 4. **Benchmark Suites** - Running complete evaluations across multiple metrics
+# 5. **Model Comparison** - Systematically comparing different model architectures
+#
+# ## Key Features Demonstrated
+#
+# - CrossDocked2020 dataset with realistic protein-ligand complexes
+# - Molecular modality framework for chemical structure representation
+# - Binding affinity prediction metrics (RMSE target: <1.0 kcal/mol)
+# - Molecular validity assessment (target: >95% valid structures)
+# - Drug-likeness evaluation using QED score (target: >0.7)
+# - Complete benchmark suite execution with multiple model qualities
+# - Systematic model comparison across performance metrics
+#
+# ## Prerequisites
+#
+# - Artifex installed (`source activate.sh`)
+# - Understanding of protein-ligand interactions and drug discovery
+# - Familiarity with molecular representations and binding affinities
+# - Basic knowledge of generative models for molecules
+#
+# ## Usage
+#
+# ```bash
+# source activate.sh
+# python examples/generative_models/protein/protein_ligand_benchmark_demo.py
+#
+# # Or run the Jupyter notebook for interactive exploration
+# jupyter lab examples/generative_models/protein/protein_ligand_benchmark_demo.ipynb
+# ```
+#
+# ## Expected Output
+#
+# The example will demonstrate:
+# 1. Molecular modality initialization with extensions and adapters
+# 2. CrossDocked2020 dataset loading and statistics
+# 3. Three protein-ligand specific metrics in action
+# 4. Full benchmark suite execution with poor/good/excellent models
+# 5. Comparative analysis showing performance improvements
+#
+# **Performance Targets:**
+# - Binding Affinity RMSE: <1.0 kcal/mol
+# - Molecular Validity Rate: >95%
+# - QED (Drug-likeness) Score: >0.7
+#
+# ## Estimated Runtime
+#
+# - CPU: ~3-5 minutes
+# - GPU: ~1-2 minutes
+#
+# ## Key Concepts
+#
+# ### Protein-Ligand Co-Design
+#
+# Protein-ligand co-design involves simultaneously optimizing both the protein binding
+# site and the ligand molecule to achieve strong, specific binding. This is a critical
+# challenge in computational drug discovery.
+#
+# ### CrossDocked2020 Dataset
+#
+# A benchmark dataset containing 22.5 million docked protein-ligand pairs from the
+# CrossDock2020 database, with experimentally determined binding affinities and
+# 3D structures.
+#
+# ### Binding Affinity
+#
+# Binding affinity quantifies how strongly a ligand binds to a protein target, typically
+# measured in kcal/mol. Lower (more negative) values indicate stronger binding.
+#
+# ### Molecular Validity
+#
+# Checks whether generated molecular structures satisfy chemical constraints:
+# - Valid bond lengths (1.2-2.0 Å for most bonds)
+# - No atomic clashes (atoms too close together)
+# - Chemically feasible atom connectivity
+#
+# ### Drug-likeness (QED)
+#
+# Quantitative Estimate of Drug-likeness (QED) scores molecules based on properties
+# like molecular weight, lipophilicity, and structural features that correlate with
+# successful drugs.
+#
+# ## Implementation Details
+#
+# This demo implements objectives from the generative models benchmark project:
+# 1. Molecular modality framework for chemical representations
+# 2. CrossDocked2020 dataset integration
+# 3. Protein-ligand co-design benchmark with three key metrics
+#
+# ## Further Reading
+#
+# - **CrossDocked2020 Paper**: "Improving Protein-Ligand Docking with Deep Learning"
+# - **Artifex Benchmarks**: `docs/user-guide/benchmarks/protein-ligand.md`
+# - **Molecular Modalities**: `docs/user-guide/modalities/molecular.md`
+# - **Related Examples**:
+#   - `protein_folding_demo.py` - Protein structure prediction
+#   - `geometric_benchmark_demo.py` - Geometric generative models
+#
+# ## Troubleshooting
+#
+# **Issue:** ImportError for molecular modality
+# **Solution:** Ensure Artifex is installed with molecular extras: `uv sync --extra molecular`
+#
+# **Issue:** Dataset loading too slow
+# **Solution:** Reduce `num_samples` parameter in dataset initialization
+#
+# **Issue:** CUDA out of memory
+# **Solution:** Reduce `batch_size` in benchmark configuration
+#
+# ## Author
+#
+# Artifex Team
+#
+# ## Last Updated
+#
+# 2025-10-15
 
 # %% [markdown]
-"""## Section 1: Imports and Setup.
-
-We import all necessary components for the protein-ligand benchmark:
-- JAX for numerical operations and automatic differentiation
-- Flax NNX for neural network components
-- Artifex benchmark suites, datasets, and metrics
-- Molecular modality for chemical structure representation
-"""
+# ## Section 1: Imports and Setup.
+#
+# We import all necessary components for the protein-ligand benchmark:
+# - JAX for numerical operations and automatic differentiation
+# - Flax NNX for neural network components
+# - Artifex benchmark suites, datasets, and metrics
+# - Molecular modality for chemical structure representation
 
 # %%
 import sys
@@ -180,6 +178,7 @@ import jax
 import jax.numpy as jnp
 from flax import nnx
 
+from artifex.benchmarks.core import metric_values
 from artifex.benchmarks.datasets.crossdocked import CrossDockedDataset
 from artifex.benchmarks.metrics.protein_ligand import (
     BindingAffinityMetric,
@@ -204,17 +203,17 @@ from artifex.generative_models.modalities.molecular import MolecularModality
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root / "src"))
 
+
 # %% [markdown]
-"""## Section 2: Example Protein-Ligand Model.
-
-This mock model simulates a protein-ligand co-design system for demonstration purposes.
-In practice, you would replace this with your actual generative model.
-
-**Key Features:**
-- Predicts binding affinities based on structural features
-- Generates ligands conditioned on protein structure
-- Supports different quality levels (poor/good/excellent)
-"""
+# ## Section 2: Example Protein-Ligand Model.
+#
+# This mock model simulates a protein-ligand co-design system for demonstration purposes.
+# In practice, you would replace this with your actual generative model.
+#
+# **Key Features:**
+# - Predicts binding affinities based on structural features
+# - Generates ligands conditioned on protein structure
+# - Supports different quality levels (poor/good/excellent)
 
 
 # %%
@@ -362,14 +361,13 @@ class ExampleProteinLigandModel:
 
 
 # %% [markdown]
-"""## Section 3: Molecular Modality Framework Demo.
-
-The molecular modality provides domain-specific functionality for working with
-chemical structures, including:
-- Chemical constraints (bond lengths, angles)
-- Pharmacophore features (hydrogen bond donors/acceptors, hydrophobic regions)
-- Adapters for different model types (diffusion, geometric, etc.)
-"""
+# ## Section 3: Molecular Modality Framework Demo.
+#
+# The molecular modality provides domain-specific functionality for working with
+# chemical structures, including:
+# - Chemical constraints (bond lengths, angles)
+# - Pharmacophore features (hydrogen bond donors/acceptors, hydrophobic regions)
+# - Adapters for different model types (diffusion, geometric, etc.)
 
 
 # %%
@@ -420,14 +418,13 @@ def demonstrate_molecular_modality():
 
 
 # %% [markdown]
-"""## Section 4: CrossDocked2020 Dataset Demo.
-
-The CrossDocked2020 dataset contains protein-ligand complexes with:
-- 3D coordinates for protein and ligand atoms
-- Atom type information
-- Binding affinity measurements
-- Pocket extraction capabilities
-"""
+# ## Section 4: CrossDocked2020 Dataset Demo.
+#
+# The CrossDocked2020 dataset contains protein-ligand complexes with:
+# - 3D coordinates for protein and ligand atoms
+# - Atom type information
+# - Binding affinity measurements
+# - Pocket extraction capabilities
 
 
 # %%
@@ -510,22 +507,21 @@ def demonstrate_crossdocked_dataset():
 
 
 # %% [markdown]
-"""## Section 5: Protein-Ligand Metrics Demo.
-
-Three specialized metrics evaluate different aspects of protein-ligand modeling:
-
-1. **Binding Affinity Metric**: RMSE between predicted and actual binding energies
-   - Target: <1.0 kcal/mol RMSE
-   - Also reports Pearson correlation coefficient
-
-2. **Molecular Validity Metric**: Chemical plausibility of generated structures
-   - Target: >95% valid molecules
-   - Checks bond lengths, angles, and atomic clashes
-
-3. **Drug-likeness Metric**: QED score and Lipinski's Rule of Five
-   - Target: QED >0.7
-   - Evaluates molecular weight, lipophilicity, etc.
-"""
+# ## Section 5: Protein-Ligand Metrics Demo.
+#
+# Three specialized metrics evaluate different aspects of protein-ligand modeling:
+#
+# 1. **Binding Affinity Metric**: RMSE between predicted and actual binding energies
+#    - Target: <1.0 kcal/mol RMSE
+#    - Also reports Pearson correlation coefficient
+#
+# 2. **Molecular Validity Metric**: Chemical plausibility of generated structures
+#    - Target: >95% valid molecules
+#    - Checks bond lengths, angles, and atomic clashes
+#
+# 3. **Drug-likeness Metric**: QED score and Lipinski's Rule of Five
+#    - Target: QED >0.7
+#    - Evaluates molecular weight, lipophilicity, etc.
 
 
 # %%
@@ -623,12 +619,11 @@ def demonstrate_protein_ligand_metrics():
 
 
 # %% [markdown]
-"""## Section 6: Complete Benchmark Suite Demo.
-
-The benchmark suite orchestrates complete evaluation across all metrics.
-This demo tests three model qualities (poor/good/excellent) to show how
-performance varies across the target metrics.
-"""
+# ## Section 6: Complete Benchmark Suite Demo.
+#
+# The benchmark suite orchestrates complete evaluation across all metrics.
+# This demo tests three model qualities (poor/good/excellent) to show how
+# performance varies across the target metrics.
 
 
 # %%
@@ -677,7 +672,7 @@ def demonstrate_benchmark_suite():
 
         # Extract key metrics
         for benchmark_name, result in results.items():
-            metrics = result.metrics
+            metrics = metric_values(result)
 
             rmse = metrics.get("binding_affinity_rmse", 0.0)
             validity = metrics.get("molecular_validity_rate", 0.0)
@@ -695,12 +690,11 @@ def demonstrate_benchmark_suite():
 
 
 # %% [markdown]
-"""## Section 7: Model Comparison Demo.
-
-This section demonstrates how to systematically compare multiple model architectures
-or configurations using the benchmark suite. The comparison table shows clear
-differences between baseline, improved, and state-of-the-art models.
-"""
+# ## Section 7: Model Comparison Demo.
+#
+# This section demonstrates how to systematically compare multiple model architectures
+# or configurations using the benchmark suite. The comparison table shows clear
+# differences between baseline, improved, and state-of-the-art models.
 
 
 # %%
@@ -748,7 +742,7 @@ def demonstrate_model_comparison():
         model.model_quality = quality
 
         result = benchmark.run(model)
-        comparison_results[model_name] = result.metrics
+        comparison_results[model_name] = metric_values(result)
 
     # Print comparison table
     print("\n📊 Model Comparison Results:")
@@ -770,11 +764,10 @@ def demonstrate_model_comparison():
 
 
 # %% [markdown]
-"""## Section 8: Main Execution.
-
-This section orchestrates the complete demonstration, running all components
-in sequence and providing a summary of the implementation.
-"""
+# ## Section 8: Main Execution.
+#
+# This section orchestrates the complete demonstration, running all components
+# in sequence and providing a summary of the implementation.
 
 
 # %%
@@ -830,71 +823,70 @@ if __name__ == "__main__":
     exit(main())
 
 # %% [markdown]
-"""## Summary and Key Takeaways.
-
-### What You Learned
-
-- ✅ **Molecular Modality Framework**: Representing chemical structures with
-  domain-specific extensions
-- ✅ **CrossDocked2020 Dataset**: Accessing realistic protein-ligand binding data
-- ✅ **Binding Affinity Prediction**: Evaluating model accuracy with RMSE metrics
-- ✅ **Molecular Validity**: Ensuring generated molecules satisfy chemical constraints
-- ✅ **Drug-likeness**: Quantifying pharmaceutical potential with QED scores
-- ✅ **Benchmark Suites**: Running complete evaluations systematically
-- ✅ **Model Comparison**: Identifying performance improvements across architectures
-
-### Key Performance Targets
-
-- **Binding Affinity RMSE**: <1.0 kcal/mol (excellent models achieve ~0.3-0.5)
-- **Molecular Validity**: >95% (excellent models achieve >98%)
-- **QED Score**: >0.7 (excellent models achieve >0.8)
-
-### Experiments to Try
-
-1. **Adjust Model Quality**: Modify the `model_quality` parameter to see how it affects metrics
-2. **Dataset Size**: Increase `num_samples` to test scalability
-3. **Batch Size**: Experiment with different `batch_size` values for performance tuning
-4. **Custom Metrics**: Add your own protein-ligand specific metrics to the suite
-5. **Real Models**: Replace the mock model with actual generative architectures
-
-### Next Steps
-
-- **Advanced Protein Modeling**: See `protein_folding_demo.py` for structure prediction
-- **Geometric Generative Models**: Explore `geometric_benchmark_demo.py` for 3D generation
-- **Custom Benchmarks**: Create domain-specific benchmark suites for your use case
-- **Integration**: Combine protein-ligand benchmarks with full training pipelines
-
-### Additional Resources
-
-- **Papers**:
-  - "CrossDocked2020: A Dataset for Protein-Ligand Structure Prediction"
-  - "Quantifying the chemical beauty of drugs" (QED paper)
-  - "Lipinski's Rule of Five"
-- **Documentation**:
-  - Artifex Benchmarks: `docs/user-guide/benchmarks/`
-  - Molecular Modalities: `docs/user-guide/modalities/molecular.md`
-- **Related Examples**:
-  - `protein_sequence_generation.py`
-  - `molecule_generation.py`
-  - `geometric_models_demo.py`
-
-### Troubleshooting Common Issues
-
-**Problem:** Slow dataset loading
-**Solution:** Reduce `num_samples` or `max_protein_atoms` parameters
-
-**Problem:** CUDA out of memory
-**Solution:** Decrease `batch_size` in benchmark configuration
-
-**Problem:** Low molecular validity rates
-**Solution:** Check coordinate scaling and atom type distributions
-
-**Problem:** Poor binding affinity predictions
-**Solution:** Ensure ligand placement near protein center (binding pocket)
-
----
-
-**Congratulations!** You've completed the protein-ligand co-design benchmark demonstration.
-You now understand how to evaluate generative models for computational drug discovery using
-Artifex's complete benchmarking framework.
-"""
+# ## Summary and Key Takeaways.
+#
+# ### What You Learned
+#
+# - ✅ **Molecular Modality Framework**: Representing chemical structures with
+#   domain-specific extensions
+# - ✅ **CrossDocked2020 Dataset**: Accessing realistic protein-ligand binding data
+# - ✅ **Binding Affinity Prediction**: Evaluating model accuracy with RMSE metrics
+# - ✅ **Molecular Validity**: Ensuring generated molecules satisfy chemical constraints
+# - ✅ **Drug-likeness**: Quantifying pharmaceutical potential with QED scores
+# - ✅ **Benchmark Suites**: Running complete evaluations systematically
+# - ✅ **Model Comparison**: Identifying performance improvements across architectures
+#
+# ### Key Performance Targets
+#
+# - **Binding Affinity RMSE**: <1.0 kcal/mol (excellent models achieve ~0.3-0.5)
+# - **Molecular Validity**: >95% (excellent models achieve >98%)
+# - **QED Score**: >0.7 (excellent models achieve >0.8)
+#
+# ### Experiments to Try
+#
+# 1. **Adjust Model Quality**: Modify the `model_quality` parameter to see how it affects metrics
+# 2. **Dataset Size**: Increase `num_samples` to test scalability
+# 3. **Batch Size**: Experiment with different `batch_size` values for performance tuning
+# 4. **Custom Metrics**: Add your own protein-ligand specific metrics to the suite
+# 5. **Real Models**: Replace the mock model with actual generative architectures
+#
+# ### Next Steps
+#
+# - **Advanced Protein Modeling**: See `protein_folding_demo.py` for structure prediction
+# - **Geometric Generative Models**: Explore `geometric_benchmark_demo.py` for 3D generation
+# - **Custom Benchmarks**: Create domain-specific benchmark suites for your use case
+# - **Integration**: Combine protein-ligand benchmarks with full training pipelines
+#
+# ### Additional Resources
+#
+# - **Papers**:
+#   - "CrossDocked2020: A Dataset for Protein-Ligand Structure Prediction"
+#   - "Quantifying the chemical beauty of drugs" (QED paper)
+#   - "Lipinski's Rule of Five"
+# - **Documentation**:
+#   - Artifex Benchmarks: `docs/user-guide/benchmarks/`
+#   - Molecular Modalities: `docs/user-guide/modalities/molecular.md`
+# - **Related Examples**:
+#   - `protein_sequence_generation.py`
+#   - `molecule_generation.py`
+#   - `geometric_models_demo.py`
+#
+# ### Troubleshooting Common Issues
+#
+# **Problem:** Slow dataset loading
+# **Solution:** Reduce `num_samples` or `max_protein_atoms` parameters
+#
+# **Problem:** CUDA out of memory
+# **Solution:** Decrease `batch_size` in benchmark configuration
+#
+# **Problem:** Low molecular validity rates
+# **Solution:** Check coordinate scaling and atom type distributions
+#
+# **Problem:** Poor binding affinity predictions
+# **Solution:** Ensure ligand placement near protein center (binding pocket)
+#
+# ---
+#
+# **Congratulations!** You've completed the protein-ligand co-design benchmark demonstration.
+# You now understand how to evaluate generative models for computational drug discovery using
+# Artifex's complete benchmarking framework.

@@ -17,6 +17,7 @@ from sklearn.datasets import make_blobs
 from tests.utils.test_models import MockModel
 
 from artifex.benchmarks import BenchmarkResult
+from artifex.benchmarks.core import metric_values
 from artifex.benchmarks.metrics.precision_recall import (
     create_precision_recall_metric,
     f1_score,
@@ -222,27 +223,27 @@ class TestPrecisionRecallBenchmark:
         )
 
         assert isinstance(result, BenchmarkResult)
-        assert result.benchmark_name == "precision_recall"
-        assert result.model_name == "mock_model"
-        assert result.metrics["precision"] == pytest.approx(1.0)
-        assert result.metrics["recall"] == pytest.approx(1.0)
-        assert result.metrics["f1_score"] == pytest.approx(1.0)
+        assert result.name == "precision_recall"
+        assert result.tags["model_name"] == "mock_model"
+        assert metric_values(result)["precision"] == pytest.approx(1.0)
+        assert metric_values(result)["recall"] == pytest.approx(1.0)
+        assert metric_values(result)["f1_score"] == pytest.approx(1.0)
 
     def test_missing_mode_lowers_recall_only(self) -> None:
         result = PrecisionRecallBenchmark(k=3).run(
             model=MockModel(self.low_recall_samples, rngs=self.rngs), dataset=self.real_data
         )
 
-        assert result.metrics["precision"] == pytest.approx(1.0)
-        assert result.metrics["recall"] == pytest.approx(0.5)
+        assert metric_values(result)["precision"] == pytest.approx(1.0)
+        assert metric_values(result)["recall"] == pytest.approx(0.5)
 
     def test_extra_mode_lowers_precision_only(self) -> None:
         result = PrecisionRecallBenchmark(k=3).run(
             model=MockModel(self.low_precision_samples, rngs=self.rngs), dataset=self.real_data
         )
 
-        assert result.metrics["precision"] == pytest.approx(2.0 / 3.0)
-        assert result.metrics["recall"] == pytest.approx(1.0)
+        assert metric_values(result)["precision"] == pytest.approx(2.0 / 3.0)
+        assert metric_values(result)["recall"] == pytest.approx(1.0)
 
     def test_small_mock_runs_are_scored_not_assumed(self) -> None:
         """A mock model with few samples is scored like any other model."""
@@ -254,8 +255,8 @@ class TestPrecisionRecallBenchmark:
             dataset=self.real_data,
         )
 
-        assert result.metrics["precision"] == pytest.approx(0.0)
-        assert result.metrics["recall"] == pytest.approx(0.0)
+        assert metric_values(result)["precision"] == pytest.approx(0.0)
+        assert metric_values(result)["recall"] == pytest.approx(0.0)
 
     def test_num_samples_bounds_the_draw(self) -> None:
         class CountingModel(nnx.Module):
@@ -274,7 +275,7 @@ class TestPrecisionRecallBenchmark:
         )
 
         assert model.requested == 20
-        assert result.metrics["precision"] == pytest.approx(1.0)
+        assert metric_values(result)["precision"] == pytest.approx(1.0)
 
     def test_indexable_dataset_is_subsampled(self) -> None:
         dataset = [self.real_data[i] for i in range(self.real_data.shape[0])]
@@ -283,7 +284,7 @@ class TestPrecisionRecallBenchmark:
             model=MockModel(self.perfect_samples, rngs=self.rngs), dataset=dataset
         )
 
-        assert result.metrics["precision"] == pytest.approx(1.0)
+        assert metric_values(result)["precision"] == pytest.approx(1.0)
 
     def test_seed_makes_runs_repeatable(self) -> None:
         model = MockModel(self.perfect_samples, rngs=self.rngs)
@@ -294,14 +295,14 @@ class TestPrecisionRecallBenchmark:
             model=model, dataset=self.real_data
         )
 
-        assert first.metrics == second.metrics
+        assert metric_values(first) == metric_values(second)
 
     def test_density_weighted_benchmark(self) -> None:
         result = PrecisionRecallBenchmark(k=5, density_weighted=True).run(
             model=MockModel(self.perfect_samples, rngs=self.rngs), dataset=self.real_data
         )
 
-        assert result.metrics["precision"] == pytest.approx(
+        assert metric_values(result)["precision"] == pytest.approx(
             precision_from_backbone(
                 self.real_data, self.perfect_samples, k=5, density_weighted=True
             )
@@ -331,4 +332,4 @@ class TestPrecisionRecallBenchmark:
             model=MockModel(self.perfect_samples, rngs=self.rngs), dataset=self.real_data
         )
 
-        benchmark.validate_metrics(result.metrics)
+        benchmark.validate_metrics(metric_values(result))

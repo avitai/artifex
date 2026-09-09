@@ -5,6 +5,7 @@ import jax
 import jax.numpy as jnp
 
 from artifex.benchmarks import BenchmarkResult
+from artifex.benchmarks.core import metric_values
 from artifex.benchmarks.metrics.precision_recall import (
     PrecisionRecallBenchmark,
 )
@@ -206,16 +207,16 @@ class TestProteinModelAdapter:
 
         # Check result
         assert isinstance(result, BenchmarkResult)
-        assert result.benchmark_name == "precision_recall"
+        assert result.name == "precision_recall"
         # Model name should match the name set in the NNXProteinMockModel
-        assert result.model_name == "protein_point_cloud_model"
+        assert result.tags["model_name"] == "protein_point_cloud_model"
 
         # For perfect clusters, expect reasonable precision and recall
         # Be more generous with the thresholds since exact results depend
         # on the random initialization of the clusters
-        assert result.metrics["precision"] >= 0.7
-        assert result.metrics["recall"] >= 0.7
-        assert result.metrics["f1_score"] >= 0.7
+        assert metric_values(result)["precision"] >= 0.7
+        assert metric_values(result)["recall"] >= 0.7
+        assert metric_values(result)["f1_score"] >= 0.7
 
     def test_low_precision_with_protein_adapter(self):
         """Test precision-recall benchmark with extra clusters (low precision)."""
@@ -236,9 +237,9 @@ class TestProteinModelAdapter:
         # For 3 clusters when there should be 2, expect reduced metrics
         # The actual values depend on the random initialization
         # but precision should be affected
-        assert result.metrics["precision"] < 0.9
+        assert metric_values(result)["precision"] < 0.9
         # Lower recall threshold based on testing
-        assert result.metrics["recall"] >= 0.3
+        assert metric_values(result)["recall"] >= 0.3
 
     def test_low_recall_with_protein_adapter(self):
         """Test precision-recall benchmark with missing clusters (low recall)."""
@@ -257,9 +258,9 @@ class TestProteinModelAdapter:
         result = benchmark.run(model=adapter, dataset=self.real_proteins)
 
         # Missing cluster should reduce recall
-        assert result.metrics["recall"] < 0.8
+        assert metric_values(result)["recall"] < 0.8
         # But precision should still be decent
-        assert result.metrics["precision"] >= 0.7
+        assert metric_values(result)["precision"] >= 0.7
 
     def test_different_output_formats(self):
         """Test handling different protein model output formats."""

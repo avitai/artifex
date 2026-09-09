@@ -88,7 +88,7 @@ def test_benchmark_foundation_lives_only_under_artifex_benchmarks_core() -> None
     assert payload["benchmark_module"] == "artifex.benchmarks.core.foundation"
     assert payload["benchmark_base_module"] == "artifex.benchmarks.core.nnx"
     assert payload["config_module"] == "artifex.benchmarks.core.foundation"
-    assert payload["result_module"] == "artifex.benchmarks.core.foundation"
+    assert payload["result_module"] == "calibrax.core.result"
     assert payload["runner_module"] == "artifex.benchmarks.core.runner"
     assert payload["suite_module"] == "artifex.benchmarks.core.foundation"
     assert payload["tracker_module"] == "artifex.benchmarks.core.runner"

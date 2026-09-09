@@ -8,12 +8,8 @@ from typing import Any, cast
 import jax.numpy as jnp
 from flax import nnx
 
-from artifex.benchmarks import (
-    Benchmark,
-    BenchmarkConfig,
-    BenchmarkResult,
-    BenchmarkSuite,
-)
+from artifex.benchmarks import Benchmark, BenchmarkConfig, BenchmarkResult, BenchmarkSuite
+from artifex.benchmarks.core import benchmark_result
 from artifex.benchmarks.datasets.qm9 import QM9Dataset
 from artifex.benchmarks.metrics.molecular_flows import (
     MolecularFlowsMetrics,
@@ -260,10 +256,10 @@ class SE3MolecularFlowsBenchmark(Benchmark):
             key: float(value) for key, value in results.items() if isinstance(value, (int, float))
         }
 
-        return BenchmarkResult(
-            benchmark_name="SE3MolecularFlows",
-            model_name=getattr(model, "name", "SE3MolecularFlow"),
-            metrics=numeric_metrics,
+        return benchmark_result(
+            "SE3MolecularFlows",
+            getattr(model, "name", "SE3MolecularFlow"),
+            numeric_metrics,
             metadata={
                 "config": self.config.metadata,
                 "passed": meets_targets,
