@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.5] - 2026-09-09
+
 ### Added
 
 - Documentation pages for the two backbone families no artifex model uses yet, the
@@ -37,8 +39,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - artifex depends on `substrax` (device identity, meshes, SPMD helpers, the checkpoint
   store, callbacks and trackers shared across the Avitai libraries) and raises its floors
   to `calibrax>=0.1.3`, `jax>=0.11.1` and `orbax-checkpoint>=0.11.33`, the versions every
-  sibling tests and the lock already resolved; the substrax floor is 0.1.3, the release whose
-  W&B logger forwards init options and whose store keeps every checkpoint on request.
+  sibling tests and the lock already resolved; the substrax floor is 0.1.4, the release whose
+  W&B logger forwards init options, whose store keeps every checkpoint on request, and whose
+  device meshes default to `Auto` axis types (jax 0.11 made `jax.make_mesh` explicit, which
+  broke the backward pass of any data-parallel step).
 - The datarax floor is 0.1.6, the release whose distributed and checkpoint code is substrax's.
 - The calibrax floor is 0.1.5, the release carrying the Fréchet, inception-score, correlation,
   autocorrelation, skewness, RMSD and masked-perplexity functions the evaluations now call.

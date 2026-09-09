@@ -400,7 +400,7 @@ wheels = [
 
 [[package]]
 name = "avitai-artifex"
-version = "0.1.4"
+version = "0.1.5"
 source = { editable = "." }
 dependencies = [
     { name = "blackjax" },
@@ -897,7 +897,7 @@ requires-dist = [
     { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.1.5" },
     { name = "scikit-learn", specifier = ">=1.6.1" },
     { name = "scipy", specifier = ">=1.12.1" },
-    { name = "substrax", specifier = ">=0.1.3" },
+    { name = "substrax", specifier = ">=0.1.4" },
     { name = "tensorboard", marker = "extra == 'dev'", specifier = ">=2.16" },
     { name = "tensorboard", marker = "extra == 'logging'", specifier = ">=2.16" },
     { name = "tqdm", specifier = ">=4.67" },
@@ -6322,7 +6322,7 @@ wheels = [
 
 [[package]]
 name = "substrax"
-version = "0.1.3"
+version = "0.1.4"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "flax" },
@@ -6331,9 +6331,9 @@ dependencies = [
     { name = "numpy" },
     { name = "orbax-checkpoint" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/46/3b/28449bd9349635b683c44a0d6c41ea3c0fe918525cb7ac056eedfb6c5423/substrax-0.1.3.tar.gz", hash = "sha256:d3f84e5b46a8b65f3bc8457d8ee913e3a33251303fadf205a942cd6d1f1f0802", size = 38211, upload-time = "2026-09-09T04:13:58.325Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/ed/d3/3bab10ca05c3d0f2a6baa06c21254699a02ff8c3a1fb788ced9c968c0f93/substrax-0.1.4.tar.gz", hash = "sha256:38bad309550eadd2a5c55f3b174b20db349ba19aacef6a8c5d79378150efd533", size = 38585, upload-time = "2026-09-09T06:08:01.312Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/f3/b4/13c06f7a4cefdd0e2eb80d32bb6d7f85399a53f3413e499373b818b35abb/substrax-0.1.3-py3-none-any.whl", hash = "sha256:174d56b2b46dda88f07538fd9f19ee2c25d7ef7405f8187d3b72480705dbe811", size = 45242, upload-time = "2026-09-09T04:13:56.584Z" },
+    { url = "https://files.pythonhosted.org/packages/53/69/3a22d6cb203720e1c06150e78517a635cf9bb7c76d2325fb5d187ddaced5/substrax-0.1.4-py3-none-any.whl", hash = "sha256:15026438a6e2423fa207dd3b4f5650b2fe37f379b11d854982ff0a4f84acf9ab", size = 45673, upload-time = "2026-09-09T06:07:59.809Z" },
 ]
 
 [[package]]
