@@ -1156,10 +1156,9 @@
     "src/artifex/generative_models/training/trainer.py": {
       "ANN204": 1,
       "B004": 1,
-      "C901": 2,
+      "C901": 1,
       "PLR0912": 1,
-      "PLR0913": 1,
-      "PLR0915": 1
+      "PLR0913": 1
     },
     "src/artifex/generative_models/training/trainers/autoregressive_trainer.py": {
       "PLR0913": 1

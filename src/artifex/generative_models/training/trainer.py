@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Callable
 from pathlib import Path
-from typing import Any, cast, TYPE_CHECKING
+from typing import Any, cast, NamedTuple, TYPE_CHECKING
 
 import jax
 import jax.numpy as jnp
@@ -25,6 +25,8 @@ from artifex.generative_models.utils.logging import Logger, MetricsLogger
 
 
 if TYPE_CHECKING:
+    from datarax.pipeline import Pipeline
+
     from artifex.generative_models.extensions.base import (
         Extension,
     )
@@ -34,6 +36,16 @@ TrainerLossFn = Callable[
     [nnx.Module, dict[str, Any], jax.Array, jax.Array],
     tuple[jax.Array, dict[str, Any]],
 ]
+
+
+class _EpochContext(NamedTuple):
+    """What one training epoch needs beyond the pipeline it iterates."""
+
+    epoch: int
+    num_epochs: int
+    val_data: dict[str, Any] | None
+    batch_size: int
+    val_interval: int
 
 
 class Trainer:
@@ -152,6 +164,8 @@ class Trainer:
 
         # Training state (step counter and rng)
         self.step = 0
+        # The compiled gradient step, built on first use (see _build_compiled_step).
+        self._compiled_step: Callable[..., tuple[jax.Array, dict[str, Any], Any]] | None = None
 
     def _create_optimizer(self) -> optax.GradientTransformation:
         """Create optimizer from training config.
@@ -262,12 +276,63 @@ class Trainer:
             return False
         return any(getattr(callback, "should_stop", False) is True for callback in self.callbacks)
 
-    def train_step(self, batch: dict[str, Any]) -> dict[str, Any]:
-        """Execute a single training step using NNX transforms.
+    def _build_compiled_step(self) -> Callable[..., tuple[jax.Array, dict[str, Any], Any]]:
+        """Compile the gradient step once: loss, gradients, optimizer update.
 
-        This method uses nnx.value_and_grad to properly handle NNX module state
-        during gradient computation. Extension losses are aggregated with the
-        base model loss.
+        The compiled function takes the model, the extensions, the optimizer
+        state, a batch and ``(step_rng, step_index)``, updates the model in
+        place and returns ``(loss, metrics, new_opt_state)``. Everything with a
+        Python side effect (callbacks, logging, metric history) stays outside.
+        """
+        loss_fn = self.loss_fn
+        optimizer = self.optimizer
+
+        @nnx.jit
+        def compiled_step(
+            model: nnx.Module,
+            extensions: dict[str, Extension],
+            opt_state: Any,
+            batch: dict[str, Any],
+            step_state: tuple[jax.Array, jax.Array],
+        ) -> tuple[jax.Array, dict[str, Any], Any]:
+            step_rng, step_index = step_state
+
+            def total_loss_fn(model: nnx.Module) -> tuple[jax.Array, dict[str, Any]]:
+                base_loss, base_metrics = loss_fn(model, batch, step_rng, step_index)
+                ext_losses: dict[str, jax.Array] = {}
+                total_ext_loss = jnp.array(0.0)
+                model_outputs = None
+                if extensions:
+                    if hasattr(model, "__call__") and "input" in batch:
+                        model_outputs = model(batch["input"])
+                    else:
+                        encode_fn = getattr(model, "encode", None)
+                        if encode_fn is not None and "input" in batch:
+                            model_outputs = encode_fn(batch["input"])
+                for ext_name, ext in extensions.items():
+                    if ext.is_enabled():
+                        ext_loss_fn = getattr(ext, "loss_fn", None)
+                        if ext_loss_fn is not None:
+                            weighted_loss = ext.weight * ext_loss_fn(batch, model_outputs)
+                            ext_losses[f"{ext_name}_loss"] = weighted_loss
+                            total_ext_loss = total_ext_loss + weighted_loss
+                return base_loss + total_ext_loss, {**base_metrics, **ext_losses}
+
+            (loss, metrics), grads = nnx.value_and_grad(total_loss_fn, has_aux=True)(model)
+            param_grads = cast(optax.Updates, nnx.state(grads, nnx.Param))
+            params = cast(optax.Params, nnx.state(model, nnx.Param))
+            updates, new_opt_state = optimizer.update(param_grads, opt_state, params)
+            nnx.update(model, optax.apply_updates(params, updates))
+            return loss, metrics, new_opt_state
+
+        return compiled_step
+
+    def train_step(self, batch: dict[str, Any]) -> dict[str, Any]:
+        """Execute a single training step through the compiled gradient step.
+
+        The step (base loss plus enabled extension losses, gradients, optimizer
+        update) is compiled once per batch shape; callbacks, logging and the
+        metric history run around it in Python.
 
         Args:
             batch: Batch of training data
@@ -283,80 +348,28 @@ class Trainer:
             if on_batch_begin is not None:
                 on_batch_begin(self, self.step)
 
-        # Split RNG for this step
         self.rng, step_rng = jax.random.split(self.rng)
+        if self._compiled_step is None:
+            self._compiled_step = self._build_compiled_step()
+        loss, metrics, self.opt_state = self._compiled_step(
+            self.model,
+            self.extensions,
+            self.opt_state,
+            batch,
+            (step_rng, jnp.asarray(self.step, dtype=jnp.int32)),
+        )
 
-        # Get model outputs for extensions (computed once, reused)
-        # Define loss function that includes extension losses
-        def loss_fn(model: nnx.Module) -> tuple[jax.Array, dict[str, Any]]:
-            # Compute base loss
-            base_loss, base_metrics = self.loss_fn(model, batch, step_rng, jnp.array(self.step))
-
-            # Compute extension losses
-            ext_losses: dict[str, jax.Array] = {}
-            total_ext_loss = jnp.array(0.0)
-
-            # Get model outputs for extensions
-            model_outputs = None
-            if self.extensions:
-                # Get outputs from model if it has a __call__ method
-                if hasattr(model, "__call__") and "input" in batch:
-                    model_outputs = model(batch["input"])
-                else:
-                    encode_fn = getattr(model, "encode", None)
-                    if encode_fn is not None and "input" in batch:
-                        model_outputs = encode_fn(batch["input"])
-
-            for ext_name, ext in self.extensions.items():
-                if ext.is_enabled():
-                    ext_loss_fn = getattr(ext, "loss_fn", None)
-                    if ext_loss_fn is not None:
-                        ext_loss = ext_loss_fn(batch, model_outputs)
-                        weighted_loss = ext.weight * ext_loss
-                        ext_losses[f"{ext_name}_loss"] = weighted_loss
-                        total_ext_loss = total_ext_loss + weighted_loss
-
-            # Combine base loss with extension losses
-            total_loss = base_loss + total_ext_loss
-
-            # Merge metrics
-            metrics = {**base_metrics, **ext_losses}
-
-            return total_loss, metrics
-
-        # Compute loss and gradients using NNX transform
-        # nnx.value_and_grad handles the model state properly
-        (loss, metrics), grads = nnx.value_and_grad(loss_fn, has_aux=True)(self.model)
-
-        # Extract parameter gradients and params as pytree-compatible types
-        param_grads = cast(optax.Updates, nnx.state(grads, nnx.Param))
-        params = cast(optax.Params, nnx.state(self.model, nnx.Param))
-
-        # Compute parameter updates
-        updates, self.opt_state = self.optimizer.update(param_grads, self.opt_state, params)
-
-        # Apply updates to model parameters in-place
-        updated_params = optax.apply_updates(params, updates)
-        nnx.update(self.model, updated_params)
-
-        # Update step counter
         self.step += 1
-
-        # Add loss and step to metrics
         metrics = {**metrics, "loss": float(loss), "step": self.step}
 
-        # Log metrics if callback is provided
         if self.log_callback is not None:
             self.log_callback(self.step, metrics, prefix="train")
 
-        # Store metrics
         self.train_metrics.append(metrics)
 
-        # Call callbacks (after step completes, minimal overhead path)
         if self.callbacks is not None:
             self.callbacks.on_batch_end(self, self.step, metrics)
 
-        # Call extension callbacks
         for _ext_name, ext in self.extensions.items():
             on_batch_end = getattr(ext, "on_batch_end", None)
             if on_batch_end is not None:
@@ -445,50 +458,36 @@ class Trainer:
             if on_train_begin is not None:
                 on_train_begin(self)
 
+        # One shuffled pipeline for the whole call: each epoch after the first
+        # starts with ``reset()``, which serves a new permutation of the data.
+        self.rng, shuffle_rng = jax.random.split(self.rng)
+        shuffle_seed = int(jax.random.randint(shuffle_rng, (), 0, 2**31 - 1))
+        source = MemorySource(
+            MemorySourceConfig(shuffle=True),
+            train_data,
+            rngs=nnx.Rngs(shuffle_seed),
+        )
+        pipeline = create_data_pipeline(source, batch_size=batch_size, rngs=nnx.Rngs(shuffle_seed))
+
         try:
             for epoch in range(num_epochs):
                 if self.callbacks is not None:
                     self.callbacks.on_epoch_begin(self, epoch)
 
-                epoch_metrics: list[dict[str, Any]] = []
-
-                # Create a shuffled datarax pipeline for this epoch
-                self.rng, shuffle_rng = jax.random.split(self.rng)
-                epoch_seed = int(jax.random.randint(shuffle_rng, (), 0, 2**31 - 1))
-                source = MemorySource(
-                    MemorySourceConfig(shuffle=True),
-                    train_data,
-                    rngs=nnx.Rngs(epoch_seed),
+                if epoch > 0:
+                    pipeline.reset()
+                epoch_metrics = self._run_epoch(
+                    pipeline,
+                    _EpochContext(
+                        epoch=epoch,
+                        num_epochs=num_epochs,
+                        val_data=val_data,
+                        batch_size=batch_size,
+                        val_interval=val_interval,
+                    ),
                 )
-                pipeline = create_data_pipeline(source, batch_size=batch_size)
-
-                for batch in pipeline:
-                    # Train step
-                    metrics = self.train_step(batch)
-                    epoch_metrics.append(metrics)
-
-                    # Log metrics
-                    if self.metrics_logger:
-                        self.metrics_logger.log_training_metrics(metrics, step=self.step)
-
-                    # Validate periodically
-                    if val_data is not None and self.step % val_interval == 0:
-                        val_metrics = self.evaluate(val_data, batch_size)
-                        if self.metrics_logger:
-                            self.metrics_logger.log_validation_metrics(val_metrics, step=self.step)
-
-                    # Save checkpoint
-                    if self.checkpoint_dir and self.step % self.save_interval == 0:
-                        self.save_checkpoint()
-
-                    # Log progress
-                    if self.step % 100 == 0 and self.logger:
-                        self.logger.log_text(
-                            "progress",
-                            f"Epoch {epoch + 1}/{num_epochs}, "
-                            f"Step {self.step}, "
-                            f"Loss: {metrics['loss']:.4f}",
-                        )
+                if epoch_metrics:
+                    metrics = epoch_metrics[-1]
 
                 epoch_logs = self._average_metrics(epoch_metrics)
 
@@ -527,6 +526,37 @@ class Trainer:
                 on_train_end = getattr(ext, "on_train_end", None)
                 if on_train_end is not None:
                     on_train_end(self)
+
+    def _run_epoch(self, pipeline: Pipeline, context: _EpochContext) -> list[dict[str, Any]]:
+        """Train over one pass of ``pipeline``; return the per-step metrics.
+
+        Periodic validation, checkpointing and progress logging happen here,
+        keyed on the global step.
+        """
+        epoch_metrics: list[dict[str, Any]] = []
+        for batch in pipeline:
+            metrics = self.train_step(batch)
+            epoch_metrics.append(metrics)
+
+            if self.metrics_logger:
+                self.metrics_logger.log_training_metrics(metrics, step=self.step)
+
+            if context.val_data is not None and self.step % context.val_interval == 0:
+                val_metrics = self.evaluate(context.val_data, context.batch_size)
+                if self.metrics_logger:
+                    self.metrics_logger.log_validation_metrics(val_metrics, step=self.step)
+
+            if self.checkpoint_dir and self.step % self.save_interval == 0:
+                self.save_checkpoint()
+
+            if self.step % 100 == 0 and self.logger:
+                self.logger.log_text(
+                    "progress",
+                    f"Epoch {context.epoch + 1}/{context.num_epochs}, "
+                    f"Step {self.step}, "
+                    f"Loss: {metrics['loss']:.4f}",
+                )
+        return epoch_metrics
 
     def evaluate(self, data: dict[str, Any], batch_size: int) -> dict[str, Any]:
         """Evaluate the model on data.

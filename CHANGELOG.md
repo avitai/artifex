@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- `Trainer.train` builds one datarax pipeline per call and starts every later epoch
+  with `Pipeline.reset()` (datarax 0.1.8), so each epoch is a permutation of the data in
+  a fresh order. It used to build a new `MemorySource` and pipeline every epoch, which
+  retraced the pipeline's compiled session each time (about 55 ms per batch on a small
+  dataset) and, through the datarax defect fixed in 0.1.8, served overlapping batches.
+- `Trainer.train_step` runs its gradient step (base loss, enabled extension losses,
+  `nnx.value_and_grad`, the optax update) through one `nnx.jit`-compiled function, traced
+  once per batch shape; callbacks, logging and the metric history stay in Python. The
+  eager step cost 27 ms for a 2x32x32x1 MLP on CPU against 0.7 ms compiled.
+
 ## [0.1.5] - 2026-09-09
 
 ### Added

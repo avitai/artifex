@@ -35,7 +35,7 @@ dependencies = [
   "blackjax>=1.2.5",
   "calibrax>=0.1.5",
   "dacite>=1.8.0",
-  "datarax>=0.1.6",
+  "datarax>=0.1.8",
   # 0.1.7 calls jax.core.is_concrete and jax.core.valid_jaxtype, which jax deprecated in
   # 0.10 and removed in 0.11; every distrax-backed distribution raises AttributeError on
   # the jax this project now resolves. 0.1.9 no longer references either.
@@ -770,7 +770,7 @@ max-complexity = 10
 "src/artifex/generative_models/training/rl/rewards.py" = ["B905", "RET505"]
 "src/artifex/generative_models/training/rl/types.py" = ["PLR0913"]
 "src/artifex/generative_models/training/schedulers/factory.py" = ["ANN001", "ANN202", "C901", "PLR0911", "PLR0912", "PLR1714", "RET505"]
-"src/artifex/generative_models/training/trainer.py" = ["ANN204", "B004", "C901", "PLR0912", "PLR0913", "PLR0915"]
+"src/artifex/generative_models/training/trainer.py" = ["ANN204", "B004", "C901", "PLR0912", "PLR0913"]
 "src/artifex/generative_models/training/trainers/autoregressive_trainer.py" = ["PLR0913"]
 "src/artifex/generative_models/training/trainers/energy_trainer.py" = ["PLR0913", "RET504"]
 "src/artifex/generative_models/training/trainers/gan_trainer.py" = ["PLR0913"]

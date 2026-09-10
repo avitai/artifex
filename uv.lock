@@ -812,7 +812,7 @@ requires-dist = [
     { name = "coverage", marker = "extra == 'dev'", specifier = ">=7" },
     { name = "coverage", marker = "extra == 'test'", specifier = ">=7" },
     { name = "dacite", specifier = ">=1.8.0" },
-    { name = "datarax", specifier = ">=0.1.6" },
+    { name = "datarax", specifier = ">=0.1.8" },
     { name = "datasets", marker = "extra == 'benchmarks'", specifier = ">=2.14.0" },
     { name = "deadcode", marker = "extra == 'dev'", specifier = ">=2.4" },
     { name = "deptry", marker = "extra == 'dev'", specifier = ">=0.23" },
@@ -1531,7 +1531,7 @@ wheels = [
 
 [[package]]
 name = "datarax"
-version = "0.1.6"
+version = "0.1.8"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "array-record" },
@@ -1549,9 +1549,9 @@ dependencies = [
     { name = "substrax" },
     { name = "tomli-w" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/4b/e7/9b8cd0380b03d5b04940bfedc97ca4d8c51e8148346a98d5ea21cc6db450/datarax-0.1.6.tar.gz", hash = "sha256:f6671221e98aa6c03f727dc998133dad4c7fceab0f5d9aef8158f421315098d2", size = 231676, upload-time = "2026-09-09T04:17:32.011Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/96/a0/7178df0e87bc23b1b34b7545132e12edd15e12b3d467da6038a4f7973224/datarax-0.1.8.tar.gz", hash = "sha256:a083ca8e5bb2cda58c35fa3122f6c98b11c2bfe4c1ca55269dacf22e8bdda042", size = 232284, upload-time = "2026-09-10T05:30:54.831Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/c6/4a/a7b5f71cd254b28f9da24fc8d60c4546aaa1bd601cae7da1e72a61bdc7ae/datarax-0.1.6-py3-none-any.whl", hash = "sha256:ec6904a1b36b1c24a0a4efe49a0b6a490787f86d7f164c00169f2fe680d4b2ca", size = 279624, upload-time = "2026-09-09T04:17:29.776Z" },
+    { url = "https://files.pythonhosted.org/packages/bf/ad/13e512375e39484e8bbdbc0a76d2ab7f1c81233cc9941beec5cb163a78f4/datarax-0.1.8-py3-none-any.whl", hash = "sha256:228f11d18ca16c1e188d61115341dbb3385caba5c606815b3bed60359961d7f4", size = 280303, upload-time = "2026-09-10T05:30:52.54Z" },
 ]
 
 [[package]]
