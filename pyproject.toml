@@ -468,7 +468,7 @@ save_data = true
 warmup = true
 warmup_iterations = 3
 
-[tool.pytest-env]
+[tool.pytest_env]
 ARTIFEX_MATMUL_PRECISION = "float32"
 JAX_ENABLE_X64 = "0"
 PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION = "python"
