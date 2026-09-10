@@ -7,7 +7,7 @@
 [![Flax](https://img.shields.io/badge/Flax-NNX-orange)](https://github.com/google/flax)
 [![License](https://img.shields.io/badge/License-MIT-yellow)](LICENSE)
 
-## A research-focused modular generative modeling library built on JAX/Flax NNX
+## Generative modeling for JAX/Flax NNX: VAEs, GANs, diffusion, flows, energy-based, autoregressive and geometric models across seven modalities
 
 From Latin "artifex": craftsman, artist, maker.
 
