@@ -24,7 +24,7 @@ Example usage:
 
     # Explicit composition stays simple and JAX-native
     perceptual_loss = create_vgg_perceptual_loss()
-    schedule_weight = min(1.0, step / 1000)
+    schedule_weight = jnp.minimum(1.0, step / 1000)  # step may be traced
     total_loss = content_loss + 0.1 * schedule_weight * perceptual_loss(predictions, targets)
 
     # Adversarial objectives stay explicit

@@ -92,7 +92,10 @@ class Trainer:
             workdir: Working directory for outputs.
             rng: JAX random number generator key.
             loss_fn: Explicit objective function. Signature:
-                     loss_fn(model, batch, rng, step) -> (loss, metrics_dict)
+                     loss_fn(model, batch, rng, step) -> (loss, metrics_dict).
+                     It runs inside the compiled step: ``step`` is a traced
+                     int32 scalar (use ``jnp`` arithmetic on it, never
+                     ``int()``), and Python side effects run at trace time only.
             metrics_logger: Logger for training metrics.
             logger: Artifex logger for general logging.
             checkpoint_dir: Directory to save checkpoints.

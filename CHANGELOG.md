@@ -17,7 +17,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Trainer.train_step` runs its gradient step (base loss, enabled extension losses,
   `nnx.value_and_grad`, the optax update) through one `nnx.jit`-compiled function, traced
   once per batch shape; callbacks, logging and the metric history stay in Python. The
-  eager step cost 27 ms for a 2x32x32x1 MLP on CPU against 0.7 ms compiled.
+  eager step cost 27 ms for a 2x32x32x1 MLP on CPU against 0.7 ms compiled. For objective
+  authors: `loss_fn(model, batch, rng, step)` now runs under `nnx.jit`, so `step` is a
+  traced int32 scalar (`jnp` arithmetic, not `int()`), and Python side effects inside the
+  objective run at trace time only. `AutoregressiveTrainer.get_teacher_forcing_prob` is
+  traceable in `step` and returns a float32 scalar.
 
 ## [0.1.5] - 2026-09-09
 

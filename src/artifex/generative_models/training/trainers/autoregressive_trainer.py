@@ -192,47 +192,43 @@ class AutoregressiveTrainer:
         """
         self.config = config or AutoregressiveTrainingConfig()
 
-    def get_teacher_forcing_prob(self, step: int) -> float:
+    def get_teacher_forcing_prob(self, step: int | jax.Array) -> jax.Array:
         """Compute teacher forcing probability for scheduled sampling.
+
+        Traceable in ``step``: the objective runs inside the generic Trainer's
+        compiled step, where the step is a traced scalar.
 
         Args:
             step: Current training step.
 
         Returns:
-            Probability of using teacher forcing (0 to 1).
+            Probability of using teacher forcing (0 to 1), a float32 scalar.
         """
+        min_prob = self.config.min_teacher_forcing_prob
         if self.config.scheduled_sampling == "none":
-            return 1.0
+            return jnp.float32(1.0)
 
-        # Apply warmup
-        if step < self.config.sampling_warmup_steps:
-            return 1.0
-
-        # Compute progress through decay
-        decay_step = step - self.config.sampling_warmup_steps
-        progress = min(1.0, decay_step / max(1, self.config.sampling_decay_steps))
+        decay_step = jnp.asarray(step, dtype=jnp.float32) - self.config.sampling_warmup_steps
+        progress = jnp.clip(decay_step / max(1, self.config.sampling_decay_steps), 0.0, 1.0)
 
         if self.config.scheduled_sampling == "linear":
             # Linear decay from 1 to min_prob
-            prob = 1.0 - progress * (1.0 - self.config.min_teacher_forcing_prob)
-
+            prob = 1.0 - progress * (1.0 - min_prob)
         elif self.config.scheduled_sampling == "exponential":
             # Exponential decay: p = k^progress where k = min_prob
-            k = max(self.config.min_teacher_forcing_prob, 1e-6)
+            k = max(min_prob, 1e-6)
             prob = k**progress
-
         elif self.config.scheduled_sampling == "inverse_sigmoid":
             # Inverse sigmoid: smoother transition
             # p = k / (k + exp(progress/k)) where k controls steepness
             k = 0.5
-            sigmoid_val = float(k / (k + jnp.exp(progress / k)))
-            min_prob = self.config.min_teacher_forcing_prob
-            prob = sigmoid_val * (1.0 - min_prob) + min_prob
-
+            prob = k / (k + jnp.exp(progress / k)) * (1.0 - min_prob) + min_prob
         else:
-            prob = 1.0
+            prob = jnp.float32(1.0)
 
-        return max(self.config.min_teacher_forcing_prob, prob)
+        # Warmup keeps pure teacher forcing whatever the schedule says.
+        in_warmup = jnp.asarray(step) < self.config.sampling_warmup_steps
+        return jnp.where(in_warmup, 1.0, jnp.maximum(min_prob, prob)).astype(jnp.float32)
 
     def apply_label_smoothing(
         self,
@@ -268,7 +264,7 @@ class AutoregressiveTrainer:
         self,
         model: nnx.Module,
         batch: dict[str, Any],
-        step: int = 0,
+        step: int | jax.Array = 0,
         key: jax.Array | None = None,
     ) -> tuple[jax.Array, dict[str, Any]]:
         """Compute autoregressive training loss.
@@ -304,9 +300,11 @@ class AutoregressiveTrainer:
         else:
             mask = None
 
-        # Teacher forcing vs scheduled sampling
+        # Teacher forcing vs scheduled sampling. The choice is static (config and
+        # key); the probability is traced, so during warmup the sampling path
+        # keeps every position on teacher forcing (uniform < 1.0 always holds).
         tf_prob = self.get_teacher_forcing_prob(step)
-        use_scheduled_sampling = tf_prob < 1.0 and key is not None
+        use_scheduled_sampling = self.config.scheduled_sampling != "none" and key is not None
 
         if use_scheduled_sampling and key is not None:
             # Scheduled sampling: mix teacher forcing with model predictions
@@ -352,7 +350,7 @@ class AutoregressiveTrainer:
         self,
         model: nnx.Module,
         input_ids: jax.Array,
-        tf_prob: float,
+        tf_prob: float | jax.Array,
         mask: jax.Array | None,
         key: jax.Array,
     ) -> jax.Array:
@@ -454,7 +452,7 @@ class AutoregressiveTrainer:
             rng: jax.Array,
             step: jax.Array,
         ) -> tuple[jax.Array, dict[str, Any]]:
-            return self.compute_loss(model, batch, int(step), rng)
+            return self.compute_loss(model, batch, step, rng)
 
         return loss_fn
 

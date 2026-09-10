@@ -65,15 +65,18 @@ def test_generic_trainer_requires_explicit_loss_fn() -> None:
 
 
 def test_generic_trainer_passes_dynamic_step_to_loss_fn() -> None:
-    """The generic Trainer should provide the current training step to the objective."""
+    """The generic Trainer should provide the current training step to the objective.
+
+    The objective runs inside the compiled step, so the step arrives as a traced
+    int32 scalar: it is read back through the metrics the step returns, not by
+    converting it to a Python int at trace time.
+    """
     model = _SimpleTrainableModule(rngs=nnx.Rngs(0))
-    observed_steps: list[int] = []
 
     def loss_fn(model, batch, rng, step):
         del model, batch, rng
-        observed_steps.append(int(step))
         loss = jnp.array(0.0)
-        return loss, {"loss": loss}
+        return loss, {"loss": loss, "step_seen": step}
 
     trainer = Trainer(
         model=model,
@@ -82,8 +85,7 @@ def test_generic_trainer_passes_dynamic_step_to_loss_fn() -> None:
     )
 
     batch = {"x": jnp.zeros((4, 4), dtype=jnp.float32)}
-    trainer.train_step(batch)
-    trainer.train_step(batch)
+    observed_steps = [int(trainer.train_step(batch)["step_seen"]) for _ in range(2)]
 
     assert observed_steps == [0, 1]
 
