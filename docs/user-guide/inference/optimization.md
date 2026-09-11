@@ -7,10 +7,10 @@ Advanced techniques for optimizing generative model inference: JIT compilation, 
 Inference optimization is critical for deploying generative models in production. This guide covers techniques to maximize throughput, minimize latency, and reduce memory usage while maintaining generation quality.
 
 !!! tip "Performance Gains"
-    - **JIT Compilation**: 10-100x speedup on first-time compilation
-    - **Mixed Precision**: 2-4x throughput improvement
-    - **Quantization**: 2-4x memory reduction
-    - **Batching**: Near-linear scaling with batch size
+    - **JIT Compilation**: removes Python dispatch overhead after the first call
+    - **Mixed Precision**: FP16 or BF16 halves the memory of values stored in half precision
+    - **Quantization**: INT8 weights take half the memory of FP16 and a quarter of FP32
+    - **Batching**: more samples per device call
 
 <div class="grid cards" markdown>
 
@@ -18,7 +18,7 @@ Inference optimization is critical for deploying generative models in production
 
     ---
 
-    Compile JAX functions for dramatic speedups
+    Compile JAX functions with XLA
 
     [:octicons-arrow-right-24: JIT Guide](#jit-compilation)
 
@@ -706,7 +706,7 @@ def benchmark_throughput(
 !!! success "Recommended Optimizations"
     ✅ **Always JIT compile** production inference functions
 
-    ✅ **Use mixed precision (FP16)** on modern GPUs for 2-4x speedup
+    ✅ **Use mixed precision (FP16 or BF16)** on GPUs that support it, and measure the gain
 
     ✅ **Batch requests** to maximize GPU utilization
 
@@ -721,7 +721,7 @@ def benchmark_throughput(
 !!! danger "Avoid These Mistakes"
     ❌ **Don't recompile** on every request (cache JIT functions)
 
-    ❌ **Don't use FP64** unless absolutely necessary (2x slower)
+    ❌ **Don't use FP64** unless the numerics need it (it doubles memory over FP32)
 
     ❌ **Don't ignore batch size** (single samples waste resources)
 
@@ -739,7 +739,7 @@ def benchmark_throughput(
 
 | Issue | Symptom | Solution |
 |-------|---------|----------|
-| **Slow first inference** | 10-60s delay on first call | Warmup JIT compilation during startup |
+| **Slow first inference** | Long delay on the first call | Warmup JIT compilation during startup |
 | **OOM errors** | Out of memory during inference | Reduce batch size or use gradient checkpointing |
 | **Low GPU utilization** | GPU usage < 50% | Increase batch size or use pipelining |
 | **Recompilation on every call** | Consistent slow performance | Use static shapes or cache per-shape functions |
@@ -750,11 +750,11 @@ def benchmark_throughput(
 
 ## Summary
 
-Effective optimization can provide 10-100x speedups:
+Measure each optimization on the hardware you deploy on:
 
-- **JIT Compilation**: Essential for production (10-100x faster)
-- **Mixed Precision**: 2-4x throughput on modern GPUs
-- **Quantization**: Reduce memory 2-4x with minimal quality loss
+- **JIT Compilation**: Essential for production
+- **Mixed Precision**: Less memory, and often higher throughput on GPUs that support it
+- **Quantization**: INT8 weights take half the memory of FP16; check the quality loss
 - **Batching**: Near-linear scaling with batch size
 - **Multi-Device**: Distribute large workloads across GPUs/TPUs
 

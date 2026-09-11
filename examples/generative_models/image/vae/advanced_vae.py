@@ -344,7 +344,7 @@ def train_step(model, optimizer, images, step, labels=None):
     """Single training step (JIT-compiled for speed).
 
     Following JAX best practices: step is traced (not static) to avoid recompilation.
-    JIT compilation provides 3-50x speedup on compute-intensive operations.
+    JIT compilation removes Python overhead from compute-intensive operations.
 
     Args:
         model: VAE model (any variant) with internal RNGs

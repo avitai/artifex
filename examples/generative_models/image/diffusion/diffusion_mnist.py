@@ -72,7 +72,7 @@ The example will:
 3. Demonstrate forward diffusion (adding noise)
 4. Show model forward pass (predicting noise)
 5. Generate samples with DDPM sampling (1000 steps)
-6. Generate samples with DDIM sampling (50 steps, 20x faster!)
+6. Generate samples with DDIM sampling (50 steps, 20x fewer than DDPM)
 7. Visualize the progressive denoising process
 8. Save visualizations to `examples_output/diffusion_mnist_*.png`
 
@@ -96,14 +96,14 @@ $$L = \mathbb{E}_{t, x_0, \epsilon} \left[ \|\epsilon - \epsilon_\theta(x_t, t)\
 Artifex provides:
 - **DDPMModel**: Full DDPM with configurable noise schedules
 - **Noise schedules**: Linear, cosine, and custom schedules
-- **Fast sampling**: DDIM integration for 20-50x speedup
+- **Fast sampling**: DDIM integration for sampling in 20-50x fewer steps
 - **Flexible backbone**: Works with any neural network architecture
 
 ### DDIM: Fast Sampling
 
 DDIM (Denoising Diffusion Implicit Models) enables:
 - Deterministic sampling (same seed → same output)
-- 50 steps instead of 1000 (20x faster!)
+- 50 steps instead of 1000 (20x fewer)
 - Comparable quality to DDPM
 - Enables interpolation in latent space
 
@@ -521,10 +521,10 @@ r"""## Sampling with DDIM (Fast and Good Quality).
 DDIM (Denoising Diffusion Implicit Models) enables **much faster sampling**!
 
 Instead of 1000 steps, DDIM can generate comparable quality with just **50 steps**
-(20x speedup!).
+(20x fewer network evaluations).
 
 **Key advantages:**
-- 20-50x faster than DDPM
+- 20-50x fewer steps than DDPM
 - Deterministic (same seed → same output)
 - Enables interpolation in latent space
 - Comparable quality to DDPM
@@ -534,7 +534,7 @@ This makes diffusion models practical for real-time applications.
 
 # %%
 # Cell 9: Generate Samples with DDIM
-print("⚡ Generating samples with DDIM sampling (50 steps, 20x faster!)...")
+print("⚡ Generating samples with DDIM sampling (50 steps, 20x fewer than DDPM)...")
 print()
 
 # DDIM sampling: only 50 steps instead of 1000!
@@ -547,7 +547,7 @@ samples_ddim = model.sample(
 print(f"✅ Generated {n_samples} samples with DDIM")
 print(f"  - Sample shape: {samples_ddim.shape}")
 print(f"  - Value range: [{samples_ddim.min():.2f}, {samples_ddim.max():.2f}]")
-print("  - Speedup: ~20x faster than DDPM!")
+print("  - Steps: 50 instead of DDPM's 1000")
 print()
 
 # %% [markdown]
@@ -736,7 +736,7 @@ r"""## Summary and Key Takeaways.
 - The forward diffusion process (q) adds noise progressively
 - The reverse process (p) learns to denoise and generate
 - DDPM sampling is slow (1000 steps) but high quality
-- DDIM sampling is fast (50 steps, 20x speedup) with comparable quality
+- DDIM sampling is fast (50 steps, 20x fewer than DDPM) with comparable quality
 - Diffusion models transform noise into structured data iteratively
 
 💡 **Key Insights:**
@@ -775,7 +775,7 @@ print()
 print("💡 Key Takeaways:")
 print("  - Diffusion models transform noise into data through iterative denoising")
 print("  - DDPM: 1000 steps, high quality, slow")
-print("  - DDIM: 50 steps, good quality, 20x faster!")
+print("  - DDIM: 50 steps, good quality, 20x fewer steps!")
 print("  - Artifex provides easy-to-use diffusion components")
 print()
 print("📁 Output files:")

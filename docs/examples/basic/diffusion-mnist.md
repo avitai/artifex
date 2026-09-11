@@ -515,7 +515,7 @@ After training, generate samples using DDIM for fast, high-quality results:
 print("\nGenerating samples...")
 n_samples = 16
 
-# DDIM is 10-20x faster than DDPM with comparable quality
+# DDIM with 50-100 steps uses 10-20x fewer denoising steps than DDPM's 1000
 samples = model.sample(
     n_samples_or_shape=n_samples,
     scheduler="ddim",
@@ -648,7 +648,7 @@ samples_ddim = model.sample(
 )
 ```
 
-**Expected Result:** DDIM with 50-100 steps is 10-20x faster with minimal quality loss.
+**Expected Result:** DDIM with 50-100 steps uses 10-20x fewer denoising steps than DDPM, with minimal quality loss.
 
 ### 4. Loss Function Comparison
 
@@ -745,7 +745,7 @@ In this tutorial, you learned:
 3. **Why Huber loss**: More robust than MSE
 4. **Why warmup**: Prevents early training instability
 5. **How to use DiffusionTrainer**: Artifex's training framework with SOTA techniques
-6. **How to generate samples**: DDIM for 10-20x faster sampling
+6. **How to generate samples**: DDIM for sampling in 10-20x fewer steps
 
 ### Key Takeaways
 

@@ -994,7 +994,7 @@ Typical $\gamma = 5$. Achieves **3.4× faster convergence** by preventing over-w
 
     **Gradient Clipping**: Prevents exploding gradients. Clip gradient norms to 1.0.
 
-    **Mixed Precision Training**: FP16/BF16 provides 2-3× speedup, 40-50% memory reduction.
+    **Mixed Precision Training**: FP16/BF16 halves the memory of values stored in half precision; the speedup depends on the hardware.
 
 **Normalization**:
 
@@ -1082,8 +1082,8 @@ tx = optax.adamw(
 
 **Memory Optimizations**:
 
-- **Gradient Checkpointing**: 30-50% memory reduction, 20% slowdown
-- **Mixed Precision**: 40-50% memory reduction, 2-3× speedup
+- **Gradient Checkpointing**: lower activation memory, at the cost of recomputation
+- **Mixed Precision**: half-precision storage for weights and activations
 - **Smaller Batch Sizes**: Use gradient accumulation to maintain effective batch size
 
 ---
@@ -1702,10 +1702,10 @@ These are *not* replacements for diffusion in the broad sense, but they suggest 
 
 **Inference Optimization**:
 
-- **ONNX Runtime**: 10-30% speedup
-- **TensorRT**: 2-5× speedup on NVIDIA GPUs
+- **ONNX Runtime**: an export-based serving runtime
+- **TensorRT**: NVIDIA's inference compiler
 - **JAX compilation**: Use `jax.jit` and `jax.lax.scan` to compile repeated denoising loops
-- **Flash Attention**: 2-3× speedup for attention layers
+- **Flash Attention**: IO-aware exact attention kernels
 
 **Hardware Requirements**:
 
@@ -1856,7 +1856,7 @@ Diffusion models use a direct recipe: learn to reverse a gradual noising process
 - Apply **EMA** with decay 0.9999—critical for quality
 - **Gradient clipping** and **mixed precision** for stability
 - Monitor **visual samples** not just loss curves
-- **Min-SNR weighting** for 3.4× faster convergence
+- **Min-SNR weighting** for 3.4× faster convergence (Hang et al., 2023)
 
 **Sampling Methods**:
 

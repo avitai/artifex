@@ -161,7 +161,7 @@ config = DiffusionTrainingConfig(loss_weighting="snr")
 
 ### Min-SNR-Gamma Weighting
 
-Clips high SNR weights for 3.4x faster convergence:
+Clips high SNR weights. [Hang et al. (2023)](https://arxiv.org/abs/2303.09556) report 3.4x faster convergence with this weighting:
 
 ```python
 config = DiffusionTrainingConfig(
