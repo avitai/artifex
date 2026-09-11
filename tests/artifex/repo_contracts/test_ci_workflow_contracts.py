@@ -187,6 +187,70 @@ def test_partial_ci_coverage_jobs_defer_threshold_to_combined_report() -> None:
     assert "uv run coverage report" in coverage_step["run"]
 
 
+CAP_OVERRIDES = ("--cov-fail-under", "--no-cov", "-o addopts", "--override-ini")
+
+
+def coverage_cap_violations(workflow: dict, pyproject: dict) -> list[str]:
+    """Return why CI would not fail below the coverage cap, if it would not."""
+    addopts = pyproject["tool"]["pytest"]["ini_options"]["addopts"]
+    addopts = " ".join(addopts) if isinstance(addopts, list) else addopts
+    caps = [int(cap) for cap in re.findall(r"--cov-fail-under[= ](\d+)", addopts)]
+    report_cap = pyproject["tool"]["coverage"]["report"].get("fail_under")
+    unit_job = workflow["jobs"]["unit_tests"]
+    unit_command = next(
+        step["run"]
+        for step in unit_job["steps"]
+        if step.get("name") == "Run unit tests with coverage"
+    )
+    coverage_job = workflow["jobs"]["coverage"]
+    combine_command = next(
+        step["run"]
+        for step in coverage_job["steps"]
+        if step.get("name") == "Combine coverage reports"
+    )
+
+    problems = []
+    if not caps or min(caps) < 80:
+        problems.append(f"pytest addopts cap is {caps}, not at least 80")
+    if report_cap is None or float(report_cap) < 80:
+        problems.append(f"[tool.coverage.report] fail_under is {report_cap}, not at least 80")
+    if not {"push", "pull_request"} <= set(workflow["on"]):
+        problems.append(f"CI runs on {sorted(workflow['on'])}, not on both push and pull_request")
+    problems += [
+        f"job {name} only runs when {job['if']}"
+        for name, job in (("unit_tests", unit_job), ("coverage", coverage_job))
+        if "if" in job
+    ]
+    problems += [
+        f"the unit test command overrides the cap with {override}"
+        for override in CAP_OVERRIDES
+        if override in unit_command
+    ]
+    if "uv run coverage report" not in combine_command or "--fail-under=0" in combine_command:
+        problems.append("the combined coverage job does not run coverage report against fail_under")
+    return problems
+
+
+def test_ci_fails_below_the_coverage_cap() -> None:
+    """Unit tests and the combined report both fail below pyproject's floor on every change."""
+    pyproject = _load_pyproject()
+
+    assert coverage_cap_violations(_load_yaml(".github/workflows/ci.yml"), pyproject) == []
+
+
+def test_ci_uploads_no_coverage_to_codecov() -> None:
+    """coverage.py in CI is the coverage gate; no workflow uploads to Codecov."""
+    uses = [
+        str(step.get("uses", ""))
+        for path in sorted((REPO_ROOT / ".github" / "workflows").glob("*.yml"))
+        for job in _load_yaml(str(path.relative_to(REPO_ROOT))).get("jobs", {}).values()
+        for step in job.get("steps", [])
+    ]
+
+    assert any(action.startswith("actions/checkout@") for action in uses)
+    assert [action for action in uses if action.startswith("codecov/")] == []
+
+
 def test_ci_coverage_artifacts_include_hidden_coverage_data_files() -> None:
     """Coverage aggregation needs the raw hidden .coverage files, not just XML reports."""
     workflow = _load_yaml(".github/workflows/ci.yml")
