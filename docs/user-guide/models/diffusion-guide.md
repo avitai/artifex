@@ -159,7 +159,7 @@ print(f"Generated {samples.shape[0]} samples in only 50 steps!")
 | Aspect | DDPM | DDIM |
 |--------|------|------|
 | **Sampling Steps** | 1000 | 50-100 |
-| **Speed** | Slow | 10-20x faster |
+| **Speed** | 1000 network evaluations | 10-20x fewer evaluations |
 | **Stochasticity** | Stochastic | Deterministic (η=0) |
 | **Quality** | Excellent | Very good |
 | **Use Case** | Training, quality | Inference, speed |
@@ -296,7 +296,7 @@ print(f"High-res samples: {samples.shape}")  # (16, 64, 64, 3)
 
 **LDM Advantages:**
 
-- 8x faster training than pixel-space diffusion
+- Trains in a compressed latent space rather than pixel space
 - Lower memory requirements
 - Enables high-resolution generation
 - Foundation of Stable Diffusion
@@ -571,7 +571,7 @@ samples = model.generate(
 
 ### DDIM Sampling (Fast)
 
-Use DDIM for 10-20x faster sampling:
+Use DDIM to sample in 10-20x fewer steps:
 
 ```python
 # Generate with DDIM (50 steps instead of 1000)
@@ -585,7 +585,7 @@ samples = model.sample(
 # Quality vs Speed tradeoff:
 # - 20 steps: Fast but lower quality
 # - 50 steps: Good balance
-# - 100 steps: High quality, still 10x faster than DDPM
+# - 100 steps: High quality, still 10x fewer steps than DDPM
 ```
 
 ### Progressive Sampling (Visualize Process)
@@ -1025,7 +1025,7 @@ optimizer = nnx.Optimizer(model, optax.adam(schedule), wrt=nnx.Param)
 
 ```python
 # Solution 1: Use DDIM sampling (no rngs needed - stored internally)
-samples = model.sample(16, scheduler="ddim", steps=50)  # 20x faster
+samples = model.sample(16, scheduler="ddim", steps=50)  # 20x fewer steps than DDPM
 
 # Solution 2: Use fewer sampling steps
 samples = model.sample(16, scheduler="ddim", steps=20)  # Even faster
@@ -1082,7 +1082,7 @@ accumulated_grads = jax.tree.map(lambda g: g / accumulation_steps, accumulated_g
 optimizer.update(model, accumulated_grads)  # NNX 0.11.0+ API
 
 # Solution 3: Use Latent Diffusion
-# Operate in compressed latent space (8x less memory)
+# Operate in a compressed latent space, smaller than the image
 
 # Solution 4: Use half precision via JAX dtype control
 # Pass dtype=jnp.float16 or jnp.bfloat16 when creating backbone config
@@ -1094,7 +1094,7 @@ optimizer.update(model, accumulated_grads)  # NNX 0.11.0+ API
 
 1. **Use EMA for sampling**: Exponential moving average improves quality
 2. **Start with DDPM**: Master the basics before advanced techniques
-3. **Try DDIM for speed**: 10-20x faster with minimal quality loss
+3. **Try DDIM for speed**: 10-20x fewer steps with minimal quality loss
 4. **Use cosine schedule for high-res**: Better than linear for large images
 5. **Implement proper data preprocessing**: Scale to [-1, 1] range
 6. **Monitor sample quality**: Generate samples during training

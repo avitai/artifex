@@ -11,7 +11,7 @@ This demo covers:
 1. Creating a DDPM model with Artifex's API
 2. Understanding forward diffusion (noise addition)
 3. Sampling with DDPM (1000 steps)
-4. Fast sampling with DDIM (50 steps, 20x speedup)
+4. Fast sampling with DDIM (50 steps, 20x fewer than DDPM)
 5. Visualizing progressive denoising
 
 **What This Demo Is NOT:**
@@ -143,15 +143,14 @@ samples_ddim = model.sample(
 
 - ✅ DDIM algorithm (deterministic)
 - ✅ Only 50 steps (configurable)
-- ⚡ **20x faster** than DDPM
+- ⚡ **20x fewer steps** than DDPM
 - 🎨 Comparable quality to DDPM
 
-**Speedup Comparison:**
+**Step Comparison:**
 
 ```
-DDPM (1000 steps): ~40s
-DDIM (50 steps):   ~2s
-Speedup:           20x
+DDPM: 1000 denoising steps
+DDIM:   50 denoising steps (20x fewer)
 ```
 
 ### 6. Progressive Denoising
@@ -183,7 +182,7 @@ The demo generates 4 visualization files:
 
 3. **`diffusion_mnist_ddim_samples.png`**
    - 8 samples generated with DDIM
-   - 50-step sampling (20x faster)
+   - 50-step sampling (20x fewer steps)
 
 4. **`diffusion_mnist_trajectory.png`**
    - Progressive denoising over 6 snapshots
@@ -227,7 +226,7 @@ The demo generates 4 visualization files:
 | Aspect | DDPM | DDIM |
 |--------|------|------|
 | Steps | 1000 (fixed) | Configurable (20-100) |
-| Speed | Slow | 10-50x faster |
+| Speed | 1000 network evaluations | 10-50x fewer evaluations |
 | Quality | High (baseline) | Comparable |
 | Stochasticity | Stochastic | Deterministic |
 | Use Case | Best quality | Production/fast iteration |
@@ -383,7 +382,7 @@ python -c "import artifex; print(artifex.__version__)"
 
 **Solutions:**
 
-1. Use GPU if available (20x faster)
+1. Use a GPU if one is available
 2. Reduce number of samples: `n_samples_or_shape=4`
 3. Use DDIM with fewer steps: `steps=20`
 4. Reduce noise steps in config: `noise_steps=100`

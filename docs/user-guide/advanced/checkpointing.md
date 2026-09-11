@@ -181,8 +181,8 @@ def loss_fn(model, x):
 # Compute gradients (recomputes activations as needed)
 loss, grads = nnx.value_and_grad(loss_fn)(model, x)
 
-# Memory usage: ~50% reduction
-# Training time: ~30% slower (due to recomputation)
+# Memory: lower peak activation memory
+# Time: each step is slower, because activations are recomputed
 ```
 
 ### Selective Checkpointing

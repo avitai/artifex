@@ -1011,9 +1011,8 @@ def measure_memory(use_checkpointing: bool):
 
     return loss, grads
 
-# Without checkpointing: ~10GB peak memory
-# With checkpointing: ~5GB peak memory (50% reduction)
-# But ~30% slower due to recomputation
+# With checkpointing, peak activation memory drops, and each step is slower
+# because activations are recomputed
 ```
 
 ### Selective Checkpointing
