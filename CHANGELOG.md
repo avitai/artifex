@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `Trainer.checkpoint_state()` returns the checkpoint pytree (model, optimizer, RNG and
+  extension state) that `save_checkpoint` writes, and
+  `Trainer.apply_checkpoint_state(payload, step=...)` applies a restored one, so an
+  application can store trainer state nested beside its own state in one
+  `OrbaxCheckpointStore` checkpoint and validate that checkpoint's metadata before the live
+  trainer changes. `load_checkpoint` is now built from the two; the on-disk layout is the
+  same. The model and extension entries are live `nnx.State` views, not copies.
+
+### Fixed
+
+- The Trainer API reference documented a pickle checkpoint taking a `path`; it now describes
+  the Orbax store keyed by `step` that `save_checkpoint` and `load_checkpoint` use.
+
 ## [0.1.6] - 2026-09-09
 
 ### Fixed

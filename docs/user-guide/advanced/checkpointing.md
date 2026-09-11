@@ -104,6 +104,14 @@ key and every extension's state as one payload under the current step, and
 `Trainer.load_checkpoint(step=None)` restores the latest (or a given) step into
 the live trainer. Both go through the same store under `checkpoint_dir`.
 
+To checkpoint trainer state together with application state, such as a data
+iterator cursor, nest `Trainer.checkpoint_state()` inside your own payload and
+store it with `OrbaxCheckpointStore`. Restore with that same nested tree as the
+template, check the metadata, then call
+`Trainer.apply_checkpoint_state(restored["trainer"], step=step)`. The
+[Trainer API reference](../../api/training/trainer.md#apply_checkpoint_state)
+shows the full sequence.
+
 ### Asynchronous Checkpointing
 
 `store.save` returns after Orbax has finished writing, so a training loop can

@@ -136,11 +136,16 @@ def test_trainer_api_reference_matches_the_real_trainer_surface() -> None:
         "def generate_samples(",
         "### generate_samples",
         "### create",
+        "pickle-based",
+        "def save_checkpoint(path",
+        "def load_checkpoint(path",
     )
     required_tokens = (
         "loss_fn(model, batch, rng, step)",
         "### save_checkpoint",
         "### load_checkpoint",
+        "### checkpoint_state",
+        "### apply_checkpoint_state",
         "### train_step",
         "### validate_step",
         "### train_epoch",

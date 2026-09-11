@@ -596,8 +596,23 @@ class Trainer:
 
         return avg_metrics
 
-    def _checkpoint_payload(self) -> dict[str, Any]:
-        """Return the training state a checkpoint carries, as a plain pytree."""
+    def checkpoint_state(self) -> dict[str, Any]:
+        """Return the checkpoint pytree, for storing trainer state beside application state.
+
+        The tree holds ``model``, ``opt_state``, ``rng`` and ``extensions`` in the
+        layout :meth:`save_checkpoint` writes; the step is kept separately. The outer
+        dictionary is new on every call, but the ``model`` and ``extensions`` entries
+        are live ``nnx.State`` views whose Variables belong to the trainer, so
+        assigning to a leaf changes the trainer. Copy the leaves first, for example
+        with ``jax.tree.map(jnp.array, tree)``, when a detached snapshot is needed.
+
+        Pass the tree as the restore template to a checkpoint store, validate the
+        restored metadata, then hand the restored tree to
+        :meth:`apply_checkpoint_state`.
+
+        Returns:
+            The checkpoint pytree of model, optimizer, RNG and extension state.
+        """
         return {
             "model": nnx.state(self.model),
             "opt_state": self.opt_state,
@@ -626,7 +641,7 @@ class Trainer:
         """
         step = self.step if step is None else step
         with self._checkpoint_store() as store:
-            path = store.save(self._checkpoint_payload(), step)
+            path = store.save(self.checkpoint_state(), step)
         if self.logger:
             self.logger.log_text("checkpoint", f"Saved checkpoint to {path}")
         return path
@@ -645,19 +660,34 @@ class Trainer:
             restored = None
             if step is not None:
                 restored, _ = store.restore(
-                    self._checkpoint_payload(), step, return_original_on_missing=False
+                    self.checkpoint_state(), step, return_original_on_missing=False
                 )
         if restored is None:
             raise FileNotFoundError(f"No checkpoint at step {step} in {self.checkpoint_dir}")
 
-        payload = cast(dict[str, Any], restored)
+        self.apply_checkpoint_state(cast(dict[str, Any], restored), step=cast(int, step))
+
+        if self.logger:
+            self.logger.log_text("checkpoint", f"Loaded checkpoint from step {step}")
+
+    def apply_checkpoint_state(self, payload: dict[str, Any], *, step: int) -> None:
+        """Apply a restored checkpoint pytree to this trainer and set its step.
+
+        This is the state-application half of :meth:`load_checkpoint`, so an
+        application can check its own checkpoint metadata before any live state
+        changes. The payload must come from a restore that used
+        :meth:`checkpoint_state` as the template. Entries are applied one at a
+        time and the call is not transactional: validate before calling it, since
+        a malformed payload can leave the trainer partly updated.
+
+        Args:
+            payload: Checkpoint pytree restored against :meth:`checkpoint_state`.
+            step: Checkpoint step the restored state belongs to.
+        """
         nnx.update(self.model, payload["model"])
         self.opt_state = payload["opt_state"]
         self.rng = payload["rng"]
         for name, extension_state in payload["extensions"].items():
             if name in self.extensions:
                 nnx.update(self.extensions[name], extension_state)
-        self.step = cast(int, step)
-
-        if self.logger:
-            self.logger.log_text("checkpoint", f"Loaded checkpoint from step {step}")
+        self.step = step
