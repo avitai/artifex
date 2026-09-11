@@ -298,7 +298,7 @@ If you use Artifex in research, please cite:
   author = {Shafiei, Mahdi and contributors},
   year = {2025},
   url = {https://github.com/avitai/artifex},
-  version = {0.1.6}
+  version = {0.1.7}
 }
 ```
 
