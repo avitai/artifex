@@ -755,7 +755,7 @@ Measure each optimization on the hardware you deploy on:
 - **JIT Compilation**: Essential for production
 - **Mixed Precision**: Less memory, and often higher throughput on GPUs that support it
 - **Quantization**: INT8 weights take half the memory of FP16; check the quality loss
-- **Batching**: Near-linear scaling with batch size
+- **Batching**: More samples per device call
 - **Multi-Device**: Distribute large workloads across GPUs/TPUs
 
 Choose optimizations based on your deployment constraints and quality requirements.
