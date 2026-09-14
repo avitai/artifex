@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- The test suite chooses its JAX backend itself, before JAX is imported: tests run on the CPU
+  with eight emulated devices unless `ARTIFEX_TEST_JAX_PLATFORMS` names an accelerator, and
+  `ARTIFEX_TEST_DEVICE_COUNT` sets the device count (`0` turns emulation off). An exported
+  `JAX_PLATFORMS` no longer moves tests onto a GPU; run
+  `ARTIFEX_TEST_JAX_PLATFORMS=cuda uv run pytest` to test on one. See `TESTING.md`.
+- Requires `substrax>=0.1.6`, and the `test` extra installs `substrax[testing]`.
+
 ## [0.1.7] - 2026-09-11
 
 ### Added
