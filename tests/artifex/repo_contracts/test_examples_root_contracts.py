@@ -84,3 +84,22 @@ def test_examples_verifier_derives_scope_from_live_readme() -> None:
     assert 'jax.config.update("jax_platforms"' not in contents
     assert "All README examples are working correctly!" not in contents
     assert "Complete verification script for README examples." not in contents
+
+
+def test_examples_resolve_outputs_outside_the_source_tree() -> None:
+    """Examples, their notebooks and their docs pages name no repository-relative output directory."""
+    pages = [
+        *sorted((REPO_ROOT / "examples").rglob("*.py")),
+        *sorted((REPO_ROOT / "examples").rglob("*.ipynb")),
+        *sorted((REPO_ROOT / "docs" / "examples").rglob("*.md")),
+    ]
+    offenders = [
+        str(path.relative_to(REPO_ROOT))
+        for path in pages
+        if "examples_output" in path.read_text(encoding="utf-8")
+    ]
+
+    assert (
+        REPO_ROOT / "examples" / "generative_models" / "image" / "vae" / "advanced_vae.py" in pages
+    )
+    assert offenders == []

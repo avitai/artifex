@@ -33,6 +33,7 @@ import logging
 import jax
 import jax.numpy as jnp
 from flax import nnx
+from substrax.runtime import configure_entry_point_logging
 
 from artifex.configs import (
     ProteinExtensionConfig,
@@ -71,7 +72,8 @@ Each optional field corresponds to one extension in the resulting collection.
 key = jax.random.key(42)
 key, params_key, dropout_key = jax.random.split(key, 3)
 rngs = nnx.Rngs(params=params_key, dropout=dropout_key)
-logging.basicConfig(level=logging.INFO, format="%(message)s")
+if __name__ == "__main__":
+    configure_entry_point_logging()
 
 extension_bundle = ProteinExtensionsConfig(
     name="protein_extensions_example",

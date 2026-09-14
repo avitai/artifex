@@ -43,6 +43,7 @@ import logging
 import jax
 import jax.numpy as jnp
 from flax import nnx
+from substrax.runtime import configure_entry_point_logging
 
 from artifex.generative_models.core.configuration import (
     DataConfig,
@@ -60,7 +61,8 @@ from artifex.generative_models.core.sampling import mcmc_sampling, sde_sampling
 from artifex.generative_models.factory import create_model
 
 
-logging.basicConfig(level=logging.INFO, format="%(message)s")
+if __name__ == "__main__":
+    configure_entry_point_logging()
 LOGGER = logging.getLogger(__name__)
 
 

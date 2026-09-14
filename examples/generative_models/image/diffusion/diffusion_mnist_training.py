@@ -15,11 +15,13 @@
 # IMPORTANT: Set memory env vars BEFORE importing TensorFlow or JAX
 import os
 
+from substrax.artifacts import resolve_output_dir
+from substrax.runtime import configure_entry_point_logging
+
 
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"  # Suppress TF warnings
-os.environ["TF_FORCE_GPU_ALLOW_GROWTH"] = "true"  # Don't pre-allocate GPU memory
 os.environ["XLA_PYTHON_CLIENT_PREALLOCATE"] = "false"  # JAX: don't pre-allocate
-os.environ["XLA_PYTHON_CLIENT_MEM_FRACTION"] = "0.8"  # JAX: use 80% of GPU memory
+os.environ["XLA_CLIENT_MEM_FRACTION"] = "0.8"  # JAX: use 80% of GPU memory
 
 # ---
 # jupyter:
@@ -100,7 +102,8 @@ from artifex.generative_models.training.trainers.diffusion_trainer import (
 )
 
 
-logging.basicConfig(level=logging.INFO, format="%(message)s")
+if __name__ == "__main__":
+    configure_entry_point_logging()
 LOGGER = logging.getLogger(__name__)
 
 
@@ -424,7 +427,7 @@ Save training curves and generated samples.
 """
 
 # %%
-os.makedirs("examples_output", exist_ok=True)
+OUTPUT_DIR = resolve_output_dir("diffusion_mnist_training").path
 
 
 def visualize_samples(images, title="Samples", n_cols=4, save_path=None):
@@ -459,7 +462,7 @@ def visualize_samples(images, title="Samples", n_cols=4, save_path=None):
 visualize_samples(
     samples,
     title="DDPM Generated MNIST Digits",
-    save_path="examples_output/diffusion_samples.png",
+    save_path=OUTPUT_DIR / "diffusion_samples.png",
 )
 
 # %%
@@ -503,8 +506,8 @@ ax1.set_title(
     fontweight="bold",
 )
 plt.tight_layout()
-fig.savefig("examples_output/diffusion_training_curve.png", dpi=150, bbox_inches="tight")
-echo("Saved: examples_output/diffusion_training_curve.png")
+fig.savefig(OUTPUT_DIR / "diffusion_training_curve.png", dpi=150, bbox_inches="tight")
+echo(f"Saved: {OUTPUT_DIR / 'diffusion_training_curve.png'}")
 plt.close()
 
 # %% [markdown]
@@ -538,8 +541,8 @@ echo("Training Summary")
 echo_rule()
 echo(f"Final loss: {history['loss'][-1]:.4f}")
 echo(f"Total steps: {global_step}")
-echo("Samples saved: examples_output/diffusion_samples.png")
-echo("Training curve: examples_output/diffusion_training_curve.png")
+echo(f"Samples saved: {OUTPUT_DIR / 'diffusion_samples.png'}")
+echo(f"Training curve: {OUTPUT_DIR / 'diffusion_training_curve.png'}")
 echo_rule()
 echo()
 echo("Done!")

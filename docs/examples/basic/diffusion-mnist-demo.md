@@ -29,7 +29,7 @@ python examples/generative_models/image/diffusion/diffusion_mnist.py
 
 **Expected Output:**
 
-- 4 visualizations saved to `examples_output/`
+- 4 visualizations saved to the example's output directory
 - Runtime: ~2-3 minutes on GPU, ~5-10 minutes on CPU
 
 ## Code Walkthrough

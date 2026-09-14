@@ -61,6 +61,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from flax import nnx
 from mpl_toolkits.mplot3d import Axes3D  # noqa: F401 for 3D plotting
+from substrax.artifacts import resolve_output_dir
 
 from artifex.generative_models.core.configuration import (
     PointCloudConfig,
@@ -110,8 +111,7 @@ def plot_point_cloud(points, filename=None):
     if filename:
         import os
 
-        output_dir = "examples_output"
-        os.makedirs(output_dir, exist_ok=True)
+        output_dir = resolve_output_dir("simple_point_cloud_example").path
         filepath = os.path.join(output_dir, filename)
         plt.savefig(filepath)
 
@@ -210,7 +210,7 @@ pass
 # We visualize each generated point cloud in 3D, with colors representing
 # distance from the origin (useful for understanding spatial distribution).
 #
-# The plots are saved to `examples_output/` directory.
+# The plots are saved to the example's output directory.
 
 # %%
 # Cell content moved to main() function above

@@ -26,9 +26,12 @@ import matplotlib.pyplot as plt
 import numpy as np
 from flax import nnx
 from matplotlib.axes import Axes
+from substrax.artifacts import resolve_output_dir
+from substrax.runtime import configure_entry_point_logging
 
 
-logging.basicConfig(level=logging.INFO, format="%(message)s")
+if __name__ == "__main__":
+    configure_entry_point_logging()
 LOGGER = logging.getLogger(__name__)
 
 
@@ -273,8 +276,7 @@ def main():
     # Save figures
     import os
 
-    output_dir = "examples_output"
-    os.makedirs(output_dir, exist_ok=True)
+    output_dir = resolve_output_dir("simple_audio_generation").path
 
     fig1.savefig(os.path.join(output_dir, "audio_waveforms.png"))
     fig2.savefig(os.path.join(output_dir, "audio_variations.png"))

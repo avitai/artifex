@@ -74,7 +74,7 @@ The example will:
 5. Generate samples with DDPM sampling (1000 steps)
 6. Generate samples with DDIM sampling (50 steps, 20x fewer than DDPM)
 7. Visualize the progressive denoising process
-8. Save visualizations to `examples_output/diffusion_mnist_*.png`
+8. Save visualizations as `diffusion_mnist_*.png` in the example's output directory
 
 ## Key Concepts
 
@@ -158,6 +158,7 @@ import jax.numpy as jnp
 import matplotlib.pyplot as plt
 import numpy as np
 from flax import nnx
+from substrax.artifacts import resolve_output_dir
 from tqdm import tqdm
 
 from artifex.generative_models.core.configuration.backbone_config import UNetBackboneConfig
@@ -430,8 +431,7 @@ print("📊 Visualizing forward diffusion...")
 fig = visualize_diffusion_process(test_img[0], noisy_images, timesteps_to_show)
 
 # Save figure
-output_dir = "examples_output"
-os.makedirs(output_dir, exist_ok=True)
+output_dir = resolve_output_dir("diffusion_mnist").path
 output_path = os.path.join(output_dir, "diffusion_mnist_forward.png")
 fig.savefig(output_path, dpi=150, bbox_inches="tight")
 print(f"  ✅ Saved to {output_path}")
@@ -750,7 +750,7 @@ r"""## Summary and Key Takeaways.
 - Successfully demonstrated forward diffusion
 - Generated samples with both DDPM and DDIM
 - Visualized the progressive denoising process
-- All visualizations saved to examples_output/
+- All visualizations saved to the example's output directory
 
 🔧 **Artifex APIs Used:**
 - `DDPMModel`: Full DDPM implementation with noise scheduling

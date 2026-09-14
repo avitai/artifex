@@ -68,7 +68,7 @@ The example will:
 3. Perform forward pass to reconstruct inputs
 4. Generate new samples from random latent vectors
 5. Visualize original vs reconstructed vs generated images
-6. Save visualization to `examples_output/vae_mnist_results.png`
+6. Save visualization as `vae_mnist_results.png` in the example's output directory
 
 ## Key Concepts
 
@@ -153,6 +153,7 @@ import jax
 import jax.numpy as jnp
 import matplotlib.pyplot as plt
 from flax import nnx
+from substrax.artifacts import resolve_output_dir
 
 from artifex.generative_models.core.configuration.network_configs import (
     DecoderConfig,
@@ -526,8 +527,7 @@ fig = visualize_vae_results(
 import os
 
 
-output_dir = "examples_output"
-os.makedirs(output_dir, exist_ok=True)
+output_dir = resolve_output_dir("vae_mnist").path
 output_path = os.path.join(output_dir, "vae_mnist_results.png")
 fig.savefig(output_path, dpi=150, bbox_inches="tight")
 print(f"  ✅ Results saved to {output_path}")  # noqa: T201

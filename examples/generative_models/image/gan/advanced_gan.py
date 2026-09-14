@@ -83,13 +83,13 @@ By the end of this exploratory workflow, you will understand:
 """
 
 from itertools import islice
-from pathlib import Path
 
 import jax
 import jax.numpy as jnp
 import matplotlib.pyplot as plt
 import optax
 from flax import nnx
+from substrax.artifacts import resolve_output_dir
 from tqdm import tqdm
 
 from artifex.generative_models.core.configuration.network_configs import (
@@ -121,8 +121,7 @@ from artifex.generative_models.models.gan import (
 
 
 # Create output directory
-OUTPUT_DIR = Path("examples_output/advanced_gan")
-OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+OUTPUT_DIR = resolve_output_dir("advanced_gan").path
 
 print(f"JAX devices: {jax.devices()}")
 print(f"Output directory: {OUTPUT_DIR}")
@@ -525,7 +524,7 @@ both generator and discriminator on label information.
   - Fluctuating losses indicate healthy adversarial balance
   - Quality improves even when losses stay constant
 - **Progress tracking**: Samples saved every 5 epochs + epoch 1
-  - See `examples_output/advanced_gan/conditional_gan/` for progression
+  - See `conditional_gan/` in the example's output directory for progression
   - Visual quality improves even when losses plateau
 - Future improvement: Add label smoothing (0.9/0.1) for enhanced stability
 """

@@ -34,6 +34,7 @@ from pathlib import Path
 import jax
 import jax.numpy as jnp
 from flax import nnx
+from substrax.runtime import configure_entry_point_logging
 
 from artifex.configs import (
     get_protein_extensions_config,
@@ -65,7 +66,8 @@ and is loaded as a real `ProteinExtensionsConfig`.
 """
 
 # %%
-logging.basicConfig(level=logging.INFO, format="%(message)s")
+if __name__ == "__main__":
+    configure_entry_point_logging()
 bundle = get_protein_extensions_config("protein")
 show(f"Loaded bundle: {bundle.name}")
 show(f"Bundle fields: {list(bundle.to_dict().keys())}")

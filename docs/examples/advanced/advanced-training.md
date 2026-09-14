@@ -349,12 +349,12 @@ Epoch 10/10
   Test Accuracy: 0.1205
 
 7. Plotting training curves...
-  Training curves saved to examples_output/training_curves.png
+  Training curves saved to <output dir>/advanced_training_example/training_curves.png
 
 ✅ Advanced training example completed successfully!
 ```
 
-The example will also save a visualization of the training curves to `examples_output/training_curves.png`.
+The example also saves the training curves as `training_curves.png` in its output directory: `$AVITAI_OUTPUT_DIR/advanced_training_example` when that variable is set, otherwise a fresh temporary directory whose path it logs.
 
 ## Experiments to Try
 

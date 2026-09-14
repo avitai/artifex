@@ -50,11 +50,12 @@ the base model family. `PointCloudConfig` creates a point-cloud path, while
 
 # %%
 import logging
-from pathlib import Path
 
 import jax
 import jax.numpy as jnp
 from flax import nnx
+from substrax.artifacts import resolve_output_dir
+from substrax.runtime import configure_entry_point_logging
 
 from artifex.generative_models.core.configuration import (
     GeometricConfig,
@@ -65,7 +66,8 @@ from artifex.generative_models.factory import create_model
 from artifex.generative_models.modalities import list_modalities
 
 
-logging.basicConfig(level=logging.INFO, format="%(message)s")
+if __name__ == "__main__":
+    configure_entry_point_logging()
 LOGGER = logging.getLogger(__name__)
 
 
@@ -83,9 +85,7 @@ Artifex uses Flax NNX's `Rngs` class for managing random state across the model.
 
 
 # %%
-# Create examples_output directory
-output_dir = Path("examples_output")
-output_dir.mkdir(exist_ok=True)
+output_dir = resolve_output_dir("protein_model_with_modality").path
 
 # Initialize random number generator
 echo("Initializing random number generator...")

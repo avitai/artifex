@@ -70,7 +70,7 @@ The example will:
 1. Load real MNIST dataset (60,000 training images)
 2. Train four advanced VAE variants (β-VAE, Capacity β-VAE, Conditional VAE, VQ-VAE)
 3. Generate reconstructions and samples from each model
-4. Save visualizations to `examples_output/advanced_vae/`
+4. Save visualizations to the example's output directory
 5. Display training metrics and convergence curves
 
 ## Key Concepts
@@ -135,7 +135,6 @@ By the end of this example, you will understand:
 
 import logging
 from itertools import islice
-from pathlib import Path
 
 import jax
 import jax.numpy as jnp
@@ -143,6 +142,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import optax
 from flax import nnx
+from substrax.artifacts import resolve_output_dir
+from substrax.runtime import configure_entry_point_logging
 from tqdm import tqdm
 
 from artifex.generative_models.core.configuration.network_configs import (
@@ -163,7 +164,8 @@ from artifex.generative_models.models.vae import (
 )
 
 
-logging.basicConfig(level=logging.INFO, format="%(message)s")
+if __name__ == "__main__":
+    configure_entry_point_logging()
 LOGGER = logging.getLogger(__name__)
 
 
@@ -173,8 +175,7 @@ def echo(message: str = "") -> None:
 
 
 # Create output directory
-OUTPUT_DIR = Path("examples_output/advanced_vae")
-OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+OUTPUT_DIR = resolve_output_dir("advanced_vae").path
 
 echo(f"JAX devices: {jax.devices()}")
 echo(f"Output directory: {OUTPUT_DIR}")

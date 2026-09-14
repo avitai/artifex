@@ -54,6 +54,7 @@ import jax.numpy as jnp
 import matplotlib.pyplot as plt
 import optax
 from flax import nnx
+from substrax.artifacts import resolve_output_dir
 from tqdm import tqdm
 
 # Artifex imports
@@ -281,10 +282,9 @@ r"""## Step 7: Visualizations.
 """
 
 # %%
-import os
 
 
-os.makedirs("examples_output", exist_ok=True)
+OUTPUT_DIR = resolve_output_dir("simple_gan").path
 
 # Results visualization
 fig, axes = plt.subplots(1, 3, figsize=(15, 5))
@@ -313,8 +313,8 @@ axes[2].legend(loc="upper right")
 axes[2].grid(True, alpha=0.3)
 
 plt.tight_layout()
-fig.savefig("examples_output/simple_gan_results.png", dpi=150, bbox_inches="tight")
-print("\nSaved: examples_output/simple_gan_results.png")
+fig.savefig(OUTPUT_DIR / "simple_gan_results.png", dpi=150, bbox_inches="tight")
+print(f"\nSaved: {OUTPUT_DIR / 'simple_gan_results.png'}")
 plt.close()
 
 # Training curves with smoothing
@@ -368,8 +368,8 @@ ax2.legend()
 ax2.grid(True, alpha=0.3)
 
 plt.tight_layout()
-fig.savefig("examples_output/simple_gan_training_curves.png", dpi=150, bbox_inches="tight")
-print("Saved: examples_output/simple_gan_training_curves.png")
+fig.savefig(OUTPUT_DIR / "simple_gan_training_curves.png", dpi=150, bbox_inches="tight")
+print(f"Saved: {OUTPUT_DIR / 'simple_gan_training_curves.png'}")
 plt.close()
 
 print("\n✅ Done!")

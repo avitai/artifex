@@ -574,8 +574,7 @@ The visualization shows:
     # Step 9: Save figure
     import os
 
-    output_dir = "examples_output"
-    os.makedirs(output_dir, exist_ok=True)
+    output_dir = resolve_output_dir("vae_mnist").path
     output_path = os.path.join(output_dir, "vae_mnist_results.png")
     fig.savefig(output_path, dpi=150, bbox_inches="tight")
     print(f"  ✅ Results saved to {output_path}")
@@ -585,7 +584,7 @@ The visualization shows:
 
 ```
 📊 Visualizing results...
-  ✅ Results saved to examples_output/vae_mnist_results.png
+  ✅ Results saved to <output dir>/vae_mnist/vae_mnist_results.png
 ```
 
 ---

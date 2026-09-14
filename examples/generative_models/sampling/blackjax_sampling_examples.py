@@ -65,13 +65,13 @@ MIT License
 # %%
 """Import required libraries."""
 
-from pathlib import Path
 
 import blackjax
 import jax
 import jax.numpy as jnp
 import matplotlib.pyplot as plt
 from flax import nnx
+from substrax.artifacts import resolve_output_dir
 
 from artifex.generative_models.core.distributions import Normal
 from artifex.generative_models.core.sampling.blackjax_samplers import (
@@ -84,7 +84,7 @@ from artifex.generative_models.core.sampling.blackjax_samplers import (
 # %%
 """Set up output directory and random seed."""
 
-EXAMPLES_DIR = Path(__file__).parent.parent.parent.parent / "examples_output"
+EXAMPLES_DIR = resolve_output_dir("blackjax_sampling_examples").path
 
 # Set a random seed for reproducibility
 key = jax.random.key(0)
@@ -169,7 +169,6 @@ def plot_samples(samples, title="MCMC Samples", filename="mcmc_samples.png"):
     plt.grid(True)
     plt.axis("equal")
     # Ensure output directory exists
-    EXAMPLES_DIR.mkdir(parents=True, exist_ok=True)
     plt.savefig(EXAMPLES_DIR / filename)
     print(f"Plot saved as '{EXAMPLES_DIR / filename}'")
 

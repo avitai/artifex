@@ -149,6 +149,7 @@ import jax.numpy as jnp
 import matplotlib.pyplot as plt
 import numpy as np
 import optax
+from substrax.artifacts import resolve_output_dir
 
 
 # Add project root to path for imports
@@ -207,7 +208,9 @@ class GeometricDemoTrainer:
         self.config = config
 
         self.rngs = rngs
-        self.workdir = config.get("workdir", "./examples_output/geometric_demo")
+        self.workdir = str(
+            config.get("workdir") or resolve_output_dir("geometric_benchmark_demo").path
+        )
 
         # Create output directories
         Path(self.workdir).mkdir(parents=True, exist_ok=True)
@@ -1002,7 +1005,7 @@ def main():
 
     # Complete configuration for real training
     demo_config = {
-        "workdir": "./examples_output/geometric_demo",
+        "workdir": str(resolve_output_dir("geometric_benchmark_demo").path),
         "dataset": {
             "data_path": "./data/shapenet",
             "num_points": 1024,  # Manageable size for demo

@@ -48,13 +48,12 @@ enforced during generation to ensure the output structures are chemically valid.
 """
 
 # %%
-import os
 import pickle
-from pathlib import Path
 
 import jax
 import numpy as np
 from flax import nnx
+from substrax.artifacts import resolve_output_dir
 
 from artifex.data.protein import (
     ATOM_TYPES,
@@ -183,8 +182,7 @@ print(f"\nCreated model: {model.__class__.__name__}")
 
 # %%
 # Create synthetic dataset
-data_dir = Path("examples_output/protein")
-os.makedirs(data_dir, exist_ok=True)
+data_dir = resolve_output_dir("protein_point_cloud_example").path
 data_path = data_dir / "synthetic_proteins.pkl"
 
 # Create dataset with synthetic data if file doesn't exist
