@@ -12,6 +12,7 @@ import jax.numpy as jnp
 import numpy as np
 import pytest
 from flax import nnx
+from substrax.testing import TraceCounter
 
 from artifex.generative_models.core.configuration import OptimizerConfig, TrainingConfig
 from artifex.generative_models.training import trainer as trainer_module
@@ -100,22 +101,17 @@ def test_train_builds_one_pipeline_per_call(monkeypatch: pytest.MonkeyPatch, tmp
 
 
 def test_train_step_is_traced_once_for_same_shape_batches(tmp_path) -> None:
-    traces = {"n": 0}
-
-    def counting_loss(model, batch, rng, step):
-        traces["n"] += 1  # Python side effect: runs at trace time only
-        return _loss_fn(model, batch, rng, step)
-
+    counter = TraceCounter()
     trainer = Trainer(
         model=_Linear(rngs=nnx.Rngs(0)),
         training_config=_config(),
-        loss_fn=counting_loss,
+        loss_fn=counter.wrap(_loss_fn),
         checkpoint_dir=str(tmp_path),
     )
     batch = {"input": jnp.ones((_BATCH, 4)), "id": jnp.arange(_BATCH, dtype=jnp.int32)}
 
-    losses = [trainer.train_step(batch)["loss"] for _ in range(5)]
+    with counter.expect(new_traces=1):
+        losses = [trainer.train_step(batch)["loss"] for _ in range(5)]
 
-    assert traces["n"] == 1
     assert losses[-1] < losses[0]
     assert trainer.step == 5
