@@ -81,7 +81,7 @@ image = (
 _RUN_ENV = {
     "ARTIFEX_TEST_JAX_PLATFORMS": "cuda",
     "XLA_PYTHON_CLIENT_PREALLOCATE": "false",
-    "XLA_PYTHON_CLIENT_MEM_FRACTION": "0.9",
+    "XLA_CLIENT_MEM_FRACTION": "0.9",
     "TF_CPP_MIN_LOG_LEVEL": "1",
 }
 
