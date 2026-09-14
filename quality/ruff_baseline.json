@@ -287,9 +287,6 @@
     "src/artifex/generative_models/core/distributions/transformations.py": {
       "ANN204": 2
     },
-    "src/artifex/generative_models/core/jax_config.py": {
-      "ANN202": 2
-    },
     "src/artifex/generative_models/core/layers/attention_backend.py": {
       "PLR0913": 1
     },

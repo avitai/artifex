@@ -471,12 +471,9 @@ warmup = true
 warmup_iterations = 3
 
 [tool.pytest_env]
-ARTIFEX_MATMUL_PRECISION = "float32"
 JAX_ENABLE_X64 = "0"
 PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION = "python"
 TF_CPP_MIN_LOG_LEVEL = "1"
-TF_ENABLE_ONEDNN_OPTS = "0"
-TF_FORCE_GPU_ALLOW_GROWTH = "true"
 XLA_PYTHON_CLIENT_MEM_FRACTION = "0.75"
 XLA_PYTHON_CLIENT_PREALLOCATE = "false"
 
@@ -614,7 +611,6 @@ max-complexity = 10
 "src/artifex/generative_models/core/distributions/discrete.py" = ["ANN204", "RET505"]
 "src/artifex/generative_models/core/distributions/mixture.py" = ["ANN204", "B007", "B905"]
 "src/artifex/generative_models/core/distributions/transformations.py" = ["ANN204"]
-"src/artifex/generative_models/core/jax_config.py" = ["ANN202"]
 "src/artifex/generative_models/core/layers/attention_backend.py" = ["PLR0913"]
 "src/artifex/generative_models/core/layers/causal.py" = ["RET505"]
 "src/artifex/generative_models/core/layers/clifford/_functional.py" = ["PLR0913", "RET504"]

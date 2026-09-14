@@ -391,7 +391,6 @@ nav:
           - core/gan.md
           - core/geometric.md
           - core/index.md
-          - core/jax_config.md
           - core/kan.md
           - core/mcmc.md
           - core/migrate_configs.md
