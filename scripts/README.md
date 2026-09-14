@@ -43,7 +43,7 @@ the test surface stays aligned with the central pytest configuration.
 
 ```bash
 uv run pytest
-uv run pytest -m gpu -v --no-cov
+ARTIFEX_TEST_JAX_PLATFORMS=cuda uv run pytest -m accelerator -v --no-cov
 uv run pytest -m blackjax -v --no-cov
 uv run pytest tests/artifex/generative_models/core/sampling/test_blackjax_samplers.py -v --no-cov
 ```

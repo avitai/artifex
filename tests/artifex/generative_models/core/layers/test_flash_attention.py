@@ -504,7 +504,7 @@ class TestCausal:
         assert jnp.allclose(causal(x)[:, 0, :], causal(perturbed)[:, 0, :], atol=1e-6)
 
 
-@pytest.mark.gpu
+@pytest.mark.accelerator(kind="gpu")
 class TestFusedBackendOnGpu:
     """Paths the CPU-only jaxlib cannot reach."""
 

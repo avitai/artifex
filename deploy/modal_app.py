@@ -76,8 +76,10 @@ image = (
 )
 
 # XLA_PYTHON_CLIENT_PREALLOCATE=false keeps a short benchmark from grabbing the
-# whole card, matching the local .artifex.env recipe.
+# whole card, matching the local .artifex.env recipe. The test suite runs on the CPU
+# unless ARTIFEX_TEST_JAX_PLATFORMS names an accelerator, so the tests task asks for CUDA.
 _RUN_ENV = {
+    "ARTIFEX_TEST_JAX_PLATFORMS": "cuda",
     "XLA_PYTHON_CLIENT_PREALLOCATE": "false",
     "XLA_PYTHON_CLIENT_MEM_FRACTION": "0.9",
     "TF_CPP_MIN_LOG_LEVEL": "1",
@@ -112,12 +114,12 @@ def bench() -> None:
 
 @app.function(image=image, gpu=DEFAULT_GPU, timeout=2 * 60 * 60)
 def tests(extra_args: list[str]) -> None:
-    """Run the GPU-marked suite plus the attention layers on a real device."""
+    """Run the accelerator-marked attention layer tests on a real device."""
     _run(
         [
             "pytest",
             "-m",
-            "gpu or requires_gpu",
+            "accelerator",
             "tests/artifex/generative_models/core/layers",
             "-q",
             "--no-header",

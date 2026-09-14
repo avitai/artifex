@@ -16,8 +16,8 @@ uv run pytest tests/path/to/test_file.py -xvs --no-cov
 # Run a single test
 uv run pytest tests/path/to/test_file.py::TestClass::test_method -xvs --no-cov
 
-# Run GPU-only tests
-uv run pytest -m gpu --no-cov
+# Run GPU-only tests on a GPU
+ARTIFEX_TEST_JAX_PLATFORMS=cuda uv run pytest -m accelerator --no-cov
 
 # Run BlackJAX tests
 uv run pytest -m blackjax --no-cov
@@ -52,15 +52,14 @@ Do not add local replica suites; shadow tests disconnected from live imports are
 
 ### Markers
 
-- `@pytest.mark.gpu`: requires a GPU backend and should skip otherwise
-- `@pytest.mark.requires_gpu`: synonym for GPU-required tests
+- `@pytest.mark.accelerator(kind="gpu")`: requires a GPU backend and skips otherwise. Tests run on the CPU unless `ARTIFEX_TEST_JAX_PLATFORMS` names an accelerator
+- `@pytest.mark.devices(count)`: requires at least `count` visible devices
 - `@pytest.mark.blackjax`: exercises BlackJAX integration
 - `@pytest.mark.integration`, `@pytest.mark.e2e`, `@pytest.mark.contract`, `@pytest.mark.benchmark`, `@pytest.mark.slow`: standard suite categorization markers
 
 ### Shared Fixtures
 
 - `test_device`: provides a preferred live device for device-aware tests
-- `gpu_test_fixture`: skips explicitly GPU-only tests when no GPU backend is available
 - `base_rngs`, `standard_shapes`, and related shared fixtures live under `tests/artifex/fixtures/base.py`
 
 Example GPU-aware test:
@@ -69,8 +68,8 @@ Example GPU-aware test:
 import pytest
 
 
-@pytest.mark.gpu
-def test_gpu_training_path(test_device, gpu_test_fixture):
+@pytest.mark.accelerator(kind="gpu")
+def test_gpu_training_path(test_device):
     """Exercise a GPU-only path on the active runtime device."""
     assert test_device.platform in {"gpu", "cuda"}
 ```

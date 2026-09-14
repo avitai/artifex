@@ -214,7 +214,7 @@ def test_vae_forward_pass():
 3. **GPU Tests**: Mark GPU-specific tests:
 
 ```python
-@pytest.mark.gpu
+@pytest.mark.accelerator(kind="gpu")
 def test_gpu_training():
     """Test training on GPU."""
     # GPU-specific test
@@ -234,10 +234,10 @@ uv run pytest tests/artifex/generative_models/models/test_vae.py -xvs --no-cov
 uv run pytest --cov=src/artifex --cov-report=html
 
 # Run GPU tests (requires CUDA)
-uv run pytest -m gpu
+ARTIFEX_TEST_JAX_PLATFORMS=cuda uv run pytest -m accelerator
 ```
 
-Use the root `TESTING.md` file as the source of truth for commands, markers, and coverage policy. Keep tests under the live `tests/artifex/` or `tests/unit/` tree, import real Artifex owners, and prefer shared fixtures such as `test_device` and `gpu_test_fixture` over local replica helpers.
+Use the root `TESTING.md` file as the source of truth for commands, markers, and coverage policy. Keep tests under the live `tests/artifex/` or `tests/unit/` tree, import real Artifex owners, and prefer shared fixtures such as `test_device` over local replica helpers.
 
 ## Documentation
 

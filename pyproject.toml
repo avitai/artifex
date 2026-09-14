@@ -137,8 +137,8 @@ cuda12 = [
   # atol=1e-6 and they differ by about 7e-6 on GPU; it fails identically on the previous jax.
   #
   # CI cannot re-check any of this. Every runner is GitHub-hosted with no GPU, this extra is
-  # installed by no workflow, and each pytest call deselects `gpu`, `gpu_required` and
-  # `cuda`. The pin is therefore held by manual validation alone: re-run the check above on
+  # installed by no workflow, and the GPU-only tests carry the `accelerator` marker, so they
+  # skip there. The pin is therefore held by manual validation alone: re-run the check above on
   # comparable hardware before moving any version here, and record the new date.
   "jax[cuda12]==0.11.1; sys_platform == 'linux'",
   "jaxlib==0.11.1; sys_platform == 'linux'",
@@ -437,10 +437,6 @@ log_cli_level = "INFO"
 markers = [
   "blackjax: marks tests that use BlackJAX integration",
   "slow: marks tests as slow (deselect with '-m \"not slow\"')",
-  "gpu: marks tests that require GPU and should be skipped when no GPU backend is available",
-  "requires_gpu: marks tests as requiring GPU to run",
-  "cuda: marks tests that specifically test CUDA functionality",
-  "cpu: marks tests that should run on CPU only",
   "integration: marks tests as integration tests",
   "unit: marks tests as unit tests",
   "e2e: marks tests as end-to-end tests",

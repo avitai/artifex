@@ -71,8 +71,8 @@ uv run pytest tests/path/to/test_file.py -xvs --no-cov
 # Run a single test
 uv run pytest tests/path/to/test_file.py::TestClass::test_method -xvs --no-cov
 
-# Run GPU-marked tests only
-uv run pytest -m gpu --no-cov
+# Run the GPU-only tests on a GPU
+ARTIFEX_TEST_JAX_PLATFORMS=cuda uv run pytest -m accelerator --no-cov
 
 # Run BlackJAX tests only
 uv run pytest -m blackjax --no-cov
@@ -93,8 +93,9 @@ uv run pytest \
 
 ## Markers
 
-- `gpu`: tests that require a JAX GPU backend and should be skipped otherwise
-- `requires_gpu`: synonym for tests that must run on GPU
+- `accelerator(kind=None)`, from the substrax pytest plugin: tests that need an accelerator backend, of `kind` when given; they skip otherwise
+- `devices(count, kind=None)`, from the same plugin: tests that need at least `count` visible devices
+- `x64`, from the same plugin: runs one test with 64-bit types enabled
 - `blackjax`: tests that exercise BlackJAX integration
 - `slow`, `integration`, `e2e`, `benchmark`, `contract`: standard suite categorization markers
 

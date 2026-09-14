@@ -69,3 +69,8 @@ def test_a_pytest_session_sees_the_cpu_devices_it_asks_for(
     env = {"ARTIFEX_TEST_JAX_PLATFORMS": "cpu", "ARTIFEX_TEST_DEVICE_COUNT": requested}
 
     assert _session_runtime(tmp_path, env) == ["cpu", devices]
+
+
+def test_the_substrax_pytest_plugin_is_enabled(pytestconfig: pytest.Config) -> None:
+    """It fails a test that changes global jax configuration and adds the device markers."""
+    assert pytestconfig.pluginmanager.hasplugin("substrax.testing.pytest_plugin")

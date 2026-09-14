@@ -171,21 +171,6 @@ def tolerance_levels():
     }
 
 
-@pytest.fixture
-def test_markers():
-    """Test markers for categorizing tests.
-
-    Returns:
-        dict: Dictionary with test marker configurations
-    """
-    return {
-        "gpu": pytest.mark.gpu,
-        "slow": pytest.mark.slow,
-        "integration": pytest.mark.integration,
-        "benchmark": pytest.mark.benchmark,
-    }
-
-
 @pytest.fixture(scope="session")
 def temp_artifact_dir(tmp_path_factory):
     """Temporary directory for test artifacts.

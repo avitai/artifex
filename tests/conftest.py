@@ -2,7 +2,7 @@
 Global pytest configuration and fixtures.
 
 This file provides the main testing configuration for the artifex package,
-including GPU-aware test selection and the shared fixture infrastructure.
+including the JAX test environment and the shared fixture infrastructure.
 
 The test infrastructure follows a three-tier architecture:
 1. Base fixtures: Common patterns, RNG management, standard configurations
@@ -22,8 +22,12 @@ from tests.jax_test_environment import has_cuda_plugin, resolve_test_environment
 
 os.environ.update(resolve_test_environment(os.environ, cuda_plugin_available=has_cuda_plugin()))
 
-# Register shared fixtures and hooks as pytest plugins.
-pytest_plugins = ["tests.utils.pytest_hooks", "tests.artifex.fixtures.base"]
+# Register the substrax JAX test plugin and the shared fixtures and hooks.
+pytest_plugins = [
+    "substrax.testing.pytest_plugin",
+    "tests.utils.pytest_hooks",
+    "tests.artifex.fixtures.base",
+]
 
 
 def _load_data_generators():
@@ -81,10 +85,7 @@ def pytest_configure(config):
         config.workon = {}
     config.workon["artifact_dir"] = config.getini("artifact_dir")
 
-    # Register custom markers for test categorization
-    config.addinivalue_line("markers", "gpu: mark test as requiring GPU")
-    config.addinivalue_line("markers", "requires_gpu: mark test as requiring GPU to run")
-    config.addinivalue_line("markers", "skip_on_gpu: mark test to be skipped when GPU is available")
+    # Register custom markers; the device markers come from the substrax plugin
     config.addinivalue_line("markers", "blackjax: marks tests that use BlackJAX integration")
 
     if hasattr(config, "_metadata"):
@@ -94,22 +95,6 @@ def pytest_configure(config):
         )
 
 
-@pytest.fixture
-def gpu_test_fixture():
-    """Fixture to skip tests that require GPU if none is available.
-
-    This fixture ensures that tests marked as requiring GPU are automatically
-    skipped when no GPU is detected in the testing environment.
-
-    Raises:
-        pytest.skip: If no GPU is available for testing
-    """
-    from tests.utils.gpu_test_utils import is_gpu_available
-
-    if not is_gpu_available():
-        pytest.skip("Test requires GPU but none is available")
-
-
 def pytest_report_header(config):  # noqa: ARG001
     """Add lightweight backend information to the pytest header.
 
@@ -117,7 +102,7 @@ def pytest_report_header(config):  # noqa: ARG001
         config: Pytest configuration object
 
     Returns:
-        str: Header information about GPU availability
+        list[str]: The backend and, when probed, the visible devices
     """
     header_lines = [
         f"Artifex backend: {os.environ.get('ARTIFEX_BACKEND', 'unset')}",
@@ -132,25 +117,21 @@ def pytest_report_header(config):  # noqa: ARG001
         )
         return header_lines
 
-    from tests.utils.gpu_test_utils import get_jax_runtime_summary
+    from substrax import devices
 
-    summary = get_jax_runtime_summary()
-    visible_devices = ", ".join(summary.visible_devices) if summary.visible_devices else "none"
+    info = devices.detect_devices()
     header_lines.extend(
         [
-            f"JAX default backend: {summary.default_backend or 'unavailable'}",
-            f"JAX visible devices: {visible_devices}",
-            f"GPU available for testing: {summary.gpu_available}",
+            f"JAX default backend: {info.platform}",
+            f"JAX visible devices: {info.count} ({', '.join(info.device_kinds)})",
+            f"Accelerator available for testing: {info.has_accelerator}",
         ]
     )
     if hasattr(config, "_metadata"):
-        config._metadata["GPU available for testing"] = str(summary.gpu_available)
-        config._metadata["JAX default backend"] = summary.default_backend or "unavailable"
+        config._metadata["Accelerator available for testing"] = str(info.has_accelerator)
+        config._metadata["JAX default backend"] = info.platform
         config._metadata["Artifex backend"] = os.environ.get("ARTIFEX_BACKEND", "unset")
         config._metadata["JAX runtime probe"] = "enabled"
-
-    if summary.error:
-        header_lines.append(f"JAX runtime probe error: {summary.error}")
 
     return header_lines
 

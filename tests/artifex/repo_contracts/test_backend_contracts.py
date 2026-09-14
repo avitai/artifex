@@ -1,3 +1,4 @@
+import ast
 import importlib
 import json
 import subprocess
@@ -58,7 +59,6 @@ def test_backend_bootstrap_does_not_hardcode_system_cuda() -> None:
         "scripts/verify_gpu_setup.py",
         "setup.sh",
         "tests/conftest.py",
-        "tests/utils/gpu_test_utils.py",
     ]
 
     banned_strings = [
@@ -265,19 +265,19 @@ print(json.dumps({"jax_loaded": "jax" in sys.modules}))
 def test_pytest_header_defers_runtime_probe_without_opt_in(monkeypatch) -> None:
     """Pytest startup should not probe the live JAX runtime unless explicitly requested."""
     pytest_conftest = importlib.import_module("tests.conftest")
-    gpu_utils = importlib.import_module("tests.utils.gpu_test_utils")
+    devices = importlib.import_module("substrax.devices")
 
-    summary = gpu_utils.JAXRuntimeSummary(
-        gpu_available=True,
-        default_backend="gpu",
-        visible_devices=("gpu:NVIDIA RTX 4090", "cpu:cpu"),
-        error=None,
+    info = devices.DeviceInfo(
+        platform="gpu",
+        kind=devices.DeviceKind.GPU,
+        count=2,
+        device_kinds=("NVIDIA RTX 4090", "NVIDIA RTX 4090"),
     )
 
     monkeypatch.setenv("ARTIFEX_BACKEND", "cuda12")
     monkeypatch.setattr(
-        gpu_utils,
-        "get_jax_runtime_summary",
+        devices,
+        "detect_devices",
         lambda: (_ for _ in ()).throw(AssertionError("runtime probe should stay deferred")),
     )
 
@@ -293,7 +293,7 @@ def test_pytest_header_defers_runtime_probe_without_opt_in(monkeypatch) -> None:
     assert config._metadata["Artifex backend"] == "cuda12"
     assert config._metadata["JAX runtime probe"] == "deferred"
 
-    monkeypatch.setattr(gpu_utils, "get_jax_runtime_summary", lambda: summary)
+    monkeypatch.setattr(devices, "detect_devices", lambda: info)
     opt_in_config = SimpleNamespace(
         _metadata={},
         getoption=lambda name: name == "--artifex-probe-jax-runtime",
@@ -301,20 +301,32 @@ def test_pytest_header_defers_runtime_probe_without_opt_in(monkeypatch) -> None:
 
     probed_header = pytest_conftest.pytest_report_header(opt_in_config)
     assert "JAX default backend: gpu" in probed_header
-    assert "JAX visible devices: gpu:NVIDIA RTX 4090, cpu:cpu" in probed_header
-    assert "GPU available for testing: True" in probed_header
-    assert opt_in_config._metadata["GPU available for testing"] == "True"
+    assert "JAX visible devices: 2 (NVIDIA RTX 4090, NVIDIA RTX 4090)" in probed_header
+    assert "Accelerator available for testing: True" in probed_header
+    assert opt_in_config._metadata["Accelerator available for testing"] == "True"
     assert opt_in_config._metadata["JAX default backend"] == "gpu"
     assert opt_in_config._metadata["Artifex backend"] == "cuda12"
 
 
 def test_tests_conftest_uses_plugin_registration_for_shared_fixtures() -> None:
-    """Shared test fixtures should be exposed via pytest plugins, not import hacks."""
+    """Shared fixtures and the substrax JAX test plugin are registered as pytest plugins."""
     conftest_contents = (REPO_ROOT / "tests/conftest.py").read_text()
+    assignments = [
+        node
+        for node in ast.parse(conftest_contents).body
+        if isinstance(node, ast.Assign)
+        and any(
+            isinstance(target, ast.Name) and target.id == "pytest_plugins"
+            for target in node.targets
+        )
+    ]
 
-    assert 'pytest_plugins = ["tests.utils.pytest_hooks", "tests.artifex.fixtures.base"]' in (
-        conftest_contents
-    )
+    assert len(assignments) == 1
+    assert ast.literal_eval(assignments[0].value) == [
+        "substrax.testing.pytest_plugin",
+        "tests.utils.pytest_hooks",
+        "tests.artifex.fixtures.base",
+    ]
     assert "print(" not in conftest_contents
 
 
@@ -427,3 +439,17 @@ def test_pytest_env_sets_only_variables_the_stack_reads() -> None:
         "XLA_PYTHON_CLIENT_MEM_FRACTION",
         "XLA_PYTHON_CLIENT_PREALLOCATE",
     }
+
+
+def test_device_requirements_use_the_substrax_markers() -> None:
+    """GPU-only tests use the plugin's accelerator and devices markers, not artifex's own."""
+    pytest_options = tomllib.loads((REPO_ROOT / "pyproject.toml").read_text())["tool"]["pytest"]
+    markers = {line.split(":")[0].strip() for line in pytest_options["ini_options"]["markers"]}
+
+    assert not markers & {"gpu", "requires_gpu", "cuda", "cpu", "skip_on_gpu"}
+    assert "gpu_available" not in (REPO_ROOT / "conftest.py").read_text()
+    assert not (REPO_ROOT / "tests/utils/gpu_test_utils.py").exists()
+    for name in ("ci.yml", "upstream-compat.yml"):
+        workflow = (REPO_ROOT / ".github/workflows" / name).read_text()
+        assert "not gpu" not in workflow
+        assert "not cuda" not in workflow

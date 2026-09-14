@@ -15,12 +15,15 @@ def test_development_testing_guide_matches_live_pytest_contract() -> None:
 
     assert "uv run pytest" in contents
     assert "test_device" in contents
-    assert "gpu_test_fixture" in contents
     assert "80%" in contents
-    assert "pytest.mark.gpu" in contents
+    assert "pytest.mark.accelerator" in contents
+    assert "ARTIFEX_TEST_JAX_PLATFORMS" in contents
     assert "pytest.mark.blackjax" in contents
 
     for banned in [
+        "gpu_test_fixture",
+        "pytest.mark.gpu",
+        "pytest.mark.requires_gpu",
         "complete test coverage",
         "tests/standalone",
         "device_manager.cleanup()",
@@ -40,6 +43,8 @@ def test_contributor_guides_do_not_publish_shadow_test_topology() -> None:
         assert "tests/standalone" not in contents
         assert "./test.py standalone" not in contents
         assert "./scripts/run_tests.sh --standalone" not in contents
+        assert "pytest.mark.gpu" not in contents
+        assert "pytest.mark.requires_gpu" not in contents
 
     assert "tests/artifex/" in philosophy
     assert "tests/unit/" in philosophy
@@ -50,7 +55,8 @@ def test_contributor_guides_do_not_publish_shadow_test_topology() -> None:
     assert "tests/artifex/" in root_contributing
     assert "tests/unit/" in root_contributing
     assert "test_device" in root_contributing
-    assert "gpu_test_fixture" in root_contributing
+    assert "pytest.mark.accelerator" in root_contributing
+    assert "gpu_test_fixture" not in root_contributing
 
 
 def test_standalone_shadow_suite_is_removed() -> None:
