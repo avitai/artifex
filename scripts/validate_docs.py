@@ -15,9 +15,9 @@ from pathlib import Path
 from typing import cast
 
 import yaml
+from substrax.runtime import configure_entry_point_logging
 
 
-logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 LOGGER = logging.getLogger(__name__)
 MKDOCSTRINGS_DIRECTIVE = re.compile(r"^::: ([\w\.]+)$", flags=re.MULTILINE)
 MARKDOWN_LINK = re.compile(r"\[[^\]]+\]\(([^)]+)\)")
@@ -443,6 +443,7 @@ def build_parser() -> argparse.ArgumentParser:
 
 def main() -> int:
     """Run the docs validator CLI."""
+    configure_entry_point_logging(fmt="%(levelname)s: %(message)s")
     args = build_parser().parse_args()
     if args.verbose:
         logging.getLogger().setLevel(logging.DEBUG)

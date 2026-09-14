@@ -213,7 +213,7 @@ The visualization:
 
 - Projects 3D points onto 2D screen
 - Colors points by distance from origin
-- Saves plots to `examples_output/` directory
+- Saves plots to the example's output directory
 
 ## Expected Output
 
@@ -226,8 +226,8 @@ Example completed! Point clouds saved as PNG files.
 
 **Generated files:**
 
-- `examples_output/point_cloud_1.png` - First generated point cloud
-- `examples_output/point_cloud_2.png` - Second generated point cloud
+- `point_cloud_1.png` - First generated point cloud
+- `point_cloud_2.png` - Second generated point cloud
 
 Each visualization shows a 3D scatter plot with:
 

@@ -70,6 +70,7 @@ import blackjax
 import jax
 import jax.numpy as jnp
 import matplotlib.pyplot as plt
+from substrax.artifacts import resolve_output_dir
 from tqdm import tqdm
 
 from artifex.generative_models.core.distributions import Mixture, Normal
@@ -138,8 +139,7 @@ def plot_samples(samples, title="MCMC Samples", filename=None, true_params=None)
     if filename:
         import os
 
-        output_dir = "examples_output"
-        os.makedirs(output_dir, exist_ok=True)
+        output_dir = resolve_output_dir("blackjax_integration_examples").path
         filepath = os.path.join(output_dir, filename)
         plt.savefig(filepath)
         print(f"Plot saved as '{filepath}'")

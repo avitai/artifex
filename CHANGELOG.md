@@ -23,6 +23,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `plot_optimizer_comparison`, `plot_convergence_speed` and
   `ProteinBenchmarkSuite.visualize_results` write to the path they are given. A relative path is
   no longer moved under `benchmark_results/` or `test_results/`.
+- Examples write their figures and files under `$AVITAI_OUTPUT_DIR/<example name>`, or in a
+  fresh temporary directory whose path they log, instead of `examples_output/` in the working
+  directory. They configure logging only when run as a script or notebook, so importing an
+  example leaves logging alone.
 - Requires `substrax>=0.1.6`, and the `test` extra installs `substrax[testing]`.
 
 ### Removed

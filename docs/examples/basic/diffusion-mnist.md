@@ -141,7 +141,7 @@ pip install avitai-artifex
 ```python
 import os
 os.environ["XLA_PYTHON_CLIENT_PREALLOCATE"] = "false"  # JAX: don't pre-allocate
-os.environ["XLA_PYTHON_CLIENT_MEM_FRACTION"] = "0.8"  # JAX: use 80% of GPU
+os.environ["XLA_CLIENT_MEM_FRACTION"] = "0.8"  # JAX: use 80% of GPU
 ```
 
 ---
@@ -690,9 +690,8 @@ ds_train = tfds.load("fashion_mnist", split="train", as_supervised=True)
 ```python
 # 1. Set environment variables BEFORE imports
 import os
-os.environ["TF_FORCE_GPU_ALLOW_GROWTH"] = "true"
 os.environ["XLA_PYTHON_CLIENT_PREALLOCATE"] = "false"
-os.environ["XLA_PYTHON_CLIENT_MEM_FRACTION"] = "0.8"
+os.environ["XLA_CLIENT_MEM_FRACTION"] = "0.8"
 
 # 2. Reduce batch size
 BATCH_SIZE = 32  # or 16

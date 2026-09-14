@@ -80,7 +80,7 @@ uv run python examples/generative_models/diffusion/simple_diffusion_example.py
 This example will:
 - Create a simplified diffusion model
 - Generate 4 sample images from random noise
-- Save visualization to `examples_output/diffusion_samples.png`
+- Save visualization as `diffusion_samples.png` in the example's output directory
 - Show how noise transforms into structured patterns
 
 ## ⏱️ Estimated Runtime
@@ -119,11 +119,14 @@ import jax
 import jax.numpy as jnp
 import matplotlib.pyplot as plt
 from flax import nnx
+from substrax.artifacts import resolve_output_dir
+from substrax.runtime import configure_entry_point_logging
 
 from artifex.generative_models.core.base import GenerativeModel
 
 
-logging.basicConfig(level=logging.INFO, format="%(message)s")
+if __name__ == "__main__":
+    configure_entry_point_logging()
 LOGGER = logging.getLogger(__name__)
 
 
@@ -414,8 +417,7 @@ for i in range(batch_size):
 plt.tight_layout()
 
 # Save the figure
-output_dir = "examples_output"
-os.makedirs(output_dir, exist_ok=True)
+output_dir = resolve_output_dir("simple_diffusion_example").path
 output_path = os.path.join(output_dir, "diffusion_samples.png")
 plt.savefig(output_path, dpi=150, bbox_inches="tight")
 

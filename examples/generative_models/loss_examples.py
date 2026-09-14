@@ -22,9 +22,11 @@ import jax
 import jax.numpy as jnp
 import optax
 from flax import nnx
+from substrax.runtime import configure_entry_point_logging
 
 
-logging.basicConfig(level=logging.INFO, format="%(message)s")
+if __name__ == "__main__":
+    configure_entry_point_logging()
 LOGGER = logging.getLogger(__name__)
 
 

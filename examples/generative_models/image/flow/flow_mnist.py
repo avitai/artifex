@@ -55,11 +55,13 @@ uv sync
 # IMPORTANT: Set memory env vars BEFORE importing TensorFlow or JAX
 import os
 
+from substrax.artifacts import resolve_output_dir
+from substrax.runtime import configure_entry_point_logging
+
 
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"  # Suppress TF warnings
-os.environ["TF_FORCE_GPU_ALLOW_GROWTH"] = "true"  # Don't pre-allocate GPU memory
 os.environ["XLA_PYTHON_CLIENT_PREALLOCATE"] = "false"  # JAX: don't pre-allocate
-os.environ["XLA_PYTHON_CLIENT_MEM_FRACTION"] = "0.9"  # JAX: use 90% of GPU memory
+os.environ["XLA_CLIENT_MEM_FRACTION"] = "0.9"  # JAX: use 90% of GPU memory
 
 import logging
 
@@ -81,7 +83,8 @@ from artifex.generative_models.core.configuration.flow_config import (
 from artifex.generative_models.models.flow.real_nvp import RealNVP
 
 
-logging.basicConfig(level=logging.INFO, format="%(message)s")
+if __name__ == "__main__":
+    configure_entry_point_logging()
 LOGGER = logging.getLogger(__name__)
 
 
@@ -351,7 +354,7 @@ r"""## Step 8: Visualize Results.
 """
 
 # %%
-os.makedirs("examples_output", exist_ok=True)
+OUTPUT_DIR = resolve_output_dir("flow_mnist").path
 
 # Samples
 fig, axes = plt.subplots(4, 4, figsize=(8, 8))
@@ -362,8 +365,8 @@ for i, ax in enumerate(axes.flatten()):
 
 plt.suptitle("RealNVP Generated MNIST Digits", fontsize=14, fontweight="bold")
 plt.tight_layout()
-fig.savefig("examples_output/flow_samples.png", dpi=150, bbox_inches="tight")
-echo("\nSaved: examples_output/flow_samples.png")
+fig.savefig(OUTPUT_DIR / "flow_samples.png", dpi=150, bbox_inches="tight")
+echo(f"\nSaved: {OUTPUT_DIR / 'flow_samples.png'}")
 plt.close()
 
 
@@ -426,8 +429,8 @@ axes[2].set_title("Learning Rate Schedule", fontsize=14, fontweight="bold")
 axes[2].grid(True, alpha=0.3)
 
 plt.tight_layout()
-fig.savefig("examples_output/flow_training_curve.png", dpi=150, bbox_inches="tight")
-echo("Saved: examples_output/flow_training_curve.png")
+fig.savefig(OUTPUT_DIR / "flow_training_curve.png", dpi=150, bbox_inches="tight")
+echo(f"Saved: {OUTPUT_DIR / 'flow_training_curve.png'}")
 plt.close()
 
 echo("\n✅ Done!")

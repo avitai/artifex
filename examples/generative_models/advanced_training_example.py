@@ -103,7 +103,6 @@ Import required modules from JAX, Flax NNX, and Artifex.
 
 # %%
 import logging
-import os
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -113,6 +112,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import optax
 from flax import nnx
+from substrax.artifacts import resolve_output_dir
+from substrax.runtime import configure_entry_point_logging
 
 from artifex.generative_models.core.configuration import (
     OptimizerConfig,
@@ -121,7 +122,8 @@ from artifex.generative_models.core.configuration import (
 )
 
 
-logging.basicConfig(level=logging.INFO, format="%(message)s")
+if __name__ == "__main__":
+    configure_entry_point_logging()
 LOGGER = logging.getLogger(__name__)
 
 
@@ -642,8 +644,7 @@ def main():
     # Plot training curves
     echo()
     echo("7. Plotting training curves...")
-    output_dir = "examples_output"
-    os.makedirs(output_dir, exist_ok=True)
+    output_dir = resolve_output_dir("advanced_training_example").path
 
     metrics.plot(save_path=f"{output_dir}/training_curves.png")
     echo(f"  Training curves saved to {output_dir}/training_curves.png")

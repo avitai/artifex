@@ -28,6 +28,7 @@ import sys
 from pathlib import Path
 
 import psutil
+from substrax.artifacts import resolve_output_dir
 
 
 def get_preset_configs():
@@ -35,7 +36,7 @@ def get_preset_configs():
     return {
         "quick": {
             "description": "Quick demo - minimal resources, fast execution",
-            "workdir": "./examples_output/geometric_demo_quick",
+            "workdir": str(resolve_output_dir("geometric_demo_quick").path),
             "dataset": {
                 "data_path": "./data/shapenet_quick",
                 "num_points": 512,
@@ -76,7 +77,7 @@ def get_preset_configs():
         },
         "full": {
             "description": "Full demo - complete training with real data",
-            "workdir": "./examples_output/geometric_demo_full",
+            "workdir": str(resolve_output_dir("geometric_demo_full").path),
             "dataset": {
                 "data_path": "./data/shapenet",
                 "num_points": 2048,  # Full resolution
@@ -117,7 +118,7 @@ def get_preset_configs():
         },
         "debug": {
             "description": "Debug mode - minimal setup for testing",
-            "workdir": "./examples_output/geometric_demo_debug",
+            "workdir": str(resolve_output_dir("geometric_demo_debug").path),
             "dataset": {
                 "data_path": "./data/shapenet_debug",
                 "num_points": 128,  # Very small

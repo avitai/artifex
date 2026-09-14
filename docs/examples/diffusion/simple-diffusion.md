@@ -95,7 +95,8 @@ config = {
 # Run the standalone walkthrough:
 # python examples/generative_models/diffusion/simple_diffusion_example.py
 
-# Output will be saved to: examples_output/diffusion_samples.png
+# The figure is saved as diffusion_samples.png under $AVITAI_OUTPUT_DIR/simple_diffusion_example,
+# or in a temporary directory whose path the example prints
 ```
 
 ## Features Demonstrated

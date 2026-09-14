@@ -38,6 +38,7 @@ import logging
 import jax
 import jax.numpy as jnp
 from flax import nnx
+from substrax.runtime import configure_entry_point_logging
 
 from artifex.generative_models.core.configuration import (
     PointCloudConfig,
@@ -57,7 +58,8 @@ from artifex.generative_models.models.geometric.point_cloud import (
 )
 
 
-logging.basicConfig(level=logging.INFO, format="%(message)s")
+if __name__ == "__main__":
+    configure_entry_point_logging()
 LOGGER = logging.getLogger(__name__)
 
 
