@@ -172,7 +172,7 @@ uv run pytest tests/path/to/test.py -xvs
 uv run pytest --cov=src/artifex --cov-report=html
 
 # Marker-focused runs
-uv run pytest -m gpu
+ARTIFEX_TEST_JAX_PLATFORMS=cuda uv run pytest -m accelerator
 uv run pytest -m blackjax
 ```
 
@@ -180,8 +180,8 @@ uv run pytest -m blackjax
 
 - `tests/artifex/`: package, integration, and repo-contract tests over live Artifex owners
 - `tests/unit/`: narrower low-level unit coverage where that layout already exists
-- Use `test_device` for device-aware tests and `gpu_test_fixture` for explicitly GPU-required tests
-- Mark GPU tests with `@pytest.mark.gpu`
+- Use `test_device` for device-aware tests
+- Mark GPU-only tests with `@pytest.mark.accelerator(kind="gpu")` and multi-device tests with `@pytest.mark.devices(count)`
 - Do not add local replica suites or shadow suites that bypass live imports
 
 ## Documentation

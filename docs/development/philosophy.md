@@ -121,7 +121,7 @@ Tests should import live Artifex owners instead of recreating local shadow confi
 
 - `tests/artifex/`: package, integration, and repo-contract coverage tied to the live runtime
 - `tests/unit/`: narrower low-level unit coverage where that layout already exists
-- GPU requirements are explicit through `@pytest.mark.gpu` or `@pytest.mark.requires_gpu`
+- GPU requirements are explicit through `@pytest.mark.accelerator(kind="gpu")` and `@pytest.mark.devices(count)`
 
 ## What We Don't Do
 

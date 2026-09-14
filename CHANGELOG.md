@@ -14,6 +14,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `ARTIFEX_TEST_DEVICE_COUNT` sets the device count (`0` turns emulation off). An exported
   `JAX_PLATFORMS` no longer moves tests onto a GPU; run
   `ARTIFEX_TEST_JAX_PLATFORMS=cuda uv run pytest` to test on one. See `TESTING.md`.
+- GPU-only tests use the substrax pytest plugin's markers:
+  `@pytest.mark.accelerator(kind="gpu")` skips unless the run uses a GPU backend, and
+  `@pytest.mark.devices(count)` skips below `count` visible devices. The `gpu`, `requires_gpu`,
+  `cuda` and `cpu` markers, the `gpu_test_fixture` fixture and `tests/utils/gpu_test_utils.py`
+  are removed. Run the GPU tests with `ARTIFEX_TEST_JAX_PLATFORMS=cuda uv run pytest -m accelerator`.
 - Requires `substrax>=0.1.6`, and the `test` extra installs `substrax[testing]`.
 
 ### Removed

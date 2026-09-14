@@ -360,60 +360,27 @@ class TestUNetStability:
         # Note: We don't assert about NaN propagation as it's model-dependent
 
 
-# Safe check for GPU availability
-def has_gpu():
-    """Check if GPU is available for testing.
-
-    Uses the improved GPU detection logic that includes fallback to hardware detection.
-    """
-    # Import here to avoid circular imports
-    from tests.utils.gpu_test_utils import is_gpu_available
-
-    return is_gpu_available()
-
-
-# Update the decorator to use the safe check
-@pytest.mark.skipif(not has_gpu(), reason="GPU not available")
+@pytest.mark.accelerator(kind="gpu")
 class TestUNetGPU:
-    """GPU-specific tests (only run if GPU available)."""
+    """GPU-specific tests, which skip unless the test run uses a GPU backend."""
 
     def test_gpu_execution(self, rngs):
-        """Test that model runs on GPU if JAX can access it, otherwise run on CPU."""
+        """Test that the model runs on a GPU device."""
         config = create_unet_config()
         unet = UNet(config, rngs=rngs)
 
         x = jnp.ones((2, 32, 32, 3))
         t = jnp.array([10, 20])
 
-        # Try to use GPU if JAX can access it, otherwise run on available devices
-        try:
-            gpu_devices = jax.devices("gpu")
-            if gpu_devices:
-                # Execute on GPU
-                with jax.default_device(gpu_devices[0]):
-                    output = unet(x, t, deterministic=True)
-                print(f"Test executed on GPU: {gpu_devices[0]}")
-            else:
-                raise RuntimeError("No GPU devices found in JAX")
-        except (RuntimeError, ValueError) as e:
-            # Fallback to default device (likely CPU) when GPU hardware is available
-            # but JAX can't access it due to configuration issues
-            print(f"GPU hardware detected but JAX cannot access GPU devices: {e}")
-            print("Running test on available JAX devices (likely CPU)")
+        with jax.default_device(jax.devices("gpu")[0]):
             output = unet(x, t, deterministic=True)
 
         assert output.shape == x.shape
         assert jnp.isfinite(output).all()
 
+    @pytest.mark.devices(2, kind="gpu")
     def test_multi_gpu_compilation(self, rngs):
-        """Test compilation with multiple GPUs (if available)."""
-        try:
-            gpu_devices = jax.devices("gpu")
-            if len(gpu_devices) < 2:
-                pytest.skip("Multiple GPUs not available in JAX")
-        except (RuntimeError, ValueError):
-            pytest.skip("No GPU devices accessible through JAX")
-
+        """Test compilation with multiple GPUs."""
         x = jnp.ones((4, 32, 32, 3))  # Batch divisible by 2
         t = jnp.array([10, 20, 30, 40])
 

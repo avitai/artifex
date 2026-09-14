@@ -8,8 +8,6 @@ These tests verify the correctness of ResNet components including:
 - Different normalization types
 """
 
-import os
-
 import jax
 import jax.numpy as jnp
 import pytest
@@ -21,37 +19,6 @@ from artifex.generative_models.core.layers.resnet import (
     create_resnet_stage,
     ResNetBlock,
 )
-
-
-def should_run_gpu_intensive_tests():
-    """Check if GPU-intensive tests should be run.
-
-    Returns:
-        bool: True if tests should run, False if they should be skipped
-
-    Tests will run when:
-    1. GPU is available and properly configured, OR
-    2. JAX_PLATFORMS is set to 'cpu', OR
-    3. RUN_RESNET_GPU_TESTS is explicitly set to '1'
-    """
-    # Import here to avoid circular imports
-    from tests.utils.gpu_test_utils import is_gpu_available
-
-    # Check if JAX is configured to use CPU
-    platforms = os.environ.get("JAX_PLATFORMS", "")
-    if platforms.lower() == "cpu":
-        return True
-
-    # Check if tests are explicitly enabled
-    if os.environ.get("RUN_RESNET_GPU_TESTS", "") != "":
-        return True
-
-    # Check if GPU is properly available and configured
-    if is_gpu_available():
-        return True
-
-    # Default to skipping if none of the above conditions are met
-    return False
 
 
 @pytest.fixture
@@ -212,9 +179,6 @@ class TestResNetBlock:
 
     def test_forward_basic(self, rng_keys):
         """Test basic forward pass."""
-        if not should_run_gpu_intensive_tests():
-            pytest.skip("Skipping GPU-intensive test. Set JAX_PLATFORMS=cpu to run safely.")
-
         rngs = nnx.Rngs(params=rng_keys["params"])
 
         block = ResNetBlock(in_features=16, features=16, rngs=rngs)
@@ -224,9 +188,6 @@ class TestResNetBlock:
 
     def test_forward_with_stride(self, rng_keys):
         """Test forward pass with stride."""
-        if not should_run_gpu_intensive_tests():
-            pytest.skip("Skipping GPU-intensive test. Set JAX_PLATFORMS=cpu to run safely.")
-
         rngs = nnx.Rngs(params=rng_keys["params"])
 
         block = ResNetBlock(in_features=16, features=16, stride=2, rngs=rngs)
@@ -236,9 +197,6 @@ class TestResNetBlock:
 
     def test_forward_with_feature_change(self, rng_keys):
         """Test forward pass with feature dimension change."""
-        if not should_run_gpu_intensive_tests():
-            pytest.skip("Skipping GPU-intensive test. Set JAX_PLATFORMS=cpu to run safely.")
-
         rngs = nnx.Rngs(params=rng_keys["params"])
 
         block = ResNetBlock(in_features=16, features=32, stride=2, rngs=rngs)
@@ -248,9 +206,6 @@ class TestResNetBlock:
 
     def test_forward_different_norm_types(self, rng_keys):
         """Test forward pass with different normalization types."""
-        if not should_run_gpu_intensive_tests():
-            pytest.skip("Skipping GPU-intensive test. Set JAX_PLATFORMS=cpu to run safely.")
-
         rngs = nnx.Rngs(params=rng_keys["params"])
         x = jnp.ones((2, 32, 32, 16))
 
@@ -268,9 +223,6 @@ class TestResNetBlock:
 
     def test_forward_no_norm(self, rng_keys):
         """Test forward pass without normalization."""
-        if not should_run_gpu_intensive_tests():
-            pytest.skip("Skipping GPU-intensive test. Set JAX_PLATFORMS=cpu to run safely.")
-
         rngs = nnx.Rngs(params=rng_keys["params"])
 
         block = ResNetBlock(in_features=16, features=16, use_norm=False, rngs=rngs)
@@ -280,9 +232,6 @@ class TestResNetBlock:
 
     def test_deterministic_vs_training_mode(self, rng_keys):
         """Test difference between deterministic and training modes."""
-        if not should_run_gpu_intensive_tests():
-            pytest.skip("Skipping GPU-intensive test. Set JAX_PLATFORMS=cpu to run safely.")
-
         rngs = nnx.Rngs(params=rng_keys["params"])
 
         # Use batch norm to see difference between modes
@@ -408,9 +357,6 @@ class TestBottleneckBlock:
 
     def test_forward_basic(self, rng_keys):
         """Test basic forward pass."""
-        if not should_run_gpu_intensive_tests():
-            pytest.skip("Skipping GPU-intensive test. Set JAX_PLATFORMS=cpu to run safely.")
-
         rngs = nnx.Rngs(params=rng_keys["params"])
 
         block = BottleneckBlock(in_features=64, out_features=64, rngs=rngs)
@@ -420,9 +366,6 @@ class TestBottleneckBlock:
 
     def test_forward_with_stride(self, rng_keys):
         """Test forward pass with stride."""
-        if not should_run_gpu_intensive_tests():
-            pytest.skip("Skipping GPU-intensive test. Set JAX_PLATFORMS=cpu to run safely.")
-
         rngs = nnx.Rngs(params=rng_keys["params"])
 
         block = BottleneckBlock(in_features=64, out_features=64, stride=2, rngs=rngs)
@@ -432,9 +375,6 @@ class TestBottleneckBlock:
 
     def test_forward_with_feature_expansion(self, rng_keys):
         """Test forward pass with feature expansion."""
-        if not should_run_gpu_intensive_tests():
-            pytest.skip("Skipping GPU-intensive test. Set JAX_PLATFORMS=cpu to run safely.")
-
         rngs = nnx.Rngs(params=rng_keys["params"])
 
         block = BottleneckBlock(in_features=64, out_features=128, stride=2, rngs=rngs)
@@ -444,9 +384,6 @@ class TestBottleneckBlock:
 
     def test_forward_no_norm(self, rng_keys):
         """Test forward pass without normalization."""
-        if not should_run_gpu_intensive_tests():
-            pytest.skip("Skipping GPU-intensive test. Set JAX_PLATFORMS=cpu to run safely.")
-
         rngs = nnx.Rngs(params=rng_keys["params"])
 
         block = BottleneckBlock(in_features=64, out_features=64, use_norm=False, rngs=rngs)
@@ -662,9 +599,6 @@ class TestIntegration:
 
     def test_resnet_block_stage_pipeline(self, rng_keys):
         """Test a complete pipeline of ResNet blocks."""
-        if not should_run_gpu_intensive_tests():
-            pytest.skip("Skipping GPU-intensive test. Set JAX_PLATFORMS=cpu to run safely.")
-
         rngs = nnx.Rngs(params=rng_keys["params"])
 
         # Create a simple ResNet-like pipeline
@@ -703,9 +637,6 @@ class TestIntegration:
 
     def test_bottleneck_vs_basic_comparison(self, rng_keys):
         """Test comparison between basic and bottleneck blocks."""
-        if not should_run_gpu_intensive_tests():
-            pytest.skip("Skipping GPU-intensive test. Set JAX_PLATFORMS=cpu to run safely.")
-
         rngs = nnx.Rngs(params=rng_keys["params"])
 
         # Create comparable blocks
@@ -736,9 +667,6 @@ class TestIntegration:
 
     def test_mixed_normalization_pipeline(self, rng_keys):
         """Test pipeline with different normalization types."""
-        if not should_run_gpu_intensive_tests():
-            pytest.skip("Skipping GPU-intensive test. Set JAX_PLATFORMS=cpu to run safely.")
-
         rngs = nnx.Rngs(params=rng_keys["params"])
 
         # Create blocks with different norm types

@@ -8,15 +8,11 @@ import warnings
 import pytest
 
 
-def pytest_configure(config: pytest.Config) -> None:
-    """Register warning filters and metadata without forcing JAX initialization."""
+def pytest_configure() -> None:
+    """Register warning filters without forcing JAX initialization."""
     warnings.filterwarnings("ignore", category=UserWarning, module="jax._src.xla_bridge")
     warnings.filterwarnings("ignore", message=".*cuSPARSE.*")
     warnings.filterwarnings("ignore", message=".*CUDA-enabled jaxlib.*")
-    config.addinivalue_line(
-        "markers",
-        "gpu_available: GPU availability is determined lazily from the active JAX runtime",
-    )
 
 
 @pytest.fixture
@@ -44,22 +40,7 @@ def rngs():
     return nnx.Rngs(0)
 
 
-def pytest_runtest_setup(item: pytest.Item) -> None:
-    """Skip GPU-marked tests only when JAX cannot see a GPU backend."""
-    if (
-        "gpu" not in item.keywords
-        and "cuda" not in item.keywords
-        and "requires_gpu" not in item.keywords
-    ):
-        return
-
-    from tests.utils.gpu_test_utils import is_gpu_available
-
-    if not is_gpu_available():
-        pytest.skip("GPU test skipped: no JAX GPU backend is available")
-
-
 def pytest_runtest_teardown(item: pytest.Item, nextitem: pytest.Item | None) -> None:  # noqa: ARG001
-    """Clear Python-side garbage after GPU tests to reduce memory pressure."""
-    if "gpu" in item.keywords or "cuda" in item.keywords or "requires_gpu" in item.keywords:
+    """Clear Python-side garbage after accelerator tests to reduce memory pressure."""
+    if item.get_closest_marker("accelerator") is not None:
         gc.collect()

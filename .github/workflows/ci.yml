@@ -64,7 +64,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          uv run pytest tests/ -v -m "not gpu and not gpu_required and not cuda and not slow and not blackjax" \
+          uv run pytest tests/ -v -m "not slow and not blackjax" \
             --cov=src/artifex --cov-report=xml --cov-report=term-missing
 
       - name: Upload test results
@@ -97,7 +97,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          uv run pytest tests/artifex/generative_models/integration/ -v -m "not gpu and not gpu_required and not cuda" \
+          uv run pytest tests/artifex/generative_models/integration/ -v \
             --cov=src/artifex --cov-report=xml --cov-report=term-missing --cov-fail-under=0
 
       - name: Upload test results
@@ -130,7 +130,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          uv run pytest tests/ -v -m "e2e and not gpu and not gpu_required and not cuda" \
+          uv run pytest tests/ -v -m e2e \
             --cov=src/artifex --cov-report=xml --cov-report=term-missing --cov-fail-under=0
 
       - name: Upload test results
@@ -164,7 +164,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          uv run pytest tests/ -v -m "(benchmark or performance) and not gpu and not gpu_required and not cuda" --benchmark-autosave --benchmark-columns=mean,stddev,min,max --no-cov
+          uv run pytest tests/ -v -m "benchmark or performance" --benchmark-autosave --benchmark-columns=mean,stddev,min,max --no-cov
 
       - name: Upload benchmark results
         uses: actions/upload-artifact@v4

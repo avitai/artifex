@@ -29,7 +29,7 @@ Artifex relies on JAX's pip-managed CUDA runtime for this path. The required hos
 - GPU-capable environments leave `JAX_PLATFORMS` unset by default.
 - JAX then selects GPU when the installed runtime supports it and falls back to CPU otherwise.
 - Use `JAX_PLATFORMS=cpu` only when you explicitly want a CPU-only run.
-- Tests use the same rule: GPU-marked tests are skipped only when JAX cannot actually see a GPU backend.
+- The test suite does not follow this rule. It runs on the CPU with eight emulated devices unless `ARTIFEX_TEST_JAX_PLATFORMS` names an accelerator, and tests marked `@pytest.mark.accelerator` skip without one.
 
 ## Developer workflow
 
@@ -90,8 +90,10 @@ Do not try to fix this by pointing Artifex at `/usr/local/cuda` or by hand-editi
 ### You want to force CPU for a single command
 
 ```bash
-JAX_PLATFORMS=cpu uv run pytest -m "not gpu"
+JAX_PLATFORMS=cpu uv run python scripts/verify_gpu_setup.py
 ```
+
+`uv run pytest` needs no prefix: the test suite already runs on the CPU (see `TESTING.md`).
 
 ### You want to rebuild the repo environment
 
