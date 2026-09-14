@@ -155,3 +155,16 @@ def test_ruff_per_file_policy_keeps_blocking_lint_focused_on_maintained_runtime_
     assert all(path.startswith("src/") and "*" not in path for path in baseline)
     assert "T201" not in pyproject["tool"]["ruff"]["lint"]["ignore"]
     assert "BLE001" not in pyproject["tool"]["ruff"]["lint"]["ignore"]
+
+
+def test_pytest_coverage_sources_name_directories() -> None:
+    """Every ``--cov`` in addopts names a source directory, not a package.
+
+    A package-name source matches executed code by module name, so a package file run as a script
+    is measured as ``__main__`` and reads as uncovered.
+    """
+    addopts = shlex.split(_load_pyproject()["tool"]["pytest"]["ini_options"]["addopts"])
+    sources = [argument.split("=", 1)[1] for argument in addopts if argument.startswith("--cov=")]
+
+    assert sources
+    assert [source for source in sources if not (REPO_ROOT / source).is_dir()] == []

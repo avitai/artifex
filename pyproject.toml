@@ -417,7 +417,7 @@ typeCheckingMode = "standard"
 # Configuration with smart parallel execution and coverage
 # Note: -n auto removed to prevent GPU conflicts. Removed --maxfail=1 to run all tests
 # Canonical coverage values live in [tool.artifex.repo_standards.coverage].
-addopts = "--strict-markers --strict-config --verbose --tb=short --color=yes --durations=10 --disable-warnings --cov=artifex --cov-report=term-missing --cov-report=html --cov-fail-under=80 --timeout=300 --json-report --json-report-file=temp/test-results.json --json-report-indent=2"
+addopts = "--strict-markers --strict-config --verbose --tb=short --color=yes --durations=10 --disable-warnings --cov=src/artifex --cov-report=term-missing --cov-report=html --cov-fail-under=80 --timeout=300 --json-report --json-report-file=temp/test-results.json --json-report-indent=2"
 cache_dir = ".pytest_cache"
 # Additional settings
 console_output_style = "progress"
