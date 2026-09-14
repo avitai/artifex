@@ -19,6 +19,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `@pytest.mark.devices(count)` skips below `count` visible devices. The `gpu`, `requires_gpu`,
   `cuda` and `cpu` markers, the `gpu_test_fixture` fixture and `tests/utils/gpu_test_utils.py`
   are removed. Run the GPU tests with `ARTIFEX_TEST_JAX_PLATFORMS=cuda uv run pytest -m accelerator`.
+- `ProteinVisualizer.export_to_pdb`, `plot_ramachandran` and `visualize_protein_structure`,
+  `plot_optimizer_comparison`, `plot_convergence_speed` and
+  `ProteinBenchmarkSuite.visualize_results` write to the path they are given. A relative path is
+  no longer moved under `benchmark_results/` or `test_results/`.
 - Requires `substrax>=0.1.6`, and the `test` extra installs `substrax[testing]`.
 
 ### Removed
@@ -31,6 +35,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   variables. For deterministic GPU runs, set `XLA_FLAGS=--xla_gpu_deterministic_ops=true`; the
   `TF_CUDNN_DETERMINISTIC` and `TF_DETERMINISTIC_OPS` variables the test configuration also set
   are not read by JAX.
+- `artifex.utils.file_utils` (`ensure_valid_output_path` and `get_valid_output_dir`), which chose
+  an output directory by inspecting the calling function's name. Use
+  `substrax.artifacts.resolve_output_dir(name)`, which returns an explicit path,
+  `$AVITAI_OUTPUT_DIR/<name>`, or a fresh temporary directory.
 
 ## [0.1.7] - 2026-09-11
 

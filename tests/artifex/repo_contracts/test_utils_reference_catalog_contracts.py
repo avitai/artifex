@@ -20,11 +20,6 @@ RETAINED_RUNTIME_PAGES: dict[str, dict[str, object]] = {
         "source": "src/artifex/generative_models/utils/jax/device.py",
         "required": ["get_recommended_batch_size", "substrax.devices"],
     },
-    "file_utils.md": {
-        "module": "artifex.utils.file_utils",
-        "source": "src/artifex/utils/file_utils.py",
-        "required": ["ensure_valid_output_path", "get_valid_output_dir"],
-    },
     "metrics.md": {
         "module": "artifex.generative_models.utils.logging.metrics",
         "source": "src/artifex/generative_models/utils/logging/metrics.py",
@@ -116,7 +111,6 @@ def test_utils_reference_pages_match_live_imports() -> None:
         "'artifex.generative_models.utils.code_analysis.dependency_analyzer',"
         "'artifex.generative_models.utils.jax.device',"
         "'artifex.generative_models.utils.logging.metrics',"
-        "'artifex.utils.file_utils',"
         "'artifex.visualization.protein_viz',"
         "'artifex.generative_models.utils.visualization.protein'"
         "]; "

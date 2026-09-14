@@ -115,7 +115,7 @@ families remain roadmap-only.
 
 ## Utilities
 
-The retained utility surface is small. `artifex.utils.file_utils`,
+The retained utility surface is small.
 `artifex.generative_models.utils.jax.device`, the logging helpers, code-analysis
 helpers, and protein visualization compatibility layers are live. Most other
 utility families remain coming soon and should stay on roadmap-only pages until

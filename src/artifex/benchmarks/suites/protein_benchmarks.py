@@ -20,7 +20,6 @@ from artifex.generative_models.core.protocols.evaluation import (
     BenchmarkModelProtocol,
     DatasetProtocol,
 )
-from artifex.utils.file_utils import ensure_valid_output_path
 
 
 class ProteinStructureBenchmark(Benchmark):
@@ -379,8 +378,6 @@ class ProteinBenchmarkSuite:
 
         # Save if path is provided
         if output_path:
-            # Ensure the path is in the benchmark_results directory
-            valid_path = ensure_valid_output_path(output_path, base_dir="benchmark_results")
-            plt.savefig(valid_path, dpi=300, bbox_inches="tight")
+            plt.savefig(output_path, dpi=300, bbox_inches="tight")
 
         return fig
