@@ -15,6 +15,12 @@ from pathlib import Path
 
 import pytest
 
+# jax reads JAX_PLATFORMS and JAX_NUM_CPU_DEVICES when it is imported, so the backend and the
+# emulated CPU devices are chosen here, before the plugins below import it.
+from tests.jax_test_environment import has_cuda_plugin, resolve_test_environment
+
+
+os.environ.update(resolve_test_environment(os.environ, cuda_plugin_available=has_cuda_plugin()))
 
 # Register shared fixtures and hooks as pytest plugins.
 pytest_plugins = ["tests.utils.pytest_hooks", "tests.artifex.fixtures.base"]

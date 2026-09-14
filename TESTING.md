@@ -49,6 +49,16 @@ uv run python scripts/verify_gpu_setup.py --require-gpu
 uv run python scripts/verify_gpu_setup.py --json
 ```
 
+## Test backend and devices
+
+The test suite chooses its own JAX backend before JAX is imported, so a local run matches CI:
+
+- Tests run on the CPU with eight emulated devices, so multi-device code paths run on any machine. An exported
+  `JAX_PLATFORMS` does not change this.
+- `ARTIFEX_TEST_JAX_PLATFORMS=cuda uv run pytest ...` runs the tests on the GPU, without CPU emulation. Asking for
+  CUDA when JAX's CUDA plugin is not installed fails instead of falling back to the CPU.
+- `ARTIFEX_TEST_DEVICE_COUNT=N` sets the number of emulated CPU devices; `0` turns emulation off.
+
 ## Running tests
 
 ```bash
@@ -92,5 +102,5 @@ uv run pytest \
 
 - BlackJAX is a first-class dependency. Its tests are part of the normal pytest contract.
 - The supported suite lives under `tests/` and should import live Artifex owners; shadow local-replica suites are not part of the supported workflow.
-- If you want a CPU-only local run on a GPU machine, prefix the command with `JAX_PLATFORMS=cpu`.
+- `uv run pytest` runs on the CPU on a GPU machine too; set `ARTIFEX_TEST_JAX_PLATFORMS=cuda` to test on the GPU.
 - If `uv run python scripts/verify_gpu_setup.py --require-gpu` fails on Linux, the usual problem is a missing or incompatible NVIDIA driver, not a missing system CUDA toolkit.
