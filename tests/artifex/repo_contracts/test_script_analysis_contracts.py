@@ -1,25 +1,11 @@
 import json
-import subprocess
-import sys
 import tomllib
 from pathlib import Path
 
+from tests.utils.fresh_interpreter import run_repo_python
+
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
-
-
-def _run_script(
-    relative_path: str,
-    *args: str,
-    cwd: Path | None = None,
-) -> subprocess.CompletedProcess[str]:
-    return subprocess.run(
-        [sys.executable, str(REPO_ROOT / relative_path), *args],
-        cwd=cwd or REPO_ROOT,
-        capture_output=True,
-        text=True,
-        check=False,
-    )
 
 
 def _write(path: Path, contents: str) -> None:
@@ -34,8 +20,8 @@ def test_analyze_dependencies_defaults_to_repo_internal_artifacts(tmp_path: Path
     _write(tmp_path / "pkg_b" / "__init__.py", "")
     _write(tmp_path / "pkg_b" / "base.py", "from pkg_a import base\n")
 
-    result = _run_script(
-        "scripts/analyze_dependencies.py", "--source-dir", str(tmp_path), cwd=tmp_path
+    result = run_repo_python(
+        REPO_ROOT / "scripts/analyze_dependencies.py", "--source-dir", str(tmp_path), cwd=tmp_path
     )
 
     assert result.returncode == 0, result.stderr
@@ -68,8 +54,8 @@ def test_find_circular_imports_reports_multi_module_cycles(tmp_path: Path) -> No
     _write(source_dir / "c.py", "from artifex.pkg import a\n")
 
     output_file = tmp_path / "analysis" / "circular_imports.txt"
-    result = _run_script(
-        "scripts/find_circular_imports.py",
+    result = run_repo_python(
+        REPO_ROOT / "scripts/find_circular_imports.py",
         "--source-dir",
         str(tmp_path / "src" / "artifex"),
         "--output-file",
@@ -91,7 +77,7 @@ def test_analyze_test_structure_defaults_to_repo_internal_artifacts(tmp_path: Pa
     _write(tmp_path / "src" / "artifex" / "__init__.py", "")
     _write(tmp_path / "tests" / "test_demo.py", "from artifex import missing\n")
 
-    result = _run_script("scripts/analyze_test_structure.py", cwd=tmp_path)
+    result = run_repo_python(REPO_ROOT / "scripts/analyze_test_structure.py", cwd=tmp_path)
 
     assert result.returncode == 0, result.stderr
     report_path = (
@@ -110,7 +96,7 @@ def test_analyze_test_structure_defaults_to_repo_internal_artifacts(tmp_path: Pa
 
 def test_check_jax_nnx_compatibility_guidance_tracks_pyproject() -> None:
     """Dependency guidance should come from live project metadata and existing docs."""
-    result = _run_script("scripts/check_jax_nnx_compatibility.py", "--json")
+    result = run_repo_python(REPO_ROOT / "scripts/check_jax_nnx_compatibility.py", "--json")
 
     assert result.returncode in {0, 1}, result.stderr
     payload = json.loads(result.stdout)
@@ -133,7 +119,7 @@ def test_check_jax_nnx_compatibility_guidance_tracks_pyproject() -> None:
 
 def test_gpu_utils_help_uses_live_supported_surface_only() -> None:
     """GPU diagnostics help should stay import-safe and avoid dead commands."""
-    result = _run_script("scripts/gpu_utils.py", "--help")
+    result = run_repo_python(REPO_ROOT / "scripts/gpu_utils.py", "--help")
 
     assert result.returncode == 0, result.stderr
     assert "--configure-generative" not in result.stdout

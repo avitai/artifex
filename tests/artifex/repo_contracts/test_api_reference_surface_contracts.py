@@ -1,23 +1,11 @@
 from __future__ import annotations
 
-import json
-import subprocess
-import sys
 from pathlib import Path
+
+from tests.utils.fresh_interpreter import run_repo_json
 
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
-
-
-def _run_python(code: str) -> dict[str, object]:
-    result = subprocess.run(
-        [sys.executable, "-c", code],
-        cwd=REPO_ROOT,
-        check=True,
-        capture_output=True,
-        text=True,
-    )
-    return json.loads(result.stdout)
 
 
 def test_core_base_api_docs_use_live_shared_interface_contract() -> None:
@@ -51,7 +39,7 @@ def test_core_base_api_docs_use_live_shared_interface_contract() -> None:
 def test_diffusion_api_docs_match_live_exports_and_signatures() -> None:
     """Diffusion API docs should use live exports and signatures only."""
     docs = (REPO_ROOT / "docs/api/models/diffusion.md").read_text(encoding="utf-8")
-    payload = _run_python(
+    payload = run_repo_json(
         "import json; import artifex.generative_models.models.diffusion as m; "
         "print(json.dumps({'exports': sorted(m.__all__)}))"
     )
@@ -97,7 +85,7 @@ def test_diffusion_api_docs_match_live_exports_and_signatures() -> None:
 def test_vae_api_docs_match_live_constructor_and_method_signatures() -> None:
     """VAE API docs should use the config-based constructor and stored RNG story."""
     docs = (REPO_ROOT / "docs/api/models/vae.md").read_text(encoding="utf-8")
-    payload = _run_python(
+    payload = run_repo_json(
         "import json; import artifex.generative_models.models.vae as m; "
         "print(json.dumps({'exports': sorted(m.__all__)}))"
     )
@@ -135,7 +123,7 @@ def test_sampling_and_energy_api_docs_use_live_top_level_surfaces() -> None:
     """Sampling and energy API docs should not publish dead helper paths."""
     sampling_docs = (REPO_ROOT / "docs/api/sampling.md").read_text(encoding="utf-8")
     ebm_docs = (REPO_ROOT / "docs/api/models/ebm.md").read_text(encoding="utf-8")
-    payload = _run_python(
+    payload = run_repo_json(
         "import json; import artifex.generative_models.core.sampling as sampling; "
         "from artifex.generative_models.models.energy import EnergyBasedModel; "
         "print(json.dumps({'sampling_exports': sorted(sampling.__all__), 'energy_module': EnergyBasedModel.__module__}))"

@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 import json
-import subprocess
-import sys
 from pathlib import Path
+
+from substrax.testing import ChildResult
+from tests.utils.fresh_interpreter import run_repo_python
 
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
@@ -16,14 +17,8 @@ def _write(path: Path, contents: str) -> None:
     path.write_text(contents, encoding="utf-8")
 
 
-def _run_checker(*args: str) -> subprocess.CompletedProcess[str]:
-    return subprocess.run(
-        [sys.executable, str(CHECKER), *args],
-        cwd=REPO_ROOT,
-        capture_output=True,
-        text=True,
-        check=False,
-    )
+def _run_checker(*args: str) -> ChildResult:
+    return run_repo_python(CHECKER, *args)
 
 
 def test_complexity_baseline_includes_example_functions_and_methods() -> None:

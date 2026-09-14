@@ -2,27 +2,15 @@
 
 from __future__ import annotations
 
-import json
 import re
-import subprocess
-import sys
 from pathlib import Path
+
+from tests.utils.fresh_interpreter import run_repo_json
 
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 PAPER = REPO_ROOT / "docs/papers/artifex_arxiv_preprint.md"
 ROADMAP = REPO_ROOT / "docs/roadmap/planned-modules.md"
-
-
-def _run_python(code: str) -> dict[str, object]:
-    result = subprocess.run(
-        [sys.executable, "-c", code],
-        cwd=REPO_ROOT,
-        check=True,
-        capture_output=True,
-        text=True,
-    )
-    return json.loads(result.stdout)
 
 
 def _section(contents: str, heading: str) -> str:
@@ -37,7 +25,7 @@ def _section(contents: str, heading: str) -> str:
 
 def test_preprint_separates_shipped_experimental_and_roadmap_surfaces() -> None:
     """The paper should distinguish live runtime imports from experimental and roadmap claims."""
-    payload = _run_python(
+    payload = run_repo_json(
         "import json; "
         "from artifex.generative_models.models.base import ("
         "GenerativeModelProtocol, TrainableGenerativeModelProtocol); "
@@ -108,7 +96,7 @@ def test_preprint_omits_dead_pipeline_names_and_false_completeness_claims() -> N
 
 def test_roadmap_current_runtime_status_tracks_live_inventory() -> None:
     """The roadmap current-runtime section should match importable flow, modality, inference, and benchmark surfaces."""
-    payload = _run_python(
+    payload = run_repo_json(
         "import json; "
         "import artifex.benchmarks as benchmarks; "
         "import artifex.generative_models.inference as inference; "

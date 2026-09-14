@@ -2,10 +2,9 @@
 
 from __future__ import annotations
 
-import json
-import subprocess
-import sys
 from pathlib import Path
+
+from tests.utils.fresh_interpreter import run_repo_json
 
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
@@ -40,20 +39,9 @@ CURATED_MODEL_CREATION_FILES = {
 }
 
 
-def _run_python(code: str) -> dict[str, object]:
-    result = subprocess.run(
-        [sys.executable, "-c", code],
-        cwd=REPO_ROOT,
-        check=True,
-        capture_output=True,
-        text=True,
-    )
-    return json.loads(result.stdout)
-
-
 def test_core_configuration_surface_no_longer_exports_model_config() -> None:
     """The supported config surface should expose family-specific configs, not ModelConfig."""
-    payload = _run_python(
+    payload = run_repo_json(
         "import json; "
         "import artifex.generative_models.core.configuration as configuration; "
         "print(json.dumps({"

@@ -1,29 +1,17 @@
 from __future__ import annotations
 
-import json
-import subprocess
-import sys
 from pathlib import Path
+
+from tests.utils.fresh_interpreter import run_repo_json
 
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 
 
-def _run_python(code: str) -> dict[str, object]:
-    result = subprocess.run(
-        [sys.executable, "-c", code],
-        cwd=REPO_ROOT,
-        check=True,
-        capture_output=True,
-        text=True,
-    )
-    return json.loads(result.stdout)
-
-
 def test_models_index_uses_live_supported_model_owners() -> None:
     """The model index should teach the live owner packages and imports only."""
     docs = (REPO_ROOT / "docs/models/index.md").read_text(encoding="utf-8")
-    payload = _run_python(
+    payload = run_repo_json(
         "import json; "
         "from pathlib import Path; "
         "import artifex.generative_models.models.diffusion as diffusion; "
@@ -67,7 +55,7 @@ def test_curated_model_pages_match_live_owner_surfaces() -> None:
         encoding="utf-8"
     )
     wgan_docs = (REPO_ROOT / "docs/models/wgan.md").read_text(encoding="utf-8")
-    payload = _run_python(
+    payload = run_repo_json(
         "import json; "
         "import artifex.generative_models.models.diffusion as diffusion; "
         "import artifex.generative_models.models.gan as gan; "

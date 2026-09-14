@@ -3,26 +3,13 @@
 from __future__ import annotations
 
 import importlib
-import json
-import subprocess
-import sys
 from pathlib import Path
 
 import pytest
+from tests.utils.fresh_interpreter import run_repo_json, run_repo_python, WITHOUT_SEARCH_PATHS
 
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
-
-
-def _run_python(code: str) -> dict[str, object]:
-    result = subprocess.run(
-        [sys.executable, "-c", code],
-        cwd=REPO_ROOT,
-        check=True,
-        capture_output=True,
-        text=True,
-    )
-    return json.loads(result.stdout)
 
 
 @pytest.mark.parametrize(
@@ -40,7 +27,7 @@ def test_the_duplicated_device_modules_are_gone(module: str) -> None:
 
 def test_device_utils_keep_the_batch_size_rule_only() -> None:
     """The device utilities module ships one helper, built on substrax's table."""
-    payload = _run_python(
+    payload = run_repo_json(
         "import json; "
         "import artifex.generative_models.utils.jax.device as device_utils; "
         "print(json.dumps({"
@@ -83,13 +70,8 @@ def test_device_docs_describe_the_substrax_surface() -> None:
 
 def test_gpu_diagnostics_script_runs_the_critical_checks() -> None:
     """The developer diagnostics run from scripts/ on substrax's inventory."""
-    result = subprocess.run(
-        [sys.executable, "scripts/gpu_utils.py", "--test-critical"],
-        cwd=REPO_ROOT,
-        capture_output=True,
-        text=True,
-        check=False,
-        env={"JAX_PLATFORMS": "cpu", "PATH": "", "PYTHONPATH": ""},
+    result = run_repo_python(
+        REPO_ROOT / "scripts" / "gpu_utils.py", "--test-critical", env=WITHOUT_SEARCH_PATHS
     )
 
     assert result.returncode == 0, result.stdout + result.stderr

@@ -6,11 +6,10 @@ import ast
 import dataclasses
 import importlib
 import inspect
-import json
 import pkgutil
-import subprocess
-import sys
 from pathlib import Path
+
+from tests.utils.fresh_interpreter import run_repo_json
 
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
@@ -36,17 +35,6 @@ REMOVED_CONFIG_DOCS = {
     "merge.md",
     "validation.md",
 }
-
-
-def _run_python(code: str) -> dict[str, object]:
-    result = subprocess.run(
-        [sys.executable, "-c", code],
-        cwd=REPO_ROOT,
-        check=True,
-        capture_output=True,
-        text=True,
-    )
-    return json.loads(result.stdout)
 
 
 def test_config_runtime_surface_does_not_ship_embedded_test_modules() -> None:
@@ -223,7 +211,7 @@ def test_config_shim_packages_are_removed() -> None:
 
 def test_top_level_config_package_keeps_deeper_modules_lazy() -> None:
     """Importing artifex.configs should not eagerly import the full config runtime."""
-    payload = _run_python(
+    payload = run_repo_json(
         "import json, sys; "
         "import artifex.configs as configs; "
         "print(json.dumps({"
@@ -274,7 +262,7 @@ def test_top_level_config_package_keeps_deeper_modules_lazy() -> None:
 
 def test_top_level_config_exports_resolve_lazily() -> None:
     """Documented config exports should still resolve on explicit access."""
-    payload = _run_python(
+    payload = run_repo_json(
         "import json; "
         "import artifex.configs as configs; "
         "print(json.dumps({"
@@ -301,7 +289,7 @@ def test_top_level_config_exports_resolve_lazily() -> None:
 
 def test_core_protocols_package_does_not_export_concrete_template_helpers() -> None:
     """The protocols package should expose protocols only, not concrete config helpers."""
-    payload = _run_python(
+    payload = run_repo_json(
         "import json; "
         "import artifex.generative_models.core.protocols as protocols; "
         "from artifex.generative_models.core.configuration.management import templates; "
@@ -321,7 +309,7 @@ def test_core_protocols_package_does_not_export_concrete_template_helpers() -> N
 
 def test_core_configuration_package_keeps_children_lazy() -> None:
     """Importing core.configuration should not eagerly load its child modules."""
-    payload = _run_python(
+    payload = run_repo_json(
         "import json, sys; "
         "import artifex.generative_models.core.configuration as configuration; "
         "print(json.dumps({"
@@ -359,7 +347,7 @@ def test_core_configuration_package_keeps_children_lazy() -> None:
 
 def test_core_configuration_exports_resolve_lazily() -> None:
     """Documented core.configuration exports should resolve on explicit access."""
-    payload = _run_python(
+    payload = run_repo_json(
         "import json; "
         "import artifex.generative_models.core.configuration as configuration; "
         "print(json.dumps({"
@@ -386,7 +374,7 @@ def test_core_configuration_exports_resolve_lazily() -> None:
 
 def test_experiment_templates_stay_distinct_from_named_runtime_configs() -> None:
     """Retained experiment templates should not be forced into BaseConfig."""
-    payload = _run_python(
+    payload = run_repo_json(
         "import json; "
         "from artifex.configs import BaseConfig, ExperimentConfig, ExperimentTemplateConfig; "
         "from artifex.generative_models.core.configuration.base_dataclass import ConfigDocument; "
@@ -636,7 +624,7 @@ def test_core_config_tooling_docs_match_live_owner_modules() -> None:
     gan_docs = (REPO_ROOT / "docs/core/gan.md").read_text()
     validation_docs = (REPO_ROOT / "docs/core/validation.md").read_text()
     migrate_docs = (REPO_ROOT / "docs/core/migrate_configs.md").read_text()
-    payload = _run_python(
+    payload = run_repo_json(
         "import json; "
         "import artifex.generative_models.core.configuration as config; "
         "from artifex.generative_models.core.configuration import gan_config; "

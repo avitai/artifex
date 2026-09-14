@@ -1,25 +1,12 @@
 from __future__ import annotations
 
 import subprocess
-import sys
 from pathlib import Path
+
+from tests.utils.fresh_interpreter import run_repo_python
 
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
-
-
-def _run_python_script(
-    relative_path: str,
-    *args: str,
-    cwd: Path | None = None,
-) -> subprocess.CompletedProcess[str]:
-    return subprocess.run(
-        [sys.executable, str(REPO_ROOT / relative_path), *args],
-        cwd=cwd or REPO_ROOT,
-        capture_output=True,
-        text=True,
-        check=False,
-    )
 
 
 def test_clean_cache_preserves_repo_contract_targets(tmp_path: Path) -> None:
@@ -88,7 +75,7 @@ def test_jupytext_sync_creates_missing_notebook_pair(tmp_path: Path) -> None:
     python_file = tmp_path / "example.py"
     python_file.write_text("print('hello')\n", encoding="utf-8")
 
-    result = _run_python_script("scripts/jupytext_converter.py", "sync", str(python_file))
+    result = run_repo_python(REPO_ROOT / "scripts/jupytext_converter.py", "sync", str(python_file))
 
     assert result.returncode == 0, result.stderr
     assert python_file.with_suffix(".ipynb").exists()
@@ -104,7 +91,7 @@ def test_jupytext_validate_reports_corrupt_notebook_without_traceback(
     python_file.write_text("print('hello')\n", encoding="utf-8")
     notebook_file.write_text("{not-json}\n", encoding="utf-8")
 
-    result = _run_python_script("scripts/jupytext_converter.py", "validate", str(tmp_path))
+    result = run_repo_python(REPO_ROOT / "scripts/jupytext_converter.py", "validate", str(tmp_path))
 
     assert result.returncode == 1
     assert "Error checking" in result.stdout

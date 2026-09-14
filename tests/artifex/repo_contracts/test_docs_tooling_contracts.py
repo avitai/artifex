@@ -1,28 +1,13 @@
 from __future__ import annotations
 
-import subprocess
-import sys
 from pathlib import Path
 
 import yaml
+from tests.utils.fresh_interpreter import run_repo_python
 
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 SETUP_ACTION = "./.github/actions/setup-artifex"
-
-
-def _run_script(
-    relative_path: str,
-    *args: str,
-    cwd: Path | None = None,
-) -> subprocess.CompletedProcess[str]:
-    return subprocess.run(
-        [sys.executable, str(REPO_ROOT / relative_path), *args],
-        cwd=cwd or REPO_ROOT,
-        capture_output=True,
-        text=True,
-        check=False,
-    )
 
 
 def _write(path: Path, contents: str) -> None:
@@ -44,8 +29,8 @@ def test_validate_docs_fix_fails_when_unresolved_issues_remain(tmp_path: Path) -
     _write(tmp_path / "docs" / "index.md", "# Home\n")
     _write(tmp_path / "src" / "artifex" / "__init__.py", '"""package"""\n')
 
-    result = _run_script(
-        "scripts/validate_docs.py",
+    result = run_repo_python(
+        REPO_ROOT / "scripts/validate_docs.py",
         "--fix",
         "--config-path",
         "mkdocs.yml",
@@ -69,8 +54,8 @@ def test_validate_docs_fix_can_resolve_missing_custom_dir(tmp_path: Path) -> Non
     _write(tmp_path / "docs" / "index.md", "# Home\n")
     _write(tmp_path / "src" / "artifex" / "__init__.py", '"""package"""\n')
 
-    result = _run_script(
-        "scripts/validate_docs.py",
+    result = run_repo_python(
+        REPO_ROOT / "scripts/validate_docs.py",
         "--fix",
         "--config-path",
         "mkdocs.yml",
@@ -98,8 +83,8 @@ def test_validate_docs_accepts_mkdocstrings_object_paths(tmp_path: Path) -> None
         "class DemoConfig:\n    pass\n",
     )
 
-    result = _run_script(
-        "scripts/validate_docs.py",
+    result = run_repo_python(
+        REPO_ROOT / "scripts/validate_docs.py",
         "--check-only",
         "--config-path",
         "mkdocs.yml",
@@ -122,8 +107,8 @@ def test_validate_docs_rejects_relative_links_outside_docs_tree(tmp_path: Path) 
     )
     _write(tmp_path / "src" / "artifex" / "pkg" / "configs.py", "class DemoConfig:\n    pass\n")
 
-    result = _run_script(
-        "scripts/validate_docs.py",
+    result = run_repo_python(
+        REPO_ROOT / "scripts/validate_docs.py",
         "--check-only",
         "--config-path",
         "mkdocs.yml",
@@ -151,8 +136,8 @@ def test_validate_docs_ignores_code_and_math_link_lookalikes(tmp_path: Path) -> 
     )
     _write(tmp_path / "src" / "artifex" / "__init__.py", "")
 
-    result = _run_script(
-        "scripts/validate_docs.py",
+    result = run_repo_python(
+        REPO_ROOT / "scripts/validate_docs.py",
         "--check-only",
         "--config-path",
         "mkdocs.yml",
@@ -168,7 +153,7 @@ def test_validate_docs_ignores_code_and_math_link_lookalikes(tmp_path: Path) -> 
 
 def test_docs_build_surface_uses_validator_and_strict_build_only() -> None:
     """The retained docs wrapper should validate first and avoid generator coupling."""
-    result = _run_script("scripts/build_docs.py", "--help")
+    result = run_repo_python(REPO_ROOT / "scripts/build_docs.py", "--help")
     script_contents = (REPO_ROOT / "scripts" / "build_docs.py").read_text(encoding="utf-8")
 
     assert result.returncode == 0, result.stderr

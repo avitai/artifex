@@ -2,12 +2,11 @@
 
 from __future__ import annotations
 
-import json
 import re
-import subprocess
-import sys
 import textwrap
 from pathlib import Path
+
+from tests.utils.fresh_interpreter import run_repo_json
 
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
@@ -27,20 +26,9 @@ TIER_ONE_NAMES = (
 )
 
 
-def _run_python(code: str) -> dict[str, object]:
-    result = subprocess.run(
-        [sys.executable, "-c", code],
-        cwd=REPO_ROOT,
-        check=True,
-        capture_output=True,
-        text=True,
-    )
-    return json.loads(result.stdout)
-
-
 def test_benchmark_foundation_lives_only_under_artifex_benchmarks_core() -> None:
     """Benchmark ownership should live under artifex.benchmarks.core only."""
-    payload = _run_python(
+    payload = run_repo_json(
         textwrap.dedent(
             """
             import importlib
@@ -129,7 +117,7 @@ def test_core_docs_route_benchmark_readers_to_artifex_benchmarks_core() -> None:
 
 def test_benchmark_metrics_are_the_one_class_layer_and_register_tier_one() -> None:
     """The metric classes live in artifex.benchmarks.metrics and register in calibrax's registry."""
-    payload = _run_python(
+    payload = run_repo_json(
         textwrap.dedent(
             """
             import json

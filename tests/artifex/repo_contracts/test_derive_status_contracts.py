@@ -2,9 +2,10 @@
 
 from __future__ import annotations
 
-import subprocess
-import sys
 from pathlib import Path
+
+from substrax.testing import ChildResult
+from tests.utils.fresh_interpreter import run_repo_python, WITHOUT_SEARCH_PATHS
 
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
@@ -12,15 +13,8 @@ SCRIPT = REPO_ROOT / "scripts" / "derive_status.py"
 MODELS_INDEX = REPO_ROOT / "docs" / "models" / "index.md"
 
 
-def _run(*args: str) -> subprocess.CompletedProcess[str]:
-    return subprocess.run(
-        [sys.executable, str(SCRIPT), *args],
-        cwd=REPO_ROOT,
-        capture_output=True,
-        text=True,
-        check=False,
-        env={"JAX_PLATFORMS": "cpu", "PATH": "", "PYTHONPATH": ""},
-    )
+def _run(*args: str) -> ChildResult:
+    return run_repo_python(SCRIPT, *args, env=WITHOUT_SEARCH_PATHS)
 
 
 def test_documented_family_surface_matches_the_tree() -> None:

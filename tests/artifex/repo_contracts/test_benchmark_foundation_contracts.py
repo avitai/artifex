@@ -2,29 +2,17 @@
 
 from __future__ import annotations
 
-import json
-import subprocess
-import sys
 from pathlib import Path
+
+from tests.utils.fresh_interpreter import run_repo_json
 
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 
 
-def _run_python(code: str) -> dict[str, object]:
-    result = subprocess.run(
-        [sys.executable, "-c", code],
-        cwd=REPO_ROOT,
-        check=True,
-        capture_output=True,
-        text=True,
-    )
-    return json.loads(result.stdout)
-
-
 def test_benchmark_registry_surface_reuses_calibrax_singleton() -> None:
     """The benchmark registry should be the Calibrax singleton, not a local wrapper."""
-    payload = _run_python(
+    payload = run_repo_json(
         "import json; "
         "from calibrax.core import BenchmarkRegistry as CalibraxBenchmarkRegistry; "
         "from artifex.benchmarks.registry import BenchmarkRegistry; "
@@ -43,7 +31,7 @@ def test_benchmark_registry_surface_reuses_calibrax_singleton() -> None:
 
 def test_dataset_registry_surface_uses_calibrax_singleton_without_items_escape_hatch() -> None:
     """Dataset registry should subclass Calibrax singleton storage without exposing .datasets."""
-    payload = _run_python(
+    payload = run_repo_json(
         "import json; "
         "from calibrax.core import SingletonRegistry; "
         "from artifex.benchmarks.datasets.base import DatasetRegistry; "
@@ -62,7 +50,7 @@ def test_dataset_registry_surface_uses_calibrax_singleton_without_items_escape_h
 
 def test_dataset_loader_registry_reuses_the_shared_dataset_registry() -> None:
     """Dataset loader helpers should reuse the shared DatasetRegistry instance."""
-    payload = _run_python(
+    payload = run_repo_json(
         "import json; "
         "from artifex.benchmarks.datasets.base import DatasetRegistry; "
         "from artifex.benchmarks.datasets.dataset_loaders import _dataset_registry; "
@@ -78,7 +66,7 @@ def test_dataset_loader_registry_reuses_the_shared_dataset_registry() -> None:
 
 def test_benchmark_protocol_exports_narrow_to_calibrax_protocols() -> None:
     """The benchmark protocol package should export Calibrax protocol owners only."""
-    payload = _run_python(
+    payload = run_repo_json(
         "import json; "
         "import artifex.benchmarks.protocols as protocols; "
         "print(json.dumps({"
@@ -104,7 +92,7 @@ def test_benchmark_protocol_exports_narrow_to_calibrax_protocols() -> None:
 
 def test_legacy_protein_adapter_module_reexports_the_retained_adapter_only() -> None:
     """The legacy protein adapter module should be a compatibility re-export only."""
-    payload = _run_python(
+    payload = run_repo_json(
         "import json; "
         "from artifex.benchmarks import protein_model_adapters as legacy; "
         "from artifex.benchmarks.model_adapters import protein_adapters as retained; "

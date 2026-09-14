@@ -8,20 +8,10 @@ from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
+from tests.utils.fresh_interpreter import run_repo_json, run_repo_python
 
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
-
-
-def run_repo_python(code: str) -> subprocess.CompletedProcess[str]:
-    """Run a Python snippet inside the repository root."""
-    return subprocess.run(
-        [sys.executable, "-c", code],
-        cwd=REPO_ROOT,
-        check=True,
-        capture_output=True,
-        text=True,
-    )
 
 
 def run_repo_shell(command: str) -> subprocess.CompletedProcess[str]:
@@ -33,6 +23,12 @@ def run_repo_shell(command: str) -> subprocess.CompletedProcess[str]:
         capture_output=True,
         text=True,
     )
+
+
+def _write_cuda12_managed_env(managed_env: Path) -> None:
+    """Write the managed env file setup.sh generates for the cuda12 backend."""
+    setup_env = REPO_ROOT / "scripts" / "setup_env.py"
+    run_repo_python(setup_env, "write", "--backend", "cuda12", "--output", str(managed_env)).check()
 
 
 def test_pyproject_uses_explicit_cuda12_extra():
@@ -104,21 +100,7 @@ def test_user_facing_docs_reference_explicit_cuda12_install() -> None:
 def test_activate_clears_stale_managed_backend_variables(tmp_path: Path) -> None:
     """Re-sourcing activate.sh should not keep stale managed backend variables."""
     managed_env = tmp_path / ".artifex.env"
-    subprocess.run(
-        [
-            sys.executable,
-            "scripts/setup_env.py",
-            "write",
-            "--backend",
-            "cuda12",
-            "--output",
-            str(managed_env),
-        ],
-        cwd=REPO_ROOT,
-        check=True,
-        capture_output=True,
-        text=True,
-    )
+    _write_cuda12_managed_env(managed_env)
 
     result = subprocess.run(
         [
@@ -155,21 +137,7 @@ def test_activate_strips_inherited_cuda_library_paths_for_cuda12_backend(
 ) -> None:
     """CUDA12 activation should drop stale toolkit library paths while keeping unrelated ones."""
     managed_env = tmp_path / ".artifex.env"
-    subprocess.run(
-        [
-            sys.executable,
-            "scripts/setup_env.py",
-            "write",
-            "--backend",
-            "cuda12",
-            "--output",
-            str(managed_env),
-        ],
-        cwd=REPO_ROOT,
-        check=True,
-        capture_output=True,
-        text=True,
-    )
+    _write_cuda12_managed_env(managed_env)
 
     result = subprocess.run(
         [
@@ -199,21 +167,7 @@ def test_activate_strips_inherited_cuda_library_paths_for_cuda12_backend(
 def test_setup_env_writes_the_memory_fraction_name_jaxlib_reads(tmp_path: Path) -> None:
     """The managed env file sets XLA_CLIENT_MEM_FRACTION, never the deprecated name jax refuses."""
     managed_env = tmp_path / ".artifex.env"
-    subprocess.run(
-        [
-            sys.executable,
-            "scripts/setup_env.py",
-            "write",
-            "--backend",
-            "cuda12",
-            "--output",
-            str(managed_env),
-        ],
-        cwd=REPO_ROOT,
-        check=True,
-        capture_output=True,
-        text=True,
-    )
+    _write_cuda12_managed_env(managed_env)
 
     contents = managed_env.read_text()
     assert "export XLA_CLIENT_MEM_FRACTION=0.75" in contents
@@ -228,21 +182,7 @@ def test_reactivating_a_shell_drops_the_deprecated_memory_fraction(tmp_path: Pat
     the new file.
     """
     managed_env = tmp_path / ".artifex.env"
-    subprocess.run(
-        [
-            sys.executable,
-            "scripts/setup_env.py",
-            "write",
-            "--backend",
-            "cuda12",
-            "--output",
-            str(managed_env),
-        ],
-        cwd=REPO_ROOT,
-        check=True,
-        capture_output=True,
-        text=True,
-    )
+    _write_cuda12_managed_env(managed_env)
 
     result = subprocess.run(
         [
@@ -299,7 +239,7 @@ def test_setup_dry_run_routes_env_generation_through_setup_env_owner() -> None:
 
 def test_root_conftest_import_does_not_import_jax_or_mutate_environment() -> None:
     """Importing the root pytest conftest should stay lightweight and side-effect free."""
-    result = run_repo_python(
+    payload = run_repo_json(
         """
 import json
 import os
@@ -318,14 +258,13 @@ print(json.dumps({"before": before, "after": after, "jax_loaded": "jax" in sys.m
 """
     )
 
-    payload = json.loads(result.stdout)
     assert payload["before"] == payload["after"]
     assert payload["jax_loaded"] is False
 
 
 def test_tests_conftest_import_keeps_jax_deferred() -> None:
     """Importing the shared tests conftest should not eagerly initialize the JAX stack."""
-    result = run_repo_python(
+    payload = run_repo_json(
         """
 import json
 import sys
@@ -334,7 +273,6 @@ print(json.dumps({"jax_loaded": "jax" in sys.modules}))
 """
     )
 
-    payload = json.loads(result.stdout)
     assert payload["jax_loaded"] is False
 
 
@@ -408,56 +346,38 @@ def test_tests_conftest_uses_plugin_registration_for_shared_fixtures() -> None:
 
 def test_import_artifex_does_not_preload_generative_stack() -> None:
     """Importing the top-level package should not eagerly load generative subpackages."""
-    result = subprocess.run(
-        [
-            sys.executable,
-            "-c",
-            (
-                "import json, sys; "
-                "import artifex; "
-                "print(json.dumps({"
-                "'has_generative_models': 'artifex.generative_models' in sys.modules, "
-                "'has_jax': 'jax' in sys.modules"
-                "}))"
-            ),
-        ],
-        cwd=REPO_ROOT,
-        check=True,
-        capture_output=True,
-        text=True,
+    payload = run_repo_json(
+        (
+            "import json, sys; "
+            "import artifex; "
+            "print(json.dumps({"
+            "'has_generative_models': 'artifex.generative_models' in sys.modules, "
+            "'has_jax': 'jax' in sys.modules"
+            "}))"
+        )
     )
 
-    payload = json.loads(result.stdout)
     assert payload["has_generative_models"] is False
     assert payload["has_jax"] is False
 
 
 def test_import_generative_models_keeps_subpackages_lazy() -> None:
     """Importing artifex.generative_models should not eagerly import its heavy children."""
-    result = subprocess.run(
-        [
-            sys.executable,
-            "-c",
-            (
-                "import json, sys; "
-                "import artifex.generative_models as gm; "
-                "print(json.dumps({"
-                "'core_loaded': 'artifex.generative_models.core' in sys.modules, "
-                "'models_loaded': 'artifex.generative_models.models' in sys.modules, "
-                "'extensions_loaded': 'artifex.generative_models.extensions' in sys.modules, "
-                "'utils_loaded': 'artifex.generative_models.utils' in sys.modules, "
-                "'jax_loaded': 'jax' in sys.modules, "
-                "'all': list(getattr(gm, '__all__'))"
-                "}))"
-            ),
-        ],
-        cwd=REPO_ROOT,
-        check=True,
-        capture_output=True,
-        text=True,
+    payload = run_repo_json(
+        (
+            "import json, sys; "
+            "import artifex.generative_models as gm; "
+            "print(json.dumps({"
+            "'core_loaded': 'artifex.generative_models.core' in sys.modules, "
+            "'models_loaded': 'artifex.generative_models.models' in sys.modules, "
+            "'extensions_loaded': 'artifex.generative_models.extensions' in sys.modules, "
+            "'utils_loaded': 'artifex.generative_models.utils' in sys.modules, "
+            "'jax_loaded': 'jax' in sys.modules, "
+            "'all': list(getattr(gm, '__all__'))"
+            "}))"
+        )
     )
 
-    payload = json.loads(result.stdout)
     assert payload["core_loaded"] is False
     assert payload["models_loaded"] is False
     assert payload["extensions_loaded"] is False
@@ -468,30 +388,21 @@ def test_import_generative_models_keeps_subpackages_lazy() -> None:
 
 def test_generative_models_exports_resolve_lazily() -> None:
     """Lazy package attributes should still resolve to the documented modules."""
-    result = subprocess.run(
-        [
-            sys.executable,
-            "-c",
-            (
-                "import json, sys; "
-                "import artifex; "
-                "gm = artifex.generative_models; "
-                "core = gm.core; "
-                "print(json.dumps({"
-                "'gm_module': gm.__name__, "
-                "'core_module': core.__name__, "
-                "'gm_loaded': 'artifex.generative_models' in sys.modules, "
-                "'core_loaded': 'artifex.generative_models.core' in sys.modules"
-                "}))"
-            ),
-        ],
-        cwd=REPO_ROOT,
-        check=True,
-        capture_output=True,
-        text=True,
+    payload = run_repo_json(
+        (
+            "import json, sys; "
+            "import artifex; "
+            "gm = artifex.generative_models; "
+            "core = gm.core; "
+            "print(json.dumps({"
+            "'gm_module': gm.__name__, "
+            "'core_module': core.__name__, "
+            "'gm_loaded': 'artifex.generative_models' in sys.modules, "
+            "'core_loaded': 'artifex.generative_models.core' in sys.modules"
+            "}))"
+        )
     )
 
-    payload = json.loads(result.stdout)
     assert payload["gm_module"] == "artifex.generative_models"
     assert payload["core_module"] == "artifex.generative_models.core"
     assert payload["gm_loaded"] is True

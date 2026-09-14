@@ -1,23 +1,11 @@
 from __future__ import annotations
 
-import json
-import subprocess
-import sys
 from pathlib import Path
+
+from tests.utils.fresh_interpreter import run_repo_json
 
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
-
-
-def _run_python(code: str) -> dict[str, object]:
-    result = subprocess.run(
-        [sys.executable, "-c", code],
-        cwd=REPO_ROOT,
-        check=True,
-        capture_output=True,
-        text=True,
-    )
-    return json.loads(result.stdout)
 
 
 def test_inference_overview_uses_family_owned_loading_and_retained_optimizer_only() -> None:
@@ -25,7 +13,7 @@ def test_inference_overview_uses_family_owned_loading_and_retained_optimizer_onl
     overview_docs = (REPO_ROOT / "docs/user-guide/inference/overview.md").read_text(
         encoding="utf-8"
     )
-    payload = _run_python(
+    payload = run_repo_json(
         "import json; "
         "from pathlib import Path; "
         "from artifex.generative_models.core.configuration import DecoderConfig, EncoderConfig, VAEConfig; "
@@ -74,7 +62,7 @@ def test_sampling_guide_uses_live_family_sampling_exports_only() -> None:
     sampling_docs = (REPO_ROOT / "docs/user-guide/inference/sampling.md").read_text(
         encoding="utf-8"
     )
-    payload = _run_python(
+    payload = run_repo_json(
         "import json; "
         "import artifex.generative_models.models.diffusion as diffusion; "
         "import artifex.generative_models.models.flow as flow; "
