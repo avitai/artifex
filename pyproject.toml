@@ -470,8 +470,8 @@ warmup_iterations = 3
 JAX_ENABLE_X64 = "0"
 PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION = "python"
 TF_CPP_MIN_LOG_LEVEL = "1"
-XLA_PYTHON_CLIENT_MEM_FRACTION = "0.75"
-XLA_PYTHON_CLIENT_PREALLOCATE = "false"
+XLA_CLIENT_MEM_FRACTION = "0.75"
+XLA_PYTHON_CLIENT_PREALLOCATE = {skip_if_set = true, value = "false"}
 
 [tool.ruff]
 extend-include = ["*.ipynb"]

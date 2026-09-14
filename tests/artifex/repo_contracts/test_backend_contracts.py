@@ -196,6 +196,82 @@ def test_activate_strips_inherited_cuda_library_paths_for_cuda12_backend(
     assert payload["ld_library_path"] == "/tmp/keep:/tmp/also-keep"
 
 
+def test_setup_env_writes_the_memory_fraction_name_jaxlib_reads(tmp_path: Path) -> None:
+    """The managed env file sets XLA_CLIENT_MEM_FRACTION, never the deprecated name jax refuses."""
+    managed_env = tmp_path / ".artifex.env"
+    subprocess.run(
+        [
+            sys.executable,
+            "scripts/setup_env.py",
+            "write",
+            "--backend",
+            "cuda12",
+            "--output",
+            str(managed_env),
+        ],
+        cwd=REPO_ROOT,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+
+    contents = managed_env.read_text()
+    assert "export XLA_CLIENT_MEM_FRACTION=0.75" in contents
+    assert "XLA_PYTHON_CLIENT_MEM_FRACTION" not in contents
+
+
+def test_reactivating_a_shell_drops_the_deprecated_memory_fraction(tmp_path: Path) -> None:
+    """A shell activated before the rename keeps no XLA_PYTHON_CLIENT_MEM_FRACTION after activate.
+
+    jax refuses a process that sets it beside XLA_CLIENT_MEM_FRACTION. activate.sh unsets the
+    names the previous managed file listed, which include the deprecated one, before sourcing
+    the new file.
+    """
+    managed_env = tmp_path / ".artifex.env"
+    subprocess.run(
+        [
+            sys.executable,
+            "scripts/setup_env.py",
+            "write",
+            "--backend",
+            "cuda12",
+            "--output",
+            str(managed_env),
+        ],
+        cwd=REPO_ROOT,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+
+    result = subprocess.run(
+        [
+            "bash",
+            "-lc",
+            (
+                "export ARTIFEX_MANAGED_ENV_VARS='XLA_PYTHON_CLIENT_MEM_FRACTION'; "
+                "export XLA_PYTHON_CLIENT_MEM_FRACTION=0.75; "
+                f"export ARTIFEX_MANAGED_ENV_FILE='{managed_env}'; "
+                "source ./activate.sh >/tmp/artifex-activate-contract.log 2>&1; "
+                f"'{sys.executable}' - <<'PY'\n"
+                "import json, os\n"
+                "print(json.dumps({\n"
+                "    'deprecated': os.environ.get('XLA_PYTHON_CLIENT_MEM_FRACTION'),\n"
+                "    'current': os.environ.get('XLA_CLIENT_MEM_FRACTION'),\n"
+                "}))\n"
+                "PY"
+            ),
+        ],
+        cwd=REPO_ROOT,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+
+    payload = json.loads(result.stdout)
+    assert payload == {"deprecated": None, "current": "0.75"}
+
+
 def test_env_example_is_comment_only_user_override_template() -> None:
     """The checked-in env example should not behave like an authoritative policy file."""
     env_example = (REPO_ROOT / ".env.example").read_text().splitlines()
@@ -436,9 +512,10 @@ def test_pytest_env_sets_only_variables_the_stack_reads() -> None:
         "JAX_ENABLE_X64",
         "PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION",
         "TF_CPP_MIN_LOG_LEVEL",
-        "XLA_PYTHON_CLIENT_MEM_FRACTION",
+        "XLA_CLIENT_MEM_FRACTION",
         "XLA_PYTHON_CLIENT_PREALLOCATE",
     }
+    assert pytest_env["XLA_PYTHON_CLIENT_PREALLOCATE"] == {"skip_if_set": True, "value": "false"}
 
 
 def test_device_requirements_use_the_substrax_markers() -> None:

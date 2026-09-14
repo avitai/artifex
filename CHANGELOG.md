@@ -28,6 +28,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   directory. They configure logging only when run as a script or notebook, so importing an
   example leaves logging alone.
 - Requires `substrax>=0.1.6`, and the `test` extra installs `substrax[testing]`.
+- The generated `.artifex.env`, the pytest environment and the Modal runner set
+  `XLA_CLIENT_MEM_FRACTION`, the name jaxlib reads, instead of the deprecated
+  `XLA_PYTHON_CLIENT_MEM_FRACTION`. jax refuses a process that sets both; re-running
+  `source ./activate.sh` drops the old name from a shell activated before. The pytest
+  environment now leaves an exported `XLA_PYTHON_CLIENT_PREALLOCATE` as it is.
 
 ### Removed
 
