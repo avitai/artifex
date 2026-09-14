@@ -65,22 +65,6 @@ def pytest_configure(config):
     Args:
         config: Pytest configuration object
     """
-    # CRITICAL: Set deterministic mode BEFORE any JAX imports
-    # This must be done at the very start, before JAX initializes
-    if os.environ.get("ARTIFEX_DETERMINISTIC", "0") == "1":
-        # Set XLA flags for deterministic GPU operations
-        existing_flags = os.environ.get("XLA_FLAGS", "")
-        new_flags = "--xla_gpu_deterministic_ops=true"
-
-        if existing_flags:
-            os.environ["XLA_FLAGS"] = f"{existing_flags} {new_flags}"
-        else:
-            os.environ["XLA_FLAGS"] = new_flags
-
-        # Set cuDNN deterministic mode
-        os.environ["TF_CUDNN_DETERMINISTIC"] = "1"
-        os.environ["TF_DETERMINISTIC_OPS"] = "1"
-
     # Add filters for common warnings that clutter test output
     config.addinivalue_line(
         "filterwarnings",
@@ -105,7 +89,6 @@ def pytest_configure(config):
 
     if hasattr(config, "_metadata"):
         config._metadata["Artifex backend"] = os.environ.get("ARTIFEX_BACKEND", "unset")
-        config._metadata["Deterministic test mode"] = os.environ.get("ARTIFEX_DETERMINISTIC", "0")
         config._metadata["JAX runtime probe"] = (
             "enabled" if config.getoption("--artifex-probe-jax-runtime") else "deferred"
         )
@@ -138,7 +121,6 @@ def pytest_report_header(config):  # noqa: ARG001
     """
     header_lines = [
         f"Artifex backend: {os.environ.get('ARTIFEX_BACKEND', 'unset')}",
-        f"Deterministic test mode: {os.environ.get('ARTIFEX_DETERMINISTIC', '0')}",
     ]
 
     if not config.getoption("--artifex-probe-jax-runtime"):

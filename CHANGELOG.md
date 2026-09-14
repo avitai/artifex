@@ -16,6 +16,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `ARTIFEX_TEST_JAX_PLATFORMS=cuda uv run pytest` to test on one. See `TESTING.md`.
 - Requires `substrax>=0.1.6`, and the `test` extra installs `substrax[testing]`.
 
+### Removed
+
+- `artifex.generative_models.core.jax_config` (`configure_jax`, `auto_configure` and
+  `MatmulPrecision`), which was also exported as `artifex.generative_models.jax_config`. Configure
+  a JAX process with `substrax.runtime`: build a `JaxRuntime` and pass it to `apply_runtime`, or
+  give a process `runtime_environment(...)` before it imports JAX.
+- The `ARTIFEX_AUTO_CONFIGURE`, `ARTIFEX_MATMUL_PRECISION` and `ARTIFEX_DETERMINISTIC` environment
+  variables. For deterministic GPU runs, set `XLA_FLAGS=--xla_gpu_deterministic_ops=true`; the
+  `TF_CUDNN_DETERMINISTIC` and `TF_DETERMINISTIC_OPS` variables the test configuration also set
+  are not read by JAX.
+
 ## [0.1.7] - 2026-09-11
 
 ### Added

@@ -6,6 +6,8 @@ import tomllib
 from pathlib import Path
 from types import SimpleNamespace
 
+import pytest
+
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 
@@ -228,10 +230,7 @@ import os
 import sys
 
 keys = [
-    "ARTIFEX_MATMUL_PRECISION",
     "TF_CPP_MIN_LOG_LEVEL",
-    "TF_FORCE_GPU_ALLOW_GROWTH",
-    "TF_ENABLE_ONEDNN_OPTS",
     "PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION",
 ]
 for key in keys:
@@ -376,7 +375,7 @@ def test_import_generative_models_keeps_subpackages_lazy() -> None:
     assert payload["extensions_loaded"] is False
     assert payload["utils_loaded"] is False
     assert payload["jax_loaded"] is False
-    assert payload["all"] == ["core", "extensions", "models", "utils", "jax_config"]
+    assert payload["all"] == ["core", "extensions", "models", "utils"]
 
 
 def test_generative_models_exports_resolve_lazily() -> None:
@@ -389,11 +388,9 @@ def test_generative_models_exports_resolve_lazily() -> None:
                 "import json, sys; "
                 "import artifex; "
                 "gm = artifex.generative_models; "
-                "jax_config = gm.jax_config; "
                 "core = gm.core; "
                 "print(json.dumps({"
                 "'gm_module': gm.__name__, "
-                "'jax_config_module': jax_config.__name__, "
                 "'core_module': core.__name__, "
                 "'gm_loaded': 'artifex.generative_models' in sys.modules, "
                 "'core_loaded': 'artifex.generative_models.core' in sys.modules"
@@ -408,7 +405,25 @@ def test_generative_models_exports_resolve_lazily() -> None:
 
     payload = json.loads(result.stdout)
     assert payload["gm_module"] == "artifex.generative_models"
-    assert payload["jax_config_module"] == "artifex.generative_models.core.jax_config"
     assert payload["core_module"] == "artifex.generative_models.core"
     assert payload["gm_loaded"] is True
     assert payload["core_loaded"] is True
+
+
+def test_jax_configuration_module_is_gone() -> None:
+    """JAX process configuration has one home, substrax.runtime."""
+    with pytest.raises(ModuleNotFoundError):
+        importlib.import_module("artifex.generative_models.core.jax_config")
+
+
+def test_pytest_env_sets_only_variables_the_stack_reads() -> None:
+    """The test environment table names no removed artifex knob and no TensorFlow-only variable."""
+    pytest_env = tomllib.loads((REPO_ROOT / "pyproject.toml").read_text())["tool"]["pytest_env"]
+
+    assert set(pytest_env) == {
+        "JAX_ENABLE_X64",
+        "PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION",
+        "TF_CPP_MIN_LOG_LEVEL",
+        "XLA_PYTHON_CLIENT_MEM_FRACTION",
+        "XLA_PYTHON_CLIENT_PREALLOCATE",
+    }

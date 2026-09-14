@@ -11,7 +11,6 @@ _LAZY_EXPORTS = {
     "extensions": "artifex.generative_models.extensions",
     "models": "artifex.generative_models.models",
     "utils": "artifex.generative_models.utils",
-    "jax_config": "artifex.generative_models.core.jax_config",
 }
 
 __all__ = list(_LAZY_EXPORTS)

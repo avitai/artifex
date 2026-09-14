@@ -10,6 +10,7 @@ import jax
 import jax.numpy as jnp
 import pytest
 from flax import nnx
+from substrax.runtime import parse_xla_flags
 
 from artifex.generative_models.models.backbones.unet_cross_attention import UNet2DCondition
 
@@ -756,19 +757,18 @@ class TestUNet2DConditionJITCompatibility:
         """Test that gradient computation can be JIT compiled.
 
         Note: This test requires deterministic GPU operations to pass reliably.
-        Run with: ARTIFEX_DETERMINISTIC=1 pytest <test_file>
+        Run with: XLA_FLAGS=--xla_gpu_deterministic_ops=true pytest <test_file>
 
         By default, Artifex uses non-deterministic CUDA operations for maximum
         performance. Complex models like UNet with cross-attention accumulate
         small floating-point differences (1e-7 to 5e-6) during backward passes
         through multiple attention layers when non-deterministic mode is enabled.
         """
-        # Check if deterministic mode is enabled
-        deterministic_enabled = os.environ.get("ARTIFEX_DETERMINISTIC", "0") == "1"
-        if not deterministic_enabled:
+        xla_flags = parse_xla_flags(os.environ.get("XLA_FLAGS", ""))
+        if xla_flags.get("--xla_gpu_deterministic_ops") != "true":
             pytest.skip(
-                "Test requires ARTIFEX_DETERMINISTIC=1 for strict gradient reproducibility. "
-                "Run: ARTIFEX_DETERMINISTIC=1 pytest tests/... --no-cov"
+                "Test requires deterministic GPU operations for strict gradient reproducibility. "
+                "Run: XLA_FLAGS=--xla_gpu_deterministic_ops=true pytest tests/... --no-cov"
             )
 
         rngs = nnx.Rngs(0)
@@ -825,7 +825,7 @@ class TestUNet2DConditionJITCompatibility:
 
         for g1, g2 in zip(grad_leaves1, grad_leaves2):
             if isinstance(g1, jax.Array) and isinstance(g2, jax.Array):
-                # Even with ARTIFEX_DETERMINISTIC=1 and XLA_FLAGS=--xla_gpu_deterministic_ops=true,
+                # Even with XLA_FLAGS=--xla_gpu_deterministic_ops=true,
                 # floating-point non-associativity causes small numerical differences in complex
                 # models with attention layers. Empirical analysis shows:
                 # - Maximum absolute difference: ~2.6e-6 (measured with deterministic mode)
