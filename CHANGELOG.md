@@ -44,6 +44,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `substrax.artifacts.resolve_output_dir(name)`, which returns an explicit path,
   `$AVITAI_OUTPUT_DIR/<name>`, or a fresh temporary directory.
 
+### Fixed
+
+- The parallelism guide entered its device meshes with `with mesh:`, which jax deprecates; its
+  examples now use `with jax.set_mesh(mesh):`.
+
 ## [0.1.7] - 2026-09-11
 
 ### Added

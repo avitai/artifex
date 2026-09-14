@@ -321,7 +321,7 @@ class ParallelTransformerLayer(nnx.Module):
 devices = jax.devices()
 mesh = Mesh(devices.reshape(1, 4), axis_names=("data", "model"))
 
-with mesh:
+with jax.set_mesh(mesh):
     # Create transformer layer parallelized across 4 devices
     layer = ParallelTransformerLayer(
         hidden_size=768,
@@ -781,7 +781,7 @@ mesh = Mesh(
 )
 
 # Create hybrid parallel model
-with mesh:
+with jax.set_mesh(mesh):
     model = HybridParallelTransformer(
         num_layers=24,
         hidden_size=1024,
