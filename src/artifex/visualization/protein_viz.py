@@ -15,8 +15,6 @@ from matplotlib.colors import Normalize
 from matplotlib.figure import Figure
 from matplotlib.patches import Rectangle
 
-from artifex.utils.file_utils import ensure_valid_output_path
-
 
 ArrayLike: TypeAlias = np.ndarray | jax.Array
 
@@ -131,8 +129,7 @@ class ProteinVisualizer:
             aatype=residue_types,
             chain_id=chain_id,
         )
-        valid_output_path = ensure_valid_output_path(output_path)
-        with open(valid_output_path, "w", encoding="utf-8") as f:
+        with open(output_path, "w", encoding="utf-8") as f:
             f.write(pdb_string)
 
     @staticmethod
@@ -447,8 +444,7 @@ class ProteinVisualizer:
         plt.tight_layout()
 
         if save_path:
-            valid_save_path = ensure_valid_output_path(save_path)
-            plt.savefig(valid_save_path, dpi=300, bbox_inches="tight")
+            plt.savefig(save_path, dpi=300, bbox_inches="tight")
 
         return fig
 
@@ -572,7 +568,6 @@ class ProteinVisualizer:
         fig.subplots_adjust(left=0.05, right=0.95, bottom=0.05, top=0.95, wspace=0.2)
 
         if save_path:
-            valid_save_path = ensure_valid_output_path(save_path)
-            plt.savefig(valid_save_path, dpi=300, bbox_inches="tight")
+            plt.savefig(save_path, dpi=300, bbox_inches="tight")
 
         return fig

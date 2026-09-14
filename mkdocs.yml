@@ -617,7 +617,6 @@ nav:
           - Current Utility Pages:
               - utils/dependency_analyzer.md
               - utils/device.md
-              - utils/file_utils.md
               - utils/metrics.md
               - utils/protein.md
           - Coming Soon:

@@ -17,13 +17,9 @@ top-level utility umbrella.
   `artifex.visualization.protein_viz` owner and its compatibility alias
 - [Dependency Analyzer](dependency_analyzer.md) for
   `artifex.generative_models.utils.code_analysis.dependency_analyzer`
-- [File Utils](file_utils.md) for `artifex.utils.file_utils`
 
-```python
-from artifex.utils.file_utils import get_valid_output_dir
-
-output_dir = get_valid_output_dir("code_analysis", "reports")
-```
+Output directories come from `substrax.artifacts.resolve_output_dir`, which honours
+`AVITAI_OUTPUT_DIR`; artifex keeps no file-output helper of its own.
 
 ## Coming Soon
 

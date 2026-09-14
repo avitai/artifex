@@ -1,6 +1,7 @@
 """Tests for protein visualization utilities."""
 
 import jax.numpy as jnp
+import matplotlib.pyplot as plt
 import numpy as np
 import pytest
 from matplotlib.figure import Figure
@@ -190,3 +191,43 @@ def test_visualize_protein_structure(protein_structure, batched_protein_structur
         batched_protein_structure["atom_positions"]
     )
     assert isinstance(fig_batched, Figure)
+
+
+def _entries(directory):
+    return sorted(path.relative_to(directory).as_posix() for path in directory.rglob("*"))
+
+
+def test_export_to_pdb_writes_a_relative_path_where_it_is_given(
+    protein_structure, tmp_path, monkeypatch
+):
+    """A relative output path is written under the working directory, not redirected."""
+    monkeypatch.chdir(tmp_path)
+
+    ProteinVisualizer.export_to_pdb(protein_structure, "structure.pdb")
+
+    assert _entries(tmp_path) == ["structure.pdb"]
+
+
+def test_plot_ramachandran_saves_a_relative_path_where_it_is_given(tmp_path, monkeypatch):
+    """The figure is saved at the relative path the caller passed."""
+    monkeypatch.chdir(tmp_path)
+    angles = np.linspace(-np.pi, 0, 8).astype(np.float32)
+
+    fig = ProteinVisualizer.plot_ramachandran(angles, angles / 2, save_path="ramachandran.png")
+    plt.close(fig)
+
+    assert _entries(tmp_path) == ["ramachandran.png"]
+
+
+def test_visualize_protein_structure_saves_a_relative_path_where_it_is_given(
+    protein_structure, tmp_path, monkeypatch
+):
+    """The figure is saved at the relative path the caller passed."""
+    monkeypatch.chdir(tmp_path)
+
+    fig = ProteinVisualizer.visualize_protein_structure(
+        protein_structure["atom_positions"], save_path="structure.png"
+    )
+    plt.close(fig)
+
+    assert _entries(tmp_path) == ["structure.png"]

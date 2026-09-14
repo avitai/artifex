@@ -18,7 +18,6 @@ from artifex.generative_models.utils.code_analysis.test_structure_analyzer impor
     find_source_module_mappings,
     is_test_file,
 )
-from artifex.utils.file_utils import get_valid_output_dir
 
 
 class StructureAnalyzerTests(TestCase):
@@ -104,8 +103,7 @@ class StructureAnalyzerTests(TestCase):
         assert not is_test_file(str(self.src_submodule))
 
         # Edge cases
-        # Use test_results directory for output files
-        output_dir = get_valid_output_dir("code_analysis", "test_results")
+        output_dir = Path(self.temp_dir.name)
 
         random_file = Path(output_dir) / "random.py"
         with open(random_file, "w") as f:
@@ -139,7 +137,7 @@ class StructureAnalyzerTests(TestCase):
         assert not any(imp.startswith("package") for imp in imports)
 
         # Test with empty file
-        output_dir = get_valid_output_dir("code_analysis", "test_results")
+        output_dir = Path(self.temp_dir.name)
         empty_file = Path(output_dir) / "empty.py"
         with open(empty_file, "w"):
             pass

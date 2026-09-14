@@ -5,7 +5,6 @@ import numpy as np
 from matplotlib.figure import Figure
 
 from artifex.benchmarks import BenchmarkResult
-from artifex.utils.file_utils import ensure_valid_output_path
 
 
 def plot_training_curve(
@@ -228,9 +227,7 @@ def plot_optimizer_comparison(
     # Save if requested
     if save_path:
         try:
-            # Ensure save_path is within benchmark_results directory
-            valid_save_path = ensure_valid_output_path(save_path, "benchmark_results")
-            plt.savefig(valid_save_path, bbox_inches="tight", dpi=300)
+            plt.savefig(save_path, bbox_inches="tight", dpi=300)
         except Exception as e:
             raise OSError(f"Error saving figure to {save_path}: {e}") from e
 
@@ -393,9 +390,7 @@ def plot_convergence_speed(
     # Save if requested
     if save_path:
         try:
-            # Ensure save_path is within benchmark_results directory
-            valid_save_path = ensure_valid_output_path(save_path, "benchmark_results")
-            plt.savefig(valid_save_path, bbox_inches="tight", dpi=300)
+            plt.savefig(save_path, bbox_inches="tight", dpi=300)
         except Exception as e:
             raise OSError(f"Error saving figure to {save_path}: {e}") from e
 

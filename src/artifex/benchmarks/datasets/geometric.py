@@ -17,7 +17,6 @@ import numpy as np
 from artifex.benchmarks.runtime_guards import demo_mode_from_mapping, require_demo_mode
 from artifex.generative_models.core.configuration import DataConfig
 from artifex.utils.extras import missing_extra
-from artifex.utils.file_utils import ensure_valid_output_path
 
 
 try:
@@ -595,9 +594,7 @@ class ShapeNetDataset:
                 logger.warning("Failed to create minimal model: %s", e)
                 # Create a simple text file as placeholder
                 obj_path = model_dir / "model.obj"
-                # Ensure the file is saved in the test_results directory during tests
-                obj_file = ensure_valid_output_path(str(obj_path))
-                with open(obj_file, "w") as f:
+                with open(obj_path, "w") as f:
                     f.write("# Simple placeholder OBJ file\n")
                     f.write("v 0 0 0\nv 1 0 0\nv 0 1 0\nf 1 2 3\n")
 

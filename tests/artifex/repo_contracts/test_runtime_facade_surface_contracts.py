@@ -1,4 +1,7 @@
+import importlib
 from pathlib import Path
+
+import pytest
 
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
@@ -83,8 +86,8 @@ def test_production_docs_stay_on_experimental_jit_and_monitoring_surface() -> No
         assert required_reference in docs
 
 
-def test_utils_docs_only_publish_file_utils_top_level_surface() -> None:
-    """Top-level utils docs should stay on the surviving file-utils contract."""
+def test_utils_docs_publish_no_top_level_helper_surface() -> None:
+    """Top-level utils docs name no top-level helper module; output locations come from substrax."""
     docs = (REPO_ROOT / "docs/utils/index.md").read_text()
 
     banned_references = [
@@ -98,11 +101,12 @@ def test_utils_docs_only_publish_file_utils_top_level_surface() -> None:
         "artifex.utils.text",
         "from artifex.utils import Timer",
         "from artifex.utils import Registry",
-    ]
-    required_references = [
         "artifex.utils.file_utils",
         "get_valid_output_dir",
+    ]
+    required_references = [
         "Most other helpers now live with their owning package",
+        "substrax.artifacts",
     ]
 
     for banned_reference in banned_references:
@@ -140,3 +144,9 @@ def test_visualization_docs_only_publish_protein_specific_surface() -> None:
 
     for required_reference in required_references:
         assert required_reference in combined_docs
+
+
+def test_file_utils_module_is_gone() -> None:
+    """Output locations have one home, substrax.artifacts."""
+    with pytest.raises(ModuleNotFoundError):
+        importlib.import_module("artifex.utils.file_utils")
