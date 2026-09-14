@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import importlib
+import re
 import subprocess
 from pathlib import Path
 
@@ -83,3 +84,20 @@ def test_no_tracked_file_names_the_removed_packages() -> None:
 
     assert control.stdout.strip() == "CHANGELOG.md"
     assert result.stdout.strip() == "", result.stdout
+
+
+def test_documented_meshes_are_entered_with_set_mesh() -> None:
+    """jax deprecates ``with mesh:``; guides and examples enter a mesh with ``jax.set_mesh``."""
+    pages = [
+        *sorted((REPO_ROOT / "docs").rglob("*.md")),
+        *sorted((REPO_ROOT / "examples").rglob("*.py")),
+    ]
+    offenders = [
+        f"{path.relative_to(REPO_ROOT)}:{number}"
+        for path in pages
+        for number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), start=1)
+        if re.fullmatch(r"\s*with mesh:\s*", line)
+    ]
+
+    assert "with jax.set_mesh(mesh):" in DISTRIBUTED_GUIDE.read_text(encoding="utf-8")
+    assert offenders == []
