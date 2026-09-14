@@ -1,23 +1,11 @@
 from __future__ import annotations
 
-import json
-import subprocess
-import sys
 from pathlib import Path
+
+from tests.utils.fresh_interpreter import run_repo_json
 
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
-
-
-def _run_python(code: str) -> dict[str, object]:
-    result = subprocess.run(
-        [sys.executable, "-c", code],
-        cwd=REPO_ROOT,
-        check=True,
-        capture_output=True,
-        text=True,
-    )
-    return json.loads(result.stdout)
 
 
 def test_deployment_and_huggingface_guides_match_live_helper_owners() -> None:
@@ -28,7 +16,7 @@ def test_deployment_and_huggingface_guides_match_live_helper_owners() -> None:
     huggingface_docs = (REPO_ROOT / "docs/user-guide/integrations/huggingface.md").read_text(
         encoding="utf-8"
     )
-    payload = _run_python(
+    payload = run_repo_json(
         "import json; "
         "import artifex.generative_models.models as models; "
         "import artifex.generative_models.models.vae as vae; "
@@ -80,7 +68,7 @@ def test_tensorboard_and_wandb_guides_use_real_callback_and_trainer_entrypoints(
         encoding="utf-8"
     )
     wandb_docs = (REPO_ROOT / "docs/user-guide/integrations/wandb.md").read_text(encoding="utf-8")
-    payload = _run_python(
+    payload = run_repo_json(
         "import json; "
         "from artifex.generative_models.training.callbacks import ("
         "CallbackList, TensorBoardLoggerCallback, TensorBoardLoggerConfig, "

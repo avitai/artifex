@@ -2,12 +2,11 @@
 
 from __future__ import annotations
 
-import json
-import subprocess
-import sys
 import textwrap
 from pathlib import Path
 from typing import cast
+
+from tests.utils.fresh_interpreter import run_repo_json
 
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
@@ -17,17 +16,6 @@ GRAPH_DOC = REPO_ROOT / "docs/models/graph.md"
 CORE_LAYERS_INIT = REPO_ROOT / "src/artifex/generative_models/core/layers/__init__.py"
 RESIDUAL_RUNTIME = REPO_ROOT / "src/artifex/generative_models/core/layers/residual.py"
 PIXELCNN_RUNTIME = REPO_ROOT / "src/artifex/generative_models/models/autoregressive/pixel_cnn.py"
-
-
-def _run_python(code: str) -> dict[str, object]:
-    result = subprocess.run(
-        [sys.executable, "-c", code],
-        cwd=REPO_ROOT,
-        check=True,
-        capture_output=True,
-        text=True,
-    )
-    return json.loads(result.stdout)
 
 
 def _normalized_text(path: Path) -> str:
@@ -40,7 +28,7 @@ BACKEND_RUNTIME = REPO_ROOT / "src/artifex/generative_models/core/layers/attenti
 
 def test_flash_attention_surface_drops_the_orphaned_triton_kernel() -> None:
     """The Triton kernel was defined but never called, so it must be gone."""
-    payload = _run_python(
+    payload = run_repo_json(
         textwrap.dedent(
             """
             import json
@@ -80,7 +68,7 @@ def test_flash_attention_surface_drops_the_orphaned_triton_kernel() -> None:
     # The layers package must not export a symbol named after one of its own
     # submodules: doing so rebinds the package attribute and makes
     # `import ...layers.flash_attention as m` return the symbol, not the module.
-    exported = _run_python(
+    exported = run_repo_json(
         textwrap.dedent(
             """
             import json
@@ -114,7 +102,7 @@ def test_every_advertised_attention_backend_is_actually_dispatched() -> None:
     backend now counts as real only when the dispatcher passes its value to
     ``jax.nn.dot_product_attention`` or delegates to the nnx kernel.
     """
-    payload = _run_python(
+    payload = run_repo_json(
         textwrap.dedent(
             """
             import json
@@ -149,7 +137,7 @@ def test_live_dropout_is_never_fused() -> None:
     training step would reuse one dropout mask forever. Selecting the fused
     kernel with live dropout would be silently wrong, not merely fast.
     """
-    payload = _run_python(
+    payload = run_repo_json(
         textwrap.dedent(
             """
             import json
@@ -189,7 +177,7 @@ def test_live_dropout_is_never_fused() -> None:
 
 def test_masked_pixelcnn_residual_surface_is_local_to_pixelcnn() -> None:
     """Placeholder masked residual blocks should not remain on the shared core-layer surface."""
-    payload = _run_python(
+    payload = run_repo_json(
         textwrap.dedent(
             """
             import importlib
@@ -232,7 +220,7 @@ def test_masked_pixelcnn_residual_surface_is_local_to_pixelcnn() -> None:
 
 def test_egnn_layer_contract_is_hidden_dim_only() -> None:
     """EGNNLayer should no longer advertise a separate node_dim constructor contract."""
-    payload = _run_python(
+    payload = run_repo_json(
         textwrap.dedent(
             """
             import inspect
@@ -262,7 +250,7 @@ MKDOCS = REPO_ROOT / "mkdocs.yml"
 
 
 def _exported_names(package: str) -> list[str]:
-    payload = _run_python(
+    payload = run_repo_json(
         textwrap.dedent(
             f"""
             import importlib
@@ -303,7 +291,7 @@ def test_backbone_layer_families_are_documented() -> None:
 
 def test_layers_package_purpose_covers_backbones_no_model_uses_yet() -> None:
     """The package docstring states the backbone rule rather than current consumers."""
-    payload = _run_python(
+    payload = run_repo_json(
         textwrap.dedent(
             """
             import json

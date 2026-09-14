@@ -1,27 +1,15 @@
-import json
 import re
-import subprocess
-import sys
 from pathlib import Path
+
+from tests.utils.fresh_interpreter import run_repo_json
 
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 
 
-def _run_python(code: str) -> dict[str, object]:
-    result = subprocess.run(
-        [sys.executable, "-c", code],
-        cwd=REPO_ROOT,
-        check=True,
-        capture_output=True,
-        text=True,
-    )
-    return json.loads(result.stdout)
-
-
 def test_core_package_import_keeps_children_lazy() -> None:
     """Importing the core package should not eagerly load its heavy children."""
-    payload = _run_python(
+    payload = run_repo_json(
         "import json, sys; "
         "import artifex.generative_models.core as core; "
         "print(json.dumps({"
@@ -64,7 +52,7 @@ def test_core_package_import_keeps_children_lazy() -> None:
 
 def test_core_exports_resolve_lazily() -> None:
     """Core exports should remain accessible on explicit attribute access."""
-    payload = _run_python(
+    payload = run_repo_json(
         "import json; "
         "import artifex.generative_models.core as core; "
         "print(json.dumps({"
@@ -80,7 +68,7 @@ def test_core_exports_resolve_lazily() -> None:
 def test_core_overview_docs_match_live_core_surface() -> None:
     """The core overview should route readers through live namespaces only."""
     docs = (REPO_ROOT / "docs/core/index.md").read_text(encoding="utf-8")
-    payload = _run_python(
+    payload = run_repo_json(
         "import json; "
         "from artifex.generative_models import core; "
         "from artifex.generative_models.core.sampling import "
@@ -158,7 +146,7 @@ def test_core_overview_docs_match_live_core_surface() -> None:
 
 def test_models_package_import_keeps_children_lazy() -> None:
     """Importing the models package should not eagerly import model families."""
-    payload = _run_python(
+    payload = run_repo_json(
         "import json, sys; "
         "import artifex.generative_models.models as models; "
         "print(json.dumps({"
@@ -179,7 +167,7 @@ def test_models_package_import_keeps_children_lazy() -> None:
 
 def test_models_exports_resolve_lazily() -> None:
     """Models exports should stay focused on concrete model families only."""
-    payload = _run_python(
+    payload = run_repo_json(
         "import json; "
         "import artifex.generative_models.models as models; "
         "print(json.dumps({"
@@ -200,7 +188,7 @@ def test_models_exports_resolve_lazily() -> None:
 
 def test_factory_package_import_keeps_default_builders_lazy() -> None:
     """Importing the factory package should keep its public surface lazy."""
-    payload = _run_python(
+    payload = run_repo_json(
         "import json, sys; "
         "import artifex.generative_models.factory as factory; "
         "print(json.dumps({"
@@ -234,7 +222,7 @@ def test_factory_package_import_keeps_default_builders_lazy() -> None:
 
 def test_factory_exports_resolve_without_preloading_builders() -> None:
     """Accessing factory exports should not eagerly register builders."""
-    payload = _run_python(
+    payload = run_repo_json(
         "import json, sys; "
         "import artifex.generative_models.factory as factory; "
         "print(json.dumps({"
@@ -260,7 +248,7 @@ def test_factory_exports_resolve_without_preloading_builders() -> None:
 
 def test_extensions_package_import_keeps_children_lazy() -> None:
     """Importing the extensions package should not eagerly import protein extensions."""
-    payload = _run_python(
+    payload = run_repo_json(
         "import json, sys; "
         "import artifex.generative_models.extensions as extensions; "
         "print(json.dumps({"
@@ -294,7 +282,7 @@ def test_extensions_package_import_keeps_children_lazy() -> None:
 
 def test_extensions_exports_resolve_lazily() -> None:
     """Extension exports should remain accessible on explicit attribute access."""
-    payload = _run_python(
+    payload = run_repo_json(
         "import json; "
         "import artifex.generative_models.extensions as extensions; "
         "print(json.dumps({"

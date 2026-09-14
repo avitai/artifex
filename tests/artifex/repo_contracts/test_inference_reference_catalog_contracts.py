@@ -1,9 +1,8 @@
 from __future__ import annotations
 
-import json
-import subprocess
-import sys
 from pathlib import Path
+
+from tests.utils.fresh_interpreter import run_repo_json
 
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
@@ -63,17 +62,6 @@ COMING_SOON_PAGES = {
 }
 
 
-def _run_python(code: str) -> dict[str, object]:
-    result = subprocess.run(
-        [sys.executable, "-c", code],
-        cwd=REPO_ROOT,
-        check=True,
-        capture_output=True,
-        text=True,
-    )
-    return json.loads(result.stdout)
-
-
 def test_inference_reference_pages_are_runtime_backed_or_coming_soon() -> None:
     """Each inference page should be either live or clearly marked as coming soon."""
     actual_pages = {path.name for path in DOCS_ROOT.glob("*.md") if path.name != "index.md"}
@@ -112,7 +100,7 @@ def test_inference_index_and_connected_docs_only_publish_live_shared_surface() -
     deployment_docs = (REPO_ROOT / "docs/user-guide/integrations/deployment.md").read_text(
         encoding="utf-8"
     )
-    payload = _run_python(
+    payload = run_repo_json(
         "import json; "
         "from pathlib import Path; "
         "import artifex.generative_models.inference as inference; "

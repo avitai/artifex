@@ -2,29 +2,17 @@
 
 from __future__ import annotations
 
-import json
-import subprocess
-import sys
 from pathlib import Path
+
+from tests.utils.fresh_interpreter import run_repo_json
 
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 
 
-def _run_python(code: str) -> dict[str, object]:
-    result = subprocess.run(
-        [sys.executable, "-c", code],
-        cwd=REPO_ROOT,
-        check=True,
-        capture_output=True,
-        text=True,
-    )
-    return json.loads(result.stdout)
-
-
 def test_data_package_import_keeps_protein_lazy() -> None:
     """Importing the top-level data package should stay narrow and lazy."""
-    payload = _run_python(
+    payload = run_repo_json(
         "import json, sys; "
         "import artifex.data as data; "
         "print(json.dumps({"
@@ -41,7 +29,7 @@ def test_data_package_import_keeps_protein_lazy() -> None:
 
 def test_data_package_resolves_only_retained_protein_surface() -> None:
     """The top-level data barrel should not regrow a phantom generic API."""
-    payload = _run_python(
+    payload = run_repo_json(
         "import json; "
         "import artifex.data as data; "
         "protein = data.protein; "

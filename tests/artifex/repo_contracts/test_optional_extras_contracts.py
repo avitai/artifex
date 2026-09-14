@@ -2,12 +2,12 @@
 
 from __future__ import annotations
 
-import subprocess
-import sys
 import tomllib
 from pathlib import Path
 
 import pytest
+from substrax.testing import ChildResult
+from tests.utils.fresh_interpreter import run_repo_python, WITHOUT_SEARCH_PATHS
 
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
@@ -31,21 +31,14 @@ def _names(requirements: list[str]) -> set[str]:
     }
 
 
-def _import_without(package: str, modules: tuple[str, ...]) -> subprocess.CompletedProcess[str]:
+def _import_without(package: str, modules: tuple[str, ...]) -> ChildResult:
     script = (
         "import importlib, sys\n"
         f"sys.modules[{package!r}] = None\n"
         f"for module in {modules!r}:\n"
         "    importlib.import_module(module)\n"
     )
-    return subprocess.run(
-        [sys.executable, "-c", script],
-        cwd=REPO_ROOT,
-        capture_output=True,
-        text=True,
-        check=False,
-        env={"JAX_PLATFORMS": "cpu", "PATH": "", "PYTHONPATH": ""},
-    )
+    return run_repo_python(script, env=WITHOUT_SEARCH_PATHS)
 
 
 def test_optional_packages_are_declared_as_extras_not_runtime_dependencies() -> None:
@@ -86,13 +79,6 @@ def test_optional_surface_names_its_extra_when_the_package_is_missing(package: s
 def test_optional_surface_imports_when_the_package_is_present(package: str) -> None:
     """Positive control: with the package installed the same subsystem imports."""
     _, module = OPTIONAL_SURFACES[package]
-    result = subprocess.run(
-        [sys.executable, "-c", f"import {package}, {module}"],
-        cwd=REPO_ROOT,
-        capture_output=True,
-        text=True,
-        check=False,
-        env={"JAX_PLATFORMS": "cpu", "PATH": "", "PYTHONPATH": ""},
-    )
+    result = run_repo_python(f"import {package}, {module}", env=WITHOUT_SEARCH_PATHS)
 
     assert result.returncode == 0, result.stderr
