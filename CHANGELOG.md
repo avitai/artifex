@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Requires `datarax>=0.1.10`; the lock moves datarax from 0.1.8 to 0.1.10 and, through it,
+  substrax from 0.1.6 to 0.1.7. artifex reads datarax's sources, pipeline and data-source
+  contract, none of which the release changes; its operator contract (the record's key in
+  `apply`) reaches no artifex code.
+
+### Changed
+
 - The test suite chooses its JAX backend itself, before JAX is imported: tests run on the CPU
   with eight emulated devices unless `ARTIFEX_TEST_JAX_PLATFORMS` names an accelerator, and
   `ARTIFEX_TEST_DEVICE_COUNT` sets the device count (`0` turns emulation off). An exported
