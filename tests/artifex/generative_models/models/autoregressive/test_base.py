@@ -251,18 +251,17 @@ class TestAutoregressiveModel:
         assert jnp.all(samples < model.vocab_size)
 
     def test_get_rng_key(self, model, rngs):
-        """Test RNG key extraction."""
-        key = model._get_rng_key(rngs, "sample", 0)
-        # Check that we get some kind of key/array - shape might vary
-        assert hasattr(key, "shape")
-        # Allow for scalar or proper JAX keys
-        assert jnp.isscalar(key) or len(key.shape) <= 2
+        """A key comes from the named stream, else the sampling streams; never a default seed."""
+        key = model._get_rng_key(rngs, "sample")
+        assert jax.dtypes.issubdtype(key.dtype, jax.dtypes.prng_key)
 
-        # Test with non-existent key name
-        key_default = model._get_rng_key(rngs, "nonexistent", 123)
-        assert hasattr(key_default, "shape")
-        # Should fallback to jax.random.key which now has scalar shape ()
-        assert key_default.shape == ()
+        # A stream the Rngs lacks falls through to the sampling streams it holds
+        fallback = model._get_rng_key(rngs, "nonexistent")
+        assert jax.dtypes.issubdtype(fallback.dtype, jax.dtypes.prng_key)
+
+        # No owner means no key: nothing is drawn from a default seed
+        with pytest.raises(TypeError, match="autoregressive generation"):
+            model._get_rng_key(None, "sample")
 
     def test_loss_fn_structure(self, model, batch_data):
         """Test loss function structure."""

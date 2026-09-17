@@ -11,6 +11,7 @@ import jax
 import jax.numpy as jnp
 import pytest
 from flax import nnx
+from substrax.rng import MissingRngStreamError
 
 from artifex.generative_models.core.distributions import Mixture, Normal
 from artifex.generative_models.core.sampling.blackjax_samplers import (
@@ -87,13 +88,13 @@ class TestExtractKey:
     def test_extract_key_from_rngs_with_other_key_raises(self):
         """Only explicit sampling streams should be accepted."""
         rngs = nnx.Rngs(params=42)
-        with pytest.raises(ValueError, match="sample or default"):
+        with pytest.raises(MissingRngStreamError, match="BlackJAX sampling"):
             _extract_key(rngs)
 
     def test_extract_key_from_rngs_seed_only_raises(self):
         """Seed-only RNG containers should fail fast."""
         rngs = nnx.Rngs(seed=42)
-        with pytest.raises(ValueError, match="sample or default"):
+        with pytest.raises(MissingRngStreamError, match="BlackJAX sampling"):
             _extract_key(rngs)
 
 

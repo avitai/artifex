@@ -7,6 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- The optimizer factory builds through `substrax.optim`: `create_optimizer(model, config,
+  schedule=None)` maps `OptimizerConfig` onto substrax's specification and returns the
+  transformation `substrax.optim.create_transformation` builds for the model, with the
+  schedule as the optimizer's learning rate. The model is a new first argument. `nadam` is
+  optax's Adam with Nesterov momentum (the previous chain applied plain Adam); `rmsprop` uses
+  optax's decay and initial scale (the previous factory passed `beta2` as the decay); a
+  `weight_decay` on an optimizer without decoupled decay (`adam`, `sgd`, ...) is refused where
+  it was silently ignored; `momentum` reaches `sgd` and `rmsprop` only, and zero means none.
+- Every key drawn at a sampling entry point comes through `substrax.rng.key_from`. The
+  autoregressive models' `_get_rng_key` takes no default seed: without an owner it raises,
+  and a stream the `nnx.Rngs` lacks falls through to its `sample` and `params` streams.
+- Requires `substrax>=0.1.8`, the release that carries `substrax.rng` and `substrax.optim`,
+  and `datarax>=0.1.11`, the release that takes its own streams through `substrax.rng`; the
+  lock moves both.
+
+### Removed
+
+- `artifex.generative_models.core.rng` and `extract_rng_key`; use `substrax.rng.key_from`,
+  which takes the same streams and context and raises `MissingRngStreamError`.
+- `OptimizerConfig.nesterov` and `OptimizerConfig.initial_accumulator_value`, which substrax's
+  specification does not carry; Nesterov momentum is the `nadam` optimizer.
+
 ## [0.1.8] - 2026-09-16
 
 ### Changed

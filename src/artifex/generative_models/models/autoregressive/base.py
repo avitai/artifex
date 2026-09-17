@@ -5,9 +5,9 @@ from typing import Any
 import jax
 import jax.numpy as jnp
 from flax import nnx
+from substrax.rng import key_from
 
 from artifex.generative_models.core.base import GenerativeModel
-from artifex.generative_models.core.rng import extract_rng_key
 
 
 class AutoregressiveModel(GenerativeModel):
@@ -99,7 +99,7 @@ class AutoregressiveModel(GenerativeModel):
             max_length = self.sequence_length
 
         # Get sampling key
-        sample_key = self._get_rng_key(rngs, "sample", 0)
+        sample_key = self._get_rng_key(rngs, "sample")
 
         # Initialize sequences (start with zeros or special tokens)
         sequences = jnp.zeros((n_samples, max_length), dtype=jnp.int32)
@@ -330,7 +330,7 @@ class AutoregressiveModel(GenerativeModel):
         sequences = sequences.at[:, :prefix_length].set(expanded_conditioning.astype(jnp.int32))
 
         # Get sampling key
-        sample_key = self._get_rng_key(rngs, "sample", 0)
+        sample_key = self._get_rng_key(rngs, "sample")
 
         # Generate remaining tokens
         for pos in range(prefix_length, self.sequence_length):
@@ -350,25 +350,19 @@ class AutoregressiveModel(GenerativeModel):
 
         return sequences
 
-    def _get_rng_key(
-        self, rngs: nnx.Rngs | None, key_name: str, default_seed: int = 0
-    ) -> jax.Array:
-        """Get RNG key from rngs object.
+    def _get_rng_key(self, rngs: nnx.Rngs | jax.Array | None, key_name: str) -> jax.Array:
+        """Take a key from the caller's ``rngs``: the named stream, else the sampling streams.
 
         Args:
-            rngs: Random number generators
-            key_name: Name of the key to extract
-            default_seed: Default seed if rngs is None
+            rngs: The key's owner, an ``nnx.Rngs`` or a key; ``None`` is refused, nothing is
+                drawn from a default seed.
+            key_name: Name of the stream to draw from first.
 
         Returns:
             JAX random key
         """
-        if rngs is not None:
-            return extract_rng_key(
-                rngs,
-                streams=(key_name, "sample", "params"),
-                context="autoregressive generation",
-            )
-
-        # Ensure we return a proper JAX PRNG key with correct shape
-        return jax.random.key(default_seed)
+        return key_from(
+            rngs,  # type: ignore[arg-type]
+            streams=(key_name, "sample", "params"),
+            context="autoregressive generation",
+        )

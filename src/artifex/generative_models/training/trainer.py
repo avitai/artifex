@@ -173,8 +173,8 @@ class Trainer:
     def _create_optimizer(self) -> optax.GradientTransformation:
         """Create optimizer from training config.
 
-        Delegates to the centralized optimizer factory for all optimizer types.
-        The factory supports: adam, adamw, sgd, rmsprop, adagrad, lamb, radam, nadam.
+        Delegates to the shared optimizer factory, which builds through ``substrax.optim``
+        with the configured schedule as the optimizer's learning rate.
 
         Returns:
             Optax gradient transformation (optimizer).
@@ -188,8 +188,7 @@ class Trainer:
         else:
             schedule = None
 
-        # Delegate to optimizer factory
-        return create_optimizer(opt_config, schedule=schedule)
+        return create_optimizer(self.model, opt_config, schedule=schedule)
 
     def _create_schedule(self, scheduler_config: SchedulerConfig, base_lr: float) -> Any:
         """Create learning rate schedule from configuration.

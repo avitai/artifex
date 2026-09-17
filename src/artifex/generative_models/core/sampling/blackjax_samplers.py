@@ -12,9 +12,9 @@ import blackjax
 import jax
 import jax.numpy as jnp
 from flax import nnx
+from substrax.rng import key_from
 
 from artifex.generative_models.core.distributions.base import Distribution
-from artifex.generative_models.core.rng import extract_rng_key
 from artifex.generative_models.core.sampling.base import SamplingAlgorithm
 
 
@@ -23,7 +23,7 @@ LogDensityFn = Callable[[Any], jax.Array]
 
 def _extract_key(rng: jax.Array | nnx.Rngs) -> jax.Array:
     """Extract a JAX random key from an explicit sampling owner."""
-    return extract_rng_key(rng, streams=("sample", "default"), context="BlackJAX sampling")
+    return key_from(rng, streams=("sample", "default"), context="BlackJAX sampling")
 
 
 def _prepare_logdensity_fn(

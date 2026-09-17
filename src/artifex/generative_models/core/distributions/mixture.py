@@ -8,8 +8,7 @@ import distrax
 import jax
 import jax.numpy as jnp
 from flax import nnx
-
-from artifex.generative_models.core.rng import extract_rng_key
+from substrax.rng import key_from
 
 from .base import Distribution
 
@@ -142,7 +141,7 @@ class Mixture(Distribution):
         source_rngs = rngs if rngs is not None else self._rngs
         if source_rngs is None:
             raise ValueError("rngs must be provided for sampling")
-        return extract_rng_key(
+        return key_from(
             source_rngs,
             streams=("sample", "default"),
             context="mixture sampling",

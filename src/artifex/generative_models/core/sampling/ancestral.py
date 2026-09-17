@@ -7,9 +7,9 @@ distributions.
 import jax
 import jax.numpy as jnp
 from flax import nnx
+from substrax.rng import key_from
 
 from artifex.generative_models.core.distributions.base import Distribution
-from artifex.generative_models.core.rng import extract_rng_key
 
 
 def ancestral_sampling(
@@ -19,7 +19,7 @@ def ancestral_sampling(
     sample_shape: tuple[int, ...] | None = None,
 ) -> jax.Array:
     """Sample from a distribution using ancestral sampling."""
-    key = extract_rng_key(key, streams=("sample", "default"), context="ancestral sampling")
+    key = key_from(key, streams=("sample", "default"), context="ancestral sampling")
 
     if isinstance(distribution, Distribution):
         distribution_loc = getattr(distribution, "loc", None)

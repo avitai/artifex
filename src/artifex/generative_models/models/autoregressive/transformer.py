@@ -247,7 +247,7 @@ class TransformerAutoregressiveModel(AutoregressiveModel):
             start_pos = 0
 
         # Get sampling key
-        sample_key = self._get_rng_key(rngs, "sample", 0)
+        sample_key = self._get_rng_key(rngs, "sample")
 
         # Generate autoregressively
         for pos in range(start_pos, max_length):
@@ -354,7 +354,7 @@ class TransformerAutoregressiveModel(AutoregressiveModel):
             start_pos = 0
 
         # Get sampling key
-        sample_key = self._get_rng_key(rngs, "sample", 0)
+        sample_key = self._get_rng_key(rngs, "sample")
 
         # Generate autoregressively
         for pos in range(start_pos, max_length):

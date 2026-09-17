@@ -1,329 +1,192 @@
-"""Tests for optimizer factory.
+"""The optimizer factory maps ``OptimizerConfig`` onto the optimizer substrax builds.
 
-Following TDD principles - these tests define the expected behavior
-for the centralized optimizer factory.
+``create_optimizer(model, config, schedule=None)`` returns the optax transformation
+``substrax.optim.create_transformation`` builds for the model, with ``schedule`` (or the
+configuration's rate) as the optimizer's learning rate, so a decaying schedule reaches the
+update; what optax would silently misread is refused by the configuration or by substrax.
 """
+
+from __future__ import annotations
 
 import jax
 import jax.numpy as jnp
 import optax
+import pytest
 from flax import nnx
+from substrax.optim import current_learning_rate
 
-from artifex.generative_models.core.configuration import (
-    OptimizerConfig,
-)
+from artifex.generative_models.core.configuration import OptimizerConfig
+from artifex.generative_models.training import create_optimizer as exported_create_optimizer
+from artifex.generative_models.training.optimizers import create_optimizer
 
 
-class TestOptimizerFactoryBasic:
-    """Test basic optimizer creation via factory."""
+class _Model(nnx.Module):
+    def __init__(self, *, rngs: nnx.Rngs) -> None:
+        super().__init__()
+        self.linear = nnx.Linear(4, 4, rngs=rngs)
 
-    def test_create_adam_optimizer(self):
-        """Factory should create Adam optimizer."""
-        from artifex.generative_models.training.optimizers import create_optimizer
+    def __call__(self, x: jax.Array) -> jax.Array:
+        return self.linear(x)
 
-        config = OptimizerConfig(
-            name="test",
-            optimizer_type="adam",
-            learning_rate=1e-3,
-            beta1=0.9,
-            beta2=0.999,
-            eps=1e-8,
+
+def _model() -> _Model:
+    return _Model(rngs=nnx.Rngs(0))
+
+
+def _loss(model: _Model) -> jax.Array:
+    return jnp.mean(model(jnp.ones((2, 4))) ** 2)
+
+
+def _config(**overrides: object) -> OptimizerConfig:
+    fields: dict[str, object] = {"name": "test", "optimizer_type": "adam", "learning_rate": 1e-3}
+    fields.update(overrides)
+    return OptimizerConfig(**fields)  # type: ignore[arg-type]
+
+
+class TestEveryOptimizerBuilds:
+    """Each optimizer type substrax offers builds and moves a parameter."""
+
+    @pytest.mark.parametrize(
+        "overrides",
+        [
+            {"optimizer_type": "adam"},
+            {"optimizer_type": "adamw", "weight_decay": 0.01},
+            {"optimizer_type": "sgd", "momentum": 0.9},
+            {"optimizer_type": "rmsprop"},
+            {"optimizer_type": "adagrad"},
+            {"optimizer_type": "lamb", "weight_decay": 0.01},
+            {"optimizer_type": "radam"},
+            {"optimizer_type": "nadam"},
+        ],
+        ids=lambda o: o["optimizer_type"],
+    )
+    def test_moves_the_parameters(self, overrides: dict[str, object]) -> None:
+        model = _model()
+        transformation = create_optimizer(model, _config(learning_rate=0.1, **overrides))
+        optimizer = nnx.Optimizer(model, transformation, wrt=nnx.Param)
+        before = jax.tree.map(jnp.copy, nnx.state(model, nnx.Param))
+
+        optimizer.update(model, nnx.grad(_loss)(model))
+
+        after = nnx.state(model, nnx.Param)
+        assert not all(
+            jnp.array_equal(a, b)
+            for a, b in zip(jax.tree.leaves(before), jax.tree.leaves(after), strict=True)
         )
 
-        optimizer = create_optimizer(config)
-        assert optimizer is not None
 
-        # Verify it works with a simple param tree
-        params = {"w": jnp.zeros((4, 4))}
-        opt_state = optimizer.init(params)
-        grads = {"w": jnp.ones((4, 4))}
-        updates, new_state = optimizer.update(grads, opt_state, params)
+class TestScheduleIsTheLearningRate:
+    """``schedule`` overrides the configuration's rate and reaches the update."""
 
-        # Updates should be computed
-        assert "w" in updates
-        assert not jnp.allclose(updates["w"], jnp.zeros((4, 4)))
-
-    def test_create_adamw_optimizer(self):
-        """Factory should create AdamW optimizer with weight decay."""
-        from artifex.generative_models.training.optimizers import create_optimizer
-
-        config = OptimizerConfig(
-            name="test",
-            optimizer_type="adamw",
-            learning_rate=1e-3,
-            weight_decay=0.01,
+    def test_schedule_overrides_the_configured_rate(self) -> None:
+        model = _model()
+        optimizer = nnx.Optimizer(
+            model, create_optimizer(model, _config(), schedule=5e-4), wrt=nnx.Param
         )
 
-        optimizer = create_optimizer(config)
-        assert optimizer is not None
+        assert float(current_learning_rate(optimizer)) == pytest.approx(5e-4)
 
-    def test_create_sgd_optimizer(self):
-        """Factory should create SGD optimizer."""
-        from artifex.generative_models.training.optimizers import create_optimizer
-
-        config = OptimizerConfig(
-            name="test",
-            optimizer_type="sgd",
-            learning_rate=1e-2,
-            momentum=0.9,
+    def test_without_a_schedule_the_configured_rate_applies(self) -> None:
+        model = _model()
+        optimizer = nnx.Optimizer(
+            model, create_optimizer(model, _config(learning_rate=2e-3)), wrt=nnx.Param
         )
 
-        optimizer = create_optimizer(config)
-        assert optimizer is not None
+        assert float(current_learning_rate(optimizer)) == pytest.approx(2e-3)
 
-    def test_create_sgd_with_nesterov(self):
-        """Factory should create SGD with Nesterov momentum."""
-        from artifex.generative_models.training.optimizers import create_optimizer
+    def test_a_schedule_decayed_to_zero_stops_the_parameters(self) -> None:
+        model = _model()
+        schedule = optax.linear_schedule(init_value=0.1, end_value=0.0, transition_steps=4)
+        optimizer = nnx.Optimizer(
+            model, create_optimizer(model, _config(), schedule=schedule), wrt=nnx.Param
+        )
+        for _ in range(4):
+            optimizer.update(model, nnx.grad(_loss)(model))
+        before = jax.tree.map(jnp.copy, nnx.state(model, nnx.Param))
 
-        config = OptimizerConfig(
-            name="test",
-            optimizer_type="sgd",
-            learning_rate=1e-2,
-            momentum=0.9,
-            nesterov=True,
+        optimizer.update(model, nnx.grad(_loss)(model))
+
+        after = nnx.state(model, nnx.Param)
+        assert float(current_learning_rate(optimizer)) == pytest.approx(0.0)
+        assert all(
+            jnp.array_equal(a, b)
+            for a, b in zip(jax.tree.leaves(before), jax.tree.leaves(after), strict=True)
         )
 
-        optimizer = create_optimizer(config)
-        assert optimizer is not None
 
-    def test_create_rmsprop_optimizer(self):
-        """Factory should create RMSProp optimizer."""
-        from artifex.generative_models.training.optimizers import create_optimizer
+class TestClipping:
+    """The clip fields reach the transformation."""
 
-        config = OptimizerConfig(
-            name="test",
-            optimizer_type="rmsprop",
-            learning_rate=1e-3,
+    def test_clip_by_global_norm_bounds_the_update(self) -> None:
+        model = _model()
+        transformation = create_optimizer(
+            model, _config(optimizer_type="sgd", learning_rate=1.0, gradient_clip_norm=1.0)
         )
+        params = nnx.to_pure_dict(nnx.state(model, nnx.Param))
+        grads = jax.tree.map(lambda p: jnp.full_like(p, 100.0), params)
 
-        optimizer = create_optimizer(config)
-        assert optimizer is not None
+        updates, _ = transformation.update(grads, transformation.init(params), params)
 
-    def test_create_adagrad_optimizer(self):
-        """Factory should create AdaGrad optimizer."""
-        from artifex.generative_models.training.optimizers import create_optimizer
+        norm = jnp.sqrt(sum(jnp.sum(u**2) for u in jax.tree.leaves(updates)))
+        assert float(norm) == pytest.approx(1.0, rel=1e-5)
 
-        config = OptimizerConfig(
-            name="test",
-            optimizer_type="adagrad",
-            learning_rate=1e-2,
+    def test_clip_by_value_bounds_each_entry(self) -> None:
+        model = _model()
+        transformation = create_optimizer(
+            model, _config(optimizer_type="sgd", learning_rate=1.0, gradient_clip_value=0.5)
         )
+        params = nnx.to_pure_dict(nnx.state(model, nnx.Param))
+        grads = jax.tree.map(lambda p: jnp.full_like(p, 100.0), params)
 
-        optimizer = create_optimizer(config)
-        assert optimizer is not None
+        updates, _ = transformation.update(grads, transformation.init(params), params)
 
-    def test_create_lamb_optimizer(self):
-        """Factory should create LAMB optimizer."""
-        from artifex.generative_models.training.optimizers import create_optimizer
-
-        config = OptimizerConfig(
-            name="test",
-            optimizer_type="lamb",
-            learning_rate=1e-3,
-        )
-
-        optimizer = create_optimizer(config)
-        assert optimizer is not None
-
-    def test_create_radam_optimizer(self):
-        """Factory should create RAdam optimizer."""
-        from artifex.generative_models.training.optimizers import create_optimizer
-
-        config = OptimizerConfig(
-            name="test",
-            optimizer_type="radam",
-            learning_rate=1e-3,
-        )
-
-        optimizer = create_optimizer(config)
-        assert optimizer is not None
-
-    def test_create_nadam_optimizer(self):
-        """Factory should create NAdam optimizer."""
-        from artifex.generative_models.training.optimizers import create_optimizer
-
-        config = OptimizerConfig(
-            name="test",
-            optimizer_type="nadam",
-            learning_rate=1e-3,
-        )
-
-        optimizer = create_optimizer(config)
-        assert optimizer is not None
+        largest = max(float(jnp.max(jnp.abs(u))) for u in jax.tree.leaves(updates))
+        assert largest == pytest.approx(0.5)
 
 
-class TestOptimizerFactoryGradientClipping:
-    """Test gradient clipping options."""
+class TestRefusals:
+    """What optax would silently misread is refused."""
 
-    def test_optimizer_with_gradient_clip_norm(self):
-        """Factory should apply gradient clipping by norm."""
-        from artifex.generative_models.training.optimizers import create_optimizer
+    def test_weight_decay_on_adam_is_refused(self) -> None:
+        with pytest.raises(ValueError, match="weight_decay"):
+            create_optimizer(_model(), _config(weight_decay=0.01))
 
-        config = OptimizerConfig(
-            name="test",
-            optimizer_type="adam",
-            learning_rate=1e-3,
-            gradient_clip_norm=1.0,
-        )
-
-        optimizer = create_optimizer(config)
-        assert optimizer is not None
-
-        # Test that clipping is applied
-        params = {"w": jnp.zeros((4, 4))}
-        opt_state = optimizer.init(params)
-
-        # Large gradients should be clipped
-        large_grads = {"w": jnp.ones((4, 4)) * 100.0}
-        updates, _ = optimizer.update(large_grads, opt_state, params)
-
-        # Updates should be bounded
-        update_norm = jnp.sqrt(jnp.sum(updates["w"] ** 2))
-        # After clipping and Adam scaling, norm should be reasonable
-        assert jnp.isfinite(update_norm)
-
-    def test_optimizer_with_gradient_clip_value(self):
-        """Factory should apply gradient clipping by value."""
-        from artifex.generative_models.training.optimizers import create_optimizer
-
-        config = OptimizerConfig(
-            name="test",
-            optimizer_type="adam",
-            learning_rate=1e-3,
-            gradient_clip_value=1.0,
-        )
-
-        optimizer = create_optimizer(config)
-        assert optimizer is not None
-
-
-class TestOptimizerFactoryWithSchedule:
-    """Test optimizer creation with learning rate schedules."""
-
-    def test_optimizer_with_constant_schedule(self):
-        """Factory should work with constant learning rate."""
-        from artifex.generative_models.training.optimizers import create_optimizer
-
-        config = OptimizerConfig(
-            name="test",
-            optimizer_type="adam",
-            learning_rate=1e-3,
-        )
-
-        # Pass constant as schedule
-        optimizer = create_optimizer(config, schedule=1e-3)
-        assert optimizer is not None
-
-    def test_optimizer_with_callable_schedule(self):
-        """Factory should accept a callable schedule."""
-        from artifex.generative_models.training.optimizers import create_optimizer
-
-        config = OptimizerConfig(
-            name="test",
-            optimizer_type="adam",
-            learning_rate=1e-3,  # Base, but schedule overrides
-        )
-
-        # Create a custom schedule
-        schedule = optax.warmup_cosine_decay_schedule(
-            init_value=0.0,
-            peak_value=1e-3,
-            warmup_steps=100,
-            decay_steps=1000,
-        )
-
-        optimizer = create_optimizer(config, schedule=schedule)
-        assert optimizer is not None
-
-    def test_optimizer_uses_schedule_over_config_lr(self):
-        """When schedule is provided, it should override config learning_rate."""
-        from artifex.generative_models.training.optimizers import create_optimizer
-
-        config = OptimizerConfig(
-            name="test",
-            optimizer_type="adam",
-            learning_rate=1e-3,  # This should be ignored when schedule provided
-        )
-
-        # Schedule that produces different learning rates
-        schedule = optax.constant_schedule(5e-4)
-
-        optimizer = create_optimizer(config, schedule=schedule)
-        assert optimizer is not None
+    def test_fields_substrax_does_not_carry_are_gone(self) -> None:
+        with pytest.raises(TypeError):
+            _config(optimizer_type="sgd", nesterov=True)
+        with pytest.raises(TypeError):
+            _config(optimizer_type="adagrad", initial_accumulator_value=0.5)
 
 
 class TestOptimizerFactoryIntegrationWithTrainer:
-    """Test that optimizer factory integrates with Trainer correctly."""
+    """A factory-built transformation drives the trainer."""
 
-    def test_trainer_can_use_factory_created_optimizer(self):
-        """Trainer should work with factory-created optimizers."""
-        from artifex.generative_models.core.configuration import (
-            TrainingConfig,
-        )
-        from artifex.generative_models.training.optimizers import create_optimizer
+    def test_trainer_can_use_factory_created_optimizer(self) -> None:
+        from artifex.generative_models.core.configuration import TrainingConfig
         from artifex.generative_models.training.trainer import Trainer
 
-        # Create a simple model
-        class SimpleModel(nnx.Module):
-            def __init__(self, *, rngs: nnx.Rngs):
-                super().__init__()
-                self.linear = nnx.Linear(4, 4, rngs=rngs)
-
-            def __call__(self, x: jax.Array) -> jax.Array:
-                return self.linear(x)
-
-        model = SimpleModel(rngs=nnx.Rngs(42))
-
-        optimizer_config = OptimizerConfig(
-            name="test_optimizer",
-            optimizer_type="adam",
-            learning_rate=1e-3,
-        )
-
+        model = _model()
+        optimizer_config = _config(name="test_optimizer")
         training_config = TrainingConfig(
-            name="test_training",
-            optimizer=optimizer_config,
-            batch_size=4,
-            num_epochs=2,
+            name="test_training", optimizer=optimizer_config, batch_size=4, num_epochs=2
         )
-
-        # Create optimizer via factory
-        optimizer = create_optimizer(optimizer_config)
 
         def loss_fn(model, batch, rng, step):
             del rng, step
-            x = batch["x"]
-            y = model(x)
-            loss = jnp.mean(y**2)
+            loss = jnp.mean(model(batch["x"]) ** 2)
             return loss, {"loss": loss}
 
-        # Trainer should accept the factory-created optimizer
         trainer = Trainer(
             model=model,
             training_config=training_config,
-            optimizer=optimizer,
+            optimizer=create_optimizer(model, optimizer_config),
             loss_fn=loss_fn,
         )
 
-        # Should be able to train
-        batch = {"x": jax.random.normal(jax.random.PRNGKey(0), (4, 4))}
-        metrics = trainer.train_step(batch)
+        metrics = trainer.train_step({"x": jax.random.normal(jax.random.key(0), (4, 4))})
 
-        assert "loss" in metrics
         assert jnp.isfinite(metrics["loss"])
 
 
-class TestOptimizerFactoryExport:
-    """Test that optimizer factory is properly exported."""
-
-    def test_create_optimizer_exported_from_optimizers_module(self):
-        """create_optimizer should be importable from optimizers module."""
-        from artifex.generative_models.training.optimizers import create_optimizer
-
-        assert callable(create_optimizer)
-
-    def test_create_optimizer_exported_from_training_module(self):
-        """create_optimizer should be importable from training module."""
-        from artifex.generative_models.training import create_optimizer
-
-        assert callable(create_optimizer)
+def test_create_optimizer_is_exported_from_the_training_package() -> None:
+    assert exported_create_optimizer is create_optimizer

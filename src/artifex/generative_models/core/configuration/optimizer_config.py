@@ -23,16 +23,19 @@ class OptimizerConfig(BaseConfig):
     Supports common optimizer types (Adam, AdamW, SGD, RMSProp, etc.) with their
     specific parameters.
 
+    The optimizer itself is built by ``substrax.optim`` through
+    :func:`artifex.generative_models.training.optimizers.create_optimizer`, which maps these
+    fields onto substrax's specification.
+
     Attributes:
         optimizer_type: Type of optimizer (adam, adamw, sgd, rmsprop, adagrad, lamb, radam, nadam)
         learning_rate: Learning rate (must be positive)
-        weight_decay: Weight decay for L2 regularization (>= 0)
+        weight_decay: Decoupled weight decay (>= 0); refused by substrax on an optimizer
+            without it (``adam``, ``sgd``, ...)
         beta1: Beta1 parameter for Adam-like optimizers [0, 1]
         beta2: Beta2 parameter for Adam-like optimizers [0, 1]
         eps: Epsilon for numerical stability (must be positive)
-        momentum: Momentum for SGD [0, 1]
-        nesterov: Whether to use Nesterov momentum (SGD)
-        initial_accumulator_value: Initial value for AdaGrad/RMSProp (>= 0)
+        momentum: Momentum for SGD and RMSProp [0, 1]; zero means none
         gradient_clip_norm: Gradient clipping by norm (optional, must be positive if set)
         gradient_clip_value: Gradient clipping by value (optional, must be positive if set)
     """
@@ -49,12 +52,8 @@ class OptimizerConfig(BaseConfig):
     beta2: float = 0.999
     eps: float = 1e-8
 
-    # SGD specific
+    # SGD and RMSProp
     momentum: float = 0.0
-    nesterov: bool = False
-
-    # AdaGrad/RMSProp specific
-    initial_accumulator_value: float = 0.1
 
     # Gradient clipping
     gradient_clip_norm: float | None = None
@@ -92,13 +91,6 @@ class OptimizerConfig(BaseConfig):
 
         # Validate momentum (probability in [0, 1])
         validate_probability(self.momentum, "momentum")
-
-        # Validate initial_accumulator_value (must be non-negative)
-        if self.initial_accumulator_value < 0:
-            raise ValueError(
-                f"initial_accumulator_value must be non-negative, "
-                f"got {self.initial_accumulator_value}"
-            )
 
         # Validate gradient clipping values (must be positive if set)
         if self.gradient_clip_norm is not None:
