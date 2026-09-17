@@ -7,6 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- `Trainer.train` drops the epoch's ragged final batch (`drop_last=True`, PyTorch's rule),
+  so no padded row reaches a gradient step; `trainer.steps_per_epoch` is the batches the
+  data holds (`None` before training) rather than a guessed 100, and a schedule whose
+  horizon is not configured (`total_steps` for linear, polynomial and one-cycle schedules,
+  `cycle_length` for cosine) spans the run, `num_epochs` times that count; such a trainer
+  builds its optimizer when `train` runs, and a `train_step` or `checkpoint_state` before
+  that raises naming the missing field. `trainer.schedule` and `trainer.schedule_horizon`
+  expose the schedule in use. Training data with fewer records than one batch is refused.
+- `Trainer.evaluate` cuts the padded rows of the last batch before the objective sees it
+  and weighs each batch's metrics by its records, so the result is the average over the
+  data alone.
+- `Trainer.train_epoch(steps=None)` runs until `train_data_loader`'s iterator is exhausted,
+  or for `steps` batches; it used to take a fixed 100 batches.
+- `create_data_pipeline(..., drop_last=False)` exposes datarax's final-batch policy; every
+  batch a pipeline serves carries a `valid_mask` leaf.
+- Requires `datarax>=0.1.12`; the lock moves it from 0.1.11.
+
+### Removed
+
+- `DataConfig.drop_remainder`, which nothing read; the final-batch policy is the
+  pipeline's `drop_last`.
+
 ## [0.1.10] - 2026-09-17
 
 ### Changed

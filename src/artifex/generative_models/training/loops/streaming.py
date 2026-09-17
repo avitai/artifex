@@ -93,6 +93,7 @@ def create_data_pipeline(
     batch_size: int = 32,
     *,
     rngs: nnx.Rngs | None = None,
+    drop_last: bool = False,
 ) -> Pipeline:
     """Create a datarax pipeline from a data source.
 
@@ -101,13 +102,18 @@ def create_data_pipeline(
     or passed to ``train_epoch_streaming()``.
 
     Shuffling is controlled by the source's config
-    (e.g. ``MemorySourceConfig(shuffle=True)``), not by this function.
+    (e.g. ``MemorySourceConfig(shuffle=True)``), not by this function. Every batch
+    carries a ``valid_mask`` leaf: under ``drop_last=False`` the last batch of an epoch
+    is padded to ``batch_size`` and the mask marks the padded rows, under
+    ``drop_last=True`` that batch is not served and every row is valid.
 
     Args:
         source: A datarax DataSourceModule (e.g. MemorySource).
         batch_size: Number of samples per batch.
         rngs: Optional ``nnx.Rngs`` for stochastic stages and source key
             advancement. Defaults to ``nnx.Rngs(0)``.
+        drop_last: Whether the epoch's ragged final batch is dropped (PyTorch's rule)
+            rather than padded and masked.
 
     Returns:
         A ``Pipeline`` that yields batch dicts on iteration.
@@ -117,6 +123,7 @@ def create_data_pipeline(
         stages=[],
         batch_size=batch_size,
         rngs=rngs if rngs is not None else nnx.Rngs(0),
+        drop_last=drop_last,
     )
 
 

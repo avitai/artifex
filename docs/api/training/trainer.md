@@ -114,10 +114,11 @@ Returns validation metrics including `loss` and `step`.
 Train for one epoch through `train_data_loader`.
 
 ```python
-def train_epoch() -> dict[str, Any]
+def train_epoch(steps: int | None = None) -> dict[str, Any]
 ```
 
-Returns epoch-averaged metrics.
+Returns epoch-averaged metrics. The epoch runs until the loader's iterator is exhausted, or
+for `steps` batches when given.
 
 Notes:
 

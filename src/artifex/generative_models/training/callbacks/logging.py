@@ -554,7 +554,7 @@ class ProgressBarCallback(BaseCallback):
             return
 
         # Get total steps from trainer if available
-        total = getattr(trainer, "steps_per_epoch", 100)
+        total = getattr(trainer, "steps_per_epoch", None)
 
         self._task_id = self._progress.add_task(
             f"Epoch {epoch}",

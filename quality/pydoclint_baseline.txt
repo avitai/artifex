@@ -829,8 +829,6 @@ src/artifex/generative_models/training/schedulers/factory.py
     DOC503: Function `create_scheduler` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
 --------------------
 src/artifex/generative_models/training/trainer.py
-    DOC501: Method `Trainer.train_epoch` has raise statements, but the docstring does not have a "Raises" section
-    DOC503: Method `Trainer.train_epoch` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
     DOC201: Method `Trainer._checkpoint_store` does not have a return section in docstring
 --------------------
 src/artifex/generative_models/training/trainers/autoregressive_trainer.py
