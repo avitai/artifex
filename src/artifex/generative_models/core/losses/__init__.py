@@ -48,7 +48,6 @@ from artifex.generative_models.core.losses.adversarial import (
     wasserstein_discriminator_loss,
     wasserstein_generator_loss,
 )
-from artifex.generative_models.core.losses.base import reduce_loss
 
 # Divergence losses
 from artifex.generative_models.core.losses.divergence import (
@@ -98,7 +97,6 @@ from artifex.generative_models.core.losses.perceptual import (
 
 # Reconstruction losses
 from artifex.generative_models.core.losses.reconstruction import (
-    charbonnier_loss,
     huber_loss,
     mae_loss,
     mse_loss,
@@ -118,12 +116,10 @@ from artifex.generative_models.core.losses.regularization import (
 
 __all__ = [
     # Base utilities
-    "reduce_loss",
     # Reconstruction losses
     "mse_loss",
     "mae_loss",
     "huber_loss",
-    "charbonnier_loss",
     "psnr_loss",
     # Divergence losses
     "kl_divergence",

@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Every loss reduces through calibrax's `calibrax.metrics.reduce_values`, so `weights`,
+  `reduction` and `axis` mean the same thing in every artifex and calibrax loss. A weighted
+  mean is now the weighted mean `sum(w * x) / sum(w)`; it used to be `mean(w * x)`, so a
+  weighted loss whose weights do not average to one changes value by that factor.
+- `mse_loss`, `mae_loss` and `huber_loss` are calibrax's `mse`, `mae` and `huber_loss` with
+  artifex's positional `reduction`, on every path rather than only the default one, and
+  `psnr_loss` takes its per-axis MSE from calibrax.
+- `measure_inference_latency` times its runs through `calibrax.profiling.time_calls`, so each
+  timed call waits for its result and the latency is the compute rather than the dispatch.
+- Requires `calibrax>=0.1.8` and `substrax>=0.1.9`; the lock moves both.
+
+### Removed
+
+- `artifex.generative_models.core.losses.base` and its `reduce_loss`; reduce a loss of your
+  own with `calibrax.metrics.reduce_values`.
+- `charbonnier_loss`; it is `calibrax.metrics.functional.charbonnier_loss`, with the same
+  `epsilon` and `alpha` and the shared `mask`, `weights`, `reduction` and `axis` keywords.
+
 ## [0.1.9] - 2026-09-17
 
 ### Changed

@@ -813,7 +813,7 @@ requires-dist = [
     { name = "beartype", marker = "extra == 'test'", specifier = ">=0.14.1" },
     { name = "blackjax", specifier = ">=1.2.5" },
     { name = "build", marker = "extra == 'dev'", specifier = ">=1.0.3" },
-    { name = "calibrax", specifier = ">=0.1.5" },
+    { name = "calibrax", specifier = ">=0.1.8" },
     { name = "coverage", marker = "extra == 'dev'", specifier = ">=7" },
     { name = "coverage", marker = "extra == 'test'", specifier = ">=7" },
     { name = "dacite", specifier = ">=1.8.0" },
@@ -902,8 +902,8 @@ requires-dist = [
     { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.1.5" },
     { name = "scikit-learn", specifier = ">=1.6.1" },
     { name = "scipy", specifier = ">=1.12.1" },
-    { name = "substrax", specifier = ">=0.1.8" },
-    { name = "substrax", extras = ["testing"], marker = "extra == 'test'", specifier = ">=0.1.8" },
+    { name = "substrax", specifier = ">=0.1.9" },
+    { name = "substrax", extras = ["testing"], marker = "extra == 'test'", specifier = ">=0.1.9" },
     { name = "tensorboard", marker = "extra == 'dev'", specifier = ">=2.16" },
     { name = "tensorboard", marker = "extra == 'logging'", specifier = ">=2.16" },
     { name = "tqdm", specifier = ">=4.67" },
@@ -1081,7 +1081,7 @@ wheels = [
 
 [[package]]
 name = "calibrax"
-version = "0.1.5"
+version = "0.1.8"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "click" },
@@ -1094,9 +1094,9 @@ dependencies = [
     { name = "substrax" },
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/7d/0e/d7858273fc6745e4e8fdc08287d91e4f628327404a981b731398cd6a6129/calibrax-0.1.5.tar.gz", hash = "sha256:72519696fb6d7afb4b414a208770937d400090462d267fb625fea907a633bf74", size = 161844, upload-time = "2026-09-09T05:17:48.74Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/cd/3a/e0a7d9fa5233688480a8152a5301ee5a2fd6a26a717758eab24e38b8c3c1/calibrax-0.1.8.tar.gz", hash = "sha256:53cc26d5e26404d8990795e5c7a94b6443c3173d05017a6b91a2f5c296f9221d", size = 166375, upload-time = "2026-09-17T12:19:54.787Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/86/f2/7ab96dba3df68418b0fc558f9bdf177f34200e23c0b461bebb5d19bbc243/calibrax-0.1.5-py3-none-any.whl", hash = "sha256:912830f73a804421f55df898e629054bc6edfece42d544e2bda96bdc05ab65c4", size = 201937, upload-time = "2026-09-09T05:17:47.011Z" },
+    { url = "https://files.pythonhosted.org/packages/15/89/a9845ec5f4915b9ad3c1b0678672986c6d7544d4fd35b06c0eb92b7a0f04/calibrax-0.1.8-py3-none-any.whl", hash = "sha256:6d0473cbd83c7b432b63db88d726e97558e87356c462133dc0ed3c6fab35faa2", size = 206339, upload-time = "2026-09-17T12:19:52.137Z" },
 ]
 
 [[package]]
@@ -6338,7 +6338,7 @@ wheels = [
 
 [[package]]
 name = "substrax"
-version = "0.1.8"
+version = "0.1.9"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "flax" },
@@ -6348,9 +6348,9 @@ dependencies = [
     { name = "optax" },
     { name = "orbax-checkpoint" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/ab/bf/4a6aabe524e639942b3b8f6534d173385837864336424c160087d624fc77/substrax-0.1.8.tar.gz", hash = "sha256:435192ec6ef3e195b92901ed0eb8a7fb92049bf176bad68fe25c5ae6aebf5a3b", size = 71604, upload-time = "2026-09-17T04:58:13.659Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/25/63/35bd881e604b00d8d7be067b001de821b05cb8a7d7cabd6ced2709d2557e/substrax-0.1.9.tar.gz", hash = "sha256:3a9bea6c822cde9a05a41f3a1a4d89ba83e1bb28dbabfff41d211f19767dfa0b", size = 71666, upload-time = "2026-09-17T06:21:27.981Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/44/87/e94afa4195f1628ad6131b27baa4ee2c60cb420e4ab9434fde90b8b489f5/substrax-0.1.8-py3-none-any.whl", hash = "sha256:5837d28281110bc0cffdc5a7c90e6f8d36481b91ce73873551632ce8285de445", size = 85039, upload-time = "2026-09-17T04:58:11.945Z" },
+    { url = "https://files.pythonhosted.org/packages/2d/3d/361d8640ea900f1be273dc3b956c0fbff96e996f24fcefe497f3dd14e5de/substrax-0.1.9-py3-none-any.whl", hash = "sha256:725df3ae30fc6944ac5d97a4479a79fd43b6ed1aead476d6e69cc201ff6ecc72", size = 85092, upload-time = "2026-09-17T06:21:26.2Z" },
 ]
 
 [package.optional-dependencies]

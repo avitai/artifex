@@ -4,10 +4,9 @@ from collections.abc import Callable
 
 import jax
 import jax.numpy as jnp
+from calibrax.metrics import reduce_values
 from calibrax.metrics.functional.geometric import hausdorff_distance as _calibrax_hausdorff
 from flax import nnx
-
-from artifex.generative_models.core.losses.base import reduce_loss
 
 
 def get_point_cloud_loss(loss_type: str, **kwargs) -> Callable:
@@ -117,7 +116,7 @@ def hausdorff_distance(
         Hausdorff distance loss
     """
     hausdorff_batch = jax.vmap(_calibrax_hausdorff)(pred_points, target_points)
-    return reduce_loss(hausdorff_batch, reduction)
+    return reduce_values(hausdorff_batch, reduction=reduction)
 
 
 class MeshLoss(nnx.Module):
@@ -312,7 +311,7 @@ def binary_cross_entropy(
     # Binary cross-entropy formula
     bce = -targets * jnp.log(predictions) - (1 - targets) * jnp.log(1 - predictions)
 
-    return reduce_loss(bce, reduction=reduction)
+    return reduce_values(bce, reduction=reduction)
 
 
 def mse_voxel_loss(

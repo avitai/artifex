@@ -210,7 +210,8 @@ class TestWassersteinDistance:
 
         result = wasserstein_distance(p, q, p=3, axis=(1,), weights=weights)
 
-        np.testing.assert_allclose(result, 0.75)
+        # Both rows are at L3 distance 1, so the weighted mean is (1 + 0.5) / 1.5.
+        np.testing.assert_allclose(result, 1.0)
 
 
 class TestMaximumMeanDiscrepancy:
@@ -302,7 +303,8 @@ class TestGaussianKLDivergence:
 
         result = gaussian_kl_divergence(mean, logvar, axis=(1, 2), weights=weights)
 
-        np.testing.assert_allclose(result, 1.5)
+        # Each sample sums to 2.0 over its axes, so the weighted mean is (2 + 1) / 1.5.
+        np.testing.assert_allclose(result, 2.0)
 
 
 class TestDivergenceJAXTransformCompatibility:

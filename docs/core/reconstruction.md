@@ -14,12 +14,6 @@ image-to-image translation, and other generative models.
 
 ## Functions
 
-### charbonnier_loss
-
-```python
-def charbonnier_loss()
-```
-
 ### huber_loss
 
 ```python

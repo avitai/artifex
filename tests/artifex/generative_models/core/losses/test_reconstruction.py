@@ -11,7 +11,6 @@ from calibrax.metrics.functional.regression import (
 )
 
 from artifex.generative_models.core.losses.reconstruction import (
-    charbonnier_loss,
     huber_loss,
     mae_loss,
     mse_loss,
@@ -45,9 +44,8 @@ class TestMSELoss:
         targets = jnp.array([0.0, 0.0, 0.0])
         weights = jnp.array([2.0, 1.0, 0.5])
         result = mse_loss(predictions, targets, weights=weights)
-        # Expected: mean((1^2 * 2.0) + (2^2 * 1.0) + (3^2 * 0.5))
-        # = mean(2 + 4 + 4.5) = 10.5/3
-        expected = jnp.mean(jnp.square(predictions - targets) * weights)
+        # The weighted mean: (1^2 * 2.0 + 2^2 * 1.0 + 3^2 * 0.5) / (2.0 + 1.0 + 0.5) = 10.5 / 3.5
+        expected = jnp.sum(jnp.square(predictions - targets) * weights) / jnp.sum(weights)
         np.testing.assert_allclose(result, expected)
 
     def test_sum_reduction(self):
@@ -140,9 +138,8 @@ class TestMAELoss:
         targets = jnp.array([0.0, 0.0, 0.0])
         weights = jnp.array([2.0, 1.0, 0.5])
         result = mae_loss(predictions, targets, weights=weights)
-        # Expected: mean(|1| * 2.0 + |2| * 1.0 + |3| * 0.5)
-        # = mean(2 + 2 + 1.5) = 5.5/3
-        expected = jnp.mean(jnp.abs(predictions - targets) * weights)
+        # The weighted mean: (|1| * 2.0 + |2| * 1.0 + |3| * 0.5) / (2.0 + 1.0 + 0.5) = 5.5 / 3.5
+        expected = jnp.sum(jnp.abs(predictions - targets) * weights) / jnp.sum(weights)
         np.testing.assert_allclose(result, expected)
 
     def test_default_path_matches_calibrax_mae(self):
@@ -207,37 +204,6 @@ class TestHuberLoss:
         )
 
 
-class TestCharbonnierLoss:
-    """Tests for the Charbonnier loss function."""
-
-    def test_basic(self):
-        """Test basic Charbonnier loss."""
-        predictions = jnp.array([1.0, 2.0, 3.0])
-        targets = jnp.array([0.0, 0.0, 0.0])
-        epsilon = 1e-3
-        result = charbonnier_loss(predictions, targets, epsilon=epsilon)
-
-        # Expected: mean(sqrt(1^2 + eps^2) + sqrt(2^2 + eps^2) + sqrt(3^2 + eps^2))
-        errors = predictions - targets
-        expected = jnp.mean(jnp.power(jnp.sqrt(jnp.square(errors) + epsilon**2), 1.0))
-        np.testing.assert_allclose(result, expected)
-
-    def test_approaches_l1(self):
-        """Test that Charbonnier approaches L1 as epsilon approaches 0."""
-        predictions = jnp.array([1.0, 2.0, 3.0])
-        targets = jnp.array([0.0, 0.0, 0.0])
-
-        # Compute L1 (MAE) loss
-        l1_result = mae_loss(predictions, targets)
-
-        # Compute Charbonnier with very small epsilon
-        eps_small = 1e-8
-        charb_result = charbonnier_loss(predictions, targets, epsilon=eps_small)
-
-        # They should be very close
-        np.testing.assert_allclose(l1_result, charb_result, rtol=1e-5)
-
-
 class TestPSNRLoss:
     """Tests for the PSNR loss function."""
 
@@ -281,7 +247,6 @@ class TestReconstructionJAXTransformCompatibility:
             ("mse", mse_loss),
             ("mae", mae_loss),
             ("huber", huber_loss),
-            ("charbonnier", charbonnier_loss),
             ("psnr", psnr_loss),
         ],
     )

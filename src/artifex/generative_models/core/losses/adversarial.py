@@ -6,8 +6,7 @@ Networks (GANs) and other adversarial training approaches.
 
 import jax
 import jax.numpy as jnp
-
-from artifex.generative_models.core.losses.base import reduce_loss
+from calibrax.metrics import reduce_values
 
 
 def vanilla_generator_loss(
@@ -35,7 +34,7 @@ def vanilla_generator_loss(
     """
     # -log(D(G(z)))
     loss = -jnp.log(jnp.clip(fake_scores, 1e-7, 1.0))
-    return reduce_loss(loss, reduction, weights)
+    return reduce_values(loss, weights=weights, reduction=reduction)
 
 
 def vanilla_discriminator_loss(
@@ -73,7 +72,7 @@ def vanilla_discriminator_loss(
     # Combine losses
     loss = real_loss + fake_loss
 
-    return reduce_loss(loss, reduction, weights)
+    return reduce_values(loss, weights=weights, reduction=reduction)
 
 
 def least_squares_generator_loss(
@@ -103,7 +102,7 @@ def least_squares_generator_loss(
     """
     # 0.5 * (D(G(z)) - c)^2 where c is target_real
     loss = 0.5 * jnp.square(fake_scores - target_real)
-    return reduce_loss(loss, reduction, weights)
+    return reduce_values(loss, weights=weights, reduction=reduction)
 
 
 def least_squares_discriminator_loss(
@@ -144,7 +143,7 @@ def least_squares_discriminator_loss(
     # Combine losses
     loss = real_loss + fake_loss
 
-    return reduce_loss(loss, reduction, weights)
+    return reduce_values(loss, weights=weights, reduction=reduction)
 
 
 def wasserstein_generator_loss(
@@ -171,7 +170,7 @@ def wasserstein_generator_loss(
     """
     # -D(G(z))
     loss = -fake_scores
-    return reduce_loss(loss, reduction, weights)
+    return reduce_values(loss, weights=weights, reduction=reduction)
 
 
 def wasserstein_discriminator_loss(
@@ -201,7 +200,7 @@ def wasserstein_discriminator_loss(
     """
     # D(G(z)) - D(x)
     loss = fake_scores - real_scores
-    return reduce_loss(loss, reduction, weights)
+    return reduce_values(loss, weights=weights, reduction=reduction)
 
 
 def hinge_generator_loss(
@@ -228,7 +227,7 @@ def hinge_generator_loss(
     """
     # -D(G(z))
     loss = -fake_scores
-    return reduce_loss(loss, reduction, weights)
+    return reduce_values(loss, weights=weights, reduction=reduction)
 
 
 def hinge_discriminator_loss(
@@ -265,7 +264,7 @@ def hinge_discriminator_loss(
     # Combine losses
     loss = real_loss + fake_loss
 
-    return reduce_loss(loss, reduction, weights)
+    return reduce_values(loss, weights=weights, reduction=reduction)
 
 
 # =============================================================================
@@ -307,7 +306,7 @@ def ns_vanilla_generator_loss(
     """
     # softplus(-x) = -log(sigmoid(x))
     loss = jax.nn.softplus(-fake_logits)
-    return reduce_loss(loss, reduction, weights)
+    return reduce_values(loss, weights=weights, reduction=reduction)
 
 
 def ns_vanilla_discriminator_loss(
@@ -356,7 +355,7 @@ def ns_vanilla_discriminator_loss(
     fake_loss = jax.nn.softplus(fake_logits)
 
     loss = real_loss + fake_loss
-    return reduce_loss(loss, reduction, weights)
+    return reduce_values(loss, weights=weights, reduction=reduction)
 
 
 def generator_loss(
