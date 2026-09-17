@@ -126,8 +126,6 @@ class Trainer:
         loss_fn: TrainerLossFn,
         metrics_logger: MetricsLogger | None = None,
         logger: Logger | None = None,
-        checkpoint_dir: str | None = None,
-        save_interval: int = 1000,
         log_callback: Callable | None = None,
         callbacks: CallbackList | None = None,
         extensions: dict[str, Extension] | None = None,
@@ -140,8 +138,8 @@ class Trainer:
             optimizer: The optax optimizer to use.
             train_data_loader: Function to load training data.
             val_data_loader: Function to load validation data.
-            workdir: Working directory for outputs; without ``checkpoint_dir``, its
-                ``checkpoints`` subdirectory holds the checkpoints.
+            workdir: Working directory for outputs; when the configuration names no
+                ``checkpoint_dir``, its ``checkpoints`` subdirectory holds the checkpoints.
             rng: JAX random number generator key.
             loss_fn: Explicit objective function. Signature:
                      loss_fn(model, batch, rng, step) -> (loss, metrics_dict).
@@ -150,10 +148,6 @@ class Trainer:
                      ``int()``), and Python side effects run at trace time only.
             metrics_logger: Logger for training metrics.
             logger: Artifex logger for general logging.
-            checkpoint_dir: Directory to save checkpoints; ``workdir/checkpoints`` when
-                only ``workdir`` is given, else ``checkpoints`` under the working
-                directory. The store creates it on the first save.
-            save_interval: Interval to save checkpoints.
             log_callback: Callback function for logging.
             callbacks: CallbackList for training lifecycle hooks.
             extensions: Dictionary mapping extension names to Extension instances.
@@ -189,13 +183,14 @@ class Trainer:
         self.loss_fn = loss_fn
         self.metrics_logger = metrics_logger
         self.logger = logger
-        explicit_dir = None if checkpoint_dir is None else Path(checkpoint_dir)
-        if explicit_dir is None and workdir is None:
-            explicit_dir = Path(_DEFAULT_CHECKPOINT_DIR)
+        # The configuration names the directory; the run directory holds the default, and
+        # without either the working directory does. The store creates it on the first save.
+        configured_dir = training_config.checkpoint_dir
+        if configured_dir is None and workdir is None:
+            configured_dir = Path(_DEFAULT_CHECKPOINT_DIR)
         self.checkpoint_dir: Path = resolve_checkpoint_dir(
-            explicit_dir, None if workdir is None else Path(workdir)
+            configured_dir, None if workdir is None else Path(workdir)
         )
-        self.save_interval = save_interval
         self.log_callback = log_callback
         self.callbacks = callbacks
         self.extensions: dict[str, Extension] = extensions if extensions is not None else {}
@@ -653,7 +648,7 @@ class Trainer:
                 if self.metrics_logger:
                     self.metrics_logger.log_validation_metrics(val_metrics, step=self.step)
 
-            if self.step % self.save_interval == 0:
+            if self.step % self.training_config.save_frequency == 0:
                 self.save_checkpoint()
 
             if self.step % 100 == 0 and self.logger:
@@ -731,8 +726,10 @@ class Trainer:
         }
 
     def _checkpoint_store(self) -> OrbaxCheckpointStore:
-        """Open the store under ``checkpoint_dir``; every checkpoint is kept."""
-        return OrbaxCheckpointStore(self.checkpoint_dir, max_to_keep=None)
+        """Open the store under ``checkpoint_dir``; it keeps ``max_checkpoints`` steps."""
+        return OrbaxCheckpointStore(
+            self.checkpoint_dir, max_to_keep=self.training_config.max_checkpoints
+        )
 
     def save_checkpoint(self, step: int | None = None) -> Path:
         """Save the model, optimizer, RNG and extension state under ``step``.

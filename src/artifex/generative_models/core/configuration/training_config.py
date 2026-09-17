@@ -4,7 +4,7 @@ Design:
 - Frozen dataclass inheriting from BaseConfig
 - All validation in __post_init__ using DRY utilities
 - Nested OptimizerConfig and optional SchedulerConfig
-- Path support for checkpoint_dir
+- checkpoint_dir is a Path, or None for the trainer's run-directory default
 """
 
 import dataclasses
@@ -32,9 +32,10 @@ class TrainingConfig(BaseConfig):
         batch_size: Batch size for training (must be positive)
         num_epochs: Number of training epochs (must be positive)
         gradient_clip_norm: Gradient clipping by norm (optional, must be positive if set)
-        checkpoint_dir: Directory for saving checkpoints
+        checkpoint_dir: Directory for saving checkpoints; None means ``checkpoints`` under
+            the trainer's ``workdir``, else under the working directory
         save_frequency: Save checkpoint every N steps (must be positive)
-        max_checkpoints: Maximum number of checkpoints to keep (must be positive)
+        max_checkpoints: Maximum number of checkpoints the store keeps (must be positive)
         log_frequency: Log metrics every N steps (must be positive)
         use_wandb: Whether to use Weights & Biases for logging
         wandb_project: W&B project name (optional, required if use_wandb=True)
@@ -52,7 +53,7 @@ class TrainingConfig(BaseConfig):
     gradient_clip_norm: float | None = 1.0
 
     # Checkpointing
-    checkpoint_dir: Path = dataclasses.field(default_factory=lambda: Path("./checkpoints"))
+    checkpoint_dir: Path | None = None
     save_frequency: int = 1000
     max_checkpoints: int = 5
 

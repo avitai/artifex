@@ -35,22 +35,31 @@ def assert_same(left, right):
         assert jnp.array_equal(first, second)
 
 
-def build_trainer(checkpoint_dir: Path | None = None, *, workdir: Path | None = None, **kwargs):
-    """A linear model under adam, checkpointing where the arguments say."""
+def config(checkpoint_dir: Path | None = None, **fields) -> TrainingConfig:
+    """A training configuration for adam, checkpointing where ``checkpoint_dir`` says."""
+    return TrainingConfig(
+        name="test",
+        optimizer=OptimizerConfig(name="adam", optimizer_type="adam", learning_rate=1e-3),
+        checkpoint_dir=checkpoint_dir,
+        **fields,
+    )
+
+
+def build_trainer(
+    checkpoint_dir: Path | None = None, *, workdir: Path | None = None, **kwargs
+) -> Trainer:
+    """A linear model under adam, checkpointing where the configuration says."""
     return Trainer(
         nnx.Linear(2, 1, rngs=nnx.Rngs(3)),
-        TrainingConfig(
-            name="test",
-            optimizer=OptimizerConfig(name="adam", optimizer_type="adam", learning_rate=1e-3),
-        ),
+        kwargs.pop("training_config", None) or config(checkpoint_dir),
         loss_fn=objective,
-        checkpoint_dir=None if checkpoint_dir is None else str(checkpoint_dir),
         workdir=None if workdir is None else str(workdir),
         **kwargs,
     )
 
 
 BATCH = {"x": jnp.ones((2, 2)), "y": jnp.ones((2, 1))}
+DATA = {"x": jnp.ones((8, 2)), "y": jnp.ones((8, 1))}
 
 
 @pytest.mark.parametrize("with_extension", [False, True])
@@ -121,9 +130,10 @@ def test_load_checkpoint_without_any_checkpoint_is_a_file_not_found(tmp_path):
 
 
 class TestCheckpointDirectory:
-    """The directory comes from substrax's resolver, and nothing creates it before a save."""
+    """The configuration names the directory, substrax's resolver fills the default, and
+    nothing creates it before a save."""
 
-    def test_an_explicit_directory_wins(self, tmp_path):
+    def test_the_configured_directory_wins(self, tmp_path):
         trainer = build_trainer(tmp_path / "explicit", workdir=tmp_path / "run")
 
         assert trainer.checkpoint_dir == (tmp_path / "explicit").resolve()
@@ -149,3 +159,43 @@ class TestCheckpointDirectory:
         trainer.train_step(BATCH)
         trainer.save_checkpoint()
         assert (tmp_path / "later").is_dir()
+
+    def test_the_trainer_takes_no_directory_or_cadence_of_its_own(self, tmp_path):
+        """The configuration is the one owner of where and how often checkpoints are written."""
+        for keyword in ({"checkpoint_dir": str(tmp_path)}, {"save_interval": 5}):
+            with pytest.raises(TypeError, match=next(iter(keyword))):
+                build_trainer(tmp_path / "ckpt", **keyword)
+
+
+class TestConfiguredCadenceAndRetention:
+    """``save_frequency`` and ``max_checkpoints`` from the configuration drive the store."""
+
+    def test_train_saves_every_save_frequency_steps(self, tmp_path):
+        trainer = build_trainer(training_config=config(tmp_path / "ckpt", save_frequency=2))
+
+        trainer.train(DATA, num_epochs=1, batch_size=2)  # four steps
+
+        with OrbaxCheckpointStore(tmp_path / "ckpt") as store:
+            assert store.list_steps() == [2, 4]
+
+    def test_train_epoch_saves_every_save_frequency_steps(self, tmp_path):
+        trainer = build_trainer(
+            training_config=config(tmp_path / "ckpt", save_frequency=3, batch_size=2),
+            train_data_loader=lambda batch_size: iter(
+                [{"x": jnp.ones((batch_size, 2)), "y": jnp.ones((batch_size, 1))}] * 6
+            ),
+        )
+
+        trainer.train_epoch()
+
+        with OrbaxCheckpointStore(tmp_path / "ckpt") as store:
+            assert store.list_steps() == [3, 6]
+
+    def test_the_store_keeps_max_checkpoints(self, tmp_path):
+        trainer = build_trainer(training_config=config(tmp_path / "ckpt", max_checkpoints=2))
+        for _ in range(3):
+            trainer.train_step(BATCH)
+            trainer.save_checkpoint()
+
+        with OrbaxCheckpointStore(tmp_path / "ckpt") as store:
+            assert store.list_steps() == [2, 3]

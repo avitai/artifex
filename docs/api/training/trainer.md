@@ -32,8 +32,6 @@ Trainer(
     loss_fn: Callable,
     metrics_logger: MetricsLogger | None = None,
     logger: Logger | None = None,
-    checkpoint_dir: str | None = None,
-    save_interval: int = 1000,
     log_callback: Callable | None = None,
     callbacks: CallbackList | None = None,
     extensions: dict[str, Extension] | None = None,
@@ -49,13 +47,11 @@ Trainer(
 | `optimizer` | `optax.GradientTransformation \| None` | Optional explicit optimizer. If omitted, one is built from `training_config`. |
 | `train_data_loader` | `Callable \| None` | Optional batch loader for `train_epoch()`. |
 | `val_data_loader` | `Callable \| None` | Optional validation loader for `train_epoch()`. |
-| `workdir` | `str \| None` | Output/work directory. |
+| `workdir` | `str \| None` | Output/work directory; when `training_config.checkpoint_dir` is unset, checkpoints go to its `checkpoints` subdirectory. |
 | `rng` | `jax.Array \| None` | Initial RNG key. Defaults to `jax.random.PRNGKey(0)`. |
 | `loss_fn` | `Callable` | Required explicit objective: `loss_fn(model, batch, rng, step) -> (loss, metrics)`. |
 | `metrics_logger` | `MetricsLogger \| None` | Optional structured metrics logger. |
 | `logger` | `Logger \| None` | Optional general logger. |
-| `checkpoint_dir` | `str \| None` | Directory for the trainer’s built-in pickle checkpoints. |
-| `save_interval` | `int` | Save frequency for `train()`. |
 | `log_callback` | `Callable \| None` | Optional callback for train/validation metric emission. |
 | `callbacks` | `CallbackList \| None` | Optional training lifecycle callbacks. |
 | `extensions` | `dict[str, Extension] \| None` | Optional extensions that contribute losses or hooks. |
@@ -144,7 +140,7 @@ This path:
 - shuffles training data each epoch
 - logs via `metrics_logger` and `logger` when configured
 - validates every `val_interval` steps when validation data is provided
-- saves built-in trainer checkpoints every `save_interval` steps
+- saves built-in trainer checkpoints every `training_config.save_frequency` steps
 
 ### evaluate
 
@@ -177,9 +173,12 @@ Returns the directory of the saved checkpoint. If you want best-model
 checkpointing during training, use
 [`ModelCheckpoint`](../../training/checkpoint.md) via callbacks.
 
-`checkpoint_dir` is resolved by substrax's `resolve_checkpoint_dir`: an explicit
-directory, else `workdir/checkpoints`, else `checkpoints` under the working
-directory. The store creates it on the first save.
+Where and how often the trainer checkpoints is the configuration's:
+`training_config.checkpoint_dir` is resolved by substrax's `resolve_checkpoint_dir`
+(the configured directory, else `workdir/checkpoints`, else `checkpoints` under the
+working directory; the store creates it on the first save), `save_frequency` is
+the cadence of both `train()` and `train_epoch()`, and `max_checkpoints` is how
+many steps the store keeps.
 
 ### load_checkpoint
 

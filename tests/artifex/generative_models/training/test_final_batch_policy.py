@@ -10,6 +10,7 @@ a learning-rate schedule whose horizon is not configured takes it from the run,
 
 from __future__ import annotations
 
+import dataclasses
 from collections.abc import Iterator
 from pathlib import Path
 from typing import Any
@@ -92,11 +93,10 @@ def _trainer(
 ) -> Trainer:
     return Trainer(
         _Linear(rngs=nnx.Rngs(0)),
-        config or _config(),
+        dataclasses.replace(config or _config(), checkpoint_dir=tmp_path / "ckpt"),
         train_data_loader=train_data_loader,
         rng=jax.random.key(0),
         loss_fn=loss_fn,
-        checkpoint_dir=str(tmp_path / "ckpt"),
     )
 
 

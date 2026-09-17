@@ -4,6 +4,7 @@ These tests define the expected behavior for extension integration
 with the Trainer base class following TDD principles.
 """
 
+import dataclasses
 from typing import Any
 
 import jax
@@ -529,10 +530,9 @@ class TestExtensionStateSerialization:
 
         trainer = Trainer(
             model=simple_model,
-            training_config=training_config,
+            training_config=dataclasses.replace(training_config, checkpoint_dir=tmp_path),
             loss_fn=explicit_loss_fn,
             extensions={"test_ext": extension},
-            checkpoint_dir=str(tmp_path),
         )
 
         # Run a train step

@@ -45,9 +45,9 @@ def build_trainer(checkpoint_dir: Path) -> Trainer:
         TrainingConfig(
             name="fixture",
             optimizer=OptimizerConfig(name="adam", optimizer_type="adam", learning_rate=1e-3),
+            checkpoint_dir=checkpoint_dir,
         ),
         loss_fn=objective,
-        checkpoint_dir=str(checkpoint_dir),
     )
 
 

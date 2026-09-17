@@ -698,7 +698,7 @@ training script resumes with one call:
 ```python
 from artifex.generative_models.training import Trainer
 
-trainer = Trainer(model=model, training_config=config, loss_fn=loss_fn, checkpoint_dir="./checkpoints")
+trainer = Trainer(model=model, training_config=config, loss_fn=loss_fn, workdir="./run")
 try:
     trainer.load_checkpoint()
     print(f"Resumed from step {trainer.step}")
