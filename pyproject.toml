@@ -51,7 +51,8 @@ dependencies = [
   "jax>=0.11.1",
   "jaxtyping>=0.2.20",
   "matplotlib>=3.8",
-  "numpy<2.4.0,>=1.24",
+  # The ceiling is substrax's: 0.1.7 declares numpy<2.6.0, so artifex admits the same releases.
+  "numpy<2.6.0,>=1.24",
   # Below 0.2.8 optax calls jax.config.update("jax_pmap_shmap_merge") at import time and
   # jax removed that option in 0.10, so importing optax -- which flax does -- raises
   # AttributeError and takes out collection for the whole suite.
