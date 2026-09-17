@@ -33,8 +33,6 @@ class TestOptimizerConfigBasics:
         assert config.beta2 == 0.999
         assert config.eps == 1e-8
         assert config.momentum == 0.0
-        assert config.nesterov is False
-        assert config.initial_accumulator_value == 0.1
         assert config.gradient_clip_norm is None
         assert config.gradient_clip_value is None
 
@@ -69,14 +67,10 @@ class TestOptimizerConfigBasics:
             optimizer_type="sgd",
             learning_rate=0.01,
             momentum=0.9,
-            nesterov=True,
-            weight_decay=0.0001,
         )
 
         assert config.optimizer_type == "sgd"
         assert config.momentum == 0.9
-        assert config.nesterov is True
-        assert config.weight_decay == 0.0001
 
     def test_is_frozen(self):
         """Test that OptimizerConfig is immutable (frozen)."""
@@ -142,8 +136,6 @@ class TestOptimizerConfigFromDict:
             "beta2": 0.9995,
             "eps": 1e-7,
             "momentum": 0.0,
-            "nesterov": False,
-            "initial_accumulator_value": 0.1,
             "gradient_clip_norm": 1.0,
             "gradient_clip_value": None,
         }
@@ -310,16 +302,6 @@ class TestOptimizerConfigValidation:
                 momentum=1.5,
             )
 
-    def test_negative_initial_accumulator_value_raises(self):
-        """Test that negative initial_accumulator_value raises error."""
-        with pytest.raises(ValueError, match="initial_accumulator_value"):
-            OptimizerConfig(
-                name="test",
-                optimizer_type="adagrad",
-                learning_rate=0.01,
-                initial_accumulator_value=-0.1,
-            )
-
     def test_negative_gradient_clip_norm_raises(self):
         """Test that negative gradient_clip_norm raises error."""
         with pytest.raises(ValueError, match="gradient_clip_norm"):
@@ -371,7 +353,6 @@ class TestOptimizerConfigSerialization:
             optimizer_type="sgd",
             learning_rate=0.01,
             momentum=0.9,
-            nesterov=True,
         )
 
         with TemporaryDirectory() as tmpdir:
@@ -384,7 +365,6 @@ class TestOptimizerConfigSerialization:
             assert loaded_config.optimizer_type == "sgd"
             assert loaded_config.learning_rate == 0.01
             assert loaded_config.momentum == 0.9
-            assert loaded_config.nesterov is True
 
     def test_yaml_roundtrip_preserves_values(self):
         """Test that YAML roundtrip preserves all values."""

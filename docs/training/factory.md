@@ -6,7 +6,7 @@
 
 **Sources:** `src/artifex/generative_models/training/optimizers/factory.py`, `src/artifex/generative_models/training/schedulers/factory.py`
 
-Artifex owns one shared optimizer factory and one shared scheduler factory. The public contract is typed: pass `OptimizerConfig` and `SchedulerConfig`, then feed the resulting Optax objects into `Trainer` or a family-specific loop.
+Artifex owns one shared optimizer factory and one shared scheduler factory. The public contract is typed: pass `OptimizerConfig` and `SchedulerConfig`, then feed the resulting Optax objects into `Trainer` or a family-specific loop. The optimizer itself is built by `substrax.optim`: the factory maps `OptimizerConfig` onto substrax's specification, with the schedule as the optimizer's learning rate.
 
 ## Optimizer Factory
 
@@ -15,16 +15,17 @@ from artifex.generative_models.core.configuration import OptimizerConfig
 from artifex.generative_models.training import create_optimizer
 
 optimizer = create_optimizer(
+    model,
     OptimizerConfig(
         name="adamw",
         optimizer_type="adamw",
         learning_rate=1e-3,
         weight_decay=0.01,
-    )
+    ),
 )
 ```
 
-Supported optimizer types today: `adam`, `adamw`, `sgd`, `rmsprop`, `adagrad`, `lamb`, `radam`, and `nadam`.
+Supported optimizer types today: `adam`, `adamw`, `sgd`, `rmsprop`, `adagrad`, `lamb`, `radam`, and `nadam`. A weight decay is accepted on `adamw` and `lamb` only, and `momentum` reaches `sgd` and `rmsprop`.
 
 ## Scheduler Factory
 
@@ -88,6 +89,7 @@ scheduler = create_scheduler(
     base_lr=optimizer_config.learning_rate,
 )
 optimizer = create_optimizer(
+    model,
     OptimizerConfig(
         name="adamw",
         optimizer_type="adamw",

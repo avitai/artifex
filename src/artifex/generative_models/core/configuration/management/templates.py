@@ -18,8 +18,6 @@ _TRAINING_OPTIMIZER_PARAMS = (
     "beta2",
     "eps",
     "momentum",
-    "nesterov",
-    "initial_accumulator_value",
     "gradient_clip_value",
 )
 

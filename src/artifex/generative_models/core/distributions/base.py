@@ -12,8 +12,7 @@ import jax.numpy as jnp
 import numpy as np
 from flax import nnx
 from jax import core as jax_core
-
-from artifex.generative_models.core.rng import extract_rng_key
+from substrax.rng import key_from
 
 
 class Distribution(nnx.Module):
@@ -232,7 +231,7 @@ class Distribution(nnx.Module):
         source_rngs = rngs if rngs is not None else self._rngs
         if source_rngs is None:
             raise ValueError("rngs must be provided for sampling")
-        return extract_rng_key(
+        return key_from(
             source_rngs,
             streams=(key_name, "default"),
             context="distribution sampling",

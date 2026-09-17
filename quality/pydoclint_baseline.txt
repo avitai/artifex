@@ -819,8 +819,6 @@ src/artifex/generative_models/training/callbacks/logging.py
 --------------------
 src/artifex/generative_models/training/optimizers/factory.py
     DOC502: Function `create_optimizer` has a "Raises" section in the docstring, but there are not "raise" statements in the body
-    DOC501: Function `_create_base_optimizer` has raise statements, but the docstring does not have a "Raises" section
-    DOC503: Function `_create_base_optimizer` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
 --------------------
 src/artifex/generative_models/training/rl/rewards.py
     DOC501: Method `CompositeReward.__init__` has raise statements, but the docstring does not have a "Raises" section

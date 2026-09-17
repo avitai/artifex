@@ -10,9 +10,9 @@ from collections.abc import Callable
 import jax
 import jax.numpy as jnp
 from flax import nnx
+from substrax.rng import key_from
 
 from artifex.generative_models.core.distributions.base import Distribution
-from artifex.generative_models.core.rng import extract_rng_key
 
 
 def _require_scalar_joint_log_prob(value: jax.Array) -> jax.Array:
@@ -53,7 +53,7 @@ def mcmc_sampling(
     thinning: int = 1,
 ) -> jax.Array:
     """Run MCMC sampling for a fixed number of steps."""
-    actual_key = extract_rng_key(key, streams=("sample", "default"), context="MCMC sampling")
+    actual_key = key_from(key, streams=("sample", "default"), context="MCMC sampling")
 
     if isinstance(log_prob_fn, Distribution):
         actual_log_prob_fn = lambda x: jnp.sum(log_prob_fn.log_prob(x))

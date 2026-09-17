@@ -490,8 +490,8 @@ Artifex supports multiple optimizers through Optax:
 | **Adam** | General purpose, most models | `learning_rate`, `beta1`, `beta2` |
 | **AdamW** | Transformers, weight decay needed | `learning_rate`, `weight_decay` |
 | **SGD** | Large batch training, momentum | `learning_rate`, `momentum` |
-| **RMSProp** | RNNs, non-stationary objectives | `learning_rate`, `decay` |
-| **AdaGrad** | Sparse gradients, NLP | `learning_rate` |
+| **RMSProp** | RNNs, non-stationary objectives | `learning_rate`, `momentum`, `eps` |
+| **AdaGrad** | Sparse gradients, NLP | `learning_rate`, `eps` |
 
 ### Optimizer Configuration
 
@@ -520,7 +520,6 @@ sgd_config = OptimizerConfig(
     optimizer_type="sgd",
     learning_rate=0.1,
     momentum=0.9,
-    nesterov=True,
 )
 ```
 

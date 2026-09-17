@@ -5,6 +5,7 @@ import jax
 import jax.numpy as jnp
 import pytest
 from flax import nnx
+from substrax.rng import MissingRngStreamError
 
 from artifex.generative_models.core.distributions import (
     AffineTransform,
@@ -303,5 +304,5 @@ def test_fallback_rng_handling():
     with pytest.raises(ValueError, match="rngs must be provided"):
         transformed_dist.sample(rngs=None)
 
-    with pytest.raises(ValueError, match="sample or default"):
+    with pytest.raises(MissingRngStreamError, match="distribution sampling"):
         transformed_dist.sample(rngs=nnx.Rngs(params=jax.random.key(0)))

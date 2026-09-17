@@ -292,7 +292,7 @@ class WaveNet(AutoregressiveModel):
         sequences = jnp.zeros((n_samples, max_length), dtype=jnp.int32)
 
         # Get sampling key
-        sample_key = self._get_rng_key(rngs, "sample", 0)
+        sample_key = self._get_rng_key(rngs, "sample")
 
         # For fast generation, we'd need to implement incremental convolution
         # For now, use the standard autoregressive generation
@@ -484,7 +484,7 @@ class WaveNet(AutoregressiveModel):
         )
 
         # Get sampling key
-        sample_key = self._get_rng_key(rngs, "sample", 0)
+        sample_key = self._get_rng_key(rngs, "sample")
 
         # Generate new tokens
         for pos in range(conditioning_length, total_length):

@@ -53,6 +53,7 @@ schedule = create_scheduler(
     base_lr=optimizer_config.learning_rate,
 )
 optimizer = create_optimizer(
+    model,
     OptimizerConfig(
         name="adamw",
         optimizer_type="adamw",

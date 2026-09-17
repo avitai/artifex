@@ -322,7 +322,7 @@ class PixelCNN(AutoregressiveModel):
         images = jnp.zeros((n_samples, height, width, channels))
 
         # Get sampling key
-        sample_key = self._get_rng_key(rngs, "sample", 0)
+        sample_key = self._get_rng_key(rngs, "sample")
 
         # Generate pixel by pixel in raster scan order
         for h in range(height):
@@ -465,7 +465,7 @@ class PixelCNN(AutoregressiveModel):
         images = jnp.tile(conditioning[None], (n_samples, 1, 1, 1))
 
         # Get sampling key
-        sample_key = self._get_rng_key(rngs, "sample", 0)
+        sample_key = self._get_rng_key(rngs, "sample")
 
         # Generate only unmasked pixels
         for h in range(height):

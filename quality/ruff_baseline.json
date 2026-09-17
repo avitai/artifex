@@ -1113,11 +1113,6 @@
     "src/artifex/generative_models/training/loops/streaming.py": {
       "PLR0913": 1
     },
-    "src/artifex/generative_models/training/optimizers/factory.py": {
-      "PLR0911": 1,
-      "RET504": 1,
-      "RET505": 2
-    },
     "src/artifex/generative_models/training/rl/dpo.py": {
       "ANN201": 1,
       "PLR0913": 1
