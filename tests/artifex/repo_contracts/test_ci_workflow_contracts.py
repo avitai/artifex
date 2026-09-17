@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import re
 import tomllib
 from pathlib import Path
@@ -277,12 +278,34 @@ def test_build_verification_matches_compatibility_matrix_and_install_smoke_polic
     smoke_command = smoke_step["run"]
 
     assert job["strategy"]["matrix"]["python-version"] == policy["compatibility_python"]
-    assert job["strategy"]["matrix"]["os"] == ["ubuntu-latest", "macos-14"]
     assert f"import {policy['smoke_package']}" in smoke_command
     assert "dir(artifex)" in smoke_command
     assert "'generative_models'" in smoke_command or '"generative_models"' in smoke_command
     assert "Successfully imported artifex" not in smoke_command
     assert "uv run pyright" not in _read(".github/workflows/build-verification.yml")
+
+
+def _platform_matrix(expression: str) -> tuple[str, list[str], list[str]]:
+    """Split a conditional runner matrix into its condition and its two platform lists."""
+    match = re.fullmatch(
+        r"\$\{\{ fromJSON\((?P<condition>.+?) && '(?P<when_true>\[.*?\])'"
+        r" \|\| '(?P<when_false>\[.*?\])'\) \}\}",
+        expression,
+    )
+    assert match is not None, expression
+    return match["condition"], json.loads(match["when_true"]), json.loads(match["when_false"])
+
+
+def test_macos_runners_join_the_platform_matrix_on_main_only() -> None:
+    """macOS runners queue for hours; pushes to main measure both platforms, branches ubuntu only."""
+    for workflow, job_name in (("ci.yml", "unit_tests"), ("build-verification.yml", "build")):
+        job = _load_yaml(f".github/workflows/{workflow}")["jobs"][job_name]
+
+        condition, on_main, elsewhere = _platform_matrix(job["strategy"]["matrix"]["os"])
+
+        assert condition == "github.ref == 'refs/heads/main'", workflow
+        assert on_main == ["ubuntu-latest", "macos-14"], workflow
+        assert elsewhere == ["ubuntu-latest"], workflow
 
 
 def test_security_workflow_reads_reviewed_ignores_from_pyproject_policy() -> None:
