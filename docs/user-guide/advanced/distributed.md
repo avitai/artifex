@@ -11,7 +11,7 @@ datarax pipeline is the mesh an artifex trainer runs on.
 
 | Module | Names | Purpose |
 | --- | --- | --- |
-| `substrax.devices` | `detect_devices`, `DeviceInfo`, `DeviceKind`, `DevicePlacement`, `HardwareType`, `BatchSizeRecommendation`, `place_on_device`, `distribute_batch`, `get_batch_size_recommendation` | Device identity, explicit placement and hardware-aware batch sizes |
+| `substrax.devices` | `detect_devices`, `DeviceInfo`, `DeviceKind`, `DevicePlacement`, `HardwareType`, `BatchSizeRecommendation`, `place_on_device`, `get_batch_size_recommendation` | Device identity, explicit placement and hardware-aware batch sizes |
 | `substrax.mesh` | `DeviceMeshManager`, `MeshRules`, `data_parallel_rules`, `fsdp_rules`, `create_named_sharding`, `partition_spec_for_names`, `ShardingConfig`, `ParallelismConfig`, the `ShardingStrategy` classes | Meshes, partition rules and multi-dimensional parallelism plans |
 | `substrax.spmd` | `create_data_parallel_sharding`, `place_batch_on_shards`, `place_nnx_state_on_shards`, `spmd_train_step`, `reduce_gradient_tree`, `reduce_mean`, `reduce_sum`, `reduce_max`, `reduce_min`, `reduce_custom`, `reduce_mean_collective`, `reduce_sum_collective`, `all_gather`, `collect_from_devices` | Data-parallel sharding, the SPMD step and cross-device reductions |
 
