@@ -7,6 +7,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- `Trainer.checkpoint_state` returns substrax's format-3 items `model`, `optimizer`, `rng`
+  and `extensions` (the optimizer state was under `opt_state`); `save_checkpoint` writes them
+  through the store with artifex as the record's producer and returns the checkpoint's
+  directory as a `Path`; `load_checkpoint` restores onto the items as templates, reads a root
+  written by artifex 0.1.10 or earlier through `TRAINER_FORMAT2` (which
+  `substrax.checkpoint.upgrade_checkpoints` also takes to rewrite such a root), and raises
+  `substrax.checkpoint.CheckpointNotFoundError`, a `FileNotFoundError`, for a step the
+  directory does not hold. A checkpoint written before 0.1.9 restores into no current
+  trainer: 0.1.9 moved the optimizer onto substrax's transformation and the optimizer state
+  tree changed with it, which that release did not state.
+- The configuration owns checkpointing. `TrainingConfig.checkpoint_dir` is `Path | None`:
+  `None` puts the checkpoints under `workdir/checkpoints`, else under `checkpoints` in the
+  working directory, through `substrax.checkpoint.resolve_checkpoint_dir`, and nothing
+  creates the directory before the first save; `save_frequency` is the cadence of both
+  `train` and `train_epoch`; `max_checkpoints` is how many steps the store keeps. The
+  trainer used to ignore `checkpoint_dir` and `max_checkpoints`, keep every checkpoint,
+  and save on a `save_interval` of its own in `train`.
+- `ModelCheckpoint` saves the model as the `model` item at the trainer's global step, with
+  the monitored metric in the record's `metrics` and the epoch in its `epoch`, and picks
+  `best_step(monitor, mode=...)`; the trainer it drives exposes `step`
+  (`CheckpointingTrainer`), and the callback creates no directory before its first save.
+- Requires `substrax>=0.1.10` and `datarax>=0.1.13`; the lock moves substrax from 0.1.9 and
+  datarax from 0.1.12.
+
+### Removed
+
+- `Trainer(checkpoint_dir=..., save_interval=...)`; `TrainingConfig.checkpoint_dir` and
+  `save_frequency` are the one owner of both.
+
 ## [0.1.11] - 2026-09-17
 
 ### Changed
