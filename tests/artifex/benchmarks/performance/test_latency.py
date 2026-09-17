@@ -2,13 +2,13 @@
 
 import time
 
+import calibrax.profiling.timing as timing_module
 import jax
 import jax.numpy as jnp
 import numpy as np
 import pytest
 from flax import nnx
 
-import artifex.benchmarks.performance.latency as latency_module
 from artifex.benchmarks import BenchmarkResult
 from artifex.benchmarks.core import metric_values
 from artifex.benchmarks.performance.latency import (
@@ -90,7 +90,7 @@ class TestLatencyMeasurement:
             current_time += model.sleep_time
             return value
 
-        monkeypatch.setattr(latency_module.time, "perf_counter", fake_perf_counter)
+        monkeypatch.setattr(timing_module.time, "perf_counter", fake_perf_counter)
 
         latency, _ = measure_inference_latency(
             model=model,

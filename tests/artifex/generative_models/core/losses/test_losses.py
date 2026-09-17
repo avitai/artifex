@@ -27,42 +27,35 @@ from artifex.generative_models.core.losses import (
     # Individual losses
     mse_loss,
     PerceptualLoss,
-    # Base utilities
-    reduce_loss,
 )
 
 
-class TestBaseFunctionality:
-    """Test base loss functionality."""
+class TestReductionThroughCalibrax:
+    """Every loss reduces through calibrax's ``reduce_values``; artifex keeps no reducer."""
 
-    def test_reduce_loss(self):
-        """Test loss reduction functionality."""
-        # Use smaller arrays to avoid memory issues
-        loss = jnp.array([1.0, 2.0, 3.0, 4.0])
+    def test_the_base_module_is_gone(self):
+        """``losses.base`` held ``reduce_loss``; the package exports no reducer of its own."""
+        import importlib.util
 
-        # Test mean reduction
-        mean_loss = reduce_loss(loss, reduction="mean")
-        assert jnp.allclose(mean_loss, 2.5)
+        from artifex.generative_models.core import losses
 
-        # Test sum reduction
-        sum_loss = reduce_loss(loss, reduction="sum")
-        assert jnp.allclose(sum_loss, 10.0)
+        assert importlib.util.find_spec("artifex.generative_models.core.losses.base") is None
+        assert not hasattr(losses, "reduce_loss")
 
-        # Test no reduction
-        none_loss = reduce_loss(loss, reduction="none")
-        assert jnp.allclose(none_loss, loss)
-
-        # Test with weights
+    def test_weighted_mean_is_normalised_by_the_weights(self):
+        """A weighted mean is ``sum(w * x) / sum(w)``, as in every calibrax loss."""
+        predictions = jnp.array([1.0, 2.0, 3.0, 4.0])
+        targets = jnp.zeros(4)
         weights = jnp.array([1.0, 2.0, 3.0, 4.0])
-        weighted_loss = reduce_loss(loss, reduction="mean", weights=weights)
-        expected = jnp.mean(loss * weights)
-        assert jnp.allclose(weighted_loss, expected)
+        weighted = mse_loss(predictions, targets, weights=weights)
+        expected = jnp.sum(jnp.square(predictions) * weights) / jnp.sum(weights)
+        assert jnp.allclose(weighted, expected)
 
-        # Test axis parameter
+    def test_axis_reduction(self):
+        """``axis`` restricts a mean to the given axes."""
         loss_2d = jnp.array([[1.0, 2.0], [3.0, 4.0]])
-        axis_loss = reduce_loss(loss_2d, reduction="mean", axis=1)
-        expected = jnp.array([1.5, 3.5])
-        assert jnp.allclose(axis_loss, expected)
+        result = mse_loss(jnp.sqrt(loss_2d), jnp.zeros((2, 2)), axis=1)
+        assert jnp.allclose(result, jnp.array([1.5, 3.5]))
 
 
 class TestReconstructionLosses:

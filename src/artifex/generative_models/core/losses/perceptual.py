@@ -9,9 +9,9 @@ from collections.abc import Callable
 
 import jax
 import jax.numpy as jnp
+from calibrax.metrics import reduce_values
 from flax import nnx
 
-from artifex.generative_models.core.losses.base import reduce_loss
 from artifex.generative_models.core.losses.reconstruction import mse_loss
 
 
@@ -281,7 +281,7 @@ def contextual_loss(
         features_pred_norm, features_target_norm
     )
 
-    return reduce_loss(contextual_loss_batch, reduction, weights)
+    return reduce_values(contextual_loss_batch, weights=weights, reduction=reduction)
 
 
 class PerceptualLoss(nnx.Module):

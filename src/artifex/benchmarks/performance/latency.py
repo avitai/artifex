@@ -4,12 +4,12 @@ Provides benchmarks for measuring inference latency of generative
 models, supporting both sampling-based and prediction-based inference.
 """
 
-import time
 from typing import Any, Literal
 
 import jax
 import jax.numpy as jnp
 import numpy as np
+from calibrax.profiling import time_calls
 from flax import nnx
 
 from artifex.benchmarks import (
@@ -41,44 +41,32 @@ def measure_inference_latency(
         rngs: NNX Rngs for stochastic operations.
         inputs: Input data for prediction.
 
+    Each timed call waits for its result (``jax.block_until_ready``), so the latency is
+    the compute, not the asynchronous dispatch.
+
     Returns:
         Tuple of (average latency in seconds, standard deviation).
     """
     if method not in ["sample", "predict"]:
         raise ValueError(f"Unknown method: {method}")
 
-    # Prepare inputs for prediction
-    if method == "predict" and inputs is None:
-        raise ValueError("Inputs are required for prediction method")
-
     resolved_rngs = rngs if rngs is not None else nnx.Rngs(sample=jax.random.PRNGKey(0))
-    resolved_inputs = jnp.asarray(inputs) if inputs is not None else None
 
-    # Warmup runs
-    for _ in range(warmup_runs):
-        if method == "sample":
-            model.sample(batch_size=batch_size, rngs=resolved_rngs)
-        elif resolved_inputs is not None:
-            model.predict(resolved_inputs, rngs=resolved_rngs)
+    if method == "sample":
 
-    # Timed runs
-    latencies = []
-    for _ in range(num_runs):
-        start_time = time.perf_counter()
+        def infer() -> Any:
+            return model.sample(batch_size=batch_size, rngs=resolved_rngs)
 
-        if method == "sample":
-            model.sample(batch_size=batch_size, rngs=resolved_rngs)
-        elif resolved_inputs is not None:
-            model.predict(resolved_inputs, rngs=resolved_rngs)
+    else:
+        if inputs is None:
+            raise ValueError("Inputs are required for prediction method")
+        prediction_inputs = jnp.asarray(inputs)
 
-        end_time = time.perf_counter()
-        latencies.append(end_time - start_time)
+        def infer() -> Any:
+            return model.predict(prediction_inputs, rngs=resolved_rngs)
 
-    # Calculate statistics
-    avg_latency = float(np.mean(latencies))
-    std_dev = float(np.std(latencies))
-
-    return avg_latency, std_dev
+    timing = time_calls(infer, warmup=warmup_runs, iterations=num_runs)
+    return float(np.mean(timing.samples_sec)), float(np.std(timing.samples_sec))
 
 
 def _coerce_prediction_input(item: Any) -> jax.Array:

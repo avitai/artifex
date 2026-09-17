@@ -176,25 +176,15 @@ loss = huber_loss(predictions, targets, delta=1.0, reduction="mean")
 
 ### charbonnier_loss
 
-Differentiable variant of L1 loss with smoother gradients.
+The Charbonnier loss (a differentiable L1 with smoother gradients, used for optical flow and
+super-resolution) is calibrax's `calibrax.metrics.functional.charbonnier_loss`; it takes the
+same `mask`, `weights`, `reduction` and `axis` keywords as the losses here.
 
 ```python
-from artifex.generative_models.core.losses.reconstruction import charbonnier_loss
+from calibrax.metrics.functional import charbonnier_loss
 
-loss = charbonnier_loss(
-    predictions,
-    targets,
-    epsilon=1e-3,  # Smoothing constant
-    alpha=1.0,     # Exponent
-    reduction="mean"
-)
+loss = charbonnier_loss(predictions, targets, epsilon=1e-3, alpha=1.0, reduction="mean")
 ```
-
-**Use Cases:**
-
-- Optical flow estimation
-- Image super-resolution
-- Smooth optimization landscapes
 
 ---
 
@@ -623,24 +613,21 @@ total_loss = reconstruction_loss + 0.1 * scheduled_perceptual
 
 ---
 
-## Base Utilities
+## Reduction
 
-Helper classes and functions for loss management.
-
-**Location**: `src/artifex/generative_models/core/losses/base.py`
-
-### `reduce_loss`
-
-Shared reduction helper for loss tensors.
+Every loss here reduces through calibrax's `calibrax.metrics.reduce_values`, so `weights`,
+`reduction` and `axis` mean the same thing in every artifex and calibrax loss: a weighted mean is
+`sum(w * x) / sum(w)`, `"batch_sum"` sums the non-batch axes and averages over the batch, and a
+mean over no selected element is `0.0`. Reduce a loss of your own the same way:
 
 ```python
-from artifex.generative_models.core.losses.base import reduce_loss
+from calibrax.metrics import reduce_values
 
 per_pixel_loss = jnp.square(predictions - targets)
 
-mean_loss = reduce_loss(per_pixel_loss, reduction="mean")
-sum_loss = reduce_loss(per_pixel_loss, reduction="sum")
-vae_loss = reduce_loss(per_pixel_loss, reduction="batch_sum")
+mean_loss = reduce_values(per_pixel_loss, reduction="mean")
+sum_loss = reduce_values(per_pixel_loss, reduction="sum")
+vae_loss = reduce_values(per_pixel_loss, reduction="batch_sum")
 ```
 
 ---

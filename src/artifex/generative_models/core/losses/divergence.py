@@ -6,6 +6,7 @@ probability distributions, commonly used in generative models like VAEs and GANs
 
 import jax
 import jax.numpy as jnp
+from calibrax.metrics import reduce_values
 from calibrax.metrics.functional.divergence import (
     js_divergence as _calibrax_js_divergence,
     kl_divergence as _calibrax_kl_divergence,
@@ -14,8 +15,6 @@ from calibrax.metrics.functional.divergence import (
     wasserstein_1d as _calibrax_wasserstein_1d,
 )
 from distrax import Distribution as DistraxDistribution
-
-from artifex.generative_models.core.losses.base import reduce_loss
 
 
 def kl_divergence(
@@ -54,7 +53,7 @@ def kl_divergence(
     # Handle distrax Distribution objects
     if isinstance(predictions, DistraxDistribution) and isinstance(targets, DistraxDistribution):
         kl = jnp.asarray(predictions.kl_divergence(targets))
-        return reduce_loss(kl, reduction, weights, axis)
+        return reduce_values(kl, weights=weights, reduction=reduction, axis=axis)
 
     predictions_array = jnp.asarray(predictions)
     targets_array = jnp.asarray(targets)
@@ -74,7 +73,7 @@ def kl_divergence(
     kl_terms = predictions_array * (log_predictions - log_targets)
     divergence_axis = axis if axis is not None else -1
     kl = jnp.sum(kl_terms, axis=divergence_axis)
-    return reduce_loss(kl, reduction, weights, axis=None)
+    return reduce_values(kl, weights=weights, reduction=reduction)
 
 
 def reverse_kl_divergence(
@@ -113,7 +112,7 @@ def reverse_kl_divergence(
     # Handle distrax Distribution objects
     if isinstance(predictions, DistraxDistribution) and isinstance(targets, DistraxDistribution):
         kl = jnp.asarray(targets.kl_divergence(predictions))
-        return reduce_loss(kl, reduction, weights, axis)
+        return reduce_values(kl, weights=weights, reduction=reduction, axis=axis)
 
     predictions_array = jnp.asarray(predictions)
     targets_array = jnp.asarray(targets)
@@ -133,7 +132,7 @@ def reverse_kl_divergence(
     kl_terms = targets_array * (log_targets - log_predictions)
     divergence_axis = axis if axis is not None else -1
     kl = jnp.sum(kl_terms, axis=divergence_axis)
-    return reduce_loss(kl, reduction, weights, axis=None)
+    return reduce_values(kl, weights=weights, reduction=reduction)
 
 
 def js_divergence(
@@ -201,7 +200,7 @@ def js_divergence(
     js = 0.5 * (kl_p_m + kl_q_m)
 
     # Apply final reduction (no axis since already reduced above)
-    return reduce_loss(js, reduction, weights, axis=None)
+    return reduce_values(js, weights=weights, reduction=reduction)
 
 
 def wasserstein_distance(
@@ -268,7 +267,7 @@ def wasserstein_distance(
     if p > 1:
         distance = jnp.power(distance, 1.0 / p)
 
-    return reduce_loss(distance, reduction, weights, axis=None)
+    return reduce_values(distance, weights=weights, reduction=reduction)
 
 
 def maximum_mean_discrepancy(
@@ -306,7 +305,7 @@ def maximum_mean_discrepancy(
         mmd_batch = jax.vmap(
             lambda p, t: _calibrax_mmd(p, t, kernel="rbf", bandwidth=kernel_bandwidth)
         )(predictions, targets)
-        return reduce_loss(mmd_batch, reduction, weights)
+        return reduce_values(mmd_batch, weights=weights, reduction=reduction)
 
     # Linear and polynomial kernels: local biased estimator
     def _compute_mmd_single(pred_b: jax.Array, target_b: jax.Array) -> jax.Array:
@@ -326,7 +325,7 @@ def maximum_mean_discrepancy(
         return jnp.sqrt(jnp.maximum(mmd_squared, 0.0))
 
     mmd_batch = jax.vmap(_compute_mmd_single)(predictions, targets)
-    return reduce_loss(mmd_batch, reduction, weights)
+    return reduce_values(mmd_batch, weights=weights, reduction=reduction)
 
 
 def energy_distance(
@@ -382,7 +381,7 @@ def energy_distance(
         energy_batch.append(energy)
 
     energy_batch = jnp.stack(energy_batch)
-    return reduce_loss(energy_batch, reduction, weights)
+    return reduce_values(energy_batch, weights=weights, reduction=reduction)
 
 
 def gaussian_kl_divergence(
@@ -429,4 +428,4 @@ def gaussian_kl_divergence(
         axis = tuple(range(1, kl_per_dim.ndim))
     kl = jnp.sum(kl_per_dim, axis=axis)
 
-    return reduce_loss(kl, reduction, weights)
+    return reduce_values(kl, weights=weights, reduction=reduction)

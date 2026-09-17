@@ -9,9 +9,8 @@ from collections.abc import Callable
 
 import jax
 import jax.numpy as jnp
+from calibrax.metrics import reduce_values
 from flax import nnx
-
-from artifex.generative_models.core.losses.base import reduce_loss
 
 
 def l1_regularization(
@@ -355,7 +354,7 @@ def total_variation_loss(
     # Combine height and width variations
     tv_loss = height_var + width_var
 
-    return reduce_loss(tv_loss, reduction, weights)
+    return reduce_values(tv_loss, weights=weights, reduction=reduction)
 
 
 def gradient_penalty(
@@ -427,7 +426,7 @@ def gradient_penalty(
     # Compute penalty: (||grad|| - 1)^2
     penalty = jnp.square(grad_norm - 1.0)
 
-    return lambda_gp * reduce_loss(penalty, reduction, weights)
+    return lambda_gp * reduce_values(penalty, weights=weights, reduction=reduction)
 
 
 class DropoutRegularization(nnx.Module):
