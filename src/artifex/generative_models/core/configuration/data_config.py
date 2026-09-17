@@ -51,7 +51,6 @@ class DataConfig(BaseConfig):
 
     # datarax pipeline settings
     shuffle: bool = True
-    drop_remainder: bool = True
     prefetch_size: int = 2
 
     # Augmentation

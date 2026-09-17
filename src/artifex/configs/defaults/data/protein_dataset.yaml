@@ -7,7 +7,6 @@ num_workers: 4
 prefetch_factor: 2
 pin_memory: false
 shuffle: true
-drop_remainder: true
 prefetch_size: 2
 augmentation: false
 validation_split: 0.1

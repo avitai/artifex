@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import dataclasses
 from collections.abc import Callable
+from itertools import islice
 from pathlib import Path
 from typing import Any, cast, NamedTuple, TYPE_CHECKING
 
@@ -36,6 +38,20 @@ TrainerLossFn = Callable[
     [nnx.Module, dict[str, Any], jax.Array, jax.Array],
     tuple[jax.Array, dict[str, Any]],
 ]
+
+
+# The schedule field the run supplies when the configuration leaves it unset.
+_HORIZON_FIELDS = {
+    "linear": "total_steps",
+    "polynomial": "total_steps",
+    "one_cycle": "total_steps",
+    "cosine": "cycle_length",
+}
+
+
+def _real_rows(batch: dict[str, Any], records: int) -> dict[str, Any]:
+    """The first ``records`` rows of every leaf: the batch without its padding."""
+    return jax.tree.map(lambda leaf: leaf[:records], batch)
 
 
 class _EpochContext(NamedTuple):
@@ -145,53 +161,110 @@ class Trainer:
         self.train_metrics: list[dict[str, Any]] = []
         self.val_metrics: list[dict[str, Any]] = []
 
-        # Set up steps per epoch (needed before optimizer creation for scheduler)
-        if train_data_loader is not None:
-            self.steps_per_epoch = getattr(training_config, "steps_per_epoch", 100)
-        else:
-            self.steps_per_epoch = 100
+        # The batches per epoch and the schedule horizon are what the data holds, so they
+        # are known once ``train`` builds its pipeline, not guessed at construction.
+        self.steps_per_epoch: int | None = None
+        self.schedule: optax.Schedule | None = None
+        self.schedule_horizon: int | None = None
 
-        # Create the optimizer if not provided
-        if optimizer is None:
-            self.optimizer = self._create_optimizer()
-        else:
-            self.optimizer = optimizer
+        self.optimizer: optax.GradientTransformation | None
+        self.opt_state: Any
+        self._set_up_optimizer(optimizer)
 
         # Create checkpoint directory if it doesn't exist
         if self.checkpoint_dir is not None:
             Path(self.checkpoint_dir).mkdir(parents=True, exist_ok=True)
-
-        # Initialize optimizer state with model parameters
-        # Cast: nnx.state returns GraphState which is pytree-compatible with optax Params
-        self.opt_state = self.optimizer.init(cast(optax.Params, nnx.state(self.model, nnx.Param)))
 
         # Training state (step counter and rng)
         self.step = 0
         # The compiled gradient step, built on first use (see _build_compiled_step).
         self._compiled_step: Callable[..., tuple[jax.Array, dict[str, Any], Any]] | None = None
 
-    def _create_optimizer(self) -> optax.GradientTransformation:
-        """Create optimizer from training config.
+    def _set_up_optimizer(self, optimizer: optax.GradientTransformation | None) -> None:
+        """Take the caller's optimizer, or build one now unless its schedule needs the run.
+
+        A schedule whose horizon is configured (or none at all) builds at construction; one
+        whose horizon must be derived from the run waits for ``train``.
+        """
+        self.optimizer = optimizer
+        self.opt_state = None
+        if optimizer is None and self._horizon_field_to_derive() is None:
+            self.optimizer = self._create_optimizer(horizon=None)
+        if self.optimizer is not None:
+            self.opt_state = self._initial_opt_state(self.optimizer)
+
+    def _initial_opt_state(self, optimizer: optax.GradientTransformation) -> Any:
+        # Cast: nnx.state returns GraphState which is pytree-compatible with optax Params
+        return optimizer.init(cast(optax.Params, nnx.state(self.model, nnx.Param)))
+
+    def _horizon_field_to_derive(self) -> str | None:
+        """The schedule field the run must supply, or ``None`` when the schedule needs none.
+
+        A linear, polynomial or one-cycle schedule spans ``total_steps`` and a cosine
+        schedule ``cycle_length``; when the configuration leaves that field unset, the
+        horizon is the run's length, ``num_epochs`` times the batches per epoch.
+        """
+        scheduler = self.training_config.scheduler
+        if scheduler is None:
+            return None
+        field = _HORIZON_FIELDS.get(scheduler.scheduler_type)
+        if field is None or getattr(scheduler, field) is not None:
+            return None
+        return field
+
+    def _horizon_message(self, field: str) -> str:
+        scheduler_type = cast(SchedulerConfig, self.training_config.scheduler).scheduler_type
+        return (
+            f"the {scheduler_type} schedule needs {field}; set it in the scheduler "
+            "configuration, or call train(), which derives it from the run"
+        )
+
+    def _require_optimizer(self) -> optax.GradientTransformation:
+        """The optimizer, which a derived-horizon schedule has only once ``train`` ran.
+
+        Returns:
+            The optimizer in use.
+
+        Raises:
+            ValueError: If the schedule's horizon is neither configured nor derived yet.
+        """
+        if self.optimizer is None:
+            field = self._horizon_field_to_derive()
+            raise ValueError(self._horizon_message(field if field is not None else "a horizon"))
+        return self.optimizer
+
+    def _ensure_optimizer(self, horizon: int) -> None:
+        """Build the optimizer from the run's horizon when construction deferred it."""
+        if self.optimizer is None:
+            self.optimizer = self._create_optimizer(horizon=horizon)
+            self.opt_state = self._initial_opt_state(self.optimizer)
+
+    def _create_optimizer(self, *, horizon: int | None) -> optax.GradientTransformation:
+        """Create the optimizer from the training config.
 
         Delegates to the shared optimizer factory, which builds through ``substrax.optim``
         with the configured schedule as the optimizer's learning rate.
+
+        Args:
+            horizon: The run's length in steps, for a schedule whose horizon is not
+                configured; ``None`` when the schedule needs none or configures its own.
 
         Returns:
             Optax gradient transformation (optimizer).
         """
         opt_config = self.training_config.optimizer
-        base_lr = opt_config.learning_rate
+        scheduler = self.training_config.scheduler
+        self.schedule = (
+            None
+            if scheduler is None
+            else self._create_schedule(scheduler, opt_config.learning_rate, horizon)
+        )
+        return create_optimizer(self.model, opt_config, schedule=self.schedule)
 
-        # Create learning rate schedule if configured
-        if self.training_config.scheduler is not None:
-            schedule = self._create_schedule(self.training_config.scheduler, base_lr)
-        else:
-            schedule = None
-
-        return create_optimizer(self.model, opt_config, schedule=schedule)
-
-    def _create_schedule(self, scheduler_config: SchedulerConfig, base_lr: float) -> Any:
-        """Create learning rate schedule from configuration.
+    def _create_schedule(
+        self, scheduler_config: SchedulerConfig, base_lr: float, horizon: int | None
+    ) -> optax.Schedule:
+        """Create the learning-rate schedule, filling an unset horizon from the run.
 
         Delegates to the centralized scheduler factory for all schedule types.
         The factory supports: constant, linear, cosine, exponential, polynomial,
@@ -200,50 +273,21 @@ class Trainer:
         Args:
             scheduler_config: Configuration for the learning rate schedule.
             base_lr: Base learning rate.
+            horizon: The run's length in steps, used when the configuration leaves the
+                schedule's horizon field unset.
 
         Returns:
-            An optax Schedule or callable that maps step -> learning rate.
+            An optax schedule mapping the step to the learning rate.
+
+        Raises:
+            ValueError: If the schedule needs a horizon that is neither configured nor given.
         """
-        # For schedules that need total_steps, compute it if not provided
-        if scheduler_config.total_steps is None:
-            # Compute from training config
-            computed_total_steps = self.training_config.num_epochs * self.steps_per_epoch
-
-            # Create a modified config with computed total_steps
-            # Only for scheduler types that need it
-            if scheduler_config.scheduler_type in ("linear", "polynomial", "one_cycle"):
-                # Create new config with computed total_steps
-                scheduler_config = SchedulerConfig(
-                    name=scheduler_config.name,
-                    scheduler_type=scheduler_config.scheduler_type,
-                    warmup_steps=scheduler_config.warmup_steps,
-                    min_lr_ratio=scheduler_config.min_lr_ratio,
-                    total_steps=computed_total_steps,
-                    decay_steps=scheduler_config.decay_steps,
-                    decay_rate=scheduler_config.decay_rate,
-                    step_size=scheduler_config.step_size,
-                    gamma=scheduler_config.gamma,
-                    milestones=scheduler_config.milestones,
-                    cycle_length=scheduler_config.cycle_length,
-                )
-
-        # For cosine scheduler, use cycle_length or compute from training config
-        if scheduler_config.scheduler_type == "cosine" and scheduler_config.cycle_length is None:
-            computed_cycle_length = self.training_config.num_epochs * self.steps_per_epoch
-            scheduler_config = SchedulerConfig(
-                name=scheduler_config.name,
-                scheduler_type=scheduler_config.scheduler_type,
-                warmup_steps=scheduler_config.warmup_steps,
-                min_lr_ratio=scheduler_config.min_lr_ratio,
-                total_steps=scheduler_config.total_steps,
-                decay_steps=scheduler_config.decay_steps,
-                decay_rate=scheduler_config.decay_rate,
-                step_size=scheduler_config.step_size,
-                gamma=scheduler_config.gamma,
-                milestones=scheduler_config.milestones,
-                cycle_length=computed_cycle_length,
-            )
-
+        field = _HORIZON_FIELDS.get(scheduler_config.scheduler_type)
+        if field is not None and getattr(scheduler_config, field) is None:
+            if horizon is None:
+                raise ValueError(self._horizon_message(field))
+            scheduler_config = dataclasses.replace(scheduler_config, **{field: horizon})
+        self.schedule_horizon = None if field is None else getattr(scheduler_config, field)
         return create_scheduler(scheduler_config, base_lr)
 
     @staticmethod
@@ -287,7 +331,7 @@ class Trainer:
         Python side effect (callbacks, logging, metric history) stays outside.
         """
         loss_fn = self.loss_fn
-        optimizer = self.optimizer
+        optimizer = self._require_optimizer()
 
         @nnx.jit
         def compiled_step(
@@ -405,11 +449,19 @@ class Trainer:
 
         return metrics
 
-    def train_epoch(self) -> dict[str, Any]:
-        """Train for one epoch.
+    def train_epoch(self, steps: int | None = None) -> dict[str, Any]:
+        """Train for one epoch over ``train_data_loader``.
+
+        The epoch runs until the loader's iterator is exhausted, or for ``steps`` batches.
+
+        Args:
+            steps: The number of batches to train on, or ``None`` for the whole iterator.
 
         Returns:
             Average metrics for the epoch
+
+        Raises:
+            ValueError: If the trainer has no ``train_data_loader``.
         """
         if self.train_data_loader is None:
             raise ValueError("train_data_loader is required for train_epoch")
@@ -417,8 +469,7 @@ class Trainer:
         data_iter = self.train_data_loader(self.training_config.batch_size)
         epoch_metrics: list[dict[str, Any]] = []
 
-        for _ in range(self.steps_per_epoch):
-            batch = next(data_iter)
+        for batch in islice(data_iter, steps):
             metrics = self.train_step(batch)
             epoch_metrics.append(metrics)
 
@@ -437,6 +488,10 @@ class Trainer:
     ) -> dict[str, Any]:
         """Train the model for multiple epochs.
 
+        The epoch's ragged final batch is dropped (PyTorch's rule), so every step sees
+        ``batch_size`` real rows and the steps per epoch are what the data holds; a
+        schedule whose horizon is not configured spans ``num_epochs`` times that count.
+
         Args:
             train_data: Training data dictionary
             num_epochs: Number of epochs to train
@@ -446,19 +501,14 @@ class Trainer:
 
         Returns:
             Final metrics after training
+
+        Raises:
+            ValueError: If ``train_data`` holds fewer records than one batch.
         """
         if self.logger:
             self.logger.log_text(
                 "training", f"Training for {num_epochs} epochs with batch_size={batch_size}"
             )
-
-        metrics: dict[str, Any] = {}
-        if self.callbacks is not None:
-            self.callbacks.on_train_begin(self)
-        for _ext_name, ext in self.extensions.items():
-            on_train_begin = getattr(ext, "on_train_begin", None)
-            if on_train_begin is not None:
-                on_train_begin(self)
 
         # One shuffled pipeline for the whole call: each epoch after the first
         # starts with ``reset()``, which serves a new permutation of the data.
@@ -469,7 +519,23 @@ class Trainer:
             train_data,
             rngs=nnx.Rngs(shuffle_seed),
         )
-        pipeline = create_data_pipeline(source, batch_size=batch_size, rngs=nnx.Rngs(shuffle_seed))
+        pipeline = create_data_pipeline(
+            source, batch_size=batch_size, rngs=nnx.Rngs(shuffle_seed), drop_last=True
+        )
+        self.steps_per_epoch = len(pipeline)
+        if self.steps_per_epoch == 0:
+            raise ValueError(
+                f"train_data holds {len(source)} records, fewer than one batch of {batch_size}"
+            )
+        self._ensure_optimizer(num_epochs * self.steps_per_epoch)
+
+        metrics: dict[str, Any] = {}
+        if self.callbacks is not None:
+            self.callbacks.on_train_begin(self)
+        for _ext_name, ext in self.extensions.items():
+            on_train_begin = getattr(ext, "on_train_begin", None)
+            if on_train_begin is not None:
+                on_train_begin(self)
 
         try:
             for epoch in range(num_epochs):
@@ -561,14 +627,18 @@ class Trainer:
         return epoch_metrics
 
     def evaluate(self, data: dict[str, Any], batch_size: int) -> dict[str, Any]:
-        """Evaluate the model on data.
+        """Evaluate the model on every record of ``data``.
+
+        The last batch of the pass is padded to ``batch_size``; its padded rows are cut
+        before the objective sees it, and each batch's metrics weigh in by the records it
+        holds, so the result is the per-record average over ``data`` alone.
 
         Args:
             data: Evaluation data dictionary
             batch_size: Batch size
 
         Returns:
-            Average evaluation metrics
+            Record-weighted average of the objective's metrics and its loss
         """
         source = MemorySource(
             MemorySourceConfig(shuffle=False),
@@ -576,24 +646,25 @@ class Trainer:
             rngs=nnx.Rngs(0),
         )
         pipeline = create_data_pipeline(source, batch_size=batch_size)
-        all_metrics: list[dict[str, Any]] = []
+        weighted: list[tuple[dict[str, Any], int]] = []
 
-        for batch in pipeline:
+        for served in pipeline:
+            records = int(served["valid_mask"].sum())
+            if records == 0:
+                continue
+            batch = _real_rows(served, records) if records < batch_size else served
             self.rng, eval_rng = jax.random.split(self.rng)
             loss, metrics = self.loss_fn(self.model, batch, eval_rng, jnp.array(self.step))
-            metrics["loss"] = float(loss)
-            all_metrics.append(metrics)
+            weighted.append(({**metrics, "loss": float(loss)}, records))
 
-        if not all_metrics:
+        if not weighted:
             return {}
 
-        # Average metrics
-        avg_metrics: dict[str, Any] = {}
-        for key in all_metrics[0]:
-            values = [m[key] for m in all_metrics]
-            avg_metrics[key] = sum(values) / len(values)
-
-        return avg_metrics
+        total = sum(records for _, records in weighted)
+        return {
+            key: sum(metrics[key] * records for metrics, records in weighted) / total
+            for key in weighted[0][0]
+        }
 
     def checkpoint_state(self) -> dict[str, Any]:
         """Return the checkpoint pytree, for storing trainer state beside application state.
@@ -612,6 +683,7 @@ class Trainer:
         Returns:
             The checkpoint pytree of model, optimizer, RNG and extension state.
         """
+        self._require_optimizer()
         return {
             "model": nnx.state(self.model),
             "opt_state": self.opt_state,

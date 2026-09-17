@@ -294,23 +294,21 @@ def _validate_step(state, batch):
 
 ### Epoch Training
 
-An epoch iterates over the entire dataset:
+An epoch iterates over the loader until it is exhausted; `train_epoch(steps=n)` stops after
+`n` batches instead. This is what `Trainer.train_epoch` does:
 
 ```python
-def train_epoch(trainer):
+def train_epoch(trainer, steps=None):
     """Train for one epoch."""
     data_iter = trainer.train_data_loader(trainer.training_config.batch_size)
     epoch_metrics = []
 
-    for _ in range(trainer.steps_per_epoch):
-        batch = next(data_iter)
-
-        # Training step
-        trainer.state, metrics = trainer.train_step_fn(trainer.state, batch)
+    for batch in itertools.islice(data_iter, steps):
+        metrics = trainer.train_step(batch)
         epoch_metrics.append(metrics)
 
         # Periodic checkpointing
-        if trainer.state["step"] % trainer.training_config.save_frequency == 0:
+        if trainer.step % trainer.training_config.save_frequency == 0:
             trainer.save_checkpoint()
 
     # Average metrics
@@ -322,6 +320,13 @@ def train_epoch(trainer):
 
     return avg_metrics
 ```
+
+`Trainer.train`, which builds its own datarax pipeline over in-memory data, drops the
+epoch's ragged final batch (PyTorch's rule), records the batches per epoch in
+`trainer.steps_per_epoch`, and gives a schedule whose horizon is not configured (`total_steps`
+for linear, polynomial and one-cycle schedules, `cycle_length` for cosine) the run's length,
+`num_epochs` times that count. `Trainer.evaluate` keeps the final batch and averages over the
+real records only.
 
 ## Checkpointing
 

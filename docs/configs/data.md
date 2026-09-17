@@ -29,7 +29,6 @@ config = DataConfig(
 - `prefetch_factor`
 - `pin_memory`
 - `shuffle`
-- `drop_remainder`
 - `prefetch_size`
 - `augmentation`
 - `augmentation_params`

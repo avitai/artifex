@@ -401,7 +401,7 @@ class TestTrainerSchedulerCorrectness:
         assert lr_at_90 < lr_at_30, "Should decay after peak"
 
     def test_trainer_create_schedule_uses_factory(self, simple_model):
-        """Trainer._create_schedule should produce same result as factory."""
+        """The trainer's schedule is the factory's schedule for the same configuration."""
         base_lr = 1e-3
         scheduler_config = SchedulerConfig(
             name="polynomial",
@@ -433,8 +433,9 @@ class TestTrainerSchedulerCorrectness:
         # Get expected schedule from factory
         expected_schedule = create_scheduler(scheduler_config, base_lr)
 
-        # Get trainer's schedule via its internal method
-        trainer_schedule = trainer._create_schedule(scheduler_config, base_lr)
+        # The schedule the trainer built at construction, since the horizon is configured
+        trainer_schedule = trainer.schedule
+        assert trainer_schedule is not None
 
         # Both should produce same values
         for step in [0, 25, 50, 75, 100]:
