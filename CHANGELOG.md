@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Security
+
+- The lock moves jupyter-server (the `dev` extra's `jupyter`) from 2.20.0 to 2.21.1 for
+  CVE-2026-86049. mlflow 3.15.2's PYSEC-2026-3865, a flaw in the tracking server's gateway
+  handler that has no fixed release, is a reviewed ignore in the security policy: nothing
+  under `src/` imports mlflow, which the `logging` extra carries for a tracking client.
+
 ## [0.1.11] - 2026-09-17
 
 ### Changed
