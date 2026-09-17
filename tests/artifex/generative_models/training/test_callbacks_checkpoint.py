@@ -204,6 +204,26 @@ class TestModelCheckpointSaving:
 
             assert not checkpoint_dir.exists()
 
+    def test_a_trainer_without_a_step_is_refused_when_a_save_is_due(self):
+        """The global step is the checkpoint's address; a trainer without one cannot be saved."""
+        from artifex.generative_models.training.callbacks import (
+            CheckpointConfig,
+            ModelCheckpoint,
+        )
+
+        class StepLess:
+            def __init__(self, model: nnx.Module) -> None:
+                self.model = model
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            callback = ModelCheckpoint(CheckpointConfig(dirpath=tmpdir, monitor="loss", mode="min"))
+            trainer = StepLess(SimpleModel(rngs=nnx.Rngs(0)))
+
+            # No metric: nothing is due, so nothing asks for the step.
+            callback.on_epoch_end(trainer, 0, {})
+            with pytest.raises(TypeError, match="step"):
+                callback.on_epoch_end(trainer, 0, {"loss": 1.0})
+
     def test_saves_the_model_item_at_the_global_step_with_the_metric(self):
         """A save is the model item at the trainer's step, the metric in the record's metrics."""
         from artifex.generative_models.training.callbacks import (

@@ -93,20 +93,30 @@ class ModelCheckpoint(BaseCallback):
             return current < self.best_score
         return current > self.best_score
 
-    def _save_checkpoint(self, trainer: CheckpointingTrainer, epoch: int, score: float) -> None:
+    def _save_checkpoint(self, trainer: TrainerLike, epoch: int, score: float) -> None:
         """Save the model item at the trainer's step, the metric in the record's metrics.
 
         Args:
-            trainer: The trainer instance.
+            trainer: The trainer instance; it must expose the global ``step``.
             epoch: Current epoch number.
             score: Current metric score.
+
+        Raises:
+            TypeError: If the trainer has no integer ``step`` to save the checkpoint under.
         """
+        # Read the step here, on the save path only: a Protocol isinstance on every epoch end
+        # costs microseconds the callback must not spend when nothing is saved.
+        step = getattr(trainer, "step", None)
+        if not isinstance(step, int):
+            raise TypeError(
+                f"{type(trainer).__name__} has no step; ModelCheckpoint saves at the global step"
+            )
         if self._store is None:
             max_to_keep = None if self.config.save_top_k < 0 else self.config.save_top_k
             self._store = OrbaxCheckpointStore(self._dirpath, max_to_keep=max_to_keep)
 
         self._store.save(
-            trainer.step,
+            step,
             {"model": nnx.state(trainer.model)},
             epoch=epoch,
             metrics={self.config.monitor: score},
@@ -120,17 +130,11 @@ class ModelCheckpoint(BaseCallback):
         """Check if checkpoint should be saved.
 
         Args:
-            trainer: The trainer instance; it must expose the global ``step``.
+            trainer: The trainer instance; it must expose the global ``step`` when a save
+                is due (:class:`CheckpointingTrainer`).
             epoch: Current epoch number.
             logs: Dictionary of metrics from this epoch.
-
-        Raises:
-            TypeError: If the trainer has no ``step`` to save a checkpoint under.
         """
-        if not isinstance(trainer, CheckpointingTrainer):
-            raise TypeError(
-                f"{type(trainer).__name__} has no step; ModelCheckpoint saves at the global step"
-            )
         # Check if this is an epoch we should consider
         if self.config.every_n_epochs > 1 and epoch % self.config.every_n_epochs != 0:
             return
