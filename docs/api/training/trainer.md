@@ -161,20 +161,25 @@ Returns averaged evaluation metrics.
 Save the trainer state under a step in `checkpoint_dir`.
 
 ```python
-def save_checkpoint(step: int | None = None) -> str
+def save_checkpoint(step: int | None = None) -> Path
 ```
 
-The step defaults to the trainer's current step. The payload goes through
-substrax's Orbax store and holds:
+The step defaults to the trainer's current step. The checkpoint goes through
+substrax's Orbax store as four named items beside a metadata record that names
+artifex as the producer:
 
-- model state
-- optimizer state
-- RNG state
-- extension state
+- `model`: the model state
+- `optimizer`: the optimizer state
+- `rng`: the RNG key
+- `extensions`: every extension's state
 
-Returns the filesystem path of the saved checkpoint. If you want best-model
+Returns the directory of the saved checkpoint. If you want best-model
 checkpointing during training, use
 [`ModelCheckpoint`](../../training/checkpoint.md) via callbacks.
+
+`checkpoint_dir` is resolved by substrax's `resolve_checkpoint_dir`: an explicit
+directory, else `workdir/checkpoints`, else `checkpoints` under the working
+directory. The store creates it on the first save.
 
 ### load_checkpoint
 
@@ -185,22 +190,27 @@ def load_checkpoint(step: int | None = None) -> None
 ```
 
 The step defaults to the latest one in `checkpoint_dir`. Restores the model,
-optimizer, RNG and extension state, and sets the trainer step. Raises
-`FileNotFoundError` when no checkpoint exists at that step.
+optimizer, RNG and extension state, and sets the trainer step. A step the
+directory holds no checkpoint at raises the store's `CheckpointNotFoundError`,
+and an empty directory a `FileNotFoundError`; the former is a `FileNotFoundError`
+too. A checkpoint written by artifex 0.1.10 or earlier (substrax's format 2)
+is read through the `TRAINER_FORMAT2` layout;
+`substrax.checkpoint.upgrade_checkpoints(source, destination,
+legacy_layout=TRAINER_FORMAT2)` rewrites such a root in the current format.
 
 ### checkpoint_state
 
-Return the checkpoint pytree, for storing trainer state beside application state.
+Return the checkpoint items, for storing trainer state beside application state.
 
 ```python
 def checkpoint_state() -> dict[str, Any]
 ```
 
-The tree has the keys `model`, `opt_state`, `rng` and `extensions`, in the
-layout `save_checkpoint` writes. The outer dictionary is new on every call, but
-the `model` and `extensions` entries are live `nnx.State` views whose Variables
-belong to the trainer: assigning to a leaf changes the trainer. Copy the leaves
-first when you need a detached snapshot:
+The items are `model`, `optimizer`, `rng` and `extensions`, as `save_checkpoint`
+writes them. The outer dictionary is new on every call, but the `model` and
+`extensions` entries are live `nnx.State` views whose Variables belong to the
+trainer: assigning to a leaf changes the trainer. Copy the leaves first when you
+need a detached snapshot:
 
 ```python
 snapshot = jax.tree.map(jnp.array, trainer.checkpoint_state())
@@ -208,28 +218,32 @@ snapshot = jax.tree.map(jnp.array, trainer.checkpoint_state())
 
 ### apply_checkpoint_state
 
-Apply a restored checkpoint pytree to the live trainer.
+Apply restored checkpoint items to the live trainer.
 
 ```python
 def apply_checkpoint_state(payload: dict[str, Any], *, step: int) -> None
 ```
 
 This is the state-application half of `load_checkpoint`. Use it to restore
-trainer state nested inside a larger checkpoint and to check that checkpoint's
-metadata before any live state changes:
+trainer state saved beside application state, such as a data iterator's state
+under the `data_iterator` item, and to check the checkpoint's record before any
+live state changes:
 
 ```python
 with OrbaxCheckpointStore(directory) as store:
-    restored, metadata = store.restore(
-        {"trainer": trainer.checkpoint_state(), "cursor": cursor}, step
+    store.save(step, {**trainer.checkpoint_state(), "data_iterator": cursor})
+    ...
+    checkpoint = store.restore(
+        step, templates={**trainer.checkpoint_state(), "data_iterator": cursor}
     )
-    validate(metadata)  # application-owned; raise before mutating anything
-    trainer.apply_checkpoint_state(restored["trainer"], step=step)
+    validate(checkpoint.metadata)  # application-owned; raise before mutating anything
+    trainer.apply_checkpoint_state(checkpoint.items, step=checkpoint.step)
 ```
 
 The payload must come from a restore against `checkpoint_state()` as the
-template. The method applies entries one at a time and is not transactional: a
-malformed payload can leave the trainer partly updated.
+templates; items beyond the trainer's four are left alone. The method applies
+entries one at a time and is not transactional: a malformed payload can leave
+the trainer partly updated.
 
 ## Design Notes
 

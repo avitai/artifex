@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import dataclasses
 from collections.abc import Callable
+from importlib.metadata import version
 from itertools import islice
 from pathlib import Path
 from typing import Any, cast, NamedTuple, TYPE_CHECKING
@@ -13,7 +14,12 @@ import jax.numpy as jnp
 import optax
 from datarax.sources import MemorySource, MemorySourceConfig
 from flax import nnx
-from substrax.checkpoint import OrbaxCheckpointStore
+from substrax.checkpoint import (
+    LegacyLayout,
+    OrbaxCheckpointStore,
+    Producer,
+    resolve_checkpoint_dir,
+)
 
 from artifex.generative_models.core.configuration import (
     SchedulerConfig,
@@ -39,6 +45,35 @@ TrainerLossFn = Callable[
     tuple[jax.Array, dict[str, Any]],
 ]
 
+
+TRAINER_FORMAT2 = LegacyLayout(
+    name="artifex-trainer",
+    items_of=lambda payload: {
+        "model": payload["model"],
+        "optimizer": payload["opt_state"],
+        "rng": payload["rng"],
+        "extensions": payload["extensions"],
+    },
+    template_of=lambda templates: {
+        "model": templates["model"],
+        "opt_state": templates["optimizer"],
+        "rng": templates["rng"],
+        "extensions": templates["extensions"],
+    },
+)
+"""How a checkpoint artifex 0.1.10 or earlier wrote splits into format-3 items.
+
+Those releases saved :meth:`Trainer.checkpoint_state` as substrax's one format-2 payload,
+with the optimizer state under ``opt_state``. Pass the layout to
+``substrax.checkpoint.upgrade_checkpoints`` to rewrite such a root in the current format;
+:meth:`Trainer.load_checkpoint` reads one through it unchanged.
+"""
+
+# The record's producer: this package and its installed version.
+_PRODUCER = Producer(name="artifex", version=version("avitai-artifex"))
+
+# The directory a trainer checkpoints to when neither a directory nor a run directory is given.
+_DEFAULT_CHECKPOINT_DIR = "checkpoints"
 
 # The schedule field the run supplies when the configuration leaves it unset.
 _HORIZON_FIELDS = {
@@ -105,7 +140,8 @@ class Trainer:
             optimizer: The optax optimizer to use.
             train_data_loader: Function to load training data.
             val_data_loader: Function to load validation data.
-            workdir: Working directory for outputs.
+            workdir: Working directory for outputs; without ``checkpoint_dir``, its
+                ``checkpoints`` subdirectory holds the checkpoints.
             rng: JAX random number generator key.
             loss_fn: Explicit objective function. Signature:
                      loss_fn(model, batch, rng, step) -> (loss, metrics_dict).
@@ -114,7 +150,9 @@ class Trainer:
                      ``int()``), and Python side effects run at trace time only.
             metrics_logger: Logger for training metrics.
             logger: Artifex logger for general logging.
-            checkpoint_dir: Directory to save checkpoints.
+            checkpoint_dir: Directory to save checkpoints; ``workdir/checkpoints`` when
+                only ``workdir`` is given, else ``checkpoints`` under the working
+                directory. The store creates it on the first save.
             save_interval: Interval to save checkpoints.
             log_callback: Callback function for logging.
             callbacks: CallbackList for training lifecycle hooks.
@@ -151,7 +189,12 @@ class Trainer:
         self.loss_fn = loss_fn
         self.metrics_logger = metrics_logger
         self.logger = logger
-        self.checkpoint_dir = checkpoint_dir or (workdir if workdir else "checkpoints")
+        explicit_dir = None if checkpoint_dir is None else Path(checkpoint_dir)
+        if explicit_dir is None and workdir is None:
+            explicit_dir = Path(_DEFAULT_CHECKPOINT_DIR)
+        self.checkpoint_dir: Path = resolve_checkpoint_dir(
+            explicit_dir, None if workdir is None else Path(workdir)
+        )
         self.save_interval = save_interval
         self.log_callback = log_callback
         self.callbacks = callbacks
@@ -170,10 +213,6 @@ class Trainer:
         self.optimizer: optax.GradientTransformation | None
         self.opt_state: Any
         self._set_up_optimizer(optimizer)
-
-        # Create checkpoint directory if it doesn't exist
-        if self.checkpoint_dir is not None:
-            Path(self.checkpoint_dir).mkdir(parents=True, exist_ok=True)
 
         # Training state (step counter and rng)
         self.step = 0
@@ -614,7 +653,7 @@ class Trainer:
                 if self.metrics_logger:
                     self.metrics_logger.log_validation_metrics(val_metrics, step=self.step)
 
-            if self.checkpoint_dir and self.step % self.save_interval == 0:
+            if self.step % self.save_interval == 0:
                 self.save_checkpoint()
 
             if self.step % 100 == 0 and self.logger:
@@ -667,52 +706,46 @@ class Trainer:
         }
 
     def checkpoint_state(self) -> dict[str, Any]:
-        """Return the checkpoint pytree, for storing trainer state beside application state.
+        """Return the checkpoint items, for storing trainer state beside application state.
 
-        The tree holds ``model``, ``opt_state``, ``rng`` and ``extensions`` in the
-        layout :meth:`save_checkpoint` writes; the step is kept separately. The outer
+        The items are substrax's ``model``, ``optimizer``, ``rng`` and ``extensions``,
+        as :meth:`save_checkpoint` writes them; the step is the record's. The outer
         dictionary is new on every call, but the ``model`` and ``extensions`` entries
         are live ``nnx.State`` views whose Variables belong to the trainer, so
         assigning to a leaf changes the trainer. Copy the leaves first, for example
         with ``jax.tree.map(jnp.array, tree)``, when a detached snapshot is needed.
 
-        Pass the tree as the restore template to a checkpoint store, validate the
-        restored metadata, then hand the restored tree to
+        Pass the items as the restore templates to a checkpoint store, validate the
+        restored record, then hand the restored items to
         :meth:`apply_checkpoint_state`.
 
         Returns:
-            The checkpoint pytree of model, optimizer, RNG and extension state.
+            The checkpoint items: model, optimizer, RNG and extension state.
         """
         self._require_optimizer()
         return {
             "model": nnx.state(self.model),
-            "opt_state": self.opt_state,
+            "optimizer": self.opt_state,
             "rng": self.rng,
             "extensions": {name: nnx.state(ext) for name, ext in self.extensions.items()},
         }
 
     def _checkpoint_store(self) -> OrbaxCheckpointStore:
-        """Open the store under ``checkpoint_dir``; every checkpoint is kept.
-
-        Raises:
-            ValueError: If the trainer has no checkpoint directory.
-        """
-        if self.checkpoint_dir is None:
-            raise ValueError("No checkpoint directory specified.")
+        """Open the store under ``checkpoint_dir``; every checkpoint is kept."""
         return OrbaxCheckpointStore(self.checkpoint_dir, max_to_keep=None)
 
-    def save_checkpoint(self, step: int | None = None) -> str:
+    def save_checkpoint(self, step: int | None = None) -> Path:
         """Save the model, optimizer, RNG and extension state under ``step``.
 
         Args:
             step: Checkpoint step; defaults to the trainer's current step.
 
         Returns:
-            Filesystem path of the saved checkpoint.
+            The directory of the saved checkpoint.
         """
         step = self.step if step is None else step
         with self._checkpoint_store() as store:
-            path = store.save(self.checkpoint_state(), step)
+            path = store.save(step, self.checkpoint_state(), producer=_PRODUCER)
         if self.logger:
             self.logger.log_text("checkpoint", f"Saved checkpoint to {path}")
         return path
@@ -720,43 +753,46 @@ class Trainer:
     def load_checkpoint(self, step: int | None = None) -> None:
         """Restore the model, optimizer, RNG and extension state from ``step``.
 
+        A checkpoint artifex 0.1.10 or earlier wrote is read through
+        :data:`TRAINER_FORMAT2`. A ``step`` the directory holds no checkpoint at
+        propagates the store's ``CheckpointNotFoundError``, a ``FileNotFoundError``.
+
         Args:
             step: Checkpoint step; defaults to the latest one in ``checkpoint_dir``.
 
         Raises:
-            FileNotFoundError: If no checkpoint exists at ``step``.
+            FileNotFoundError: If ``step`` is ``None`` and the directory holds no checkpoint.
         """
         with self._checkpoint_store() as store:
-            step = store.latest_step() if step is None else step
-            restored = None
-            if step is not None:
-                restored, _ = store.restore(
-                    self.checkpoint_state(), step, return_original_on_missing=False
-                )
-        if restored is None:
-            raise FileNotFoundError(f"No checkpoint at step {step} in {self.checkpoint_dir}")
+            if step is None:
+                step = store.latest_step()
+                if step is None:
+                    raise FileNotFoundError(f"no checkpoint under {self.checkpoint_dir}")
+            checkpoint = store.restore(
+                step, templates=self.checkpoint_state(), legacy_layout=TRAINER_FORMAT2
+            )
 
-        self.apply_checkpoint_state(cast(dict[str, Any], restored), step=cast(int, step))
+        self.apply_checkpoint_state(checkpoint.items, step=checkpoint.step)
 
         if self.logger:
-            self.logger.log_text("checkpoint", f"Loaded checkpoint from step {step}")
+            self.logger.log_text("checkpoint", f"Loaded checkpoint from step {checkpoint.step}")
 
     def apply_checkpoint_state(self, payload: dict[str, Any], *, step: int) -> None:
-        """Apply a restored checkpoint pytree to this trainer and set its step.
+        """Apply restored checkpoint items to this trainer and set its step.
 
         This is the state-application half of :meth:`load_checkpoint`, so an
-        application can check its own checkpoint metadata before any live state
+        application can check the checkpoint's record before any live state
         changes. The payload must come from a restore that used
-        :meth:`checkpoint_state` as the template. Entries are applied one at a
+        :meth:`checkpoint_state` as the templates. Entries are applied one at a
         time and the call is not transactional: validate before calling it, since
         a malformed payload can leave the trainer partly updated.
 
         Args:
-            payload: Checkpoint pytree restored against :meth:`checkpoint_state`.
+            payload: Checkpoint items restored against :meth:`checkpoint_state`.
             step: Checkpoint step the restored state belongs to.
         """
         nnx.update(self.model, payload["model"])
-        self.opt_state = payload["opt_state"]
+        self.opt_state = payload["optimizer"]
         self.rng = payload["rng"]
         for name, extension_state in payload["extensions"].items():
             if name in self.extensions:

@@ -16,6 +16,7 @@ from substrax.callbacks import (
 
 from artifex.generative_models.training.callbacks.checkpoint import (
     CheckpointConfig,
+    CheckpointingTrainer,
     ModelCheckpoint,
 )
 from artifex.generative_models.training.callbacks.logging import (
@@ -48,6 +49,7 @@ __all__ = [
     # Checkpointing
     "ModelCheckpoint",
     "CheckpointConfig",
+    "CheckpointingTrainer",
     # Logging
     "LoggerCallback",
     "LoggerCallbackConfig",

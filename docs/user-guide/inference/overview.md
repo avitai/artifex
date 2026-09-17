@@ -57,17 +57,19 @@ def build_vae_template() -> VAE:
 
 
 def load_vae_from_checkpoint(checkpoint_dir: str) -> tuple[VAE, int]:
+    model = build_vae_template()
     with OrbaxCheckpointStore(checkpoint_dir) as store:
         step = store.latest_step()
         if step is None:
             raise FileNotFoundError(f"No checkpoint found in {checkpoint_dir}")
-        restored_model, _ = store.restore(build_vae_template(), step)
+        checkpoint = store.restore(step, templates={"model": nnx.state(model)})
+    nnx.update(model, checkpoint.items["model"])
 
-    return restored_model, step
+    return model, checkpoint.step
 ```
 
 The same pattern applies to other retained families: instantiate the real model
-owner with its typed config, then restore checkpoint state into that template.
+owner with its typed config, then restore the `model` item onto that template.
 
 ## Use Family-Owned Inference Entry Points
 

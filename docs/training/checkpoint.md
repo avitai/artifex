@@ -8,9 +8,11 @@
 
 ## Overview
 
-Model checkpointing callback that saves Orbax-managed checkpoints on the
-configured epoch cadence. Retention and best-checkpoint selection are handled
-by Orbax using the monitored metric.
+Model checkpointing callback that saves the model through substrax's
+Orbax-backed store on the configured epoch cadence. Each checkpoint is written
+at the trainer's global step, with the monitored metric in the record's
+`metrics` and the epoch in its `epoch`. Retention and best-checkpoint selection
+are the store's, over the monitored metric.
 
 ## Classes
 
@@ -49,17 +51,18 @@ class ModelCheckpoint(BaseCallback):
     def __init__(self, config: CheckpointConfig): ...
 ```
 
-Callback that saves model checkpoints when monitored metrics improve. Uses Orbax checkpointing infrastructure with automatic cleanup of old checkpoints.
-Callback that saves eligible checkpoints and delegates best-step tracking and
-retention to Orbax.
+Callback that saves the model when the monitored metric improves and delegates
+best-step tracking and retention to the store. The trainer it drives exposes
+the global `step` (the `CheckpointingTrainer` protocol); a trainer without one
+is refused with a `TypeError`.
 
 **Key Properties:**
 
 | Property | Type | Description |
 |----------|------|-------------|
 | `best_score` | `float \| None` | Best metric value seen so far |
-| `best_checkpoint_step` | `int \| None` | Step index for the best retained checkpoint |
-| `saved_checkpoint_steps` | `list[int]` | Retained checkpoint steps managed by Orbax |
+| `best_checkpoint_step` | `int \| None` | Global step of the best retained checkpoint |
+| `saved_checkpoint_steps` | `list[int]` | Retained checkpoint steps, as the store lists them |
 
 ---
 
@@ -157,7 +160,9 @@ trainer.train(train_data=train_data, num_epochs=10, batch_size=64, val_data=val_
 ## How It Works
 
 1. **Metric Monitoring**: Tracks the specified metric (`monitor`) at the end of each epoch
-2. **Orbax Save**: Saves the model state through substrax's `OrbaxCheckpointStore`
+2. **Orbax Save**: Saves the model state as the `model` item through substrax's
+   `OrbaxCheckpointStore`, at the trainer's global step, with the metric in the
+   record's `metrics` and the epoch in its `epoch`
 3. **Retention Policy**: the store keeps the newest `save_top_k` checkpoints, which are
    the `save_top_k` best because a checkpoint is written only on improvement
 4. **Best Tracking**: `best_checkpoint_step` is the store's `best_step` over the monitored metric
@@ -169,11 +174,15 @@ trainer.train(train_data=train_data, num_epochs=10, batch_size=64, val_data=val_
 ModelCheckpoint writes through substrax's `OrbaxCheckpointStore`:
 
 ```python
+from flax import nnx
 from substrax.checkpoint import OrbaxCheckpointStore
 
 # Checkpoints are stored under step-numbered Orbax directories
 with OrbaxCheckpointStore("./checkpoints") as store:
-    model, metadata = store.restore(model, step=10)
+    best = store.best_step("val_loss", mode="min")
+    checkpoint = store.restore(best, templates={"model": nnx.state(model)})
+nnx.update(model, checkpoint.items["model"])
+print(checkpoint.metadata.metrics["val_loss"], checkpoint.metadata.epoch)
 ```
 
 See [Checkpointing Guide](../user-guide/advanced/checkpointing.md) for the store's

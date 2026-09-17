@@ -543,11 +543,11 @@ class TestExtensionStateSerialization:
 
         trainer.save_checkpoint()
         with OrbaxCheckpointStore(tmp_path) as store:
-            payload, metadata = store.restore(step=trainer.step)
+            checkpoint = store.restore(trainer.step)
 
-        assert metadata["step"] == trainer.step
-        assert "test_ext" in payload["extensions"]
-        assert set(payload) == {"model", "opt_state", "rng", "extensions"}
+        assert checkpoint.metadata.step == trainer.step
+        assert "test_ext" in checkpoint.items["extensions"]
+        assert set(checkpoint.items) == {"model", "optimizer", "rng", "extensions"}
 
 
 # =============================================================================

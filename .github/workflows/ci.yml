@@ -63,6 +63,8 @@ jobs:
           linux-editable-target: ".[dev,test]"
           macos-editable-target: ".[all-cpu]"
 
+      - uses: ./.github/actions/format2-trainer-fixture
+
       - name: Run unit tests with coverage
         shell: bash
         run: |
@@ -129,6 +131,8 @@ jobs:
           cache-suffix: e2e
           linux-editable-target: ".[dev,test]"
 
+      - uses: ./.github/actions/format2-trainer-fixture
+
       - name: Run end-to-end tests
         shell: bash
         run: |
@@ -162,6 +166,8 @@ jobs:
           python-version: "3.12"
           cache-suffix: perf
           linux-editable-target: ".[dev,test]"
+
+      - uses: ./.github/actions/format2-trainer-fixture
 
       - name: Run performance tests
         shell: bash

@@ -56,9 +56,10 @@ Two types of checkpointing in Artifex:
 
 Model state is persisted through substrax's `OrbaxCheckpointStore`, the
 Orbax-backed, step-addressed store every Avitai library shares. A checkpoint is
-a `PyTreeSave` payload plus a JSON metadata sidecar (step, timestamp, loss when
-given, and anything passed as `additional_metadata`); restoring never executes
-code.
+a step holding named items (`model`, `optimizer`, `rng`, `data_iterator`,
+`extensions`), each a pytree, beside a metadata record (step, epoch, item
+names, library versions, producer, metrics, extra, creation time); restoring
+never executes code.
 
 ### Basic Checkpointing
 
@@ -72,45 +73,55 @@ with OrbaxCheckpointStore("./checkpoints/experiment_1", max_to_keep=5) as store:
     for step in range(num_steps):
         # ... training step ...
         if (step + 1) % 1000 == 0:
-            store.save(model, step + 1, loss=float(loss))
+            store.save(step + 1, {"model": nnx.state(model)}, metrics={"loss": float(loss)})
             print(f"Saved checkpoint at step {step + 1}")
 ```
 
 `max_to_keep` is Orbax's retention: the newest checkpoints are kept, `None`
-keeps them all.
+keeps them all. A step already written is refused unless `overwrite=True`.
 
 ### Loading Checkpoints
 
-Build the same model template you trained and restore into it:
+Build the same model template you trained and restore its state onto it:
 
 ```python
 model_template = create_model(config, rngs=nnx.Rngs(0))
 
 with OrbaxCheckpointStore("./checkpoints/experiment_1") as store:
     step = store.latest_step()                       # or a specific step
-    restored_model, metadata = store.restore(model_template, step)
+    checkpoint = store.restore(step, templates={"model": nnx.state(model_template)})
+nnx.update(model_template, checkpoint.items["model"])
 
-print(f"Restored from step {metadata['step']}")
+print(f"Restored from step {checkpoint.metadata.step}")
 ```
 
-Without a target, `store.restore(step=step)` returns the payload as it was
-stored; `store.list_steps()` and `store.best_step("loss")` pick a checkpoint by
-step or by a metadata metric.
+Without templates, `store.restore(step)` returns every item as it was stored;
+`store.list_steps()` and `store.best_step("loss", mode="min")` pick a checkpoint
+by step or by a recorded metric, and `store.read_metadata(step)` reads the
+record alone.
 
 ### Trainer Checkpoints
 
 `Trainer.save_checkpoint()` writes the model state, the optimizer state, the RNG
-key and every extension's state as one payload under the current step, and
-`Trainer.load_checkpoint(step=None)` restores the latest (or a given) step into
-the live trainer. Both go through the same store under `checkpoint_dir`.
+key and every extension's state as the `model`, `optimizer`, `rng` and
+`extensions` items under the current step, and `Trainer.load_checkpoint(step=None)`
+restores the latest (or a given) step into the live trainer. Both go through the
+same store under `checkpoint_dir`, which is the explicit directory, else
+`workdir/checkpoints`, else `checkpoints` under the working directory.
 
 To checkpoint trainer state together with application state, such as a data
-iterator cursor, nest `Trainer.checkpoint_state()` inside your own payload and
-store it with `OrbaxCheckpointStore`. Restore with that same nested tree as the
-template, check the metadata, then call
-`Trainer.apply_checkpoint_state(restored["trainer"], step=step)`. The
+iterator's state, save `Trainer.checkpoint_state()` with the `data_iterator` item
+beside it. Restore with the same items as templates, check the record, then call
+`Trainer.apply_checkpoint_state(checkpoint.items, step=checkpoint.step)`. The
 [Trainer API reference](../../api/training/trainer.md#apply_checkpoint_state)
 shows the full sequence.
+
+A checkpoint written by artifex 0.1.10 or earlier (substrax's format 2, the
+trainer tree as one payload) restores through `load_checkpoint` unchanged, and
+`substrax.checkpoint.upgrade_checkpoints(source, destination,
+legacy_layout=TRAINER_FORMAT2)` rewrites it in the current format into a new
+root. Checkpoints from 0.1.8 or earlier carry the optimizer state tree of the
+hand-rolled optax chain 0.1.9 replaced and restore into no current trainer.
 
 ### Asynchronous Checkpointing
 
@@ -655,9 +666,9 @@ def load_sharded_checkpoint(
 
 ### Checkpoint Validation
 
-A checkpoint's payload describes its own tree, and a tree that does not match
-the target raises `ValueError` from `store.restore`. To check that a checkpoint
-reproduces the model's outputs, restore it into a fresh template and compare:
+A checkpoint's items describe their own trees, and a template whose tree does
+not match raises `ValueError` from `store.restore`. To check that a checkpoint
+reproduces the model's outputs, restore it onto a fresh template and compare:
 
 ```python
 import jax.numpy as jnp
@@ -668,8 +679,10 @@ sample = jnp.ones((2, 10))
 expected = model(sample)
 
 with OrbaxCheckpointStore("./checkpoints") as store:
-    store.save(model, step=100)
-    restored, _ = store.restore(create_model(config, rngs=nnx.Rngs(0)), step=100)
+    store.save(100, {"model": nnx.state(model)})
+    restored = create_model(config, rngs=nnx.Rngs(0))
+    checkpoint = store.restore(100, templates={"model": nnx.state(restored)})
+nnx.update(restored, checkpoint.items["model"])
 
 assert jnp.allclose(restored(sample), expected, atol=1e-6)
 ```
@@ -695,19 +708,19 @@ except FileNotFoundError:
 trainer.train(train_data, num_epochs=num_epochs)
 ```
 
-Outside the trainer, save a dict payload and restore it into a template of the
-same structure:
+Outside the trainer, save the model and optimizer items and restore them onto
+templates of the same structure:
 
 ```python
-payload = {"model": nnx.state(model), "optimizer": nnx.state(optimizer)}
+items = {"model": nnx.state(model), "optimizer": nnx.state(optimizer)}
 with OrbaxCheckpointStore("./checkpoints/experiment_1") as store:
-    store.save(payload, step=step + 1, loss=float(loss))
+    store.save(step + 1, items, metrics={"loss": float(loss)})
 
 with OrbaxCheckpointStore("./checkpoints/experiment_1") as store:
-    template = {"model": nnx.state(model), "optimizer": nnx.state(optimizer)}
-    restored, metadata = store.restore(template, store.latest_step())
-nnx.update(model, restored["model"])
-nnx.update(optimizer, restored["optimizer"])
+    templates = {"model": nnx.state(model), "optimizer": nnx.state(optimizer)}
+    checkpoint = store.restore(store.latest_step(), templates=templates)
+nnx.update(model, checkpoint.items["model"])
+nnx.update(optimizer, checkpoint.items["optimizer"])
 ```
 
 ### Checkpoint Corruption Recovery
@@ -716,13 +729,13 @@ A checkpoint that cannot be read raises from `store.restore` rather than being
 reported as missing, so recovery is a loop from the newest step to the oldest:
 
 ```python
-def restore_newest_readable(store, template):
+def restore_newest_readable(store, templates):
     for step in sorted(store.list_steps(), reverse=True):
         try:
-            return store.restore(template, step)
+            return store.restore(step, templates=templates)
         except (ValueError, OSError) as error:
             print(f"Checkpoint {step} unreadable: {error}")
-    return None, {}
+    return None
 ```
 
 ## Best Practices

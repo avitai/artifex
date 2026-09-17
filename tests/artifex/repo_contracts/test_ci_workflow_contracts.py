@@ -308,6 +308,49 @@ def test_macos_runners_join_the_platform_matrix_on_main_only() -> None:
         assert elsewhere == ["ubuntu-latest"], workflow
 
 
+FIXTURE_ACTION = "./.github/actions/format2-trainer-fixture"
+FORMAT2_TEST = "tests/artifex/generative_models/training"
+
+
+def _pytest_paths(command: str) -> list[str]:
+    """The path arguments of the pytest invocations in a workflow ``run`` script."""
+    paths = []
+    for line in command.replace("\\\n", " ").splitlines():
+        if "pytest" not in line:
+            continue
+        paths += [
+            argument.rstrip("/")
+            for argument in line.split("pytest", 1)[1].split()
+            if not argument.startswith("-") and argument.startswith("tests")
+        ]
+    return paths
+
+
+def test_every_job_collecting_the_format2_test_writes_the_fixture_first() -> None:
+    """The format-2 checkpoint test raises without its generated fixture, so the job writes it.
+
+    A job collects it when one of its pytest paths covers the training test directory;
+    the fixture action must run in that job before the pytest step.
+    """
+    jobs = _load_yaml(".github/workflows/ci.yml")["jobs"]
+    for name, job in jobs.items():
+        steps = job.get("steps", [])
+        collecting = [
+            index
+            for index, step in enumerate(steps)
+            if any(
+                FORMAT2_TEST.startswith(path) or path.startswith(FORMAT2_TEST)
+                for path in _pytest_paths(str(step.get("run", "")))
+            )
+        ]
+        if not collecting:
+            continue
+        writing = [index for index, step in enumerate(steps) if step.get("uses") == FIXTURE_ACTION]
+
+        assert writing, f"{name} collects the format-2 test without writing the fixture"
+        assert writing[0] < collecting[0], f"{name} runs pytest before writing the fixture"
+
+
 def test_security_workflow_reads_reviewed_ignores_from_pyproject_policy() -> None:
     """Security suppressions should come from reviewed policy, not inline workflow literals."""
     policy = _ci_policy()

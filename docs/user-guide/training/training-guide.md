@@ -721,9 +721,10 @@ model = mixed_precision_training(
 
 Model state is persisted through substrax's `OrbaxCheckpointStore`, the
 Orbax-backed, step-addressed store every Avitai library shares. A checkpoint is
-a `PyTreeSave` payload plus a JSON metadata sidecar (step, timestamp, loss when
-given, and anything passed as `additional_metadata`); restoring never executes
-code.
+a step holding named items (`model`, `optimizer`, `rng`, `data_iterator`,
+`extensions`), each a pytree, beside a metadata record (step, epoch, item
+names, library versions, producer, metrics, extra, creation time); restoring
+never executes code.
 
 ### Basic Checkpointing
 
@@ -737,7 +738,7 @@ with OrbaxCheckpointStore("./checkpoints/experiment_1", max_to_keep=5) as store:
     for step in range(num_steps):
         # ... training step ...
         if (step + 1) % 1000 == 0:
-            store.save(model, step + 1, loss=float(loss))
+            store.save(step + 1, {"model": nnx.state(model)}, metrics={"loss": float(loss)})
             print(f"Saved checkpoint at step {step + 1}")
 ```
 
@@ -746,28 +747,30 @@ keeps them all.
 
 ### Loading Checkpoints
 
-Build the same model template you trained and restore into it:
+Build the same model template you trained and restore its state onto it:
 
 ```python
 model_template = create_model(config, rngs=nnx.Rngs(0))
 
 with OrbaxCheckpointStore("./checkpoints/experiment_1") as store:
     step = store.latest_step()                       # or a specific step
-    restored_model, metadata = store.restore(model_template, step)
+    checkpoint = store.restore(step, templates={"model": nnx.state(model_template)})
+nnx.update(model_template, checkpoint.items["model"])
 
-print(f"Restored from step {metadata['step']}")
+print(f"Restored from step {checkpoint.metadata.step}")
 ```
 
-Without a target, `store.restore(step=step)` returns the payload as it was
-stored; `store.list_steps()` and `store.best_step("loss")` pick a checkpoint by
-step or by a metadata metric.
+Without templates, `store.restore(step)` returns every item as it was stored;
+`store.list_steps()` and `store.best_step("loss", mode="min")` pick a checkpoint
+by step or by a recorded metric.
 
 ### Trainer Checkpoints
 
 `Trainer.save_checkpoint()` writes the model state, the optimizer state, the RNG
-key and every extension's state as one payload under the current step, and
-`Trainer.load_checkpoint(step=None)` restores the latest (or a given) step into
-the live trainer. Both go through the same store under `checkpoint_dir`.
+key and every extension's state as the `model`, `optimizer`, `rng` and
+`extensions` items under the current step, and `Trainer.load_checkpoint(step=None)`
+restores the latest (or a given) step into the live trainer. Both go through the
+same store under `checkpoint_dir`.
 
 ### ModelCheckpoint Callback
 

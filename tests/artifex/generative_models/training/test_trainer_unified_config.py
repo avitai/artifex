@@ -1,5 +1,7 @@
 """Tests for Trainer class with unified configuration system."""
 
+from pathlib import Path
+
 import jax.numpy as jnp
 import optax
 import pytest
@@ -193,7 +195,7 @@ class TestTrainerUnifiedConfig:
 
         assert trainer.training_config == valid_training_config
         assert trainer.workdir == "/tmp/test"
-        assert trainer.checkpoint_dir == "/tmp/test/checkpoints"
+        assert trainer.checkpoint_dir == Path("/tmp/test/checkpoints")
         assert trainer.save_interval == 500
 
     def test_legacy_training_config_rejected(self, model, optimizer, explicit_loss_fn):
