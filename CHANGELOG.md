@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.11] - 2026-09-17
+
 ### Changed
 
 - `Trainer.train` drops the epoch's ragged final batch (`drop_last=True`, PyTorch's rule),
