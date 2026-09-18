@@ -26,13 +26,14 @@ from substrax.checkpoint import OrbaxCheckpointStore
 
 export_dir = Path("./deployments/vae-v1")
 with OrbaxCheckpointStore(export_dir) as store:
-    checkpoint_path = store.save(model, step=final_step)
-
-(export_dir / "metadata.json").write_text(
-    json.dumps({"family": "vae", "step": final_step}, indent=2),
-    encoding="utf-8",
-)
+    checkpoint_path = store.save(
+        final_step, {"model": nnx.state(model)}, extra={"family": "vae"}
+    )
 ```
+
+The record beside the items carries the step and the `family` the application
+put in `extra`; `store.read_metadata(final_step)` reads it back without the
+arrays.
 
 ## Restore The Concrete Model Template
 
@@ -70,10 +71,14 @@ vae_config = VAEConfig(
     encoder_type="dense",
 )
 
-model_template = VAE(vae_config, rngs=nnx.Rngs(0))
+model = VAE(vae_config, rngs=nnx.Rngs(0))
 with OrbaxCheckpointStore("./deployments/vae-v1") as store:
-    restored_model, metadata = store.restore(model_template, store.latest_step())
-step = metadata["step"]
+    checkpoint = store.restore(
+        store.latest_step(), templates={"model": nnx.state(model)}
+    )
+nnx.update(model, checkpoint.items["model"])
+step = checkpoint.step
+family = checkpoint.metadata.extra["family"]
 ```
 
 ## Experimental Production Optimization

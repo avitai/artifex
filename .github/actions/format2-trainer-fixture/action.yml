@@ -1,0 +1,16 @@
+name: Write the format-2 trainer checkpoint fixture
+description: >-
+  Writes the format-2 trainer checkpoint with the artifex and substrax releases that produced it
+  into the gitignored directory the migration test reads. The test raises, naming this command,
+  when the directory is missing, so every job that collects it writes the fixture first. The environment
+  is the committed lock scripts/format2_fixture_requirements.txt, so it neither floats between
+  jobs nor drifts with the project's own lock.
+
+runs:
+  using: composite
+  steps:
+    - name: Write the format-2 trainer checkpoint with the releases that produced it
+      shell: bash
+      run: |
+        uv run --no-project --with-requirements scripts/format2_fixture_requirements.txt \
+          python scripts/make_format2_trainer_fixture.py tests/artifex/fixtures/format2

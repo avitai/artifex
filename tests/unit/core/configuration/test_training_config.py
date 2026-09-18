@@ -38,7 +38,7 @@ class TestTrainingConfigBasics:
         assert config.num_epochs == 100
         assert config.gradient_clip_norm == 1.0
         assert config.scheduler is None
-        assert config.checkpoint_dir == Path("./checkpoints")
+        assert config.checkpoint_dir is None
         assert config.save_frequency == 1000
         assert config.max_checkpoints == 5
         assert config.log_frequency == 100

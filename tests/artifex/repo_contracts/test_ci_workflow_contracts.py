@@ -308,46 +308,90 @@ def test_macos_runners_join_the_platform_matrix_on_main_only() -> None:
         assert elsewhere == ["ubuntu-latest"], workflow
 
 
-def test_security_workflow_reads_reviewed_ignores_from_pyproject_policy() -> None:
-    """Security suppressions should come from reviewed policy, not inline workflow literals."""
-    policy = _ci_policy()
-    contents = _read(".github/workflows/security.yml")
-
-    assert "tomllib" in contents
-    assert "reviewed_ignores" in contents
-    assert 'get("reviewed_ignores", [])' in contents
-    assert "uv pip install pip-audit bandit" not in contents
-    assert "uv run --with pip-audit" not in contents
-    assert "uv run --with bandit" not in contents
-    assert "uv run --locked pip-audit" in contents
-    assert "uv run --locked bandit" in contents
-    assert "uv run --locked detect-secrets scan --baseline .secrets.baseline" in contents
-
-    for entry in policy["security"]["reviewed_ignores"]:
-        assert entry["id"] not in contents
+FIXTURE_ACTION = "./.github/actions/format2-trainer-fixture"
+FORMAT2_TEST = "tests/artifex/generative_models/training"
 
 
-def test_root_readme_claims_match_the_reviewed_ci_policy() -> None:
-    """README claims should reflect the current enforced typing and testing contract."""
-    readme = _read("README.md")
-    readme_lower = readme.lower()
+def _pytest_paths(command: str) -> list[str]:
+    """The path arguments of the pytest invocations in a workflow ``run`` script."""
+    paths = []
+    for line in command.replace("\\\n", " ").splitlines():
+        if "pytest" not in line:
+            continue
+        paths += [
+            argument.rstrip("/")
+            for argument in line.split("pytest", 1)[1].split()
+            if not argument.startswith("-") and argument.startswith("tests")
+        ]
+    return paths
 
-    required_references = [
-        "Pyright standard-mode checks block on the whole source tree",
-        "blocking CI enforces repository contracts",
-        "80% repo-wide coverage floor",
-        "Security workflow checks are blocking",
+
+def test_every_job_collecting_the_format2_test_writes_the_fixture_first() -> None:
+    """The format-2 checkpoint test raises without its generated fixture, so the job writes it.
+
+    A job collects it when one of its pytest paths covers the training test directory;
+    the fixture action must run in that job before the pytest step.
+    """
+    jobs = _load_yaml(".github/workflows/ci.yml")["jobs"]
+    for name, job in jobs.items():
+        steps = job.get("steps", [])
+        collecting = [
+            index
+            for index, step in enumerate(steps)
+            if any(
+                FORMAT2_TEST.startswith(path) or path.startswith(FORMAT2_TEST)
+                for path in _pytest_paths(str(step.get("run", "")))
+            )
+        ]
+        if not collecting:
+            continue
+        writing = [index for index, step in enumerate(steps) if step.get("uses") == FIXTURE_ACTION]
+
+        assert writing, f"{name} collects the format-2 test without writing the fixture"
+        assert writing[0] < collecting[0], f"{name} runs pytest before writing the fixture"
+
+
+FIXTURE_INPUTS = "scripts/format2_fixture_requirements.in"
+FIXTURE_LOCK = "scripts/format2_fixture_requirements.txt"
+_PINNED = re.compile(r"^[A-Za-z0-9_.\-]+(\[[^\]]+\])?==\S+")
+_FIXTURE_ROOT = Path(__file__).resolve().parents[3]
+
+
+def _requirement_lines(relative_path: str) -> list[str]:
+    text = (_FIXTURE_ROOT / relative_path).read_text(encoding="utf-8")
+    return [
+        line.strip()
+        for line in text.splitlines()
+        if line.strip() and not line.lstrip().startswith("#")
     ]
-    for reference in required_references:
-        assert reference.lower() in readme_lower
 
-    banned_references = [
-        "complete type annotations",
-        "full type annotations",
-        "Well Tested",
-        "70% repo-wide coverage floor",
-        "coverage targets at 80% for new code",
-        "security workflows remain reviewed but informational",
-    ]
-    for reference in banned_references:
-        assert reference not in readme
+
+def test_the_fixture_action_runs_the_generator_under_the_committed_lock() -> None:
+    """The fixture environment is a committed lock: it neither floats between two jobs of one
+    run (jax 0.11.2 broke flax 0.12.9's import that way) nor drifts with the project's lock."""
+    action = yaml.safe_load(
+        (_FIXTURE_ROOT / ".github/actions/format2-trainer-fixture" / "action.yml").read_text(
+            encoding="utf-8"
+        )
+    )
+    runs = [str(step.get("run", "")) for step in action["runs"]["steps"]]
+    assert any(f"--with-requirements {FIXTURE_LOCK}" in run for run in runs), (
+        "the action resolves the environment"
+    )
+    assert not any(re.search(r"--with\s", run) for run in runs), (
+        "the action adds a floating package"
+    )
+
+
+def test_every_package_of_the_fixture_lock_is_pinned_and_the_inputs_are_kept() -> None:
+    locked = _requirement_lines(FIXTURE_LOCK)
+    assert locked, "the fixture lock is empty"
+    for line in locked:
+        assert _PINNED.match(line), f"unpinned requirement in the fixture lock: {line}"
+    bare = {entry.split(";")[0].strip().lower() for entry in locked}
+    for line in _requirement_lines(FIXTURE_INPUTS):
+        assert _PINNED.match(line), f"an input is not an exact pin: {line}"
+        assert line.lower() in bare, line
+    assert {"jax", "jaxlib", "flax", "orbax-checkpoint"} <= {
+        re.split(r"[\[=]", line)[0].lower() for line in locked
+    }

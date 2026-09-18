@@ -1,5 +1,8 @@
 """Tests for Trainer class with unified configuration system."""
 
+import dataclasses
+from pathlib import Path
+
 import jax.numpy as jnp
 import optax
 import pytest
@@ -179,22 +182,25 @@ class TestTrainerUnifiedConfig:
         self, model, optimizer, valid_training_config, explicit_loss_fn
     ):
         """Test Trainer with all parameters including typed config."""
+        config = dataclasses.replace(
+            valid_training_config,
+            checkpoint_dir=Path("/tmp/test/checkpoints"),
+            save_frequency=500,
+        )
         trainer = Trainer(
             model=model,
             optimizer=optimizer,
-            training_config=valid_training_config,
+            training_config=config,
             loss_fn=explicit_loss_fn,
             train_data_loader=lambda: None,  # Mock data loader
             val_data_loader=lambda: None,  # Mock data loader
             workdir="/tmp/test",
-            checkpoint_dir="/tmp/test/checkpoints",
-            save_interval=500,
         )
 
-        assert trainer.training_config == valid_training_config
+        assert trainer.training_config == config
         assert trainer.workdir == "/tmp/test"
-        assert trainer.checkpoint_dir == "/tmp/test/checkpoints"
-        assert trainer.save_interval == 500
+        assert trainer.checkpoint_dir == Path("/tmp/test/checkpoints")
+        assert trainer.training_config.save_frequency == 500
 
     def test_legacy_training_config_rejected(self, model, optimizer, explicit_loss_fn):
         """Test that legacy training config classes are rejected."""

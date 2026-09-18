@@ -449,7 +449,6 @@ class GeometricDemoTrainer:
             loss_fn=point_cloud_loss_fn,
             # metrics_logger=self.metrics_logger,
             # logger=self.logger,
-            checkpoint_dir=f"{self.workdir}/checkpoints",
         )
 
         return trainer

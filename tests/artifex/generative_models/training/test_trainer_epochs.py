@@ -66,7 +66,7 @@ def test_every_epoch_visits_each_record_once_in_a_fresh_order(tmp_path) -> None:
         model=_Linear(rngs=nnx.Rngs(0)),
         training_config=_config(),
         loss_fn=_loss_fn,
-        checkpoint_dir=str(tmp_path),
+        workdir=str(tmp_path),
     )
 
     trainer.train(_data(), num_epochs=3, batch_size=_BATCH)
@@ -91,7 +91,7 @@ def test_train_builds_one_pipeline_per_call(monkeypatch: pytest.MonkeyPatch, tmp
         model=_Linear(rngs=nnx.Rngs(0)),
         training_config=_config(),
         loss_fn=_loss_fn,
-        checkpoint_dir=str(tmp_path),
+        workdir=str(tmp_path),
     )
 
     trainer.train(_data(), num_epochs=3, batch_size=_BATCH)
@@ -106,7 +106,7 @@ def test_train_step_is_traced_once_for_same_shape_batches(tmp_path) -> None:
         model=_Linear(rngs=nnx.Rngs(0)),
         training_config=_config(),
         loss_fn=counter.wrap(_loss_fn),
-        checkpoint_dir=str(tmp_path),
+        workdir=str(tmp_path),
     )
     batch = {"input": jnp.ones((_BATCH, 4)), "id": jnp.arange(_BATCH, dtype=jnp.int32)}
 

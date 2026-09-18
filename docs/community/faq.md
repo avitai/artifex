@@ -57,10 +57,14 @@ See [Models Overview](../user-guide/models/vae-guide.md) for details.
 **A**: Use the checkpointing system:
 
 ```python
+from flax import nnx
 from substrax.checkpoint import OrbaxCheckpointStore
 
 with OrbaxCheckpointStore("./checkpoints") as store:
-    model, metadata = store.restore(model_template, store.latest_step())
+    checkpoint = store.restore(
+        store.latest_step(), templates={"model": nnx.state(model_template)}
+    )
+nnx.update(model_template, checkpoint.items["model"])
 ```
 
 ## Training

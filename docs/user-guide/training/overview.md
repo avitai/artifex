@@ -377,12 +377,13 @@ trainer.train_epoch()  # Continues from loaded state
 ### Checkpoint Contents
 
 Each checkpoint is written through substrax's `OrbaxCheckpointStore` and carries
-the complete training state as one pytree, with the step in its metadata:
+the complete training state as four named items, with the step, the producer
+and the library versions in its metadata record:
 
 ```python
 {
     "model": nnx.State(...),      # Model state
-    "opt_state": (...),           # Optimizer state
+    "optimizer": (...),           # Optimizer state
     "rng": Array(...),            # RNG key
     "extensions": {...},          # Every extension's state
 }

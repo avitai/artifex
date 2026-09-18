@@ -4,6 +4,7 @@ These tests define the expected behavior for extension integration
 with the Trainer base class following TDD principles.
 """
 
+import dataclasses
 from typing import Any
 
 import jax
@@ -529,10 +530,9 @@ class TestExtensionStateSerialization:
 
         trainer = Trainer(
             model=simple_model,
-            training_config=training_config,
+            training_config=dataclasses.replace(training_config, checkpoint_dir=tmp_path),
             loss_fn=explicit_loss_fn,
             extensions={"test_ext": extension},
-            checkpoint_dir=str(tmp_path),
         )
 
         # Run a train step
@@ -543,11 +543,11 @@ class TestExtensionStateSerialization:
 
         trainer.save_checkpoint()
         with OrbaxCheckpointStore(tmp_path) as store:
-            payload, metadata = store.restore(step=trainer.step)
+            checkpoint = store.restore(trainer.step)
 
-        assert metadata["step"] == trainer.step
-        assert "test_ext" in payload["extensions"]
-        assert set(payload) == {"model", "opt_state", "rng", "extensions"}
+        assert checkpoint.metadata.step == trainer.step
+        assert "test_ext" in checkpoint.items["extensions"]
+        assert set(checkpoint.items) == {"model", "optimizer", "rng", "extensions"}
 
 
 # =============================================================================

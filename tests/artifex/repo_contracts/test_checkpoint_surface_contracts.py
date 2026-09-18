@@ -56,5 +56,13 @@ def test_checkpoint_docs_teach_the_substrax_store(relative_path: str) -> None:
         "save_checkpoint_with_optimizer",
         "validate_checkpoint(",
         "recover_from_corruption(",
+        # substrax 0.1.10 removed the format-2 store surface: the payload-first save with a
+        # loss argument and sidecar keywords, and the tuple-returning restore onto a target.
+        "additional_metadata",
+        "physics_metadata",
+        "return_original_on_missing",
+        ", metadata = store.restore(",
+        ", _ = store.restore(",
+        "store.save(model,",
     ):
         assert banned not in text, (relative_path, banned)
