@@ -5,7 +5,8 @@ artifex 0.1.10 saved ``Trainer.checkpoint_state()`` (``model``, ``opt_state``, `
 such a root through ``TRAINER_FORMAT2``; this script writes one with the releases that
 produced it, so the test reads a real one. Run it in isolation, never from the project venv::
 
-    python3 scripts/write_format2_fixture.py tests/artifex/fixtures/format2
+    uv run --no-project --with-requirements scripts/format2_fixture_requirements.txt \
+        python scripts/make_format2_trainer_fixture.py tests/artifex/fixtures/format2
 
 0.1.10 is the last release that wrote format 2 with the optimizer state tree the trainer
 holds today: 0.1.9 moved the optimizer onto substrax's transformation, so a checkpoint from

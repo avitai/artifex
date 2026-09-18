@@ -3,7 +3,8 @@
 The fixture is generated, not committed: ``scripts/make_format2_trainer_fixture.py`` writes
 it with the releases that produced it. Run, in isolation::
 
-    python3 scripts/write_format2_fixture.py tests/artifex/fixtures/format2
+    uv run --no-project --with-requirements scripts/format2_fixture_requirements.txt \\
+        python scripts/make_format2_trainer_fixture.py tests/artifex/fixtures/format2
 """
 
 from pathlib import Path
@@ -19,7 +20,10 @@ from artifex.generative_models.training.trainer import Trainer
 
 FIXTURE_ROOT = Path(__file__).resolve().parents[2] / "fixtures" / "format2" / "trainer"
 FIXTURE_STEP = 7
-GENERATE = "python3 scripts/write_format2_fixture.py tests/artifex/fixtures/format2"
+GENERATE = (
+    "uv run --no-project --with-requirements scripts/format2_fixture_requirements.txt "
+    "python scripts/make_format2_trainer_fixture.py tests/artifex/fixtures/format2"
+)
 
 if not FIXTURE_ROOT.is_dir():
     raise RuntimeError(
