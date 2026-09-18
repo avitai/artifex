@@ -6,6 +6,7 @@ such a root through ``TRAINER_FORMAT2``; this script writes one with the release
 produced it, so the test reads a real one. Run it in isolation, never from the project venv::
 
     uv run --no-project --with "avitai-artifex==0.1.10" --with "substrax==0.1.9" \
+        --with "jax==0.11.1" --with "jaxlib==0.11.1" --with "flax==0.12.9" \
         python scripts/make_format2_trainer_fixture.py tests/artifex/fixtures/format2
 
 0.1.10 is the last release that wrote format 2 with the optimizer state tree the trainer
