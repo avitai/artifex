@@ -66,7 +66,7 @@ dependencies = [
   "scipy>=1.12.1",
   # Device identity, meshes, SPMD helpers, checkpoint store, callbacks and trackers
   # shared across the Avitai libraries.
-  "substrax>=0.1.10",
+  "substrax>=0.1.11",
   "tqdm>=4.67",
   "psutil>=5.9.5",
   "typing_extensions>=4.5"
@@ -242,7 +242,7 @@ test = [
   "pytest-timeout>=2.1",
   "pytest-xdist>=3.6",
   # The substrax pytest plugin and fresh-interpreter helpers the suite runs on.
-  "substrax[testing]>=0.1.10"
+  "substrax[testing]>=0.1.11"
 ]
 
 [project.scripts]
@@ -270,11 +270,6 @@ tooling_python = "3.12"
 [tool.artifex.ci.security]
 mode = "blocking"
 reviewed_ignores = [
-  # The rationale is a field rather than a comment because the contract in
-  # tests/artifex/repo_contracts/test_ci_workflow_contracts.py reads it, and a comment is
-  # invisible to every checker. review_after is when the mlflow ceiling should be re-tested.
-  {id = "PYSEC-2026-3552", owner = "repo-maintainers", package = "cryptography", rationale = "PKCS#7 EnvelopedData Bleichenbacher oracle in pkcs7_decrypt_der / _pem / _smime. cryptography reaches artifex only transitively, through mlflow, google-auth and secretstorage. Nothing under src/ imports cryptography or names pkcs7 or EnvelopedData, so the affected API is not reachable from this package. The fix is cryptography 50.0.0 and mlflow requires cryptography<50, so the resolver cannot take it.", review_after = "2026-11-27", reviewed = "2026-08-27"},
-  {id = "PYSEC-2026-3865", owner = "repo-maintainers", package = "mlflow", rationale = "MLflow's AI Gateway server accepts an unvalidated auth_config.api_base when a gateway secret is created (mlflow/server/handlers.py, _create_gateway_secret). That is server-side code of the MLflow tracking server, which artifex never runs: nothing under src/ imports mlflow, it arrives through the logging extra for a tracking client. No fixed release is published; re-test when one is.", review_after = "2026-11-17", reviewed = "2026-09-17"}
 ]
 
 [tool.artifex.repo_standards]

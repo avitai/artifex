@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Requires `substrax>=0.1.11`; the lock moves it from 0.1.10. 0.1.11 caps jax below 0.11.2,
+  whose renamed `jax.experimental.hijax.HiPrimitive` flax 0.12.9 imports at module load; a
+  resolver given `substrax>=0.1.10` keeps jax 0.11.2 and picks 0.1.10 instead, so a fresh
+  install of artifex resolved the failing pair until the floor moved.
 - `Trainer.checkpoint_state` returns substrax's format-3 items `model`, `optimizer`, `rng`
   and `extensions` (the optimizer state was under `opt_state`); `save_checkpoint` writes them
   through the store with artifex as the record's producer and returns the checkpoint's
@@ -40,6 +44,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
+- The lock moves cryptography from 49.0.0 to 50.0.1 for GHSA-g6cj-pr64-35w5 and PYSEC-2026-3552.
+  mlflow 3.15.2 required cryptography below 50, so mlflow (the `logging` extra, with its skinny
+  and tracing wheels) moves to 3.16.1, which also leaves the affected range of PYSEC-2026-3865
+  (affected through 3.15.2). Both reviewed ignores come out of the security policy; nothing
+  under `src/` imports either package.
 - The lock moves jupyter-server (the `dev` extra's `jupyter`) from 2.20.0 to 2.21.1 for
   CVE-2026-86049. mlflow 3.15.2's PYSEC-2026-3865, a flaw in the tracking server's gateway
   handler that has no fixed release, is a reviewed ignore in the security policy: nothing
