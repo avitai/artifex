@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Requires `datarax>=0.1.14` and `calibrax>=0.1.9`, the latest releases; the lock moves
+  datarax from 0.1.13 and calibrax from 0.1.8 and nothing else. Both releases raise their
+  substrax floor to 0.1.11, which artifex already requires, and change no API artifex uses.
+
 ## [0.1.12] - 2026-09-18
 
 ### Changed
