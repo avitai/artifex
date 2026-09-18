@@ -175,8 +175,8 @@ checkpointing during training, use
 
 Where and how often the trainer checkpoints is the configuration's:
 `training_config.checkpoint_dir` is resolved by substrax's `resolve_checkpoint_dir`
-(the configured directory, else `workdir/checkpoints`, else `checkpoints` under the
-working directory; the store creates it on the first save), `save_frequency` is
+(the configured directory, else `workdir/checkpoints`; with neither the trainer
+checkpoints nowhere, and the store creates the directory on the first save), `save_frequency` is
 the cadence of both `train()` and `train_epoch()`, and `max_checkpoints` is how
 many steps the store keeps.
 

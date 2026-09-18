@@ -124,16 +124,23 @@ class TestCheckpointConfig:
 
         assert CheckpointConfig is not None
 
-    def test_config_default_values(self):
-        """CheckpointConfig should have sensible defaults."""
+    def test_config_default_values(self, tmp_path):
+        """The directory is the caller's to name; everything else has a default."""
         from artifex.generative_models.training.callbacks import CheckpointConfig
 
-        config = CheckpointConfig()
+        config = CheckpointConfig(dirpath=tmp_path)
         assert config.monitor == "val_loss"
         assert config.mode == "min"
         assert config.save_top_k == 3
         assert config.every_n_epochs == 1
-        assert config.dirpath == "checkpoints"
+        assert config.dirpath == tmp_path
+
+    def test_the_directory_is_required(self):
+        """No directory means no callback, never a default under the working directory."""
+        from artifex.generative_models.training.callbacks import CheckpointConfig
+
+        with pytest.raises(TypeError, match="dirpath"):
+            CheckpointConfig()  # type: ignore[call-arg]
 
     def test_config_custom_values(self):
         """CheckpointConfig should accept custom values."""

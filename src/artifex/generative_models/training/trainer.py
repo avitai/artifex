@@ -72,9 +72,6 @@ with the optimizer state under ``opt_state``. Pass the layout to
 # The record's producer: this package and its installed version.
 _PRODUCER = Producer(name="artifex", version=version("avitai-artifex"))
 
-# The directory a trainer checkpoints to when neither a directory nor a run directory is given.
-_DEFAULT_CHECKPOINT_DIR = "checkpoints"
-
 # The schedule field the run supplies when the configuration leaves it unset.
 _HORIZON_FIELDS = {
     "linear": "total_steps",
@@ -183,13 +180,14 @@ class Trainer:
         self.loss_fn = loss_fn
         self.metrics_logger = metrics_logger
         self.logger = logger
-        # The configuration names the directory; the run directory holds the default, and
-        # without either the working directory does. The store creates it on the first save.
+        # The configuration names the directory, else the run directory holds it; without
+        # either the trainer checkpoints nowhere, so it never writes into the working
+        # directory on its own. The store creates the directory on the first save.
         configured_dir = training_config.checkpoint_dir
-        if configured_dir is None and workdir is None:
-            configured_dir = Path(_DEFAULT_CHECKPOINT_DIR)
-        self.checkpoint_dir: Path = resolve_checkpoint_dir(
-            configured_dir, None if workdir is None else Path(workdir)
+        self.checkpoint_dir: Path | None = (
+            None
+            if configured_dir is None and workdir is None
+            else resolve_checkpoint_dir(configured_dir, None if workdir is None else Path(workdir))
         )
         self.log_callback = log_callback
         self.callbacks = callbacks
@@ -507,7 +505,7 @@ class Trainer:
             metrics = self.train_step(batch)
             epoch_metrics.append(metrics)
 
-            if self.step % self.training_config.save_frequency == 0:
+            if self._checkpoint_is_due():
                 self.save_checkpoint()
 
         return self._average_metrics(epoch_metrics)
@@ -648,7 +646,7 @@ class Trainer:
                 if self.metrics_logger:
                     self.metrics_logger.log_validation_metrics(val_metrics, step=self.step)
 
-            if self.step % self.training_config.save_frequency == 0:
+            if self._checkpoint_is_due():
                 self.save_checkpoint()
 
             if self.step % 100 == 0 and self.logger:
@@ -725,8 +723,26 @@ class Trainer:
             "extensions": {name: nnx.state(ext) for name, ext in self.extensions.items()},
         }
 
+    def _checkpoint_is_due(self) -> bool:
+        """Whether the loop saves at this step: a directory is set and the cadence lands."""
+        return (
+            self.checkpoint_dir is not None and self.step % self.training_config.save_frequency == 0
+        )
+
     def _checkpoint_store(self) -> OrbaxCheckpointStore:
-        """Open the store under ``checkpoint_dir``; it keeps ``max_checkpoints`` steps."""
+        """Open the store under ``checkpoint_dir``; it keeps ``max_checkpoints`` steps.
+
+        Returns:
+            The store over ``checkpoint_dir``.
+
+        Raises:
+            ValueError: If the trainer has no checkpoint directory.
+        """
+        if self.checkpoint_dir is None:
+            raise ValueError(
+                "no checkpoint directory: set TrainingConfig.checkpoint_dir or give the "
+                "trainer a workdir"
+            )
         return OrbaxCheckpointStore(
             self.checkpoint_dir, max_to_keep=self.training_config.max_checkpoints
         )
