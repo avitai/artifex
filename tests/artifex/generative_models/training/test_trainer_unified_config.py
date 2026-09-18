@@ -1,7 +1,6 @@
 """Tests for Trainer class with unified configuration system."""
 
 import dataclasses
-from pathlib import Path
 
 import jax.numpy as jnp
 import optax
@@ -179,12 +178,17 @@ class TestTrainerUnifiedConfig:
         assert trainer.training_config.optimizer.optimizer_type == "adam"
 
     def test_trainer_with_all_parameters(
-        self, model, optimizer, valid_training_config, explicit_loss_fn
+        self, model, optimizer, valid_training_config, explicit_loss_fn, tmp_path
     ):
-        """Test Trainer with all parameters including typed config."""
+        """Test Trainer with all parameters including typed config.
+
+        The trainer resolves its checkpoint directory through substrax's resolver, so the
+        expectation is the resolved path: on macOS ``/tmp`` is a link to ``/private/tmp``.
+        """
+        workdir = tmp_path / "run"
         config = dataclasses.replace(
             valid_training_config,
-            checkpoint_dir=Path("/tmp/test/checkpoints"),
+            checkpoint_dir=workdir / "checkpoints",
             save_frequency=500,
         )
         trainer = Trainer(
@@ -194,12 +198,12 @@ class TestTrainerUnifiedConfig:
             loss_fn=explicit_loss_fn,
             train_data_loader=lambda: None,  # Mock data loader
             val_data_loader=lambda: None,  # Mock data loader
-            workdir="/tmp/test",
+            workdir=str(workdir),
         )
 
         assert trainer.training_config == config
-        assert trainer.workdir == "/tmp/test"
-        assert trainer.checkpoint_dir == Path("/tmp/test/checkpoints")
+        assert trainer.workdir == str(workdir)
+        assert trainer.checkpoint_dir == (workdir / "checkpoints").resolve()
         assert trainer.training_config.save_frequency == 500
 
     def test_legacy_training_config_rejected(self, model, optimizer, explicit_loss_fn):
