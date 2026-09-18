@@ -351,6 +351,28 @@ def test_every_job_collecting_the_format2_test_writes_the_fixture_first() -> Non
         assert writing[0] < collecting[0], f"{name} runs pytest before writing the fixture"
 
 
+FIXTURE_SCRIPT = "scripts/write_format2_fixture.py"
+
+
+def test_the_fixture_environment_takes_its_numerical_stack_from_the_lock() -> None:
+    """The isolated fixture environment pins jax, jaxlib and flax as ``uv.lock`` holds them.
+
+    A literal version in the action or the script floats away from the lock the day the lock
+    moves, and no pin at all floats with PyPI between two jobs of one run.
+    """
+    action = _load_yaml(f"{FIXTURE_ACTION.removeprefix('./')}/action.yml")
+    runs = [str(step.get("run", "")) for step in action["runs"]["steps"]]
+    assert any(FIXTURE_SCRIPT in run for run in runs), "the action does not run the fixture script"
+
+    script = _read(FIXTURE_SCRIPT)
+    assert 'LOCKED = ("jax", "jaxlib", "flax")' in script
+    assert "uv.lock" in script
+    for text in (script, *runs):
+        assert not re.search(r"\b(jax|jaxlib|flax)==\d", text), (
+            "a numerical-stack version is literal"
+        )
+
+
 def test_security_workflow_reads_reviewed_ignores_from_pyproject_policy() -> None:
     """Security suppressions should come from reviewed policy, not inline workflow literals."""
     policy = _ci_policy()
