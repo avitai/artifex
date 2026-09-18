@@ -143,14 +143,20 @@ class TestCheckpointDirectory:
 
         assert trainer.checkpoint_dir == (tmp_path / "run" / "checkpoints").resolve()
 
-    def test_neither_given_means_checkpoints_under_the_working_directory(
-        self, monkeypatch, tmp_path
-    ):
+    def test_neither_given_means_no_checkpointing(self, monkeypatch, tmp_path):
+        """Without a directory or a workdir the trainer saves nothing and leaves the cwd alone."""
         monkeypatch.chdir(tmp_path)
+        trainer = build_trainer(training_config=config(save_frequency=1))
+        assert trainer.checkpoint_dir is None
 
-        trainer = build_trainer()
+        trainer.train(DATA, num_epochs=1, batch_size=2)
 
-        assert trainer.checkpoint_dir == (tmp_path / "checkpoints").resolve()
+        assert not (tmp_path / "checkpoints").exists()
+        assert trainer.step == 4
+        with pytest.raises(ValueError, match="no checkpoint directory"):
+            trainer.save_checkpoint()
+        with pytest.raises(ValueError, match="no checkpoint directory"):
+            trainer.load_checkpoint()
 
     def test_nothing_is_created_before_the_first_save(self, tmp_path):
         trainer = build_trainer(tmp_path / "later")

@@ -23,7 +23,7 @@ are the store's, over the monitored metric.
 class CheckpointConfig:
     """Configuration for model checkpointing."""
 
-    dirpath: str | Path = "checkpoints"
+    dirpath: str | Path
     monitor: str = "val_loss"
     mode: Literal["min", "max"] = "min"
     save_top_k: int = 3
@@ -34,7 +34,7 @@ class CheckpointConfig:
 
 | Attribute | Type | Default | Description |
 |-----------|------|---------|-------------|
-| `dirpath` | `str \| Path` | `"checkpoints"` | Directory to save checkpoints |
+| `dirpath` | `str \| Path` | required | Directory to save checkpoints; the callback never picks one under the working directory |
 | `monitor` | `str` | `"val_loss"` | Metric name to monitor |
 | `mode` | `Literal["min", "max"]` | `"min"` | Whether lower or higher is better |
 | `save_top_k` | `int` | `3` | Number of best checkpoints to keep (-1 = all, 0 = none) |

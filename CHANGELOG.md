@@ -20,16 +20,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   trainer: 0.1.9 moved the optimizer onto substrax's transformation and the optimizer state
   tree changed with it, which that release did not state.
 - The configuration owns checkpointing. `TrainingConfig.checkpoint_dir` is `Path | None`:
-  `None` puts the checkpoints under `workdir/checkpoints`, else under `checkpoints` in the
-  working directory, through `substrax.checkpoint.resolve_checkpoint_dir`, and nothing
-  creates the directory before the first save; `save_frequency` is the cadence of both
-  `train` and `train_epoch`; `max_checkpoints` is how many steps the store keeps. The
-  trainer used to ignore `checkpoint_dir` and `max_checkpoints`, keep every checkpoint,
-  and save on a `save_interval` of its own in `train`.
+  `None` puts the checkpoints under `workdir/checkpoints` when the trainer has a workdir,
+  through `substrax.checkpoint.resolve_checkpoint_dir`, and nothing creates the directory
+  before the first save; a trainer with neither checkpoints nowhere (`train` saves nothing;
+  `save_checkpoint` and `load_checkpoint` raise `ValueError`), so it never writes into the
+  working directory on its own, where a second run of the same script used to collide with
+  the first one's steps. `save_frequency` is the cadence of both `train` and `train_epoch`;
+  `max_checkpoints` is how many steps the store keeps. The trainer used to ignore
+  `checkpoint_dir` and `max_checkpoints`, keep every checkpoint, and save on a
+  `save_interval` of its own in `train`.
 - `ModelCheckpoint` saves the model as the `model` item at the trainer's global step, with
   the monitored metric in the record's `metrics` and the epoch in its `epoch`, and picks
   `best_step(monitor, mode=...)`; the trainer it drives exposes `step`
-  (`CheckpointingTrainer`), and the callback creates no directory before its first save.
+  (`CheckpointingTrainer`), the callback creates no directory before its first save, and
+  `CheckpointConfig.dirpath` is required (it defaulted to `checkpoints` under the working
+  directory).
 - Requires `substrax>=0.1.10` and `datarax>=0.1.13`; the lock moves substrax from 0.1.9 and
   datarax from 0.1.12.
 

@@ -107,7 +107,8 @@ key and every extension's state as the `model`, `optimizer`, `rng` and
 `extensions` items under the current step, and `Trainer.load_checkpoint(step=None)`
 restores the latest (or a given) step into the live trainer. Both go through the
 same store under `checkpoint_dir`, which is the explicit directory, else
-`workdir/checkpoints`, else `checkpoints` under the working directory.
+`workdir/checkpoints`. A trainer given neither checkpoints nowhere: `train` saves
+nothing, and calling `save_checkpoint` or `load_checkpoint` raises `ValueError`.
 
 To checkpoint trainer state together with application state, such as a data
 iterator's state, save `Trainer.checkpoint_state()` with the `data_iterator` item

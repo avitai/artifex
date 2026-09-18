@@ -34,14 +34,15 @@ class CheckpointConfig:
     """Configuration for model checkpointing.
 
     Attributes:
-        dirpath: Directory to save checkpoints.
+        dirpath: Directory to save checkpoints; named by the caller, so the callback never
+            writes into the working directory on its own.
         monitor: Metric name to monitor (e.g., "val_loss", "accuracy").
         mode: "min" if lower is better, "max" if higher is better.
         save_top_k: Number of checkpoints to keep (-1 = all, 0 = none).
         every_n_epochs: Save checkpoint every n epochs (1 = every epoch).
     """
 
-    dirpath: str | Path = "checkpoints"
+    dirpath: str | Path
     monitor: str = "val_loss"
     mode: Literal["min", "max"] = "min"
     save_top_k: int = 3

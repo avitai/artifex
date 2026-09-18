@@ -33,7 +33,7 @@ class TrainingConfig(BaseConfig):
         num_epochs: Number of training epochs (must be positive)
         gradient_clip_norm: Gradient clipping by norm (optional, must be positive if set)
         checkpoint_dir: Directory for saving checkpoints; None means ``checkpoints`` under
-            the trainer's ``workdir``, else under the working directory
+            the trainer's ``workdir`` when it has one, and no checkpointing otherwise
         save_frequency: Save checkpoint every N steps (must be positive)
         max_checkpoints: Maximum number of checkpoints the store keeps (must be positive)
         log_frequency: Log metrics every N steps (must be positive)
