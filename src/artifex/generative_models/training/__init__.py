@@ -58,12 +58,11 @@ from artifex.generative_models.training.rl import (
     ValueAdapter,
 )
 from artifex.generative_models.training.schedulers import create_scheduler
-from artifex.generative_models.training.trainer import Trainer, TRAINER_FORMAT2
+from artifex.generative_models.training.trainer import Trainer
 
 
 __all__ = [
     "Trainer",
-    "TRAINER_FORMAT2",
     "create_optimizer",
     "create_scheduler",
     # High-performance training loops

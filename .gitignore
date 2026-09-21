@@ -184,8 +184,6 @@ pylint_*
 temp/
 tmp/
 
-# Generated checkpoint fixtures (scripts/make_format2_trainer_fixture.py writes them)
-tests/artifex/fixtures/format2/
 
 # Test and benchmark results
 test_results/
