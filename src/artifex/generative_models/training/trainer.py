@@ -14,12 +14,7 @@ import jax.numpy as jnp
 import optax
 from datarax.sources import MemorySource, MemorySourceConfig
 from flax import nnx
-from substrax.checkpoint import (
-    LegacyLayout,
-    OrbaxCheckpointStore,
-    Producer,
-    resolve_checkpoint_dir,
-)
+from substrax.checkpoint import OrbaxCheckpointStore, Producer, resolve_checkpoint_dir
 
 from artifex.generative_models.core.configuration import (
     SchedulerConfig,
@@ -45,29 +40,6 @@ TrainerLossFn = Callable[
     tuple[jax.Array, dict[str, Any]],
 ]
 
-
-TRAINER_FORMAT2 = LegacyLayout(
-    name="artifex-trainer",
-    items_of=lambda payload: {
-        "model": payload["model"],
-        "optimizer": payload["opt_state"],
-        "rng": payload["rng"],
-        "extensions": payload["extensions"],
-    },
-    template_of=lambda templates: {
-        "model": templates["model"],
-        "opt_state": templates["optimizer"],
-        "rng": templates["rng"],
-        "extensions": templates["extensions"],
-    },
-)
-"""How a checkpoint artifex 0.1.10 or earlier wrote splits into format-3 items.
-
-Those releases saved :meth:`Trainer.checkpoint_state` as substrax's one format-2 payload,
-with the optimizer state under ``opt_state``. Pass the layout to
-``substrax.checkpoint.upgrade_checkpoints`` to rewrite such a root in the current format;
-:meth:`Trainer.load_checkpoint` reads one through it unchanged.
-"""
 
 # The record's producer: this package and its installed version.
 _PRODUCER = Producer(name="artifex", version=version("avitai-artifex"))
@@ -766,9 +738,8 @@ class Trainer:
     def load_checkpoint(self, step: int | None = None) -> None:
         """Restore the model, optimizer, RNG and extension state from ``step``.
 
-        A checkpoint artifex 0.1.10 or earlier wrote is read through
-        :data:`TRAINER_FORMAT2`. A ``step`` the directory holds no checkpoint at
-        propagates the store's ``CheckpointNotFoundError``, a ``FileNotFoundError``.
+        A ``step`` the directory holds no checkpoint at propagates the store's
+        ``CheckpointNotFoundError``, a ``FileNotFoundError``.
 
         Args:
             step: Checkpoint step; defaults to the latest one in ``checkpoint_dir``.
@@ -781,9 +752,7 @@ class Trainer:
                 step = store.latest_step()
                 if step is None:
                     raise FileNotFoundError(f"no checkpoint under {self.checkpoint_dir}")
-            checkpoint = store.restore(
-                step, templates=self.checkpoint_state(), legacy_layout=TRAINER_FORMAT2
-            )
+            checkpoint = store.restore(step, templates=self.checkpoint_state())
 
         self.apply_checkpoint_state(checkpoint.items, step=checkpoint.step)
 

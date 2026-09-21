@@ -117,13 +117,6 @@ beside it. Restore with the same items as templates, check the record, then call
 [Trainer API reference](../../api/training/trainer.md#apply_checkpoint_state)
 shows the full sequence.
 
-A checkpoint written by artifex 0.1.10 or earlier (substrax's format 2, the
-trainer tree as one payload) restores through `load_checkpoint` unchanged, and
-`substrax.checkpoint.upgrade_checkpoints(source, destination,
-legacy_layout=TRAINER_FORMAT2)` rewrites it in the current format into a new
-root. Checkpoints from 0.1.8 or earlier carry the optimizer state tree of the
-hand-rolled optax chain 0.1.9 replaced and restore into no current trainer.
-
 ### Asynchronous Checkpointing
 
 `store.save` returns after Orbax has finished writing, so a training loop can

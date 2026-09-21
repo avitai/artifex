@@ -192,10 +192,7 @@ The step defaults to the latest one in `checkpoint_dir`. Restores the model,
 optimizer, RNG and extension state, and sets the trainer step. A step the
 directory holds no checkpoint at raises the store's `CheckpointNotFoundError`,
 and an empty directory a `FileNotFoundError`; the former is a `FileNotFoundError`
-too. A checkpoint written by artifex 0.1.10 or earlier (substrax's format 2)
-is read through the `TRAINER_FORMAT2` layout;
-`substrax.checkpoint.upgrade_checkpoints(source, destination,
-legacy_layout=TRAINER_FORMAT2)` rewrites such a root in the current format.
+too.
 
 ### checkpoint_state
 

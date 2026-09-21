@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Removed
+
+- `TRAINER_FORMAT2`, and reading a checkpoint root written by artifex 0.1.10 or earlier.
+  substrax reads one checkpoint format, so the layout that split the older trainer payload into
+  items has nothing to describe and `Trainer.load_checkpoint` reads the checkpoint as written.
+  With it go the fixture generator, the pinned environment that installed an old substrax to
+  write one, the CI step that ran that before three jobs, and the tests and contracts over them.
+
+### Changed
+
+- Requires `substrax>=0.1.16`, for what artifex writes rather than what it calls: its checkpoint
+  imports are unchanged, but an older substrax stamps a format number the ecosystem no longer
+  reads. The lock moves substrax from 0.1.11 and nothing else.
+
 ### Security
 
 - The lock moves anyio from 4.12.1 to 4.14.2 for CVE-2026-63374 and CVE-2026-64847; nothing else moves. 4.14.2 is the first fixed release; 4.15.1 needs typing-extensions 4.16.0, which a single-package upgrade does not allow to move.
