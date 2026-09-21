@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.13] - 2026-09-21
+
+### Changed
+
+- Requires `substrax>=0.1.16`, for what artifex writes rather than what it calls: its checkpoint
+  imports are unchanged, but an older substrax stamps a format number the ecosystem no longer
+  reads. The lock moves substrax from 0.1.11 and nothing else.
+
+- Requires `datarax>=0.1.14` and `calibrax>=0.1.9`, the latest releases; the lock moves
+  datarax from 0.1.13 and calibrax from 0.1.8 and nothing else. Both releases raise their
+  substrax floor to 0.1.11, which artifex already requires, and change no API artifex uses.
+
 ### Removed
 
 - `TRAINER_FORMAT2`, and reading a checkpoint root written by artifex 0.1.10 or earlier.
@@ -15,21 +27,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   With it go the fixture generator, the pinned environment that installed an old substrax to
   write one, the CI step that ran that before three jobs, and the tests and contracts over them.
 
-### Changed
-
-- Requires `substrax>=0.1.16`, for what artifex writes rather than what it calls: its checkpoint
-  imports are unchanged, but an older substrax stamps a format number the ecosystem no longer
-  reads. The lock moves substrax from 0.1.11 and nothing else.
-
 ### Security
 
 - The lock moves anyio from 4.12.1 to 4.14.2 for CVE-2026-63374 and CVE-2026-64847; nothing else moves. 4.14.2 is the first fixed release; 4.15.1 needs typing-extensions 4.16.0, which a single-package upgrade does not allow to move.
-
-### Changed
-
-- Requires `datarax>=0.1.14` and `calibrax>=0.1.9`, the latest releases; the lock moves
-  datarax from 0.1.13 and calibrax from 0.1.8 and nothing else. Both releases raise their
-  substrax floor to 0.1.11, which artifex already requires, and change no API artifex uses.
 
 ## [0.1.12] - 2026-09-18
 
