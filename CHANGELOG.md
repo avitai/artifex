@@ -12,9 +12,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `artifex.generative_models.core.sampling.effective_sample_size(samples, *, chain_axis=None,
   sample_axis=0)`: the draws the chains are worth per parameter, from
   `blackjax.diagnostics.effective_sample_size`, with the parameter shape kept where BlackJAX
-  squeezes a length-one axis. It sums the autocorrelations over every lag the chains support,
-  so a chain worth more than its length reads as such rather than being capped. Consumers read
-  chain diagnostics here instead of importing BlackJAX.
+  squeezes a length-one axis. An antithetic chain reads as worth more than its length, bounded
+  by the `draws * log10(draws)` guard on the estimator that Vehtari et al. (2021, Bayesian
+  Analysis 16(2), 667, section 3.2) describe. A component whose draws never move reads 0.0 and
+  one holding a NaN reads NaN, where BlackJAX 1.6.2 reports the guard value for both: 6602 for
+  2000 constant draws. BlackJAX repairs that on main; this answers the two components until it
+  is released. Consumers read chain diagnostics here instead of importing BlackJAX.
+
+### Changed
+
+- Requires `blackjax>=1.6.2`; the lock moves it from 1.3 and drops the twelve dependencies
+  1.3 pulled in and 1.6.2 does not need (`jaxopt`, `python-fasthtml`, `fastlite`, `apsw` and
+  the rest). The sampler wrappers pass unchanged against it.
 
 ## [0.1.13] - 2026-09-21
 
