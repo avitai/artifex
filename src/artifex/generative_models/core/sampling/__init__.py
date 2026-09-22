@@ -13,6 +13,7 @@ from artifex.generative_models.core.sampling.blackjax_samplers import (
     mala_sampling,
     nuts_sampling,
 )
+from artifex.generative_models.core.sampling.diagnostics import effective_sample_size
 from artifex.generative_models.core.sampling.mcmc import mcmc_sampling
 from artifex.generative_models.core.sampling.sde import (
     euler_maruyama_step,
@@ -23,6 +24,7 @@ from artifex.generative_models.core.sampling.sde import (
 
 __all__ = [
     # BlackJAX samplers
+    "effective_sample_size",
     "BlackJAXHMC",
     "BlackJAXMALA",
     "BlackJAXNUTS",
