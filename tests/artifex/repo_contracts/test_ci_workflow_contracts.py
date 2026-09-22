@@ -4,12 +4,42 @@ import json
 import re
 import tomllib
 from pathlib import Path
+from typing import Final
 
 import yaml
 
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 SETUP_ACTION = "./.github/actions/setup-artifex"
+
+# Each fixable vulnerability the audit has reported, against the first release that
+# resolves it.
+SECURITY_PATCH_FLOORS: Final = {
+    "aiohttp": (3, 14, 1),
+    "bleach": (6, 4, 0),
+    "cryptography": (48, 0, 1),
+    "fastapi": (0, 139, 0),
+    "gitpython": (3, 1, 50),
+    "idna": (3, 15),
+    "jupyter-server": (2, 20, 0),
+    "jupyterlab": (4, 5, 9),
+    "mako": (1, 3, 12),
+    "mistune": (3, 3, 2),
+    "mlflow": (3, 14, 0),
+    "msgpack": (1, 2, 1),
+    "nbconvert": (7, 17, 1),
+    "notebook": (7, 6, 0),
+    "pillow": (12, 3, 0),
+    "pyasn1": (0, 6, 3),
+    "pygments": (2, 20, 0),
+    "pymdown-extensions": (10, 21, 3),
+    "pytest": (9, 0, 3),
+    "python-multipart": (0, 0, 31),
+    "requests": (2, 33, 0),
+    "starlette": (1, 3, 1),
+    "tornado": (6, 5, 7),
+    "urllib3": (2, 7, 0),
+}
 
 
 def _load_pyproject() -> dict[str, object]:
@@ -73,33 +103,21 @@ def test_pyproject_declares_reviewed_ci_roles_and_security_triage_policy() -> No
 
 
 def test_lockfile_resolves_security_patch_floors_for_fixable_alerts() -> None:
-    """Fixable audited vulnerabilities should resolve to patched lockfile versions."""
+    """Fixable audited vulnerabilities should resolve to patched lockfile versions.
+
+    A floor binds a package only while the lock holds it: a package that leaves the
+    dependency closure carries no alert to fix. Its floor stays in the table so that
+    re-entering the closure below the patched release is still a failure.
+    """
     packages = {pkg["name"].lower(): pkg["version"] for pkg in _load_uv_lock()["package"]}
 
-    assert _version_key(packages["aiohttp"]) >= (3, 14, 1)
-    assert _version_key(packages["bleach"]) >= (6, 4, 0)
-    assert _version_key(packages["cryptography"]) >= (48, 0, 1)
-    assert _version_key(packages["fastapi"]) >= (0, 139, 0)
-    assert _version_key(packages["gitpython"]) >= (3, 1, 50)
-    assert _version_key(packages["idna"]) >= (3, 15)
-    assert _version_key(packages["jupyter-server"]) >= (2, 20, 0)
-    assert _version_key(packages["jupyterlab"]) >= (4, 5, 9)
-    assert _version_key(packages["mako"]) >= (1, 3, 12)
-    assert _version_key(packages["mistune"]) >= (3, 3, 2)
-    assert _version_key(packages["mlflow"]) >= (3, 14, 0)
-    assert _version_key(packages["msgpack"]) >= (1, 2, 1)
-    assert _version_key(packages["nbconvert"]) >= (7, 17, 1)
-    assert _version_key(packages["notebook"]) >= (7, 6, 0)
-    assert _version_key(packages["pillow"]) >= (12, 3, 0)
-    assert _version_key(packages["pygments"]) >= (2, 20, 0)
-    assert _version_key(packages["pymdown-extensions"]) >= (10, 21, 3)
-    assert _version_key(packages["pytest"]) >= (9, 0, 3)
-    assert _version_key(packages["python-multipart"]) >= (0, 0, 31)
-    assert _version_key(packages["requests"]) >= (2, 33, 0)
-    assert _version_key(packages["pyasn1"]) >= (0, 6, 3)
-    assert _version_key(packages["starlette"]) >= (1, 3, 1)
-    assert _version_key(packages["tornado"]) >= (6, 5, 7)
-    assert _version_key(packages["urllib3"]) >= (2, 7, 0)
+    unpatched = {
+        name: packages[name]
+        for name, floor in SECURITY_PATCH_FLOORS.items()
+        if name in packages and _version_key(packages[name]) < floor
+    }
+
+    assert unpatched == {}
 
 
 def test_policy_workflows_use_checked_in_setup_action_instead_of_inline_bootstrap() -> None:
