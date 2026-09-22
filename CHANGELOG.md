@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.14] - 2026-09-22
+
 ### Added
 
 - `artifex.generative_models.core.sampling.effective_sample_size(samples, *, chain_axis=None,
