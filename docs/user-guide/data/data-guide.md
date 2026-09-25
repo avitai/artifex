@@ -615,9 +615,9 @@ for batch in pipeline:
 
 ## Performance Tips
 
-- **Batch size** -- choose a batch size that divides your dataset evenly; `Pipeline` always emits fixed-shape batches by reading from the source's stateless `get_batch_at(start, size, key)` interface.
+- **Batch size** -- choose a batch size that divides your dataset evenly: an epoch's last batch holds the records left, and a short batch compiles once more. `Pipeline` gathers each batch through the source's stateless `get_records(indices)` interface.
 - **Shuffling** -- enable `shuffle=True` in the factory or `MemorySourceConfig` for training. Disable it for deterministic evaluation.
-- **JIT compilation** -- `Pipeline.step` is `@nnx.jit`-decorated; for whole-epoch JIT use `pipeline.scan(step_fn, length=n_batches, modules=(model, optimizer))`.
+- **JIT compilation** -- `Pipeline.step` and iteration run one compiled step; for whole-epoch JIT use `pipeline.scan(step_fn, length=n_batches, modules=(model, optimizer))`.
 - **Device transfer** -- use `from datarax.distributed import prefetch_to_device` to asynchronously transfer batches to the accelerator.
 
 ---

@@ -12,7 +12,8 @@ from typing import Any, cast
 
 import flax.nnx as nnx
 import jax
-from calibrax.profiling import detect_hardware_specs
+import jax.numpy as jnp
+from calibrax.profiling import HardwareSpec, resolve_hardware_spec
 from substrax.mesh import ParallelismConfig
 
 
@@ -87,18 +88,23 @@ class ProductionOptimizer:
 
     def __init__(
         self,
-        hardware_specs: dict[str, Any] | None = None,
+        hardware_specs: HardwareSpec | None = None,
         parallelism_config: ParallelismConfig | None = None,
     ) -> None:
         """Initialize production optimizer.
 
         Args:
             hardware_specs: A calibrax hardware specification (``peak_flops``,
-                ``memory_bandwidth``, ``critical_intensity``); ``None`` detects the
-                accelerator class through ``calibrax.profiling.detect_hardware_specs``.
+                ``memory_bandwidth``, ``critical_intensity``); ``None`` takes calibrax's for the
+                visible device (``calibrax.profiling.resolve_hardware_spec``): the published
+                spec of a chip calibrax lists, else the device's measured float32 ceilings.
             parallelism_config: Parallelism configuration for scaling
         """
-        self.hardware_specs = hardware_specs or detect_hardware_specs()
+        self.hardware_specs = (
+            hardware_specs
+            if hardware_specs is not None
+            else resolve_hardware_spec(dtype=jnp.float32)
+        )
         self.parallelism_config = parallelism_config
         self._optimization_cache: dict[str, Any] = {}
 
@@ -284,7 +290,7 @@ class ProductionPipeline:
     def __init__(
         self,
         model: nnx.Module,
-        hardware_specs: dict[str, Any],
+        hardware_specs: HardwareSpec,
         parallelism_config: ParallelismConfig | None = None,
         optimization_techniques: list[str] | None = None,
     ) -> None:
@@ -462,7 +468,7 @@ class ProductionMonitor:
 
 # Factory functions for easy creation
 def create_production_optimizer(
-    hardware_specs: dict[str, Any] | None = None,
+    hardware_specs: HardwareSpec | None = None,
     parallelism_config: ParallelismConfig | None = None,
 ) -> ProductionOptimizer:
     """Create production optimizer with automatic hardware detection.

@@ -4,12 +4,10 @@ Provides NNXGenerativeModelAdapter with domain-specific predict() and
 sample() methods that handle RNG state for stochastic generative models.
 """
 
-from typing import Any
-
 import flax.nnx as nnx
 import jax
 import jax.numpy as jnp
-from calibrax.core import AdapterRegistry, NNXBenchmarkAdapter
+from calibrax.core import AdapterClass, AdapterRegistry, NNXBenchmarkAdapter
 
 from artifex.benchmarks.protocols.model_surfaces import (
     CallablePredictorProtocol,
@@ -103,21 +101,24 @@ class NNXGenerativeModelAdapter(NNXBenchmarkAdapter):
         return jnp.asarray(result) if not isinstance(result, jax.Array) else result
 
 
-# Module-level adapter registry backed by calibrax
-_adapter_registry = AdapterRegistry()
+# The generative adapters, highest priority last registered
+_adapter_registry = AdapterRegistry[NNXGenerativeModelAdapter]()
 _adapter_registry.register(NNXGenerativeModelAdapter)
 
 
-def register_adapter(adapter_cls: type) -> None:
+def register_adapter[TargetT](
+    adapter_cls: AdapterClass[TargetT, NNXGenerativeModelAdapter],
+) -> None:
     """Register a model adapter (highest priority).
 
     Args:
-        adapter_cls: Adapter class with can_adapt() classmethod.
+        adapter_cls: An ``NNXGenerativeModelAdapter`` class whose ``can_adapt`` classmethod
+            is a type predicate for the models its constructor takes.
     """
     _adapter_registry.register(adapter_cls)
 
 
-def adapt_model(model: Any) -> NNXGenerativeModelAdapter:
+def adapt_model(model: object) -> NNXGenerativeModelAdapter:
     """Adapt a model using the adapter registry.
 
     Only NNX models are supported.

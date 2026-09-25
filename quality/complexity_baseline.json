@@ -2,9 +2,9 @@
   "entries": {
     "examples/generative_models/image/gan/advanced_gan.py:function:train_gan_model": {
       "complexity": 14,
-      "endline": 499,
+      "endline": 498,
       "kind": "function",
-      "lineno": 247,
+      "lineno": 246,
       "path": "examples/generative_models/image/gan/advanced_gan.py",
       "qualname": "train_gan_model",
       "rank": "C"
@@ -13,16 +13,16 @@
       "complexity": 23,
       "endline": 204,
       "kind": "function",
-      "lineno": 91,
+      "lineno": 92,
       "path": "examples/generative_models/sampling/blackjax_integration_examples.py",
       "qualname": "plot_samples",
       "rank": "D"
     },
     "examples/utils/demo_utils.py:function:check_system_requirements": {
       "complexity": 11,
-      "endline": 242,
+      "endline": 243,
       "kind": "function",
-      "lineno": 162,
+      "lineno": 163,
       "path": "examples/utils/demo_utils.py",
       "qualname": "check_system_requirements",
       "rank": "C"
@@ -47,18 +47,18 @@
     },
     "src/artifex/benchmarks/datasets/geometric.py:method:ShapeNetDataset._create_synthetic_shape": {
       "complexity": 11,
-      "endline": 540,
+      "endline": 539,
       "kind": "method",
-      "lineno": 465,
+      "lineno": 464,
       "path": "src/artifex/benchmarks/datasets/geometric.py",
       "qualname": "ShapeNetDataset._create_synthetic_shape",
       "rank": "C"
     },
     "src/artifex/benchmarks/datasets/geometric.py:method:ShapeNetDataset._download_shapenet_core": {
       "complexity": 13,
-      "endline": 289,
+      "endline": 288,
       "kind": "method",
-      "lineno": 226,
+      "lineno": 225,
       "path": "src/artifex/benchmarks/datasets/geometric.py",
       "qualname": "ShapeNetDataset._download_shapenet_core",
       "rank": "C"
@@ -81,38 +81,29 @@
       "qualname": "ProteinPointCloudAdapter._convert_protein_output_to_benchmark_format",
       "rank": "C"
     },
-    "src/artifex/benchmarks/performance/latency.py:function:measure_inference_latency": {
-      "complexity": 12,
-      "endline": 81,
-      "kind": "function",
-      "lineno": 24,
-      "path": "src/artifex/benchmarks/performance/latency.py",
-      "qualname": "measure_inference_latency",
-      "rank": "C"
-    },
     "src/artifex/benchmarks/performance/optimization.py:class:OptimizationBenchmark": {
       "complexity": 22,
-      "endline": 444,
+      "endline": 513,
       "kind": "class",
-      "lineno": 126,
+      "lineno": 202,
       "path": "src/artifex/benchmarks/performance/optimization.py",
       "qualname": "OptimizationBenchmark",
       "rank": "D"
     },
     "src/artifex/benchmarks/performance/optimization.py:method:OptimizationBenchmark.run": {
       "complexity": 38,
-      "endline": 444,
+      "endline": 513,
       "kind": "method",
-      "lineno": 177,
+      "lineno": 253,
       "path": "src/artifex/benchmarks/performance/optimization.py",
       "qualname": "OptimizationBenchmark.run",
       "rank": "E"
     },
     "src/artifex/benchmarks/performance/optimization.py:method:OptimizerComparisonBenchmark.run": {
       "complexity": 13,
-      "endline": 666,
+      "endline": 735,
       "kind": "method",
-      "lineno": 562,
+      "lineno": 631,
       "path": "src/artifex/benchmarks/performance/optimization.py",
       "qualname": "OptimizerComparisonBenchmark.run",
       "rank": "C"
@@ -146,9 +137,9 @@
     },
     "src/artifex/benchmarks/suites/protein_benchmarks.py:method:ProteinBenchmarkSuite.visualize_results": {
       "complexity": 17,
-      "endline": 386,
+      "endline": 383,
       "kind": "method",
-      "lineno": 307,
+      "lineno": 306,
       "path": "src/artifex/benchmarks/suites/protein_benchmarks.py",
       "qualname": "ProteinBenchmarkSuite.visualize_results",
       "rank": "C"
@@ -172,30 +163,12 @@
       "rank": "C"
     },
     "src/artifex/benchmarks/visualization/optimization_plots.py:function:plot_convergence_speed": {
-      "complexity": 31,
-      "endline": 402,
+      "complexity": 13,
+      "endline": 244,
       "kind": "function",
-      "lineno": 240,
+      "lineno": 192,
       "path": "src/artifex/benchmarks/visualization/optimization_plots.py",
       "qualname": "plot_convergence_speed",
-      "rank": "E"
-    },
-    "src/artifex/benchmarks/visualization/optimization_plots.py:function:plot_optimizer_comparison": {
-      "complexity": 14,
-      "endline": 237,
-      "kind": "function",
-      "lineno": 118,
-      "path": "src/artifex/benchmarks/visualization/optimization_plots.py",
-      "qualname": "plot_optimizer_comparison",
-      "rank": "C"
-    },
-    "src/artifex/benchmarks/visualization/optimization_plots.py:function:plot_training_curve": {
-      "complexity": 17,
-      "endline": 115,
-      "kind": "function",
-      "lineno": 11,
-      "path": "src/artifex/benchmarks/visualization/optimization_plots.py",
-      "qualname": "plot_training_curve",
       "rank": "C"
     },
     "src/artifex/configs/utils/config_loader.py:function:get_config_path": {
@@ -290,18 +263,18 @@
     },
     "src/artifex/generative_models/core/configuration/management/templates.py:class:TrainingConfigTemplate": {
       "complexity": 16,
-      "endline": 152,
+      "endline": 150,
       "kind": "class",
-      "lineno": 93,
+      "lineno": 91,
       "path": "src/artifex/generative_models/core/configuration/management/templates.py",
       "qualname": "TrainingConfigTemplate",
       "rank": "C"
     },
     "src/artifex/generative_models/core/configuration/management/templates.py:method:TrainingConfigTemplate.generate": {
       "complexity": 15,
-      "endline": 152,
+      "endline": 150,
       "kind": "method",
-      "lineno": 96,
+      "lineno": 94,
       "path": "src/artifex/generative_models/core/configuration/management/templates.py",
       "qualname": "TrainingConfigTemplate.generate",
       "rank": "C"
@@ -398,18 +371,18 @@
     },
     "src/artifex/generative_models/core/distributions/base.py:method:Distribution._get_param_hash": {
       "complexity": 13,
-      "endline": 85,
+      "endline": 84,
       "kind": "method",
-      "lineno": 53,
+      "lineno": 52,
       "path": "src/artifex/generative_models/core/distributions/base.py",
       "qualname": "Distribution._get_param_hash",
       "rank": "C"
     },
     "src/artifex/generative_models/core/distributions/base.py:method:Distribution._validate_parameters": {
       "complexity": 11,
-      "endline": 229,
+      "endline": 228,
       "kind": "method",
-      "lineno": 205,
+      "lineno": 204,
       "path": "src/artifex/generative_models/core/distributions/base.py",
       "qualname": "Distribution._validate_parameters",
       "rank": "C"
@@ -461,9 +434,9 @@
     },
     "src/artifex/generative_models/core/losses/divergence.py:function:wasserstein_distance": {
       "complexity": 12,
-      "endline": 271,
+      "endline": 270,
       "kind": "function",
-      "lineno": 207,
+      "lineno": 206,
       "path": "src/artifex/generative_models/core/losses/divergence.py",
       "qualname": "wasserstein_distance",
       "rank": "C"
@@ -801,23 +774,14 @@
       "qualname": "create_scheduler",
       "rank": "D"
     },
-    "src/artifex/generative_models/training/trainer.py:method:Trainer.__init__": {
-      "complexity": 12,
-      "endline": 154,
-      "kind": "method",
-      "lineno": 53,
-      "path": "src/artifex/generative_models/training/trainer.py",
-      "qualname": "Trainer.__init__",
-      "rank": "C"
-    },
     "src/artifex/generative_models/training/trainer.py:method:Trainer.train": {
-      "complexity": 27,
-      "endline": 529,
+      "complexity": 20,
+      "endline": 594,
       "kind": "method",
-      "lineno": 415,
+      "lineno": 481,
       "path": "src/artifex/generative_models/training/trainer.py",
       "qualname": "Trainer.train",
-      "rank": "D"
+      "rank": "C"
     },
     "src/artifex/generative_models/utils/code_analysis/dependency_analyzer.py:function:_resolve_import_from_targets": {
       "complexity": 19,
@@ -875,27 +839,27 @@
     },
     "src/artifex/visualization/protein_viz.py:method:ProteinVisualizer.calculate_dihedral_angles": {
       "complexity": 14,
-      "endline": 522,
+      "endline": 518,
       "kind": "method",
-      "lineno": 456,
+      "lineno": 452,
       "path": "src/artifex/visualization/protein_viz.py",
       "qualname": "ProteinVisualizer.calculate_dihedral_angles",
       "rank": "C"
     },
     "src/artifex/visualization/protein_viz.py:method:ProteinVisualizer.plot_ramachandran": {
       "complexity": 16,
-      "endline": 453,
+      "endline": 449,
       "kind": "method",
-      "lineno": 330,
+      "lineno": 327,
       "path": "src/artifex/visualization/protein_viz.py",
       "qualname": "ProteinVisualizer.plot_ramachandran",
       "rank": "C"
     },
     "src/artifex/visualization/protein_viz.py:method:ProteinVisualizer.to_pdb_string": {
       "complexity": 13,
-      "endline": 264,
+      "endline": 261,
       "kind": "method",
-      "lineno": 139,
+      "lineno": 136,
       "path": "src/artifex/visualization/protein_viz.py",
       "qualname": "ProteinVisualizer.to_pdb_string",
       "rank": "C"

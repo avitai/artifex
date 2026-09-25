@@ -1,5 +1,7 @@
 """Tests for calibrax-backed model adapters."""
 
+from typing import TypeGuard
+
 import flax.nnx as nnx
 import jax
 import jax.numpy as jnp
@@ -194,7 +196,7 @@ class TestAdaptModelCalibrax:
 
         class SpecialAdapter(NNXGenerativeModelAdapter):
             @classmethod
-            def can_adapt(cls, target) -> bool:
+            def can_adapt(cls, target: object) -> TypeGuard[SpecialModel]:
                 return isinstance(target, SpecialModel)
 
         register_adapter(SpecialAdapter)

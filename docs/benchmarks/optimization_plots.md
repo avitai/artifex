@@ -8,6 +8,11 @@
 
 Visualization tools for optimization benchmark results.
 
+The plots read their result's metadata through
+`benchmarks.performance.optimization.training_curve_from_metadata` and calibrax's
+`read_metadata`, so they validate a curve exactly as the benchmark wrote it. A figure is saved
+at `save_path` when one is given.
+
 ## Functions
 
 ### plot_convergence_speed
@@ -32,4 +37,4 @@ def plot_training_curve()
 
 - **Classes:** 0
 - **Functions:** 3
-- **Imports:** 4
+- **Imports:** 8

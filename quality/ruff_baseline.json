@@ -195,11 +195,7 @@
       "PLR0402": 1
     },
     "src/artifex/benchmarks/visualization/optimization_plots.py": {
-      "B905": 1,
-      "C901": 3,
-      "PLR0912": 2,
-      "PLR0913": 2,
-      "PLR0915": 1
+      "PLR0913": 2
     },
     "src/artifex/cli/config.py": {
       "B008": 7
@@ -401,7 +397,7 @@
       "PLR0913": 2
     },
     "src/artifex/generative_models/core/losses/reconstruction.py": {
-      "PLR0913": 3
+      "PLR0913": 2
     },
     "src/artifex/generative_models/core/losses/regularization.py": {
       "ANN001": 10,

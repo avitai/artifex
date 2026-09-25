@@ -1,5 +1,7 @@
 """Tests for model adapters for benchmarks."""
 
+from typing import TypeGuard
+
 import flax.nnx as nnx
 import jax
 import jax.numpy as jnp
@@ -120,7 +122,7 @@ class TestAdapterRegistry:
 
         class CustomNNXAdapter(NNXGenerativeModelAdapter):
             @classmethod
-            def can_adapt(cls, model):
+            def can_adapt(cls, model: object) -> TypeGuard[nnx.Module]:
                 return isinstance(model, nnx.Module) and hasattr(model, "custom_attr")
 
         register_adapter(CustomNNXAdapter)

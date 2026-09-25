@@ -5,7 +5,7 @@ legacy `artifex.benchmarks.protein_model_adapters` module is now only a thin
 compatibility re-export of this class.
 """
 
-from typing import Any
+from typing import Any, TypeGuard
 
 import flax.nnx as nnx
 import jax
@@ -30,7 +30,7 @@ class ProteinPointCloudAdapter(NNXGenerativeModelAdapter):
             self._model_name_str = "protein_point_cloud_model"
 
     @classmethod
-    def can_adapt(cls, model: Any) -> bool:
+    def can_adapt(cls, model: object) -> TypeGuard[nnx.Module]:
         """Check whether the adapter can handle the given protein model."""
         protein_method_names = (
             "generate_protein",
