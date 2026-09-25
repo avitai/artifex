@@ -114,16 +114,17 @@ def test_root_examples_readme_contract() -> None:
 
 def test_hardware_detection() -> None:
     """Test hardware detection example."""
-    from calibrax.profiling import detect_hardware_specs
+    import jax.numpy as jnp
+    from calibrax.profiling import resolve_hardware_spec
     from substrax.devices import detect_devices
 
     info = detect_devices()
     assert info.platform in ("cpu", "gpu", "tpu"), f"Invalid platform: {info.platform}"
     assert info.count > 0, "Device count should be positive"
 
-    specs = detect_hardware_specs()
-    assert specs["peak_flops"] > 0, "Peak FLOP/s should be positive"
-    assert specs["critical_intensity"] > 0, "Ridge point should be positive"
+    specs = resolve_hardware_spec(dtype=jnp.float32)
+    assert specs.peak_flops > 0, "Peak FLOP/s should be positive"
+    assert specs.critical_intensity > 0, "Ridge point should be positive"
 
 
 def test_ddpm_model() -> None:
@@ -233,12 +234,13 @@ def test_ebm_configuration() -> None:
 
 def test_production_optimization() -> None:
     """Test production optimization components."""
-    from calibrax.profiling import detect_hardware_specs
+    import jax.numpy as jnp
+    from calibrax.profiling import resolve_hardware_spec
 
     from artifex.generative_models.inference.optimization.production import ProductionOptimizer
 
-    specs = detect_hardware_specs()
-    assert specs["peak_flops"] > 0, "Hardware specs should be available"
+    specs = resolve_hardware_spec(dtype=jnp.float32)
+    assert specs.peak_flops > 0, "Hardware specs should be available"
 
     optimizer = ProductionOptimizer()
     assert optimizer is not None, "ProductionOptimizer should be created"

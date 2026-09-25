@@ -44,7 +44,7 @@ print(pipeline_batch["atom_positions"].shape)
 `ProteinDataset` is backed by datarax's `DataSourceModule`, so it keeps the
 standard Datarax indexing, iteration, batching, and `Pipeline(...)`
 integration story. The local `get_batch(...)` helper can collate variable-length
-protein examples, while the Datarax `get_batch_at(...)` and `Pipeline.step()`
+protein examples, while the Datarax `get_records(...)` and `Pipeline.step()`
 path returns fixed-shape tensor fields padded to `ProteinDatasetConfig.max_seq_length`.
 
 ## Where The Broader Data Story Lives

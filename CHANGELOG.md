@@ -7,6 +7,50 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- `Trainer.evaluate`, and `Trainer.train` with `val_data`, raised `KeyError('valid_mask')` on a
+  fresh install of 0.1.14: its `datarax>=0.1.14` floor resolves datarax 0.1.16, which pads no
+  batch and so carries no mask. Evaluation now serves every record once, the last batch holding
+  the records left, and weights each batch's metrics by its rows (`datarax.core.spec.batch_length`),
+  so the result is still the per-record average.
+- `ProteinDataset` implements datarax's `get_records(indices)` in place of `get_batch_at`, which
+  datarax 0.1.16 no longer calls; its `supports_indexed_access` override goes, since datarax now
+  infers indexed access from `get_records`.
+- A training curve recorded with array scalars (a trainer's `jnp.float32` loss) reads back as
+  numbers: `TrainingCurvePoint.from_record` reads its values with calibrax's `read_metadata`.
+  The plots read the curve through `TrainingCurvePoint` too, so they accept what the benchmark
+  wrote and refuse the same malformed records it would.
+
+### Changed
+
+- Requires `datarax>=0.1.16` and `calibrax>=0.1.14`. The relock moves datarax from 0.1.14 and
+  calibrax from 0.1.9 (datarax 0.1.16 requires calibrax 0.1.11 or later), and adds lazy-loader;
+  every artifex module imports under them.
+- A training split smaller than one batch is refused by datarax when the pipeline is built
+  (`drop_last needs batch_size <= len(source)`); `Trainer.train`'s own check, which could no
+  longer fire, is gone.
+- `ProductionOptimizer`, `ProductionPipeline` and `create_production_optimizer` take a calibrax
+  `HardwareSpec` (calibrax 0.1.10 made specs records, not dictionaries). Without one, the
+  optimizer takes `calibrax.profiling.resolve_hardware_spec(dtype=float32)`: the published spec
+  of a chip calibrax lists, else the device's measured ceilings. It used
+  `detect_hardware_specs()`, which calibrax 0.1.10 made return `None` for an unlisted device such
+  as a CPU, so its roofline analysis was refused there. The spec table's names are calibrax's
+  (`a100_sxm4_80gb`, `h100_sxm`, ...); `examples/verify_examples.py` follows.
+- `TrainingCurvePoint` is a frozen, keyword-only record that owns its metadata format:
+  `to_record()` writes a point into `BenchmarkResult.metadata["training_curve"]` and
+  `from_record()` reads one back. `training_curve_from_metadata(metadata)` reads a whole curve.
+- `plot_training_curve`, `plot_optimizer_comparison` and `plot_convergence_speed` read their
+  metadata through that layer and calibrax's `read_metadata`, and save through the figure they
+  drew (`fig.savefig`) rather than matplotlib's current figure. A malformed optimizer result or
+  config is refused with its path (`optimizer_configs[1].name`). Saving no longer wraps
+  matplotlib's error in an `OSError`, and the `isinstance` checks on the annotated `result`
+  argument are gone.
+- `adapt_model` returns an `NNXGenerativeModelAdapter`: the registry is calibrax 0.1.14's
+  `AdapterRegistry[NNXGenerativeModelAdapter]`, and `register_adapter` takes an adapter class of
+  that family (`AdapterClass[TargetT, NNXGenerativeModelAdapter]`). `can_adapt` is a
+  `TypeGuard`; `ProteinPointCloudAdapter.can_adapt` returns `TypeGuard[nnx.Module]`.
+
 ## [0.1.14] - 2026-09-22
 
 ### Added

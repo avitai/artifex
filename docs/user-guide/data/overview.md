@@ -529,7 +529,7 @@ pipeline = Pipeline(source=source, stages=[], batch_size=32, rngs=nnx.Rngs(0))
 
 for batch in pipeline:
     images = batch["images"]
-    print(images.shape)  # (32, 64, 64, 3)
+    print(images.shape)  # (32, 64, 64, 3); the last of the 1000 images come as (8, 64, 64, 3)
     # Training step ...
 ```
 

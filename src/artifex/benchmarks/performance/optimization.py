@@ -6,13 +6,14 @@ loss curves, and training efficiency.
 """
 
 import time
-from collections.abc import Callable
+from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass, field, replace
 from typing import Any, Protocol, runtime_checkable
 
 import flax.nnx as nnx
 import jax
 import jax.numpy as jnp
+from calibrax.core import MetadataValue, read_metadata
 
 from artifex.benchmarks import Benchmark, BenchmarkConfig, BenchmarkResult, DatasetProtocol
 from artifex.benchmarks.core import metric_values
@@ -108,19 +109,94 @@ class TrainerProtocol(Protocol):
         ...
 
 
-@dataclass
+@dataclass(frozen=True, kw_only=True)
 class TrainingCurvePoint:
-    """Point on a training curve.
+    """Point on a training curve, and the record format it takes in benchmark metadata.
+
+    ``to_record`` writes the point into ``BenchmarkResult.metadata["training_curve"]`` and
+    ``from_record`` reads it back, so the benchmark and whatever reads its result (the
+    optimization plots) share one format and one validation.
 
     Attributes:
         iteration: Training iteration.
-        timestamp: Time at which the metrics were recorded.
-        metrics: dictionary of metric values.
+        metrics: Metric values by name.
+        timestamp: Seconds since training started when the metrics were recorded, if known.
     """
 
     iteration: int
-    timestamp: float
     metrics: dict[str, float]
+    timestamp: float | None = None
+
+    def to_record(self) -> dict[str, MetadataValue]:
+        """The point as the record it takes in benchmark metadata."""
+        record: dict[str, MetadataValue] = {
+            "iteration": self.iteration,
+            "metrics": dict(self.metrics),
+        }
+        if self.timestamp is not None:
+            record["timestamp"] = self.timestamp
+        return record
+
+    @classmethod
+    def from_record(cls, record: MetadataValue) -> "TrainingCurvePoint":
+        """Read a point from its record.
+
+        Args:
+            record: A record ``to_record`` wrote.
+
+        Returns:
+            The point.
+
+        Raises:
+            TypeError: If the record or its metrics is not a dictionary.
+            ValueError: If the record holds no metrics, or a value is not the number it should
+                be (an array scalar reads as the number it holds).
+        """
+        if not isinstance(record, Mapping):
+            raise TypeError(
+                f"Training curve point must be a dictionary, got {type(record).__name__}"
+            )
+        metrics = record.get("metrics")
+        if not metrics:
+            raise ValueError("Training curve points do not contain metrics data.")
+        if not isinstance(metrics, Mapping):
+            raise TypeError(f"Metrics must be a dictionary, got {type(metrics).__name__}")
+        timestamp = record.get("timestamp")
+        return cls(
+            iteration=read_metadata(int, record.get("iteration"), "training_curve.iteration"),
+            metrics={
+                name: read_metadata(float, value, f"training_curve.metrics.{name}")
+                for name, value in metrics.items()
+            },
+            timestamp=None
+            if timestamp is None
+            else read_metadata(float, timestamp, "training_curve.timestamp"),
+        )
+
+
+def training_curve_from_metadata(metadata: Mapping[str, MetadataValue]) -> list[TrainingCurvePoint]:
+    """Read the training curve an optimization benchmark wrote into its result's metadata.
+
+    Args:
+        metadata: ``BenchmarkResult.metadata``.
+
+    Returns:
+        The curve's points, in order.
+
+    Raises:
+        ValueError: If the metadata holds no curve, or an empty one, or one that is not a list.
+    """
+    if "training_curve" not in metadata:
+        raise ValueError(
+            "Benchmark result does not contain training curve data. "
+            "Use a result from OptimizationBenchmark or TrainingConvergenceBenchmark."
+        )
+    curve = metadata["training_curve"]
+    if not curve:
+        raise ValueError("Training curve data is empty.")
+    if isinstance(curve, str) or not isinstance(curve, Sequence):
+        raise ValueError("Training curve data is not a valid list or is empty.")
+    return [TrainingCurvePoint.from_record(point) for point in curve]
 
 
 class OptimizationBenchmark(Benchmark):
@@ -427,14 +503,7 @@ class OptimizationBenchmark(Benchmark):
         metadata = {
             "batch_size": self.batch_size,
             "num_epochs": self.num_epochs,
-            "training_curve": [
-                {
-                    "iteration": point.iteration,
-                    "timestamp": point.timestamp,
-                    "metrics": point.metrics,
-                }
-                for point in training_curve
-            ],
+            "training_curve": [point.to_record() for point in training_curve],
             "total_iterations": iteration,
             "total_time": total_time,
             "examples_processed": examples_processed,

@@ -22,9 +22,9 @@ pickle-file / directory path. It exposes both local protein collation and the
 Datarax indexed source contract:
 
 - `get_batch(indices)` or `get_batch(batch_size)` uses `protein_collate_fn`.
-- `get_batch_at(start, size, key)` returns fixed-shape tensor batches padded to
-  `ProteinDatasetConfig.max_seq_length` for `Pipeline.step()` and Pipeline
-  iteration.
+- `get_records(indices)` returns the named records as fixed-shape tensors padded to
+  `ProteinDatasetConfig.max_seq_length`; `Pipeline` names the records of each batch and
+  drives `Pipeline.step()` and iteration with it.
 
 ## Example
 

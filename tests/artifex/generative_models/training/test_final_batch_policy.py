@@ -1,11 +1,10 @@
-"""The final batch of an epoch, under datarax 0.1.12.
+"""The final batch of an epoch, under datarax 0.1.16.
 
-A random-access source serves every batch at ``batch_size``; the rows past the end of an
-epoch are padding, marked in the batch's ``valid_mask``. Training drops that batch
-(``drop_last=True``, PyTorch's rule), so no padded row reaches a gradient step and the
-steps per epoch are what the data holds; evaluation keeps it and scores the real rows only;
-a learning-rate schedule whose horizon is not configured takes it from the run,
-``num_epochs`` times the batches per epoch.
+No batch is padded: every row is a record. Training drops the ragged final batch
+(``drop_last=True``, PyTorch's rule), so the steps per epoch are what the data holds;
+evaluation keeps it as a short batch and averages over the records; a learning-rate
+schedule whose horizon is not configured takes it from the run, ``num_epochs`` times the
+batches per epoch.
 """
 
 from __future__ import annotations
@@ -120,14 +119,16 @@ def _ids_per_epoch(trainer: Trainer) -> list[list[int]]:
 
 
 class TestCreateDataPipeline:
-    def test_the_default_serves_the_padded_batch_with_its_mask(self) -> None:
+    def test_the_default_serves_every_record_once_with_a_short_final_batch(self) -> None:
         pipeline = create_data_pipeline(_source(), batch_size=_BATCH)
 
         batches = list(pipeline)
 
-        assert len(batches) == _FULL_BATCHES + 1
-        assert all("valid_mask" in batch for batch in batches)
-        assert sum(int(batch["valid_mask"].sum()) for batch in batches) == _N
+        sizes = [int(batch["id"].shape[0]) for batch in batches]
+        assert sizes == [_BATCH] * _FULL_BATCHES + [_N - _FULL_BATCHES * _BATCH]
+        assert all(set(batch) == {"input", "id"} for batch in batches)
+        ids = sorted(i for batch in batches for i in np.asarray(batch["id"]).tolist())
+        assert ids == list(range(_N))
 
     def test_drop_last_serves_only_full_batches(self) -> None:
         pipeline = create_data_pipeline(_source(), batch_size=_BATCH, drop_last=True)
@@ -135,7 +136,7 @@ class TestCreateDataPipeline:
         assert len(pipeline) == _FULL_BATCHES
         batches = list(pipeline)
         assert len(batches) == _FULL_BATCHES
-        assert all(bool(batch["valid_mask"].all()) for batch in batches)
+        assert all(int(batch["id"].shape[0]) == _BATCH for batch in batches)
 
 
 class TestTrainingDropsTheRaggedBatch:
@@ -156,10 +157,11 @@ class TestTrainingDropsTheRaggedBatch:
         assert _trainer(tmp_path).steps_per_epoch is None
 
     def test_fewer_records_than_a_batch_is_refused(self, tmp_path: Path) -> None:
+        """datarax refuses a drop_last pipeline that holds no full batch."""
         trainer = _trainer(tmp_path)
         data = {key: value[: _BATCH - 1] for key, value in _data().items()}
 
-        with pytest.raises(ValueError, match="fewer than one batch"):
+        with pytest.raises(ValueError, match="drop_last needs batch_size"):
             trainer.train(data, num_epochs=1, batch_size=_BATCH)
 
 
@@ -205,13 +207,13 @@ class TestScheduleHorizon:
         assert "loss" in trainer.train_step(batch)
 
 
-class TestEvaluationScoresTheRealRowsOnly:
-    def test_the_average_is_over_the_records_not_the_padding(self, tmp_path: Path) -> None:
+class TestEvaluationAveragesOverTheRecords:
+    def test_the_average_weights_the_short_final_batch_by_its_rows(self, tmp_path: Path) -> None:
         trainer = _trainer(tmp_path, loss_fn=_id_mean_loss_fn)
 
         metrics = trainer.evaluate(_data(), batch_size=_BATCH)
 
-        # The mean id over the 70 records; with the six padded rows it would be higher.
+        # The mean id over the 70 records; an unweighted mean of batch means would differ.
         assert metrics["loss"] == pytest.approx(float(np.mean(np.arange(_N))))
 
     def test_a_divisible_split_is_unchanged(self, tmp_path: Path) -> None:

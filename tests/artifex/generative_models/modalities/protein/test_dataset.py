@@ -249,8 +249,8 @@ def test_protein_dataset_sequential_get_batch_returns_empty_after_exhaustion():
     assert dataset.get_batch(2) == {}
 
 
-def test_protein_dataset_get_batch_at_static_padded_contract():
-    """Indexed access should return the same arrays as explicit padded collation."""
+def test_protein_dataset_get_records_static_padded_contract():
+    """Indexed access returns the same arrays as explicit padded collation."""
     dataset = create_synthetic_protein_dataset(
         num_proteins=6,
         min_seq_length=5,
@@ -259,7 +259,7 @@ def test_protein_dataset_get_batch_at_static_padded_contract():
     )
 
     assert dataset.supports_indexed_access() is True
-    batch = dataset.get_batch_at(start=1, size=3, key=jax.random.key(0))
+    batch = dataset.get_records(jnp.array([1, 2, 3], dtype=jnp.int32))
     expected = dataset.get_batch([1, 2, 3], max_length=dataset.config.max_seq_length)
 
     assert set(batch) == {"atom_positions", "atom_mask", "aatype", "residue_index"}
@@ -268,8 +268,8 @@ def test_protein_dataset_get_batch_at_static_padded_contract():
         np.testing.assert_allclose(np.asarray(value), np.asarray(expected[key]))
 
 
-def test_protein_dataset_get_batch_at_wraps_at_end():
-    """Final fixed-size batches should wrap like Datarax eager sources."""
+def test_protein_dataset_get_records_gathers_the_named_records_in_order():
+    """The pipeline names the records; the source gathers exactly those, in that order."""
     dataset = create_synthetic_protein_dataset(
         num_proteins=5,
         min_seq_length=5,
@@ -277,7 +277,7 @@ def test_protein_dataset_get_batch_at_wraps_at_end():
         random_seed=42,
     )
 
-    batch = dataset.get_batch_at(start=4, size=3, key=None)
+    batch = dataset.get_records(jnp.array([4, 0, 1], dtype=jnp.int32))
     expected = dataset.get_batch([4, 0, 1], max_length=dataset.config.max_seq_length)
 
     np.testing.assert_allclose(
@@ -287,16 +287,16 @@ def test_protein_dataset_get_batch_at_wraps_at_end():
     np.testing.assert_array_equal(np.asarray(batch["aatype"]), np.asarray(expected["aatype"]))
 
 
-def test_protein_dataset_get_batch_at_rejects_empty_dataset():
-    """Indexed access should fail clearly when step() is called on an empty dataset."""
+def test_protein_dataset_get_records_rejects_empty_dataset():
+    """Indexed access fails clearly on an empty dataset."""
     dataset = ProteinDataset(ProteinDatasetConfig(max_seq_length=8))
 
     with pytest.raises(ValueError, match="empty ProteinDataset"):
-        dataset.get_batch_at(start=0, size=1, key=None)
+        dataset.get_records(jnp.array([0], dtype=jnp.int32))
 
 
 def test_protein_dataset_pipeline_step_and_iteration_use_indexed_access():
-    """ProteinDataset should work through Datarax Pipeline.step and iterator paths."""
+    """ProteinDataset works through Datarax Pipeline.step and iteration; an epoch is exact."""
     dataset = create_synthetic_protein_dataset(
         num_proteins=5,
         min_seq_length=5,
@@ -309,15 +309,16 @@ def test_protein_dataset_pipeline_step_and_iteration_use_indexed_access():
     assert step_batch["atom_positions"].shape == (3, dataset.config.max_seq_length, 4, 3)
     assert int(pipeline._position[...]) == 3
 
-    pipeline._position[...] = jnp.int32(0)
+    pipeline.reset()
     iterator = iter(pipeline)
     assert isinstance(iterator, PipelineIterator)
     iter_batches = list(iterator)
+    # Five proteins in batches of three: one full batch and the two records left.
     assert [batch["atom_positions"].shape for batch in iter_batches] == [
         (3, dataset.config.max_seq_length, 4, 3),
-        (3, dataset.config.max_seq_length, 4, 3),
+        (2, dataset.config.max_seq_length, 4, 3),
     ]
-    assert int(pipeline._position[...]) == 6
+    assert int(pipeline._position[...]) == 5
 
 
 @pytest.fixture

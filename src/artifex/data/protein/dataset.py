@@ -204,9 +204,9 @@ class ProteinDataset(DataSourceModule):
                 train_step(batch)
 
         ``get_batch(indices)`` keeps the local variable-length collation surface
-        unless ``max_length`` is supplied. ``get_batch_at(start, size, key)`` is
-        the Datarax Pipeline path: it gathers from a precomputed padded array
-        cache and returns only fixed-shape tensor fields.
+        unless ``max_length`` is supplied. ``get_records(indices)`` is the Datarax
+        Pipeline path: it gathers from a precomputed padded array cache and returns
+        only fixed-shape tensor fields.
     """
 
     # Narrow config type for pyright
@@ -398,35 +398,28 @@ class ProteinDataset(DataSourceModule):
             pad_to=max_length,
         )
 
-    def supports_indexed_access(self) -> bool:
-        """Return whether Datarax can drive this source through ``get_batch_at``."""
-        return True
+    def get_records(self, indices: jax.Array) -> dict[str, jax.Array]:
+        """Return the fixed-shape records at ``indices`` (the datarax indexed-access contract).
 
-    def get_batch_at(
-        self,
-        start: int | Any,
-        size: int,
-        key: Any | None = None,
-    ) -> dict[str, jax.Array]:
-        """Return a fixed-shape stateless batch for Datarax ``Pipeline.step``.
+        The public ``get_batch(indices)`` path preserves variable-length collation unless a
+        caller requests ``max_length``. Datarax's compiled pipeline path needs static shapes
+        and traced indices, so this gathers from the precomputed padded tensor cache instead
+        of indexing the Python ``structures`` list. The pipeline names the records (in order;
+        this source does not shuffle), so wrapping and epochs are its concern, not this one's.
 
-        The public ``get_batch(indices)`` path preserves variable-length
-        collation unless a caller requests ``max_length``. Datarax's compiled
-        pipeline path needs static shapes and a traced ``start`` value, so this
-        method gathers from the precomputed padded tensor cache instead of
-        indexing the Python ``structures`` list.
+        Args:
+            indices: Record indices to gather.
+
+        Returns:
+            One padded array per field, with leading dimension ``len(indices)``.
+
+        Raises:
+            ValueError: If the dataset holds no structures.
         """
-        del key  # ProteinDataset has deterministic sequential ordering.
-
         if not self.structures:
             raise ValueError("Cannot index an empty ProteinDataset")
-
-        indices = (
-            jnp.asarray(start, dtype=jnp.int32) + jnp.arange(size, dtype=jnp.int32)
-        ) % jnp.int32(len(self.structures))
         return {
-            name: jnp.take(value, indices, axis=0, mode="wrap")
-            for name, value in self._indexed_arrays.items()
+            name: jnp.take(value, indices, axis=0) for name, value in self._indexed_arrays.items()
         }
 
     def get_statistics(self) -> dict[str, float]:

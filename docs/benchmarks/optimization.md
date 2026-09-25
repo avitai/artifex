@@ -47,8 +47,19 @@ class TrainingConvergenceBenchmark
 ### TrainingCurvePoint
 
 ```python
-class TrainingCurvePoint
+@dataclass(frozen=True, kw_only=True)
+class TrainingCurvePoint:
+    iteration: int
+    metrics: dict[str, float]
+    timestamp: float | None = None
 ```
+
+A point on a training curve, and the record it takes in
+`BenchmarkResult.metadata["training_curve"]`: `to_record()` writes it and
+`TrainingCurvePoint.from_record(record)` reads it back, so the benchmark and the optimization
+plots share one format. Values are read with calibrax's `read_metadata`, so a metric recorded as
+an array scalar reads as the number it holds, and a value of the wrong kind is refused with its
+path (`training_curve.metrics.loss`).
 
 ## Functions
 
@@ -100,8 +111,19 @@ def run()
 def train_step()
 ```
 
+### training_curve_from_metadata
+
+```python
+def training_curve_from_metadata(
+    metadata: Mapping[str, MetadataValue],
+) -> list[TrainingCurvePoint]
+```
+
+The training curve an optimization benchmark wrote into its result's metadata. Refuses metadata
+with no curve, an empty curve, or one that is not a list.
+
 ## Module Statistics
 
 - **Classes:** 6
-- **Functions:** 8
-- **Imports:** 7
+- **Functions:** 9
+- **Imports:** 10

@@ -12,6 +12,7 @@ from typing import Any, cast, NamedTuple, TYPE_CHECKING
 import jax
 import jax.numpy as jnp
 import optax
+from datarax.core.spec import batch_length
 from datarax.sources import MemorySource, MemorySourceConfig
 from flax import nnx
 from substrax.checkpoint import OrbaxCheckpointStore, Producer, resolve_checkpoint_dir
@@ -51,11 +52,6 @@ _HORIZON_FIELDS = {
     "one_cycle": "total_steps",
     "cosine": "cycle_length",
 }
-
-
-def _real_rows(batch: dict[str, Any], records: int) -> dict[str, Any]:
-    """The first ``records`` rows of every leaf: the batch without its padding."""
-    return jax.tree.map(lambda leaf: leaf[:records], batch)
 
 
 class _EpochContext(NamedTuple):
@@ -482,7 +478,7 @@ class Trainer:
 
         return self._average_metrics(epoch_metrics)
 
-    def train(
+    def train(  # noqa: DOC502 - datarax's Pipeline raises the ValueError while being built
         self,
         train_data: dict[str, Any],
         num_epochs: int,
@@ -526,11 +522,9 @@ class Trainer:
         pipeline = create_data_pipeline(
             source, batch_size=batch_size, rngs=nnx.Rngs(shuffle_seed), drop_last=True
         )
+        # datarax refuses a drop_last pipeline that holds no full batch, so an epoch has at
+        # least one step.
         self.steps_per_epoch = len(pipeline)
-        if self.steps_per_epoch == 0:
-            raise ValueError(
-                f"train_data holds {len(source)} records, fewer than one batch of {batch_size}"
-            )
         self._ensure_optimizer(num_epochs * self.steps_per_epoch)
 
         metrics: dict[str, Any] = {}
@@ -633,9 +627,9 @@ class Trainer:
     def evaluate(self, data: dict[str, Any], batch_size: int) -> dict[str, Any]:
         """Evaluate the model on every record of ``data``.
 
-        The last batch of the pass is padded to ``batch_size``; its padded rows are cut
-        before the objective sees it, and each batch's metrics weigh in by the records it
-        holds, so the result is the per-record average over ``data`` alone.
+        One pass serves every record once; the last batch holds the records left, which may be
+        fewer than ``batch_size``. Each batch's metrics weigh in by the records it holds, so
+        the result is the per-record average over ``data``.
 
         Args:
             data: Evaluation data dictionary
@@ -652,11 +646,10 @@ class Trainer:
         pipeline = create_data_pipeline(source, batch_size=batch_size)
         weighted: list[tuple[dict[str, Any], int]] = []
 
-        for served in pipeline:
-            records = int(served["valid_mask"].sum())
-            if records == 0:
+        for batch in pipeline:
+            records = batch_length(batch)
+            if not records:
                 continue
-            batch = _real_rows(served, records) if records < batch_size else served
             self.rng, eval_rng = jax.random.split(self.rng)
             loss, metrics = self.loss_fn(self.model, batch, eval_rng, jnp.array(self.step))
             weighted.append(({**metrics, "loss": float(loss)}, records))
