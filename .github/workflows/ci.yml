@@ -8,6 +8,48 @@ on:
   workflow_dispatch:
 
 jobs:
+  already_tested:
+    name: Tree already tested
+    runs-on: ubuntu-latest
+    outputs:
+      skip: ${{ steps.compare.outputs.skip }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Compare this tree with the pull request that produced it
+        id: compare
+        # Only a merge repeats work. A manual run is asked for because someone wants the run.
+        # When this step does not run the output is empty, which every consumer reads as
+        # "test it".
+        if: github.event_name == 'push'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          skip=false
+          pull_request=$(git log -1 --pretty=%s | sed -n 's/.*(#\([0-9]\+\))$/\1/p')
+          if [ -n "$pull_request" ]; then
+            # Every lookup below answers "unknown" rather than failing: a subject that ends in
+            # a number naming no pull request must leave the run green and running, not red.
+            # The pull ref outlives the branch, so this still resolves after a merge deleted it.
+            git fetch --no-tags --depth=1 origin "refs/pull/$pull_request/head" || true
+            tree=$(git rev-parse "HEAD^{tree}")
+            tested=$(git rev-parse "FETCH_HEAD^{tree}" 2>/dev/null || echo unknown)
+            failed=$(gh pr view "$pull_request" --json statusCheckRollup --jq \
+              '[.statusCheckRollup[] | (.conclusion // .state)
+                | select(. == "FAILURE" or . == "TIMED_OUT" or . == "ERROR")] | length' \
+              2>/dev/null || echo unknown)
+            if [ "$tree" = "$tested" ] && [ "$failed" = "0" ]; then
+              skip=true
+            fi
+            echo "pull request #$pull_request: tree $tested, failed checks $failed"
+          fi
+          echo "this tree $(git rev-parse 'HEAD^{tree}') already tested: $skip"
+          echo "skip=$skip" >> "$GITHUB_OUTPUT"
+
+  # Not gated on already_tested: every job waits on it, including the main-only
+  # performance job, and a skipped dependency would take that job down with it.
   quality:
     name: Quality Gate
     runs-on: ubuntu-latest
@@ -41,14 +83,15 @@ jobs:
 
   unit_tests:
     name: Unit Tests (${{ matrix.os }}, Python ${{ matrix.python-version }})
-    needs: quality
+    needs: [quality, already_tested]
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         # The macOS-14 runners queue for hours and run the same steps; they run on
         # pushes to main only, so a branch or pull request is gated by the ubuntu
-        # jobs alone and the merge to main measures both platforms.
-        os: ${{ fromJSON(github.ref == 'refs/heads/main' && '["ubuntu-latest", "macos-14"]' || '["ubuntu-latest"]') }}
+        # jobs alone and the merge to main measures both platforms. A merge of a tree
+        # its pull request already tested runs only macOS, which no pull request ran.
+        os: ${{ fromJSON(needs.already_tested.outputs.skip == 'true' && '["macos-14"]' || (github.ref == 'refs/heads/main' && '["ubuntu-latest", "macos-14"]' || '["ubuntu-latest"]')) }}
         python-version: ["3.12", "3.13"]
       fail-fast: false
 
@@ -83,7 +126,8 @@ jobs:
 
   integration_tests:
     name: Integration Tests
-    needs: unit_tests
+    needs: [unit_tests, already_tested]
+    if: needs.already_tested.outputs.skip != 'true'
     runs-on: ubuntu-latest
 
     steps:
@@ -116,7 +160,8 @@ jobs:
 
   e2e_tests:
     name: End-to-End Tests
-    needs: integration_tests
+    needs: [integration_tests, already_tested]
+    if: needs.already_tested.outputs.skip != 'true'
     runs-on: ubuntu-latest
 
     steps:
@@ -181,7 +226,8 @@ jobs:
 
   coverage:
     name: Test Coverage
-    needs: [unit_tests, integration_tests, e2e_tests]
+    needs: [unit_tests, integration_tests, e2e_tests, already_tested]
+    if: needs.already_tested.outputs.skip != 'true'
     runs-on: ubuntu-latest
 
     steps:
