@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.15] - 2026-09-25
+
 ### Fixed
 
 - `Trainer.evaluate`, and `Trainer.train` with `val_data`, raised `KeyError('valid_mask')` on a
