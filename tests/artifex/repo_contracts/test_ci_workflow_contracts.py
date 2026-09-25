@@ -132,9 +132,11 @@ def test_policy_workflows_use_checked_in_setup_action_instead_of_inline_bootstra
         assert "astral-sh/setup-uv@" not in contents
         assert "uv pip install -e" not in contents
 
-        for job in workflow["jobs"].values():
+        for name, job in workflow["jobs"].items():
             setup_steps = [step for step in job["steps"] if step.get("uses") == SETUP_ACTION]
-            assert len(setup_steps) == 1
+            runs_uv = any("uv " in step.get("run", "") for step in job["steps"])
+            # A job that needs no Python (the already-tested gate reads git and gh) sets up none.
+            assert len(setup_steps) == (1 if runs_uv else 0), f"{relative_path}: {name}"
 
 
 def test_shared_setup_action_uses_current_pinned_uv_toolchain() -> None:
@@ -235,10 +237,12 @@ def coverage_cap_violations(workflow: dict, pyproject: dict) -> list[str]:
         problems.append(f"[tool.coverage.report] fail_under is {report_cap}, not at least 80")
     if not {"push", "pull_request"} <= set(workflow["on"]):
         problems.append(f"CI runs on {sorted(workflow['on'])}, not on both push and pull_request")
+    # A merge whose tree its pull request already tested (and so already held to the cap)
+    # may stand the combined report down; no other condition may.
     problems += [
         f"job {name} only runs when {job['if']}"
         for name, job in (("unit_tests", unit_job), ("coverage", coverage_job))
-        if "if" in job
+        if job.get("if", GATE_CONDITION) != GATE_CONDITION
     ]
     problems += [
         f"the unit test command overrides the cap with {override}"
@@ -316,11 +320,139 @@ def _platform_matrix(expression: str) -> tuple[str, list[str], list[str]]:
 
 def test_macos_runners_join_the_platform_matrix_on_main_only() -> None:
     """macOS runners queue for hours; pushes to main measure both platforms, branches ubuntu only."""
-    for workflow, job_name in (("ci.yml", "unit_tests"), ("build-verification.yml", "build")):
-        job = _load_yaml(f".github/workflows/{workflow}")["jobs"][job_name]
+    job = _load_yaml(".github/workflows/build-verification.yml")["jobs"]["build"]
 
-        condition, on_main, elsewhere = _platform_matrix(job["strategy"]["matrix"]["os"])
+    condition, on_main, elsewhere = _platform_matrix(job["strategy"]["matrix"]["os"])
 
-        assert condition == "github.ref == 'refs/heads/main'", workflow
-        assert on_main == ["ubuntu-latest", "macos-14"], workflow
-        assert elsewhere == ["ubuntu-latest"], workflow
+    assert condition == "github.ref == 'refs/heads/main'"
+    assert on_main == ["ubuntu-latest", "macos-14"]
+    assert elsewhere == ["ubuntu-latest"]
+
+
+def test_unit_tests_on_an_already_tested_tree_run_only_the_platform_no_pull_request_ran() -> None:
+    """A merge of a tree its pull request tested repeats ubuntu; macOS it has never measured.
+
+    Pull requests run ubuntu only, so the merge narrows to macOS rather than skipping, which
+    also keeps the main-only performance job (it waits on the unit tests) running.
+    """
+    expression = _load_yaml(".github/workflows/ci.yml")["jobs"]["unit_tests"]["strategy"]["matrix"][
+        "os"
+    ]
+
+    assert expression == (
+        "${{ fromJSON(needs.already_tested.outputs.skip == 'true' && '[\"macos-14\"]'"
+        " || (github.ref == 'refs/heads/main' && '[\"ubuntu-latest\", \"macos-14\"]'"
+        " || '[\"ubuntu-latest\"]')) }}"
+    )
+
+
+GATE_JOB = "already_tested"
+# The quality gate is not gated: every other job waits on it, including the main-only
+# performance job, and GitHub skips a job whose dependency skipped.
+UNGATED_JOBS = frozenset({GATE_JOB, "quality"})
+GATE_CONDITION = f"needs.{GATE_JOB}.outputs.skip != 'true'"
+
+
+def _ci_jobs() -> dict[str, dict]:
+    return _load_yaml(".github/workflows/ci.yml")["jobs"]
+
+
+def _needs(job: dict) -> list[str]:
+    needs = job.get("needs", [])
+    return [needs] if isinstance(needs, str) else list(needs)
+
+
+def _runs_only_on_main(job: dict) -> bool:
+    """Whether the job's own condition confines it to a push to main."""
+    return "refs/heads/main" in str(job.get("if", ""))
+
+
+def _consults_the_gate(job: dict) -> bool:
+    return f"needs.{GATE_JOB}.outputs.skip" in yaml.safe_dump(job)
+
+
+def _skipped_by_the_gate(job: dict) -> bool:
+    return f"needs.{GATE_JOB}.outputs.skip" in str(job.get("if", ""))
+
+
+def _transitive_needs(name: str, jobs: dict[str, dict]) -> set[str]:
+    """Every job ``name`` waits on, directly or through another."""
+    pending, seen = [name], set()
+    while pending:
+        for dependency in _needs(jobs.get(pending.pop(), {})):
+            if dependency not in seen:
+                seen.add(dependency)
+                pending.append(dependency)
+    return seen
+
+
+def test_the_gate_reports_a_skip_only_for_a_push() -> None:
+    """A manual run re-measures the tree on purpose and must not be skipped."""
+    gate = _ci_jobs()[GATE_JOB]
+    reported_by = gate["outputs"]["skip"]
+    writers = [step for step in gate["steps"] if f"steps.{step.get('id')}.outputs" in reported_by]
+
+    assert [step.get("if") for step in writers] == ["github.event_name == 'push'"]
+
+
+def test_the_gate_skips_only_a_tree_its_pull_request_passed() -> None:
+    """Skip needs the pull ref's tree to equal this tree and no failed check on that PR."""
+    compare = next(step for step in _ci_jobs()[GATE_JOB]["steps"] if step.get("id") == "compare")
+    script = compare["run"]
+
+    assert 'git fetch --no-tags --depth=1 origin "refs/pull/$pull_request/head" || true' in script
+    assert '[ "$tree" = "$tested" ] && [ "$failed" = "0" ]' in script
+    assert "statusCheckRollup" in script
+    assert compare["env"]["GH_TOKEN"] == "${{ github.token }}"
+
+
+def test_a_job_that_repeats_the_pull_request_consults_the_gate() -> None:
+    """Work a pull request already did over the same tree does not run again on the merge."""
+    jobs = _ci_jobs()
+    repeated = {
+        name
+        for name, job in jobs.items()
+        if name not in UNGATED_JOBS and not _runs_only_on_main(job)
+    }
+
+    ungated = sorted(name for name in repeated if not _consults_the_gate(jobs[name]))
+
+    assert repeated >= {"unit_tests", "integration_tests", "e2e_tests", "coverage"}
+    assert ungated == [], f"these repeat the pull request without consulting the gate: {ungated}"
+
+
+def test_nothing_a_main_only_job_waits_on_is_skipped_by_the_gate() -> None:
+    """A job confined to main must not be skipped because something it needs was.
+
+    The unit tests consult the gate only to narrow their platforms, so they still run and the
+    performance job that waits on them still runs.
+    """
+    jobs = _ci_jobs()
+    main_only = [name for name, job in jobs.items() if _runs_only_on_main(job)]
+
+    assert main_only == ["performance_tests"]
+    for name in main_only:
+        skipped = sorted(
+            dependency
+            for dependency in _transitive_needs(name, jobs)
+            if _skipped_by_the_gate(jobs[dependency])
+        )
+        assert skipped == [], f"{name} runs only on main but waits on gated {skipped}"
+
+
+def test_an_unanswered_gate_leaves_the_work_running() -> None:
+    """Where the gate answers nothing, every job runs as it would without it.
+
+    The compare step does not run for a pull request or a manual run, and its lookups answer
+    ``unknown`` rather than failing, so an empty output is ordinary. A consumer may only stand
+    work down on ``'true'``.
+    """
+    for name, job in _ci_jobs().items():
+        if name == GATE_JOB or not _consults_the_gate(job):
+            continue
+        assert GATE_JOB in _needs(job), name
+        assert job.get("if") in (None, GATE_CONDITION), f"{name} runs only when {job.get('if')}"
+
+        pattern = rf"needs\.{GATE_JOB}\.outputs\.skip\s*(==|!=)\s*'([a-z]+)'"
+        compared = set(re.findall(pattern, yaml.safe_dump(job, width=10_000)))
+        assert {value for _, value in compared} == {"true"}, f"{name} compares against {compared}"
