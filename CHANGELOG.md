@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Requires datarax 0.1.17 and substrax 0.1.18, the latest releases.
+
+### Fixed
+
+- The distributed-training guide no longer lists `substrax.spmd.reduce_gradient_tree`, which
+  substrax 0.1.17 removed.
+
 ## [0.1.15] - 2026-09-25
 
 ### Fixed
