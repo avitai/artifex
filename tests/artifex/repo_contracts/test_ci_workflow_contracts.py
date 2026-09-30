@@ -6,6 +6,7 @@ import tomllib
 from pathlib import Path
 from typing import Final
 
+import pytest
 import yaml
 
 
@@ -484,3 +485,32 @@ def test_every_uv_cache_is_pruned_before_it_is_saved() -> None:
 
     assert checked, "no setup-uv step found; the contract is reading the wrong files"
     assert unpruned == [], f"setup-uv steps saving an unpruned cache: {unpruned}"
+
+
+# docs.yml deploys the site on a push to main; cancelling a deploy for a newer push could
+# leave the site on an older build when the newer run fails, so it keeps its runs.
+DEPLOY_WORKFLOWS = frozenset({"docs.yml"})
+
+
+def _workflow_paths() -> list[Path]:
+    return sorted((REPO_ROOT / ".github" / "workflows").glob("*.yml"))
+
+
+@pytest.mark.parametrize("path", _workflow_paths(), ids=lambda path: path.name)
+def test_a_newer_push_cancels_the_run_it_supersedes(path: Path) -> None:
+    """Two pushes to one ref in a row leave one run of every push or pull request workflow.
+
+    The group is keyed on the workflow and the ref, so only a run of the same workflow for the
+    same branch or pull request is cancelled.
+    """
+    workflow = _load_yaml(f".github/workflows/{path.name}")
+    if not set(workflow["on"]) & {"push", "pull_request"}:
+        return
+    concurrency = workflow.get("concurrency")
+
+    if path.name in DEPLOY_WORKFLOWS:
+        assert concurrency is None or concurrency.get("cancel-in-progress") != "true"
+        return
+    assert isinstance(concurrency, dict), f"{path.name} declares no concurrency group"
+    assert concurrency.get("group") == "${{ github.workflow }}-${{ github.ref }}", path.name
+    assert concurrency.get("cancel-in-progress") == "true", f"{path.name} keeps superseded runs"
