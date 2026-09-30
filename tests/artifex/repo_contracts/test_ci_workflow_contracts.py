@@ -38,7 +38,7 @@ SECURITY_PATCH_FLOORS: Final = {
     "requests": (2, 33, 0),
     "starlette": (1, 3, 1),
     "tornado": (6, 5, 7),
-    "urllib3": (2, 7, 0),
+    "urllib3": (2, 8, 0),
 }
 
 
