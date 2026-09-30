@@ -144,8 +144,8 @@ def test_shared_setup_action_uses_current_pinned_uv_toolchain() -> None:
     action = _load_yaml(".github/actions/setup-artifex/action.yml")
     install_uv = next(step for step in action["runs"]["steps"] if step.get("name") == "Install uv")
 
-    assert install_uv["uses"] == "astral-sh/setup-uv@v8.3.1"
-    assert install_uv["with"]["version"] == "0.11.25"
+    assert install_uv["uses"] == "astral-sh/setup-uv@v10.2.0"
+    assert install_uv["with"]["version"] == "0.12.21"
 
 
 def test_workflow_roles_and_blocking_quality_commands_are_explicit() -> None:

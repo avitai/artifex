@@ -59,7 +59,7 @@ _IMAGE_IGNORE = [
 app = modal.App(APP_NAME)
 
 # Pin uv to the version that generated uv.lock, for build stability.
-_UV_VERSION = "0.11.25"
+_UV_VERSION = "0.12.21"
 
 # `--frozen` installs the exact pinned versions from uv.lock without re-resolving.
 # `--locked` additionally re-checks consistency, which fails spuriously on Modal
