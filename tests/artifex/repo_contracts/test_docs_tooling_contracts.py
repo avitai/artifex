@@ -1,13 +1,24 @@
 from __future__ import annotations
 
+import re
 from pathlib import Path
+from typing import Any
 
+import pytest
 import yaml
 from tests.utils.fresh_interpreter import run_repo_python
 
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 SETUP_ACTION = "./.github/actions/setup-artifex"
+WORKFLOWS = REPO_ROOT / ".github" / "workflows"
+DOCS_WORKFLOW = WORKFLOWS / "docs.yml"
+PAGES_ACTIONS = (
+    "peaceiris/actions-gh-pages",
+    "actions/deploy-pages",
+    "actions/upload-pages-artifact",
+)
+READ_THE_DOCS_URL = "https://artifex.readthedocs.io/en/latest/"
 
 
 def _write(path: Path, contents: str) -> None:
@@ -187,12 +198,69 @@ def test_local_docs_serve_wrapper_uses_uv_run() -> None:
     assert "uv run mkdocs serve -f mkdocs-dev.yml --dirtyreload" in contents
 
 
-def test_docs_deployment_workflow_uses_shared_setup_and_validator() -> None:
-    """Docs deployment must reuse shared setup and the truthful validator contract."""
-    workflow = _load_yaml(".github/workflows/docs.yml")
-    contents = (REPO_ROOT / ".github" / "workflows" / "docs.yml").read_text(encoding="utf-8")
+def _workflow_paths() -> list[Path]:
+    return sorted(WORKFLOWS.glob("*.yml"))
 
-    assert set(workflow["on"]) == {"push", "workflow_dispatch"}
+
+def _permission_blocks(workflow: dict[str, Any]) -> list[Any]:
+    """Every ``permissions`` block: the workflow's own, then each job's."""
+    blocks = [workflow["permissions"]] if "permissions" in workflow else []
+    blocks += [job["permissions"] for job in workflow["jobs"].values() if "permissions" in job]
+    return blocks
+
+
+def _steps(workflow: dict[str, Any]) -> list[dict[str, Any]]:
+    return [step for job in workflow["jobs"].values() for step in job.get("steps", [])]
+
+
+def test_the_workflow_scan_reads_the_docs_workflow() -> None:
+    """A positive control: the Pages scan below must see docs.yml and its steps."""
+    assert DOCS_WORKFLOW in _workflow_paths()
+    assert _steps(_load_yaml(".github/workflows/docs.yml"))
+
+
+@pytest.mark.parametrize("path", _workflow_paths(), ids=lambda path: path.name)
+def test_no_workflow_deploys_to_github_pages(path: Path) -> None:
+    """Read the Docs hosts the documentation (.readthedocs.yaml); GitHub Pages serves nothing."""
+    workflow = _load_yaml(f".github/workflows/{path.name}")
+    uses = [str(step.get("uses", "")) for step in _steps(workflow)]
+
+    assert [use for use in uses if use.startswith(PAGES_ACTIONS)] == [], path.name
+    assert [block for block in _permission_blocks(workflow) if "pages" in block] == [], path.name
+
+
+def test_the_docs_workflow_holds_a_read_only_token() -> None:
+    blocks = _permission_blocks(_load_yaml(".github/workflows/docs.yml"))
+
+    assert blocks, "docs.yml inherits the default token permissions"
+    assert all(block == {"contents": "read"} for block in blocks), blocks
+
+
+@pytest.mark.parametrize("event", ["pull_request", "push"])
+def test_the_docs_build_runs_on_pull_requests_and_pushes_to_main(event: str) -> None:
+    triggers = _load_yaml(".github/workflows/docs.yml")["on"]
+
+    assert event in triggers
+    assert triggers[event]["branches"] == ["main"]
+    assert triggers[event]["paths"] == triggers["push"]["paths"]
+
+
+def test_the_site_is_published_by_read_the_docs_only() -> None:
+    """No custom-domain file ships with the docs, and the canonical URL is Read the Docs."""
+    mkdocs_config = (REPO_ROOT / "mkdocs.yml").read_text(encoding="utf-8")
+    site_url = re.search(r"^site_url: (\S+)$", mkdocs_config, re.MULTILINE)
+
+    assert not (REPO_ROOT / "docs" / "CNAME").exists()
+    assert site_url is not None, "mkdocs.yml declares no site_url"
+    assert site_url[1] == READ_THE_DOCS_URL
+
+
+def test_docs_build_workflow_uses_shared_setup_and_validator() -> None:
+    """The docs build check must reuse shared setup and the truthful validator contract."""
+    workflow = _load_yaml(".github/workflows/docs.yml")
+    contents = DOCS_WORKFLOW.read_text(encoding="utf-8")
+
+    assert set(workflow["on"]) == {"push", "pull_request", "workflow_dispatch"}
     for job in workflow["jobs"].values():
         setup_steps = [step for step in job["steps"] if step.get("uses") == SETUP_ACTION]
         assert len(setup_steps) == 1
