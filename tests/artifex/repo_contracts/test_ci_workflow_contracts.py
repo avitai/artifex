@@ -456,3 +456,31 @@ def test_an_unanswered_gate_leaves_the_work_running() -> None:
         pattern = rf"needs\.{GATE_JOB}\.outputs\.skip\s*(==|!=)\s*'([a-z]+)'"
         compared = set(re.findall(pattern, yaml.safe_dump(job, width=10_000)))
         assert {value for _, value in compared} == {"true"}, f"{name} compares against {compared}"
+
+
+def test_every_uv_cache_is_pruned_before_it_is_saved() -> None:
+    """A saved uv cache holds only what uv built, not every wheel it downloaded.
+
+    setup-uv prunes only when asked (``prune-cache`` defaults to false from v9); unpruned, the
+    caches of the heavy extras grow to gigabytes each and evict the repository's other caches.
+    """
+    github = REPO_ROOT / ".github"
+    documents = [
+        *sorted(github.glob("workflows/*.yml")),
+        *sorted(github.glob("actions/*/action.yml")),
+    ]
+    checked = 0
+    unpruned: list[str] = []
+    for path in documents:
+        document = yaml.safe_load(path.read_text(encoding="utf-8"))
+        owners = {**document.get("jobs", {}), "runs": document.get("runs") or {}}
+        for owner, body in owners.items():
+            for step in body.get("steps", []):
+                if not str(step.get("uses", "")).startswith("astral-sh/setup-uv@"):
+                    continue
+                checked += 1
+                if (step.get("with") or {}).get("prune-cache") is not True:
+                    unpruned.append(f"{path.relative_to(REPO_ROOT)}:{owner}")
+
+    assert checked, "no setup-uv step found; the contract is reading the wrong files"
+    assert unpruned == [], f"setup-uv steps saving an unpruned cache: {unpruned}"
