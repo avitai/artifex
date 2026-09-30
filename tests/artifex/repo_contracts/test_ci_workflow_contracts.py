@@ -490,6 +490,7 @@ def test_every_uv_cache_is_pruned_before_it_is_saved() -> None:
 # docs.yml deploys the site on a push to main; cancelling a deploy for a newer push could
 # leave the site on an older build when the newer run fails, so it keeps its runs.
 DEPLOY_WORKFLOWS = frozenset({"docs.yml"})
+PULL_REQUEST_RUNS_ONLY = "${{ github.event_name == 'pull_request' }}"
 
 
 def _workflow_paths() -> list[Path]:
@@ -498,10 +499,11 @@ def _workflow_paths() -> list[Path]:
 
 @pytest.mark.parametrize("path", _workflow_paths(), ids=lambda path: path.name)
 def test_a_newer_push_cancels_the_run_it_supersedes(path: Path) -> None:
-    """Two pushes to one ref in a row leave one run of every push or pull request workflow.
+    """A newer push to a pull request cancels that pull request's superseded run.
 
     The group is keyed on the workflow and the ref, so only a run of the same workflow for the
-    same branch or pull request is cancelled.
+    same pull request is cancelled. A push to main is never cancelled: each main commit keeps
+    its main-only jobs, such as the performance measurement.
     """
     workflow = _load_yaml(f".github/workflows/{path.name}")
     if not set(workflow["on"]) & {"push", "pull_request"}:
@@ -513,4 +515,4 @@ def test_a_newer_push_cancels_the_run_it_supersedes(path: Path) -> None:
         return
     assert isinstance(concurrency, dict), f"{path.name} declares no concurrency group"
     assert concurrency.get("group") == "${{ github.workflow }}-${{ github.ref }}", path.name
-    assert concurrency.get("cancel-in-progress") == "true", f"{path.name} keeps superseded runs"
+    assert concurrency.get("cancel-in-progress") == PULL_REQUEST_RUNS_ONLY, path.name
