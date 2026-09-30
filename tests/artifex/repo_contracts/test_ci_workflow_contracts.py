@@ -492,9 +492,6 @@ def test_every_uv_cache_is_pruned_before_it_is_saved() -> None:
     assert unpruned == [], f"setup-uv steps saving an unpruned cache: {unpruned}"
 
 
-# docs.yml deploys the site on a push to main; cancelling a deploy for a newer push could
-# leave the site on an older build when the newer run fails, so it keeps its runs.
-DEPLOY_WORKFLOWS = frozenset({"docs.yml"})
 PULL_REQUEST_RUNS_ONLY = "${{ github.event_name == 'pull_request' }}"
 
 
@@ -514,10 +511,6 @@ def test_a_newer_push_cancels_the_run_it_supersedes(path: Path) -> None:
     if not set(workflow["on"]) & {"push", "pull_request"}:
         return
     concurrency = workflow.get("concurrency")
-
-    if path.name in DEPLOY_WORKFLOWS:
-        assert concurrency is None or concurrency.get("cancel-in-progress") != "true"
-        return
     assert isinstance(concurrency, dict), f"{path.name} declares no concurrency group"
     assert concurrency.get("group") == "${{ github.workflow }}-${{ github.ref }}", path.name
     assert concurrency.get("cancel-in-progress") == PULL_REQUEST_RUNS_ONLY, path.name
