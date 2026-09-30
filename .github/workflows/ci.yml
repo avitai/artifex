@@ -17,36 +17,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # A merge repeats the pull request; a manual run is asked for. When this step does not run
+      # the output is empty, which every consumer reads as "test it". The compare lives in
+      # substrax, the stack's base layer: skip only when this tree is the pull request's and
+      # every check of it succeeded. Pinned by commit (substrax ec43d80, PR #42).
       - name: Compare this tree with the pull request that produced it
         id: compare
-        # Only a merge repeats work. A manual run is asked for because someone wants the run.
-        # When this step does not run the output is empty, which every consumer reads as
-        # "test it".
         if: github.event_name == 'push'
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          set -euo pipefail
-          skip=false
-          pull_request=$(git log -1 --pretty=%s | sed -n 's/.*(#\([0-9]\+\))$/\1/p')
-          if [ -n "$pull_request" ]; then
-            # Every lookup below answers "unknown" rather than failing: a subject that ends in
-            # a number naming no pull request must leave the run green and running, not red.
-            # The pull ref outlives the branch, so this still resolves after a merge deleted it.
-            git fetch --no-tags --depth=1 origin "refs/pull/$pull_request/head" || true
-            tree=$(git rev-parse "HEAD^{tree}")
-            tested=$(git rev-parse "FETCH_HEAD^{tree}" 2>/dev/null || echo unknown)
-            failed=$(gh pr view "$pull_request" --json statusCheckRollup --jq \
-              '[.statusCheckRollup[] | (.conclusion // .state)
-                | select(. == "FAILURE" or . == "TIMED_OUT" or . == "ERROR")] | length' \
-              2>/dev/null || echo unknown)
-            if [ "$tree" = "$tested" ] && [ "$failed" = "0" ]; then
-              skip=true
-            fi
-            echo "pull request #$pull_request: tree $tested, failed checks $failed"
-          fi
-          echo "this tree $(git rev-parse 'HEAD^{tree}') already tested: $skip"
-          echo "skip=$skip" >> "$GITHUB_OUTPUT"
+        uses: avitai/substrax/.github/actions/already-tested@ec43d80bbae0040375f746cd1bb07dddb0a0b169
 
   # Not gated on already_tested: every job waits on it, including the main-only
   # performance job, and a skipped dependency would take that job down with it.

@@ -395,15 +395,20 @@ def test_the_gate_reports_a_skip_only_for_a_push() -> None:
     assert [step.get("if") for step in writers] == ["github.event_name == 'push'"]
 
 
-def test_the_gate_skips_only_a_tree_its_pull_request_passed() -> None:
-    """Skip needs the pull ref's tree to equal this tree and no failed check on that PR."""
-    compare = next(step for step in _ci_jobs()[GATE_JOB]["steps"] if step.get("id") == "compare")
-    script = compare["run"]
+GATE_ACTION = re.compile(r"^avitai/substrax/\.github/actions/already-tested@[0-9a-f]{40}$")
 
-    assert 'git fetch --no-tags --depth=1 origin "refs/pull/$pull_request/head" || true' in script
-    assert '[ "$tree" = "$tested" ] && [ "$failed" = "0" ]' in script
-    assert "statusCheckRollup" in script
-    assert compare["env"]["GH_TOKEN"] == "${{ github.token }}"
+
+def test_the_gate_is_the_shared_action_pinned_to_a_commit() -> None:
+    """The compare is substrax's already-tested action, pinned by commit, not a copy of it.
+
+    The action finds the pull request a push merged (squash or rebase) and skips only when that
+    pull request tested this tree and every one of its checks succeeded; its rules are tested
+    in substrax. A full commit SHA pins exactly the code that runs.
+    """
+    compare = next(step for step in _ci_jobs()[GATE_JOB]["steps"] if step.get("id") == "compare")
+
+    assert GATE_ACTION.match(compare.get("uses", "")), compare.get("uses")
+    assert "run" not in compare, "the gate runs the shared action, not an inline script"
 
 
 def test_a_job_that_repeats_the_pull_request_consults_the_gate() -> None:
