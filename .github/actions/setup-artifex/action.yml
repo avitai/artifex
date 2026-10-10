@@ -44,6 +44,14 @@ runs:
       shell: bash
       env:
         UV_CONCURRENT_DOWNLOADS: "4"
+        # uv sync is a project command and selects its own interpreter; it does not
+        # inherit the one `uv venv --python` just created. Without these it followed
+        # .python-version (3.12), replaced the venv, and the "Python 3.13" legs ran
+        # CPython 3.12. The same three variables are exported for later steps further
+        # down; they are needed here too, before the first uv sync runs.
+        UV_PYTHON: ${{ inputs.python-version }}
+        UV_PYTHON_DOWNLOADS: never
+        UV_PYTHON_PREFERENCE: only-system
       run: |
         set -euo pipefail
 
@@ -98,3 +106,7 @@ runs:
           # tool such as ruff disappears between setup and the step that runs it.
           echo "UV_NO_SYNC=1"
         } >> "$GITHUB_ENV"
+
+    - name: Check the interpreter is Python ${{ inputs.python-version }}
+      shell: bash
+      run: uv run python scripts/require_python.py "${{ inputs.python-version }}"

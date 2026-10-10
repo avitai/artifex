@@ -50,6 +50,7 @@ jobs:
           uv venv test_venv
           . test_venv/bin/activate
           uv pip install dist/*.whl
+          python scripts/require_python.py ${{ matrix.python-version }}
           python - <<'PY'
           import artifex
 
