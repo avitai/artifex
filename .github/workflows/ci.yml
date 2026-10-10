@@ -12,6 +12,11 @@ concurrency:
   # A newer push to a pull request cancels its superseded run; a push to main always completes.
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
+env:
+  # The unit tests run in this many shards per leg (pytest-split), and unit_coverage checks that
+  # every one of them reported coverage.
+  UNIT_TEST_SHARDS: 4
+
 jobs:
   already_tested:
     name: Tree already tested
@@ -65,9 +70,12 @@ jobs:
         run: uv run python scripts/derive_status.py --check
 
   unit_tests:
-    name: Unit Tests (${{ matrix.os }}, Python ${{ matrix.python-version }})
+    name: Unit Tests (${{ matrix.os }}, Python ${{ matrix.python-version }}, shard ${{ matrix.group }})
     needs: [quality, already_tested]
     runs-on: ${{ matrix.os }}
+    # pytest-split divides one collection into UNIT_TEST_SHARDS groups, one per matrix leg; the
+    # group list below is 1..UNIT_TEST_SHARDS. With no durations file it balances by test count
+    # (least_duration gives every test the same weight). Unsharded, a leg took 43 to 58 minutes.
     strategy:
       matrix:
         # The macOS-14 runners queue for hours and run the same steps; they run on
@@ -76,6 +84,7 @@ jobs:
         # its pull request already tested runs only macOS, which no pull request ran.
         os: ${{ fromJSON(needs.already_tested.outputs.skip == 'true' && '["macos-14"]' || (github.ref == 'refs/heads/main' && '["ubuntu-latest", "macos-14"]' || '["ubuntu-latest"]')) }}
         python-version: ["3.12", "3.13"]
+        group: [1, 2, 3, 4]
       fail-fast: false
 
     steps:
@@ -93,19 +102,68 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          # pytest-randomly orders the collection before pytest-split assigns it, so every shard
+          # of a run takes the run's id as its seed: one order, each test in exactly one shard.
+          # A shard covers part of the suite, so the coverage cap is not enforced per shard;
+          # unit_coverage holds each leg's shards, combined, to it.
           uv run pytest tests/ -v -m "not slow and not blackjax" \
-            --cov=src/artifex --cov-report=xml --cov-report=term-missing
+            --cov=src/artifex --cov-report=xml --cov-report=term-missing --cov-fail-under=0 \
+            --splits "$UNIT_TEST_SHARDS" --group ${{ matrix.group }} \
+            --splitting-algorithm least_duration --randomly-seed=${{ github.run_id }}
 
       - name: Upload test results
         uses: actions/upload-artifact@v4
         with:
-          name: unit-test-results-${{ matrix.python-version }}-${{ matrix.os }}
+          name: unit-test-results-${{ matrix.python-version }}-${{ matrix.os }}-shard${{ matrix.group }}
           path: |
             .coverage
             coverage.xml
             test-results/
           include-hidden-files: true
         if: always()
+
+  unit_coverage:
+    name: Unit Coverage (${{ matrix.os }}, Python ${{ matrix.python-version }})
+    # One per unit test leg, on every change the unit tests run on: the leg's shards together
+    # are the leg's whole unit run, held to [tool.coverage.report] fail_under as one run was.
+    # The report runs on the leg's Python: coverage re-parses the source for branch arcs, and
+    # that analysis follows the interpreter's version.
+    needs: [unit_tests, already_tested]
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: ${{ fromJSON(needs.already_tested.outputs.skip == 'true' && '["macos-14"]' || (github.ref == 'refs/heads/main' && '["ubuntu-latest", "macos-14"]' || '["ubuntu-latest"]')) }}
+        python-version: ["3.12", "3.13"]
+      fail-fast: false
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Artifex
+        uses: ./.github/actions/setup-artifex
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache-suffix: unit-coverage-${{ matrix.python-version }}
+          linux-editable-target: ".[dev,test]"
+
+      - name: Download the leg's shard coverage
+        uses: actions/download-artifact@v4
+        with:
+          pattern: unit-test-results-${{ matrix.python-version }}-${{ matrix.os }}-shard*
+          path: shards
+
+      - name: Hold the leg's combined shards to the coverage cap
+        shell: bash
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          data=(shards/*/.coverage)
+          if [[ "${#data[@]}" -ne "$UNIT_TEST_SHARDS" ]]; then
+            echo "::error::expected coverage from $UNIT_TEST_SHARDS shards, found ${#data[@]}"
+            exit 1
+          fi
+          uv run coverage combine --data-file=.coverage.unit "${data[@]}"
+          uv run coverage report --data-file=.coverage.unit
 
   integration_tests:
     name: Integration Tests
