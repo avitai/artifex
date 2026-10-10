@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import re
 import tomllib
+from collections.abc import Callable
 from pathlib import Path
 from typing import Final
 
@@ -248,13 +249,48 @@ def coverage_cap_violations(workflow: dict, pyproject: dict) -> list[str]:
         for name, job in (("unit_tests", unit_job), ("coverage", coverage_job))
         if job.get("if", GATE_CONDITION) != GATE_CONDITION
     ]
+    # A shard runs part of the suite, so it does not hold the cap itself (--cov-fail-under=0);
+    # the unit coverage job holds each leg's shards, combined, to it instead.
     problems += [
         f"the unit test command overrides the cap with {override}"
         for override in CAP_OVERRIDES
-        if override in unit_command
+        if override in unit_command.replace("--cov-fail-under=0", "")
     ]
+    problems += unit_coverage_violations(workflow)
     if "uv run coverage report" not in combine_command or "--fail-under=0" in combine_command:
         problems.append("the combined coverage job does not run coverage report against fail_under")
+    return problems
+
+
+UNIT_COVERAGE_STEP = "Hold the leg's combined shards to the coverage cap"
+
+
+def unit_coverage_violations(workflow: dict) -> list[str]:
+    """Return why a unit test leg could pass below the coverage cap, if it could."""
+    jobs = workflow["jobs"]
+    gate = jobs.get("unit_coverage")
+    if gate is None:
+        return ["no unit_coverage job holds each unit test leg's combined shards to the cap"]
+    unit_legs = {
+        axis: values
+        for axis, values in jobs["unit_tests"]["strategy"]["matrix"].items()
+        if axis != "group"
+    }
+    command = next(
+        (step["run"] for step in gate["steps"] if step.get("name") == UNIT_COVERAGE_STEP), ""
+    )
+
+    problems = []
+    if gate["strategy"]["matrix"] != unit_legs:
+        problems.append("unit_coverage does not run once per unit test leg")
+    if "unit_tests" not in _needs(gate):
+        problems.append("unit_coverage does not wait on the unit tests")
+    if "if" in gate:
+        problems.append(f"unit_coverage only runs when {gate['if']}")
+    if "uv run coverage report" not in command or "--fail-under" in command:
+        problems.append("unit_coverage does not run coverage report against fail_under")
+    if "UNIT_TEST_SHARDS" not in command:
+        problems.append("unit_coverage does not check that every shard's data arrived")
     return problems
 
 
@@ -263,6 +299,70 @@ def test_ci_fails_below_the_coverage_cap() -> None:
     pyproject = _load_pyproject()
 
     assert coverage_cap_violations(_load_yaml(".github/workflows/ci.yml"), pyproject) == []
+
+
+def _without_the_unit_coverage_job(workflow: dict) -> None:
+    del workflow["jobs"]["unit_coverage"]
+
+
+def _unit_coverage_overriding_the_cap(workflow: dict) -> None:
+    step = next(
+        step
+        for step in workflow["jobs"]["unit_coverage"]["steps"]
+        if step.get("name") == UNIT_COVERAGE_STEP
+    )
+    step["run"] = step["run"].replace("coverage report", "coverage report --fail-under=0")
+
+
+def _unit_coverage_over_one_python_only(workflow: dict) -> None:
+    workflow["jobs"]["unit_coverage"]["strategy"]["matrix"]["python-version"] = ["3.12"]
+
+
+def _a_shard_without_coverage(workflow: dict) -> None:
+    step = next(
+        step
+        for step in workflow["jobs"]["unit_tests"]["steps"]
+        if step.get("name") == "Run unit tests with coverage"
+    )
+    step["run"] += " --no-cov"
+
+
+@pytest.mark.parametrize(
+    "weaken",
+    [
+        _without_the_unit_coverage_job,
+        _unit_coverage_overriding_the_cap,
+        _unit_coverage_over_one_python_only,
+        _a_shard_without_coverage,
+    ],
+)
+def test_the_coverage_cap_check_fails_a_workflow_that_lets_a_leg_pass_below_it(
+    weaken: Callable[[dict], None],
+) -> None:
+    """The control: each way of letting a unit test leg pass below the cap is reported."""
+    workflow = _load_yaml(".github/workflows/ci.yml")
+    weaken(workflow)
+
+    assert coverage_cap_violations(workflow, _load_pyproject()) != []
+
+
+def test_every_shard_of_a_run_takes_its_group_of_one_collection_in_one_order() -> None:
+    """Each test runs in exactly one shard: one group per shard, one seed for every shard.
+
+    pytest-split assigns the collection after pytest-randomly orders it, and tests with the same
+    name keep that order, so shards seeded differently could each run or each skip one of them.
+    """
+    workflow = _load_yaml(".github/workflows/ci.yml")
+    shards = int(workflow["env"]["UNIT_TEST_SHARDS"])
+    job = workflow["jobs"]["unit_tests"]
+    command = next(
+        step["run"] for step in job["steps"] if step.get("name") == "Run unit tests with coverage"
+    )
+
+    assert job["strategy"]["matrix"]["group"] == [str(group) for group in range(1, shards + 1)]
+    assert '--splits "$UNIT_TEST_SHARDS"' in command
+    assert "--group ${{ matrix.group }}" in command
+    assert "--randomly-seed=${{ github.run_id }}" in command
 
 
 def test_ci_uploads_no_coverage_to_codecov() -> None:
