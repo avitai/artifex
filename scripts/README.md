@@ -48,6 +48,18 @@ uv run pytest -m blackjax -v --no-cov
 uv run pytest tests/artifex/generative_models/core/sampling/test_blackjax_samplers.py -v --no-cov
 ```
 
+### require_python.py
+
+**Purpose:** Fail unless the running interpreter is the `major.minor` version
+named. uv takes its interpreter from `.python-version` (3.12) unless told
+otherwise, so a CI leg named for Python 3.13 could run 3.12 and pass. The
+shared setup action runs this after installing, and the build check runs it in
+the wheel's test venv.
+
+```bash
+uv run python scripts/require_python.py 3.12
+```
+
 ## 🎮 GPU/Hardware Verification
 
 ### verify_gpu_setup.py

@@ -517,3 +517,83 @@ def test_a_newer_push_cancels_the_run_it_supersedes(path: Path) -> None:
     assert isinstance(concurrency, dict), f"{path.name} declares no concurrency group"
     assert concurrency.get("group") == "${{ github.workflow }}-${{ github.ref }}", path.name
     assert concurrency.get("cancel-in-progress") == PULL_REQUEST_RUNS_ONLY, path.name
+
+
+MATRIX_PYTHON = "${{ matrix.python-version }}"
+INPUT_PYTHON = "${{ inputs.python-version }}"
+REQUIRE_PYTHON = "scripts/require_python.py"
+SETUP_ACTION_FILE = ".github/actions/setup-artifex/action.yml"
+
+
+def _runs(step: dict, command: str) -> bool:
+    """Whether the step's script runs ``uv <command>``."""
+    return re.search(rf"\buv {command}\b", str(step.get("run", ""))) is not None
+
+
+def _python_matrix_jobs() -> dict[str, dict]:
+    """Every job, by ``workflow:job``, whose own steps run once per matrix Python version."""
+    return {
+        f"{path.name}:{name}": job
+        for path in _workflow_paths()
+        for name, job in _load_yaml(f".github/workflows/{path.name}")["jobs"].items()
+        if "python-version" in job.get("strategy", {}).get("matrix", {}) and "steps" in job
+    }
+
+
+def setup_action_python_violations(action: dict) -> list[str]:
+    """Why the setup action could install or run another Python than it was asked for, if so."""
+    steps = action["runs"]["steps"]
+    syncs = [index for index, step in enumerate(steps) if _runs(step, "sync")]
+    guards = [
+        index
+        for index, step in enumerate(steps)
+        if REQUIRE_PYTHON in str(step.get("run", "")) and INPUT_PYTHON in str(step.get("run", ""))
+    ]
+
+    problems = [
+        f"step {steps[index].get('name')!r} runs uv sync without UV_PYTHON={INPUT_PYTHON}"
+        for index in syncs
+        if (steps[index].get("env") or {}).get("UV_PYTHON") != INPUT_PYTHON
+    ]
+    if not syncs:
+        problems.append("no step runs uv sync")
+    if not guards or max(guards) < max(syncs, default=0):
+        problems.append(f"no step after the last uv sync runs {REQUIRE_PYTHON} {INPUT_PYTHON}")
+    return problems
+
+
+def matrix_job_python_violations(name: str, job: dict) -> list[str]:
+    """Why a leg of a Python version matrix could run another interpreter, if it could."""
+    passed = [
+        (step.get("with") or {}).get("python-version")
+        for step in job["steps"]
+        if step.get("uses") == SETUP_ACTION
+    ]
+    problems = []
+    if passed != [MATRIX_PYTHON]:
+        problems.append(f"{name} passes {passed} to the setup action, not [{MATRIX_PYTHON}]")
+    problems += [
+        f"{name}: step {step.get('name')!r} makes a venv and never checks it runs {MATRIX_PYTHON}"
+        for step in job["steps"]
+        if _runs(step, "venv") and f"{REQUIRE_PYTHON} {MATRIX_PYTHON}" not in step["run"]
+    ]
+    return problems
+
+
+def test_every_python_matrix_leg_runs_its_matrix_version() -> None:
+    """A leg named for a Python version runs that version, or fails.
+
+    ``uv sync`` is a project command and takes its interpreter from ``.python-version`` (3.12)
+    unless told otherwise. ``setup-python`` putting 3.13 first on the path does not change
+    that, and neither does ``uv venv --python 3.13`` before it: the sync replaces that venv with
+    one satisfying ``.python-version``. The "Python 3.13" legs ran CPython 3.12. ``UV_PYTHON``
+    on the sync holds it to the version asked for, and ``scripts/require_python.py`` fails a
+    leg whose interpreter is another version all the same, including the wheel's test venv.
+    """
+    jobs = _python_matrix_jobs()
+
+    assert {"ci.yml:unit_tests", "build-verification.yml:build"} <= set(jobs)
+    assert setup_action_python_violations(_load_yaml(SETUP_ACTION_FILE)) == []
+    assert [
+        problem for name, job in jobs.items() for problem in matrix_job_python_violations(name, job)
+    ] == []
