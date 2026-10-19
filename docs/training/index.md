@@ -74,6 +74,44 @@ trainer = Trainer(
 )
 ```
 
+## Numerical acceptance
+
+`Trainer.train_step` computes a detached candidate with the Flax NNX
+[functional graph APIs](https://flax.readthedocs.io/en/latest/api_reference/flax.nnx/graph.html).
+It checks floating and complex input state, total loss, parameter gradients,
+optimizer state, updates, resulting parameters and mutable model/extension state.
+A non-finite candidate raises `FloatingPointError` before committing the
+numerical state, advancing the trainer RNG or step, or recording training metrics.
+Integer counters and typed RNG keys are preserved without floating-point checks.
+Diagnostic auxiliary metrics do not decide acceptance.
+
+This is a fail-stop contract, with no automatic retry or replacement by zeros.
+After correcting the cause, the caller can retry against the same numerical state.
+The source cursor should advance only after an accepted update. Checkpoints saved
+before a rejected attempt remain valid; no checkpoint schema changes are needed.
+Optax's `apply_if_finite` alone is insufficient for this contract: it checks
+incoming gradients, not loss or the state produced by the optimizer.
+
+The transaction begins **after** callback and extension `on_batch_begin` hooks.
+Their Python side effects and state changes are outside rollback. Logging and
+`on_batch_end` hooks execute after commitment, and their exceptions do not undo an
+accepted numerical update. Loss functions execute inside JAX transformations and
+must not perform external I/O. This contract applies to the shared `Trainer`;
+family-specific trainers with their own update loops are separate interfaces.
+
+Objectives must preserve graph structure. Adding/removing variables or changing
+static attributes during a step raises `ValueError` before commitment. Move model
+construction and mode changes before `train_step`; represent running statistics
+with existing NNX variables and update their values. Extensions are explicit
+arguments to the NNX gradient transform so their variable and RNG mutations remain
+within the same trace boundary as model evaluation.
+
+Candidate computation does not donate live buffers or copy tensors to the host.
+It retains the old numerical state until finite checks complete, and therefore can
+require more device memory than a donating step. The checks add device reductions
+and a host synchronization; full-model memory and throughput need measurement on
+the intended hardware before sizing a training run.
+
 ## Family Trainers
 
 The shared package does not hide model-specific objectives behind one universal trainer class. Use the trainer family that matches the model runtime you are actually training:

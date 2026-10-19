@@ -54,6 +54,41 @@ _HORIZON_FIELDS = {
 }
 
 
+class _StepCandidate(NamedTuple):
+    """Detached numerical result awaiting host acceptance."""
+
+    loss: jax.Array
+    metrics: dict[str, Any]
+    state: nnx.State
+    optimizer: Any
+    checks: dict[str, jax.Array]
+
+    def require_finite(self, step: int) -> None:
+        """Raise before commitment if any numerical acceptance check failed.
+
+        Args:
+            step: Index of the uncommitted step, used in the error message.
+
+        Raises:
+            FloatingPointError: If an input or candidate contains non-finite values.
+        """
+        failed = [name for name, valid in jax.device_get(self.checks).items() if not valid]
+        if failed:
+            raise FloatingPointError(
+                f"Training step {step} rejected non-finite {', '.join(failed)}"
+            )
+
+
+def _tree_is_finite(tree: Any) -> jax.Array:
+    """Reduce floating and complex leaves, excluding integer and RNG state."""
+    checks = [
+        jnp.all(jnp.isfinite(leaf))
+        for leaf in jax.tree.leaves(tree)
+        if jnp.issubdtype(jnp.asarray(leaf).dtype, jnp.inexact)
+    ]
+    return jnp.all(jnp.asarray(checks, dtype=jnp.bool_))
+
+
 class _EpochContext(NamedTuple):
     """What one training epoch needs beyond the pipeline it iterates."""
 
@@ -178,7 +213,7 @@ class Trainer:
         # Training state (step counter and rng)
         self.step = 0
         # The compiled gradient step, built on first use (see _build_compiled_step).
-        self._compiled_step: Callable[..., tuple[jax.Array, dict[str, Any], Any]] | None = None
+        self._compiled_step: Callable[..., _StepCandidate] | None = None
 
     def _set_up_optimizer(self, optimizer: optax.GradientTransformation | None) -> None:
         """Take the caller's optimizer, or build one now unless its schedule needs the run.
@@ -322,28 +357,30 @@ class Trainer:
             return False
         return any(getattr(callback, "should_stop", False) is True for callback in self.callbacks)
 
-    def _build_compiled_step(self) -> Callable[..., tuple[jax.Array, dict[str, Any], Any]]:
-        """Compile the gradient step once: loss, gradients, optimizer update.
+    def _build_compiled_step(self) -> Callable[..., _StepCandidate]:
+        """Compile a pure candidate step without mutating the live NNX graph.
 
-        The compiled function takes the model, the extensions, the optimizer
-        state, a batch and ``(step_rng, step_index)``, updates the model in
-        place and returns ``(loss, metrics, new_opt_state)``. Everything with a
-        Python side effect (callbacks, logging, metric history) stays outside.
+        Flax split/merge preserves shared variables and mutable state. No input
+        buffer is donated: rejecting a candidate must leave the original usable.
         """
         loss_fn = self.loss_fn
         optimizer = self._require_optimizer()
 
-        @nnx.jit
+        @jax.jit
         def compiled_step(
-            model: nnx.Module,
-            extensions: dict[str, Extension],
+            graphdef: nnx.GraphDef,
+            state: nnx.State,
             opt_state: Any,
             batch: dict[str, Any],
             step_state: tuple[jax.Array, jax.Array],
-        ) -> tuple[jax.Array, dict[str, Any], Any]:
+        ) -> _StepCandidate:
+            checks = {"input_state": _tree_is_finite((state, opt_state))}
+            model, extensions = nnx.merge(graphdef, state)
             step_rng, step_index = step_state
 
-            def total_loss_fn(model: nnx.Module) -> tuple[jax.Array, dict[str, Any]]:
+            def total_loss_fn(
+                model: nnx.Module, extensions: dict[str, Extension]
+            ) -> tuple[jax.Array, dict[str, Any]]:
                 base_loss, base_metrics = loss_fn(model, batch, step_rng, step_index)
                 ext_losses: dict[str, jax.Array] = {}
                 total_ext_loss = jnp.array(0.0)
@@ -364,12 +401,26 @@ class Trainer:
                             total_ext_loss = total_ext_loss + weighted_loss
                 return base_loss + total_ext_loss, {**base_metrics, **ext_losses}
 
-            (loss, metrics), grads = nnx.value_and_grad(total_loss_fn, has_aux=True)(model)
+            (loss, metrics), grads = nnx.value_and_grad(total_loss_fn, has_aux=True)(
+                model, extensions
+            )
             param_grads = cast(optax.Updates, nnx.state(grads, nnx.Param))
             params = cast(optax.Params, nnx.state(model, nnx.Param))
             updates, new_opt_state = optimizer.update(param_grads, opt_state, params)
-            nnx.update(model, optax.apply_updates(params, updates))
-            return loss, metrics, new_opt_state
+            new_params = optax.apply_updates(params, updates)
+            nnx.update(model, new_params)
+            new_graphdef, new_state = nnx.split((model, extensions))
+            if new_graphdef != graphdef:
+                raise ValueError("Training objectives must preserve graph structure")
+            checks.update(
+                loss=_tree_is_finite(loss),
+                gradients=_tree_is_finite(param_grads),
+                optimizer_state=_tree_is_finite(new_opt_state),
+                updates=_tree_is_finite(updates),
+                parameters=_tree_is_finite(new_params),
+                mutable_state=_tree_is_finite(new_state),
+            )
+            return _StepCandidate(loss, metrics, new_state, new_opt_state, checks)
 
         return compiled_step
 
@@ -378,7 +429,12 @@ class Trainer:
 
         The step (base loss plus enabled extension losses, gradients, optimizer
         update) is compiled once per batch shape; callbacks, logging and the
-        metric history run around it in Python.
+        metric history run around it in Python. Non-finite numerical candidates
+        raise before committing model/extension variables, optimizer state, RNG,
+        step or metric history. Auxiliary metrics are diagnostic, not acceptance
+        criteria. Begin hooks run before this numerical transaction; their Python
+        side effects and state changes are not rolled back. End hooks and logging
+        run only after acceptance. Objectives must preserve the graph structure.
 
         Args:
             batch: Batch of training data
@@ -394,19 +450,25 @@ class Trainer:
             if on_batch_begin is not None:
                 on_batch_begin(self, self.step)
 
-        self.rng, step_rng = jax.random.split(self.rng)
+        next_rng, step_rng = jax.random.split(self.rng)
         if self._compiled_step is None:
             self._compiled_step = self._build_compiled_step()
-        loss, metrics, self.opt_state = self._compiled_step(
-            self.model,
-            self.extensions,
+        graph = (self.model, self.extensions)
+        graphdef, state = nnx.split(graph)
+        candidate = self._compiled_step(
+            graphdef,
+            state,
             self.opt_state,
             batch,
             (step_rng, jnp.asarray(self.step, dtype=jnp.int32)),
         )
+        candidate.require_finite(self.step)
 
+        nnx.update(graph, candidate.state)
+        self.opt_state = candidate.optimizer
+        self.rng = next_rng
         self.step += 1
-        metrics = {**metrics, "loss": float(loss), "step": self.step}
+        metrics = {**candidate.metrics, "loss": float(candidate.loss), "step": self.step}
 
         if self.log_callback is not None:
             self.log_callback(self.step, metrics, prefix="train")
