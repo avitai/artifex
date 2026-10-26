@@ -18,6 +18,7 @@ import jax.numpy as jnp
 import numpy as np
 from datarax.core.config import StructuralConfig
 from datarax.core.data_source import DataSourceModule
+from datarax.core.spec import array_to_spec_strip_leading
 from flax import struct
 
 
@@ -420,6 +421,24 @@ class ProteinDataset(DataSourceModule):
             raise ValueError("Cannot index an empty ProteinDataset")
         return {
             name: jnp.take(value, indices, axis=0) for name, value in self._indexed_arrays.items()
+        }
+
+    def element_spec(self) -> dict[str, jax.ShapeDtypeStruct]:
+        """One record of what :meth:`get_records` serves: each field's per-record shape and dtype.
+
+        Read from the padded tensor cache ``get_records`` gathers from, so the declaration and
+        the records cannot drift apart.
+
+        Returns:
+            One ``jax.ShapeDtypeStruct`` per field, without the record axis.
+
+        Raises:
+            ValueError: If the dataset holds no structures, so it serves no record.
+        """
+        if not self.structures:
+            raise ValueError("Cannot declare the records of an empty ProteinDataset")
+        return {
+            name: array_to_spec_strip_leading(value) for name, value in self._indexed_arrays.items()
         }
 
     def get_statistics(self) -> dict[str, float]:

@@ -295,6 +295,31 @@ def test_protein_dataset_get_records_rejects_empty_dataset():
         dataset.get_records(jnp.array([0], dtype=jnp.int32))
 
 
+def test_protein_dataset_declares_the_records_get_records_serves():
+    """``element_spec`` is one record of what ``get_records`` gathers: fields, shapes, dtypes."""
+    dataset = create_synthetic_protein_dataset(
+        num_proteins=4,
+        min_seq_length=5,
+        max_seq_length=10,
+        random_seed=42,
+    )
+
+    records = dataset.get_records(jnp.array([0, 1], dtype=jnp.int32))
+    spec = dataset.element_spec()
+
+    assert set(spec) == set(records)
+    for name, value in records.items():
+        assert spec[name] == jax.ShapeDtypeStruct(value.shape[1:], value.dtype)
+
+
+def test_protein_dataset_element_spec_rejects_empty_dataset():
+    """An empty dataset serves no record, so it declares none."""
+    dataset = ProteinDataset(ProteinDatasetConfig(max_seq_length=8))
+
+    with pytest.raises(ValueError, match="empty ProteinDataset"):
+        dataset.element_spec()
+
+
 def test_protein_dataset_pipeline_step_and_iteration_use_indexed_access():
     """ProteinDataset works through Datarax Pipeline.step and iteration; an epoch is exact."""
     dataset = create_synthetic_protein_dataset(
