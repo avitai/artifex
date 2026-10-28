@@ -29,34 +29,23 @@ jobs:
           cache-suffix: security
           linux-editable-target: ".[dev]"
 
-      - name: Load reviewed vulnerability ignores
-        id: reviewed_ignores
-        shell: bash
-        run: |
-          set -euo pipefail
+      # Every extra and dependency group the lock resolves, in groups that respect
+      # [tool.uv] conflicts, each audited by a pinned pip-audit against both its PyPI and
+      # OSV services with a fresh advisory cache. Ignored advisories and their reasons would
+      # live in [tool.substrax.audit-lock.ignore] in pyproject.toml; the action also fails on
+      # an ignore no advisory matches any more.
+      - name: Audit the locked dependencies
+        uses: avitai/substrax/.github/actions/audit-lock@66ea9c185db08074b91e1da55a5c34748ec19a67
 
-          python - <<'PY' >> "$GITHUB_OUTPUT"
-          import tomllib
-          from pathlib import Path
-
-          pyproject = tomllib.loads(Path("pyproject.toml").read_text())
-          reviewed = pyproject["tool"]["artifex"]["ci"]["security"].get("reviewed_ignores", [])
-          ignore_args = " ".join(f"--ignore-vuln {entry['id']}" for entry in reviewed)
-          print(f"ignore_args={ignore_args}")
-          PY
-
+      # The scans run whatever the audit found, so a red job names every scan that failed.
       - name: Run security scans
+        if: ${{ !cancelled() }}
         shell: bash
         run: |
           set -euo pipefail
 
-          pip_audit_status=0
           bandit_status=0
           detect_secrets_status=0
-
-          uv run --locked pip-audit --local --desc on --progress-spinner off \
-            ${{ steps.reviewed_ignores.outputs.ignore_args }} \
-            > pip-audit-report.txt || pip_audit_status=$?
 
           uv run --locked bandit -c pyproject.toml -r src/artifex/ -f json -o bandit-report.json \
             || bandit_status=$?
@@ -64,14 +53,7 @@ jobs:
           uv run --locked detect-secrets scan --baseline .secrets.baseline \
             > detect-secrets-report.json || detect_secrets_status=$?
 
-          {
-            echo "## Security audit"
-            echo
-            echo "This workflow participates in automatic pull-request and push enforcement."
-            echo "The reviewed ignore list stays centralized in pyproject so external contributions are screened against the same tracked policy on every change."
-          } >> "$GITHUB_STEP_SUMMARY"
-
-          if [[ "$pip_audit_status" -ne 0 || "$bandit_status" -ne 0 || "$detect_secrets_status" -ne 0 ]]; then
+          if [[ "$bandit_status" -ne 0 || "$detect_secrets_status" -ne 0 ]]; then
             exit 1
           fi
 
@@ -81,6 +63,5 @@ jobs:
         with:
           name: security-report
           path: |
-            pip-audit-report.txt
             bandit-report.json
             detect-secrets-report.json

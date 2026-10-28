@@ -75,11 +75,9 @@ def _ci_policy() -> dict[str, object]:
     return artifex["ci"]
 
 
-def test_pyproject_declares_reviewed_ci_roles_and_security_triage_policy() -> None:
-    """The CI role split and reviewed security suppressions should live in pyproject."""
+def test_pyproject_declares_reviewed_ci_roles() -> None:
+    """The CI role split should live in pyproject; advisory ignores live in audit-lock's table."""
     policy = _ci_policy()
-    security = policy["security"]
-    reviewed_ignores = security["reviewed_ignores"]
 
     assert policy["tooling_python"] == "3.12"
     assert policy["compatibility_python"] == ["3.12", "3.13"]
@@ -95,16 +93,28 @@ def test_pyproject_declares_reviewed_ci_roles_and_security_triage_policy() -> No
         ".github/workflows/quality-checks.yml",
         ".github/workflows/upstream-compat.yml",
     ]
-    assert security["mode"] == "blocking"
+    # The audit and its ignores are substrax's audit-lock action and its table.
+    assert "security" not in policy
 
-    # The contract on suppressions is that each one is justified, not that there are none.
-    # This previously also asserted the list was empty, which was true on the day it was
-    # written and made the loop below unreachable, so the per-entry schema was never enforced
-    # once and an entry could be declared in any shape at all.
-    for entry in reviewed_ignores:
-        assert entry["owner"] == "repo-maintainers"
-        assert re.fullmatch(r"\d{4}-\d{2}-\d{2}", entry["review_after"])
-        assert len(entry["rationale"]) >= 20
+
+def test_security_audits_the_whole_lock_through_substrax_audit_lock() -> None:
+    """Security runs the stack's shared lock audit, pinned by commit, and no pip-audit of its own.
+
+    An audit of the installed environment sees only the extras installed there; audit-lock
+    exports every extra and dependency group from the lock and audits each export against
+    PyPI and OSV. The scans after it run whatever it found, so a red job names every failure.
+    """
+    steps = _load_yaml(".github/workflows/security.yml")["jobs"]["security-audit"]["steps"]
+    audit = [step for step in steps if "audit-lock@" in step.get("uses", "")]
+
+    assert len(audit) == 1
+    assert re.fullmatch(
+        r"avitai/substrax/\.github/actions/audit-lock@[0-9a-f]{40}", audit[0]["uses"]
+    )
+    assert not [step for step in steps if "pip-audit" in step.get("run", "")]
+    scans = [step for step in steps if "bandit" in step.get("run", "")]
+    assert len(scans) == 1
+    assert scans[0].get("if") == "${{ !cancelled() }}"
 
 
 def test_lockfile_resolves_security_patch_floors_for_fixable_alerts() -> None:
@@ -184,7 +194,6 @@ def test_workflow_roles_and_blocking_quality_commands_are_explicit() -> None:
     assert "uv run pyright --warnings" not in security_contents
     assert "Advisory Security Audit" not in security_contents
     assert security_workflow["jobs"]["security-audit"]["name"] == "Security Audit"
-    assert "automatic pull-request and push enforcement" in security_contents
     assert "scheduled and manual by design" not in security_contents
 
 
