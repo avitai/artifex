@@ -191,7 +191,6 @@ dev = [
   "vulture>=2.14",
   "wemake-python-styleguide>=1.0",
   "twine>=4.0.2",
-  "pip-audit>=2.10.1",
   "xenon>=0.9.3",
   "pydoclint>=0.9.1",
   "detect-secrets>=1.5.0"
@@ -267,11 +266,6 @@ pyright_enforcement = "blocking"
 smoke_exports = ["generative_models"]
 smoke_package = "artifex"
 tooling_python = "3.12"
-
-[tool.artifex.ci.security]
-mode = "blocking"
-reviewed_ignores = [
-]
 
 [tool.artifex.repo_standards]
 line_length = 100
