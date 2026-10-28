@@ -5,7 +5,6 @@ import re
 import tomllib
 from collections.abc import Callable
 from pathlib import Path
-from typing import Final
 
 import pytest
 import yaml
@@ -14,49 +13,9 @@ import yaml
 REPO_ROOT = Path(__file__).resolve().parents[3]
 SETUP_ACTION = "./.github/actions/setup-artifex"
 
-# Each fixable vulnerability the audit has reported, against the first release that
-# resolves it.
-SECURITY_PATCH_FLOORS: Final = {
-    "aiohttp": (3, 14, 1),
-    "bleach": (6, 4, 0),
-    "cryptography": (48, 0, 1),
-    "fastapi": (0, 139, 0),
-    "fsspec": (2026, 6, 0),
-    "gitpython": (3, 1, 50),
-    "idna": (3, 15),
-    "jupyter-server": (2, 20, 0),
-    "jupyterlab": (4, 6, 4),
-    "mako": (1, 3, 12),
-    "mistune": (3, 3, 2),
-    "mlflow": (3, 14, 0),
-    "msgpack": (1, 2, 1),
-    "multidict": (6, 9, 1),
-    "nbconvert": (7, 17, 1),
-    "notebook": (7, 6, 3),
-    "pillow": (12, 3, 0),
-    "pyasn1": (0, 6, 3),
-    "pygments": (2, 20, 0),
-    "pymdown-extensions": (10, 21, 3),
-    "pytest": (9, 0, 3),
-    "python-multipart": (0, 0, 31),
-    "requests": (2, 33, 0),
-    "starlette": (1, 3, 1),
-    "tornado": (6, 5, 9),
-    "urllib3": (2, 8, 0),
-    "werkzeug": (3, 1, 9),
-}
-
 
 def _load_pyproject() -> dict[str, object]:
     return tomllib.loads((REPO_ROOT / "pyproject.toml").read_text())
-
-
-def _load_uv_lock() -> dict[str, object]:
-    return tomllib.loads((REPO_ROOT / "uv.lock").read_text())
-
-
-def _version_key(version: str) -> tuple[int, ...]:
-    return tuple(int(part) for part in re.findall(r"\d+", version))
 
 
 def _load_yaml(relative_path: str) -> dict[str, object]:
@@ -115,24 +74,6 @@ def test_security_audits_the_whole_lock_through_substrax_audit_lock() -> None:
     scans = [step for step in steps if "bandit" in step.get("run", "")]
     assert len(scans) == 1
     assert scans[0].get("if") == "${{ !cancelled() }}"
-
-
-def test_lockfile_resolves_security_patch_floors_for_fixable_alerts() -> None:
-    """Fixable audited vulnerabilities should resolve to patched lockfile versions.
-
-    A floor binds a package only while the lock holds it: a package that leaves the
-    dependency closure carries no alert to fix. Its floor stays in the table so that
-    re-entering the closure below the patched release is still a failure.
-    """
-    packages = {pkg["name"].lower(): pkg["version"] for pkg in _load_uv_lock()["package"]}
-
-    unpatched = {
-        name: packages[name]
-        for name, floor in SECURITY_PATCH_FLOORS.items()
-        if name in packages and _version_key(packages[name]) < floor
-    }
-
-    assert unpatched == {}
 
 
 def test_policy_workflows_use_checked_in_setup_action_instead_of_inline_bootstrap() -> None:
