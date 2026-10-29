@@ -28,6 +28,7 @@ from artifex.generative_models.training.checkpointing import (
     CheckpointPolicy,
     RunState,
 )
+from artifex.generative_models.training.step import GradientStep, StepContext
 
 
 def _objects(seed: int) -> tuple[nnx.Linear, nnx.Optimizer[Any], Pipeline, CallbackList]:
@@ -46,17 +47,23 @@ def _train(model: nnx.Linear, optimizer: nnx.Optimizer[Any], batch: dict[str, ja
     optimizer.update(model, nnx.grad(loss)(model))
 
 
+def _objective(
+    model: nnx.Linear, batch: dict[str, jax.Array], context: StepContext
+) -> tuple[jax.Array, dict[str, jax.Array]]:
+    return jnp.mean((model(batch["x"]) - batch["y"]) ** 2), {}
+
+
 def _run_state(
     objects: tuple[nnx.Linear, nnx.Optimizer[Any], Pipeline, CallbackList], key: jax.Array
 ) -> RunState:
     model, optimizer, pipeline, callbacks = objects
     return RunState(
         model=model,
-        optimizer=optimizer,
+        step=GradientStep(optimizer, _objective),
         base_key=key,
         epoch=1,
         data=pipeline,
-        extensions={"callbacks": callbacks},
+        extra_state={"callbacks": callbacks},
     )
 
 
@@ -193,7 +200,7 @@ def test_invalid_numerical_state_is_refused_before_creating_storage(
         optimizer.update(model, nnx.grad(lambda m: jnp.sum(m.kernel[...]) * 1e30)(model))
         assert bool(jnp.all(jnp.isfinite(model.kernel[...])))
     elif location == "extension":
-        run = replace(run, extensions={"ema": _StateHolder(jnp.asarray(float("inf")))})
+        run = replace(run, extra_state={"ema": _StateHolder(jnp.asarray(float("inf")))})
     else:
         run = replace(run, data=_StateHolder(np.asarray([float("nan")], dtype=np.float32)))
     directory = tmp_path / "checkpoint"
@@ -214,7 +221,7 @@ def test_finite_arrays_are_checked_without_narrowing_their_dtype(
         value = jnp.asarray(value) if device_array else value
     run = replace(
         _run_state(_objects(0), jax.random.key(0)),
-        extensions={"statistics": _StateHolder(value)},
+        extra_state={"statistics": _StateHolder(value)},
     )
     # Finiteness is a property of the saved float64 array, even with JAX x64 disabled.
     with jax.enable_x64(False):
@@ -234,10 +241,10 @@ def test_keys_counters_and_uninitialized_callback_metadata_can_be_saved(tmp_path
     before = callbacks.get_state()
     run = RunState(
         model=model,
-        optimizer=optimizer,
+        step=GradientStep(optimizer, _objective),
         base_key=jax.random.key(0),
         epoch=0,
-        extensions={"callbacks": callbacks, "extension": extension},
+        extra_state={"callbacks": callbacks, "extension": extension},
     )
     checkpointer = Checkpointer(CheckpointPolicy(directory=tmp_path))
     checkpointer.save(0, run)
@@ -271,12 +278,14 @@ def test_invalid_restored_arrays_are_refused_before_live_state_changes(
             1,
             {
                 "model": nnx.state(model),
-                "optimizer": nnx.state(optimizer),
                 "rng": jax.random.key(3),
                 "data_iterator": pipeline.get_state(),
                 "extensions": {
-                    "callbacks": callbacks.get_state(),
-                    "statistics": extension.get_state(),
+                    "step": nnx.state(GradientStep(optimizer, _objective)),
+                    "extra_state": {
+                        "callbacks": callbacks.get_state(),
+                        "statistics": extension.get_state(),
+                    },
                 },
             },
         )
@@ -285,7 +294,7 @@ def test_invalid_restored_arrays_are_refused_before_live_state_changes(
     fresh_extension = _StateHolder(jnp.asarray(2.0))
     run = replace(
         _run_state(fresh, jax.random.key(7)),
-        extensions={"callbacks": fresh[3], "statistics": fresh_extension},
+        extra_state={"callbacks": fresh[3], "statistics": fresh_extension},
     )
     before = [np.array(x) for x in jax.tree.leaves(nnx.state((fresh[0], fresh[1])))]
     data_before, callbacks_before = fresh[2].get_state(), fresh[3].get_state()
@@ -312,6 +321,73 @@ def test_saved_data_position_requires_a_data_object_before_applying_state(tmp_pa
         checkpointer.restore(replace(_run_state(fresh, jax.random.key(1)), data=None))
 
     np.testing.assert_array_equal(fresh[0].kernel[...], kernel)
+
+
+class _CountingStep(nnx.Module):
+    """A native step whose optimizer and non-optimizer state must both resume."""
+
+    def __init__(self, optimizer: nnx.Optimizer[Any]) -> None:
+        def objective(
+            model: nnx.Linear, batch: dict[str, jax.Array], context: StepContext
+        ) -> tuple[jax.Array, dict[str, jax.Array]]:
+            return jnp.mean((model(batch["x"]) - batch["y"]) ** 2), {}
+
+        self.update = GradientStep(optimizer, objective)
+        self.calls = nnx.Variable(jnp.asarray(0, dtype=jnp.int32))
+
+    def __call__(
+        self, model: nnx.Linear, batch: dict[str, jax.Array], context: StepContext
+    ) -> dict[str, jax.Array]:
+        result = self.update(model, batch, context)
+        self.calls[...] += 1
+        return result
+
+
+@pytest.mark.parametrize("additional_optimizer", [False, True])
+def test_step_owned_state_resumes_with_the_model_and_next_update(
+    tmp_path: Path, additional_optimizer: bool
+) -> None:
+    source, fresh = _objects(0), _objects(1)
+    step, fresh_step = _CountingStep(source[1]), _CountingStep(fresh[1])
+    key = jax.random.key(11)
+    batch = {"x": jnp.ones((3, 2)), "y": jnp.zeros((3, 1))}
+    if additional_optimizer:
+        step.second = nnx.Optimizer(source[0], optax.adam(0.02), wrt=nnx.Param)
+        fresh_step.second = nnx.Optimizer(fresh[0], optax.adam(0.02), wrt=nnx.Param)
+        step.second.update(source[0], nnx.grad(lambda m: jnp.sum(m.kernel[...]))(source[0]))
+
+    def update(
+        bundle: tuple[nnx.Linear, _CountingStep],
+        batch: dict[str, jax.Array],
+        context: StepContext,
+    ) -> dict[str, jax.Array]:
+        model, owned_step = bundle
+        return owned_step(model, batch, context)
+
+    live = nnx.jit_partial(
+        update, (source[0], step), graph=True, graph_updates=False, donate_argnums=0
+    )
+    resumed = nnx.jit_partial(
+        update, (fresh[0], fresh_step), graph=True, graph_updates=False, donate_argnums=0
+    )
+    source_run = RunState(model=source[0], step=step, base_key=key, epoch=0)
+    fresh_run = RunState(model=fresh[0], step=fresh_step, base_key=key, epoch=0)
+    live(batch, StepContext.at(key, 0))
+    writer = Checkpointer(CheckpointPolicy(directory=tmp_path))
+    writer.save(1, source_run)
+
+    writer.restore(fresh_run)
+    assert int(fresh_step.calls[...]) == 1
+    live(batch, StepContext.at(key, 1))
+    resumed(batch, StepContext.at(key, 1))
+
+    assert int(fresh_step.calls[...]) == 2
+    for actual, expected in zip(
+        jax.tree.leaves(nnx.state((fresh[0], fresh_step))),
+        jax.tree.leaves(nnx.state((source[0], step))),
+        strict=True,
+    ):
+        np.testing.assert_array_equal(actual, expected)
 
 
 def test_restore_without_a_checkpoint_says_where_it_looked(tmp_path: Path) -> None:

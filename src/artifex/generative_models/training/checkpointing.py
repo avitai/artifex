@@ -1,7 +1,7 @@
 """Checkpoints a training run resumes from exactly.
 
-One save writes, at a step, the model's state, the optimizer's state, the run's base key, the
-data position and every extension's state, as the items of one substrax checkpoint. A restore
+One save writes the model, the complete step (including its optimizers), the run's base key,
+data position and extra state through one substrax checkpoint. A restore
 into objects built the same way continues where the saved run stood: the parameters, the
 optimizer moments, the next batch, the keys drawn and the callbacks' bookkeeping all match the
 uninterrupted run. A caller's check sees the record before anything is applied.
@@ -81,21 +81,24 @@ class CheckpointPolicy:
 class RunState:
     """The objects a run checkpoints.
 
+    The step owns all of its optimizers and update state. It is captured automatically;
+    callers register only additional host or NNX state through ``extra_state``.
+
     Attributes:
         model: The model.
-        optimizer: Its optimizer.
+        step: The native step, including its optimizers and custom update state.
         base_key: The run's base key; every step's key derives from it and the step.
         epoch: The epoch the run is in.
         data: The data position (a datarax ``Pipeline``), or ``None`` for a fixed batch.
-        extensions: Further state by name.
+        extra_state: Further state by name, including callbacks or EMA when present.
     """
 
     model: nnx.Module
-    optimizer: nnx.Optimizer[Any]
+    step: nnx.Module
     base_key: jax.Array
     epoch: int
     data: Checkpointable | None = None
-    extensions: Mapping[str, Extension] = dataclasses.field(default_factory=dict)
+    extra_state: Mapping[str, Extension] = dataclasses.field(default_factory=dict)
 
 
 @dataclasses.dataclass(frozen=True, slots=True, kw_only=True)
@@ -145,7 +148,7 @@ class Checkpointer:
 
         Args:
             step: The global step.
-            run: The run's model, optimizer, base key, epoch, data position and extensions.
+            run: The run's model, step, base key, epoch, data position and extra state.
             metrics: Scalars recorded for the best checkpoint.
             extra: The caller's own record values (an architecture version, identities).
 
@@ -212,11 +215,11 @@ class Checkpointer:
             items = store.restore(step, templates=_items(run)).items
         _require_finite_arrays(items)
         nnx.update(run.model, items["model"])
-        nnx.update(run.optimizer, items["optimizer"])
+        nnx.update(run.step, items["extensions"]["step"])
         if run.data is not None:
             run.data.set_state(items["data_iterator"])
-        for name, extension in run.extensions.items():
-            _set_extension_state(extension, items["extensions"][name])
+        for name, extension in run.extra_state.items():
+            _set_extension_state(extension, items["extensions"]["extra_state"][name])
         return RestoredRun(step=step, epoch=metadata.epoch or 0, base_key=items["rng"])
 
     def steps(self) -> list[int]:
@@ -279,12 +282,19 @@ def _arrays_are_finite(arrays: tuple[jax.Array, ...]) -> jax.Array:
 
 
 def _items(run: RunState) -> dict[str, Any]:
-    """The checkpoint items of a run, which are also the restore templates."""
+    """The run's state and restore templates in Substrax's admitted item namespace.
+
+    The complete step and additional state are named subtrees of ``extensions``, the
+    store's native container for arbitrary training state. No separate optimizer item or
+    application serializer is needed, including for steps with multiple optimizers.
+    """
     items: dict[str, Any] = {
         "model": nnx.state(run.model),
-        "optimizer": nnx.state(run.optimizer),
         "rng": run.base_key,
-        "extensions": {name: _extension_state(ext) for name, ext in run.extensions.items()},
+        "extensions": {
+            "step": nnx.state(run.step),
+            "extra_state": {name: _extension_state(ext) for name, ext in run.extra_state.items()},
+        },
     }
     if run.data is not None:
         items["data_iterator"] = run.data.get_state()
