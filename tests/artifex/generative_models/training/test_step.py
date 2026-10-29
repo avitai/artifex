@@ -207,6 +207,73 @@ def test_the_step_compiles_once_with_its_owned_optimizer_and_model_donated() -> 
     _assert_float32_close(model.linear.kernel[...], eager_model.linear.kernel[...])
 
 
+def test_step_metrics_survive_the_next_donated_update_for_deferred_observation() -> None:
+    model = _Regressor(rngs=nnx.Rngs(0))
+    optimizer = create_optimizer(model, OptimizerConfig(learning_rate=1e-3))
+    step = GradientStep(optimizer, _mse)
+    base = jax.random.key(0)
+
+    def run(
+        bundle: tuple[_Regressor, GradientStep],
+        batch: dict[str, jax.Array],
+        ctx: StepContext,
+    ) -> dict[str, jax.Array]:
+        current, owned = bundle
+        return owned(current, batch, ctx)
+
+    bound = nnx.jit_partial(run, (model, step), graph=True, graph_updates=False, donate_argnums=0)
+    initial_kernel = model.linear.kernel[...]
+    mark = len(_COMPILES.names)
+    previous = bound(_batch(0), StepContext.at(base, 0))
+    assert initial_kernel.is_deleted(), "the binding did not donate the original model buffer"
+    current = bound(_batch(1), StepContext.at(base, 1))
+
+    before_pause = np.array(model.linear.kernel[...])
+    optimizer.opt_state.inner_state.hyperparams["learning_rate"][...] = jnp.asarray(
+        0.0, jnp.float32
+    )
+    paused = bound(_batch(2), StepContext.at(base, 2))
+
+    assert all(not value.is_deleted() for value in previous.values())
+    assert float(previous["learning_rate"]) == pytest.approx(1e-3)
+    assert float(paused["learning_rate"]) == 0.0
+    np.testing.assert_array_equal(model.linear.kernel[...], before_pause)
+    assert _COMPILES.names[mark:].count("jit(run)") == 1
+    assert bool(jnp.isfinite(previous["loss"]))
+    assert bool(jnp.isfinite(current["loss"]))
+
+
+def test_a_frozen_parameter_filter_survives_shared_guard_and_decoupled_decay() -> None:
+    model = _Regressor(rngs=nnx.Rngs(0))
+    control = _Regressor(rngs=nnx.Rngs(0))
+    trained = nnx.All(nnx.Param, nnx.PathContains("linear"))
+    optimizer = create_optimizer(
+        model,
+        OptimizerConfig(optimizer_type="adamw", learning_rate=0.1, weight_decay=0.1, wrt=trained),
+    )
+    control_optimizer = create_optimizer(
+        control, OptimizerConfig(optimizer_type="adamw", learning_rate=0.1, weight_decay=0.1)
+    )
+
+    def objective(
+        current: _Regressor, batch: dict[str, jax.Array], ctx: StepContext
+    ) -> tuple[jax.Array, dict[str, jax.Array]]:
+        return jnp.sum(current.linear.kernel[...]) + jnp.sum(current.norm.scale[...]), {}
+
+    step, control_step = (
+        GradientStep(optimizer, objective),
+        GradientStep(control_optimizer, objective),
+    )
+    frozen = np.array(model.norm.scale[...])
+    kernel = np.array(model.linear.kernel[...])
+    ctx = StepContext.at(jax.random.key(0), 0)
+    step(model, {}, ctx)
+    control_step(control, {}, ctx)
+    np.testing.assert_array_equal(model.norm.scale[...], frozen)
+    assert not np.array_equal(np.asarray(model.linear.kernel[...]), kernel)
+    assert not np.array_equal(np.asarray(control.norm.scale[...]), frozen)
+
+
 def _assert_float32_close(actual: jax.Array, expected: jax.Array) -> None:
     """Compiled and eager float32 results agree to a few ULP at the values' scale."""
     reference = np.asarray(expected, dtype=np.float64)
