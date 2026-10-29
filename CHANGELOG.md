@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Pins the shared native finite-gradient optimizer guard. The step consumes
+  the shared optimizer directly, without another guard implementation;
+  raw-transformation and caller-supplied optimizer policies stay explicit.
 - `Checkpointer` owns a persistent native store, exposes `save_async` and
   `wait_until_finished`, and supports explicit or context-managed shutdown.
   `save` still returns only after persistence completes. Callers must close

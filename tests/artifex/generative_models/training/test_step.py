@@ -273,6 +273,28 @@ def test_an_ensemble_steps_as_one_program_under_nnx_vmap() -> None:
     _assert_float32_close(models.linear.kernel[...][1], member.linear.kernel[...])
 
 
+def test_shared_optimizer_rejects_a_bad_gradient_and_the_owned_step_recovers() -> None:
+    model = nnx.Linear(2, 1, rngs=nnx.Rngs(0))
+    optimizer = create_optimizer(model, OptimizerConfig(optimizer_type="sgd", learning_rate=0.1))
+
+    def objective(
+        model: nnx.Linear, batch: dict[str, jax.Array], ctx: StepContext
+    ) -> tuple[jax.Array, dict[str, jax.Array]]:
+        return jnp.sum(model.kernel[...]) * batch["gradient"], {}
+
+    step = GradientStep(optimizer, objective)
+    base = jax.random.key(0)
+    before = np.asarray(model.kernel[...])
+    rejected = step(model, {"gradient": jnp.asarray(jnp.nan)}, StepContext.at(base, 0))
+    np.testing.assert_array_equal(model.kernel[...], before)
+    assert bool(jnp.isnan(rejected["loss"]))
+    assert not bool(optimizer.opt_state.last_finite[...])
+    step(model, {"gradient": jnp.asarray(2.0)}, StepContext.at(base, 1))
+    np.testing.assert_allclose(model.kernel[...], before - 0.2, rtol=1e-6, atol=1e-7)
+    assert bool(optimizer.opt_state.last_finite[...])
+    assert int(optimizer.step[...]) == 2
+
+
 @pytest.mark.parametrize("step", [-1, 2**31])
 def test_a_step_outside_the_int32_range_is_refused(step: int) -> None:
     with pytest.raises(ValueError, match=r"step"):

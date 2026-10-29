@@ -829,7 +829,7 @@ requires-dist = [
     { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.1.5" },
     { name = "scikit-learn", specifier = ">=1.6.1" },
     { name = "scipy", specifier = ">=1.12.1" },
-    { name = "substrax", git = "https://github.com/avitai/substrax.git?rev=7f26831daf7eff9724add90228c294fce8305af6" },
+    { name = "substrax", git = "https://github.com/avitai/substrax.git?rev=36d3bf41782a082bbd1122804db96d43854fcd75" },
     { name = "substrax", extras = ["testing"], marker = "extra == 'test'", specifier = ">=0.1.23" },
     { name = "tensorboard", marker = "extra == 'dev'", specifier = ">=2.16" },
     { name = "tensorboard", marker = "extra == 'logging'", specifier = ">=2.16" },
@@ -6163,7 +6163,7 @@ wheels = [
 [[package]]
 name = "substrax"
 version = "0.1.23"
-source = { git = "https://github.com/avitai/substrax.git?rev=7f26831daf7eff9724add90228c294fce8305af6#7f26831daf7eff9724add90228c294fce8305af6" }
+source = { git = "https://github.com/avitai/substrax.git?rev=36d3bf41782a082bbd1122804db96d43854fcd75#36d3bf41782a082bbd1122804db96d43854fcd75" }
 dependencies = [
     { name = "etils", extra = ["epath"] },
     { name = "flax" },
