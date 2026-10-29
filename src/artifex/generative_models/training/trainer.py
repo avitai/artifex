@@ -834,7 +834,7 @@ class Trainer:
                 self._close_storage()
 
     def _close_storage(self) -> None:
-        """Release persistence on every exit without replacing an active numerical error."""
+        """Release persistence and mark closed even when native completion raises."""
         try:
             if self._checkpointer is not None:
                 self._checkpointer.close()

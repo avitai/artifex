@@ -294,6 +294,13 @@ class Checkpointer:
         metric, mode = self.policy.best
         return self._store.best_step(metric, mode=mode)
 
+    def best_score(self) -> float | None:
+        """Return the committed best metric, including after reopening the store."""
+        step = self.best_step()
+        if step is None or self.policy.best is None:
+            return None
+        return self._store.read_metadata(step).metrics[self.policy.best[0]]
+
 
 def _require_finite_arrays(items: Mapping[str, Any]) -> None:
     """Admit numerical arrays before publication or live-state application."""

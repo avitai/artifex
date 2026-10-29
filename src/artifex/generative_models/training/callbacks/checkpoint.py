@@ -106,6 +106,27 @@ class ModelCheckpoint(BaseCallback):
             return current < self.best_score
         return current > self.best_score
 
+    def _require_store(self) -> Checkpointer:
+        """Open the native store once and recover selection from committed records."""
+        if self._store is None:
+            max_to_keep = None if self.config.save_top_k < 0 else self.config.save_top_k
+            self._store = Checkpointer(
+                CheckpointPolicy(
+                    directory=self._dirpath,
+                    keep=max_to_keep,
+                    best=(self.config.monitor, self.config.mode),
+                )
+            )
+            self._refresh_committed_state()
+        return self._store
+
+    def _refresh_committed_state(self) -> None:
+        """Cache native committed selection for reporting and cheap epoch checks."""
+        if self._store is not None:
+            self.saved_checkpoint_steps = self._store.steps()
+            self.best_checkpoint_step = self._store.best_step()
+            self.best_score = self._store.best_score()
+
     def _save_checkpoint(self, trainer: TrainerLike, score: float) -> None:
         """Save the native run at the trainer's step, with its monitored metric.
 
@@ -126,23 +147,12 @@ class ModelCheckpoint(BaseCallback):
         if not isinstance(trainer, CheckpointingTrainer):
             raise TypeError("ModelCheckpoint requires a native checkpointing Trainer")
         trainer.check_finite()
-        if self._store is None:
-            max_to_keep = None if self.config.save_top_k < 0 else self.config.save_top_k
-            self._store = Checkpointer(
-                CheckpointPolicy(
-                    directory=self._dirpath,
-                    keep=max_to_keep,
-                    best=(self.config.monitor, self.config.mode),
-                )
-            )
-
-        self._store.save(
+        self._require_store().save(
             step,
             trainer.run_state(),
             metrics={self.config.monitor: score},
         )
-        self.saved_checkpoint_steps = self._store.steps()
-        self.best_checkpoint_step = self._store.best_step()
+        self._refresh_committed_state()
 
     def on_epoch_end(self, trainer: TrainerLike, epoch: int, logs: dict[str, Any]) -> None:
         """Check if checkpoint should be saved.
@@ -169,6 +179,7 @@ class ModelCheckpoint(BaseCallback):
         if self.config.save_top_k == 0:
             return
 
+        self._require_store()
         # Check for improvement
         is_improvement = self._is_improvement(current)
         # Keep the "save all" mode explicit, but avoid unnecessary checkpoint
@@ -177,8 +188,6 @@ class ModelCheckpoint(BaseCallback):
             return
 
         self._save_checkpoint(trainer, current)
-        if is_improvement:
-            self.best_score = current
 
     def on_train_end(self, _trainer: TrainerLike) -> None:
         """Release the store's resources at the end of training.

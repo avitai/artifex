@@ -410,6 +410,28 @@ class TestModelCheckpointJaxArrays:
 class TestModelCheckpointBestStepTracking:
     """Test best-step tracking on top of Orbax-managed checkpoints."""
 
+    def test_reopened_callback_uses_committed_best_before_saving(self, tmp_path):
+        """Reconstruction must not treat a worse metric as a first improvement."""
+        from artifex.generative_models.training.callbacks import (
+            CheckpointConfig,
+            ModelCheckpoint,
+        )
+
+        config = CheckpointConfig(dirpath=tmp_path, monitor="loss", save_top_k=1)
+        trainer = SimpleTrainer(SimpleModel(rngs=nnx.Rngs(0)))
+        original = ModelCheckpoint(config)
+        end_epoch(original, trainer, 0, {"loss": 0.5})
+        original.on_train_end(trainer)
+
+        resumed = ModelCheckpoint(config)
+        try:
+            end_epoch(resumed, trainer, 1, {"loss": 1.0})
+            assert resumed.saved_checkpoint_steps == [step_of(0)]
+            assert resumed.best_checkpoint_step == step_of(0)
+            assert resumed.best_score == 0.5
+        finally:
+            resumed.on_train_end(trainer)
+
     def test_tracks_best_step_for_min_mode(self):
         """The best checkpoint should be tracked by global step for min-mode metrics."""
         from artifex.generative_models.training.callbacks import (

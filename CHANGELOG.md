@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Reopened checkpoint callbacks recover selection from the native store's
+  committed best score and retained steps before considering another save.
 - The public Trainer delegates numerical updates to the native step and guarded
   optimizer, with donated live NNX binding and accumulated loss/skip reporting.
   Drivers own callbacks; standalone steps return device metrics. Evaluation has

@@ -166,7 +166,9 @@ trainer.train(train_data=train_data, num_epochs=10, batch_size=64, val_data=val_
    actual run epoch in the record
 3. **Retention Policy**: the store keeps the newest `save_top_k` checkpoints, which are
    the `save_top_k` best because a checkpoint is written only on improvement
-4. **Best Tracking**: `best_checkpoint_step` is the store's `best_step` over the monitored metric
+4. **Best Tracking**: `best_checkpoint_step` is the store's `best_step` over the monitored metric.
+   Reopening a callback recovers its best score and retained steps from committed records before
+   deciding whether to save. A fresh callback does not reset selection history.
 
 ---
 
