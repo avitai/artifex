@@ -8,14 +8,19 @@ read from the store's records, so a resumed run keeps its best model.
 
 from __future__ import annotations
 
+from collections.abc import Callable, Iterator
+from concurrent.futures import ThreadPoolExecutor
+from contextlib import ExitStack
 from dataclasses import replace
 from pathlib import Path
+from threading import Event
 from typing import Any
 
 import jax
 import jax.numpy as jnp
 import numpy as np
 import optax
+import orbax.checkpoint as ocp
 import pytest
 from datarax import Pipeline
 from flax import nnx
@@ -29,6 +34,17 @@ from artifex.generative_models.training.checkpointing import (
     RunState,
 )
 from artifex.generative_models.training.step import GradientStep, StepContext
+
+
+@pytest.fixture
+def make_checkpointer() -> Iterator[Callable[[CheckpointPolicy], Checkpointer]]:
+    """Close every native store opened by a checkpoint test."""
+    with ExitStack() as stack:
+
+        def create(policy: CheckpointPolicy) -> Checkpointer:
+            return stack.enter_context(Checkpointer(policy))
+
+        yield create
 
 
 def _objects(seed: int) -> tuple[nnx.Linear, nnx.Optimizer[Any], Pipeline, CallbackList]:
@@ -67,13 +83,15 @@ def _run_state(
     )
 
 
-def test_a_restored_run_continues_exactly(tmp_path: Path) -> None:
+def test_a_restored_run_continues_exactly(
+    make_checkpointer: Callable[[CheckpointPolicy], Checkpointer], tmp_path: Path
+) -> None:
     saved = _objects(0)
     model, optimizer, pipeline, callbacks = saved
     session = pipeline.session()
     _train(model, optimizer, next(session))
     callbacks.on_epoch_end(None, 0, {"val_loss": 0.5})  # type: ignore[arg-type]
-    checkpointer = Checkpointer(CheckpointPolicy(directory=tmp_path))
+    checkpointer = make_checkpointer(CheckpointPolicy(directory=tmp_path))
     checkpointer.save(1, _run_state(saved, jax.random.key(3)))
 
     restored_objects = _objects(1)
@@ -98,13 +116,15 @@ def test_a_restored_run_continues_exactly(tmp_path: Path) -> None:
     assert fresh_early.best_score == early.best_score == 0.5
 
 
-def test_retention_keeps_the_newest_and_the_best_across_a_resume(tmp_path: Path) -> None:
+def test_retention_keeps_the_newest_and_the_best_across_a_resume(
+    make_checkpointer: Callable[[CheckpointPolicy], Checkpointer], tmp_path: Path
+) -> None:
     policy = CheckpointPolicy(directory=tmp_path, keep=1, best=("val_loss", "min"))
     state = _run_state(_objects(0), jax.random.key(0))
-    Checkpointer(policy).save(10, state, metrics={"val_loss": 1.0})
-    Checkpointer(policy).save(20, state, metrics={"val_loss": 0.5})
+    make_checkpointer(policy).save(10, state, metrics={"val_loss": 1.0})
+    make_checkpointer(policy).save(20, state, metrics={"val_loss": 0.5})
 
-    resumed = Checkpointer(policy)
+    resumed = make_checkpointer(policy)
     resumed.save(30, state, metrics={"val_loss": 0.9})
     resumed.save(40, state, metrics={"val_loss": 0.8})
 
@@ -113,22 +133,26 @@ def test_retention_keeps_the_newest_and_the_best_across_a_resume(tmp_path: Path)
 
 
 @pytest.mark.parametrize("keep", [None, 7], ids=["all", "seven"])
-def test_declared_retention_exceeds_the_storage_default(tmp_path: Path, keep: int | None) -> None:
+def test_declared_retention_exceeds_the_storage_default(
+    make_checkpointer: Callable[[CheckpointPolicy], Checkpointer], tmp_path: Path, keep: int | None
+) -> None:
     policy = CheckpointPolicy(directory=tmp_path, keep=keep)
     run = _run_state(_objects(0), jax.random.key(0))
     for step in range(1, 8):
-        Checkpointer(policy).save(step, run)
+        make_checkpointer(policy).save(step, run)
 
-    assert Checkpointer(policy).steps() == list(range(1, 8))
+    assert make_checkpointer(policy).steps() == list(range(1, 8))
 
 
-def test_old_best_survives_a_full_recent_window_and_resume(tmp_path: Path) -> None:
+def test_old_best_survives_a_full_recent_window_and_resume(
+    make_checkpointer: Callable[[CheckpointPolicy], Checkpointer], tmp_path: Path
+) -> None:
     policy = CheckpointPolicy(directory=tmp_path, keep=5, best=("val_loss", "min"))
     run = _run_state(_objects(0), jax.random.key(0))
     for step in range(1, 8):
-        Checkpointer(policy).save(step, run, metrics={"val_loss": float(step)})
+        make_checkpointer(policy).save(step, run, metrics={"val_loss": float(step)})
 
-    resumed = Checkpointer(policy)
+    resumed = make_checkpointer(policy)
     assert resumed.steps() == [1, 3, 4, 5, 6, 7]
     assert resumed.best_step() == 1
     resumed.save(8, run, metrics={"val_loss": 0.5})
@@ -136,8 +160,10 @@ def test_old_best_survives_a_full_recent_window_and_resume(tmp_path: Path) -> No
     assert resumed.best_step() == 8
 
 
-def test_a_refused_record_leaves_the_objects_untouched(tmp_path: Path) -> None:
-    checkpointer = Checkpointer(CheckpointPolicy(directory=tmp_path))
+def test_a_refused_record_leaves_the_objects_untouched(
+    make_checkpointer: Callable[[CheckpointPolicy], Checkpointer], tmp_path: Path
+) -> None:
+    checkpointer = make_checkpointer(CheckpointPolicy(directory=tmp_path))
     checkpointer.save(5, _run_state(_objects(0), jax.random.key(0)), extra={"arch": "v1"})
     fresh_objects = _objects(1)
     fresh = fresh_objects[0]
@@ -154,18 +180,23 @@ def test_a_refused_record_leaves_the_objects_untouched(tmp_path: Path) -> None:
 
 
 @pytest.mark.parametrize("invalid", [float("nan"), float("inf"), float("-inf")])
+@pytest.mark.parametrize("asynchronous", [False, True])
 def test_invalid_parameters_cannot_replace_a_retained_checkpoint(
-    tmp_path: Path, invalid: float
+    make_checkpointer: Callable[[CheckpointPolicy], Checkpointer],
+    tmp_path: Path,
+    invalid: float,
+    asynchronous: bool,
 ) -> None:
     objects = _objects(0)
     run = _run_state(objects, jax.random.key(0))
-    checkpointer = Checkpointer(CheckpointPolicy(directory=tmp_path, keep=1))
+    checkpointer = make_checkpointer(CheckpointPolicy(directory=tmp_path, keep=1))
     checkpointer.save(1, run)
     saved_kernel = objects[0].kernel[...]
     objects[0].kernel[...] = jnp.full_like(saved_kernel, invalid)
 
+    save = checkpointer.save_async if asynchronous else checkpointer.save
     with pytest.raises(FloatingPointError, match="non-finite"):
-        checkpointer.save(2, run)
+        save(2, run)
 
     assert checkpointer.steps() == [1]
     restored_objects = _objects(1)
@@ -188,7 +219,7 @@ class _StateHolder:
 
 @pytest.mark.parametrize("location", ["mutable", "optimizer", "extension", "data"])
 def test_invalid_numerical_state_is_refused_before_creating_storage(
-    tmp_path: Path, location: str
+    make_checkpointer: Callable[[CheckpointPolicy], Checkpointer], tmp_path: Path, location: str
 ) -> None:
     objects = _objects(0)
     model, optimizer, _, _ = objects
@@ -206,7 +237,7 @@ def test_invalid_numerical_state_is_refused_before_creating_storage(
     directory = tmp_path / "checkpoint"
 
     with pytest.raises(FloatingPointError, match="non-finite"):
-        Checkpointer(CheckpointPolicy(directory=directory)).save(1, run)
+        make_checkpointer(CheckpointPolicy(directory=directory)).save(1, run)
 
     assert not directory.exists()
 
@@ -214,7 +245,10 @@ def test_invalid_numerical_state_is_refused_before_creating_storage(
 @pytest.mark.parametrize("device_array", [False, True], ids=["numpy", "jax"])
 @pytest.mark.parametrize("dtype", [np.float64, np.complex128])
 def test_finite_arrays_are_checked_without_narrowing_their_dtype(
-    tmp_path: Path, device_array: bool, dtype: Any
+    make_checkpointer: Callable[[CheckpointPolicy], Checkpointer],
+    tmp_path: Path,
+    device_array: bool,
+    dtype: Any,
 ) -> None:
     value = np.asarray([1e100], dtype=dtype)
     with jax.enable_x64():
@@ -225,13 +259,15 @@ def test_finite_arrays_are_checked_without_narrowing_their_dtype(
     )
     # Finiteness is a property of the saved float64 array, even with JAX x64 disabled.
     with jax.enable_x64(False):
-        path = Checkpointer(CheckpointPolicy(directory=tmp_path)).save(1, run)
+        path = make_checkpointer(CheckpointPolicy(directory=tmp_path)).save(1, run)
         assert not jax.config.x64_enabled
     assert path.is_dir()
     assert value.dtype == dtype
 
 
-def test_keys_counters_and_uninitialized_callback_metadata_can_be_saved(tmp_path: Path) -> None:
+def test_keys_counters_and_uninitialized_callback_metadata_can_be_saved(
+    make_checkpointer: Callable[[CheckpointPolicy], Checkpointer], tmp_path: Path
+) -> None:
     model = nnx.Module()
     model.counter = nnx.Variable(jnp.asarray(7, dtype=jnp.int32))
     optimizer = nnx.Optimizer(model, optax.sgd(0.1), wrt=nnx.Param)
@@ -246,7 +282,7 @@ def test_keys_counters_and_uninitialized_callback_metadata_can_be_saved(tmp_path
         epoch=0,
         extra_state={"callbacks": callbacks, "extension": extension},
     )
-    checkpointer = Checkpointer(CheckpointPolicy(directory=tmp_path))
+    checkpointer = make_checkpointer(CheckpointPolicy(directory=tmp_path))
     checkpointer.save(0, run)
     extension.enabled[...] = jnp.asarray(False)
     checkpointer.restore(run)
@@ -257,7 +293,7 @@ def test_keys_counters_and_uninitialized_callback_metadata_can_be_saved(tmp_path
 
 @pytest.mark.parametrize("location", ["model", "optimizer", "mutable", "extra"])
 def test_invalid_restored_arrays_are_refused_before_live_state_changes(
-    tmp_path: Path, location: str
+    make_checkpointer: Callable[[CheckpointPolicy], Checkpointer], tmp_path: Path, location: str
 ) -> None:
     source = _objects(0)
     model, optimizer, pipeline, callbacks = source
@@ -300,7 +336,7 @@ def test_invalid_restored_arrays_are_refused_before_live_state_changes(
     data_before, callbacks_before = fresh[2].get_state(), fresh[3].get_state()
 
     with pytest.raises(FloatingPointError, match="non-finite"):
-        Checkpointer(CheckpointPolicy(directory=tmp_path)).restore(run)
+        make_checkpointer(CheckpointPolicy(directory=tmp_path)).restore(run)
 
     for actual, expected in zip(
         jax.tree.leaves(nnx.state((fresh[0], fresh[1]))), before, strict=True
@@ -311,8 +347,10 @@ def test_invalid_restored_arrays_are_refused_before_live_state_changes(
     np.testing.assert_array_equal(fresh_extension.state["value"], 2.0)
 
 
-def test_saved_data_position_requires_a_data_object_before_applying_state(tmp_path: Path) -> None:
-    checkpointer = Checkpointer(CheckpointPolicy(directory=tmp_path))
+def test_saved_data_position_requires_a_data_object_before_applying_state(
+    make_checkpointer: Callable[[CheckpointPolicy], Checkpointer], tmp_path: Path
+) -> None:
+    checkpointer = make_checkpointer(CheckpointPolicy(directory=tmp_path))
     checkpointer.save(1, _run_state(_objects(0), jax.random.key(0)))
     fresh = _objects(1)
     kernel = np.array(fresh[0].kernel[...])
@@ -339,8 +377,12 @@ class _CountingStep(nnx.Module):
 
 
 @pytest.mark.parametrize("additional_optimizer", [False, True])
+@pytest.mark.parametrize("asynchronous", [False, True])
 def test_step_owned_state_resumes_with_the_model_and_next_update(
-    tmp_path: Path, additional_optimizer: bool
+    make_checkpointer: Callable[[CheckpointPolicy], Checkpointer],
+    tmp_path: Path,
+    additional_optimizer: bool,
+    asynchronous: bool,
 ) -> None:
     source, fresh = _objects(0), _objects(1)
     step, fresh_step = _CountingStep(source[1]), _CountingStep(fresh[1])
@@ -368,12 +410,15 @@ def test_step_owned_state_resumes_with_the_model_and_next_update(
     source_run = RunState(model=source[0], step=step, base_key=key, epoch=0)
     fresh_run = RunState(model=fresh[0], step=fresh_step, base_key=key, epoch=0)
     live(batch, StepContext.at(key, 0))
-    writer = Checkpointer(CheckpointPolicy(directory=tmp_path))
-    writer.save(1, source_run)
-
-    writer.restore(fresh_run)
-    assert int(fresh_step.calls[...]) == 1
+    writer = make_checkpointer(CheckpointPolicy(directory=tmp_path))
+    save = writer.save_async if asynchronous else writer.save
+    save(1, source_run)
     live(batch, StepContext.at(key, 1))
+    writer.close()
+
+    reader = make_checkpointer(CheckpointPolicy(directory=tmp_path))
+    reader.restore(fresh_run)
+    assert int(fresh_step.calls[...]) == 1
     resumed(batch, StepContext.at(key, 1))
 
     assert int(fresh_step.calls[...]) == 2
@@ -385,9 +430,69 @@ def test_step_owned_state_resumes_with_the_model_and_next_update(
         np.testing.assert_array_equal(actual, expected)
 
 
-def test_restore_without_a_checkpoint_says_where_it_looked(tmp_path: Path) -> None:
+@pytest.mark.parametrize("observe", ["wait", "close"])
+@pytest.mark.parametrize("fail", [False, True])
+def test_async_completion_and_errors_reach_the_native_owner(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, observe: str, fail: bool
+) -> None:
+    finishing, release = Event(), Event()
+    native_manager = ocp.CheckpointManager
+
+    def hold_completion() -> None:
+        finishing.set()
+        if not release.wait(15):
+            raise TimeoutError("test did not release native completion")
+        if fail:
+            raise OSError("injected native completion failure")
+
+    def manager(directory: Any, *, options: ocp.CheckpointManagerOptions) -> ocp.CheckpointManager:
+        return native_manager(
+            directory,
+            options=replace(
+                options,
+                async_options=ocp.options.AsyncOptions(post_finalization_callback=hold_completion),
+            ),
+        )
+
+    monkeypatch.setattr(ocp, "CheckpointManager", manager)
+
+    def run() -> None:
+        # Orbax reports each finalization error once per calling thread. Keep
+        # the whole lifecycle on one thread, as its manager contract requires.
+        with Checkpointer(CheckpointPolicy(directory=tmp_path)) as writer:
+            writer.save_async(1, _run_state(_objects(0), jax.random.key(0)))
+            complete = writer.wait_until_finished if observe == "wait" else writer.close
+            complete()
+
+    with ThreadPoolExecutor(max_workers=1) as executor:
+        pending = executor.submit(run)
+        try:
+            assert finishing.wait(5), "native completion hook did not run"
+            with pytest.raises(TimeoutError):
+                pending.result(timeout=0.1)
+        finally:
+            release.set()
+        if fail:
+            with pytest.raises(OSError, match="injected native completion failure"):
+                pending.result(timeout=10)
+        else:
+            assert pending.result(timeout=10) is None
+
+
+def test_unused_checkpointer_completion_and_close_do_not_create_storage(tmp_path: Path) -> None:
+    directory = tmp_path / "unused"
+    writer = Checkpointer(CheckpointPolicy(directory=directory))
+    writer.wait_until_finished()
+    writer.close()
+    writer.close()
+    assert not directory.exists()
+
+
+def test_restore_without_a_checkpoint_says_where_it_looked(
+    make_checkpointer: Callable[[CheckpointPolicy], Checkpointer], tmp_path: Path
+) -> None:
     with pytest.raises(FileNotFoundError, match=str(tmp_path)):
-        Checkpointer(CheckpointPolicy(directory=tmp_path)).restore(
+        make_checkpointer(CheckpointPolicy(directory=tmp_path)).restore(
             _run_state(_objects(0), jax.random.key(0))
         )
 

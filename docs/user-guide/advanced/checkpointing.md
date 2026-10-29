@@ -134,11 +134,11 @@ from artifex.generative_models.training.step import GradientStep, StepContext
 step = GradientStep(optimizer, objective)
 metrics = step(model, batch, StepContext.at(key, 0))
 run = RunState(model=model, step=step, base_key=key, epoch=0)
-checkpointer = Checkpointer(
+with Checkpointer(
     CheckpointPolicy(directory=checkpoint_dir, keep=5, best=("loss", "min"))
-)
-checkpointer.save(1, run, metrics={"loss": float(metrics["loss"])})
-checkpointer.restore(run)
+) as checkpointer:
+    checkpointer.save(1, run, metrics={"loss": float(metrics["loss"])})
+    checkpointer.restore(run)
 ```
 
 `RunState.extra_state` registers additional checkpointable objects or NNX modules,
@@ -154,10 +154,33 @@ setters remains sequential and a failing setter requires run reconstruction.
 
 ### Asynchronous Checkpointing
 
-`store.save` returns after Orbax has finished writing, so a training loop can
-mutate the model immediately afterwards. Orbax's own asynchronous save is not
-exposed through this interface; it provides completed writes rather than
-pending-save handles.
+Both `OrbaxCheckpointStore.save` and `Checkpointer.save` return after native
+persistence completes. Their `save_async` methods return after Orbax captures
+state and starts background persistence. The returned path is submitted work,
+not a completed artifact:
+
+```python
+with Checkpointer(CheckpointPolicy(directory=checkpoint_dir, keep=5)) as checkpointer:
+    checkpointer.save_async(1, run, extra={"trial": {"label": "candidate"}})
+    # Native capture permits the next update to donate model and step buffers.
+    metrics = step(model, batch, StepContext.at(key, 1))
+    checkpointer.wait_until_finished()
+```
+
+One persistent Substrax store owns capture, persistence, retention and completion
+for the entire checkpointer lifecycle. Nested JSON metadata is detached before
+submission; the numerical gate also applies to asynchronous saves. Reads and
+subsequent saves wait for the preceding write. Explicit `close` and context exit
+drain writes and release native resources. Always close a checkpointer, including
+one used only for synchronous saves or restores.
+
+Keep all checkpoint operations on one calling thread: Orbax's manager is not
+thread-safe and reports a finalization exception once per calling thread. Do
+not suppress completion failures or publish the submitted path before observing
+success. A failed operation requires stopping the run and reconstructing from
+an independently verified completed checkpoint; successful array capture alone
+does not establish durable publication. No throughput or large-model memory
+improvement follows from small lifecycle tests.
 
 ### Checkpoint Retention Policies
 

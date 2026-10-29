@@ -17,7 +17,7 @@ import dataclasses
 from collections.abc import Callable, Mapping
 from importlib.metadata import version
 from pathlib import Path
-from typing import Any, Literal
+from typing import Any, Literal, Self
 
 import jax
 import jax.numpy as jnp
@@ -117,7 +117,7 @@ class RestoredRun:
 
 
 class Checkpointer:
-    """Saves and restores runs under a :class:`CheckpointPolicy`."""
+    """Own one native store for a run; close it explicitly or through a context manager."""
 
     def __init__(self, policy: CheckpointPolicy) -> None:
         """Checkpoint under ``policy``.
@@ -126,11 +126,17 @@ class Checkpointer:
             policy: Where, how often and what to keep.
         """
         self.policy = policy
-
-    def _store(self) -> OrbaxCheckpointStore:
-        return OrbaxCheckpointStore(
+        self._store = OrbaxCheckpointStore(
             self.policy.directory, max_to_keep=self.policy.keep, best=self.policy.best
         )
+
+    def __enter__(self) -> Self:
+        """Enter this run's checkpoint lifecycle."""
+        return self
+
+    def __exit__(self, *_exc_info: object) -> None:
+        """Drain native persistence and close on context exit."""
+        self.close()
 
     def save(  # noqa: DOC502 -- admission errors propagate from numerical and storage owners.
         self,
@@ -140,7 +146,7 @@ class Checkpointer:
         metrics: Mapping[str, float] | None = None,
         extra: Mapping[str, JsonValue] | None = None,
     ) -> Path:
-        """Write the run at ``step``, then apply the retention.
+        """Write the run at ``step`` and observe completed native persistence.
 
         All floating and complex state arrays must be finite before writing. Typed keys,
         integer counters and plain Python metadata are not numerical arrays. In particular,
@@ -159,17 +165,54 @@ class Checkpointer:
             FloatingPointError: If a state array is non-finite. Nothing is written or pruned.
             ValueError: If the configured best-checkpoint metric is non-finite.
         """
+        path = self.save_async(step, run, metrics=metrics, extra=extra)
+        self.wait_until_finished()
+        return path
+
+    def save_async(  # noqa: DOC502 -- admission errors propagate from the shared validators.
+        self,
+        step: int,
+        run: RunState,
+        *,
+        metrics: Mapping[str, float] | None = None,
+        extra: Mapping[str, JsonValue] | None = None,
+    ) -> Path:
+        """Admit run state, capture it natively, then persist without blocking training.
+
+        Keep this checkpointer alive until completion is observed. Orbax owns buffer capture
+        before a donated update; Artifex does not copy arrays or create a background worker.
+
+        Args:
+            step: The global step.
+            run: The complete model, step, key, epoch, cursor and additional state.
+            metrics: Scalars recorded for best preservation.
+            extra: JSON record values, detached by the shared store before submission.
+
+        Returns:
+            The submitted checkpoint path; wait before publication.
+
+        Raises:
+            FloatingPointError: If a state array is non-finite, before writing or pruning.
+            ValueError: If metadata or the configured ranking metric is invalid.
+        """
         items = _items(run)
         _require_finite_arrays(items)
-        with self._store() as store:
-            return store.save(
-                step,
-                items,
-                epoch=run.epoch,
-                metrics=metrics,
-                producer=PRODUCER,
-                extra=extra,
-            )
+        return self._store.save_async(
+            step,
+            items,
+            epoch=run.epoch,
+            metrics=metrics,
+            producer=PRODUCER,
+            extra=extra,
+        )
+
+    def wait_until_finished(self) -> None:
+        """Observe native completion, propagating any pending persistence error."""
+        self._store.wait_until_finished()
+
+    def close(self) -> None:
+        """Drain pending native persistence and release the store, propagating errors."""
+        self._store.close()
 
     def restore(  # noqa: DOC503 -- numerical admission raises through the shared validator.
         self,
@@ -201,17 +244,16 @@ class Checkpointer:
             ValueError: If the checkpoint contains a data position but no data was supplied.
             FloatingPointError: If a restored numerical array is non-finite.
         """
-        with self._store() as store:
+        if step is None:
+            step = self._store.latest_step()
             if step is None:
-                step = store.latest_step()
-                if step is None:
-                    raise FileNotFoundError(f"no checkpoint under {self.policy.directory}")
-            metadata = store.read_metadata(step)
-            if validate is not None:
-                validate(metadata)
-            if "data_iterator" in metadata.items and run.data is None:
-                raise ValueError("checkpoint contains a data position; supply a data object")
-            items = store.restore(step, templates=_items(run)).items
+                raise FileNotFoundError(f"no checkpoint under {self.policy.directory}")
+        metadata = self._store.read_metadata(step)
+        if validate is not None:
+            validate(metadata)
+        if "data_iterator" in metadata.items and run.data is None:
+            raise ValueError("checkpoint contains a data position; supply a data object")
+        items = self._store.restore(step, templates=_items(run)).items
         _require_finite_arrays(items)
         nnx.update(run.model, items["model"])
         nnx.update(run.step, items["extensions"]["step"])
@@ -227,8 +269,7 @@ class Checkpointer:
         Returns:
             The steps.
         """
-        with self._store() as store:
-            return store.list_steps()
+        return self._store.list_steps()
 
     def best_step(self) -> int | None:
         """The step whose recorded ``best`` metric is best, or ``None``.
@@ -239,8 +280,7 @@ class Checkpointer:
         if self.policy.best is None:
             return None
         metric, mode = self.policy.best
-        with self._store() as store:
-            return store.best_step(metric, mode=mode)
+        return self._store.best_step(metric, mode=mode)
 
 
 def _require_finite_arrays(items: Mapping[str, Any]) -> None:

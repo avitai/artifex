@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- `Checkpointer` owns a persistent native store, exposes `save_async` and
+  `wait_until_finished`, and supports explicit or context-managed shutdown.
+  `save` still returns only after persistence completes. Callers must close
+  the checkpointer even when using only synchronous operations.
 - Requires datarax 0.1.17. Checkpoint preservation uses the commit-pinned
   Substrax implementation based on 0.1.23 until that capability is released.
 - Native `GradientStep` owns its supplied NNX optimizer and uses
