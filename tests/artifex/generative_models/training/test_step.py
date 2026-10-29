@@ -118,10 +118,23 @@ def test_the_step_applies_the_update_a_hand_written_one_applies() -> None:
     grads = _reference_grads(model, batch, ctx)
     expected_kernel = model.linear.kernel[...] - 0.1 * grads["linear"]["kernel"][...]
 
-    metrics = GradientStep(_mse)(model, optimizer, batch, ctx)
+    metrics = GradientStep(optimizer, _mse)(model, batch, ctx)
 
     np.testing.assert_allclose(model.linear.kernel[...], expected_kernel, rtol=1e-6, atol=1e-7)
     assert set(metrics) >= {"loss", "max_error", "grad_norm"}
+
+
+def test_the_step_owns_and_advances_its_optimizer() -> None:
+    model, optimizer = _sgd_setup()
+    batch, ctx = _batch(), StepContext.at(jax.random.key(0), 0)
+    grads = _reference_grads(model, batch, ctx)
+    expected = model.linear.kernel[...] - 0.1 * grads["linear"]["kernel"][...]
+    step = GradientStep(optimizer, _mse)
+
+    step(model, batch, ctx)
+
+    np.testing.assert_allclose(model.linear.kernel[...], expected, rtol=1e-6, atol=1e-7)
+    assert int(optimizer.step[...]) == 1
 
 
 def test_the_grad_norm_is_the_global_norm_of_the_trained_parameters_gradients() -> None:
@@ -129,7 +142,7 @@ def test_the_grad_norm_is_the_global_norm_of_the_trained_parameters_gradients() 
     batch, ctx = _batch(), StepContext.at(jax.random.key(0), 0)
     expected = optax.tree.norm(_reference_grads(model, batch, ctx))
 
-    metrics = GradientStep(_mse)(model, optimizer, batch, ctx)
+    metrics = GradientStep(optimizer, _mse)(model, batch, ctx)
 
     np.testing.assert_allclose(metrics["grad_norm"], expected, rtol=1e-6)
 
@@ -139,7 +152,7 @@ def test_only_the_trained_parameters_change_and_other_state_is_kept() -> None:
     frozen = model.frozen[...]
     mean_before = model.norm.mean[...]
 
-    GradientStep(_mse)(model, optimizer, _batch(), StepContext.at(jax.random.key(0), 0))
+    GradientStep(optimizer, _mse)(model, _batch(), StepContext.at(jax.random.key(0), 0))
 
     assert jnp.array_equal(model.frozen[...], frozen)
     assert not jnp.array_equal(model.norm.mean[...], mean_before)
@@ -151,12 +164,10 @@ def test_the_learning_rate_is_reported_for_a_substrax_optimizer() -> None:
     optimizer = create_optimizer(
         model, OptimizerConfig(optimizer_type="sgd", learning_rate=schedule)
     )
-    step = GradientStep(_mse)
+    step = GradientStep(optimizer, _mse)
 
     rates = [
-        float(
-            step(model, optimizer, _batch(), StepContext.at(jax.random.key(0), i))["learning_rate"]
-        )
+        float(step(model, _batch(), StepContext.at(jax.random.key(0), i))["learning_rate"])
         for i in range(3)
     ]
 
@@ -166,30 +177,31 @@ def test_the_learning_rate_is_reported_for_a_substrax_optimizer() -> None:
 def test_a_plain_optax_optimizer_reports_no_learning_rate() -> None:
     model, optimizer = _sgd_setup()
 
-    metrics = GradientStep(_mse)(model, optimizer, _batch(), StepContext.at(jax.random.key(0), 0))
+    metrics = GradientStep(optimizer, _mse)(model, _batch(), StepContext.at(jax.random.key(0), 0))
 
     assert "learning_rate" not in metrics
 
 
-def test_the_step_compiles_once_in_tree_mode_with_model_and_optimizer_donated() -> None:
+def test_the_step_compiles_once_with_its_owned_optimizer_and_model_donated() -> None:
     model, optimizer = _sgd_setup()
     eager_model, eager_optimizer = _sgd_setup()
-    step = GradientStep(_mse)
+    step = GradientStep(optimizer, _mse)
+    eager_step = GradientStep(eager_optimizer, _mse)
     base = jax.random.key(0)
 
-    @nnx.jit(graph=False, graph_updates=False, donate_argnums=(0, 1))
+    @nnx.jit(graph=True, graph_updates=False, donate_argnums=(0, 1))
     def train_step(
         model: _Regressor,
-        optimizer: nnx.Optimizer[Any],
+        step: GradientStep,
         batch: dict[str, jax.Array],
         ctx: StepContext,
     ) -> dict[str, jax.Array]:
-        return step(model, optimizer, batch, ctx)
+        return step(model, batch, ctx)
 
     mark = len(_COMPILES.names)
     for i in range(3):
-        train_step(model, optimizer, _batch(i), StepContext.at(base, i))
-        step(eager_model, eager_optimizer, _batch(i), StepContext.at(base, i))
+        train_step(model, step, _batch(i), StepContext.at(base, i))
+        eager_step(eager_model, _batch(i), StepContext.at(base, i))
 
     assert _COMPILES.names[mark:].count("jit(train_step)") == 1
     _assert_float32_close(model.linear.kernel[...], eager_model.linear.kernel[...])
@@ -205,22 +217,23 @@ def _assert_float32_close(actual: jax.Array, expected: jax.Array) -> None:
 def test_steps_fuse_into_one_program_under_nnx_scan() -> None:
     model, optimizer = _sgd_setup()
     eager_model, eager_optimizer = _sgd_setup()
-    step = GradientStep(_mse)
+    step = GradientStep(optimizer, _mse)
+    eager_step = GradientStep(eager_optimizer, _mse)
     base = jax.random.key(0)
     batches = [_batch(i) for i in range(3)]
     stacked = jax.tree.map(lambda *xs: jnp.stack(xs), *batches)
 
     @nnx.scan(in_axes=(nnx.Carry, 0, 0), out_axes=(nnx.Carry, 0))
     def run(
-        carry: tuple[_Regressor, nnx.Optimizer[Any]], batch: dict[str, jax.Array], index: jax.Array
-    ) -> tuple[tuple[_Regressor, nnx.Optimizer[Any]], jax.Array]:
-        model, optimizer = carry
-        metrics = step(model, optimizer, batch, StepContext(step=index, base_key=base))
-        return (model, optimizer), metrics["loss"]
+        carry: tuple[_Regressor, GradientStep], batch: dict[str, jax.Array], index: jax.Array
+    ) -> tuple[tuple[_Regressor, GradientStep], jax.Array]:
+        model, step = carry
+        metrics = step(model, batch, StepContext(step=index, base_key=base))
+        return (model, step), metrics["loss"]
 
-    _, losses = run((model, optimizer), stacked, jnp.arange(3, dtype=jnp.int32))
+    _, losses = run((model, step), stacked, jnp.arange(3, dtype=jnp.int32))
     eager_losses = [
-        step(eager_model, eager_optimizer, batch, StepContext.at(base, i))["loss"]
+        eager_step(eager_model, batch, StepContext.at(base, i))["loss"]
         for i, batch in enumerate(batches)
     ]
 
@@ -238,23 +251,22 @@ def test_an_ensemble_steps_as_one_program_under_nnx_vmap() -> None:
         return model, nnx.Optimizer(model, optax.sgd(0.1), wrt=nnx.Param)
 
     models, optimizers = create(keys)
-    step = GradientStep(_mse)
+    steps = GradientStep(optimizers, _mse)
     batch, ctx = _batch(), StepContext.at(jax.random.key(1), 0)
 
     @nnx.vmap(in_axes=(0, 0, None, None), out_axes=0)
     def ensemble_step(
         model: _Regressor,
-        optimizer: nnx.Optimizer[Any],
+        step: GradientStep,
         batch: dict[str, jax.Array],
         ctx: StepContext,
     ) -> dict[str, jax.Array]:
-        return step(model, optimizer, batch, ctx)
+        return step(model, batch, ctx)
 
-    losses = ensemble_step(models, optimizers, batch, ctx)["loss"]
+    losses = ensemble_step(models, steps, batch, ctx)["loss"]
     member = _Regressor(rngs=nnx.Rngs(keys[1]))
-    member_loss = step(member, nnx.Optimizer(member, optax.sgd(0.1), wrt=nnx.Param), batch, ctx)[
-        "loss"
-    ]
+    member_step = GradientStep(nnx.Optimizer(member, optax.sgd(0.1), wrt=nnx.Param), _mse)
+    member_loss = member_step(member, batch, ctx)["loss"]
 
     assert losses.shape == (3,)
     _assert_float32_close(losses[1], member_loss)

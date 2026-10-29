@@ -93,44 +93,43 @@ type Objective = Callable[
 
 @runtime_checkable
 class Step(Protocol):
-    """One compiled training update: ``(model, optimizer, batch, ctx) -> metrics``."""
+    """One compiled update: ``(model, batch, ctx) -> metrics``, owning its update state."""
 
     def __call__(
         self,
         model: nnx.Module,
-        optimizer: nnx.Optimizer[Any],
         batch: Mapping[str, Any],
         ctx: StepContext,
         /,
     ) -> dict[str, jax.Array]:
-        """Update ``model`` through ``optimizer`` on ``batch``; return device metrics."""
+        """Update ``model`` through the step's own state; return device metrics."""
         ...
 
 
 class GradientStep(nnx.Module):
     """One model, one optimizer: differentiate the objective and apply the update."""
 
-    def __init__(self, objective: Objective) -> None:
-        """Wrap ``objective``.
+    def __init__(self, optimizer: nnx.Optimizer[Any], objective: Objective) -> None:
+        """Bind ``objective`` to the optimizer this step owns.
 
         Args:
+            optimizer: The optimizer over the model, retained as native NNX state.
             objective: The loss and metrics of the model on a batch.
         """
+        self.optimizer = optimizer
         self.objective = objective
 
     def __call__(
         self,
         model: nnx.Module,
-        optimizer: nnx.Optimizer[Any],
         batch: Mapping[str, Any],
         ctx: StepContext,
     ) -> dict[str, jax.Array]:
-        """Apply one update of the parameters ``optimizer`` trains.
+        """Apply one update of the parameters the owned optimizer trains.
 
         Args:
             model: The model; its trained parameters are updated and any other state the
                 objective changes is kept.
-            optimizer: The optimizer over ``model``.
             batch: The batch.
             ctx: The step's context.
 
@@ -144,11 +143,11 @@ class GradientStep(nnx.Module):
             return self.objective(model, batch, ctx)
 
         (loss, metrics), grads = nnx.value_and_grad(
-            loss_fn, argnums=nnx.DiffState(0, optimizer.wrt), has_aux=True
+            loss_fn, argnums=nnx.DiffState(0, self.optimizer.wrt), has_aux=True
         )(model)
-        optimizer.update(model, grads)
+        self.optimizer.update(model, grads)
         out = {**metrics, "loss": loss, "grad_norm": optax.tree.norm(grads)}
-        rate = _applied_learning_rate(optimizer)
+        rate = _applied_learning_rate(self.optimizer)
         if rate is not None:
             out["learning_rate"] = rate
         return out
