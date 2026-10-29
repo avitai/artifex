@@ -8,6 +8,7 @@ read from the store's records, so a resumed run keeps its best model.
 
 from __future__ import annotations
 
+from dataclasses import replace
 from pathlib import Path
 from typing import Any
 
@@ -20,6 +21,7 @@ from datarax import Pipeline
 from flax import nnx
 from substrax.callbacks import CallbackList, EarlyStoppingCallback, EarlyStoppingConfig
 from substrax.checkpoint import CheckpointMetadata
+from substrax.typing import CheckpointState
 
 from artifex.generative_models.training.checkpointing import (
     Checkpointer,
@@ -118,6 +120,108 @@ def test_a_refused_record_leaves_the_objects_untouched(tmp_path: Path) -> None:
         checkpointer.restore(_run_state(fresh_objects, jax.random.key(0)), validate=validate)
 
     assert jnp.array_equal(fresh.kernel[...], kernel)
+
+
+@pytest.mark.parametrize("invalid", [float("nan"), float("inf"), float("-inf")])
+def test_invalid_parameters_cannot_replace_a_retained_checkpoint(
+    tmp_path: Path, invalid: float
+) -> None:
+    objects = _objects(0)
+    run = _run_state(objects, jax.random.key(0))
+    checkpointer = Checkpointer(CheckpointPolicy(directory=tmp_path, keep=1))
+    checkpointer.save(1, run)
+    saved_kernel = objects[0].kernel[...]
+    objects[0].kernel[...] = jnp.full_like(saved_kernel, invalid)
+
+    with pytest.raises(FloatingPointError, match="non-finite"):
+        checkpointer.save(2, run)
+
+    assert checkpointer.steps() == [1]
+    restored_objects = _objects(1)
+    checkpointer.restore(_run_state(restored_objects, jax.random.key(1)))
+    np.testing.assert_array_equal(restored_objects[0].kernel[...], saved_kernel)
+
+
+class _StateHolder:
+    """Checkpointable numerical state with ordinary host metadata."""
+
+    def __init__(self, value: Any) -> None:
+        self.state = {"value": value, "label": "pending", "best": float("inf")}
+
+    def get_state(self) -> CheckpointState:
+        return self.state
+
+    def set_state(self, state: CheckpointState, /) -> None:
+        self.state = state
+
+
+@pytest.mark.parametrize("location", ["mutable", "optimizer", "extension", "data"])
+def test_invalid_numerical_state_is_refused_before_creating_storage(
+    tmp_path: Path, location: str
+) -> None:
+    objects = _objects(0)
+    model, optimizer, _, _ = objects
+    run = _run_state(objects, jax.random.key(0))
+    if location == "mutable":
+        model.statistic = nnx.Variable(jnp.asarray(complex(1.0, float("nan"))))
+    elif location == "optimizer":
+        # A finite gradient overflows Adam's second moment while parameters stay finite.
+        optimizer.update(model, nnx.grad(lambda m: jnp.sum(m.kernel[...]) * 1e30)(model))
+        assert bool(jnp.all(jnp.isfinite(model.kernel[...])))
+    elif location == "extension":
+        run = replace(run, extensions={"ema": _StateHolder(jnp.asarray(float("inf")))})
+    else:
+        run = replace(run, data=_StateHolder(np.asarray([float("nan")], dtype=np.float32)))
+    directory = tmp_path / "checkpoint"
+
+    with pytest.raises(FloatingPointError, match="non-finite"):
+        Checkpointer(CheckpointPolicy(directory=directory)).save(1, run)
+
+    assert not directory.exists()
+
+
+@pytest.mark.parametrize("device_array", [False, True], ids=["numpy", "jax"])
+@pytest.mark.parametrize("dtype", [np.float64, np.complex128])
+def test_finite_arrays_are_checked_without_narrowing_their_dtype(
+    tmp_path: Path, device_array: bool, dtype: Any
+) -> None:
+    value = np.asarray([1e100], dtype=dtype)
+    with jax.enable_x64():
+        value = jnp.asarray(value) if device_array else value
+    run = replace(
+        _run_state(_objects(0), jax.random.key(0)),
+        extensions={"statistics": _StateHolder(value)},
+    )
+    # Finiteness is a property of the saved float64 array, even with JAX x64 disabled.
+    with jax.enable_x64(False):
+        path = Checkpointer(CheckpointPolicy(directory=tmp_path)).save(1, run)
+        assert not jax.config.x64_enabled
+    assert path.is_dir()
+    assert value.dtype == dtype
+
+
+def test_keys_counters_and_uninitialized_callback_metadata_can_be_saved(tmp_path: Path) -> None:
+    model = nnx.Module()
+    model.counter = nnx.Variable(jnp.asarray(7, dtype=jnp.int32))
+    optimizer = nnx.Optimizer(model, optax.sgd(0.1), wrt=nnx.Param)
+    extension = nnx.Module()
+    extension.enabled = nnx.Variable(jnp.asarray(True))
+    callbacks = CallbackList([EarlyStoppingCallback(EarlyStoppingConfig(patience=3))])
+    before = callbacks.get_state()
+    run = RunState(
+        model=model,
+        optimizer=optimizer,
+        base_key=jax.random.key(0),
+        epoch=0,
+        extensions={"callbacks": callbacks, "extension": extension},
+    )
+    checkpointer = Checkpointer(CheckpointPolicy(directory=tmp_path))
+    checkpointer.save(0, run)
+    extension.enabled[...] = jnp.asarray(False)
+    checkpointer.restore(run)
+    assert bool(extension.enabled[...])
+    assert int(model.counter[...]) == 7
+    assert callbacks.get_state() == before
 
 
 def test_restore_without_a_checkpoint_says_where_it_looked(tmp_path: Path) -> None:

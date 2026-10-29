@@ -20,6 +20,7 @@ from pathlib import Path
 from typing import Any, Literal
 
 import jax
+import jax.numpy as jnp
 from flax import nnx
 from substrax.checkpoint import CheckpointMetadata, OrbaxCheckpointStore, Producer
 from substrax.typing import Checkpointable, JsonValue
@@ -136,6 +137,10 @@ class Checkpointer:
     ) -> Path:
         """Write the run at ``step``, then apply the retention.
 
+        All floating and complex state arrays must be finite before writing. Typed keys,
+        integer counters and plain Python metadata are not numerical arrays. In particular,
+        callbacks may retain an infinite initial best-score sentinel in their metadata.
+
         Args:
             step: The global step.
             run: The run's model, optimizer, base key, epoch, data position and extensions.
@@ -144,11 +149,27 @@ class Checkpointer:
 
         Returns:
             The checkpoint's directory.
+
+        Raises:
+            FloatingPointError: If a state array is non-finite. Nothing is written or pruned.
         """
+        items = _items(run)
+        arrays = tuple(
+            leaf
+            for leaf in jax.tree.leaves(items)
+            if (dtype := getattr(leaf, "dtype", None)) is not None
+            and jnp.issubdtype(dtype, jnp.inexact)
+        )
+        # Preserve saved float64/complex128 values during validation even when training
+        # uses x64=False. This scoped setting does not change the run or its arrays.
+        with jax.enable_x64():
+            finite = bool(_arrays_are_finite(arrays))
+        if not finite:
+            raise FloatingPointError("cannot checkpoint non-finite state arrays")
         with self._store() as store:
             path = store.save(
                 step,
-                _items(run),
+                items,
                 epoch=run.epoch,
                 metrics=metrics,
                 producer=PRODUCER,
@@ -234,6 +255,12 @@ class Checkpointer:
         for step in steps:
             if step not in kept:
                 store.delete(step)
+
+
+@jax.jit
+def _arrays_are_finite(arrays: tuple[jax.Array, ...]) -> jax.Array:
+    """Reduce state arrays on device without transferring their contents to the host."""
+    return jnp.all(jnp.asarray([jnp.all(jnp.isfinite(leaf)) for leaf in arrays]))
 
 
 def _items(run: RunState) -> dict[str, Any]:
