@@ -24,6 +24,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- `GradientStep` passes stateful objectives explicitly through native NNX
+  differentiation. Objective mutations propagate without training their
+  separate parameters, including under donated graph and tree execution.
 - Checkpoint publication and restoration reject nonfinite numerical arrays
   before writing or changing live state. Restoring a saved data position
   requires a data object. Newest-plus-best retention delegates to the shared

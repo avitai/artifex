@@ -295,6 +295,43 @@ def test_shared_optimizer_rejects_a_bad_gradient_and_the_owned_step_recovers() -
     assert int(optimizer.step[...]) == 2
 
 
+class _CountingObjective(nnx.Module):
+    """An objective with mutable state and a parameter outside the trained model."""
+
+    def __init__(self) -> None:
+        self.calls = nnx.Variable(jnp.asarray(0, jnp.int32))
+        self.scale = nnx.Param(jnp.asarray(2.0))
+
+    def __call__(
+        self, model: nnx.Linear, batch: dict[str, jax.Array], ctx: StepContext
+    ) -> tuple[jax.Array, dict[str, jax.Array]]:
+        self.calls[...] += 1
+        return self.scale[...] * jnp.sum(model.kernel[...] ** 2), {}
+
+
+@pytest.mark.parametrize("mode", ["eager", "graph", "tree"])
+def test_stateful_objectives_update_without_training_their_parameters(mode: str) -> None:
+    model = nnx.Linear(2, 1, rngs=nnx.Rngs(0))
+    objective = _CountingObjective()
+    step = GradientStep(nnx.Optimizer(model, optax.sgd(0.1), wrt=nnx.Param), objective)
+    before = np.array(model.kernel[...])
+
+    def run(model: nnx.Linear, step: GradientStep, ctx: StepContext) -> dict[str, jax.Array]:
+        return step(model, {}, ctx)
+
+    update = (
+        run
+        if mode == "eager"
+        else nnx.jit(run, graph=mode == "graph", graph_updates=False, donate_argnums=(0, 1))
+    )
+    for index in range(3):
+        update(model, step, StepContext.at(jax.random.key(0), index))
+    # d(2 * sum(w**2))/dw = 4w; three SGD steps multiply w by 0.6**3.
+    np.testing.assert_allclose(model.kernel[...], before * 0.216, rtol=1e-6, atol=1e-7)
+    assert int(objective.calls[...]) == 3
+    assert float(objective.scale[...]) == 2.0
+
+
 @pytest.mark.parametrize("step", [-1, 2**31])
 def test_a_step_outside_the_int32_range_is_refused(step: int) -> None:
     with pytest.raises(ValueError, match=r"step"):

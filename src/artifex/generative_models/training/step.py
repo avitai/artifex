@@ -12,6 +12,8 @@ other state the objective changed (batch statistics, RNG counts), and returns th
 metrics with the loss, the global gradient norm and, for an optimizer built through substrax,
 the learning rate the update applied. Steps are ``nnx`` modules, so a step or an objective that
 carries state (a replay buffer, a loss balancer) is part of the compiled call and of a checkpoint.
+Stateful objectives are passed alongside the model through native NNX differentiation:
+their mutations propagate, while only the model's configured parameters are differentiated.
 """
 
 from __future__ import annotations
@@ -139,12 +141,14 @@ class GradientStep(nnx.Module):
             ``learning_rate`` (the rate the update applied).
         """
 
-        def loss_fn(model: nnx.Module) -> tuple[jax.Array, dict[str, jax.Array]]:
-            return self.objective(model, batch, ctx)
+        def loss_fn(
+            model: nnx.Module, objective: Objective
+        ) -> tuple[jax.Array, dict[str, jax.Array]]:
+            return objective(model, batch, ctx)
 
         (loss, metrics), grads = nnx.value_and_grad(
             loss_fn, argnums=nnx.DiffState(0, self.optimizer.wrt), has_aux=True
-        )(model)
+        )(model, self.objective)
         self.optimizer.update(model, grads)
         out = {**metrics, "loss": loss, "grad_norm": optax.tree.norm(grads)}
         rate = _applied_learning_rate(self.optimizer)

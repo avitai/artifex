@@ -147,6 +147,13 @@ and custom mutable update state. The store's `extensions` item contains named
 `step` and `extra_state` subtrees; this layout does not use a separate optimizer
 item. Rebuild the same model and step structure when restoring.
 
+An objective may be an NNX module with its own mutable state. `GradientStep`
+passes it explicitly through native differentiation together with the model,
+so objective mutations are retained and checkpointed on the step. Only the
+model's configured parameters are differentiated; an objective's separate
+parameters are not silently trained by that optimizer. Capturing a mutable
+objective solely in a transformed closure would violate NNX's trace rules.
+
 Floating and complex arrays must be finite before publication or restoration
 into live objects. A saved data cursor requires a supplied data object. Rejected
 numerical admission changes no live state; application of arbitrary extra-state
