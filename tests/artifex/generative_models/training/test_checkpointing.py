@@ -20,7 +20,7 @@ import pytest
 from datarax import Pipeline
 from flax import nnx
 from substrax.callbacks import CallbackList, EarlyStoppingCallback, EarlyStoppingConfig
-from substrax.checkpoint import CheckpointMetadata
+from substrax.checkpoint import CheckpointMetadata, OrbaxCheckpointStore
 from substrax.typing import CheckpointState
 
 from artifex.generative_models.training.checkpointing import (
@@ -246,6 +246,72 @@ def test_keys_counters_and_uninitialized_callback_metadata_can_be_saved(tmp_path
     assert bool(extension.enabled[...])
     assert int(model.counter[...]) == 7
     assert callbacks.get_state() == before
+
+
+@pytest.mark.parametrize("location", ["model", "optimizer", "mutable", "extra"])
+def test_invalid_restored_arrays_are_refused_before_live_state_changes(
+    tmp_path: Path, location: str
+) -> None:
+    source = _objects(0)
+    model, optimizer, pipeline, callbacks = source
+    model.statistic = nnx.Variable(jnp.asarray(0.0))
+    extension = _StateHolder(jnp.asarray(0.0))
+    if location == "model":
+        model.kernel[...] = jnp.full_like(model.kernel[...], jnp.nan)
+    elif location == "optimizer":
+        optimizer.update(model, nnx.grad(lambda m: jnp.sum(m.kernel[...]) * 1e30)(model))
+    elif location == "mutable":
+        model.statistic[...] = jnp.asarray(jnp.inf)
+    else:
+        extension.state["value"] = jnp.asarray(jnp.inf)
+    # The generic storage layer can contain numerical failure evidence. The training
+    # owner must refuse it as continuation even when its metadata and dtypes match.
+    with OrbaxCheckpointStore(tmp_path, max_to_keep=None) as store:
+        store.save(
+            1,
+            {
+                "model": nnx.state(model),
+                "optimizer": nnx.state(optimizer),
+                "rng": jax.random.key(3),
+                "data_iterator": pipeline.get_state(),
+                "extensions": {
+                    "callbacks": callbacks.get_state(),
+                    "statistics": extension.get_state(),
+                },
+            },
+        )
+    fresh = _objects(1)
+    fresh[0].statistic = nnx.Variable(jnp.asarray(5.0))
+    fresh_extension = _StateHolder(jnp.asarray(2.0))
+    run = replace(
+        _run_state(fresh, jax.random.key(7)),
+        extensions={"callbacks": fresh[3], "statistics": fresh_extension},
+    )
+    before = [np.array(x) for x in jax.tree.leaves(nnx.state((fresh[0], fresh[1])))]
+    data_before, callbacks_before = fresh[2].get_state(), fresh[3].get_state()
+
+    with pytest.raises(FloatingPointError, match="non-finite"):
+        Checkpointer(CheckpointPolicy(directory=tmp_path)).restore(run)
+
+    for actual, expected in zip(
+        jax.tree.leaves(nnx.state((fresh[0], fresh[1]))), before, strict=True
+    ):
+        np.testing.assert_array_equal(actual, expected)
+    assert fresh[2].get_state() == data_before
+    assert fresh[3].get_state() == callbacks_before
+    np.testing.assert_array_equal(fresh_extension.state["value"], 2.0)
+
+
+def test_saved_data_position_requires_a_data_object_before_applying_state(tmp_path: Path) -> None:
+    checkpointer = Checkpointer(CheckpointPolicy(directory=tmp_path))
+    checkpointer.save(1, _run_state(_objects(0), jax.random.key(0)))
+    fresh = _objects(1)
+    kernel = np.array(fresh[0].kernel[...])
+
+    with pytest.raises(ValueError, match="data"):
+        checkpointer.restore(replace(_run_state(fresh, jax.random.key(1)), data=None))
+
+    np.testing.assert_array_equal(fresh[0].kernel[...], kernel)
 
 
 def test_restore_without_a_checkpoint_says_where_it_looked(tmp_path: Path) -> None:

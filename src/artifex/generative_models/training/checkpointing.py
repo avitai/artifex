@@ -129,7 +129,7 @@ class Checkpointer:
         # retention would discard candidates before this owner can preserve them.
         return OrbaxCheckpointStore(self.policy.directory, max_to_keep=None)
 
-    def save(
+    def save(  # noqa: DOC502 -- numerical admission raises through the shared validator.
         self,
         step: int,
         run: RunState,
@@ -156,18 +156,7 @@ class Checkpointer:
             FloatingPointError: If a state array is non-finite. Nothing is written or pruned.
         """
         items = _items(run)
-        arrays = tuple(
-            leaf
-            for leaf in jax.tree.leaves(items)
-            if (dtype := getattr(leaf, "dtype", None)) is not None
-            and jnp.issubdtype(dtype, jnp.inexact)
-        )
-        # Preserve saved float64/complex128 values during validation even when training
-        # uses x64=False. This scoped setting does not change the run or its arrays.
-        with jax.enable_x64():
-            finite = bool(_arrays_are_finite(arrays))
-        if not finite:
-            raise FloatingPointError("cannot checkpoint non-finite state arrays")
+        _require_finite_arrays(items)
         with self._store() as store:
             path = store.save(
                 step,
@@ -180,7 +169,7 @@ class Checkpointer:
             self._retain(store)
         return path
 
-    def restore(
+    def restore(  # noqa: DOC503 -- numerical admission raises through the shared validator.
         self,
         run: RunState,
         *,
@@ -192,6 +181,9 @@ class Checkpointer:
         The objects must be built the way the saved ones were: their current state is the
         restore template, which fixes each array's structure, dtype and placement. ``validate``
         sees the record first and may raise, in which case nothing is applied.
+        Numerical arrays are admitted before applying any state. A saved data position
+        requires a data object. Application to arbitrary extensions is sequential: a failing
+        ``set_state`` may leave a partially applied run, which the caller must reconstruct.
 
         Args:
             run: The objects to restore into; its key and epoch are replaced by the saved
@@ -204,6 +196,8 @@ class Checkpointer:
 
         Raises:
             FileNotFoundError: If the directory holds no checkpoint.
+            ValueError: If the checkpoint contains a data position but no data was supplied.
+            FloatingPointError: If a restored numerical array is non-finite.
         """
         with self._store() as store:
             if step is None:
@@ -213,7 +207,10 @@ class Checkpointer:
             metadata = store.read_metadata(step)
             if validate is not None:
                 validate(metadata)
+            if "data_iterator" in metadata.items and run.data is None:
+                raise ValueError("checkpoint contains a data position; supply a data object")
             items = store.restore(step, templates=_items(run)).items
+        _require_finite_arrays(items)
         nnx.update(run.model, items["model"])
         nnx.update(run.optimizer, items["optimizer"])
         if run.data is not None:
@@ -257,6 +254,22 @@ class Checkpointer:
         for step in steps:
             if step not in kept:
                 store.delete(step)
+
+
+def _require_finite_arrays(items: Mapping[str, Any]) -> None:
+    """Admit numerical arrays before publication or live-state application."""
+    arrays = tuple(
+        leaf
+        for leaf in jax.tree.leaves(items)
+        if (dtype := getattr(leaf, "dtype", None)) is not None
+        and jnp.issubdtype(dtype, jnp.inexact)
+    )
+    # Preserve saved float64/complex128 values during validation even when training
+    # uses x64=False. This scoped setting does not change the run or its arrays.
+    with jax.enable_x64():
+        finite = bool(_arrays_are_finite(arrays))
+    if not finite:
+        raise FloatingPointError("checkpoint contains non-finite state arrays")
 
 
 @jax.jit
