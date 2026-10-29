@@ -43,7 +43,7 @@ class CheckpointPolicy:
         every_steps: Save every this many steps; ``None`` saves only when asked.
         keep: Keep the newest this many checkpoints; ``None`` keeps all.
         best: ``(metric, mode)``: also keep the checkpoint whose recorded ``metric`` is the
-            lowest (``"min"``) or highest (``"max"``).
+            lowest (``"min"``) or highest (``"max"``). Ties preserve the newest checkpoint.
     """
 
     directory: Path
@@ -128,11 +128,11 @@ class Checkpointer:
         self.policy = policy
 
     def _store(self) -> OrbaxCheckpointStore:
-        # This policy keeps newest AND best; the store's independent newest-only
-        # retention would discard candidates before this owner can preserve them.
-        return OrbaxCheckpointStore(self.policy.directory, max_to_keep=None)
+        return OrbaxCheckpointStore(
+            self.policy.directory, max_to_keep=self.policy.keep, best=self.policy.best
+        )
 
-    def save(  # noqa: DOC502 -- numerical admission raises through the shared validator.
+    def save(  # noqa: DOC502 -- admission errors propagate from numerical and storage owners.
         self,
         step: int,
         run: RunState,
@@ -157,11 +157,12 @@ class Checkpointer:
 
         Raises:
             FloatingPointError: If a state array is non-finite. Nothing is written or pruned.
+            ValueError: If the configured best-checkpoint metric is non-finite.
         """
         items = _items(run)
         _require_finite_arrays(items)
         with self._store() as store:
-            path = store.save(
+            return store.save(
                 step,
                 items,
                 epoch=run.epoch,
@@ -169,8 +170,6 @@ class Checkpointer:
                 producer=PRODUCER,
                 extra=extra,
             )
-            self._retain(store)
-        return path
 
     def restore(  # noqa: DOC503 -- numerical admission raises through the shared validator.
         self,
@@ -242,21 +241,6 @@ class Checkpointer:
         metric, mode = self.policy.best
         with self._store() as store:
             return store.best_step(metric, mode=mode)
-
-    def _retain(self, store: OrbaxCheckpointStore) -> None:
-        """Delete every checkpoint neither among the newest ``keep`` nor the best."""
-        if self.policy.keep is None:
-            return
-        steps = store.list_steps()
-        kept = set(steps[-self.policy.keep :])
-        if self.policy.best is not None:
-            metric, mode = self.policy.best
-            best = store.best_step(metric, mode=mode)
-            if best is not None:
-                kept.add(best)
-        for step in steps:
-            if step not in kept:
-                store.delete(step)
 
 
 def _require_finite_arrays(items: Mapping[str, Any]) -> None:

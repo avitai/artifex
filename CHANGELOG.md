@@ -9,9 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Requires datarax 0.1.17 and substrax 0.1.18, the latest releases.
+- Requires datarax 0.1.17. Checkpoint preservation uses the commit-pinned
+  Substrax implementation based on 0.1.23 until that capability is released.
+- Native `GradientStep` owns its supplied NNX optimizer and uses
+  `(model, batch, context)`. `RunState.step` captures the complete update state;
+  additional state is registered through `extra_state`.
 
 ### Fixed
+
+- Checkpoint publication and restoration reject nonfinite numerical arrays
+  before writing or changing live state. Restoring a saved data position
+  requires a data object. Newest-plus-best retention delegates to the shared
+  native policy, preserving keep-all and older best checkpoints beyond five saves.
 
 - The distributed-training guide no longer lists `substrax.spmd.reduce_gradient_tree`, which
   substrax 0.1.17 removed.

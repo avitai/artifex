@@ -327,12 +327,7 @@ class _CountingStep(nnx.Module):
     """A native step whose optimizer and non-optimizer state must both resume."""
 
     def __init__(self, optimizer: nnx.Optimizer[Any]) -> None:
-        def objective(
-            model: nnx.Linear, batch: dict[str, jax.Array], context: StepContext
-        ) -> tuple[jax.Array, dict[str, jax.Array]]:
-            return jnp.mean((model(batch["x"]) - batch["y"]) ** 2), {}
-
-        self.update = GradientStep(optimizer, objective)
+        self.update = GradientStep(optimizer, _objective)
         self.calls = nnx.Variable(jnp.asarray(0, dtype=jnp.int32))
 
     def __call__(

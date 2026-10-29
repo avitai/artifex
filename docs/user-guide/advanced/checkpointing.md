@@ -117,19 +117,57 @@ beside it. Restore with the same items as templates, check the record, then call
 [Trainer API reference](../../api/training/trainer.md#apply_checkpoint_state)
 shows the full sequence.
 
+### Step-Owned Runs
+
+For a native step, capture the complete step tree rather than registering each
+optimizer separately. Given a model, its optimizer and an objective returning
+`(loss, metrics)`, the step and checkpoint modules compose as follows:
+
+```python
+from artifex.generative_models.training.checkpointing import (
+    Checkpointer,
+    CheckpointPolicy,
+    RunState,
+)
+from artifex.generative_models.training.step import GradientStep, StepContext
+
+step = GradientStep(optimizer, objective)
+metrics = step(model, batch, StepContext.at(key, 0))
+run = RunState(model=model, step=step, base_key=key, epoch=0)
+checkpointer = Checkpointer(
+    CheckpointPolicy(directory=checkpoint_dir, keep=5, best=("loss", "min"))
+)
+checkpointer.save(1, run, metrics={"loss": float(metrics["loss"])})
+checkpointer.restore(run)
+```
+
+`RunState.extra_state` registers additional checkpointable objects or NNX modules,
+such as callbacks or EMA. Step state is automatic, including multiple optimizers
+and custom mutable update state. The store's `extensions` item contains named
+`step` and `extra_state` subtrees; this layout does not use a separate optimizer
+item. Rebuild the same model and step structure when restoring.
+
+Floating and complex arrays must be finite before publication or restoration
+into live objects. A saved data cursor requires a supplied data object. Rejected
+numerical admission changes no live state; application of arbitrary extra-state
+setters remains sequential and a failing setter requires run reconstruction.
+
 ### Asynchronous Checkpointing
 
 `store.save` returns after Orbax has finished writing, so a training loop can
 mutate the model immediately afterwards. Orbax's own asynchronous save is not
-exposed: an in-place `nnx.update` racing a background write would corrupt the
-checkpoint silently.
+exposed through this interface; it provides completed writes rather than
+pending-save handles.
 
 ### Checkpoint Retention Policies
 
-Retention is `max_to_keep`: the store keeps the newest checkpoints and deletes
-the rest. Keep a checkpoint outside that window by copying its step directory,
-or run two stores over two directories (frequent, short-lived checkpoints in
-one; milestones in another).
+`max_to_keep` preserves the newest checkpoints; `None` keeps every checkpoint.
+Set `best=("loss", "min")` on the store to retain one best checkpoint in addition
+to the recent window. The native Orbax policy owns preservation and deletion;
+callers must not apply a second pruning loop. Missing ranking metrics qualify
+only for newest retention; nonfinite ranking values are refused. Tied best
+values preserve the newest tie. Use the same policy from the first save through
+reopen so its persisted ranking records remain available.
 
 ## Gradient Checkpointing
 
