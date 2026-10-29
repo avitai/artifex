@@ -125,7 +125,9 @@ class Checkpointer:
         self.policy = policy
 
     def _store(self) -> OrbaxCheckpointStore:
-        return OrbaxCheckpointStore(self.policy.directory)
+        # This policy keeps newest AND best; the store's independent newest-only
+        # retention would discard candidates before this owner can preserve them.
+        return OrbaxCheckpointStore(self.policy.directory, max_to_keep=None)
 
     def save(
         self,

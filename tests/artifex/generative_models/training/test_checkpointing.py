@@ -105,6 +105,30 @@ def test_retention_keeps_the_newest_and_the_best_across_a_resume(tmp_path: Path)
     assert resumed.best_step() == 20
 
 
+@pytest.mark.parametrize("keep", [None, 7], ids=["all", "seven"])
+def test_declared_retention_exceeds_the_storage_default(tmp_path: Path, keep: int | None) -> None:
+    policy = CheckpointPolicy(directory=tmp_path, keep=keep)
+    run = _run_state(_objects(0), jax.random.key(0))
+    for step in range(1, 8):
+        Checkpointer(policy).save(step, run)
+
+    assert Checkpointer(policy).steps() == list(range(1, 8))
+
+
+def test_old_best_survives_a_full_recent_window_and_resume(tmp_path: Path) -> None:
+    policy = CheckpointPolicy(directory=tmp_path, keep=5, best=("val_loss", "min"))
+    run = _run_state(_objects(0), jax.random.key(0))
+    for step in range(1, 8):
+        Checkpointer(policy).save(step, run, metrics={"val_loss": float(step)})
+
+    resumed = Checkpointer(policy)
+    assert resumed.steps() == [1, 3, 4, 5, 6, 7]
+    assert resumed.best_step() == 1
+    resumed.save(8, run, metrics={"val_loss": 0.5})
+    assert resumed.steps() == [4, 5, 6, 7, 8]
+    assert resumed.best_step() == 8
+
+
 def test_a_refused_record_leaves_the_objects_untouched(tmp_path: Path) -> None:
     checkpointer = Checkpointer(CheckpointPolicy(directory=tmp_path))
     checkpointer.save(5, _run_state(_objects(0), jax.random.key(0)), extra={"arch": "v1"})
