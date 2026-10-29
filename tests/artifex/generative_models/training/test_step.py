@@ -17,6 +17,7 @@ import jax.numpy as jnp
 import numpy as np
 import optax
 import pytest
+from calibrax.metrics.stateful import MeanAccumulator
 from flax import nnx
 from jax import monitoring
 from substrax.optim import create_optimizer, OptimizerConfig
@@ -272,6 +273,50 @@ def test_a_frozen_parameter_filter_survives_shared_guard_and_decoupled_decay() -
     np.testing.assert_array_equal(model.norm.scale[...], frozen)
     assert not np.array_equal(np.asarray(model.linear.kernel[...]), kernel)
     assert not np.array_equal(np.asarray(control.norm.scale[...]), frozen)
+
+
+@pytest.mark.parametrize("graph", [True, False])
+def test_shared_metric_windows_compose_with_the_owned_donated_step(graph: bool) -> None:
+    model = nnx.Linear(
+        1, 1, use_bias=False, kernel_init=nnx.initializers.ones_init(), rngs=nnx.Rngs(0)
+    )
+    optimizer = create_optimizer(
+        model, OptimizerConfig(optimizer_type="sgd", learning_rate=0.1, momentum=0.0)
+    )
+
+    def objective(
+        current: nnx.Linear, batch: dict[str, jax.Array], ctx: StepContext
+    ) -> tuple[jax.Array, dict[str, jax.Array]]:
+        return jnp.mean(current(batch["x"]) ** 2), {}
+
+    step = GradientStep(optimizer, objective)
+    per_step, per_record = MeanAccumulator(("loss",)), MeanAccumulator(("loss",))
+
+    def run(
+        bundle: tuple[nnx.Linear, GradientStep, MeanAccumulator, MeanAccumulator],
+        batch: dict[str, jax.Array],
+        ctx: StepContext,
+    ) -> None:
+        current, owned, training, evaluation = bundle
+        metrics = owned(current, batch, ctx)
+        training.update({"loss": metrics["loss"]}, jnp.int32(1))
+        evaluation.update({"loss": metrics["loss"]}, jnp.int32(batch["x"].shape[0]))
+
+    bound = nnx.jit_partial(
+        run,
+        (model, step, per_step, per_record),
+        graph=graph,
+        graph_updates=False,
+        donate_argnums=0,
+    )
+    base = jax.random.key(0)
+    bound({"x": jnp.ones((3, 1))}, StepContext.at(base, 0))
+    bound({"x": jnp.ones((1, 1))}, StepContext.at(base, 1))
+
+    # Unit kernel: loss=1, SGD gives kernel=0.8, then loss=0.64. A training
+    # window averages the two steps; a record window weights them 3:1.
+    np.testing.assert_allclose(per_step.compute()["loss"], 0.82, rtol=1e-6)
+    np.testing.assert_allclose(per_record.compute()["loss"], 0.91, rtol=1e-6)
 
 
 def _assert_float32_close(actual: jax.Array, expected: jax.Array) -> None:

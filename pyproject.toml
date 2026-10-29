@@ -33,7 +33,7 @@ classifiers = [
 ]
 dependencies = [
   "blackjax>=1.6.2",
-  "calibrax>=0.1.14",
+  "calibrax @ git+https://github.com/avitai/calibrax.git@08845d729e94086204198ed1a7802d9701d47810",
   "dacite>=1.8.0",
   "datarax>=0.1.17",
   # 0.1.7 calls jax.core.is_concrete and jax.core.valid_jaxtype, which jax deprecated in

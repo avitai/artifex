@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Device metric accumulation is owned by the pinned Calibrax implementation.
+  Import `MeanAccumulator` from `calibrax.metrics.stateful`; the duplicate
+  `artifex.generative_models.training.metrics` implementation is removed.
+  The owned step composes with shared per-step and record-weighted windows
+  under native donated graph and tree binding.
 - Pins the shared native finite-gradient optimizer guard. The step consumes
   the shared optimizer directly, without another guard implementation;
   raw-transformation and caller-supplied optimizer policies stay explicit.

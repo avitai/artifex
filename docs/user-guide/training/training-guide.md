@@ -810,6 +810,17 @@ For more details, see the [Advanced Checkpointing Guide](../advanced/checkpointi
 
 Artifex provides built-in logging callbacks for seamless integration with popular experiment tracking tools. These callbacks integrate with the training callback system for automatic metric logging.
 
+### Device Metric Windows
+
+Use `calibrax.metrics.stateful.MeanAccumulator` to accumulate scalar step metrics
+without a host transfer. `update(metrics, jnp.int32(1))` weights a training window
+per step; evaluation windows instead supply the actual record count, including
+the short last batch. `compute()` returns device means and `reset()` begins a
+new window. The shared implementation composes native Flax NNX averages, excludes
+undefined means from zero-record batches, and keeps omitted metric windows
+unchanged. It replaces the former `artifex.generative_models.training.metrics`
+implementation; no compatibility alias is retained.
+
 ### Weights & Biases Integration
 
 Use `WandbLoggerCallback` for experiment tracking with Weights & Biases:
