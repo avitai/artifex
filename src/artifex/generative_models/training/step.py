@@ -140,15 +140,23 @@ class GradientStep(nnx.Module):
             trained parameters' gradients) and, when the optimizer carries it,
             ``learning_rate`` (the rate the update applied).
         """
+        # One native graph gives shared Variables one differentiation prefix.
+        # Separate graph arguments classify shared RNGs as False versus None;
+        # Flax correctly refuses that inconsistent aliasing. Model comes first
+        # in this graph, so aliases retain the model's canonical parameter paths.
+        joint = nnx.Dict(model=model, objective=self.objective)
+        predicate = nnx.filterlib.to_predicate(self.optimizer.wrt)
 
-        def loss_fn(
-            model: nnx.Module, objective: Objective
-        ) -> tuple[jax.Array, dict[str, jax.Array]]:
-            return objective(model, batch, ctx)
+        def trainable(path: tuple[Any, ...], variable: Any) -> bool:
+            return path[0] == "model" and predicate(path[1:], variable)
 
-        (loss, metrics), grads = nnx.value_and_grad(
-            loss_fn, argnums=nnx.DiffState(0, self.optimizer.wrt), has_aux=True
-        )(model, self.objective)
+        def loss_fn(joint: nnx.Dict) -> tuple[jax.Array, dict[str, jax.Array]]:
+            return joint.objective(joint.model, batch, ctx)
+
+        (loss, metrics), joint_grads = nnx.value_and_grad(
+            loss_fn, argnums=nnx.DiffState(0, trainable), has_aux=True
+        )(joint)
+        grads = joint_grads.get("model", nnx.State({}))
         self.optimizer.update(model, grads)
         out = {**metrics, "loss": loss, "grad_norm": optax.tree.norm(grads)}
         rate = _applied_learning_rate(self.optimizer)

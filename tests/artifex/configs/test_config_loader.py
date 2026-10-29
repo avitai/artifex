@@ -204,7 +204,7 @@ class TestLoadYamlConfig:
         assert config.num_epochs == 100
         assert config.log_frequency == 20
         assert config.save_frequency == 100
-        assert config.gradient_clip_norm == 1.0
+        assert config.optimizer.gradient_clip_norm == 1.0
         assert config.optimizer.learning_rate == pytest.approx(1.0e-4)
         assert config.scheduler is not None
         assert config.scheduler.scheduler_type == "cosine"

@@ -164,6 +164,7 @@ SIMPLE_TRAINING_TEMPLATE = TrainingConfigTemplate(
             "beta1": 0.9,
             "beta2": 0.999,
             "eps": 1e-8,
+            "gradient_clip_norm": 1.0,
         },
         "scheduler": {
             "name": "default_scheduler",
@@ -174,7 +175,6 @@ SIMPLE_TRAINING_TEMPLATE = TrainingConfigTemplate(
         "log_frequency": 100,
         "save_frequency": 1000,
         "max_checkpoints": 5,
-        "gradient_clip_norm": 1.0,
     },
     required_params=["batch_size", "learning_rate"],
     optional_params={},

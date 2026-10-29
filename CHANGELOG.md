@@ -9,6 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- The public Trainer delegates numerical updates to the native step and guarded
+  optimizer, with donated live NNX binding and accumulated loss/skip reporting.
+  Drivers own callbacks; standalone steps return device metrics. Evaluation has
+  an independent persisted RNG stream and refuses nonfinite validation loss.
+- Trainer and best-checkpoint saves use the shared persistent Checkpointer with
+  complete step state, native async capture and explicit shutdown. The separate
+  optimizer item is removed; rebuild checkpoints for the step-owned layout.
+- Clipping is configured only through `OptimizerConfig`; the ignored duplicate
+  on `TrainingConfig` is removed. Shipped explicit clipping settings now live
+  under the optimizer. No library clipping default is selected.
+
 - Device metric accumulation is owned by the pinned Calibrax implementation.
   Import `MeanAccumulator` from `calibrax.metrics.stateful`; the duplicate
   `artifex.generative_models.training.metrics` implementation is removed.

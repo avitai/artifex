@@ -318,10 +318,8 @@ class TestTrainerExtensionIntegration:
             loss_fn=loss_fn,
         )
 
-        # Run multiple training steps
-        trainer.train_step(batch)
-        trainer.train_step(batch)
-        trainer.train_step(batch)
+        # A host driver emits one batch callback for each full-batch epoch.
+        trainer.train(batch, num_epochs=3, batch_size=batch["input"].shape[0])
 
         # on_batch_end should have been called 3 times
         assert callback_ext.batch_end_count == 3

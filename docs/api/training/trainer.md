@@ -23,7 +23,7 @@ trainer closures, callbacks, logging, and checkpointing.
 Trainer(
     model: nnx.Module,
     training_config: TrainingConfig,
-    optimizer: optax.GradientTransformation | None = None,
+    optimizer: optax.GradientTransformation | nnx.Optimizer | None = None,
     train_data_loader: Callable | None = None,
     val_data_loader: Callable | None = None,
     workdir: str | None = None,
@@ -35,6 +35,7 @@ Trainer(
     log_callback: Callable | None = None,
     callbacks: CallbackList | None = None,
     extensions: dict[str, Extension] | None = None,
+    check_finite_every: int | None = 1,
 )
 ```
 
@@ -44,7 +45,7 @@ Trainer(
 | --- | --- | --- |
 | `model` | `nnx.Module` | NNX model to train. |
 | `training_config` | `TrainingConfig` | Typed training configuration. |
-| `optimizer` | `optax.GradientTransformation \| None` | Optional explicit optimizer. If omitted, one is built from `training_config`. |
+| `optimizer` | `optax.GradientTransformation \| nnx.Optimizer \| None` | A native optimizer retains its filter and transformation. Raw transformations receive native finite-gradient skipping; configuration uses Substrax’s guarded builder. |
 | `train_data_loader` | `Callable \| None` | Optional batch loader for `train_epoch()`. |
 | `val_data_loader` | `Callable \| None` | Optional validation loader for `train_epoch()`. |
 | `workdir` | `str \| None` | Output/work directory; when `training_config.checkpoint_dir` is unset, checkpoints go to its `checkpoints` subdirectory. |
@@ -55,6 +56,7 @@ Trainer(
 | `log_callback` | `Callable \| None` | Optional callback for train/validation metric emission. |
 | `callbacks` | `CallbackList \| None` | Optional training lifecycle callbacks. |
 | `extensions` | `dict[str, Extension] \| None` | Optional extensions that contribute losses or hooks. |
+| `check_finite_every` | `int \| None` | Observe accumulated failed losses or skipped updates before this many further attempts. Default `1`; callbacks, driver completion, saves and close always observe failure. |
 
 ### Example
 
@@ -88,12 +90,15 @@ Returns a metrics dictionary containing at least:
 
 The method:
 
-- splits RNG state
+- derives the key by folding the attempted-update count into the run’s base key
 - evaluates the explicit objective
 - adds enabled extension losses
-- computes gradients with `nnx.value_and_grad`
-- updates parameters through the configured optimizer
-- emits callback and logging hooks
+- delegates differentiation and updates to the step-owned `GradientStep`
+- donates model and step buffers through native `nnx.jit_partial`
+
+`train_step` emits device metrics without driver callbacks, logging, history or
+saves. `train` and `train_epoch` own those host boundaries. Both batch hooks
+receive the attempted-update index before the update.
 
 ### validate_step
 
@@ -150,7 +155,10 @@ Evaluate on in-memory data using the current explicit objective.
 def evaluate(data: dict[str, Any], batch_size: int) -> dict[str, Any]
 ```
 
-Returns averaged evaluation metrics.
+Returns Calibrax record-weighted scalar means with float32 totals and int32
+counts, including a short final batch. A nonfinite reduced loss is refused before
+selection callbacks. The evaluation stream is separate from training and is
+persisted with the native run.
 
 ### save_checkpoint
 
@@ -160,14 +168,23 @@ Save the trainer state under a step in `checkpoint_dir`.
 def save_checkpoint(step: int | None = None) -> Path
 ```
 
-The step defaults to the trainer's current step. The checkpoint goes through
-substrax's Orbax store as four named items beside a metadata record that names
-artifex as the producer:
+The address must equal the trainer's current attempted-update count. One persistent
+`Checkpointer` admits numerical state and writes native Orbax items beside an
+Artifex producer record:
 
 - `model`: the model state
-- `optimizer`: the optimizer state
-- `rng`: the RNG key
-- `extensions`: every extension's state
+- `rng`: the run's base key
+- `extensions.step`: the complete native step, including optimizer, objective and
+  auxiliary-loss state
+- `extensions.extra_state`: callback and other registered host state
+
+The separate raw optimizer item is removed. Construct fresh checkpoints for this
+layout. `save_checkpoint` waits for completed persistence. `save_async()` performs
+native capture before returning; its path is not completion evidence. Call
+`wait_until_finished()` before publication and `close()` at shutdown, or use
+`with Trainer(...) as trainer:`. Close propagates numerical and storage failures.
+External references to model or step buffers are valid only until the next donated
+update; retain a detached copy when needed.
 
 Returns the directory of the saved checkpoint. If you want best-model
 checkpointing during training, use
@@ -202,7 +219,7 @@ Return the checkpoint items, for storing trainer state beside application state.
 def checkpoint_state() -> dict[str, Any]
 ```
 
-The items are `model`, `optimizer`, `rng` and `extensions`, as `save_checkpoint`
+The items are `model`, `rng` and `extensions`, as `save_checkpoint`
 writes them. The outer dictionary is new on every call, but the `model` and
 `extensions` entries are live `nnx.State` views whose Variables belong to the
 trainer: assigning to a leaf changes the trainer. Copy the leaves first when you
@@ -237,9 +254,10 @@ with OrbaxCheckpointStore(directory) as store:
 ```
 
 The payload must come from a restore against `checkpoint_state()` as the
-templates; items beyond the trainer's four are left alone. The method applies
-entries one at a time and is not transactional: a malformed payload can leave
-the trainer partly updated.
+templates. Application-owned items remain the caller's responsibility. Numerical
+admission precedes live changes; arbitrary host extension application remains
+sequential and is not transactional. Reconstruct after a failing extension restore.
+A successful restore clears the failed observation window.
 
 ## Design Notes
 
@@ -254,3 +272,24 @@ For higher-level guidance, see:
 - [Training Guide](../../user-guide/training/training-guide.md)
 - [Training Overview](../../user-guide/training/overview.md)
 - [Checkpointing Callbacks](../../training/checkpoint.md)
+
+### Numerical admission
+
+Loss failures and native optimizer skips accumulate across the observation window;
+a later success cannot erase an earlier failure. A rejected gradient holds the inner
+optimizer and schedule clock while the attempted-update and RNG index advance.
+A nonfinite diagnostic gradient norm alone is not the native finite-gradient
+predicate. This is skip-and-report, not transactional rollback: finite gradients can
+still produce nonfinite state. Checkpoint admission rejects that state before writes.
+
+No clipping is selected implicitly. Configure clipping in `OptimizerConfig` before
+constructing a guarded optimizer; a caller's `nnx.Optimizer` is not rewritten.
+
+### Clipping configuration
+
+`TrainingConfig.gradient_clip_norm` is removed. It was ignored by the optimizer
+builder. Set `OptimizerConfig.gradient_clip_norm` explicitly to request clipping;
+its default remains `None`. Move the field under `optimizer` in serialized
+training documents before loading them. No old-field alias or artifact migration
+is applied. The shipped protein recipe and training template explicitly select
+`optimizer.gradient_clip_norm: 1.0`; that setting now reaches their optimizer.

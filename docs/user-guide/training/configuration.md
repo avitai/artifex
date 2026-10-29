@@ -52,7 +52,6 @@ training_config = TrainingConfig(
     num_epochs=200,
     optimizer=optimizer,
     scheduler=scheduler,
-    gradient_clip_norm=1.0,
     save_frequency=5000,
     log_frequency=100,
 )

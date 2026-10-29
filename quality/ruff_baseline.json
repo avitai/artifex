@@ -1142,7 +1142,6 @@
       "RET505": 4
     },
     "src/artifex/generative_models/training/trainer.py": {
-      "ANN204": 1,
       "B004": 1,
       "C901": 1,
       "PLR0912": 1,

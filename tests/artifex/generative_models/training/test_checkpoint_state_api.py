@@ -18,7 +18,7 @@ from artifex.generative_models.extensions.base import Extension
 from artifex.generative_models.training.trainer import Trainer
 
 
-ITEMS = {"model", "optimizer", "rng", "extensions"}
+ITEMS = {"model", "rng", "extensions"}
 
 
 def objective(model, batch, rng, step):
@@ -70,12 +70,12 @@ def test_detached_restore_then_apply_preserves_next_training_step(tmp_path, with
         tmp_path / "native", extensions={"test": extension} if with_extension else {}
     )
     trainer.train_step(BATCH)
-    saved = trainer.checkpoint_state()
+    saved = jax.tree.map(jnp.array, trainer.checkpoint_state())
     assert set(saved) == ITEMS
     with OrbaxCheckpointStore(tmp_path / "composed") as store:
         store.save(1, saved, extra={"request": "expected"})
         trainer.train_step(BATCH)
-        expected_next = trainer.checkpoint_state()
+        expected_next = jax.tree.map(jnp.array, trainer.checkpoint_state())
         checkpoint = store.restore(1, templates=trainer.checkpoint_state())
         assert checkpoint.metadata.extra["request"] == "expected"
         assert trainer.step == 2

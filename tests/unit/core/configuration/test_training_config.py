@@ -36,7 +36,7 @@ class TestTrainingConfigBasics:
         # Check defaults
         assert config.batch_size == 32
         assert config.num_epochs == 100
-        assert config.gradient_clip_norm == 1.0
+        assert config.optimizer.gradient_clip_norm is None
         assert config.scheduler is None
         assert config.checkpoint_dir is None
         assert config.save_frequency == 1000
@@ -67,7 +67,6 @@ class TestTrainingConfigBasics:
             scheduler=scheduler,
             batch_size=64,
             num_epochs=200,
-            gradient_clip_norm=2.0,
             checkpoint_dir=Path("./my_checkpoints"),
             save_frequency=500,
             max_checkpoints=10,
@@ -82,7 +81,7 @@ class TestTrainingConfigBasics:
         assert config.scheduler == scheduler
         assert config.batch_size == 64
         assert config.num_epochs == 200
-        assert config.gradient_clip_norm == 2.0
+        assert config.optimizer.gradient_clip_norm is None
         assert config.checkpoint_dir == Path("./my_checkpoints")
         assert config.save_frequency == 500
         assert config.max_checkpoints == 10
@@ -223,7 +222,6 @@ class TestTrainingConfigFromDict:
             },
             "batch_size": 64,
             "num_epochs": 200,
-            "gradient_clip_norm": 2.0,
             "checkpoint_dir": "./my_checkpoints",
             "save_frequency": 500,
             "max_checkpoints": 10,
@@ -320,23 +318,23 @@ class TestTrainingConfigValidation:
                 num_epochs=0,
             )
 
-    def test_negative_gradient_clip_norm_raises(self):
-        """Test that negative gradient_clip_norm raises error."""
+    def test_training_level_clipping_is_rejected(self):
+        """A removed training-level option must be refused, not silently ignored."""
         optimizer = OptimizerConfig(
             name="adam_opt",
             optimizer_type="adam",
             learning_rate=0.001,
         )
 
-        with pytest.raises(ValueError, match="gradient_clip_norm"):
+        with pytest.raises(TypeError, match="gradient_clip_norm"):
             TrainingConfig(
                 name="test",
                 optimizer=optimizer,
                 gradient_clip_norm=-1.0,
             )
 
-    def test_gradient_clip_norm_none_allowed(self):
-        """Test that gradient_clip_norm=None is allowed."""
+    def test_optimizer_gradient_clip_norm_none_allowed(self):
+        """No clipping remains the optimizer default."""
         optimizer = OptimizerConfig(
             name="adam_opt",
             optimizer_type="adam",
@@ -346,10 +344,9 @@ class TestTrainingConfigValidation:
         config = TrainingConfig(
             name="test",
             optimizer=optimizer,
-            gradient_clip_norm=None,
         )
 
-        assert config.gradient_clip_norm is None
+        assert config.optimizer.gradient_clip_norm is None
 
     def test_negative_save_frequency_raises(self):
         """Test that negative or zero save_frequency raises error."""
@@ -560,3 +557,18 @@ class TestTrainingConfigInheritance:
                 optimizer=optimizer,
                 custom_param=-1.0,
             )
+
+
+def test_clipping_has_one_owner_in_optimizer_configuration() -> None:
+    """A training-level duplicate must not silently shadow the effective clipping policy."""
+    optimizer = OptimizerConfig(
+        name="explicit-clip",
+        optimizer_type="sgd",
+        learning_rate=0.1,
+        gradient_clip_norm=2.0,
+    )
+    with pytest.raises(TypeError, match="gradient_clip_norm"):
+        TrainingConfig(name="single-owner", optimizer=optimizer, gradient_clip_norm=1.0)
+    assert (
+        TrainingConfig(name="single-owner", optimizer=optimizer).optimizer.gradient_clip_norm == 2.0
+    )

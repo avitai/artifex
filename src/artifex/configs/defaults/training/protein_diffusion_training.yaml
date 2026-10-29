@@ -16,6 +16,7 @@ optimizer:
   beta1: 0.9
   beta2: 0.99
   eps: 1.0e-8
+  gradient_clip_norm: 1.0
 
 # Scheduler configuration
 scheduler:
@@ -28,6 +29,3 @@ scheduler:
 log_frequency: 20
 save_frequency: 100
 max_checkpoints: 5
-
-# Regularization
-gradient_clip_norm: 1.0

@@ -377,7 +377,7 @@ class TestCallbackIntegrationWithTrainer:
         assert trainer.callbacks is not None
         assert len(trainer.callbacks) == 1
 
-    def test_trainer_calls_on_batch_end_during_train_step(self, simple_model, training_config):
+    def test_trainer_calls_on_batch_end_during_train(self, simple_model, training_config):
         """Trainer should call on_batch_end after each training step."""
         from artifex.generative_models.training import Trainer
         from artifex.generative_models.training.callbacks import CallbackList
@@ -400,12 +400,12 @@ class TestCallbackIntegrationWithTrainer:
         )
 
         batch = {"x": jax.random.normal(jax.random.PRNGKey(0), (4, 4))}
-        trainer.train_step(batch)
+        trainer.train(batch, num_epochs=1, batch_size=4)
 
         # on_batch_end should have been called
         assert mock_callback.on_batch_end.called
 
-    def test_trainer_calls_on_batch_begin_during_train_step(self, simple_model, training_config):
+    def test_trainer_calls_on_batch_begin_during_train(self, simple_model, training_config):
         """Trainer should call on_batch_begin before each training step."""
         from artifex.generative_models.training import Trainer
         from artifex.generative_models.training.callbacks import CallbackList
@@ -428,7 +428,7 @@ class TestCallbackIntegrationWithTrainer:
         )
 
         batch = {"x": jax.random.normal(jax.random.PRNGKey(0), (4, 4))}
-        trainer.train_step(batch)
+        trainer.train(batch, num_epochs=1, batch_size=4)
 
         assert mock_callback.on_batch_begin.called
 

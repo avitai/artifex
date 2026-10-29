@@ -35,7 +35,7 @@ training_config = TrainingConfig(
 
 - `batch_size`
 - `num_epochs`
-- `gradient_clip_norm`
+- `optimizer.gradient_clip_norm`
 - `checkpoint_dir`
 - `save_frequency`
 - `max_checkpoints`

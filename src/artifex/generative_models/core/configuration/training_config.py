@@ -14,7 +14,6 @@ from artifex.generative_models.core.configuration.base_dataclass import BaseConf
 from artifex.generative_models.core.configuration.optimizer_config import OptimizerConfig
 from artifex.generative_models.core.configuration.scheduler_config import SchedulerConfig
 from artifex.generative_models.core.configuration.validation import (
-    validate_positive_float,
     validate_positive_int,
 )
 
@@ -31,7 +30,6 @@ class TrainingConfig(BaseConfig):
         scheduler: Learning rate scheduler configuration (optional, SchedulerConfig)
         batch_size: Batch size for training (must be positive)
         num_epochs: Number of training epochs (must be positive)
-        gradient_clip_norm: Gradient clipping by norm (optional, must be positive if set)
         checkpoint_dir: Directory for saving checkpoints; None means ``checkpoints`` under
             the trainer's ``workdir`` when it has one, and no checkpointing otherwise
         save_frequency: Save checkpoint every N steps (must be positive)
@@ -50,7 +48,6 @@ class TrainingConfig(BaseConfig):
     # Basic training parameters
     batch_size: int = 32
     num_epochs: int = 100
-    gradient_clip_norm: float | None = 1.0
 
     # Checkpointing
     checkpoint_dir: Path | None = None
@@ -80,10 +77,6 @@ class TrainingConfig(BaseConfig):
 
         # Validate num_epochs (must be positive)
         validate_positive_int(self.num_epochs, "num_epochs")
-
-        # Validate gradient_clip_norm (must be positive if set)
-        if self.gradient_clip_norm is not None:
-            validate_positive_float(self.gradient_clip_norm, "gradient_clip_norm")
 
         # Validate save_frequency (must be positive)
         validate_positive_int(self.save_frequency, "save_frequency")

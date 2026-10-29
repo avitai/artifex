@@ -143,7 +143,6 @@ def demonstrate_configuration_system():
         batch_size=32,
         num_epochs=100,
         optimizer=optimizer_config,
-        gradient_clip_norm=1.0,
     )
 
     echo("\nTraining Configuration:")

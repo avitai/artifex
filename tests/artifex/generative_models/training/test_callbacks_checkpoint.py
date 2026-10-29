@@ -11,74 +11,14 @@ from typing import Any
 import jax.numpy as jnp
 import pytest
 from flax import nnx
+from substrax.checkpoint import OrbaxCheckpointStore
 
+from artifex.generative_models.core.configuration import OptimizerConfig, TrainingConfig
+from artifex.generative_models.training.trainer import Trainer
 from tests.artifex.generative_models.training.timing_utils import best_average_us_per_call
 
 
 STEPS_PER_EPOCH = 10
-
-
-class _FakeCheckpointStore:
-    """Minimal fake of substrax's format-3 store for callback unit tests.
-
-    It keeps what ``save`` receives, retains by recency as Orbax's ``max_to_keep``
-    does, and ``best_step`` reads the metric the callback records in ``metrics``.
-    """
-
-    def __init__(self, checkpoint_dir, *, max_to_keep=5):
-        self.checkpoint_dir = checkpoint_dir
-        self.max_to_keep = max_to_keep
-        self.saved: dict[int, dict[str, Any]] = {}
-        self.closed = False
-
-    def save(
-        self,
-        step,
-        items,
-        *,
-        epoch=None,
-        metrics=None,
-        producer=None,
-        extra=None,
-        overwrite=False,
-    ):
-        self.saved[step] = {
-            "items": dict(items),
-            "epoch": epoch,
-            "metrics": dict(metrics or {}),
-            "producer": producer,
-            "extra": dict(extra or {}),
-        }
-        if self.max_to_keep is not None:
-            for old in sorted(self.saved)[: -self.max_to_keep or None]:
-                del self.saved[old]
-        return Path(str(step))
-
-    def list_steps(self) -> list[int]:
-        return sorted(self.saved)
-
-    def best_step(self, metric: str, *, mode: str = "min") -> int | None:
-        scored = {
-            step: record["metrics"][metric]
-            for step, record in self.saved.items()
-            if metric in record["metrics"]
-        }
-        if not scored:
-            return None
-        chooser = min if mode == "min" else max
-        return chooser(scored, key=lambda step: scored[step])
-
-    def close(self) -> None:
-        self.closed = True
-
-
-@pytest.fixture(autouse=True)
-def _patch_checkpoint_backend(monkeypatch):
-    """Patch the store so callback tests stay unit-scoped."""
-    monkeypatch.setattr(
-        "artifex.generative_models.training.callbacks.checkpoint.OrbaxCheckpointStore",
-        _FakeCheckpointStore,
-    )
 
 
 class SimpleModel(nnx.Module):
@@ -92,16 +32,22 @@ class SimpleModel(nnx.Module):
         return self.linear(x)
 
 
-class SimpleTrainer:
-    """A trainer the callback can read: the model and the global step."""
+class SimpleTrainer(Trainer):
+    """A real native trainer for checkpoint lifecycle tests."""
 
     def __init__(self, model: nnx.Module):
-        self._model = model
-        self.step = 0
-
-    @property
-    def model(self) -> nnx.Module:
-        return self._model
+        super().__init__(
+            model,
+            TrainingConfig(
+                name="checkpoint",
+                optimizer=OptimizerConfig(
+                    name="sgd",
+                    optimizer_type="sgd",
+                    learning_rate=0.01,
+                ),
+            ),
+            loss_fn=lambda model, batch, rng, step: (jnp.asarray(0.0), {}),
+        )
 
 
 def end_epoch(callback, trainer: SimpleTrainer, epoch: int, logs: dict[str, Any]) -> None:
@@ -244,12 +190,12 @@ class TestModelCheckpointSaving:
 
             end_epoch(callback, trainer, 2, {"loss": 0.5})
 
-            store = callback._store
-            assert store is not None
-            record = store.saved[step_of(2)]
-            assert set(record["items"]) == {"model"}
-            assert record["metrics"] == {"loss": 0.5}
-            assert record["epoch"] == 2
+            with OrbaxCheckpointStore(tmpdir) as store:
+                record = store.read_metadata(step_of(2))
+            assert set(record.items) == {"model", "rng", "extensions"}
+            assert record.metrics == {"loss": 0.5}
+            assert record.epoch == 0
+            callback.on_train_end(trainer)
             assert callback.saved_checkpoint_steps == [step_of(2)]
 
     def test_saves_checkpoint_on_improvement_min_mode(self):

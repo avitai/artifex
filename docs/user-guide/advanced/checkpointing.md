@@ -102,9 +102,9 @@ record alone.
 
 ### Trainer Checkpoints
 
-`Trainer.save_checkpoint()` writes the model state, the optimizer state, the RNG
-key and every extension's state as the `model`, `optimizer`, `rng` and
-`extensions` items under the current step, and `Trainer.load_checkpoint(step=None)`
+`Trainer.save_checkpoint()` writes `model`, `rng` and `extensions`: the complete
+optimizer/objective tree is in `extensions.step`, with callback and evaluation
+RNG state in `extensions.extra_state`. `Trainer.load_checkpoint(step=None)`
 restores the latest (or a given) step into the live trainer. Both go through the
 same store under `checkpoint_dir`, which is the explicit directory, else
 `workdir/checkpoints`. A trainer given neither checkpoints nowhere: `train` saves
@@ -141,7 +141,7 @@ with Checkpointer(
     checkpointer.restore(run)
 ```
 
-`RunState.extra_state` registers additional checkpointable objects or NNX modules,
+`RunState.extra_state` registers additional checkpointable objects or NNX pytrees,
 such as callbacks or EMA. Step state is automatic, including multiple optimizers
 and custom mutable update state. The store's `extensions` item contains named
 `step` and `extra_state` subtrees; this layout does not use a separate optimizer
@@ -754,8 +754,10 @@ assert jnp.allclose(restored(sample), expected, atol=1e-6)
 ### Training Resumption
 
 `Trainer.load_checkpoint()` restores the model, optimizer, RNG and extension
-state from the latest step in `checkpoint_dir` and sets `trainer.step`, so a
-training script resumes with one call:
+state from the latest step in `checkpoint_dir` and sets `trainer.step`. This
+restores numerical state; application data cursors must be captured and validated
+separately as described above. The dictionary-based training helper starts a new
+data pipeline and is not an exact data-position continuation API:
 
 ```python
 from artifex.generative_models.training import Trainer
@@ -767,7 +769,8 @@ try:
 except FileNotFoundError:
     print("No checkpoint found, starting from scratch")
 
-trainer.train(train_data, num_epochs=num_epochs)
+trainer.train(train_data, num_epochs=num_epochs, batch_size=config.batch_size)
+trainer.close()
 ```
 
 Outside the trainer, save the model and optimizer items and restore them onto

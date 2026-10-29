@@ -29,7 +29,7 @@ from substrax.typing import Checkpointable, JsonValue
 PRODUCER = Producer(name="artifex", version=version("avitai-artifex"))
 """The record's producer: this package and its installed version."""
 
-type Extension = Checkpointable | nnx.Module
+type Extension = Checkpointable | nnx.Pytree
 """State a run checkpoints besides the model and optimizer: through ``get_state``/``set_state``
 when it has them (callbacks, a data pipeline), else its ``nnx`` state (an EMA, a step's state)."""
 
@@ -99,6 +99,24 @@ class RunState:
     epoch: int
     data: Checkpointable | None = None
     extra_state: Mapping[str, Extension] = dataclasses.field(default_factory=dict)
+
+    def items(self) -> dict[str, Any]:
+        """Capture native checkpoint items or templates without copying live arrays."""
+        return _items(self)
+
+    def apply_items(self, items: Mapping[str, Any]) -> None:
+        """Admit detached numerical arrays, then apply complete native run state.
+
+        Application to arbitrary host extensions is sequential; reconstruct after an
+        extension failure. Callers validate source and record identities first.
+        """
+        _require_finite_arrays(items)
+        nnx.update(self.model, items["model"])
+        nnx.update(self.step, items["extensions"]["step"])
+        if self.data is not None:
+            self.data.set_state(items["data_iterator"])
+        for name, extension in self.extra_state.items():
+            _set_extension_state(extension, items["extensions"]["extra_state"][name])
 
 
 @dataclasses.dataclass(frozen=True, slots=True, kw_only=True)
@@ -195,7 +213,7 @@ class Checkpointer:
             FloatingPointError: If a state array is non-finite, before writing or pruning.
             ValueError: If metadata or the configured ranking metric is invalid.
         """
-        items = _items(run)
+        items = run.items()
         _require_finite_arrays(items)
         return self._store.save_async(
             step,
@@ -253,14 +271,8 @@ class Checkpointer:
             validate(metadata)
         if "data_iterator" in metadata.items and run.data is None:
             raise ValueError("checkpoint contains a data position; supply a data object")
-        items = self._store.restore(step, templates=_items(run)).items
-        _require_finite_arrays(items)
-        nnx.update(run.model, items["model"])
-        nnx.update(run.step, items["extensions"]["step"])
-        if run.data is not None:
-            run.data.set_state(items["data_iterator"])
-        for name, extension in run.extra_state.items():
-            _set_extension_state(extension, items["extensions"]["extra_state"][name])
+        items = self._store.restore(step, templates=run.items()).items
+        run.apply_items(items)
         return RestoredRun(step=step, epoch=metadata.epoch or 0, base_key=items["rng"])
 
     def steps(self) -> list[int]:

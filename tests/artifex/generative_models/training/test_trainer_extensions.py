@@ -475,8 +475,7 @@ class TestCallbackExtensionIntegration:
             extensions={"callback": callback_ext},
         )
 
-        trainer.train_step(test_batch)
-        trainer.train_step(test_batch)
+        trainer.train(test_batch, num_epochs=2, batch_size=4)
 
         assert callback_ext.batch_begin_count == 2
 
@@ -500,8 +499,7 @@ class TestCallbackExtensionIntegration:
         )
 
         # Run multiple train steps
-        trainer.train_step(test_batch)
-        trainer.train_step(test_batch)
+        trainer.train(test_batch, num_epochs=2, batch_size=4)
 
         # Callback should have been called twice
         assert callback_ext.batch_end_count == 2
@@ -546,8 +544,8 @@ class TestExtensionStateSerialization:
             checkpoint = store.restore(trainer.step)
 
         assert checkpoint.metadata.step == trainer.step
-        assert "test_ext" in checkpoint.items["extensions"]
-        assert set(checkpoint.items) == {"model", "optimizer", "rng", "extensions"}
+        assert "test_ext" in checkpoint.items["extensions"]["step"]["objective"]["extensions"]
+        assert set(checkpoint.items) == {"model", "rng", "extensions"}
 
 
 # =============================================================================

@@ -1,6 +1,6 @@
 """Model checkpoint callback for training.
 
-Monitors a metric and saves the model through substrax's Orbax-backed store on a
+Monitors a metric and saves the native run through the shared Checkpointer on a
 fixed epoch cadence, each checkpoint at the trainer's global step with the metric
 in the record's ``metrics`` and the epoch in its ``epoch``. Because a checkpoint
 is written only when the monitored metric improves, the store's most recent
@@ -14,18 +14,30 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Literal, Protocol, runtime_checkable
 
-from flax import nnx
 from substrax.callbacks import BaseCallback, TrainerLike
-from substrax.checkpoint import OrbaxCheckpointStore
+
+from artifex.generative_models.training.checkpointing import (
+    Checkpointer,
+    CheckpointPolicy,
+    RunState,
+)
 
 
 @runtime_checkable
 class CheckpointingTrainer(TrainerLike, Protocol):
-    """What the checkpoint callback asks of its trainer: the model and the global step."""
+    """The complete native run and its accumulated numerical admission."""
 
     @property
     def step(self) -> int:
         """The global training step, the address a checkpoint is saved under."""
+        ...
+
+    def run_state(self) -> RunState:
+        """Return the complete native step and model, not model-only weights."""
+        ...
+
+    def check_finite(self) -> None:
+        """Refuse any failed update before checkpoint capture."""
         ...
 
 
@@ -52,7 +64,7 @@ class CheckpointConfig:
 class ModelCheckpoint(BaseCallback):
     """Save model checkpoints based on monitored metrics.
 
-    Uses substrax's ``OrbaxCheckpointStore`` under the hood. Minimal overhead
+    Uses the numerically admitted native ``Checkpointer``. Minimal overhead
     when not saving.
     """
 
@@ -75,7 +87,7 @@ class ModelCheckpoint(BaseCallback):
         self.best_score: float | None = None
         self.best_checkpoint_step: int | None = None
         self.saved_checkpoint_steps: list[int] = []
-        self._store: OrbaxCheckpointStore | None = None
+        self._store: Checkpointer | None = None
         # The store creates the directory on its first save.
         self._dirpath: Path = Path(config.dirpath)
 
@@ -94,12 +106,11 @@ class ModelCheckpoint(BaseCallback):
             return current < self.best_score
         return current > self.best_score
 
-    def _save_checkpoint(self, trainer: TrainerLike, epoch: int, score: float) -> None:
-        """Save the model item at the trainer's step, the metric in the record's metrics.
+    def _save_checkpoint(self, trainer: TrainerLike, score: float) -> None:
+        """Save the native run at the trainer's step, with its monitored metric.
 
         Args:
             trainer: The trainer instance; it must expose the global ``step``.
-            epoch: Current epoch number.
             score: Current metric score.
 
         Raises:
@@ -112,20 +123,26 @@ class ModelCheckpoint(BaseCallback):
             raise TypeError(
                 f"{type(trainer).__name__} has no step; ModelCheckpoint saves at the global step"
             )
+        if not isinstance(trainer, CheckpointingTrainer):
+            raise TypeError("ModelCheckpoint requires a native checkpointing Trainer")
+        trainer.check_finite()
         if self._store is None:
             max_to_keep = None if self.config.save_top_k < 0 else self.config.save_top_k
-            self._store = OrbaxCheckpointStore(self._dirpath, max_to_keep=max_to_keep)
+            self._store = Checkpointer(
+                CheckpointPolicy(
+                    directory=self._dirpath,
+                    keep=max_to_keep,
+                    best=(self.config.monitor, self.config.mode),
+                )
+            )
 
         self._store.save(
             step,
-            {"model": nnx.state(trainer.model)},
-            epoch=epoch,
+            trainer.run_state(),
             metrics={self.config.monitor: score},
         )
-        self.saved_checkpoint_steps = self._store.list_steps()
-        self.best_checkpoint_step = self._store.best_step(
-            self.config.monitor, mode=self.config.mode
-        )
+        self.saved_checkpoint_steps = self._store.steps()
+        self.best_checkpoint_step = self._store.best_step()
 
     def on_epoch_end(self, trainer: TrainerLike, epoch: int, logs: dict[str, Any]) -> None:
         """Check if checkpoint should be saved.
@@ -154,15 +171,14 @@ class ModelCheckpoint(BaseCallback):
 
         # Check for improvement
         is_improvement = self._is_improvement(current)
-        if is_improvement:
-            self.best_score = current
-
         # Keep the "save all" mode explicit, but avoid unnecessary checkpoint
         # work when only the tracked best checkpoints matter.
         if self.config.save_top_k > 0 and not is_improvement:
             return
 
-        self._save_checkpoint(trainer, epoch, current)
+        self._save_checkpoint(trainer, current)
+        if is_improvement:
+            self.best_score = current
 
     def on_train_end(self, _trainer: TrainerLike) -> None:
         """Release the store's resources at the end of training.

@@ -291,7 +291,7 @@ class TestEdgeCases:
 
         assert "loss" in metrics
 
-    def test_extension_returns_nan_handled_gracefully(self, rngs):
+    def test_nonfinite_extension_is_reported_before_callbacks(self, rngs):
         """Test that NaN from extension doesn't crash training."""
 
         class NaNExtension(ModelExtension):
@@ -327,9 +327,12 @@ class TestEdgeCases:
 
         batch = {"input": jnp.ones((4, 4))}
 
-        # Should not raise, but loss will be NaN
-        metrics = trainer.train_step(batch)
-        assert "nan_loss" in metrics
+        with pytest.raises(FloatingPointError, match="non-finite"):
+            trainer.train(batch, num_epochs=1, batch_size=4)
+        assert trainer.step == 1
+        with pytest.raises(RuntimeError, match="closed"):
+            trainer.train_step(batch)
+        assert trainer.step == 1
 
     def test_extension_with_zero_weight(self, rngs):
         """Test extension with zero weight has no effect on loss."""

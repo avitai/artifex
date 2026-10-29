@@ -140,7 +140,6 @@ class TestTrainingUnifiedConfiguration:
             num_epochs=100,
             optimizer=optimizer_config,
             scheduler=scheduler_config,
-            gradient_clip_norm=1.0,
             save_frequency=1000,
         )
 
@@ -181,9 +180,8 @@ class TestTrainingUnifiedConfiguration:
 
         # Verify optimizer was created
         assert trainer.optimizer is not None
-        # The optimizer should be an optax optimizer
-        assert hasattr(trainer.optimizer, "init")
-        assert hasattr(trainer.optimizer, "update")
+        assert isinstance(trainer.optimizer, nnx.Optimizer)
+        assert int(trainer.optimizer.step[...]) == 0
 
     def test_backward_compatibility_rejection(self):
         """Test that old dict-based optimizer params are rejected."""

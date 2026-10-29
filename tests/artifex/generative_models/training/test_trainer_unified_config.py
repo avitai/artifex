@@ -79,15 +79,14 @@ def valid_training_config():
         batch_size=32,
         num_epochs=10,
         optimizer=optimizer_config,
-        gradient_clip_norm=1.0,
         scheduler=scheduler_config,
     )
 
 
 @pytest.fixture
-def optimizer():
+def optimizer(model):
     """Create a simple optimizer."""
-    return optax.adam(1e-3)
+    return nnx.Optimizer(model, optax.adam(1e-3), wrt=nnx.Param)
 
 
 @pytest.fixture
