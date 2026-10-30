@@ -214,7 +214,7 @@ def test_top_level_config_package_keeps_deeper_modules_lazy() -> None:
     payload = run_repo_json(
         "import json, sys; "
         "import artifex.configs as configs; "
-        "print(json.dumps({"
+        "_report_payload = ({"
         "'loader_loaded': 'artifex.configs.utils.config_loader' in sys.modules, "
         "'environment_loaded': "
         "'artifex.generative_models.core.configuration.environment' in sys.modules, "
@@ -231,7 +231,7 @@ def test_top_level_config_package_keeps_deeper_modules_lazy() -> None:
         "'get_env_config_path_visible': hasattr(configs, 'get_env_config_path'), "
         "'load_env_config_visible': hasattr(configs, 'load_env_config'), "
         "'all': list(getattr(configs, '__all__'))"
-        "}))"
+        "}); from substrax.testing import report; report(_report_payload)"
     )
 
     assert payload["loader_loaded"] is False
@@ -265,13 +265,13 @@ def test_top_level_config_exports_resolve_lazily() -> None:
     payload = run_repo_json(
         "import json; "
         "import artifex.configs as configs; "
-        "print(json.dumps({"
+        "_report_payload = ({"
         "'training_config_module': configs.TrainingConfig.__module__, "
         "'get_training_module': configs.get_training_config.__module__, "
         "'load_experiment_module': configs.load_experiment_config.__module__, "
         "'template_manager_module': configs.template_manager.__class__.__module__, "
         "'config_version_registry_module': configs.ConfigVersionRegistry.__module__"
-        "}))"
+        "}); from substrax.testing import report; report(_report_payload)"
     )
 
     assert payload["training_config_module"] == (
@@ -293,11 +293,11 @@ def test_core_protocols_package_does_not_export_concrete_template_helpers() -> N
         "import json; "
         "import artifex.generative_models.core.protocols as protocols; "
         "from artifex.generative_models.core.configuration.management import templates; "
-        "print(json.dumps({"
+        "_report_payload = ({"
         "'has_config_template': hasattr(protocols, 'ConfigTemplate'), "
         "'all': list(getattr(protocols, '__all__')), "
         "'config_template_module': templates.ConfigTemplate.__module__"
-        "}))"
+        "}); from substrax.testing import report; report(_report_payload)"
     )
 
     assert payload["has_config_template"] is False
@@ -312,7 +312,7 @@ def test_core_configuration_package_keeps_children_lazy() -> None:
     payload = run_repo_json(
         "import json, sys; "
         "import artifex.generative_models.core.configuration as configuration; "
-        "print(json.dumps({"
+        "_report_payload = ({"
         "'base_dataclass_loaded': "
         "'artifex.generative_models.core.configuration.base_dataclass' in sys.modules, "
         "'training_loaded': "
@@ -327,7 +327,7 @@ def test_core_configuration_package_keeps_children_lazy() -> None:
         "'config_document_visible': hasattr(configuration, 'ConfigDocument'), "
         "'validate_positive_float_visible': hasattr(configuration, 'validate_positive_float'), "
         "'all': list(getattr(configuration, '__all__'))"
-        "}))"
+        "}); from substrax.testing import report; report(_report_payload)"
     )
 
     assert payload["base_dataclass_loaded"] is False
@@ -350,12 +350,12 @@ def test_core_configuration_exports_resolve_lazily() -> None:
     payload = run_repo_json(
         "import json; "
         "import artifex.generative_models.core.configuration as configuration; "
-        "print(json.dumps({"
+        "_report_payload = ({"
         "'training_module': configuration.TrainingConfig.__module__, "
         "'base_config_module': configuration.BaseConfig.__module__, "
         "'parameter_distribution_module': configuration.ParameterDistribution.__module__, "
         "'experiment_template_module': configuration.ExperimentTemplateConfig.__module__"
-        "}))"
+        "}); from substrax.testing import report; report(_report_payload)"
     )
 
     assert payload["training_module"] == (
@@ -378,11 +378,11 @@ def test_experiment_templates_stay_distinct_from_named_runtime_configs() -> None
         "import json; "
         "from artifex.configs import BaseConfig, ExperimentConfig, ExperimentTemplateConfig; "
         "from artifex.generative_models.core.configuration.base_dataclass import ConfigDocument; "
-        "print(json.dumps({"
+        "_report_payload = ({"
         "'template_is_config_document': issubclass(ExperimentTemplateConfig, ConfigDocument), "
         "'template_is_base_config': issubclass(ExperimentTemplateConfig, BaseConfig), "
         "'experiment_is_base_config': issubclass(ExperimentConfig, BaseConfig)"
-        "}))"
+        "}); from substrax.testing import report; report(_report_payload)"
     )
 
     assert payload["template_is_config_document"] is True
@@ -629,11 +629,11 @@ def test_core_config_tooling_docs_match_live_owner_modules() -> None:
         "import artifex.generative_models.core.configuration as config; "
         "from artifex.generative_models.core.configuration import gan_config; "
         "import importlib.util; "
-        "print(json.dumps({"
+        "_report_payload = ({"
         "'config_exports': sorted(config.__all__), "
         "'gan_module': gan_config.__name__, "
         "'migrate_exists': importlib.util.find_spec('artifex.generative_models.core.configuration.migrate_configs') is not None"
-        "}))"
+        "}); from substrax.testing import report; report(_report_payload)"
     )
 
     for required in [

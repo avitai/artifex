@@ -105,7 +105,7 @@ def test_utils_reference_pages_match_live_imports() -> None:
         "loaded = {name: importlib.import_module(name).__name__ for name in modules}; "
         "protein_owner = importlib.import_module('artifex.visualization.protein_viz').ProteinVisualizer; "
         "protein_alias = importlib.import_module('artifex.generative_models.utils.visualization.protein').ProteinVisualizer; "
-        "print(json.dumps({'loaded': loaded, 'alias_matches_owner': protein_alias is protein_owner}))"
+        "_report_payload = ({'loaded': loaded, 'alias_matches_owner': protein_alias is protein_owner}); from substrax.testing import report; report(_report_payload)"
     )
 
     assert payload["alias_matches_owner"] is True

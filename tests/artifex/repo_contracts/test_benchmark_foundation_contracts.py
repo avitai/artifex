@@ -16,10 +16,10 @@ def test_benchmark_registry_surface_reuses_calibrax_singleton() -> None:
         "import json; "
         "from calibrax.core import BenchmarkRegistry as CalibraxBenchmarkRegistry; "
         "from artifex.benchmarks.registry import BenchmarkRegistry; "
-        "print(json.dumps({"
+        "_report_payload = ({"
         "'same_object': BenchmarkRegistry is CalibraxBenchmarkRegistry, "
         "'module': BenchmarkRegistry.__module__"
-        "}))"
+        "}); from substrax.testing import report; report(_report_payload)"
     )
 
     assert payload["same_object"] is True
@@ -36,11 +36,11 @@ def test_dataset_registry_surface_uses_calibrax_singleton_without_items_escape_h
         "from calibrax.core import SingletonRegistry; "
         "from artifex.benchmarks.datasets.base import DatasetRegistry; "
         "registry = DatasetRegistry(); "
-        "print(json.dumps({"
+        "_report_payload = ({"
         "'is_subclass': issubclass(DatasetRegistry, SingletonRegistry), "
         "'module': DatasetRegistry.__mro__[1].__module__, "
         "'has_datasets_attr': hasattr(registry, 'datasets')"
-        "}))"
+        "}); from substrax.testing import report; report(_report_payload)"
     )
 
     assert payload["is_subclass"] is True
@@ -54,10 +54,10 @@ def test_dataset_loader_registry_reuses_the_shared_dataset_registry() -> None:
         "import json; "
         "from artifex.benchmarks.datasets.base import DatasetRegistry; "
         "from artifex.benchmarks.datasets.dataset_loaders import _dataset_registry; "
-        "print(json.dumps({"
+        "_report_payload = ({"
         "'same_type': type(_dataset_registry) is DatasetRegistry, "
         "'module': type(_dataset_registry).__module__"
-        "}))"
+        "}); from substrax.testing import report; report(_report_payload)"
     )
 
     assert payload["same_type"] is True
@@ -69,12 +69,12 @@ def test_benchmark_protocol_exports_narrow_to_calibrax_protocols() -> None:
     payload = run_repo_json(
         "import json; "
         "import artifex.benchmarks.protocols as protocols; "
-        "print(json.dumps({"
+        "_report_payload = ({"
         "'exports': list(getattr(protocols, '__all__')), "
         "'benchmark_protocol_module': protocols.BenchmarkProtocol.__module__, "
         "'dataset_protocol_module': protocols.DatasetProtocol.__module__, "
         "'metric_protocol_module': protocols.MetricProtocol.__module__"
-        "}))"
+        "}); from substrax.testing import report; report(_report_payload)"
     )
 
     assert payload["exports"] == [
@@ -96,10 +96,10 @@ def test_legacy_protein_adapter_module_reexports_the_retained_adapter_only() -> 
         "import json; "
         "from artifex.benchmarks import protein_model_adapters as legacy; "
         "from artifex.benchmarks.model_adapters import protein_adapters as retained; "
-        "print(json.dumps({"
+        "_report_payload = ({"
         "'same_object': legacy.ProteinPointCloudAdapter is retained.ProteinPointCloudAdapter, "
         "'legacy_exports': list(getattr(legacy, '__all__', []))"
-        "}))"
+        "}); from substrax.testing import report; report(_report_payload)"
     )
 
     assert payload["same_object"] is True

@@ -92,15 +92,30 @@ def test_detached_restore_then_apply_preserves_next_training_step(tmp_path, with
     assert_same(trainer.checkpoint_state(), expected_next)
 
 
-def test_save_checkpoint_writes_the_items_and_names_artifex_as_the_producer(tmp_path):
-    trainer = build_trainer(tmp_path / "ckpt")
-    trainer.train_step(BATCH)
+@pytest.mark.parametrize("save_route", ["trainer", "callback"])
+def test_native_checkpoint_routes_preserve_the_complete_next_update(
+    tmp_path: Path, save_route: str
+) -> None:
+    """Both public save routes produce native records and preserve the optimizer trajectory."""
+    from artifex.generative_models.training.callbacks import CheckpointConfig, ModelCheckpoint
 
-    path = trainer.save_checkpoint()
+    directory = tmp_path / "ckpt"
+    with build_trainer(directory) as trainer:
+        trainer.train_step(BATCH)
+        if save_route == "trainer":
+            path = trainer.save_checkpoint()
+            assert isinstance(path, Path)
+            assert path.is_relative_to(directory)
+        else:
+            callback = ModelCheckpoint(CheckpointConfig(dirpath=directory, monitor="loss"))
+            try:
+                callback.on_epoch_end(trainer, 0, {"loss": 0.5})
+            finally:
+                callback.on_train_end(trainer)
+        expected_metrics = trainer.train_step(BATCH)
+        expected_state = jax.tree.map(jnp.array, trainer.checkpoint_state())
 
-    assert isinstance(path, Path)
-    assert path.is_relative_to(tmp_path / "ckpt")
-    with OrbaxCheckpointStore(tmp_path / "ckpt") as store:
+    with OrbaxCheckpointStore(directory) as store:
         metadata = store.read_metadata(1)
     assert set(metadata.items) == ITEMS
     assert metadata.step == 1
@@ -109,6 +124,13 @@ def test_save_checkpoint_writes_the_items_and_names_artifex_as_the_producer(tmp_
         "artifex",
         version("avitai-artifex"),
     )
+
+    with build_trainer(directory) as restored:
+        restored.load_checkpoint(step=1)
+        assert restored.step == 1
+        actual_metrics = restored.train_step(BATCH)
+        assert_same(actual_metrics, expected_metrics)
+        assert_same(restored.checkpoint_state(), expected_state)
 
 
 def test_load_checkpoint_of_a_missing_step_raises_the_store_error(tmp_path):

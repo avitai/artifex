@@ -254,7 +254,7 @@ for key in keys:
 before = {key: os.environ.get(key) for key in keys}
 import conftest  # noqa: F401
 after = {key: os.environ.get(key) for key in keys}
-print(json.dumps({"before": before, "after": after, "jax_loaded": "jax" in sys.modules}))
+_report_payload = ({"before": before, "after": after, "jax_loaded": "jax" in sys.modules}); from substrax.testing import report; report(_report_payload)
 """
     )
 
@@ -269,7 +269,7 @@ def test_tests_conftest_import_keeps_jax_deferred() -> None:
 import json
 import sys
 import tests.conftest  # noqa: F401
-print(json.dumps({"jax_loaded": "jax" in sys.modules}))
+_report_payload = ({"jax_loaded": "jax" in sys.modules}); from substrax.testing import report; report(_report_payload)
 """
     )
 
@@ -350,10 +350,10 @@ def test_import_artifex_does_not_preload_generative_stack() -> None:
         (
             "import json, sys; "
             "import artifex; "
-            "print(json.dumps({"
+            "_report_payload = ({"
             "'has_generative_models': 'artifex.generative_models' in sys.modules, "
             "'has_jax': 'jax' in sys.modules"
-            "}))"
+            "}); from substrax.testing import report; report(_report_payload)"
         )
     )
 
@@ -367,14 +367,14 @@ def test_import_generative_models_keeps_subpackages_lazy() -> None:
         (
             "import json, sys; "
             "import artifex.generative_models as gm; "
-            "print(json.dumps({"
+            "_report_payload = ({"
             "'core_loaded': 'artifex.generative_models.core' in sys.modules, "
             "'models_loaded': 'artifex.generative_models.models' in sys.modules, "
             "'extensions_loaded': 'artifex.generative_models.extensions' in sys.modules, "
             "'utils_loaded': 'artifex.generative_models.utils' in sys.modules, "
             "'jax_loaded': 'jax' in sys.modules, "
             "'all': list(getattr(gm, '__all__'))"
-            "}))"
+            "}); from substrax.testing import report; report(_report_payload)"
         )
     )
 
@@ -394,12 +394,12 @@ def test_generative_models_exports_resolve_lazily() -> None:
             "import artifex; "
             "gm = artifex.generative_models; "
             "core = gm.core; "
-            "print(json.dumps({"
+            "_report_payload = ({"
             "'gm_module': gm.__name__, "
             "'core_module': core.__name__, "
             "'gm_loaded': 'artifex.generative_models' in sys.modules, "
             "'core_loaded': 'artifex.generative_models.core' in sys.modules"
-            "}))"
+            "}); from substrax.testing import report; report(_report_payload)"
         )
     )
 

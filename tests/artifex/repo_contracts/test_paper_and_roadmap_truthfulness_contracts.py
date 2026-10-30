@@ -32,13 +32,13 @@ def test_preprint_separates_shipped_experimental_and_roadmap_surfaces() -> None:
         "from artifex.generative_models.modalities.base import ModelAdapter; "
         "from artifex.generative_models.inference.optimization.production import ProductionOptimizer; "
         "from artifex.benchmarks import BenchmarkRegistry; "
-        "print(json.dumps({"
+        "_report_payload = ({"
         "'model_protocol': GenerativeModelProtocol.__name__, "
         "'trainable_protocol': TrainableGenerativeModelProtocol.__name__, "
         "'adapter_protocol': ModelAdapter.__name__, "
         "'optimizer': ProductionOptimizer.__name__, "
         "'benchmark_registry': BenchmarkRegistry.__name__"
-        "}))"
+        "}); from substrax.testing import report; report(_report_payload)"
     )
 
     contents = PAPER.read_text(encoding="utf-8")
@@ -103,13 +103,13 @@ def test_roadmap_current_runtime_status_tracks_live_inventory() -> None:
         "import artifex.generative_models.models.flow as flow; "
         "import artifex.generative_models.modalities as modalities; "
         "from artifex.generative_models.inference.optimization.production import ProductionOptimizer; "
-        "print(json.dumps({"
+        "_report_payload = ({"
         "'flow_exports': [name for name in ['RealNVP', 'Glow', 'MAF', 'IAF', 'NeuralSplineFlow', 'ConditionalRealNVP'] if hasattr(flow, name)], "
         "'timeseries_name': modalities.TimeseriesModality.__name__, "
         "'inference_package': inference.__name__, "
         "'production_module': ProductionOptimizer.__module__, "
         "'benchmarks_package': benchmarks.__name__"
-        "}))"
+        "}); from substrax.testing import report; report(_report_payload)"
     )
 
     contents = ROADMAP.read_text(encoding="utf-8")

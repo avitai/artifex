@@ -105,11 +105,11 @@ def test_inference_index_and_connected_docs_only_publish_live_shared_surface() -
         "from pathlib import Path; "
         "import artifex.generative_models.inference as inference; "
         "import artifex.generative_models.inference.optimization as optimization; "
-        "print(json.dumps({"
+        "_report_payload = ({"
         "'inference_all': sorted(getattr(inference, '__all__', [])), "
         "'optimization_all': sorted(getattr(optimization, '__all__', [])), "
         "'production_exists': Path('src/artifex/generative_models/inference/optimization/production.py').exists()"
-        "}))"
+        "}); from substrax.testing import report; report(_report_payload)"
     )
 
     combined_docs = index_docs + generative_models_docs + deployment_docs

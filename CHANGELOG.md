@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Adopt Substrax 0.1.25 native child reports; library stdout no longer corrupts
+  repository-test results.
+- Checkpoint contracts verify native records and next-update replay through both
+  Trainer and callback saves rather than requiring direct store imports.
+
 - Reopened checkpoint callbacks recover selection from the native store's
   committed best score and retained steps before considering another save.
 - The public Trainer delegates numerical updates to the native step and guarded

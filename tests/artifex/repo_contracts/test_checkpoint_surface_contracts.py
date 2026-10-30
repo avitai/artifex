@@ -9,7 +9,6 @@ import pytest
 
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
-TRAINER = REPO_ROOT / "src" / "artifex" / "generative_models" / "training" / "trainer.py"
 DOCS_NAMING_THE_STORE = (
     "docs/user-guide/training/training-guide.md",
     "docs/user-guide/advanced/checkpointing.md",
@@ -23,25 +22,6 @@ def test_the_core_checkpointing_module_is_gone() -> None:
     """Orbax checkpointing has one home: substrax's OrbaxCheckpointStore."""
     with pytest.raises(ModuleNotFoundError):
         importlib.import_module("artifex.generative_models.core.checkpointing")
-
-
-def test_checkpoint_callback_saves_through_the_substrax_store() -> None:
-    """The callback module binds substrax's store, not a manager of its own."""
-    from substrax.checkpoint import OrbaxCheckpointStore
-
-    callback_module = importlib.import_module(
-        "artifex.generative_models.training.callbacks.checkpoint"
-    )
-
-    assert callback_module.OrbaxCheckpointStore is OrbaxCheckpointStore
-
-
-def test_trainer_checkpoints_are_not_pickles() -> None:
-    """The trainer saves through the store; nothing in it imports pickle."""
-    source = TRAINER.read_text(encoding="utf-8")
-
-    assert "pickle" not in source
-    assert "OrbaxCheckpointStore" in source
 
 
 @pytest.mark.parametrize("relative_path", DOCS_NAMING_THE_STORE)

@@ -30,12 +30,12 @@ def test_device_utils_keep_the_batch_size_rule_only() -> None:
     payload = run_repo_json(
         "import json; "
         "import artifex.generative_models.utils.jax.device as device_utils; "
-        "print(json.dumps({"
+        "_report_payload = ({"
         "'all': sorted(device_utils.__all__), "
         "'has_verify_device_setup': hasattr(device_utils, 'verify_device_setup'), "
         "'has_device_manager': hasattr(device_utils, 'DeviceManager'), "
         "'uses_substrax': device_utils.get_batch_size_recommendation.__module__"
-        "}))"
+        "}); from substrax.testing import report; report(_report_payload)"
     )
 
     assert payload["all"] == ["get_recommended_batch_size"]

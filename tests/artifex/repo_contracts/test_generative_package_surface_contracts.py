@@ -12,7 +12,7 @@ def test_core_package_import_keeps_children_lazy() -> None:
     payload = run_repo_json(
         "import json, sys; "
         "import artifex.generative_models.core as core; "
-        "print(json.dumps({"
+        "_report_payload = ({"
         "'cli_loaded': 'artifex.generative_models.core.cli' in sys.modules, "
         "'configuration_loaded': 'artifex.generative_models.core.configuration' in sys.modules, "
         "'distributions_loaded': 'artifex.generative_models.core.distributions' in sys.modules, "
@@ -24,7 +24,7 @@ def test_core_package_import_keeps_children_lazy() -> None:
         "'artifex.generative_models.core.gradient_checkpointing' in sys.modules, "
         "'jax_loaded': 'jax' in sys.modules, "
         "'all': list(getattr(core, '__all__'))"
-        "}))"
+        "}); from substrax.testing import report; report(_report_payload)"
     )
 
     assert payload["cli_loaded"] is False
@@ -55,10 +55,10 @@ def test_core_exports_resolve_lazily() -> None:
     payload = run_repo_json(
         "import json; "
         "import artifex.generative_models.core as core; "
-        "print(json.dumps({"
+        "_report_payload = ({"
         "'sampling_module': core.sampling.__name__, "
         "'apply_remat_module': core.apply_remat.__module__"
-        "}))"
+        "}); from substrax.testing import report; report(_report_payload)"
     )
 
     assert payload["sampling_module"] == "artifex.generative_models.core.sampling"
@@ -77,7 +77,7 @@ def test_core_overview_docs_match_live_core_surface() -> None:
         "FlashMultiHeadAttention, TransformerEncoder, ResNetBlock; "
         "from artifex.generative_models.core.protocols import "
         "BatchableDatasetProtocol, MetricBase, NoiseScheduleProtocol; "
-        "print(json.dumps({"
+        "_report_payload = ({"
         "'core_exports': list(core.__all__), "
         "'sampling_module': BlackJAXNUTS.__module__, "
         "'mcmc_module': mcmc_sampling.__module__, "
@@ -88,7 +88,7 @@ def test_core_overview_docs_match_live_core_surface() -> None:
         "'dataset_protocol_module': BatchableDatasetProtocol.__module__, "
         "'metric_protocol_module': MetricBase.__module__, "
         "'noise_schedule_module': NoiseScheduleProtocol.__module__"
-        "}))"
+        "}); from substrax.testing import report; report(_report_payload)"
     )
 
     required_terms = [
@@ -149,13 +149,13 @@ def test_models_package_import_keeps_children_lazy() -> None:
     payload = run_repo_json(
         "import json, sys; "
         "import artifex.generative_models.models as models; "
-        "print(json.dumps({"
+        "_report_payload = ({"
         "'diffusion_loaded': 'artifex.generative_models.models.diffusion' in sys.modules, "
         "'geometric_loaded': 'artifex.generative_models.models.geometric' in sys.modules, "
         "'vae_loaded': 'artifex.generative_models.models.vae' in sys.modules, "
         "'jax_loaded': 'jax' in sys.modules, "
         "'all': list(getattr(models, '__all__'))"
-        "}))"
+        "}); from substrax.testing import report; report(_report_payload)"
     )
 
     assert payload["diffusion_loaded"] is False
@@ -170,13 +170,13 @@ def test_models_exports_resolve_lazily() -> None:
     payload = run_repo_json(
         "import json; "
         "import artifex.generative_models.models as models; "
-        "print(json.dumps({"
+        "_report_payload = ({"
         "'diffusion_module': models.diffusion.__name__, "
         "'vae_module': models.vae.__name__, "
         "'geometric_module': models.geometric.__name__, "
         "'registry_in_dir': 'registry' in dir(models), "
         "'has_registry_attr': hasattr(models, 'registry')"
-        "}))"
+        "}); from substrax.testing import report; report(_report_payload)"
     )
 
     assert payload["diffusion_module"] == "artifex.generative_models.models.diffusion"
@@ -191,7 +191,7 @@ def test_factory_package_import_keeps_default_builders_lazy() -> None:
     payload = run_repo_json(
         "import json, sys; "
         "import artifex.generative_models.factory as factory; "
-        "print(json.dumps({"
+        "_report_payload = ({"
         "'core_loaded': 'artifex.generative_models.factory.core' in sys.modules, "
         "'registry_loaded': 'artifex.generative_models.factory.registry' in sys.modules, "
         "'autoregressive_builder_loaded': "
@@ -205,7 +205,7 @@ def test_factory_package_import_keeps_default_builders_lazy() -> None:
         "'artifex.generative_models.factory.builders.geometric' in sys.modules, "
         "'vae_builder_loaded': 'artifex.generative_models.factory.builders.vae' in sys.modules, "
         "'all': list(getattr(factory, '__all__'))"
-        "}))"
+        "}); from substrax.testing import report; report(_report_payload)"
     )
 
     assert payload["core_loaded"] is False
@@ -225,7 +225,7 @@ def test_factory_exports_resolve_without_preloading_builders() -> None:
     payload = run_repo_json(
         "import json, sys; "
         "import artifex.generative_models.factory as factory; "
-        "print(json.dumps({"
+        "_report_payload = ({"
         "'create_model_module': factory.create_model.__module__, "
         "'create_model_with_extensions_module': factory.create_model_with_extensions.__module__, "
         "'model_factory_module': factory.ModelFactory.__module__, "
@@ -233,7 +233,7 @@ def test_factory_exports_resolve_without_preloading_builders() -> None:
         "'has_builder_symbol': hasattr(factory, 'ModelBuilder'), "
         "'builder_module_loaded': "
         "'artifex.generative_models.factory.builders.diffusion' in sys.modules"
-        "}))"
+        "}); from substrax.testing import report; report(_report_payload)"
     )
 
     assert payload["create_model_module"] == "artifex.generative_models.factory.core"
@@ -251,13 +251,13 @@ def test_extensions_package_import_keeps_children_lazy() -> None:
     payload = run_repo_json(
         "import json, sys; "
         "import artifex.generative_models.extensions as extensions; "
-        "print(json.dumps({"
+        "_report_payload = ({"
         "'base_loaded': 'artifex.generative_models.extensions.base' in sys.modules, "
         "'registry_loaded': 'artifex.generative_models.extensions.registry' in sys.modules, "
         "'protein_loaded': 'artifex.generative_models.extensions.protein' in sys.modules, "
         "'jax_loaded': 'jax' in sys.modules, "
         "'all': list(getattr(extensions, '__all__'))"
-        "}))"
+        "}); from substrax.testing import report; report(_report_payload)"
     )
 
     assert payload["base_loaded"] is False
@@ -285,11 +285,11 @@ def test_extensions_exports_resolve_lazily() -> None:
     payload = run_repo_json(
         "import json; "
         "import artifex.generative_models.extensions as extensions; "
-        "print(json.dumps({"
+        "_report_payload = ({"
         "'registry_module': extensions.get_extensions_registry.__module__, "
         "'protein_factory_module': extensions.create_protein_extensions.__module__, "
         "'extension_type_module': extensions.ExtensionType.__module__"
-        "}))"
+        "}); from substrax.testing import report; report(_report_payload)"
     )
 
     assert payload["registry_module"] == "artifex.generative_models.extensions.registry"

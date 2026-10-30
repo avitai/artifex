@@ -41,7 +41,7 @@ def test_diffusion_api_docs_match_live_exports_and_signatures() -> None:
     docs = (REPO_ROOT / "docs/api/models/diffusion.md").read_text(encoding="utf-8")
     payload = run_repo_json(
         "import json; import artifex.generative_models.models.diffusion as m; "
-        "print(json.dumps({'exports': sorted(m.__all__)}))"
+        "_report_payload = ({'exports': sorted(m.__all__)}); from substrax.testing import report; report(_report_payload)"
     )
 
     for expected in [
@@ -87,7 +87,7 @@ def test_vae_api_docs_match_live_constructor_and_method_signatures() -> None:
     docs = (REPO_ROOT / "docs/api/models/vae.md").read_text(encoding="utf-8")
     payload = run_repo_json(
         "import json; import artifex.generative_models.models.vae as m; "
-        "print(json.dumps({'exports': sorted(m.__all__)}))"
+        "_report_payload = ({'exports': sorted(m.__all__)}); from substrax.testing import report; report(_report_payload)"
     )
 
     for expected in ["VAE", "BetaVAE", "ConditionalVAE", "VQVAE"]:
@@ -126,7 +126,7 @@ def test_sampling_and_energy_api_docs_use_live_top_level_surfaces() -> None:
     payload = run_repo_json(
         "import json; import artifex.generative_models.core.sampling as sampling; "
         "from artifex.generative_models.models.energy import EnergyBasedModel; "
-        "print(json.dumps({'sampling_exports': sorted(sampling.__all__), 'energy_module': EnergyBasedModel.__module__}))"
+        "_report_payload = ({'sampling_exports': sorted(sampling.__all__), 'energy_module': EnergyBasedModel.__module__}); from substrax.testing import report; report(_report_payload)"
     )
 
     assert payload["energy_module"] == "artifex.generative_models.models.energy.base"

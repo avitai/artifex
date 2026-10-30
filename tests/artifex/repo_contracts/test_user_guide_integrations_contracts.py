@@ -21,11 +21,11 @@ def test_deployment_and_huggingface_guides_match_live_helper_owners() -> None:
         "import artifex.generative_models.models as models; "
         "import artifex.generative_models.models.vae as vae; "
         "import artifex.generative_models.utils.logging as logging_utils; "
-        "print(json.dumps({"
+        "_report_payload = ({"
         "'models_exports': sorted(models.__all__), "
         "'vae_exports': sorted(vae.__all__), "
         "'logging_exports': sorted(logging_utils.__all__)"
-        "}))"
+        "}); from substrax.testing import report; report(_report_payload)"
     )
 
     for banned in [
@@ -75,7 +75,7 @@ def test_tensorboard_and_wandb_guides_use_real_callback_and_trainer_entrypoints(
         "WandbLoggerCallback, WandbLoggerConfig, JAXProfiler, ProfilingConfig); "
         "from artifex.generative_models.training.trainer import Trainer; "
         "from artifex.generative_models.utils.logging import WandbLogger; "
-        "print(json.dumps({"
+        "_report_payload = ({"
         "'trainer_has_train': hasattr(Trainer, 'train'), "
         "'trainer_has_fit': hasattr(Trainer, 'fit'), "
         "'callback_list_cls': CallbackList.__name__, "
@@ -86,7 +86,7 @@ def test_tensorboard_and_wandb_guides_use_real_callback_and_trainer_entrypoints(
         "'profiler_cls': JAXProfiler.__name__, "
         "'profiling_config_cls': ProfilingConfig.__name__, "
         "'wandb_logger_cls': WandbLogger.__name__"
-        "}))"
+        "}); from substrax.testing import report; report(_report_payload)"
     )
 
     for banned in [

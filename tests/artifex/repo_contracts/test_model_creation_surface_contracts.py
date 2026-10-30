@@ -44,10 +44,10 @@ def test_core_configuration_surface_no_longer_exports_model_config() -> None:
     payload = run_repo_json(
         "import json; "
         "import artifex.generative_models.core.configuration as configuration; "
-        "print(json.dumps({"
+        "_report_payload = ({"
         "'has_model_config': hasattr(configuration, 'ModelConfig'), "
         "'exports': sorted(configuration.__all__)"
-        "}))"
+        "}); from substrax.testing import report; report(_report_payload)"
     )
 
     assert payload["has_model_config"] is False
