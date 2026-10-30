@@ -1,8 +1,9 @@
-# Runs the unit test subset against the newest JAX, Flax, Optax and Orbax releases,
-# ahead of the lock. A failure here is a heads-up that the next `uv lock --upgrade`
-# will need work, not a gate on merges: nothing depends on this job. Flax 0.12.9
-# silently disabled causal attention through an argument it started forwarding;
-# this is where that class of change surfaces first.
+# Runs the unit test subset against the newest JAX, Flax, Optax and Orbax releases that
+# every declared bound admits, ahead of the lock. A sibling's cap holds the job at that
+# cap (substrax's jax<0.11.2 holds jax at 0.11.x) until the cap moves. A failure here is a
+# heads-up that the next `uv lock --upgrade` will need work, not a gate on merges: nothing
+# depends on this job. Flax 0.12.9 silently disabled causal attention through an argument
+# it started forwarding; this is where that class of change surfaces first.
 name: Upstream Compatibility
 
 on:
@@ -29,13 +30,14 @@ jobs:
           python-version: "3.12"
           cache-suffix: upstream-compat
           linux-editable-target: ".[dev,test]"
+          # Resolved with the dev and test extras' requirements, so the newest JAX stack brings
+          # only releases every installed package admits (wandb, from the logging extra, holds
+          # protobuf below 7). The action exports UV_NO_SYNC=1, so `uv run` keeps the upgrade.
+          upgrade-packages: jax jaxlib flax optax orbax-checkpoint
 
-      # `uv pip install` on top of the locked environment; the setup action exports
-      # UV_NO_SYNC=1, so `uv run` will not re-sync to the lock and undo the upgrade.
-      - name: Upgrade the JAX stack to its newest releases
+      - name: Report the JAX stack under test
         run: |
-          uv pip install --upgrade jax jaxlib flax optax orbax-checkpoint
-          uv run python -c "import jax, flax, optax, orbax.checkpoint as ocp; print('jax', jax.__version__); print('flax', flax.__version__); print('optax', optax.__version__); print('orbax-checkpoint', ocp.__version__)"
+          uv run python -c "import jax, flax, optax, orbax.checkpoint as ocp, google.protobuf as pb; print('jax', jax.__version__, 'flax', flax.__version__, 'optax', optax.__version__, 'orbax-checkpoint', ocp.__version__, 'protobuf', pb.__version__)"
 
       - name: Run the unit test subset
         run: |
