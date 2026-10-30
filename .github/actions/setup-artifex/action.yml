@@ -19,6 +19,13 @@ inputs:
     description: Extra packages to install after the editable target.
     required: false
     default: ""
+  upgrade-packages:
+    description: >-
+      Packages to upgrade to their newest releases after the locked sync, resolved together
+      with every requirement of the editable target, so the upgrade brings only releases the
+      installed packages admit. Space-separated names.
+    required: false
+    default: ""
 
 runs:
   using: composite
@@ -52,6 +59,7 @@ runs:
         UV_PYTHON: ${{ inputs.python-version }}
         UV_PYTHON_DOWNLOADS: never
         UV_PYTHON_PREFERENCE: only-system
+        UPGRADE_PACKAGES: ${{ inputs.upgrade-packages }}
       run: |
         set -euo pipefail
 
@@ -90,6 +98,17 @@ runs:
 
         if [[ -n "${{ inputs.extra-packages }}" ]]; then
           uv pip install ${{ inputs.extra-packages }}
+        fi
+
+        # `uv pip install --upgrade <name>` alone does not hold the installed packages' bounds;
+        # reinstalling the editable target resolves the upgrade with all of its requirements.
+        if [[ -n "$UPGRADE_PACKAGES" ]]; then
+          upgrade_args=()
+          for package in $UPGRADE_PACKAGES; do
+            upgrade_args+=(--upgrade-package "$package")
+          done
+          uv pip install -e "$editable_target" "${upgrade_args[@]}"
+          uv pip check
         fi
 
     - name: Export repo-local environment

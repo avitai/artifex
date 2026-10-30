@@ -95,6 +95,42 @@ def test_policy_workflows_use_checked_in_setup_action_instead_of_inline_bootstra
             assert len(setup_steps) == (1 if runs_uv else 0), f"{relative_path}: {name}"
 
 
+def test_the_upstream_compatibility_job_upgrades_through_the_setup_action() -> None:
+    """The newest JAX stack is resolved with the project's requirements by the one setup owner.
+
+    An inline ``uv pip install --upgrade <name>`` does not hold the installed packages' bounds:
+    it put protobuf 7 beside wandb, whose release requires protobuf below 7.
+    """
+    job = _load_yaml(".github/workflows/upstream-compat.yml")["jobs"]["latest-jax-stack"]
+    setup = [step for step in job["steps"] if step.get("uses") == SETUP_ACTION]
+
+    assert len(setup) == 1
+    assert setup[0]["with"]["upgrade-packages"].split() == [
+        "jax",
+        "jaxlib",
+        "flax",
+        "optax",
+        "orbax-checkpoint",
+    ]
+    assert not [step for step in job["steps"] if "uv pip install" in step.get("run", "")]
+
+
+def test_the_setup_action_upgrades_named_packages_with_the_project_s_requirements() -> None:
+    """Each named package is upgraded in one resolution of the editable target, then checked."""
+    action = _load_yaml(".github/actions/setup-artifex/action.yml")
+    install = next(
+        step
+        for step in action["runs"]["steps"]
+        if step.get("name") == "Install Artifex environment"
+    )
+
+    assert action["inputs"]["upgrade-packages"]["default"] == ""
+    assert install["env"]["UPGRADE_PACKAGES"] == "${{ inputs.upgrade-packages }}"
+    assert '--upgrade-package "$package"' in install["run"]
+    assert 'uv pip install -e "$editable_target" "${upgrade_args[@]}"' in install["run"]
+    assert "uv pip check" in install["run"]
+
+
 def test_shared_setup_action_uses_current_pinned_uv_toolchain() -> None:
     """The shared setup action should not regress to an old uv that rejects uv.lock."""
     action = _load_yaml(".github/actions/setup-artifex/action.yml")
