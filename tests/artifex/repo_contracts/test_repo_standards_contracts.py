@@ -127,6 +127,7 @@ def test_pre_commit_uses_shared_excludes_and_repo_pyright_environment() -> None:
     assert pyright_hook is not None
     assert pyright_hook["entry"] == "uv run pyright --warnings"
     assert pyright_hook["language"] == "system"
+    assert pyright_hook.get("require_serial") is True
     assert pyright_hook["files"] == "^src/.*\\.py$"
     assert "additional_dependencies" not in pyright_hook
 

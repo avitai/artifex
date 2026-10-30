@@ -156,6 +156,8 @@ repos:
     hooks:
       - id: pyright
         name: pyright (project environment)
+        # One shared import graph; parallel filename batches duplicate its memory.
+        require_serial: true
         entry: uv run pyright --warnings
         language: system
         types_or: [python, pyi]
