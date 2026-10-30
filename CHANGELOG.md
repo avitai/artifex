@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- The macOS jobs that pushes to `main` add to CI and the package build run on `macos-15`.
+  GitHub retires the `macos-14` image on 2026-11-02 (actions/runner-images#13518), and its
+  scheduled brownouts already cancel jobs that ask for it.
+
 ## [0.1.15] - 2026-09-25
 
 ### Fixed
