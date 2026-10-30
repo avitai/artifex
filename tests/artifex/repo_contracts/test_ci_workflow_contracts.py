@@ -415,7 +415,7 @@ def test_macos_runners_join_the_platform_matrix_on_main_only() -> None:
     condition, on_main, elsewhere = _platform_matrix(job["strategy"]["matrix"]["os"])
 
     assert condition == "github.ref == 'refs/heads/main'"
-    assert on_main == ["ubuntu-latest", "macos-14"]
+    assert on_main == ["ubuntu-latest", "macos-15"]
     assert elsewhere == ["ubuntu-latest"]
 
 
@@ -430,8 +430,8 @@ def test_unit_tests_on_an_already_tested_tree_run_only_the_platform_no_pull_requ
     ]
 
     assert expression == (
-        "${{ fromJSON(needs.already_tested.outputs.skip == 'true' && '[\"macos-14\"]'"
-        " || (github.ref == 'refs/heads/main' && '[\"ubuntu-latest\", \"macos-14\"]'"
+        "${{ fromJSON(needs.already_tested.outputs.skip == 'true' && '[\"macos-15\"]'"
+        " || (github.ref == 'refs/heads/main' && '[\"ubuntu-latest\", \"macos-15\"]'"
         " || '[\"ubuntu-latest\"]')) }}"
     )
 
