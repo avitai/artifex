@@ -212,9 +212,9 @@ def test_config_shim_packages_are_removed() -> None:
 def test_top_level_config_package_keeps_deeper_modules_lazy() -> None:
     """Importing artifex.configs should not eagerly import the full config runtime."""
     payload = run_repo_json(
-        "import json, sys; "
+        "import sys; from substrax.testing import report; "
         "import artifex.configs as configs; "
-        "print(json.dumps({"
+        "report({"
         "'loader_loaded': 'artifex.configs.utils.config_loader' in sys.modules, "
         "'environment_loaded': "
         "'artifex.generative_models.core.configuration.environment' in sys.modules, "
@@ -231,7 +231,7 @@ def test_top_level_config_package_keeps_deeper_modules_lazy() -> None:
         "'get_env_config_path_visible': hasattr(configs, 'get_env_config_path'), "
         "'load_env_config_visible': hasattr(configs, 'load_env_config'), "
         "'all': list(getattr(configs, '__all__'))"
-        "}))"
+        "})"
     )
 
     assert payload["loader_loaded"] is False
@@ -263,15 +263,15 @@ def test_top_level_config_package_keeps_deeper_modules_lazy() -> None:
 def test_top_level_config_exports_resolve_lazily() -> None:
     """Documented config exports should still resolve on explicit access."""
     payload = run_repo_json(
-        "import json; "
+        "from substrax.testing import report; "
         "import artifex.configs as configs; "
-        "print(json.dumps({"
+        "report({"
         "'training_config_module': configs.TrainingConfig.__module__, "
         "'get_training_module': configs.get_training_config.__module__, "
         "'load_experiment_module': configs.load_experiment_config.__module__, "
         "'template_manager_module': configs.template_manager.__class__.__module__, "
         "'config_version_registry_module': configs.ConfigVersionRegistry.__module__"
-        "}))"
+        "})"
     )
 
     assert payload["training_config_module"] == (
@@ -290,14 +290,14 @@ def test_top_level_config_exports_resolve_lazily() -> None:
 def test_core_protocols_package_does_not_export_concrete_template_helpers() -> None:
     """The protocols package should expose protocols only, not concrete config helpers."""
     payload = run_repo_json(
-        "import json; "
+        "from substrax.testing import report; "
         "import artifex.generative_models.core.protocols as protocols; "
         "from artifex.generative_models.core.configuration.management import templates; "
-        "print(json.dumps({"
+        "report({"
         "'has_config_template': hasattr(protocols, 'ConfigTemplate'), "
         "'all': list(getattr(protocols, '__all__')), "
         "'config_template_module': templates.ConfigTemplate.__module__"
-        "}))"
+        "})"
     )
 
     assert payload["has_config_template"] is False
@@ -310,9 +310,9 @@ def test_core_protocols_package_does_not_export_concrete_template_helpers() -> N
 def test_core_configuration_package_keeps_children_lazy() -> None:
     """Importing core.configuration should not eagerly load its child modules."""
     payload = run_repo_json(
-        "import json, sys; "
+        "import sys; from substrax.testing import report; "
         "import artifex.generative_models.core.configuration as configuration; "
-        "print(json.dumps({"
+        "report({"
         "'base_dataclass_loaded': "
         "'artifex.generative_models.core.configuration.base_dataclass' in sys.modules, "
         "'training_loaded': "
@@ -327,7 +327,7 @@ def test_core_configuration_package_keeps_children_lazy() -> None:
         "'config_document_visible': hasattr(configuration, 'ConfigDocument'), "
         "'validate_positive_float_visible': hasattr(configuration, 'validate_positive_float'), "
         "'all': list(getattr(configuration, '__all__'))"
-        "}))"
+        "})"
     )
 
     assert payload["base_dataclass_loaded"] is False
@@ -348,14 +348,14 @@ def test_core_configuration_package_keeps_children_lazy() -> None:
 def test_core_configuration_exports_resolve_lazily() -> None:
     """Documented core.configuration exports should resolve on explicit access."""
     payload = run_repo_json(
-        "import json; "
+        "from substrax.testing import report; "
         "import artifex.generative_models.core.configuration as configuration; "
-        "print(json.dumps({"
+        "report({"
         "'training_module': configuration.TrainingConfig.__module__, "
         "'base_config_module': configuration.BaseConfig.__module__, "
         "'parameter_distribution_module': configuration.ParameterDistribution.__module__, "
         "'experiment_template_module': configuration.ExperimentTemplateConfig.__module__"
-        "}))"
+        "})"
     )
 
     assert payload["training_module"] == (
@@ -375,14 +375,14 @@ def test_core_configuration_exports_resolve_lazily() -> None:
 def test_experiment_templates_stay_distinct_from_named_runtime_configs() -> None:
     """Retained experiment templates should not be forced into BaseConfig."""
     payload = run_repo_json(
-        "import json; "
+        "from substrax.testing import report; "
         "from artifex.configs import BaseConfig, ExperimentConfig, ExperimentTemplateConfig; "
         "from artifex.generative_models.core.configuration.base_dataclass import ConfigDocument; "
-        "print(json.dumps({"
+        "report({"
         "'template_is_config_document': issubclass(ExperimentTemplateConfig, ConfigDocument), "
         "'template_is_base_config': issubclass(ExperimentTemplateConfig, BaseConfig), "
         "'experiment_is_base_config': issubclass(ExperimentConfig, BaseConfig)"
-        "}))"
+        "})"
     )
 
     assert payload["template_is_config_document"] is True
@@ -625,15 +625,15 @@ def test_core_config_tooling_docs_match_live_owner_modules() -> None:
     validation_docs = (REPO_ROOT / "docs/core/validation.md").read_text()
     migrate_docs = (REPO_ROOT / "docs/core/migrate_configs.md").read_text()
     payload = run_repo_json(
-        "import json; "
+        "from substrax.testing import report; "
         "import artifex.generative_models.core.configuration as config; "
         "from artifex.generative_models.core.configuration import gan_config; "
         "import importlib.util; "
-        "print(json.dumps({"
+        "report({"
         "'config_exports': sorted(config.__all__), "
         "'gan_module': gan_config.__name__, "
         "'migrate_exists': importlib.util.find_spec('artifex.generative_models.core.configuration.migrate_configs') is not None"
-        "}))"
+        "})"
     )
 
     for required in [

@@ -42,12 +42,12 @@ CURATED_MODEL_CREATION_FILES = {
 def test_core_configuration_surface_no_longer_exports_model_config() -> None:
     """The supported config surface should expose family-specific configs, not ModelConfig."""
     payload = run_repo_json(
-        "import json; "
+        "from substrax.testing import report; "
         "import artifex.generative_models.core.configuration as configuration; "
-        "print(json.dumps({"
+        "report({"
         "'has_model_config': hasattr(configuration, 'ModelConfig'), "
         "'exports': sorted(configuration.__all__)"
-        "}))"
+        "})"
     )
 
     assert payload["has_model_config"] is False

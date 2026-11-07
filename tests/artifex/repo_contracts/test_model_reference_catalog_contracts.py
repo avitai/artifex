@@ -12,15 +12,15 @@ def test_models_index_uses_live_supported_model_owners() -> None:
     """The model index should teach the live owner packages and imports only."""
     docs = (REPO_ROOT / "docs/models/index.md").read_text(encoding="utf-8")
     payload = run_repo_json(
-        "import json; "
+        "from substrax.testing import report; "
         "from pathlib import Path; "
         "import artifex.generative_models.models.diffusion as diffusion; "
-        "print(json.dumps({"
+        "report({"
         "'diffusion_exports': sorted(diffusion.__all__), "
         "'common_unet_exists': Path('src/artifex/generative_models/models/common/unet.py').exists(), "
         "'common_conditioning_exists': Path('src/artifex/generative_models/models/common/conditioning.py').exists(), "
         "'stylegan_exists': Path('src/artifex/generative_models/models/gan/stylegan.py').exists()"
-        "}))"
+        "})"
     )
 
     for banned in [
@@ -56,13 +56,13 @@ def test_curated_model_pages_match_live_owner_surfaces() -> None:
     )
     wgan_docs = (REPO_ROOT / "docs/models/wgan.md").read_text(encoding="utf-8")
     payload = run_repo_json(
-        "import json; "
+        "from substrax.testing import report; "
         "import artifex.generative_models.models.diffusion as diffusion; "
         "import artifex.generative_models.models.gan as gan; "
-        "print(json.dumps({"
+        "report({"
         "'diffusion_exports': sorted(diffusion.__all__), "
         "'gan_exports': sorted(gan.__all__)"
-        "}))"
+        "})"
     )
 
     for required in ["artifex.generative_models.models.diffusion.dit", "DiTModel"]:
