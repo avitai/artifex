@@ -31,11 +31,11 @@ def test_flash_attention_surface_drops_the_orphaned_triton_kernel() -> None:
     payload = run_repo_json(
         textwrap.dedent(
             """
-            import json
+            from substrax.testing import report
 
             import artifex.generative_models.core.layers.flash_attention as flash_attention_module
 
-            print(json.dumps({
+            report({
                 name: hasattr(flash_attention_module, name)
                 for name in (
                     'flash_dot_product_attention',
@@ -46,7 +46,7 @@ def test_flash_attention_surface_drops_the_orphaned_triton_kernel() -> None:
                     'AttentionMask',
                     'PADDING_SEGMENT_ID',
                 )
-            }))
+            })
             """
         )
     )
@@ -71,13 +71,13 @@ def test_flash_attention_surface_drops_the_orphaned_triton_kernel() -> None:
     exported = run_repo_json(
         textwrap.dedent(
             """
-            import json
+            from substrax.testing import report
             import pkgutil
 
             import artifex.generative_models.core.layers as layers
 
             submodules = {info.name for info in pkgutil.iter_modules(layers.__path__)}
-            print(json.dumps(sorted(submodules & set(layers.__all__))))
+            report(sorted(submodules & set(layers.__all__)))
             """
         )
     )
@@ -105,11 +105,11 @@ def test_every_advertised_attention_backend_is_actually_dispatched() -> None:
     payload = run_repo_json(
         textwrap.dedent(
             """
-            import json
+            from substrax.testing import report
 
             from artifex.generative_models.core.layers.attention_backend import AttentionBackend
 
-            print(json.dumps({'members': [backend.value for backend in AttentionBackend]}))
+            report({'members': [backend.value for backend in AttentionBackend]})
             """
         )
     )
@@ -140,7 +140,7 @@ def test_live_dropout_is_never_fused() -> None:
     payload = run_repo_json(
         textwrap.dedent(
             """
-            import json
+            from substrax.testing import report
 
             import jax.numpy as jnp
 
@@ -155,7 +155,7 @@ def test_live_dropout_is_never_fused() -> None:
                 device_kind='gpu',
                 compute_capability=(9, 0),
             )
-            print(json.dumps({
+            report({
                 'inference': select_attention_backend(
                     **eligible, deterministic=True, dropout_rate=0.0, sow_weights=False
                 ).value,
@@ -165,7 +165,7 @@ def test_live_dropout_is_never_fused() -> None:
                 'sow_weights': select_attention_backend(
                     **eligible, deterministic=True, dropout_rate=0.0, sow_weights=True
                 ).value,
-            }))
+            })
             """
         )
     )
@@ -181,7 +181,7 @@ def test_masked_pixelcnn_residual_surface_is_local_to_pixelcnn() -> None:
         textwrap.dedent(
             """
             import importlib
-            import json
+            from substrax.testing import report
 
             results = {}
             checks = (
@@ -193,7 +193,7 @@ def test_masked_pixelcnn_residual_surface_is_local_to_pixelcnn() -> None:
                 module = importlib.import_module(module_name)
                 results[f'{module_name}:{attr_name}'] = hasattr(module, attr_name)
 
-            print(json.dumps(results))
+            report(results)
             """
         )
     )
@@ -224,13 +224,13 @@ def test_egnn_layer_contract_is_hidden_dim_only() -> None:
         textwrap.dedent(
             """
             import inspect
-            import json
+            from substrax.testing import report
 
             from artifex.generative_models.core.layers.egnn import EGNNLayer
 
-            print(json.dumps({
+            report({
                 'init_params': list(inspect.signature(EGNNLayer.__init__).parameters),
-            }))
+            })
             """
         )
     )
@@ -254,9 +254,9 @@ def _exported_names(package: str) -> list[str]:
         textwrap.dedent(
             f"""
             import importlib
-            import json
+            from substrax.testing import report
 
-            print(json.dumps(importlib.import_module({package!r}).__all__))
+            report(importlib.import_module({package!r}).__all__)
             """
         )
     )
@@ -294,11 +294,11 @@ def test_layers_package_purpose_covers_backbones_no_model_uses_yet() -> None:
     payload = run_repo_json(
         textwrap.dedent(
             """
-            import json
+            from substrax.testing import report
 
             import artifex.generative_models.core.layers as layers
 
-            print(json.dumps({"doc": layers.__doc__}))
+            report({"doc": layers.__doc__})
             """
         )
     )

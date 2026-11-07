@@ -32,7 +32,7 @@ def test_benchmark_foundation_lives_only_under_artifex_benchmarks_core() -> None
         textwrap.dedent(
             """
             import importlib
-            import json
+            from substrax.testing import report
 
             import artifex.generative_models.core as core
             import artifex.generative_models.core.protocols as protocols
@@ -57,7 +57,7 @@ def test_benchmark_foundation_lives_only_under_artifex_benchmarks_core() -> None
                 except Exception as exc:
                     errors[module_name] = type(exc).__name__
 
-            print(json.dumps({
+            report({
                 'benchmark_module': Benchmark.__module__,
                 'benchmark_base_module': BenchmarkBase.__module__,
                 'config_module': BenchmarkConfig.__module__,
@@ -68,7 +68,7 @@ def test_benchmark_foundation_lives_only_under_artifex_benchmarks_core() -> None
                 'core_exports': list(getattr(core, '__all__')),
                 'protocol_exports': list(getattr(protocols, '__all__')),
                 'errors': errors,
-            }))
+            })
             """
         )
     )
@@ -120,7 +120,7 @@ def test_benchmark_metrics_are_the_one_class_layer_and_register_tier_one() -> No
     payload = run_repo_json(
         textwrap.dedent(
             """
-            import json
+            from substrax.testing import report
 
             from calibrax.metrics import MetricRegistry, MetricTier
 
@@ -132,7 +132,7 @@ def test_benchmark_metrics_are_the_one_class_layer_and_register_tier_one() -> No
             from artifex.generative_models.core.protocols.metrics import MetricBase
 
             registry = MetricRegistry()
-            print(json.dumps({
+            report({
                 'tier_one': sorted(
                     entry.name for entry in registry.list_by_tier(MetricTier.FROZEN_BACKBONE)
                 ),
@@ -146,7 +146,7 @@ def test_benchmark_metrics_are_the_one_class_layer_and_register_tier_one() -> No
                 ),
                 'benchmarks_has_pipeline': hasattr(benchmark_metrics, 'EvaluationPipeline'),
                 'benchmarks_core_has_pipeline': hasattr(benchmark_metrics_core, 'EvaluationPipeline'),
-            }))
+            })
             """
         )
     )

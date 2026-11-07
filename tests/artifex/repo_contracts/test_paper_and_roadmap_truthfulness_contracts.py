@@ -26,19 +26,19 @@ def _section(contents: str, heading: str) -> str:
 def test_preprint_separates_shipped_experimental_and_roadmap_surfaces() -> None:
     """The paper should distinguish live runtime imports from experimental and roadmap claims."""
     payload = run_repo_json(
-        "import json; "
+        "from substrax.testing import report; "
         "from artifex.generative_models.models.base import ("
         "GenerativeModelProtocol, TrainableGenerativeModelProtocol); "
         "from artifex.generative_models.modalities.base import ModelAdapter; "
         "from artifex.generative_models.inference.optimization.production import ProductionOptimizer; "
         "from artifex.benchmarks import BenchmarkRegistry; "
-        "print(json.dumps({"
+        "report({"
         "'model_protocol': GenerativeModelProtocol.__name__, "
         "'trainable_protocol': TrainableGenerativeModelProtocol.__name__, "
         "'adapter_protocol': ModelAdapter.__name__, "
         "'optimizer': ProductionOptimizer.__name__, "
         "'benchmark_registry': BenchmarkRegistry.__name__"
-        "}))"
+        "})"
     )
 
     contents = PAPER.read_text(encoding="utf-8")
@@ -97,19 +97,19 @@ def test_preprint_omits_dead_pipeline_names_and_false_completeness_claims() -> N
 def test_roadmap_current_runtime_status_tracks_live_inventory() -> None:
     """The roadmap current-runtime section should match importable flow, modality, inference, and benchmark surfaces."""
     payload = run_repo_json(
-        "import json; "
+        "from substrax.testing import report; "
         "import artifex.benchmarks as benchmarks; "
         "import artifex.generative_models.inference as inference; "
         "import artifex.generative_models.models.flow as flow; "
         "import artifex.generative_models.modalities as modalities; "
         "from artifex.generative_models.inference.optimization.production import ProductionOptimizer; "
-        "print(json.dumps({"
+        "report({"
         "'flow_exports': [name for name in ['RealNVP', 'Glow', 'MAF', 'IAF', 'NeuralSplineFlow', 'ConditionalRealNVP'] if hasattr(flow, name)], "
         "'timeseries_name': modalities.TimeseriesModality.__name__, "
         "'inference_package': inference.__name__, "
         "'production_module': ProductionOptimizer.__module__, "
         "'benchmarks_package': benchmarks.__name__"
-        "}))"
+        "})"
     )
 
     contents = ROADMAP.read_text(encoding="utf-8")
