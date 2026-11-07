@@ -14,17 +14,17 @@ def test_inference_overview_uses_family_owned_loading_and_retained_optimizer_onl
         encoding="utf-8"
     )
     payload = run_repo_json(
-        "import json; "
+        "from substrax.testing import report; "
         "from pathlib import Path; "
         "from artifex.generative_models.core.configuration import DecoderConfig, EncoderConfig, VAEConfig; "
         "from artifex.generative_models.inference.optimization.production import ProductionOptimizer; "
-        "print(json.dumps({"
+        "report({"
         "'optimization_owner_exists': Path('src/artifex/generative_models/inference/optimization/production.py').exists(), "
         "'vae_config_cls': VAEConfig.__name__, "
         "'encoder_config_cls': EncoderConfig.__name__, "
         "'decoder_config_cls': DecoderConfig.__name__, "
         "'production_optimizer_cls': ProductionOptimizer.__name__"
-        "}))"
+        "})"
     )
 
     for banned in [
@@ -63,15 +63,15 @@ def test_sampling_guide_uses_live_family_sampling_exports_only() -> None:
         encoding="utf-8"
     )
     payload = run_repo_json(
-        "import json; "
+        "from substrax.testing import report; "
         "import artifex.generative_models.models.diffusion as diffusion; "
         "import artifex.generative_models.models.flow as flow; "
         "import artifex.generative_models.models.gan as gan; "
-        "print(json.dumps({"
+        "report({"
         "'diffusion_exports': sorted(diffusion.__all__), "
         "'flow_exports': sorted(flow.__all__), "
         "'gan_exports': sorted(gan.__all__)"
-        "}))"
+        "})"
     )
 
     for banned in [

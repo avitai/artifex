@@ -13,13 +13,13 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 def test_data_package_import_keeps_protein_lazy() -> None:
     """Importing the top-level data package should stay narrow and lazy."""
     payload = run_repo_json(
-        "import json, sys; "
+        "import sys; from substrax.testing import report; "
         "import artifex.data as data; "
-        "print(json.dumps({"
+        "report({"
         "'protein_loaded': 'artifex.data.protein' in sys.modules, "
         "'jax_loaded': 'jax' in sys.modules, "
         "'all': list(getattr(data, '__all__'))"
-        "}))"
+        "})"
     )
 
     assert payload["protein_loaded"] is False
@@ -30,10 +30,10 @@ def test_data_package_import_keeps_protein_lazy() -> None:
 def test_data_package_resolves_only_retained_protein_surface() -> None:
     """The top-level data barrel should not regrow a phantom generic API."""
     payload = run_repo_json(
-        "import json; "
+        "from substrax.testing import report; "
         "import artifex.data as data; "
         "protein = data.protein; "
-        "print(json.dumps({"
+        "report({"
         "'protein_module': protein.__name__, "
         "'protein_dataset_module': protein.ProteinDataset.__module__, "
         "'protein_config_module': protein.ProteinDatasetConfig.__module__, "
@@ -41,7 +41,7 @@ def test_data_package_resolves_only_retained_protein_surface() -> None:
         "'has_image_dataset': hasattr(data, 'ImageDataset'), "
         "'has_data_pipeline': hasattr(data, 'DataPipeline'), "
         "'has_dynamic_batch_collator': hasattr(data, 'DynamicBatchCollator')"
-        "}))"
+        "})"
     )
 
     assert payload["protein_module"] == "artifex.data.protein"

@@ -40,8 +40,8 @@ def test_diffusion_api_docs_match_live_exports_and_signatures() -> None:
     """Diffusion API docs should use live exports and signatures only."""
     docs = (REPO_ROOT / "docs/api/models/diffusion.md").read_text(encoding="utf-8")
     payload = run_repo_json(
-        "import json; import artifex.generative_models.models.diffusion as m; "
-        "print(json.dumps({'exports': sorted(m.__all__)}))"
+        "from substrax.testing import report; import artifex.generative_models.models.diffusion as m; "
+        "report({'exports': sorted(m.__all__)})"
     )
 
     for expected in [
@@ -86,8 +86,8 @@ def test_vae_api_docs_match_live_constructor_and_method_signatures() -> None:
     """VAE API docs should use the config-based constructor and stored RNG story."""
     docs = (REPO_ROOT / "docs/api/models/vae.md").read_text(encoding="utf-8")
     payload = run_repo_json(
-        "import json; import artifex.generative_models.models.vae as m; "
-        "print(json.dumps({'exports': sorted(m.__all__)}))"
+        "from substrax.testing import report; import artifex.generative_models.models.vae as m; "
+        "report({'exports': sorted(m.__all__)})"
     )
 
     for expected in ["VAE", "BetaVAE", "ConditionalVAE", "VQVAE"]:
@@ -124,9 +124,9 @@ def test_sampling_and_energy_api_docs_use_live_top_level_surfaces() -> None:
     sampling_docs = (REPO_ROOT / "docs/api/sampling.md").read_text(encoding="utf-8")
     ebm_docs = (REPO_ROOT / "docs/api/models/ebm.md").read_text(encoding="utf-8")
     payload = run_repo_json(
-        "import json; import artifex.generative_models.core.sampling as sampling; "
+        "from substrax.testing import report; import artifex.generative_models.core.sampling as sampling; "
         "from artifex.generative_models.models.energy import EnergyBasedModel; "
-        "print(json.dumps({'sampling_exports': sorted(sampling.__all__), 'energy_module': EnergyBasedModel.__module__}))"
+        "report({'sampling_exports': sorted(sampling.__all__), 'energy_module': EnergyBasedModel.__module__})"
     )
 
     assert payload["energy_module"] == "artifex.generative_models.models.energy.base"

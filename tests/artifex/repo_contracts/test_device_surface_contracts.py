@@ -28,14 +28,14 @@ def test_the_duplicated_device_modules_are_gone(module: str) -> None:
 def test_device_utils_keep_the_batch_size_rule_only() -> None:
     """The device utilities module ships one helper, built on substrax's table."""
     payload = run_repo_json(
-        "import json; "
+        "from substrax.testing import report; "
         "import artifex.generative_models.utils.jax.device as device_utils; "
-        "print(json.dumps({"
+        "report({"
         "'all': sorted(device_utils.__all__), "
         "'has_verify_device_setup': hasattr(device_utils, 'verify_device_setup'), "
         "'has_device_manager': hasattr(device_utils, 'DeviceManager'), "
         "'uses_substrax': device_utils.get_batch_size_recommendation.__module__"
-        "}))"
+        "})"
     )
 
     assert payload["all"] == ["get_recommended_batch_size"]
