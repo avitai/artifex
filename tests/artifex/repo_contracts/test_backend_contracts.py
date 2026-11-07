@@ -241,7 +241,7 @@ def test_root_conftest_import_does_not_import_jax_or_mutate_environment() -> Non
     """Importing the root pytest conftest should stay lightweight and side-effect free."""
     payload = run_repo_json(
         """
-import json
+from substrax.testing import report
 import os
 import sys
 
@@ -254,7 +254,7 @@ for key in keys:
 before = {key: os.environ.get(key) for key in keys}
 import conftest  # noqa: F401
 after = {key: os.environ.get(key) for key in keys}
-print(json.dumps({"before": before, "after": after, "jax_loaded": "jax" in sys.modules}))
+report({"before": before, "after": after, "jax_loaded": "jax" in sys.modules})
 """
     )
 
@@ -266,10 +266,10 @@ def test_tests_conftest_import_keeps_jax_deferred() -> None:
     """Importing the shared tests conftest should not eagerly initialize the JAX stack."""
     payload = run_repo_json(
         """
-import json
+from substrax.testing import report
 import sys
 import tests.conftest  # noqa: F401
-print(json.dumps({"jax_loaded": "jax" in sys.modules}))
+report({"jax_loaded": "jax" in sys.modules})
 """
     )
 
@@ -348,12 +348,12 @@ def test_import_artifex_does_not_preload_generative_stack() -> None:
     """Importing the top-level package should not eagerly load generative subpackages."""
     payload = run_repo_json(
         (
-            "import json, sys; "
+            "import sys; from substrax.testing import report; "
             "import artifex; "
-            "print(json.dumps({"
+            "report({"
             "'has_generative_models': 'artifex.generative_models' in sys.modules, "
             "'has_jax': 'jax' in sys.modules"
-            "}))"
+            "})"
         )
     )
 
@@ -365,16 +365,16 @@ def test_import_generative_models_keeps_subpackages_lazy() -> None:
     """Importing artifex.generative_models should not eagerly import its heavy children."""
     payload = run_repo_json(
         (
-            "import json, sys; "
+            "import sys; from substrax.testing import report; "
             "import artifex.generative_models as gm; "
-            "print(json.dumps({"
+            "report({"
             "'core_loaded': 'artifex.generative_models.core' in sys.modules, "
             "'models_loaded': 'artifex.generative_models.models' in sys.modules, "
             "'extensions_loaded': 'artifex.generative_models.extensions' in sys.modules, "
             "'utils_loaded': 'artifex.generative_models.utils' in sys.modules, "
             "'jax_loaded': 'jax' in sys.modules, "
             "'all': list(getattr(gm, '__all__'))"
-            "}))"
+            "})"
         )
     )
 
@@ -390,16 +390,16 @@ def test_generative_models_exports_resolve_lazily() -> None:
     """Lazy package attributes should still resolve to the documented modules."""
     payload = run_repo_json(
         (
-            "import json, sys; "
+            "import sys; from substrax.testing import report; "
             "import artifex; "
             "gm = artifex.generative_models; "
             "core = gm.core; "
-            "print(json.dumps({"
+            "report({"
             "'gm_module': gm.__name__, "
             "'core_module': core.__name__, "
             "'gm_loaded': 'artifex.generative_models' in sys.modules, "
             "'core_loaded': 'artifex.generative_models.core' in sys.modules"
-            "}))"
+            "})"
         )
     )
 

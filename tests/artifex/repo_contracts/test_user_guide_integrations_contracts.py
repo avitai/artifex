@@ -17,15 +17,15 @@ def test_deployment_and_huggingface_guides_match_live_helper_owners() -> None:
         encoding="utf-8"
     )
     payload = run_repo_json(
-        "import json; "
+        "from substrax.testing import report; "
         "import artifex.generative_models.models as models; "
         "import artifex.generative_models.models.vae as vae; "
         "import artifex.generative_models.utils.logging as logging_utils; "
-        "print(json.dumps({"
+        "report({"
         "'models_exports': sorted(models.__all__), "
         "'vae_exports': sorted(vae.__all__), "
         "'logging_exports': sorted(logging_utils.__all__)"
-        "}))"
+        "})"
     )
 
     for banned in [
@@ -69,13 +69,13 @@ def test_tensorboard_and_wandb_guides_use_real_callback_and_trainer_entrypoints(
     )
     wandb_docs = (REPO_ROOT / "docs/user-guide/integrations/wandb.md").read_text(encoding="utf-8")
     payload = run_repo_json(
-        "import json; "
+        "from substrax.testing import report; "
         "from artifex.generative_models.training.callbacks import ("
         "CallbackList, TensorBoardLoggerCallback, TensorBoardLoggerConfig, "
         "WandbLoggerCallback, WandbLoggerConfig, JAXProfiler, ProfilingConfig); "
         "from artifex.generative_models.training.trainer import Trainer; "
         "from artifex.generative_models.utils.logging import WandbLogger; "
-        "print(json.dumps({"
+        "report({"
         "'trainer_has_train': hasattr(Trainer, 'train'), "
         "'trainer_has_fit': hasattr(Trainer, 'fit'), "
         "'callback_list_cls': CallbackList.__name__, "
@@ -86,7 +86,7 @@ def test_tensorboard_and_wandb_guides_use_real_callback_and_trainer_entrypoints(
         "'profiler_cls': JAXProfiler.__name__, "
         "'profiling_config_cls': ProfilingConfig.__name__, "
         "'wandb_logger_cls': WandbLogger.__name__"
-        "}))"
+        "})"
     )
 
     for banned in [

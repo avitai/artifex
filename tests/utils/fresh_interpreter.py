@@ -47,12 +47,14 @@ def run_repo_python(
 
 
 def run_repo_json(code: str) -> Any:
-    """Run code at the repository root and return the JSON its last line of output holds.
+    """Run code at the repository root and return the value it sends with ``report``.
 
     Args:
-        code: Code to run with ``-c``; its last line of output must be JSON.
+        code: Code to run with ``-c``; it sends its result with
+            ``substrax.testing.report(value)`` rather than printing it, so a library writing to
+            stdout cannot be read as the result.
 
     Returns:
         The decoded value.
     """
-    return run_repo_python(code).check().last_json()
+    return run_repo_python(code).check().report_json()

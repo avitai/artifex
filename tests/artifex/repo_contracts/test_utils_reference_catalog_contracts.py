@@ -94,7 +94,7 @@ def test_utils_reference_pages_are_runtime_backed_or_coming_soon() -> None:
 def test_utils_reference_pages_match_live_imports() -> None:
     """Retained utility reference pages should only point at importable modules."""
     payload = run_repo_json(
-        "import importlib, json; "
+        "import importlib; from substrax.testing import report; "
         "modules = ["
         "'artifex.generative_models.utils.code_analysis.dependency_analyzer',"
         "'artifex.generative_models.utils.jax.device',"
@@ -105,7 +105,7 @@ def test_utils_reference_pages_match_live_imports() -> None:
         "loaded = {name: importlib.import_module(name).__name__ for name in modules}; "
         "protein_owner = importlib.import_module('artifex.visualization.protein_viz').ProteinVisualizer; "
         "protein_alias = importlib.import_module('artifex.generative_models.utils.visualization.protein').ProteinVisualizer; "
-        "print(json.dumps({'loaded': loaded, 'alias_matches_owner': protein_alias is protein_owner}))"
+        "report({'loaded': loaded, 'alias_matches_owner': protein_alias is protein_owner})"
     )
 
     assert payload["alias_matches_owner"] is True
