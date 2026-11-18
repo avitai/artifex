@@ -782,11 +782,11 @@ requires-dist = [
     { name = "beartype", marker = "extra == 'test'", specifier = ">=0.14.1" },
     { name = "blackjax", specifier = ">=1.6.2" },
     { name = "build", marker = "extra == 'dev'", specifier = ">=1.0.3" },
-    { name = "calibrax", specifier = ">=0.1.17" },
+    { name = "calibrax", specifier = ">=0.1.20" },
     { name = "coverage", marker = "extra == 'dev'", specifier = ">=7" },
     { name = "coverage", marker = "extra == 'test'", specifier = ">=7" },
     { name = "dacite", specifier = ">=1.8.0" },
-    { name = "datarax", specifier = ">=0.1.16" },
+    { name = "datarax", specifier = ">=0.1.17" },
     { name = "datasets", marker = "extra == 'benchmarks'", specifier = ">=2.14.0" },
     { name = "deadcode", marker = "extra == 'dev'", specifier = ">=2.4" },
     { name = "deptry", marker = "extra == 'dev'", specifier = ">=0.23" },
@@ -871,8 +871,8 @@ requires-dist = [
     { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.1.5" },
     { name = "scikit-learn", specifier = ">=1.6.1" },
     { name = "scipy", specifier = ">=1.12.1" },
-    { name = "substrax", specifier = ">=0.1.25" },
-    { name = "substrax", extras = ["testing"], marker = "extra == 'test'", specifier = ">=0.1.25" },
+    { name = "substrax", specifier = ">=0.1.28" },
+    { name = "substrax", extras = ["testing"], marker = "extra == 'test'", specifier = ">=0.1.28" },
     { name = "tensorboard", marker = "extra == 'dev'", specifier = ">=2.16" },
     { name = "tensorboard", marker = "extra == 'logging'", specifier = ">=2.16" },
     { name = "tqdm", specifier = ">=4.67" },
@@ -1023,7 +1023,7 @@ wheels = [
 
 [[package]]
 name = "calibrax"
-version = "0.1.17"
+version = "0.1.20"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "click" },
@@ -1038,9 +1038,9 @@ dependencies = [
     { name = "scipy" },
     { name = "substrax" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/7c/fe/c4317221b9083ebef853b31c4c51b78bfdca4760f37ca7a85b9bfeb7634c/calibrax-0.1.17.tar.gz", hash = "sha256:ab04e934511fa5c9e56117e311f37687e77331e6ee43926e7816751af7ccb8fa", size = 208695, upload-time = "2026-11-06T22:17:35.521Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/71/26/9fa3b0d1a6e601f656a36df8ca7a64b465cc14ba8be39af3b5892e7c84b7/calibrax-0.1.20.tar.gz", hash = "sha256:b7a1254ff473c585ae6478e2b923fde92efbedc5a27d8783740e610e449c2739", size = 241829, upload-time = "2026-11-17T01:49:58.108Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/6b/d3/861aa8fa619ec170bec37f7777b498b748bfbc3360e3b57cbbb4775c72f2/calibrax-0.1.17-py3-none-any.whl", hash = "sha256:5a7645ea7dde959db92cd466f859c81d9d548288d530efc2e2d91624f3a1a90f", size = 255675, upload-time = "2026-11-06T22:17:32.982Z" },
+    { url = "https://files.pythonhosted.org/packages/f8/b9/05bbf1f6b43302741decc52c00b3195f25545a5d1329ac0adbc461df7cc3/calibrax-0.1.20-py3-none-any.whl", hash = "sha256:80a34b0d061886ac492557a1844c3b466b688a6c1170753d8891560b4ed23cc8", size = 305455, upload-time = "2026-11-17T01:49:55.949Z" },
 ]
 
 [[package]]
@@ -1465,7 +1465,7 @@ wheels = [
 
 [[package]]
 name = "datarax"
-version = "0.1.16"
+version = "0.1.17"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "array-record" },
@@ -1483,9 +1483,9 @@ dependencies = [
     { name = "substrax" },
     { name = "tomli-w" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/f0/89/7aaf4eae6e69eb959594df2f609e64e1d24c764bc0e6fda924f6a0f1c16c/datarax-0.1.16.tar.gz", hash = "sha256:da553aa73eada8c79fff71038cf2b1e18ec34310f7759727235e346f4e19f630", size = 240772, upload-time = "2026-09-24T22:55:50.741Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/10/38/cf090fa5d39c85e6fbe9072a47a5811a02ec8a6f1b479ef12793db03e576/datarax-0.1.17.tar.gz", hash = "sha256:5332f18e2060b6d998ce3008dc44ab5ab0f960b5c7761f9dd4d3c7ba6d5fef57", size = 241033, upload-time = "2026-09-26T01:58:46.642Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/72/be/fd1287e4b2099499370a4cf05e04806379d2b8a90ccb1797514799f5b493/datarax-0.1.16-py3-none-any.whl", hash = "sha256:8632537e6b0b13a5dd14eccd1c3939dceea68ee3993d2eb4c7c4b1f5db2e24f3", size = 288303, upload-time = "2026-09-24T22:55:48.513Z" },
+    { url = "https://files.pythonhosted.org/packages/d0/2e/d87ce35e0d429f4b2c0dcc8c7130d3d7a7a42bed9bab3b2fc8bc3ec00c69/datarax-0.1.17-py3-none-any.whl", hash = "sha256:ee4b2654b0e883c06a76b9715829b9801a6fcf5d2f8944b66c690b7ccabdc4af", size = 288532, upload-time = "2026-09-26T01:58:44.364Z" },
 ]
 
 [[package]]
@@ -6152,7 +6152,7 @@ wheels = [
 
 [[package]]
 name = "substrax"
-version = "0.1.25"
+version = "0.1.28"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "etils", extra = ["epath"] },
@@ -6164,9 +6164,9 @@ dependencies = [
     { name = "orbax-checkpoint" },
     { name = "pydantic" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/4d/31/5a702ff1919ab983790c6f655ae251f08a5c84d7df5ff97f6bd792f2ca91/substrax-0.1.25.tar.gz", hash = "sha256:e1a5ce1fd1f13bad9b9976f82c22021858f1f6192e8af80cad1317724a50e4cc", size = 138694, upload-time = "2026-10-30T19:11:07.682Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/53/a0/4e84e669c3ba2b4514bc5ca514b41157770be74047a0dcccf93df01f9535/substrax-0.1.28.tar.gz", hash = "sha256:3162f88721fbb17eecc657ab9e9bdaf0e7397dd3b9649dd31529a989c262fdaf", size = 206402, upload-time = "2026-11-17T16:29:15.692Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/fa/b1/87c0e074de3666373fe91faf296056e1d410f39ffaa5e788afe0a1c737b7/substrax-0.1.25-py3-none-any.whl", hash = "sha256:8e315d33c523776994b76099b3524886b9e9cfef7b16049d6445e8ee8afbeaac", size = 170613, upload-time = "2026-10-30T19:11:05.568Z" },
+    { url = "https://files.pythonhosted.org/packages/ae/6b/4ce8622d7ca1c6a3c0b6e1b66e82acc55f7b2cc13af45aeaecad0509b413/substrax-0.1.28-py3-none-any.whl", hash = "sha256:d6e9814c16a943920f03d96bc0bd3bbdc36e908845465d8e2aada4da5184d726", size = 249196, upload-time = "2026-11-17T16:29:13.589Z" },
 ]
 
 [package.optional-dependencies]

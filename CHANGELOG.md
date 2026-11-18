@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Requires `substrax>=0.1.28`, `calibrax>=0.1.20` and `datarax>=0.1.17`, the releases datarax
+  itself now builds against. The relock moves substrax from 0.1.25, calibrax from 0.1.17 and
+  datarax from 0.1.16, and nothing else. No name these releases removed or renamed is imported
+  here: substrax's `testing.run_example`, `ExampleRun`, `ExampleTimeoutError`,
+  `unavailable_reason`, `source_scans.is_main_guard` and `examples.ExamplePathError`, and
+  calibrax's `metrics.plugins.scientific`.
 - The macOS jobs that pushes to `main` add to CI and the package build run on `macos-15`.
   GitHub retires the `macos-14` image on 2026-11-02 (actions/runner-images#13518), and its
   scheduled brownouts already cancel jobs that ask for it.
