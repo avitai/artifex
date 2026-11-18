@@ -503,6 +503,31 @@ class TestCausal:
         perturbed = x.at[:, -1, :].add(10.0)
         assert jnp.allclose(causal(x)[:, 0, :], causal(perturbed)[:, 0, :], atol=1e-6)
 
+    def test_a_single_causal_query_attends_to_every_key(self) -> None:
+        """One query against a cache of keys is a decode step: ``is_causal`` adds no mask.
+
+        A ``tril`` of shape ``(1, key_length)`` would keep key 0 alone. ``nnx`` no longer passes
+        ``is_causal`` while decoding (flax 0.12.11), but ``flash_dot_product_attention`` is
+        public and called directly, so the function resolves the case itself; both calls then
+        run the same computation, so they agree exactly.
+        """
+        keys = jax.random.split(jax.random.key(1), 3)
+        query = jax.random.normal(keys[0], (BATCH, 1, NUM_HEADS, HEAD_DIM))
+        key = jax.random.normal(keys[1], (BATCH, SEQ_LEN, NUM_HEADS, HEAD_DIM))
+        value = jax.random.normal(keys[2], (BATCH, SEQ_LEN, NUM_HEADS, HEAD_DIM))
+
+        causal = flash_dot_product_attention(query, key, value, is_causal=True)
+
+        assert jnp.array_equal(causal, flash_dot_product_attention(query, key, value))
+
+    def test_causal_masking_of_unequal_lengths_is_refused(self) -> None:
+        """Several queries against a different number of keys have no causal order."""
+        query = jnp.ones((BATCH, 2, NUM_HEADS, HEAD_DIM))
+        key = value = jnp.ones((BATCH, SEQ_LEN, NUM_HEADS, HEAD_DIM))
+
+        with pytest.raises(ValueError, match="Causal masking needs equal query and key lengths"):
+            flash_dot_product_attention(query, key, value, is_causal=True)
+
 
 @pytest.mark.accelerator(kind="gpu")
 class TestFusedBackendOnGpu:
