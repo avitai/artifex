@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Requires `flax>=0.12.11`; the lock moves flax from 0.12.9 to 0.12.12. Before 0.12.11,
+  `nnx.MultiHeadAttention` forwarded `is_causal` during decode, so each causal decode step after
+  the first attended to cached position 0 alone (flax c3721a25). `FlashMultiHeadAttention`
+  already resolved causality for decode itself; any causal decoder on plain
+  `nnx.MultiHeadAttention` now decodes from the whole cache.
 - Requires `substrax>=0.1.28`, `calibrax>=0.1.20` and `datarax>=0.1.17`, the releases datarax
   itself now builds against. The relock moves substrax from 0.1.25, calibrax from 0.1.17 and
   datarax from 0.1.16, and nothing else. No name these releases removed or renamed is imported
