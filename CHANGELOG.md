@@ -9,16 +9,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- `tests/artifex/nnx_conformance/` runs substrax's NNX conformance checks over the core layers:
-  35 module classes and 291 checks, each class built with the capabilities it claims (dropout,
-  batch statistics, independent rows). The 45 checks the core layers fail today are strict
+- `tests/artifex/nnx_conformance/` runs substrax's NNX conformance checks over the core layers
+  and the backbones: 53 module classes and 438 checks, each class built with the capabilities it
+  claims (dropout, batch statistics, independent rows). The 70 checks they fail today are strict
   expected failures, each naming its defect and its row in the audit register, and each must
   fail with `ConformanceError` rather than crash: `.eval()` overridden by a
-  `deterministic=False` default (transformers, positional encodings, EGNN), BatchNorm
-  statistics that never update in `.train()` (ResNet blocks) or update in `.eval()`
-  (`CliffordBatchNorm`), `CliffordGroupNorm` pooling over the batch, and hyperparameters held in
-  Variables (`MLP`, `CNN`). A fix deletes its entries; an entry whose check passes fails the
-  suite.
+  `deterministic=False` default (transformers, positional encodings, EGNN, the DiT blocks),
+  BatchNorm statistics that never update in `.train()` (ResNet blocks) or update in `.eval()`
+  (`CliffordBatchNorm`), `CliffordGroupNorm` pooling over the batch, hyperparameters held in
+  Variables (`MLP`, `CNN`), and child blocks sharing their parent's `Rngs` counter through
+  `GenerativeModule`, which tree mode refuses (the UNet and cross-attention blocks). Two are
+  limits rather than artifex defects, named as such: `CrossAttentionBlock`'s attention softmax
+  runs in float32 inside `jax.nn.dot_product_attention` even for float64 inputs, and
+  `nnx.Embed` fixes its compute dtype when built, so a float64 copy of `LabelEmbedder` looks up
+  in float32. A fix deletes its entries; an entry whose check passes fails the suite.
 
 ### Fixed
 
@@ -27,9 +31,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   7.98x in a unit leg run eight tests at a time under coverage, against a required 8x. It is
   marked `slow`, so it runs in the performance leg one test at a time without coverage. The
   unit leg checks the property the ratio rests on with
-  `test_batched_encoding_is_one_vectorized_computation`: the encoder traces to as many
-  equations for a batch as for one row, with a control showing a per-row loop grows, and its
-  rows pass substrax's `check_rows_independent`. The timing test's own `atol=1e-6` equality
+  `test_batched_encoding_is_one_vectorized_computation`: calibrax's `CompilationProfiler` counts
+  the same 101 compiled kernels for a batch of `n` as of `2n` (from 2 to 64), against 121 to
+  2,107 for a control encoder that loops over rows, and its rows pass substrax's
+  `check_rows_independent`. The timing test's own `atol=1e-6` equality
   held only for identical rows; batched and single-row float32 matmuls differ by up to
   17.5 eps on varied rows.
 
@@ -40,10 +45,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   the first attended to cached position 0 alone (flax c3721a25). `FlashMultiHeadAttention`
   already resolved causality for decode itself; any causal decoder on plain
   `nnx.MultiHeadAttention` now decodes from the whole cache.
-- The test extra requires `substrax[testing]>=0.1.30`: 0.1.29 added the NNX conformance checks,
-  and 0.1.30 fails a check with `ConformanceError` when a transform refuses the module, where
-  0.1.29 let flax's and JAX's own errors through. The lock moves substrax from 0.1.28 to 0.1.30
-  and nothing else; the runtime dependency stays `substrax>=0.1.28`.
+- The test extra requires `substrax[testing]>=0.1.31`: 0.1.29 added the NNX conformance checks;
+  0.1.30 fails a check with `ConformanceError` when a transform refuses the module, where 0.1.29
+  let flax's and JAX's own errors through; and 0.1.31 takes the float64 gradient along a unit
+  direction, so a module with thousands of parameters is not failed on truncation error, and
+  keeps integer inputs (class labels) integer. The lock moves substrax from 0.1.28 to 0.1.31 and
+  nothing else; the runtime dependency stays `substrax>=0.1.28`.
 - Requires `substrax>=0.1.28`, `calibrax>=0.1.20` and `datarax>=0.1.17`, the releases datarax
   itself now builds against. The relock moves substrax from 0.1.25, calibrax from 0.1.17 and
   datarax from 0.1.16, and nothing else. No name these releases removed or renamed is imported
