@@ -65,6 +65,24 @@ attention = FlashMultiHeadAttention(
 attention.resolve_backend()  # AttentionBackend.CUDNN on an eligible GPU
 ```
 
+## Float64
+
+On the portable path, flax's `dot_product_attention` hands attention without
+dropout or sown weights to `jax.nn.dot_product_attention`, which computes its
+softmax in `float32` for every input dtype. Float64 attention would then agree
+with a float64 reference only to about `2e-7`.
+
+`flash_dot_product_attention` follows the rule that float64-preserving
+implementations use, a softmax in `promote_types(dtype, float32)` (AlphaFold 3's
+`jax/attention/xla_attention.py`, equinox's `nn/_attention.py`). A computation
+dtype wider than `float32` takes flax's own `dot_product_attention_weights`
+path, whose softmax runs in the input dtype. `bfloat16`, `float16` and `float32`
+are unaffected: in `float32` an `nnx.MultiHeadAttention` given this function
+traces to the same program as with flax's default.
+
+Every `nnx.MultiHeadAttention` in Artifex passes
+`attention_fn=flash_dot_product_attention`.
+
 ## Padding
 
 Padding is expressed with sequence lengths rather than segment identifiers,

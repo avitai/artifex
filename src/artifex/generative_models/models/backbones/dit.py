@@ -10,6 +10,8 @@ import jax
 import jax.numpy as jnp
 from flax import nnx
 
+from artifex.generative_models.core.layers.flash_attention import flash_dot_product_attention
+
 
 def modulate(x: jax.Array, shift: jax.Array, scale: jax.Array) -> jax.Array:
     """Apply adaptive layer norm modulation (adaLN).
@@ -222,6 +224,7 @@ class DiTBlock(nnx.Module):
             qkv_features=hidden_size,  # Explicitly set qkv features
             dropout_rate=dropout_rate,
             decode=False,
+            attention_fn=flash_dot_product_attention,
             rngs=rngs,
         )
 

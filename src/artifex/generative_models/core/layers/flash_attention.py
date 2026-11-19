@@ -11,6 +11,14 @@ Two capabilities always take the portable XLA path, for reasons documented in
 weights, which a fused kernel never materialises, and live dropout, whose seed
 the fused kernel bakes into the compiled executable.
 
+Float64 attention keeps float64. flax's ``dot_product_attention`` delegates to
+:func:`jax.nn.dot_product_attention` when dropout is off and no weights are sown,
+and that function computes its softmax in float32 whatever the input dtype. The
+rule float64-preserving implementations follow is a softmax in
+``promote_types(dtype, float32)`` (AlphaFold 3, ``jax/attention/xla_attention.py``;
+equinox, ``nn/_attention.py``), so a compute dtype wider than float32 takes flax's
+own weights path, whose softmax runs in the input dtype.
+
 Based on:
 - Flash Attention paper: https://arxiv.org/abs/2205.14135
 - Flash Attention 2: https://arxiv.org/abs/2307.08691
@@ -25,7 +33,11 @@ import jax
 import jax.numpy as jnp
 from flax import nnx
 from flax.nnx.nn import dtypes
-from flax.nnx.nn.attention import combine_masks, dot_product_attention as _nnx_attention
+from flax.nnx.nn.attention import (
+    combine_masks,
+    dot_product_attention as _nnx_attention,
+    dot_product_attention_weights,
+)
 from flax.typing import Dtype, PrecisionLike, PromoteDtypeFn
 
 from artifex.generative_models.core.layers.attention_backend import (
@@ -120,6 +132,33 @@ def _resolve_causal(is_causal: bool, query_length: int, key_length: int) -> bool
     )
 
 
+def _is_wider_than_float32(dtype: Dtype) -> bool:
+    """Whether ``jax.nn.dot_product_attention``'s float32 softmax would lose precision."""
+    return jnp.promote_types(dtype, jnp.float32) != jnp.float32
+
+
+def _contract_with_values(weights: Array, value: Array, precision: PrecisionLike) -> Array:
+    """Weight the values by attention weights, as flax's ``dot_product_attention`` does.
+
+    A port of the contraction flax uses when dropout is on or weights are sown
+    (``flax/nnx/nn/attention.py:316-343`` at flax 0.12.12), grouped-query attention
+    included: there the weights carry more heads than the values, a whole multiple of them.
+    """
+    query_heads, value_heads = weights.shape[-3], value.shape[-2]
+    if query_heads == value_heads:
+        return jnp.einsum("...hqk,...khd->...qhd", weights, value, precision=precision)
+    if query_heads % value_heads != 0:
+        raise ValueError(
+            f"Query heads ({query_heads}) must be multiple of Value heads ({value_heads})"
+        )
+    repeats = query_heads // value_heads
+    weights = weights.reshape((*weights.shape[:-3], value_heads, repeats, *weights.shape[-2:]))
+    out = jnp.einsum(
+        "...hgqk,...kh1d->...qhgd", weights, jnp.expand_dims(value, -2), precision=precision
+    )
+    return out.reshape((*out.shape[:-3], query_heads, out.shape[-1]))
+
+
 def flash_dot_product_attention(
     query: Array,
     key: Array,
@@ -205,6 +244,25 @@ def flash_dot_product_attention(
 
     if scale is not None:
         query = query * jnp.asarray(scale * (query.shape[-1] ** 0.5), dtype=compute_dtype)
+
+    if _is_wider_than_float32(compute_dtype):
+        # flax's own weights path, whose softmax runs in the input dtype, instead of the
+        # jax.nn.dot_product_attention delegation, whose softmax runs in float32.
+        weights = dot_product_attention_weights(
+            query,
+            key,
+            bias,
+            mask,
+            broadcast_dropout,
+            dropout_rng,
+            dropout_rate,
+            deterministic,
+            compute_dtype,
+            precision,
+            module,
+            is_causal=is_causal,
+        )
+        return _contract_with_values(weights, value, precision)
 
     return _nnx_attention(
         query,
