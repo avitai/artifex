@@ -20,6 +20,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Variables (`MLP`, `CNN`). A fix deletes its entries; an entry whose check passes fails the
   suite.
 
+### Fixed
+
+- `test_batch_processing_efficiency` ran its wall-clock speedup ratio in the unit leg, where the
+  result depends on the machine's load: a batch of 16 measured 14.7-16.1x alone on CPU and
+  7.98x in a unit leg run eight tests at a time under coverage, against a required 8x. It is
+  marked `slow`, so it runs in the performance leg one test at a time without coverage. The
+  unit leg checks the property the ratio rests on with
+  `test_batched_encoding_is_one_vectorized_computation`: the encoder traces to as many
+  equations for a batch as for one row, with a control showing a per-row loop grows, and its
+  rows pass substrax's `check_rows_independent`. The timing test's own `atol=1e-6` equality
+  held only for identical rows; batched and single-row float32 matmuls differ by up to
+  17.5 eps on varied rows.
+
 ### Changed
 
 - Requires `flax>=0.12.11`; the lock moves flax from 0.12.9 to 0.12.12. Before 0.12.11,
