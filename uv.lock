@@ -872,7 +872,7 @@ requires-dist = [
     { name = "scikit-learn", specifier = ">=1.6.1" },
     { name = "scipy", specifier = ">=1.12.1" },
     { name = "substrax", specifier = ">=0.1.28" },
-    { name = "substrax", extras = ["testing"], marker = "extra == 'test'", specifier = ">=0.1.28" },
+    { name = "substrax", extras = ["testing"], marker = "extra == 'test'", specifier = ">=0.1.30" },
     { name = "tensorboard", marker = "extra == 'dev'", specifier = ">=2.16" },
     { name = "tensorboard", marker = "extra == 'logging'", specifier = ">=2.16" },
     { name = "tqdm", specifier = ">=4.67" },
@@ -6152,7 +6152,7 @@ wheels = [
 
 [[package]]
 name = "substrax"
-version = "0.1.28"
+version = "0.1.30"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "etils", extra = ["epath"] },
@@ -6164,9 +6164,9 @@ dependencies = [
     { name = "orbax-checkpoint" },
     { name = "pydantic" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/53/a0/4e84e669c3ba2b4514bc5ca514b41157770be74047a0dcccf93df01f9535/substrax-0.1.28.tar.gz", hash = "sha256:3162f88721fbb17eecc657ab9e9bdaf0e7397dd3b9649dd31529a989c262fdaf", size = 206402, upload-time = "2026-11-17T16:29:15.692Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/10/5c/f66b30df901c10e7bb4ce3be0a041bba32b6e26d3e3f371a2042e21edeb7/substrax-0.1.30.tar.gz", hash = "sha256:2db8bd91771190f49cdfe5eaf7da966d3cf0e27d8fd5b828ac1dd9099463cebf", size = 217368, upload-time = "2026-11-19T00:13:46.157Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/ae/6b/4ce8622d7ca1c6a3c0b6e1b66e82acc55f7b2cc13af45aeaecad0509b413/substrax-0.1.28-py3-none-any.whl", hash = "sha256:d6e9814c16a943920f03d96bc0bd3bbdc36e908845465d8e2aada4da5184d726", size = 249196, upload-time = "2026-11-17T16:29:13.589Z" },
+    { url = "https://files.pythonhosted.org/packages/8c/46/6d10e2901c216460eca1bd19b1873ef95589b7e486214fef63bc85d2d914/substrax-0.1.30-py3-none-any.whl", hash = "sha256:3e589a2f6e14cde8829435965499c9237019ce94d89867205847237bc692c0d7", size = 262220, upload-time = "2026-11-19T00:13:43.935Z" },
 ]
 
 [package.optional-dependencies]

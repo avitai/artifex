@@ -244,8 +244,8 @@ test = [
   "pytest-split>=0.11",
   "pytest-timeout>=2.1",
   "pytest-xdist>=3.6",
-  # The substrax pytest plugin and fresh-interpreter helpers the suite runs on.
-  "substrax[testing]>=0.1.28"
+  # The substrax pytest plugin, fresh-interpreter helpers and NNX checks the suite runs on.
+  "substrax[testing]>=0.1.30"
 ]
 
 [project.scripts]

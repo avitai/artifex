@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `tests/artifex/nnx_conformance/` runs substrax's NNX conformance checks over the core layers:
+  35 module classes and 291 checks, each class built with the capabilities it claims (dropout,
+  batch statistics, independent rows). The 45 checks the core layers fail today are strict
+  expected failures, each naming its defect and its row in the audit register, and each must
+  fail with `ConformanceError` rather than crash: `.eval()` overridden by a
+  `deterministic=False` default (transformers, positional encodings, EGNN), BatchNorm
+  statistics that never update in `.train()` (ResNet blocks) or update in `.eval()`
+  (`CliffordBatchNorm`), `CliffordGroupNorm` pooling over the batch, and hyperparameters held in
+  Variables (`MLP`, `CNN`). A fix deletes its entries; an entry whose check passes fails the
+  suite.
+
 ### Changed
 
 - Requires `flax>=0.12.11`; the lock moves flax from 0.12.9 to 0.12.12. Before 0.12.11,
@@ -14,6 +27,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   the first attended to cached position 0 alone (flax c3721a25). `FlashMultiHeadAttention`
   already resolved causality for decode itself; any causal decoder on plain
   `nnx.MultiHeadAttention` now decodes from the whole cache.
+- The test extra requires `substrax[testing]>=0.1.30`: 0.1.29 added the NNX conformance checks,
+  and 0.1.30 fails a check with `ConformanceError` when a transform refuses the module, where
+  0.1.29 let flax's and JAX's own errors through. The lock moves substrax from 0.1.28 to 0.1.30
+  and nothing else; the runtime dependency stays `substrax>=0.1.28`.
 - Requires `substrax>=0.1.28`, `calibrax>=0.1.20` and `datarax>=0.1.17`, the releases datarax
   itself now builds against. The relock moves substrax from 0.1.25, calibrax from 0.1.17 and
   datarax from 0.1.16, and nothing else. No name these releases removed or renamed is imported
