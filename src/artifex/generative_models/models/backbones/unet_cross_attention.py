@@ -9,6 +9,7 @@ import jax.numpy as jnp
 from flax import nnx
 
 from artifex.generative_models.core.base import GenerativeModule
+from artifex.generative_models.core.layers.flash_attention import flash_dot_product_attention
 from artifex.generative_models.models.backbones.unet import ConvBlock, TimeEmbedding
 
 
@@ -51,6 +52,7 @@ class CrossAttentionBlock(GenerativeModule):
             qkv_features=channels,
             out_features=channels,
             decode=False,
+            attention_fn=flash_dot_product_attention,
             rngs=rngs,
         )
 

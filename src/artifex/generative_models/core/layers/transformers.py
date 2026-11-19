@@ -13,6 +13,8 @@ import jax
 import jax.numpy as jnp
 from flax import nnx
 
+from artifex.generative_models.core.layers.flash_attention import flash_dot_product_attention
+
 # Import positional encodings
 from artifex.generative_models.core.layers.positional import (
     LearnedPositionalEncoding,
@@ -237,6 +239,7 @@ class TransformerEncoderBlock(nnx.Module):
             use_bias=use_bias,
             decode=False,  # For encoder, decode is always False
             normalize_qk=normalize_qk,
+            attention_fn=flash_dot_product_attention,
             rngs=rngs,
         )
 
@@ -376,6 +379,7 @@ class TransformerDecoderBlock(nnx.Module):
             use_bias=use_bias,
             decode=True,  # For decoder, decode can be True
             normalize_qk=normalize_qk,
+            attention_fn=flash_dot_product_attention,
             rngs=rngs,
         )
 
@@ -392,6 +396,7 @@ class TransformerDecoderBlock(nnx.Module):
             use_bias=use_bias,
             decode=False,  # Cross-attention doesn't use autoregressive cache
             normalize_qk=normalize_qk,
+            attention_fn=flash_dot_product_attention,
             rngs=rngs,
         )
 

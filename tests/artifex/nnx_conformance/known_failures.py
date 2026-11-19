@@ -44,11 +44,6 @@ SHARED_RNGS = (
     " parent's Rngs share one RngCount (.block1.rngs, .block2.rngs) and tree mode refuses the"
     " module"
 )
-JAX_ATTENTION_SOFTMAX = (
-    "R517 nnx.MultiHeadAttention with dropout_rate=0 delegates to jax.nn.dot_product_attention,"
-    " whose softmax runs in float32 even for float64 inputs (jax/_src/nn/functions.py:955 at"
-    " jax 0.11.1; jax#34107, #34112), so a float64 gradient check cannot resolve it"
-)
 EMBED_DTYPE = (
     " With R154 fixed this check still fails: R518 flax's nnx.Embed fixes its dtype when built"
     " (flax/nnx/nn/linear.py:1278 at 204a819c, self.dtype = dtype or self.embedding.dtype), so"
@@ -142,11 +137,6 @@ def _backbones() -> dict[tuple[str, str], str]:
     ):
         for check in ("tree_mode_split", "gradient_matches_finite_differences"):
             failures[(f"{_BACKBONES}.{module}", check)] = SHARED_RNGS
-    key = (
-        f"{_BACKBONES}.unet_cross_attention.CrossAttentionBlock",
-        "gradient_matches_finite_differences",
-    )
-    failures[key] = JAX_ATTENTION_SOFTMAX
     return failures
 
 

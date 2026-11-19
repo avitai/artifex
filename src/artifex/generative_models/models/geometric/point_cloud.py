@@ -13,6 +13,7 @@ logger = logging.getLogger(__name__)
 from artifex.generative_models.core.configuration.geometric_config import (
     PointCloudConfig,
 )
+from artifex.generative_models.core.layers.flash_attention import flash_dot_product_attention
 from artifex.generative_models.core.layers.transformers import (
     TransformerEncoderBlock,
 )
@@ -441,6 +442,7 @@ class TransformerBlock(nnx.Module):
             in_features=embed_dim,
             qkv_features=embed_dim,
             out_features=embed_dim,
+            attention_fn=flash_dot_product_attention,
             rngs=rngs,
         )
 

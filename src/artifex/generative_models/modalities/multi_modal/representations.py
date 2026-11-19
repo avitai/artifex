@@ -7,6 +7,8 @@ import jax
 import jax.numpy as jnp
 from flax import nnx
 
+from artifex.generative_models.core.layers.flash_attention import flash_dot_product_attention
+
 
 class MultiModalProcessor(nnx.Module):
     """Basic multi-modal processor that combines multiple modalities."""
@@ -286,6 +288,7 @@ class ModalityFusionProcessor(nnx.Module):
                 num_heads=num_heads,
                 qkv_features=hidden_dim,
                 out_features=output_dim,
+                attention_fn=flash_dot_product_attention,
                 rngs=rngs,
             )
         elif fusion_method == "gated":
@@ -425,6 +428,7 @@ class CrossModalAttention(nnx.Module):
             num_heads=num_heads,
             qkv_features=query_dim,
             out_features=query_dim,
+            attention_fn=flash_dot_product_attention,
             rngs=rngs,
         )
 

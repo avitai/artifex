@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import jax
 import jax.numpy as jnp
+import numpy as np
 import pytest
 from flax import nnx
 
@@ -61,6 +62,135 @@ def make_pair(**kwargs) -> tuple[FlashMultiHeadAttention, nnx.MultiHeadAttention
     flash = FlashMultiHeadAttention(**common, rngs=nnx.Rngs(0))
     reference = nnx.MultiHeadAttention(**common, rngs=nnx.Rngs(0))
     return flash, reference
+
+
+def _attention_reference(
+    query: np.ndarray, key: np.ndarray, value: np.ndarray, *, is_causal: bool
+) -> np.ndarray:
+    """Scaled dot-product attention in NumPy float64, the ground truth."""
+    logits = np.einsum("bqhd,bkhd->bhqk", query, key) / np.sqrt(query.shape[-1])
+    if is_causal:
+        allowed = np.tril(np.ones(logits.shape[-2:], dtype=bool))
+        logits = np.where(allowed, logits, -np.inf)
+    weights = np.exp(logits - logits.max(axis=-1, keepdims=True))
+    weights /= weights.sum(axis=-1, keepdims=True)
+    return np.einsum("bhqk,bkhd->bqhd", weights, value)
+
+
+def _float64_attention_bound(query: np.ndarray, key: np.ndarray, value: np.ndarray) -> float:
+    """Largest difference two float64 evaluations of attention can show, from error analysis.
+
+    Each logit is a dot product of length ``d``, so its rounding error is at most
+    ``gamma_d * S`` with ``S = max_qk sum_t |q_t k_t| / sqrt(d)`` (Higham, *Accuracy and
+    Stability of Numerical Algorithms*, 2nd ed., eq. 3.5; ``gamma_n ~ n * eps``). A logit
+    error ``delta`` perturbs each softmax weight by at most ``2 * delta`` relative, and the
+    exponentials, the sum over ``k`` keys and the division add ``gamma_(k+3)``. The output
+    contracts the weights with values bounded by ``V = max |v|``, adding ``gamma_k``. Both
+    implementations make these errors, so the bound is doubled.
+    """
+    depth, keys = query.shape[-1], key.shape[-3]
+    eps = np.finfo(np.float64).eps
+    logit_magnitude = np.einsum("bqhd,bkhd->bhqk", np.abs(query), np.abs(key)).max()
+    logit_error = depth * eps * logit_magnitude / np.sqrt(depth)
+    per_side = np.abs(value).max() * (2 * logit_error + (2 * keys + 3) * eps)
+    return float(2 * per_side)
+
+
+class TestFloat64:
+    """Float64 attention keeps float64 precision.
+
+    ``jax.nn.dot_product_attention`` computes its softmax in float32 whatever the input dtype
+    (``jax/_src/nn/functions.py`` at jax 0.11.1), and flax's ``dot_product_attention`` delegates
+    to it whenever dropout is off and no weights are sown. The rule every float64-preserving
+    implementation follows is a softmax in ``promote_types(dtype, float32)``: AlphaFold 3's
+    ``jax/attention/xla_attention.py:52-56`` and equinox's ``nn/_attention.py:38-40``.
+    """
+
+    @pytest.mark.parametrize("is_causal", [False, True])
+    def test_float64_matches_a_float64_reference(self, is_causal: bool) -> None:
+        """Float64 output agrees with NumPy float64 within the derived rounding bound."""
+        shape = (BATCH, SEQ_LEN, NUM_HEADS, HEAD_DIM)
+        keys = jax.random.split(jax.random.key(0), 3)
+        with jax.enable_x64(True):
+            query, key, value = (jax.random.normal(k, shape, dtype=jnp.float64) for k in keys)
+            output = flash_dot_product_attention(query, key, value, is_causal=is_causal)
+            assert output.dtype == jnp.float64
+            arrays = [np.asarray(a) for a in (query, key, value)]
+            expected = _attention_reference(*arrays, is_causal=is_causal)
+            error = float(np.max(np.abs(np.asarray(output) - expected)))
+        assert error <= _float64_attention_bound(*arrays), error
+
+    def test_float64_grouped_query_attention_matches_repeated_heads(self) -> None:
+        """Grouped-query float64 attention equals plain attention over repeated heads."""
+        keys = jax.random.split(jax.random.key(2), 3)
+        with jax.enable_x64(True):
+            query = jax.random.normal(keys[0], (BATCH, SEQ_LEN, 4, HEAD_DIM), dtype=jnp.float64)
+            key, value = (
+                jax.random.normal(k, (BATCH, SEQ_LEN, 2, HEAD_DIM), dtype=jnp.float64)
+                for k in keys[1:]
+            )
+            output = flash_dot_product_attention(query, key, value)
+            arrays = [
+                np.asarray(query),
+                *(np.repeat(np.asarray(a), 2, axis=2) for a in (key, value)),
+            ]
+            expected = _attention_reference(*arrays, is_causal=False)
+            error = float(np.max(np.abs(np.asarray(output) - expected)))
+        assert error <= _float64_attention_bound(*arrays), error
+
+    def test_float64_path_under_jit_vmap_and_grad(self) -> None:
+        """The float64 path traces: jit and vmap agree with eager, and grad is finite."""
+        shape = (BATCH, SEQ_LEN, NUM_HEADS, HEAD_DIM)
+        keys = jax.random.split(jax.random.key(3), 3)
+        with jax.enable_x64(True):
+            query, key, value = (jax.random.normal(k, shape, dtype=jnp.float64) for k in keys)
+            eager = flash_dot_product_attention(query, key, value, is_causal=True)
+            jitted = jax.jit(flash_dot_product_attention, static_argnames="is_causal")(
+                query, key, value, is_causal=True
+            )
+            mapped = jax.vmap(lambda q, k, v: flash_dot_product_attention(q, k, v, is_causal=True))(
+                query, key, value
+            )
+            gradient = jax.grad(
+                lambda q: jnp.sum(jnp.sin(flash_dot_product_attention(q, key, value)))
+            )(query)
+            arrays = [np.asarray(a) for a in (query, key, value)]
+            bound = _float64_attention_bound(*arrays)
+            assert float(jnp.max(jnp.abs(jitted - eager))) <= bound
+            assert float(jnp.max(jnp.abs(mapped - eager))) <= bound
+            assert gradient.dtype == jnp.float64
+            assert bool(jnp.all(jnp.isfinite(gradient)))
+
+    def test_routing_leaves_the_float32_program_unchanged(self) -> None:
+        """An nnx attention module given this function traces to flax's default program.
+
+        This is the speed guarantee for the modules that pass it as ``attention_fn``: in
+        float32 the jaxpr is identical, so the compiled work is too.
+        """
+        inputs = jnp.ones((BATCH, SEQ_LEN, IN_FEATURES))
+
+        def program(**kwargs: object) -> str:
+            module = nnx.MultiHeadAttention(
+                num_heads=NUM_HEADS,
+                in_features=IN_FEATURES,
+                decode=False,
+                rngs=nnx.Rngs(0),
+                **kwargs,
+            )
+            graphdef, state = nnx.split(module)
+            return str(jax.make_jaxpr(lambda s, x: nnx.merge(graphdef, s)(x))(state, inputs))
+
+        assert program(attention_fn=flash_dot_product_attention) == program()
+
+    def test_float32_still_takes_flax_default_path(self) -> None:
+        """Below float64 the output is bit-identical to flax's own attention function."""
+        shape = (BATCH, SEQ_LEN, NUM_HEADS, HEAD_DIM)
+        query, key, value = (
+            jax.random.normal(k, shape) for k in jax.random.split(jax.random.key(1), 3)
+        )
+        expected = nnx.dot_product_attention(query, key, value)
+        output = flash_dot_product_attention(query, key, value)
+        assert bool(jnp.array_equal(output, expected))
 
 
 class TestParityWithNNX:

@@ -11,21 +11,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `tests/artifex/nnx_conformance/` runs substrax's NNX conformance checks over the core layers
   and the backbones: 53 module classes and 438 checks, each class built with the capabilities it
-  claims (dropout, batch statistics, independent rows). The 70 checks they fail today are strict
+  claims (dropout, batch statistics, independent rows). The 69 checks they fail today are strict
   expected failures, each naming its defect and its row in the audit register, and each must
   fail with `ConformanceError` rather than crash: `.eval()` overridden by a
   `deterministic=False` default (transformers, positional encodings, EGNN, the DiT blocks),
   BatchNorm statistics that never update in `.train()` (ResNet blocks) or update in `.eval()`
   (`CliffordBatchNorm`), `CliffordGroupNorm` pooling over the batch, hyperparameters held in
   Variables (`MLP`, `CNN`), and child blocks sharing their parent's `Rngs` counter through
-  `GenerativeModule`, which tree mode refuses (the UNet and cross-attention blocks). Two are
-  limits rather than artifex defects, named as such: `CrossAttentionBlock`'s attention softmax
-  runs in float32 inside `jax.nn.dot_product_attention` even for float64 inputs, and
-  `nnx.Embed` fixes its compute dtype when built, so a float64 copy of `LabelEmbedder` looks up
+  `GenerativeModule`, which tree mode refuses (the UNet and cross-attention blocks). One is a
+  flax defect rather than an artifex one, named as such: `nnx.Embed` fixes its dtype when built,
+  where linen's `Embed` resolves it at call time, so a float64 copy of `LabelEmbedder` looks up
   in float32. A fix deletes its entries; an entry whose check passes fails the suite.
 
 ### Fixed
 
+- Float64 attention computed its softmax in float32. flax's `dot_product_attention` hands
+  attention with no dropout and no sown weights to `jax.nn.dot_product_attention`, which casts
+  the logits to float32 before the softmax for every input dtype, so float64 attention agreed
+  with a float64 reference only to about 2e-7. `flash_dot_product_attention` now applies the
+  rule float64-preserving implementations follow, a softmax in `promote_types(dtype, float32)`
+  (AlphaFold 3's `xla_attention.py`, equinox's `nn/_attention.py`): a compute dtype wider than
+  float32 takes flax's own `dot_product_attention_weights` path, whose softmax runs in the input
+  dtype. It now agrees with a NumPy float64 reference within the rounding bound derived from the
+  dot-product error analysis, about 1e-13 here. The float32, bfloat16 and float16 paths are
+  unchanged.
+- Every `nnx.MultiHeadAttention` in the package passes `attention_fn=flash_dot_product_attention`:
+  the transformer encoder and decoder blocks, the multi-modal fusion and cross-modal attention,
+  the DiT block, the UNet cross-attention block and the point-cloud attention. In float32 each
+  traces to the same program as flax's default, so the change costs nothing there; float64 gets
+  the fix above, and on a GPU bfloat16 and float16 attention can use the fused cuDNN kernel.
+  `CrossAttentionBlock` now passes the float64 gradient conformance check.
 - `test_batch_processing_efficiency` ran its wall-clock speedup ratio in the unit leg, where the
   result depends on the machine's load: a batch of 16 measured 14.7-16.1x alone on CPU and
   7.98x in a unit leg run eight tests at a time under coverage, against a required 8x. It is
