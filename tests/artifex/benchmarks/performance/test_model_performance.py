@@ -2,11 +2,14 @@
 
 import sys
 import time
+from collections.abc import Callable
 
 import jax
 import jax.numpy as jnp
 import pytest
 from flax import nnx
+from jax.extend import core as jax_core
+from substrax.testing.nnx_conformance import Case, check_rows_independent
 
 
 def _create_vae_config(
@@ -301,6 +304,47 @@ class TestModelPerformance:
         assert log_det.shape == (batch_size,)
 
 
+def _batch_vae(rngs: nnx.Rngs | None = None) -> nnx.Module:
+    """The dense VAE the batch tests encode with, in eval mode and without batch norm.
+
+    BatchNorm statistics differ by batch size, so it is off: batched and per-item encodings of
+    the same rows must agree.
+    """
+    from artifex.generative_models.factory import create_model
+
+    if rngs is None:
+        rng = jax.random.key(42)
+        rngs = nnx.Rngs(params=rng, sample=rng)
+    config = _create_vae_config(
+        name="test_vae",
+        input_shape=(32, 32, 3),
+        latent_dim=16,
+        hidden_dims=(32, 64),
+        use_batch_norm=False,
+    )
+    model = create_model(config, rngs=rngs)
+    model.eval()
+    return model
+
+
+def _equation_count(jaxpr: jax_core.Jaxpr) -> int:
+    """Count the equations of a jaxpr, those of every nested jaxpr included."""
+    count = 0
+    for equation in jaxpr.eqns:
+        count += 1
+        for value in equation.params.values():
+            for item in value if isinstance(value, list | tuple) else (value,):
+                inner = getattr(item, "jaxpr", item)
+                if isinstance(inner, jax_core.Jaxpr):
+                    count += _equation_count(inner)
+    return count
+
+
+def _encoding_size(encode: Callable[..., object], state: nnx.State, batch_size: int) -> int:
+    """The number of equations ``encode`` traces to for a batch of ``batch_size`` images."""
+    return _equation_count(jax.make_jaxpr(encode)(state, jnp.ones((batch_size, 32, 32, 3))).jaxpr)
+
+
 @pytest.mark.performance
 class TestMemoryUsage:
     """Tests for memory usage and efficiency."""
@@ -338,6 +382,44 @@ class TestMemoryUsage:
             assert mu.shape == (batch_size, 32)
             assert reconstruction.shape == test_batch.shape
 
+    @pytest.mark.parametrize("batch_size", [4, 8, 16, 32])
+    def test_batched_encoding_is_one_vectorized_computation(self, batch_size: int) -> None:
+        """A batch is encoded as one computation, the same one a single item traces to.
+
+        This is the property batch speedup rests on, checked without a clock: the traced
+        encoder has as many equations for ``batch_size`` rows as for one, so no step runs once
+        per row; and each row's encoding depends on that row alone (substrax's
+        ``check_rows_independent``, which compares the batched call with rows mapped one at a
+        time within its documented ``DEPTH * eps * scale`` bound). Batched and single-row
+        matmuls round differently in float32, by up to 17.5 eps here, so no exact equality is
+        asserted.
+        """
+        graphdef, state = nnx.split(_batch_vae())
+
+        def encode(state: nnx.State, x: jax.Array) -> tuple[jax.Array, jax.Array]:
+            return nnx.merge(graphdef, state).encode(x)
+
+        assert _encoding_size(encode, state, batch_size) == _encoding_size(encode, state, 1)
+
+        check_rows_independent(
+            Case(
+                build=_batch_vae,
+                inputs=lambda key: (jax.random.normal(key, (batch_size, 32, 32, 3)),),
+                call=lambda model, x: model.encode(x),
+            )
+        )
+
+    def test_the_vectorization_check_catches_a_per_row_loop(self) -> None:
+        """Positive control: an encoder looping over rows grows with the batch, so it fails."""
+        graphdef, state = nnx.split(_batch_vae())
+
+        def per_row(state: nnx.State, x: jax.Array) -> jax.Array:
+            module = nnx.merge(graphdef, state)
+            return jnp.concatenate([module.encode(x[i : i + 1])[0] for i in range(x.shape[0])])
+
+        assert _encoding_size(per_row, state, 16) > _encoding_size(per_row, state, 1)
+
+    @pytest.mark.slow
     @pytest.mark.parametrize(
         "batch_size,min_speedup",
         [
@@ -357,34 +439,20 @@ class TestMemoryUsage:
         Batch processing should provide significant speedup over processing
         items individually. The speedup scales roughly linearly with batch size
         as the overhead of kernel launches is amortized.
+
+        The ratio is wall-clock time, so it measures the machine's load as well as the model:
+        alone on CPU a batch of 16 measured 14.7-16.1x, and the same code measured 7.98x in a
+        unit leg run eight tests at a time under coverage. It is ``slow``, so it runs in the
+        performance leg, one test at a time without coverage. The unit leg holds the property
+        it rests on with ``test_batched_encoding_is_one_vectorized_computation``.
         """
-        try:
-            from artifex.generative_models.factory import create_model
-        except ImportError:
-            pytest.skip("VAE model not available")
-
-        # Use float32 precision for numerical equivalence testing
-        # (bfloat16 default causes slight differences between batch/individual)
+        # Time at float32 matmul precision, the precision this ratio was measured at.
         with jax.default_matmul_precision("float32"):
-            self._run_batch_efficiency_test(batch_size, min_speedup, create_model)
+            self._run_batch_efficiency_test(batch_size, min_speedup)
 
-    def _run_batch_efficiency_test(self, batch_size: int, min_speedup: float, create_model):
+    def _run_batch_efficiency_test(self, batch_size: int, min_speedup: float) -> None:
         """Implementation of batch efficiency test."""
-        # Setup
-        rng = jax.random.key(42)
-        # Disable batch norm to ensure numerical equivalence between batch
-        # and individual processing (BatchNorm statistics differ by batch size)
-        config = _create_vae_config(
-            name="test_vae",
-            input_shape=(32, 32, 3),
-            latent_dim=16,
-            hidden_dims=(32, 64),
-            use_batch_norm=False,
-        )
-
-        model = create_model(config, rngs=nnx.Rngs(params=rng, sample=rng))
-        # Put model in eval mode for deterministic inference
-        model.eval()
+        model = _batch_vae()
 
         # Create test data
         test_batch = jnp.ones((batch_size, 32, 32, 3))
@@ -398,16 +466,14 @@ class TestMemoryUsage:
         n_runs = 5
         start_time = time.time()
         for _ in range(n_runs):
-            batch_result = model.encode(test_batch)
+            model.encode(test_batch)
         batch_time = (time.time() - start_time) / n_runs
 
         # Time individual processing
         start_time = time.time()
         for _ in range(n_runs):
-            individual_results = []
             for item in individual_items:
-                result = model.encode(item)
-                individual_results.append(result)
+                model.encode(item)
         individual_time = (time.time() - start_time) / n_runs
 
         # Batch processing should be significantly more efficient than individual processing
@@ -416,12 +482,6 @@ class TestMemoryUsage:
             f"Batch processing not efficient enough for batch_size={batch_size}: "
             f"{efficiency_ratio:.2f}x (expected >{min_speedup}x)"
         )
-
-        # Results should be exactly equivalent (with strict floating point tolerance)
-        batch_mu, batch_logvar = batch_result
-        for i, (ind_mu, ind_logvar) in enumerate(individual_results):
-            assert jnp.allclose(batch_mu[i : i + 1], ind_mu, atol=1e-6)
-            assert jnp.allclose(batch_logvar[i : i + 1], ind_logvar, atol=1e-6)
 
 
 @pytest.mark.performance
