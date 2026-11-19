@@ -2,13 +2,12 @@
 
 import sys
 import time
-from collections.abc import Callable
 
 import jax
 import jax.numpy as jnp
 import pytest
+from calibrax.profiling import CompilationProfiler
 from flax import nnx
-from jax.extend import core as jax_core
 from substrax.testing.nnx_conformance import Case, check_rows_independent
 
 
@@ -327,22 +326,15 @@ def _batch_vae(rngs: nnx.Rngs | None = None) -> nnx.Module:
     return model
 
 
-def _equation_count(jaxpr: jax_core.Jaxpr) -> int:
-    """Count the equations of a jaxpr, those of every nested jaxpr included."""
-    count = 0
-    for equation in jaxpr.eqns:
-        count += 1
-        for value in equation.params.values():
-            for item in value if isinstance(value, list | tuple) else (value,):
-                inner = getattr(item, "jaxpr", item)
-                if isinstance(inner, jax_core.Jaxpr):
-                    count += _equation_count(inner)
-    return count
+def _compiled_kernels(function: object, *arguments: object) -> int:
+    """The number of HLO kernels XLA compiles ``function`` to for these arguments.
 
-
-def _encoding_size(encode: Callable[..., object], state: nnx.State, batch_size: int) -> int:
-    """The number of equations ``encode`` traces to for a batch of ``batch_size`` images."""
-    return _equation_count(jax.make_jaxpr(encode)(state, jnp.ones((batch_size, 32, 32, 3))).jaxpr)
+    calibrax's ``CompilationProfiler`` reports 0 when compilation fails rather than raising, so a
+    count of 0 is refused here instead of being compared.
+    """
+    kernels = CompilationProfiler().estimate_xla_optimization(function, *arguments).total_kernels
+    assert kernels > 0, "calibrax could not compile the function"
+    return kernels
 
 
 @pytest.mark.performance
@@ -384,22 +376,23 @@ class TestMemoryUsage:
 
     @pytest.mark.parametrize("batch_size", [4, 8, 16, 32])
     def test_batched_encoding_is_one_vectorized_computation(self, batch_size: int) -> None:
-        """A batch is encoded as one computation, the same one a single item traces to.
+        """A batch is encoded as one computation whose size does not grow with the batch.
 
-        This is the property batch speedup rests on, checked without a clock: the traced
-        encoder has as many equations for ``batch_size`` rows as for one, so no step runs once
-        per row; and each row's encoding depends on that row alone (substrax's
+        This is the property batch speedup rests on, checked without a clock: XLA compiles the
+        encoder to as many kernels for ``2 * batch_size`` rows as for ``batch_size``, so no step
+        runs once per row (measured 101 kernels at every batch from 2 to 64, against 121 to 2,107
+        for an encoder looping over rows; a single row compiles to a different program, so the
+        comparison starts at 2); and each row's encoding depends on that row alone (substrax's
         ``check_rows_independent``, which compares the batched call with rows mapped one at a
         time within its documented ``DEPTH * eps * scale`` bound). Batched and single-row
         matmuls round differently in float32, by up to 17.5 eps here, so no exact equality is
         asserted.
         """
-        graphdef, state = nnx.split(_batch_vae())
+        model = _batch_vae()
 
-        def encode(state: nnx.State, x: jax.Array) -> tuple[jax.Array, jax.Array]:
-            return nnx.merge(graphdef, state).encode(x)
-
-        assert _encoding_size(encode, state, batch_size) == _encoding_size(encode, state, 1)
+        assert _compiled_kernels(model.encode, jnp.ones((batch_size, 32, 32, 3))) == (
+            _compiled_kernels(model.encode, jnp.ones((2 * batch_size, 32, 32, 3)))
+        )
 
         check_rows_independent(
             Case(
@@ -417,7 +410,9 @@ class TestMemoryUsage:
             module = nnx.merge(graphdef, state)
             return jnp.concatenate([module.encode(x[i : i + 1])[0] for i in range(x.shape[0])])
 
-        assert _encoding_size(per_row, state, 16) > _encoding_size(per_row, state, 1)
+        assert _compiled_kernels(per_row, state, jnp.ones((16, 32, 32, 3))) > (
+            _compiled_kernels(per_row, state, jnp.ones((8, 32, 32, 3)))
+        )
 
     @pytest.mark.slow
     @pytest.mark.parametrize(
