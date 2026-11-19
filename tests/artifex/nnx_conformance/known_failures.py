@@ -50,9 +50,11 @@ JAX_ATTENTION_SOFTMAX = (
     " jax 0.11.1; jax#34107, #34112), so a float64 gradient check cannot resolve it"
 )
 EMBED_DTYPE = (
-    " With R154 fixed this check still fails: R518 nnx.Embed fixes its compute dtype when built"
-    " (flax nnx Embed: self.dtype = dtype or self.embedding.dtype), so its float64 copy looks up"
-    " in float32 (backbones/dit.py:155)"
+    " With R154 fixed this check still fails: R518 flax's nnx.Embed fixes its dtype when built"
+    " (flax/nnx/nn/linear.py:1278 at 204a819c, self.dtype = dtype or self.embedding.dtype), so"
+    " the float64 copy of LabelEmbedder looks up in float32. An upstream defect: linen's Embed"
+    " resolves the same default at call time, and an nnx.Embed cast to bfloat16 after build"
+    " returns float32 where linen returns bfloat16 (backbones/dit.py:155)"
 )
 
 _EVAL_CASCADE = ("gradient_finite", "gradient_matches_finite_differences", "rows_independent")
