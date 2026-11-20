@@ -2,6 +2,7 @@
 
 from typing import Any, Protocol, runtime_checkable
 
+from calibrax.core import Registry
 from flax import nnx
 
 
@@ -38,39 +39,19 @@ class ModelBuilder(Protocol):
         ...
 
 
-class DuplicateBuilderError(Exception):
-    """Raised when attempting to register a duplicate builder."""
-
-    pass
-
-
 class BuilderNotFoundError(Exception):
     """Raised when a builder is not found in the registry."""
 
     pass
 
 
-class ModelTypeRegistry:
-    """Registry for model type builders."""
+class ModelTypeRegistry(Registry[ModelBuilder]):
+    """Registry for model type builders, on calibrax's ``Registry``.
 
-    def __init__(self):
-        """Initialize the registry."""
-        self._builders: dict[str, ModelBuilder] = {}
-
-    def register(self, model_type: str, builder: ModelBuilder) -> None:
-        """Register a model builder.
-
-        Args:
-            model_type: Type identifier for the model
-            builder: Builder instance
-
-        Raises:
-            DuplicateBuilderError: If builder already registered
-        """
-        if model_type in self._builders:
-            raise DuplicateBuilderError(f"Builder for '{model_type}' already registered")
-
-        self._builders[model_type] = builder
+    ``register`` refuses a model type that is already registered with calibrax's
+    ``DuplicateRegistrationError`` and keeps the builder registered first; ``list_names``,
+    ``remove`` and ``clear`` come from the same base.
+    """
 
     def get_builder(self, model_type: str) -> ModelBuilder:
         """Get a builder by model type.
@@ -84,22 +65,10 @@ class ModelTypeRegistry:
         Raises:
             BuilderNotFoundError: If builder not found
         """
-        if model_type not in self._builders:
-            available = ", ".join(self._builders.keys())
+        if model_type not in self:
+            available = ", ".join(self.list_names())
             raise BuilderNotFoundError(
                 f"No builder registered for type '{model_type}'. Available types: {available}"
             )
 
-        return self._builders[model_type]
-
-    def list_builders(self) -> list[str]:
-        """List all registered builder types.
-
-        Returns:
-            List of registered model types
-        """
-        return list(self._builders.keys())
-
-    def clear(self) -> None:
-        """Clear all registered builders."""
-        self._builders.clear()
+        return self.get(model_type)

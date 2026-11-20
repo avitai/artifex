@@ -55,6 +55,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- The Avitai siblings are pinned exactly at their latest releases: `calibrax==0.1.21`,
+  `datarax==0.1.17` and `substrax==0.1.31`, the test extra's `substrax[testing]` included, so
+  the latest versions always install together and each sibling release is followed by an artifex
+  release that only moves the pins. The lock moves calibrax from 0.1.20 to 0.1.21 and nothing
+  else.
+- **Breaking:** `ModelTypeRegistry` is built on calibrax's `Registry`, so registering a model
+  type twice raises calibrax's `DuplicateRegistrationError` (a `ValueError`, exported from
+  `calibrax.core`) and keeps the builder registered first. `DuplicateBuilderError` is removed, and
+  `list_builders()` is replaced by the inherited `list_names()`; `get_builder` still raises
+  `BuilderNotFoundError` naming the available types.
+- **Breaking:** `artifex.benchmarks` and `artifex.benchmarks.registry` no longer re-export
+  calibrax's `BenchmarkRegistry`; import it from `calibrax.core`. `register_benchmark` still
+  registers into that singleton, which from calibrax 0.1.21 refuses a name it already holds.
 - Requires `flax>=0.12.11`; the lock moves flax from 0.12.9 to 0.12.12. Before 0.12.11,
   `nnx.MultiHeadAttention` forwarded `is_causal` during decode, so each causal decode step after
   the first attended to cached position 0 alone (flax c3721a25). `FlashMultiHeadAttention`

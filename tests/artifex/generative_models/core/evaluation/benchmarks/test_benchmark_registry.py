@@ -1,13 +1,13 @@
 """Tests for artifex.benchmarks.registry module."""
 
 import pytest
+from calibrax.core import BenchmarkRegistry
 
 from artifex.benchmarks import (
     Benchmark,
     BenchmarkConfig,
 )
 from artifex.benchmarks.registry import (
-    BenchmarkRegistry,
     get_benchmark,
     list_benchmarks,
     register_benchmark,

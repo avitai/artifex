@@ -31,13 +31,13 @@ def test_preprint_separates_shipped_experimental_and_roadmap_surfaces() -> None:
         "GenerativeModelProtocol, TrainableGenerativeModelProtocol); "
         "from artifex.generative_models.modalities.base import ModelAdapter; "
         "from artifex.generative_models.inference.optimization.production import ProductionOptimizer; "
-        "from artifex.benchmarks import BenchmarkRegistry; "
+        "from artifex.benchmarks import register_benchmark; "
         "report({"
         "'model_protocol': GenerativeModelProtocol.__name__, "
         "'trainable_protocol': TrainableGenerativeModelProtocol.__name__, "
         "'adapter_protocol': ModelAdapter.__name__, "
         "'optimizer': ProductionOptimizer.__name__, "
-        "'benchmark_registry': BenchmarkRegistry.__name__"
+        "'benchmark_registry': register_benchmark.__name__"
         "})"
     )
 

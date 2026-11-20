@@ -1,6 +1,7 @@
 """Tests for the centralized factory system with dataclass configs."""
 
 import pytest
+from calibrax.core import DuplicateRegistrationError
 from flax import nnx
 
 from artifex.generative_models.core.configuration import (
@@ -32,7 +33,6 @@ from artifex.generative_models.factory import create_model
 from artifex.generative_models.factory.core import ModelFactory
 from artifex.generative_models.factory.registry import (
     BuilderNotFoundError,
-    DuplicateBuilderError,
     ModelTypeRegistry,
 )
 
@@ -221,7 +221,7 @@ class TestModelFactory:
         assert factory1.registry is not factory2.registry
 
         # Should have default builders registered
-        builders = factory1.registry.list_builders()
+        builders = factory1.registry.list_names()
         assert "vae" in builders
         assert "gan" in builders
         assert "diffusion" in builders
@@ -246,7 +246,7 @@ class TestModelTypeRegistry:
         registry.register("mock", builder)
 
         assert registry.get_builder("mock") == builder
-        assert "mock" in registry.list_builders()
+        assert "mock" in registry.list_names()
 
     def test_duplicate_builder_error(self):
         """Test error on duplicate registration."""
@@ -259,7 +259,7 @@ class TestModelTypeRegistry:
         builder = MockBuilder()
         registry.register("mock", builder)
 
-        with pytest.raises(DuplicateBuilderError):
+        with pytest.raises(DuplicateRegistrationError):
             registry.register("mock", builder)
 
     def test_builder_not_found_error(self):
@@ -278,10 +278,10 @@ class TestModelTypeRegistry:
                 return {"type": "mock"}
 
         registry.register("mock", MockBuilder())
-        assert len(registry.list_builders()) == 1
+        assert len(registry.list_names()) == 1
 
         registry.clear()
-        assert len(registry.list_builders()) == 0
+        assert len(registry.list_names()) == 0
 
 
 class TestFactoryIntegration:
