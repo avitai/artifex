@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from artifex.benchmarks.registry import list_benchmarks
+from calibrax.core import list_benchmarks
+
 from artifex.benchmarks.suites.registry import list_suites
 from artifex.utils.extras import missing_extra
 

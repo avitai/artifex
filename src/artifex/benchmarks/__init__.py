@@ -19,11 +19,7 @@ from artifex.benchmarks.model_adapters import (
     NNXGenerativeModelAdapter,
     register_adapter,
 )
-from artifex.benchmarks.registry import (
-    get_benchmark,
-    list_benchmarks,
-    register_benchmark,
-)
+from artifex.benchmarks.registry import register_benchmark
 from artifex.benchmarks.suites.geometric_suite import (
     GeometricBenchmarkSuite,
     PointCloudGenerationBenchmark,
@@ -56,8 +52,6 @@ __all__ = [
     "NNXGenerativeModelAdapter",
     "adapt_model",
     "register_adapter",
-    "get_benchmark",
-    "list_benchmarks",
     "register_benchmark",
     "GeometricBenchmarkSuite",
     "PointCloudGenerationBenchmark",

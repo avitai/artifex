@@ -13,6 +13,8 @@ from calibrax.core import (
     BenchmarkRegistry,
     BenchmarkResult as CalibraxBenchmarkResult,
     DatasetProtocol,
+    get_benchmark,
+    list_benchmarks,
 )
 from flax import nnx
 
@@ -23,11 +25,7 @@ from artifex.benchmarks.core import (
     BenchmarkResult,
     BenchmarkSuite,
 )
-from artifex.benchmarks.registry import (
-    get_benchmark,
-    list_benchmarks,
-    register_benchmark,
-)
+from artifex.benchmarks.registry import register_benchmark
 
 
 # ---------------------------------------------------------------------------

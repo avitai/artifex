@@ -1,16 +1,17 @@
 """Tests for the Calibrax-backed benchmark and suite registries."""
 
 import pytest
-from calibrax.core import BenchmarkRegistry, Registry as CalibraxRegistry
+from calibrax.core import (
+    BenchmarkRegistry,
+    get_benchmark,
+    list_benchmarks,
+    Registry as CalibraxRegistry,
+)
 
 import artifex.benchmarks
 import artifex.benchmarks.registry
 from artifex.benchmarks.core import Benchmark, benchmark_result, BenchmarkConfig
-from artifex.benchmarks.registry import (
-    get_benchmark,
-    list_benchmarks,
-    register_benchmark,
-)
+from artifex.benchmarks.registry import register_benchmark
 from artifex.benchmarks.suites.registry import get_suite, list_suites, register_suite
 
 
@@ -32,9 +33,10 @@ class TestBenchmarkRegistryCalibrax:
     def setup_method(self) -> None:
         BenchmarkRegistry.reset()
 
-    def test_artifex_does_not_alias_the_calibrax_singleton(self) -> None:
-        assert not hasattr(artifex.benchmarks, "BenchmarkRegistry")
-        assert not hasattr(artifex.benchmarks.registry, "BenchmarkRegistry")
+    @pytest.mark.parametrize("name", ["BenchmarkRegistry", "get_benchmark", "list_benchmarks"])
+    def test_artifex_does_not_alias_calibrax_registry_names(self, name: str) -> None:
+        assert not hasattr(artifex.benchmarks, name)
+        assert not hasattr(artifex.benchmarks.registry, name)
 
     def test_singleton(self) -> None:
         r1 = BenchmarkRegistry()

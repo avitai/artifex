@@ -1,7 +1,8 @@
 """Calibrax-first benchmark registry helpers.
 
-Artifex keeps only thin convenience registration helpers here. Benchmarks register
-in calibrax's singleton, `calibrax.core.BenchmarkRegistry`; import it from calibrax.
+Artifex keeps only its registration helper here. Benchmarks register in calibrax's
+singleton, `calibrax.core.BenchmarkRegistry`; look them up with calibrax's
+`get_benchmark` and `list_benchmarks`.
 """
 
 from __future__ import annotations
@@ -9,16 +10,11 @@ from __future__ import annotations
 from typing import Any, cast
 
 import calibrax.core
-from calibrax.core import get_benchmark, list_benchmarks
 
 from artifex.benchmarks.core import Benchmark, BenchmarkConfig
 
 
-__all__ = [
-    "register_benchmark",
-    "get_benchmark",
-    "list_benchmarks",
-]
+__all__ = ["register_benchmark"]
 
 
 def register_benchmark(
