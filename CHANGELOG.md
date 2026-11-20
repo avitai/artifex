@@ -9,19 +9,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- `tests/artifex/nnx_conformance/` runs substrax's NNX conformance checks over the core layers
-  and the backbones: 53 module classes and 438 checks, each class built with the capabilities it
-  claims (dropout, batch statistics, independent rows). The 69 checks they fail today are strict
-  expected failures, each naming its defect and its row in the audit register, and each must
-  fail with `ConformanceError` rather than crash: `.eval()` overridden by a
-  `deterministic=False` default (transformers, positional encodings, EGNN, the DiT blocks),
-  BatchNorm statistics that never update in `.train()` (ResNet blocks) or update in `.eval()`
-  (`CliffordBatchNorm`), `CliffordGroupNorm` pooling over the batch, hyperparameters held in
-  Variables (`MLP`, `CNN`), and child blocks sharing their parent's `Rngs` counter through
-  `GenerativeModule`, which tree mode refuses (the UNet and cross-attention blocks). One is a
-  flax defect rather than an artifex one, named as such: `nnx.Embed` fixes its dtype when built,
-  where linen's `Embed` resolves it at call time, so a float64 copy of `LabelEmbedder` looks up
-  in float32. A fix deletes its entries; an entry whose check passes fails the suite.
+- `tests/artifex/nnx_conformance/` runs substrax's NNX conformance checks over 129 module
+  classes, one case module per family under `cases/`: the core layers and base networks, the
+  backbones, and the VAE, flow, GAN and diffusion families, 1,079 checks in all. Each class is
+  built with the capabilities it claims (dropout, batch statistics, independent rows), and a
+  model with two directions runs both: a flow's forward and inverse, a GAN's discriminator and
+  its generator on given latents, a denoiser with the x0 estimate and posterior its reverse step
+  uses. Ten classes are exempt with a written reason (base classes, private parts run through
+  their owner). The 148 checks they fail today are strict expected failures, each naming its
+  defect and its row in the audit register, and each must fail with `ConformanceError` rather
+  than crash: `.eval()` overridden by a `deterministic=False` default (transformers, positional
+  encodings, EGNN, the DiT blocks, the CLIP text encoder), BatchNorm statistics that never update
+  in `.train()` (ResNet blocks) or update in `.eval()` (`CliffordBatchNorm`), `CliffordGroupNorm`
+  pooling over the batch, hyperparameters held in Variables (`MLP`, `CNN` and every encoder and
+  decoder built on them), sampling keys drawn from a stored `Rngs` in a forward pass (VAE,
+  latent diffusion), a stored `Rngs` shared with a child module, which tree mode refuses (the UNet
+  blocks, the diffusion models built on UNet1D, Stable Diffusion, the neural spline flow), state created on the
+  first call (Glow, VQ-VAE), MADE hidden units with no input (MAF, IAF), and an `nnx.jit`
+  decorator on `SE3MolecularFlow.log_prob` that breaks an outer gradient. One cause is a flax
+  defect rather than an artifex one, named as such: `nnx.Embed` fixes its dtype when built, where
+  linen's `Embed` resolves it at call time, so a float64 copy looks up in float32 (`LabelEmbedder`,
+  the CLIP token embedding, the SE(3) atom embedding). `cases.NOT_APPLICABLE` holds one check a
+  module does not owe by design, VQ-VAE's straight-through gradient. A fix deletes its entries; an
+  entry whose check passes fails the suite.
+- Strict expected failures guard two defects no conformance check reaches: `SE3EquivariantLayer`
+  with `in_features != out_features` raises, and a CycleGAN generator or discriminator configured
+  with dropout cannot be built, `self.dropout = None` having made the attribute static; the
+  generator, built, would never apply its dropout.
 
 ### Fixed
 
@@ -60,6 +74,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   the latest versions always install together and each sibling release is followed by an artifex
   release that only moves the pins. The lock moves calibrax from 0.1.20 to 0.1.21 and nothing
   else.
+- `substrax==0.1.32`, the test extra's `substrax[testing]` included: its gradient checks take
+  their float64 finite differences with a step of 1e-6 instead of `check_grads`' 1e-4, and two
+  correct gradients the old step failed now pass their conformance check, `SE3EquivariantLayer`'s
+  (truncation error) and `StyleGAN3Generator`'s (a step across a `leaky_relu` kink). The lock
+  moves substrax from 0.1.31 and nothing else.
 - **Breaking:** `ModelTypeRegistry` is built on calibrax's `Registry`, so registering a model
   type twice raises calibrax's `DuplicateRegistrationError` (a `ValueError`, exported from
   `calibrax.core`) and keeps the builder registered first. `DuplicateBuilderError` is removed, and
