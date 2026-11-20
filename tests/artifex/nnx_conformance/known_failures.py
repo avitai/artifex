@@ -14,6 +14,7 @@ _LAYERS = f"{_CORE}.layers"
 _BACKBONES = "artifex.generative_models.models.backbones"
 _VAE = "artifex.generative_models.models.vae"
 _FLOW = "artifex.generative_models.models.flow"
+_GAN = "artifex.generative_models.models.gan"
 
 _EVAL_OVERRIDE = "a deterministic=False default forwarded to {target} overrides .eval() ({where})"
 
@@ -100,6 +101,13 @@ SE3_JIT_METHOD = (
     "R523 SE3MolecularFlow.log_prob is decorated with nnx.jit (se3_molecular.py:442), whose"
     " write-back of the module's stored Rngs raises TraceContextError under an outer jax.grad; the"
     " undecorated method differentiates"
+)
+LEAKY_RELU_KINK = (
+    "R526 instrument, not this module: check_grads' fixed step 1e-4 crosses a kink of the"
+    " leaky_relu StyleGAN3 applies after every synthesis convolution (stylegan3.py:236, 246);"
+    " central differences then collapse onto the parameter gradient once the step falls below"
+    " the distance to the kink (SynthesisNetwork, float64: 3.2e-4 at step 1e-4, 5.6e-10 at"
+    " 3e-5), where a smooth truncation error would fall about elevenfold"
 )
 
 _EVAL_CASCADE = ("gradient_finite", "gradient_matches_finite_differences", "rows_independent")
@@ -254,6 +262,14 @@ def _flow() -> dict[tuple[str, str], str]:
     return failures
 
 
+def _gan() -> dict[tuple[str, str], str]:
+    return {
+        (f"{_GAN}.stylegan3.StyleGAN3Generator", "gradient_matches_finite_differences"): (
+            LEAKY_RELU_KINK
+        ),
+    }
+
+
 KNOWN_FAILURES: dict[tuple[str, str], str] = (
     _transformers()
     | _positional()
@@ -264,4 +280,5 @@ KNOWN_FAILURES: dict[tuple[str, str], str] = (
     | _backbones()
     | _vae()
     | _flow()
+    | _gan()
 )

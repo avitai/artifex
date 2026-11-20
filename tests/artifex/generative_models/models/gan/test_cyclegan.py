@@ -17,6 +17,74 @@ from artifex.generative_models.models.gan.cyclegan import (
 )
 
 
+_DROPOUT_IMAGE = (8, 8, 3)
+
+
+def _generator_with_dropout() -> CycleGANGenerator:
+    config = CycleGANGeneratorConfig(
+        name="generator",
+        input_shape=_DROPOUT_IMAGE,
+        output_shape=_DROPOUT_IMAGE,
+        hidden_dims=(4, 8),
+        n_residual_blocks=1,
+        activation="relu",
+        dropout_rate=0.5,
+    )
+    return CycleGANGenerator(config=config, rngs=nnx.Rngs(0))
+
+
+def _discriminator_with_dropout() -> CycleGANDiscriminator:
+    config = PatchGANDiscriminatorConfig(
+        name="discriminator",
+        input_shape=_DROPOUT_IMAGE,
+        hidden_dims=(4, 8),
+        activation="leaky_relu",
+        dropout_rate=0.5,
+    )
+    return CycleGANDiscriminator(config=config, rngs=nnx.Rngs(0))
+
+
+_STATIC_DROPOUT = (
+    "R453 self.dropout is first assigned None, which makes it a static attribute, so assigning"
+    " the Dropout raises"
+)
+
+
+@pytest.mark.parametrize(
+    "build",
+    [
+        pytest.param(
+            _generator_with_dropout,
+            marks=pytest.mark.xfail(
+                strict=True,
+                raises=ValueError,
+                reason=(
+                    f"{_STATIC_DROPOUT} (cyclegan.py:165-167); built, its __call__ still never"
+                    " applies the dropout (cyclegan.py:169-213)"
+                ),
+            ),
+            id="generator",
+        ),
+        pytest.param(
+            _discriminator_with_dropout,
+            marks=pytest.mark.xfail(
+                strict=True, raises=ValueError, reason=f"{_STATIC_DROPOUT} (cyclegan.py:307-309)"
+            ),
+            id="discriminator",
+        ),
+    ],
+)
+def test_dropout_rate_applies_dropout_in_train_mode_only(build):
+    """A module configured with dropout builds, drops units in train mode, and not in eval."""
+    module = build()
+    x = jax.random.normal(jax.random.key(1), (2, *_DROPOUT_IMAGE))
+
+    module.train()
+    assert not jnp.array_equal(module(x), module(x))
+    module.eval()
+    assert jnp.array_equal(module(x), module(x))
+
+
 class TestCycleGANGenerator:
     """Test cases for CycleGAN Generator."""
 
