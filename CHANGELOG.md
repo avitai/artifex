@@ -66,8 +66,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `list_builders()` is replaced by the inherited `list_names()`; `get_builder` still raises
   `BuilderNotFoundError` naming the available types.
 - **Breaking:** `artifex.benchmarks` and `artifex.benchmarks.registry` no longer re-export
-  calibrax's `BenchmarkRegistry`; import it from `calibrax.core`. `register_benchmark` still
-  registers into that singleton, which from calibrax 0.1.21 refuses a name it already holds.
+  calibrax's `BenchmarkRegistry`, `get_benchmark` or `list_benchmarks`; import them from
+  `calibrax.core`. `register_benchmark` stays, since it also builds a benchmark from a decorated
+  `Benchmark` class, and registers into that singleton, which from calibrax 0.1.21 refuses a name
+  it already holds.
 - Requires `flax>=0.12.11`; the lock moves flax from 0.12.9 to 0.12.12. Before 0.12.11,
   `nnx.MultiHeadAttention` forwarded `is_causal` during decode, so each causal decode step after
   the first attended to cached position 0 alone (flax c3721a25). `FlashMultiHeadAttention`
