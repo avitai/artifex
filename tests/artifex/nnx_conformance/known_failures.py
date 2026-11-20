@@ -15,6 +15,7 @@ _BACKBONES = "artifex.generative_models.models.backbones"
 _VAE = "artifex.generative_models.models.vae"
 _FLOW = "artifex.generative_models.models.flow"
 _GAN = "artifex.generative_models.models.gan"
+_DIFFUSION = "artifex.generative_models.models.diffusion"
 
 _EVAL_OVERRIDE = "a deterministic=False default forwarded to {target} overrides .eval() ({where})"
 
@@ -87,10 +88,36 @@ SPLINE_SHARED_RNGS = (
     "R166 NeuralSplineFlow shares its Rngs with its spline transform (neural_spline.py:53), so"
     " tree mode refuses the module (Duplicate RngCount)"
 )
-SE3_EMBED_DTYPE = (
+EMBED_LOOKUP = (
     "R518 flax's nnx.Embed fixes its dtype when built (flax/nnx/nn/linear.py:1278 at 204a819c), so"
-    " the float64 copy of SE3CouplingLayer's atom_embedding (se3_molecular.py:221) looks up in"
-    " float32 and its float32 rounding swamps the finite differences"
+    " the float64 copy of {embed} looks up in float32 and its float32 rounding swamps the finite"
+    " differences"
+)
+SE3_EMBED_DTYPE = EMBED_LOOKUP.format(
+    embed="SE3CouplingLayer's atom_embedding (se3_molecular.py:221)"
+)
+STORED_RNGS_TWICE = (
+    "R027 {model} stores self.rngs ({where}) and so does {holder}, built from the same Rngs, so"
+    " the two share one RngCount and tree mode refuses the module"
+)
+DIFFUSION_SHARED_RNGS = STORED_RNGS_TWICE.format(
+    model="DiffusionModel, a GenerativeModel,",
+    where="core/base.py:122",
+    holder="its UNet1D's TimeEmbedding, a GenerativeModule (backbones/unet.py:18)",
+)
+STABLE_DIFFUSION_SHARED_RNGS = STORED_RNGS_TWICE.format(
+    model="StableDiffusionModel",
+    where="stable_diffusion.py:62",
+    holder="each GenerativeModule block of its UNet2DCondition (.unet.down_blocks[0].block1)",
+)
+CLIP_TRANSFORMER = (
+    "R005 inherited: CLIPTextEncoder calls its TransformerEncoder with no mode"
+    " (clip_text_encoder.py:161), whose deterministic=False default overrides .eval() (R197)"
+)
+LDM_SAMPLING = (
+    "R527 LDMModel.__call__ falls back to the Rngs the module stores (latent.py:443-444) for its"
+    " reparameterisation, timestep and forward-diffusion draws (latent.py:400, 456; ddpm.py:85),"
+    " so .eval() calls draw keys and differ, as R520 does for the VAE"
 )
 FD_STEP = (
     "R522 instrument, not this module: check_grads' fixed step 1e-4 leaves a truncation error of"
@@ -270,6 +297,45 @@ def _gan() -> dict[tuple[str, str], str]:
     }
 
 
+def _diffusion() -> dict[tuple[str, str], str]:
+    shared = ("tree_mode_split", "gradient_matches_finite_differences")
+    failures: dict[tuple[str, str], str] = {}
+    for model in (
+        f"{_DIFFUSION}.base.DiffusionModel",
+        f"{_DIFFUSION}.ddpm.DDPMModel",
+        f"{_DIFFUSION}.ddim.DDIMModel",
+        f"{_DIFFUSION}.guidance.GuidedDiffusionModel",
+        f"{_DIFFUSION}.score.ScoreDiffusionModel",
+        "artifex.generative_models.models.audio.diffusion.AudioDiffusionModel",
+    ):
+        failures |= {(model, check): DIFFUSION_SHARED_RNGS for check in shared}
+    pipeline = f"{_DIFFUSION}.stable_diffusion_pipeline.StableDiffusionPipeline"
+    for model, defect in (
+        (f"{_DIFFUSION}.stable_diffusion.StableDiffusionModel", STABLE_DIFFUSION_SHARED_RNGS),
+        (pipeline, f"inherited from its StableDiffusionModel: {STABLE_DIFFUSION_SHARED_RNGS}"),
+    ):
+        failures |= {(model, check): defect for check in shared}
+
+    clip = f"{_DIFFUSION}.clip_text_encoder.CLIPTextEncoder"
+    failures |= _eval_override(clip, CLIP_TRANSFORMER)
+    failures[(clip, "gradient_matches_finite_differences")] += (
+        ". With R005 fixed this check still fails: "
+        + EMBED_LOOKUP.format(embed="its token_embedding (clip_text_encoder.py:88)")
+    )
+
+    ldm = f"{_DIFFUSION}.latent.LDMModel"
+    failures |= _eval_override(ldm, LDM_SAMPLING, draws="sampling keys")
+    failures |= {(ldm, check): DIFFUSION_SHARED_RNGS for check in shared}
+    failures[(ldm, "state_holds_arrays")] = INHERITED_HYPERPARAMETERS.format(
+        backbone="MLP", lines="448-451"
+    ).replace("this module builds one", "its MLPEncoder and MLPDecoder each build one")
+
+    failures[(f"{_DIFFUSION}.dit.DiTModel", "gradient_matches_finite_differences")] = (
+        EMBED_LOOKUP.format(embed="its DiffusionTransformer's LabelEmbedder (backbones/dit.py:155)")
+    )
+    return failures
+
+
 KNOWN_FAILURES: dict[tuple[str, str], str] = (
     _transformers()
     | _positional()
@@ -281,4 +347,5 @@ KNOWN_FAILURES: dict[tuple[str, str], str] = (
     | _vae()
     | _flow()
     | _gan()
+    | _diffusion()
 )
