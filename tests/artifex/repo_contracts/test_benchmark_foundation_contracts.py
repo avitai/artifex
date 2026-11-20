@@ -11,19 +11,24 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 
 
 def test_benchmark_registry_surface_reuses_calibrax_singleton() -> None:
-    """The benchmark registry should be the Calibrax singleton, not a local wrapper."""
+    """Benchmarks register in the Calibrax singleton, which artifex neither wraps nor aliases."""
     payload = run_repo_json(
         "from substrax.testing import report; "
-        "from calibrax.core import BenchmarkRegistry as CalibraxBenchmarkRegistry; "
-        "from artifex.benchmarks.registry import BenchmarkRegistry; "
+        "import artifex.benchmarks, artifex.benchmarks.registry; "
+        "from calibrax.core import BenchmarkRegistry; "
+        "from artifex.benchmarks.registry import register_benchmark; "
+        "marker = object(); "
+        "register_benchmark('contract_probe', marker); "
         "report({"
-        "'same_object': BenchmarkRegistry is CalibraxBenchmarkRegistry, "
-        "'module': BenchmarkRegistry.__module__"
+        "'package_alias': hasattr(artifex.benchmarks, 'BenchmarkRegistry'), "
+        "'module_alias': hasattr(artifex.benchmarks.registry, 'BenchmarkRegistry'), "
+        "'registered_in_calibrax': BenchmarkRegistry().get('contract_probe') is marker"
         "})"
     )
 
-    assert payload["same_object"] is True
-    assert payload["module"] == "calibrax.core.registry"
+    assert payload["package_alias"] is False
+    assert payload["module_alias"] is False
+    assert payload["registered_in_calibrax"] is True
 
     registry_source = (REPO_ROOT / "src/artifex/benchmarks/registry.py").read_text()
     assert "class BenchmarkRegistry" not in registry_source

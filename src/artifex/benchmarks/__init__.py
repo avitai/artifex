@@ -20,7 +20,6 @@ from artifex.benchmarks.model_adapters import (
     register_adapter,
 )
 from artifex.benchmarks.registry import (
-    BenchmarkRegistry,
     get_benchmark,
     list_benchmarks,
     register_benchmark,
@@ -54,7 +53,6 @@ __all__ = [
     "PerformanceTracker",
     "BatchableDatasetProtocol",
     "DatasetProtocol",
-    "BenchmarkRegistry",
     "NNXGenerativeModelAdapter",
     "adapt_model",
     "register_adapter",

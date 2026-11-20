@@ -1,14 +1,12 @@
 """Tests for the Calibrax-backed benchmark and suite registries."""
 
 import pytest
-from calibrax.core import (
-    BenchmarkRegistry as CalibraxBenchmarkRegistry,
-    Registry as CalibraxRegistry,
-)
+from calibrax.core import BenchmarkRegistry, Registry as CalibraxRegistry
 
+import artifex.benchmarks
+import artifex.benchmarks.registry
 from artifex.benchmarks.core import Benchmark, benchmark_result, BenchmarkConfig
 from artifex.benchmarks.registry import (
-    BenchmarkRegistry,
     get_benchmark,
     list_benchmarks,
     register_benchmark,
@@ -34,8 +32,9 @@ class TestBenchmarkRegistryCalibrax:
     def setup_method(self) -> None:
         BenchmarkRegistry.reset()
 
-    def test_registry_aliases_calibrax_singleton(self) -> None:
-        assert BenchmarkRegistry is CalibraxBenchmarkRegistry
+    def test_artifex_does_not_alias_the_calibrax_singleton(self) -> None:
+        assert not hasattr(artifex.benchmarks, "BenchmarkRegistry")
+        assert not hasattr(artifex.benchmarks.registry, "BenchmarkRegistry")
 
     def test_singleton(self) -> None:
         r1 = BenchmarkRegistry()

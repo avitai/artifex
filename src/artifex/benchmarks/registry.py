@@ -1,20 +1,20 @@
 """Calibrax-first benchmark registry helpers.
 
-Artifex keeps only thin convenience registration helpers here. The canonical
-singleton registry is `calibrax.core.BenchmarkRegistry`.
+Artifex keeps only thin convenience registration helpers here. Benchmarks register
+in calibrax's singleton, `calibrax.core.BenchmarkRegistry`; import it from calibrax.
 """
 
 from __future__ import annotations
 
 from typing import Any, cast
 
-from calibrax.core import BenchmarkRegistry, get_benchmark, list_benchmarks
+import calibrax.core
+from calibrax.core import get_benchmark, list_benchmarks
 
 from artifex.benchmarks.core import Benchmark, BenchmarkConfig
 
 
 __all__ = [
-    "BenchmarkRegistry",
     "register_benchmark",
     "get_benchmark",
     "list_benchmarks",
@@ -27,7 +27,7 @@ def register_benchmark(
     config: BenchmarkConfig | None = None,
 ) -> Any:
     """Register a benchmark with the Calibrax singleton registry."""
-    registry = BenchmarkRegistry()
+    registry = calibrax.core.BenchmarkRegistry()
 
     def decorator(cls_or_fn: Any) -> Any:
         if isinstance(cls_or_fn, type) and issubclass(cls_or_fn, Benchmark):

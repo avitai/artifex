@@ -551,8 +551,7 @@
       "PLR0911": 1
     },
     "src/artifex/generative_models/factory/registry.py": {
-      "ANN003": 1,
-      "ANN204": 1
+      "ANN003": 1
     },
     "src/artifex/generative_models/inference/optimization/production.py": {
       "ARG002": 8,

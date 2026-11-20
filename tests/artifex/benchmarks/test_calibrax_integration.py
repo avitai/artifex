@@ -10,6 +10,7 @@ import jax.numpy as jnp
 import pytest
 from calibrax.core import (
     BatchableDatasetProtocol,
+    BenchmarkRegistry,
     BenchmarkResult as CalibraxBenchmarkResult,
     DatasetProtocol,
 )
@@ -23,7 +24,6 @@ from artifex.benchmarks.core import (
     BenchmarkSuite,
 )
 from artifex.benchmarks.registry import (
-    BenchmarkRegistry,
     get_benchmark,
     list_benchmarks,
     register_benchmark,

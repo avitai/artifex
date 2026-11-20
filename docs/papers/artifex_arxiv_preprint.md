@@ -119,9 +119,10 @@ metric registry as `frozen_backbone` entries. `artifex.generative_models.core`
 has no evaluation package.
 
 The retained benchmark layer lives in `artifex.benchmarks` and currently exposes
-registry helpers plus a small set of retained suites such as
-`BenchmarkRegistry`, `GeometricBenchmarkSuite`,
-`ProteinLigandBenchmarkSuite`, and `MultiBetaVAEBenchmarkSuite`. This is an
+registry helpers such as `register_benchmark`, which registers into calibrax's
+benchmark registry, plus a small set of retained suites such as
+`GeometricBenchmarkSuite`, `ProteinLigandBenchmarkSuite`, and
+`MultiBetaVAEBenchmarkSuite`. This is an
 experimental benchmark substrate, not a claim that the repository ships one
 complete cross-modality benchmark platform.
 
