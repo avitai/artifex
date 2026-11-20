@@ -12,6 +12,8 @@ from __future__ import annotations
 _CORE = "artifex.generative_models.core"
 _LAYERS = f"{_CORE}.layers"
 _BACKBONES = "artifex.generative_models.models.backbones"
+_VAE = "artifex.generative_models.models.vae"
+_FLOW = "artifex.generative_models.models.flow"
 
 _EVAL_OVERRIDE = "a deterministic=False default forwarded to {target} overrides .eval() ({where})"
 
@@ -51,13 +53,63 @@ EMBED_DTYPE = (
     " resolves the same default at call time, and an nnx.Embed cast to bfloat16 after build"
     " returns float32 where linen returns bfloat16 (backbones/dit.py:155)"
 )
+VAE_SAMPLING = (
+    "R520 VAE.__call__ draws its reparameterisation noise from the Rngs the module stores"
+    " (vae/base.py:127, reparameterize), so .eval() calls draw keys and differ; flax's VAE takes"
+    " the key as a call argument (examples/vae/models.py:56)"
+)
+INHERITED_HYPERPARAMETERS = (
+    "R056 inherited from core.base.{backbone}, which stores its hyperparameters in nnx.Variable"
+    " (base.py:{lines}); this module builds one"
+)
+VQ_AUX = (
+    "R141 VQVAE.quantize replaces the nnx.Dict that __init__ built (vq_vae.py:44) with a plain"
+    " dict (vq_vae.py:102), so a forward pass adds four state leaves under _last_quantize_aux,"
+    " changes the graph definition, and nnx.jit traces again"
+)
+ACTNORM = (
+    "R112 ActNormLayer initialises bias and logs from the first batch it sees (glow.py:36, 60-77),"
+    " reshaping them from (1, 1, C) to (1, 1, 1, C), so the forward pass changes the state,"
+    " nnx.jit traces again, and the output does not depend on the parameters it was built with"
+)
+GLOW_COUPLING = (
+    "R113 AffineCouplingLayer builds its network on the first call (glow.py:306, 316-317, 372-373),"
+    " so it has no nnx.Param at construction and the forward pass adds four"
+)
+GLOW_LAZY = "{} inherited: its ActNormLayer and AffineCouplingLayer create state on the first call"
+MADE_DEAD_UNITS = (
+    "R102 MADE gives hidden units degrees 0..D-2 under a strict < (made.py:121), so a degree-0"
+    " unit has no input and sits at its zero bias on ReLU's kink; the parameter gradient there"
+    " is not the derivative (0.268 from finite differences, MAFLayer(4, [8, 8]))"
+)
+SPLINE_SHARED_RNGS = (
+    "R166 NeuralSplineFlow shares its Rngs with its spline transform (neural_spline.py:53), so"
+    " tree mode refuses the module (Duplicate RngCount)"
+)
+SE3_EMBED_DTYPE = (
+    "R518 flax's nnx.Embed fixes its dtype when built (flax/nnx/nn/linear.py:1278 at 204a819c), so"
+    " the float64 copy of SE3CouplingLayer's atom_embedding (se3_molecular.py:221) looks up in"
+    " float32 and its float32 rounding swamps the finite differences"
+)
+FD_STEP = (
+    "R522 instrument, not this module: check_grads' fixed step 1e-4 leaves a truncation error of"
+    " 1.9e-5 relative here, above its rtol 1e-5, while central differences converge to the"
+    " parameter gradient quadratically as the step shrinks"
+)
+SE3_JIT_METHOD = (
+    "R523 SE3MolecularFlow.log_prob is decorated with nnx.jit (se3_molecular.py:442), whose"
+    " write-back of the module's stored Rngs raises TraceContextError under an outer jax.grad; the"
+    " undecorated method differentiates"
+)
 
 _EVAL_CASCADE = ("gradient_finite", "gradient_matches_finite_differences", "rows_independent")
-"""Checks that run in ``.eval()``: a module still drawing dropout keys there fails each."""
+"""Checks that run in ``.eval()``: a module still drawing keys there fails each."""
 
 
-def _eval_override(name: str, defect: str) -> dict[tuple[str, str], str]:
-    inherited = ".eval() still draws dropout keys: " + defect
+def _eval_override(
+    name: str, defect: str, draws: str = "dropout keys"
+) -> dict[tuple[str, str], str]:
+    inherited = f".eval() still draws {draws}: " + defect
     return {
         (name, "eval_deterministic"): defect,
         **{(name, check): inherited for check in _EVAL_CASCADE},
@@ -140,6 +192,76 @@ def _backbones() -> dict[tuple[str, str], str]:
     return failures
 
 
+def _vae() -> dict[tuple[str, str], str]:
+    mlp = INHERITED_HYPERPARAMETERS.format(backbone="MLP", lines="448-451")
+    cnn = INHERITED_HYPERPARAMETERS.format(backbone="CNN", lines="715-720")
+    failures: dict[tuple[str, str], str] = {
+        (f"{_VAE}.{module}", "state_holds_arrays"): backbone
+        for module, backbone in (
+            ("encoders.MLPEncoder", mlp),
+            ("encoders.ConditionalEncoder", mlp),
+            ("encoders.CNNEncoder", cnn),
+            ("encoders.ResNetEncoder", cnn),
+            ("decoders.MLPDecoder", mlp),
+            ("decoders.ConditionalDecoder", mlp),
+            ("decoders.CNNDecoder", cnn),
+            ("decoders.ResNetDecoder", cnn),
+            ("base.VAE", mlp),
+            ("beta_vae.BetaVAE", mlp),
+            ("beta_vae.BetaVAEWithCapacity", mlp),
+            ("conditional.ConditionalVAE", mlp),
+            ("vq_vae.VQVAE", mlp),
+        )
+    }
+    for module in (
+        "base.VAE",
+        "beta_vae.BetaVAE",
+        "beta_vae.BetaVAEWithCapacity",
+        "conditional.ConditionalVAE",
+    ):
+        failures |= _eval_override(f"{_VAE}.{module}", VAE_SAMPLING, draws="sampling keys")
+    for check in ("state_structure", "jit_matches_eager"):
+        failures[(f"{_VAE}.vq_vae.VQVAE", check)] = VQ_AUX
+    return failures
+
+
+def _flow() -> dict[tuple[str, str], str]:
+    glow = f"{_FLOW}.glow"
+    lazy = ("state_structure", "jit_matches_eager")
+    gradients = ("gradient_finite", "gradient_matches_finite_differences")
+    failures: dict[tuple[str, str], str] = {
+        **{(f"{glow}.ActNormLayer", check): ACTNORM for check in (*lazy, *gradients)},
+        **{(f"{glow}.AffineCouplingLayer", check): GLOW_COUPLING for check in (*lazy, *gradients)},
+        **{(f"{glow}.GlowBlock", check): GLOW_LAZY.format("R112, R113") for check in lazy},
+        **{(f"{glow}.Glow", check): GLOW_LAZY.format("R112, R113") for check in lazy},
+        **{
+            (f"{_FLOW}.neural_spline.NeuralSplineFlow", check): SPLINE_SHARED_RNGS
+            for check in ("tree_mode_split", "gradient_matches_finite_differences")
+        },
+        **{
+            (f"{_FLOW}.se3_molecular.SE3MolecularFlow", check): SE3_JIT_METHOD
+            for check in gradients
+        },
+        (f"{_FLOW}.se3_molecular.SE3CouplingLayer", "gradient_matches_finite_differences"): (
+            SE3_EMBED_DTYPE
+        ),
+        (f"{_FLOW}.se3_molecular.SE3EquivariantLayer", "gradient_matches_finite_differences"): (
+            FD_STEP
+        ),
+    }
+    for module in ("maf.MAFLayer", "maf.MAF", "iaf.IAFLayer", "iaf.IAF"):
+        failures[(f"{_FLOW}.{module}", "gradient_matches_finite_differences")] = MADE_DEAD_UNITS
+    return failures
+
+
 KNOWN_FAILURES: dict[tuple[str, str], str] = (
-    _transformers() | _positional() | _egnn() | _clifford() | _resnet() | _base() | _backbones()
+    _transformers()
+    | _positional()
+    | _egnn()
+    | _clifford()
+    | _resnet()
+    | _base()
+    | _backbones()
+    | _vae()
+    | _flow()
 )

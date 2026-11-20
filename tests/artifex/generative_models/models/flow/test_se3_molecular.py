@@ -5,7 +5,10 @@ import jax.numpy as jnp
 import pytest
 from flax import nnx
 
-from artifex.generative_models.models.flow.se3_molecular import SE3MolecularFlow
+from artifex.generative_models.models.flow.se3_molecular import (
+    SE3EquivariantLayer,
+    SE3MolecularFlow,
+)
 
 
 @pytest.fixture
@@ -80,3 +83,23 @@ def test_loss_fn_supports_nnx_grad(rngs, se3_flow_config, molecular_batch):
     grad_leaves = jax.tree_util.tree_leaves(grads)
     assert grad_leaves
     assert all(jnp.isfinite(leaf).all() for leaf in grad_leaves)
+
+
+@pytest.mark.xfail(
+    strict=True,
+    raises=TypeError,
+    reason=(
+        "R521 vector_net is built for in_features but fed the out_features-wide scalar update"
+        " (se3_molecular.py:45-50, 85, 154)"
+    ),
+)
+def test_equivariant_layer_maps_in_features_to_out_features():
+    """A layer built for 5 input features and 8 output features maps width 5 to width 8."""
+    atoms = 6
+    layer = SE3EquivariantLayer(5, 8, atoms, rngs=nnx.Rngs(0))
+    mask = jnp.ones((2, atoms), dtype=jnp.bool_)
+
+    coordinates, features = layer(jnp.zeros((2, atoms, 3)), jnp.ones((2, atoms, 5)), mask)
+
+    assert coordinates.shape == (2, atoms, 3)
+    assert features.shape == (2, atoms, 8)
