@@ -1,10 +1,10 @@
 """artifex's ``nnx.Module`` classes against substrax's NNX conformance checks.
 
-``cases.py`` says how to build and call each class; ``known_failures.py`` lists the checks a
-case is known to fail, each with its defect, as strict expected failures: the check must fail
-with a ``ConformanceError``, not crash, and the fix that repairs a defect must delete its
-entries. ``NOT_APPLICABLE`` in ``cases.py`` names the checks a module does not owe by design,
-each skipped with its reason. The checks are ``substrax.testing.nnx_conformance.CHECKS``.
+The ``cases`` package says how to build and call each class, one module per family;
+``known_failures.py`` lists the checks a case is known to fail, each with its defect, as strict
+expected failures: the check must fail with a ``ConformanceError``, not crash, and the fix that
+repairs a defect must delete its entries. ``cases.NOT_APPLICABLE`` names the checks a module does
+not owe by design, each skipped with its reason. The checks are ``substrax.testing.nnx_conformance.CHECKS``.
 """
 
 from __future__ import annotations
