@@ -19,6 +19,7 @@ import jax
 import jax.numpy as jnp
 from flax import nnx
 from substrax.testing.nnx_conformance import Case
+from substrax.typing import PyTree
 
 
 BATCH = 4
@@ -475,9 +476,414 @@ def _backbones() -> dict[str, Case]:
     }
 
 
+_VAE = "artifex.generative_models.models.vae"
+_VAE_FEATURES, _VAE_LATENT, _VAE_CLASSES = 5, 3, 3
+_IMAGE = (8, 8, 3)
+
+
+def _encoder_config(input_shape: tuple[int, ...] = (_VAE_FEATURES,), latent: int = _VAE_LATENT):
+    from artifex.generative_models.core.configuration.network_configs import (  # noqa: PLC0415
+        EncoderConfig,
+    )
+
+    return EncoderConfig(
+        name="encoder",
+        hidden_dims=(8, 6),
+        activation="silu",
+        input_shape=input_shape,
+        latent_dim=latent,
+    )
+
+
+def _decoder_config(output_shape: tuple[int, ...] = (_VAE_FEATURES,), latent: int = _VAE_LATENT):
+    from artifex.generative_models.core.configuration.network_configs import (  # noqa: PLC0415
+        DecoderConfig,
+    )
+
+    return DecoderConfig(
+        name="decoder",
+        hidden_dims=(6, 8),
+        activation="silu",
+        output_shape=output_shape,
+        latent_dim=latent,
+    )
+
+
+def _vae_config(config_class: type, **fields: object) -> object:
+    return config_class(name="vae", encoder=_encoder_config(), decoder=_decoder_config(), **fields)
+
+
+def _features_and_labels(key: jax.Array) -> tuple[jax.Array, ...]:
+    k1, k2 = jax.random.split(key)
+    return jax.random.normal(k1, (BATCH, _VAE_FEATURES)), _labels(k2, _VAE_CLASSES)
+
+
+def _latents_and_labels(key: jax.Array) -> tuple[jax.Array, ...]:
+    k1, k2 = jax.random.split(key)
+    return jax.random.normal(k1, (BATCH, _VAE_LATENT)), _labels(k2, _VAE_CLASSES)
+
+
+def _vae() -> dict[str, Case]:
+    from artifex.generative_models.core.configuration.vae_config import (  # noqa: PLC0415
+        BetaVAEConfig,
+        BetaVAEWithCapacityConfig,
+        ConditionalVAEConfig,
+        VAEConfig,
+        VQVAEConfig,
+    )
+    from artifex.generative_models.models.vae import (  # noqa: PLC0415
+        base,
+        beta_vae,
+        conditional,
+        decoders,
+        encoders,
+        spatial_autoencoder,
+        vq_vae,
+    )
+
+    spatial = spatial_autoencoder
+    conditioned_encoder = (_VAE_FEATURES + _VAE_CLASSES,)
+    return {
+        f"{_VAE}.encoders.Flatten": Case(
+            build=lambda r: encoders.Flatten(rngs=r),
+            inputs=_normal(3, 4),
+            is_differentiable=False,
+        ),
+        f"{_VAE}.encoders.MLPEncoder": Case(
+            build=lambda r: encoders.MLPEncoder(_encoder_config(), rngs=r),
+            inputs=_normal(_VAE_FEATURES),
+            has_batch_stats=True,
+        ),
+        f"{_VAE}.encoders.CNNEncoder": Case(
+            build=lambda r: encoders.CNNEncoder(_encoder_config(_IMAGE), rngs=r),
+            inputs=_normal(*_IMAGE),
+            has_batch_stats=True,
+        ),
+        f"{_VAE}.encoders.ResNetEncoder": Case(
+            build=lambda r: encoders.ResNetEncoder(_encoder_config(_IMAGE), rngs=r),
+            inputs=_normal(*_IMAGE),
+            has_batch_stats=True,
+        ),
+        f"{_VAE}.encoders.ConditionalEncoder": Case(
+            build=lambda r: encoders.ConditionalEncoder(
+                encoders.MLPEncoder(_encoder_config(conditioned_encoder), rngs=r),
+                _VAE_CLASSES,
+                rngs=r,
+            ),
+            inputs=_features_and_labels,
+            has_batch_stats=True,
+        ),
+        f"{_VAE}.decoders.MLPDecoder": Case(
+            build=lambda r: decoders.MLPDecoder(_decoder_config(), rngs=r),
+            inputs=_normal(_VAE_LATENT),
+        ),
+        f"{_VAE}.decoders.CNNDecoder": Case(
+            build=lambda r: decoders.CNNDecoder(_decoder_config(_IMAGE), rngs=r),
+            inputs=_normal(_VAE_LATENT),
+        ),
+        f"{_VAE}.decoders.ResNetDecoder": Case(
+            build=lambda r: decoders.ResNetDecoder(_decoder_config(_IMAGE), rngs=r),
+            inputs=_normal(_VAE_LATENT),
+        ),
+        f"{_VAE}.decoders.ConditionalDecoder": Case(
+            build=lambda r: decoders.ConditionalDecoder(
+                decoders.MLPDecoder(_decoder_config(latent=_VAE_LATENT + _VAE_CLASSES), rngs=r),
+                _VAE_CLASSES,
+                rngs=r,
+            ),
+            inputs=_latents_and_labels,
+        ),
+        f"{_VAE}.spatial_autoencoder.SpatialEncoder": Case(
+            build=lambda r: spatial.SpatialEncoder(_encoder_config(_IMAGE, latent=2), rngs=r),
+            inputs=_normal(*_IMAGE),
+        ),
+        f"{_VAE}.spatial_autoencoder.SpatialDecoder": Case(
+            build=lambda r: spatial.SpatialDecoder(_decoder_config(_IMAGE, latent=2), rngs=r),
+            inputs=_normal(2, 2, 2),
+        ),
+        f"{_VAE}.base.VAE": Case(
+            build=lambda r: base.VAE(_vae_config(VAEConfig), rngs=r),
+            inputs=_normal(_VAE_FEATURES),
+            has_batch_stats=True,
+        ),
+        f"{_VAE}.beta_vae.BetaVAE": Case(
+            build=lambda r: beta_vae.BetaVAE(_vae_config(BetaVAEConfig, beta_default=2.0), rngs=r),
+            inputs=_normal(_VAE_FEATURES),
+            has_batch_stats=True,
+        ),
+        f"{_VAE}.beta_vae.BetaVAEWithCapacity": Case(
+            build=lambda r: beta_vae.BetaVAEWithCapacity(
+                _vae_config(BetaVAEWithCapacityConfig, use_capacity_control=True), rngs=r
+            ),
+            inputs=_normal(_VAE_FEATURES),
+            has_batch_stats=True,
+        ),
+        f"{_VAE}.conditional.ConditionalVAE": Case(
+            build=lambda r: conditional.ConditionalVAE(
+                _vae_config(
+                    ConditionalVAEConfig, num_classes=_VAE_CLASSES, condition_type="concat"
+                ),
+                rngs=r,
+            ),
+            inputs=_features_and_labels,
+            call=lambda module, x, labels: module(x, y=labels),
+            has_batch_stats=True,
+        ),
+        f"{_VAE}.vq_vae.VQVAE": Case(
+            build=lambda r: vq_vae.VQVAE(
+                _vae_config(VQVAEConfig, num_embeddings=8, embedding_dim=_VAE_LATENT),
+                rngs=r,
+            ),
+            inputs=_normal(_VAE_FEATURES),
+            has_batch_stats=True,
+            # Its outputs include batch means: the codebook and commitment losses, perplexity.
+            is_rowwise=False,
+        ),
+    }
+
+
+_FLOW = "artifex.generative_models.models.flow"
+_FLOW_DIM, _CONDITION_DIM, _ATOMS = 4, 3, 6
+_GLOW_IMAGE = (4, 4, 4)
+
+
+def _both_ways(module: nnx.Module, x: jax.Array) -> PyTree:
+    """A flow's two directions: density (forward) and sampling (inverse), each with its log-det."""
+    return module.forward(x), module.inverse(x)
+
+
+def _conditioned_both_ways(module: nnx.Module, x: jax.Array, condition: jax.Array) -> PyTree:
+    return module.forward(x, condition=condition), module.inverse(x, condition=condition)
+
+
+def _model_both_ways(module: nnx.Module, x: jax.Array) -> PyTree:
+    return module(x), module.inverse(x)
+
+
+def _coupling_network() -> object:
+    from artifex.generative_models.core.configuration.flow_config import (  # noqa: PLC0415
+        CouplingNetworkConfig,
+    )
+
+    return CouplingNetworkConfig(name="coupling", hidden_dims=(8, 8), activation="silu")
+
+
+def _flow_config(config_class: type, **fields: object) -> object:
+    return config_class(
+        name="flow",
+        coupling_network=_coupling_network(),
+        input_dim=_FLOW_DIM,
+        latent_dim=_FLOW_DIM,
+        **fields,
+    )
+
+
+def _mask() -> jax.Array:
+    return jnp.array([1.0, 0.0, 1.0, 0.0])
+
+
+def _features_and_condition(key: jax.Array) -> tuple[jax.Array, ...]:
+    k1, k2 = jax.random.split(key)
+    return (
+        jax.random.normal(k1, (BATCH, _FLOW_DIM)),
+        jax.random.normal(k2, (BATCH, _CONDITION_DIM)),
+    )
+
+
+def _molecule(key: jax.Array, *, features: int | None = None) -> tuple[jax.Array, ...]:
+    """Coordinates, then atom features or atom types, then a mask whose last two atoms are padding."""
+    k1, k2 = jax.random.split(key)
+    coordinates = jax.random.normal(k1, (BATCH, _ATOMS, 3))
+    if features is None:
+        second = jax.random.randint(k2, (BATCH, _ATOMS), 0, 5)
+    else:
+        second = jax.random.normal(k2, (BATCH, _ATOMS, features))
+    mask = jnp.broadcast_to(jnp.arange(_ATOMS) < _ATOMS - 2, (BATCH, _ATOMS))
+    return coordinates, second, mask
+
+
+def _spline_inputs(key: jax.Array) -> tuple[jax.Array, ...]:
+    bins = 4
+    k1, k2, k3, k4 = jax.random.split(key, 4)
+    return (
+        jax.random.uniform(k1, (BATCH, 2), minval=-2.0, maxval=2.0),
+        jax.random.normal(k2, (BATCH, 2, bins)),
+        jax.random.normal(k3, (BATCH, 2, bins)),
+        jax.random.normal(k4, (BATCH, 2, bins + 1)),
+    )
+
+
+def _flow() -> dict[str, Case]:
+    from artifex.generative_models.core.configuration.flow_config import (  # noqa: PLC0415
+        ConditionalFlowConfig,
+        GlowConfig,
+        IAFConfig,
+        MAFConfig,
+        NeuralSplineConfig,
+        RealNVPConfig,
+    )
+    from artifex.generative_models.models.flow import (  # noqa: PLC0415
+        conditional,
+        glow,
+        iaf,
+        made,
+        maf,
+        neural_spline,
+        real_nvp,
+        se3_molecular,
+    )
+
+    spline = neural_spline
+    se3 = se3_molecular
+    channels = _GLOW_IMAGE[-1]
+    return {
+        f"{_FLOW}.real_nvp.CouplingLayer": Case(
+            build=lambda r: real_nvp.CouplingLayer(_mask(), [8, 8], rngs=r),
+            inputs=_normal(_FLOW_DIM),
+            call=_both_ways,
+        ),
+        f"{_FLOW}.real_nvp.RealNVP": Case(
+            build=lambda r: real_nvp.RealNVP(
+                _flow_config(RealNVPConfig, num_coupling_layers=2), rngs=r
+            ),
+            inputs=_normal(_FLOW_DIM),
+            call=_model_both_ways,
+        ),
+        f"{_FLOW}.conditional.ConditionalCouplingLayer": Case(
+            build=lambda r: conditional.ConditionalCouplingLayer(
+                _mask(), [8, 8], _CONDITION_DIM, rngs=r
+            ),
+            inputs=_features_and_condition,
+            call=_conditioned_both_ways,
+        ),
+        f"{_FLOW}.conditional.ConditionalNormalizingFlow": Case(
+            build=lambda r: conditional.ConditionalNormalizingFlow(
+                _flow_config(
+                    ConditionalFlowConfig, condition_dim=_CONDITION_DIM, num_coupling_layers=2
+                ),
+                rngs=r,
+            ),
+            inputs=_features_and_condition,
+            call=_conditioned_both_ways,
+        ),
+        f"{_FLOW}.conditional.ConditionalRealNVP": Case(
+            build=lambda r: conditional.ConditionalRealNVP(
+                _flow_config(
+                    ConditionalFlowConfig, condition_dim=_CONDITION_DIM, num_coupling_layers=2
+                ),
+                rngs=r,
+            ),
+            inputs=_features_and_condition,
+            call=_conditioned_both_ways,
+        ),
+        f"{_FLOW}.glow.ActNormLayer": Case(
+            build=lambda r: glow.ActNormLayer(channels, rngs=r),
+            inputs=_normal(*_GLOW_IMAGE),
+            call=_both_ways,
+        ),
+        f"{_FLOW}.glow.InvertibleConv1x1": Case(
+            build=lambda r: glow.InvertibleConv1x1(channels, rngs=r),
+            inputs=_normal(*_GLOW_IMAGE),
+            call=_both_ways,
+        ),
+        f"{_FLOW}.glow.AffineCouplingLayer": Case(
+            build=lambda r: glow.AffineCouplingLayer(channels, [8], rngs=r),
+            inputs=_normal(*_GLOW_IMAGE),
+            call=_both_ways,
+        ),
+        f"{_FLOW}.glow.GlowBlock": Case(
+            build=lambda r: glow.GlowBlock(channels, [8], rngs=r),
+            inputs=_normal(*_GLOW_IMAGE),
+            call=_both_ways,
+        ),
+        f"{_FLOW}.glow.Glow": Case(
+            build=lambda r: glow.Glow(
+                GlowConfig(
+                    name="glow",
+                    coupling_network=_coupling_network(),
+                    input_dim=int(jnp.prod(jnp.array(_GLOW_IMAGE))),
+                    latent_dim=int(jnp.prod(jnp.array(_GLOW_IMAGE))),
+                    image_shape=_GLOW_IMAGE,
+                    blocks_per_scale=2,
+                ),
+                rngs=r,
+            ),
+            inputs=_normal(*_GLOW_IMAGE),
+            call=_model_both_ways,
+        ),
+        f"{_FLOW}.made.MADE": Case(
+            build=lambda r: made.MADE(_FLOW_DIM, [8, 8], rngs=r, activation="tanh"),
+            inputs=_normal(_FLOW_DIM),
+        ),
+        f"{_FLOW}.maf.MAFLayer": Case(
+            build=lambda r: maf.MAFLayer(_FLOW_DIM, [8, 8], rngs=r),
+            inputs=_normal(_FLOW_DIM),
+            call=_both_ways,
+        ),
+        f"{_FLOW}.maf.MAF": Case(
+            build=lambda r: maf.MAF(_flow_config(MAFConfig, num_layers=2), rngs=r),
+            inputs=_normal(_FLOW_DIM),
+            call=_model_both_ways,
+        ),
+        f"{_FLOW}.iaf.IAFLayer": Case(
+            build=lambda r: iaf.IAFLayer(_FLOW_DIM, [8, 8], rngs=r),
+            inputs=_normal(_FLOW_DIM),
+            call=_both_ways,
+        ),
+        f"{_FLOW}.iaf.IAF": Case(
+            build=lambda r: iaf.IAF(_flow_config(IAFConfig, num_layers=2), rngs=r),
+            inputs=_normal(_FLOW_DIM),
+            call=_model_both_ways,
+        ),
+        f"{_FLOW}.neural_spline.RationalQuadraticSplineTransform": Case(
+            build=lambda r: spline.RationalQuadraticSplineTransform(num_bins=4, rngs=r),
+            inputs=_spline_inputs,
+            # apply_spline takes constrained parameters, as SplineCouplingLayer passes them.
+            call=lambda module, x, widths, heights, derivatives: (
+                module.apply_spline(x, *module._constrain_parameters(widths, heights, derivatives)),
+                module.apply_spline(
+                    x, *module._constrain_parameters(widths, heights, derivatives), inverse=True
+                ),
+            ),
+            is_differentiable=False,
+        ),
+        f"{_FLOW}.neural_spline.SplineCouplingLayer": Case(
+            build=lambda r: spline.SplineCouplingLayer(_mask(), [8, 8], num_bins=4, rngs=r),
+            inputs=_normal(_FLOW_DIM),
+            call=_both_ways,
+        ),
+        f"{_FLOW}.neural_spline.NeuralSplineFlow": Case(
+            build=lambda r: spline.NeuralSplineFlow(
+                _flow_config(NeuralSplineConfig, num_layers=2, num_bins=4), rngs=r
+            ),
+            inputs=_normal(_FLOW_DIM),
+            call=_model_both_ways,
+        ),
+        f"{_FLOW}.se3_molecular.SE3EquivariantLayer": Case(
+            build=lambda r: se3.SE3EquivariantLayer(8, 8, _ATOMS, rngs=r),
+            inputs=lambda key: _molecule(key, features=8),
+        ),
+        f"{_FLOW}.se3_molecular.SE3CouplingLayer": Case(
+            build=lambda r: se3.SE3CouplingLayer(8, _ATOMS, 5, rngs=r),
+            inputs=_molecule,
+            call=lambda module, coordinates, types, mask: (
+                module(coordinates, types, mask),
+                module(coordinates, types, mask, reverse=True),
+            ),
+        ),
+        f"{_FLOW}.se3_molecular.SE3MolecularFlow": Case(
+            build=lambda r: se3.SE3MolecularFlow(
+                hidden_dim=8, num_layers=1, num_coupling_layers=2, max_atoms=_ATOMS, rngs=r
+            ),
+            inputs=_molecule,
+            call=lambda module, coordinates, types, mask: module.log_prob(coordinates, types, mask),
+        ),
+    }
+
+
 def all_cases() -> dict[str, Case]:
     """Return every case, by the qualified name of the class it builds."""
-    return {**_layers(), **_base(), **_backbones()}
+    return {**_layers(), **_base(), **_backbones(), **_vae(), **_flow()}
 
 
 EXEMPT: dict[str, str] = {
@@ -489,4 +895,25 @@ EXEMPT: dict[str, str] = {
     f"{_LAYERS}.kan.grids.DenseKANGrid": "holds a KAN layer's knots; run through DenseKANLayer",
     f"{_LAYERS}.kan.grids.EfficientKANGrid": "holds a KAN layer's knots; run through EfficientKANLayer",
     f"{_LAYERS}.kan.grids.RBFKANGrid": "holds a KAN layer's centres; run through RBFKANLayer",
+    f"{_FLOW}.base.FlowLayer": "base class whose forward and inverse raise NotImplementedError",
+    f"{_FLOW}.base.NormalizingFlow": (
+        "base class holding an empty layer list; each flow model's case runs its forward,"
+        " inverse and log-density"
+    ),
 }
+
+
+NOT_APPLICABLE: dict[tuple[str, str], str] = {
+    (f"{_VAE}.vq_vae.VQVAE", "gradient_matches_finite_differences"): (
+        "the straight-through estimator (van den Oord et al. 2017, sec. 3.2; vq_vae.py:106) and"
+        " the stop-gradient codebook and commitment terms (vq_vae.py:88-89) are surrogate"
+        " gradients by design, not derivatives of the forward pass: in float64 the decoder's"
+        " gradient matches finite differences to 9.6e-11, while the encoder's and codebook's,"
+        " which pass through the quantizer, differ by 1.75 and 0.155"
+    ),
+}
+"""Checks a case's module does not owe, keyed like the known failures, each with the reason.
+
+A check belongs here when the method the module implements makes the property false by design.
+A defect belongs in ``known_failures.py``, which a fix empties.
+"""
