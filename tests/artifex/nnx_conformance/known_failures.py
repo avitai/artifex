@@ -124,6 +124,61 @@ SE3_JIT_METHOD = (
     " undecorated method differentiates"
 )
 
+VIEW_STORED_RNGS = (
+    "R529 an nnx.Rngs is stored at .{path}, and nnx.view calls set_view on every node answering"
+    " hasattr(node, 'set_view'), which an Rngs with a default stream does by returning that stream"
+    " (flax/nnx/module.py, view); so a view draws a key and advances an RNG stream .eval() does"
+    " not"
+)
+_GENERATIVE = "artifex.generative_models"
+_VIEW_RNGS_PATHS = {
+    "models.audio.diffusion.AudioDiffusionModel": "backbone.time_embedding.rngs",
+    "models.backbones.unet.ConvBlock": "rngs",
+    "models.backbones.unet.DownBlock": "block1.rngs",
+    "models.backbones.unet.TimeEmbedding": "rngs",
+    "models.backbones.unet.UNet": "down_blocks[0].block1.rngs",
+    "models.backbones.unet.UpBlock": "block1.rngs",
+    "models.backbones.unet_1d.UNet1D": "time_embedding.rngs",
+    "models.backbones.unet_cross_attention.CrossAttentionBlock": "rngs",
+    "models.backbones.unet_cross_attention.DownBlockWithCrossAttention": "attn_blocks[0].rngs",
+    "models.backbones.unet_cross_attention.UNet2DCondition": "down_blocks[0].block1.rngs",
+    "models.backbones.unet_cross_attention.UpBlockWithCrossAttention": "attn_blocks[0].rngs",
+    "models.diffusion.base.DiffusionModel": "backbone.time_embedding.rngs",
+    "models.diffusion.ddim.DDIMModel": "backbone.time_embedding.rngs",
+    "models.diffusion.ddpm.DDPMModel": "backbone.time_embedding.rngs",
+    "models.diffusion.dit.DiTModel": "rngs",
+    "models.diffusion.guidance.GuidedDiffusionModel": "backbone.time_embedding.rngs",
+    "models.diffusion.latent.LDMModel": "backbone.time_embedding.rngs",
+    "models.diffusion.score.ScoreDiffusionModel": "backbone.time_embedding.rngs",
+    "models.diffusion.stable_diffusion.StableDiffusionModel": "rngs",
+    "models.diffusion.stable_diffusion_pipeline.StableDiffusionPipeline": "model.rngs",
+    "models.flow.conditional.ConditionalNormalizingFlow": "rngs",
+    "models.flow.conditional.ConditionalRealNVP": "rngs",
+    "models.flow.glow.Glow": "rngs",
+    "models.flow.iaf.IAF": "rngs",
+    "models.flow.maf.MAF": "rngs",
+    "models.flow.neural_spline.NeuralSplineFlow": "coupling_layers[0].spline_transform.rngs",
+    "models.flow.neural_spline.RationalQuadraticSplineTransform": "rngs",
+    "models.flow.neural_spline.SplineCouplingLayer": "spline_transform.rngs",
+    "models.flow.real_nvp.RealNVP": "rngs",
+    "models.flow.se3_molecular.SE3MolecularFlow": "rngs",
+    "models.gan.base.GAN": "rngs",
+    "models.gan.conditional.ConditionalGAN": "rngs",
+    "models.gan.cyclegan.CycleGAN": "rngs",
+    "models.gan.dcgan.DCGAN": "rngs",
+    "models.gan.wgan.WGAN": "rngs",
+    "models.vae.base.VAE": "rngs",
+    "models.vae.beta_vae.BetaVAE": "rngs",
+    "models.vae.beta_vae.BetaVAEWithCapacity": "rngs",
+    "models.vae.conditional.ConditionalVAE": "rngs",
+    "models.vae.vq_vae.VQVAE": "rngs",
+}
+"""Where each module that fails ``view_matches_modes`` holds an ``nnx.Rngs``, the first path."""
+LDM_VIEW_OUTPUTS = (
+    "; LDMModel's own .rngs is that same Rngs, from which .eval() draws its sampling noise"
+    " (R527), so the view's outputs differ too"
+)
+
 _EVAL_CASCADE = ("gradient_finite", "gradient_matches_finite_differences", "rows_independent")
 """Checks that run in ``.eval()``: a module still drawing keys there fails each."""
 
@@ -312,6 +367,15 @@ def _diffusion() -> dict[tuple[str, str], str]:
     return failures
 
 
+def _views() -> dict[tuple[str, str], str]:
+    failures = {
+        (f"{_GENERATIVE}.{module}", "view_matches_modes"): VIEW_STORED_RNGS.format(path=path)
+        for module, path in _VIEW_RNGS_PATHS.items()
+    }
+    failures[(f"{_DIFFUSION}.latent.LDMModel", "view_matches_modes")] += LDM_VIEW_OUTPUTS
+    return failures
+
+
 KNOWN_FAILURES: dict[tuple[str, str], str] = (
     _transformers()
     | _positional()
@@ -323,4 +387,5 @@ KNOWN_FAILURES: dict[tuple[str, str], str] = (
     | _vae()
     | _flow()
     | _diffusion()
+    | _views()
 )
