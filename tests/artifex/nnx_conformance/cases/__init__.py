@@ -24,6 +24,7 @@ from tests.artifex.nnx_conformance.cases import (
     energy,
     flow,
     gan,
+    geometric,
     vae,
 )
 
@@ -40,10 +41,17 @@ def all_cases() -> dict[str, Case]:
         **diffusion.cases(),
         **autoregressive.cases(),
         **energy.cases(),
+        **geometric.cases(),
     }
 
 
-EXEMPT: dict[str, str] = {**core.EXEMPT, **flow.EXEMPT, **autoregressive.EXEMPT, **energy.EXEMPT}
+EXEMPT: dict[str, str] = {
+    **core.EXEMPT,
+    **flow.EXEMPT,
+    **autoregressive.EXEMPT,
+    **energy.EXEMPT,
+    **geometric.EXEMPT,
+}
 """Classes with no case of their own, each with the reason."""
 
 NOT_APPLICABLE: dict[tuple[str, str], str] = {**vae.NOT_APPLICABLE}

@@ -17,6 +17,7 @@ _FLOW = "artifex.generative_models.models.flow"
 _DIFFUSION = "artifex.generative_models.models.diffusion"
 _AUTOREGRESSIVE = "artifex.generative_models.models.autoregressive"
 _ENERGY = "artifex.generative_models.models.energy"
+_GEOMETRIC = "artifex.generative_models.models.geometric"
 
 _EVAL_OVERRIDE = "a deterministic=False default forwarded to {target} overrides .eval() ({where})"
 
@@ -144,6 +145,29 @@ ENERGY_MODE = (
     "R139 EnergyBasedModel.score sets its energy function to .eval() and then to .train()"
     " (energy/base.py:126, 134), so after one call an .eval() model's dropout is on again; {effect}"
 )
+GRAPH_EVAL = "R273 " + _EVAL_OVERRIDE.format(target="its EGNNLayers' dropout", where="{where}")
+GRAPH_COUPLED_ROWS = (
+    "R270 _normalize_coordinates scales every graph by one deviation taken over the whole batch"
+    " (graph.py:35, 43-44), so a graph's output depends on the others: with dropout off"
+    " (deterministic=True), scaling only row 1 by 100 moves row 0 by {moved}"
+)
+POINT_CLOUD_EMBED = EMBED_LOOKUP.format(
+    embed="PointCloudModel's pos_embedding (point_cloud.py:87)"
+) + (
+    "; per parameter group in float64, only pos_embedding's finite differences fail to converge"
+    " (FD-AD {spread} at steps 1e-5 and 1e-6), while the transformer and coordinate projection"
+    " agree to 1e-9"
+)
+PROTEIN_AA_PROJ = (
+    "R279 ProteinPointCloudModel builds aa_proj on its first call (protein_point_cloud.py:204), so"
+    " a forward pass adds two nnx.Param leaves, changes the graph definition, and nnx.jit traces"
+    " again"
+)
+VOXEL_BATCH_NORM = (
+    "R286 VoxelModel calls its BatchNorm with use_running_average=deterministic (voxel.py:176),"
+    " whose False default overrides .eval(), so an .eval() forward normalises with batch"
+    " statistics and updates the running ones"
+)
 
 VIEW_STORED_RNGS = (
     "R529 an nnx.Rngs is stored at .{path}, and nnx.view calls set_view on every node answering"
@@ -156,6 +180,12 @@ _VIEW_RNGS_PATHS = {
     "models.audio.diffusion.AudioDiffusionModel": "backbone.time_embedding.rngs",
     "models.autoregressive.pixel_cnn.PixelCNN": "_rngs",
     "models.energy.base.CNNEnergyFunction": "rngs",
+    "models.geometric.graph.GraphModel": "rngs",
+    "models.geometric.mesh.MeshModel": "rngs",
+    "models.geometric.point_cloud.PointCloudModel": "rngs",
+    "models.geometric.protein_graph.ProteinGraphModel": "rngs",
+    "models.geometric.protein_point_cloud.ProteinPointCloudModel": "rngs",
+    "models.geometric.voxel.VoxelModel": "rngs",
     "models.energy.base.EnergyBasedModel": "energy_fn.rngs",
     "models.energy.base.MLPEnergyFunction": "rngs",
     "models.energy.ebm.DeepCNNEnergyFunction": "rngs",
@@ -431,6 +461,39 @@ def _energy() -> dict[tuple[str, str], str]:
     return failures
 
 
+def _geometric() -> dict[tuple[str, str], str]:
+    failures: dict[tuple[str, str], str] = {}
+    for model, where, moved in (
+        ("graph.GraphModel", "graph.py:146", "0.70"),
+        ("protein_graph.ProteinGraphModel", "protein_graph.py:87", "0.92"),
+    ):
+        name = f"{_GEOMETRIC}.{model}"
+        defect = GRAPH_EVAL.format(where=where)
+        failures[(name, "eval_deterministic")] = defect
+        for check in ("gradient_finite", "gradient_matches_finite_differences"):
+            failures[(name, check)] = ".eval() still draws dropout keys: " + defect
+        failures[(name, "rows_independent")] = GRAPH_COUPLED_ROWS.format(moved=moved)
+    for model, spread in (
+        ("point_cloud.PointCloudModel", "+1.6e-2, -1.6e-1"),
+        ("protein_point_cloud.ProteinPointCloudModel", "-9.2e-2, -1.4e-2"),
+    ):
+        failures[(f"{_GEOMETRIC}.{model}", "gradient_matches_finite_differences")] = (
+            POINT_CLOUD_EMBED.format(spread=spread)
+        )
+    for check in ("state_structure", "jit_matches_eager"):
+        failures[(f"{_GEOMETRIC}.protein_point_cloud.ProteinPointCloudModel", check)] = (
+            PROTEIN_AA_PROJ
+        )
+    for check in (
+        "batch_stats",
+        "gradient_finite",
+        "gradient_matches_finite_differences",
+        "rows_independent",
+    ):
+        failures[(f"{_GEOMETRIC}.voxel.VoxelModel", check)] = VOXEL_BATCH_NORM
+    return failures
+
+
 def _views() -> dict[tuple[str, str], str]:
     failures = {
         (f"{_GENERATIVE}.{module}", "view_matches_modes"): VIEW_STORED_RNGS.format(path=path)
@@ -453,5 +516,6 @@ KNOWN_FAILURES: dict[tuple[str, str], str] = (
     | _diffusion()
     | _autoregressive()
     | _energy()
+    | _geometric()
     | _views()
 )
