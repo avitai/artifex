@@ -15,6 +15,7 @@ _BACKBONES = "artifex.generative_models.models.backbones"
 _VAE = "artifex.generative_models.models.vae"
 _FLOW = "artifex.generative_models.models.flow"
 _DIFFUSION = "artifex.generative_models.models.diffusion"
+_AUTOREGRESSIVE = "artifex.generative_models.models.autoregressive"
 
 _EVAL_OVERRIDE = "a deterministic=False default forwarded to {target} overrides .eval() ({where})"
 
@@ -123,6 +124,16 @@ SE3_JIT_METHOD = (
     " write-back of the module's stored Rngs raises TraceContextError under an outer jax.grad; the"
     " undecorated method differentiates"
 )
+AUTOREGRESSIVE_SHARED_RNGS = (
+    "R220 AutoregressiveModel stores its Rngs again as self._rngs (autoregressive/base.py:49),"
+    " beside the self.rngs GenerativeModule stores (core/base.py:122), so the two paths share one"
+    " RngCount and tree mode refuses the module"
+)
+TRAINING_FLAG = (
+    "R144 TransformerAutoregressiveModel takes a training=False call flag (transformer.py:115) and"
+    " passes deterministic=not training to its dropout, positional encoding and blocks"
+    " (transformer.py:134, 138, 153), so .train() leaves dropout off"
+)
 
 VIEW_STORED_RNGS = (
     "R529 an nnx.Rngs is stored at .{path}, and nnx.view calls set_view on every node answering"
@@ -133,6 +144,9 @@ VIEW_STORED_RNGS = (
 _GENERATIVE = "artifex.generative_models"
 _VIEW_RNGS_PATHS = {
     "models.audio.diffusion.AudioDiffusionModel": "backbone.time_embedding.rngs",
+    "models.autoregressive.pixel_cnn.PixelCNN": "_rngs",
+    "models.autoregressive.transformer.TransformerAutoregressiveModel": "_rngs",
+    "models.autoregressive.wavenet.WaveNet": "_rngs",
     "models.backbones.unet.ConvBlock": "rngs",
     "models.backbones.unet.DownBlock": "block1.rngs",
     "models.backbones.unet.TimeEmbedding": "rngs",
@@ -367,6 +381,22 @@ def _diffusion() -> dict[tuple[str, str], str]:
     return failures
 
 
+def _autoregressive() -> dict[tuple[str, str], str]:
+    failures: dict[tuple[str, str], str] = {
+        (f"{_AUTOREGRESSIVE}.{model}", check): AUTOREGRESSIVE_SHARED_RNGS
+        for model in (
+            "pixel_cnn.PixelCNN",
+            "transformer.TransformerAutoregressiveModel",
+            "wavenet.WaveNet",
+        )
+        for check in ("tree_mode_split", "gradient_matches_finite_differences")
+    }
+    failures[
+        (f"{_AUTOREGRESSIVE}.transformer.TransformerAutoregressiveModel", "train_dropout_varies")
+    ] = TRAINING_FLAG
+    return failures
+
+
 def _views() -> dict[tuple[str, str], str]:
     failures = {
         (f"{_GENERATIVE}.{module}", "view_matches_modes"): VIEW_STORED_RNGS.format(path=path)
@@ -387,5 +417,6 @@ KNOWN_FAILURES: dict[tuple[str, str], str] = (
     | _vae()
     | _flow()
     | _diffusion()
+    | _autoregressive()
     | _views()
 )
