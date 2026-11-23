@@ -16,6 +16,7 @@ _VAE = "artifex.generative_models.models.vae"
 _FLOW = "artifex.generative_models.models.flow"
 _DIFFUSION = "artifex.generative_models.models.diffusion"
 _AUTOREGRESSIVE = "artifex.generative_models.models.autoregressive"
+_ENERGY = "artifex.generative_models.models.energy"
 
 _EVAL_OVERRIDE = "a deterministic=False default forwarded to {target} overrides .eval() ({where})"
 
@@ -134,6 +135,15 @@ TRAINING_FLAG = (
     " passes deterministic=not training to its dropout, positional encoding and blocks"
     " (transformer.py:134, 138, 153), so .train() leaves dropout off"
 )
+ENERGY_SHARED_RNGS = (
+    "R207 EnergyFunction stores the Rngs it is built from (energy/base.py:36), and the"
+    " EnergyBasedModel built from the same Rngs stores it again (core/base.py:122), so"
+    " energy_fn.rngs is model.rngs, one RngCount at two paths, and tree mode refuses the module"
+)
+ENERGY_MODE = (
+    "R139 EnergyBasedModel.score sets its energy function to .eval() and then to .train()"
+    " (energy/base.py:126, 134), so after one call an .eval() model's dropout is on again; {effect}"
+)
 
 VIEW_STORED_RNGS = (
     "R529 an nnx.Rngs is stored at .{path}, and nnx.view calls set_view on every node answering"
@@ -145,6 +155,12 @@ _GENERATIVE = "artifex.generative_models"
 _VIEW_RNGS_PATHS = {
     "models.audio.diffusion.AudioDiffusionModel": "backbone.time_embedding.rngs",
     "models.autoregressive.pixel_cnn.PixelCNN": "_rngs",
+    "models.energy.base.CNNEnergyFunction": "rngs",
+    "models.energy.base.EnergyBasedModel": "energy_fn.rngs",
+    "models.energy.base.MLPEnergyFunction": "rngs",
+    "models.energy.ebm.DeepCNNEnergyFunction": "rngs",
+    "models.energy.ebm.DeepEBM": "energy_fn.rngs",
+    "models.energy.ebm.EBM": "energy_fn.rngs",
     "models.autoregressive.transformer.TransformerAutoregressiveModel": "_rngs",
     "models.autoregressive.wavenet.WaveNet": "_rngs",
     "models.backbones.unet.ConvBlock": "rngs",
@@ -397,6 +413,24 @@ def _autoregressive() -> dict[tuple[str, str], str]:
     return failures
 
 
+def _energy() -> dict[tuple[str, str], str]:
+    effects = {
+        "eval_deterministic": "two .eval() calls differ",
+        "jit_matches_eager": (
+            "the flipped mode is part of the graph definition, so a second call traces again"
+        ),
+        "rows_independent": "rows mapped one at a time draw different dropout masks",
+    }
+    failures: dict[tuple[str, str], str] = {}
+    for model in ("base.EnergyBasedModel", "ebm.EBM", "ebm.DeepEBM"):
+        for check in ("tree_mode_split", "gradient_matches_finite_differences"):
+            failures[(f"{_ENERGY}.{model}", check)] = ENERGY_SHARED_RNGS
+    for model in ("base.EnergyBasedModel", "ebm.EBM"):
+        for check, effect in effects.items():
+            failures[(f"{_ENERGY}.{model}", check)] = ENERGY_MODE.format(effect=effect)
+    return failures
+
+
 def _views() -> dict[tuple[str, str], str]:
     failures = {
         (f"{_GENERATIVE}.{module}", "view_matches_modes"): VIEW_STORED_RNGS.format(path=path)
@@ -418,5 +452,6 @@ KNOWN_FAILURES: dict[tuple[str, str], str] = (
     | _flow()
     | _diffusion()
     | _autoregressive()
+    | _energy()
     | _views()
 )
