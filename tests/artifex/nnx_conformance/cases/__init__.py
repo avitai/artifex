@@ -17,6 +17,7 @@ from __future__ import annotations
 from substrax.testing.nnx_conformance import Case
 
 from tests.artifex.nnx_conformance.cases import (
+    audio,
     autoregressive,
     backbones,
     core,
@@ -42,6 +43,7 @@ def all_cases() -> dict[str, Case]:
         **autoregressive.cases(),
         **energy.cases(),
         **geometric.cases(),
+        **audio.cases(),
     }
 
 
@@ -51,6 +53,7 @@ EXEMPT: dict[str, str] = {
     **autoregressive.EXEMPT,
     **energy.EXEMPT,
     **geometric.EXEMPT,
+    **audio.EXEMPT,
 }
 """Classes with no case of their own, each with the reason."""
 

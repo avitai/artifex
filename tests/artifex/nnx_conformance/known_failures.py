@@ -18,6 +18,7 @@ _DIFFUSION = "artifex.generative_models.models.diffusion"
 _AUTOREGRESSIVE = "artifex.generative_models.models.autoregressive"
 _ENERGY = "artifex.generative_models.models.energy"
 _GEOMETRIC = "artifex.generative_models.models.geometric"
+_AUDIO = "artifex.generative_models.models.audio"
 
 _EVAL_OVERRIDE = "a deterministic=False default forwarded to {target} overrides .eval() ({where})"
 
@@ -168,6 +169,12 @@ VOXEL_BATCH_NORM = (
     " whose False default overrides .eval(), so an .eval() forward normalises with batch"
     " statistics and updates the running ones"
 )
+WAVENET_AUDIO_EMBED = EMBED_LOOKUP.format(
+    embed="WaveNetAudioModel's input_embedding (audio/wavenet.py:208)"
+) + (
+    "; per parameter group in float64, only input_embedding's finite differences fail to"
+    " converge (FD-AD -1.9e-1 at step 1e-6), while every convolution agrees to 1e-8"
+)
 
 VIEW_STORED_RNGS = (
     "R529 an nnx.Rngs is stored at .{path}, and nnx.view calls set_view on every node answering"
@@ -178,6 +185,7 @@ VIEW_STORED_RNGS = (
 _GENERATIVE = "artifex.generative_models"
 _VIEW_RNGS_PATHS = {
     "models.audio.diffusion.AudioDiffusionModel": "backbone.time_embedding.rngs",
+    "models.audio.wavenet.WaveNetAudioModel": "rngs",
     "models.autoregressive.pixel_cnn.PixelCNN": "_rngs",
     "models.energy.base.CNNEnergyFunction": "rngs",
     "models.geometric.graph.GraphModel": "rngs",
@@ -494,6 +502,14 @@ def _geometric() -> dict[tuple[str, str], str]:
     return failures
 
 
+def _audio() -> dict[tuple[str, str], str]:
+    return {
+        (f"{_AUDIO}.wavenet.WaveNetAudioModel", "gradient_matches_finite_differences"): (
+            WAVENET_AUDIO_EMBED
+        ),
+    }
+
+
 def _views() -> dict[tuple[str, str], str]:
     failures = {
         (f"{_GENERATIVE}.{module}", "view_matches_modes"): VIEW_STORED_RNGS.format(path=path)
@@ -517,5 +533,6 @@ KNOWN_FAILURES: dict[tuple[str, str], str] = (
     | _autoregressive()
     | _energy()
     | _geometric()
+    | _audio()
     | _views()
 )
