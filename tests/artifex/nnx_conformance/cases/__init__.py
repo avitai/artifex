@@ -16,7 +16,15 @@ from __future__ import annotations
 
 from substrax.testing.nnx_conformance import Case
 
-from tests.artifex.nnx_conformance.cases import backbones, core, diffusion, flow, gan, vae
+from tests.artifex.nnx_conformance.cases import (
+    autoregressive,
+    backbones,
+    core,
+    diffusion,
+    flow,
+    gan,
+    vae,
+)
 
 
 def all_cases() -> dict[str, Case]:
@@ -29,10 +37,11 @@ def all_cases() -> dict[str, Case]:
         **flow.cases(),
         **gan.cases(),
         **diffusion.cases(),
+        **autoregressive.cases(),
     }
 
 
-EXEMPT: dict[str, str] = {**core.EXEMPT, **flow.EXEMPT}
+EXEMPT: dict[str, str] = {**core.EXEMPT, **flow.EXEMPT, **autoregressive.EXEMPT}
 """Classes with no case of their own, each with the reason."""
 
 NOT_APPLICABLE: dict[tuple[str, str], str] = {**vae.NOT_APPLICABLE}
