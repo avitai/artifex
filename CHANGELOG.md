@@ -77,13 +77,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   the latest versions always install together and each sibling release is followed by an artifex
   release that only moves the pins. The lock moves calibrax from 0.1.20 to 0.1.21 and nothing
   else.
-- `substrax==0.1.33`, the test extra's `substrax[testing]` included. From 0.1.32 its gradient
+- `substrax==0.1.34`, the test extra's `substrax[testing]` included. From 0.1.32 its gradient
   checks take their float64 finite differences with a step of 1e-6 instead of `check_grads`'
   1e-4, and two correct gradients the old step failed now pass their conformance check,
   `SE3EquivariantLayer`'s (truncation error) and `StyleGAN3Generator`'s (a step across a
   `leaky_relu` kink). 0.1.33 adds the conformance check `view_matches_modes`, which runs
   `nnx.view(..., deterministic=..., use_running_average=...)` against `.eval()` and `.train()`.
-  The lock moves substrax from 0.1.31 and nothing else.
+  0.1.34 adds `Case.rng_streams`, so a module that takes its randomness at call time (`rngs=`)
+  is checked with keys the check chooses. The lock moves substrax from 0.1.31 and nothing else.
 - **Breaking:** `ModelTypeRegistry` is built on calibrax's `Registry`, so registering a model
   type twice raises calibrax's `DuplicateRegistrationError` (a `ValueError`, exported from
   `calibrax.core`) and keeps the builder registered first. `DuplicateBuilderError` is removed, and
