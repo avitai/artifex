@@ -23,6 +23,7 @@ _LOSSES = f"{_CORE}.losses"
 _DISTRIBUTIONS = f"{_CORE}.distributions"
 _EXTENSIONS = "artifex.generative_models.extensions"
 _MODALITIES = "artifex.generative_models.modalities"
+_BENCHMARK_METRICS = "artifex.benchmarks.metrics"
 
 _EVAL_OVERRIDE = "a deterministic=False default forwarded to {target} overrides .eval() ({where})"
 
@@ -300,6 +301,25 @@ MULTI_MODAL_EVAL = (
     "R544 {name} forwards a deterministic=False call default to its dropout"
     " (multi_modal/representations.py:{where}), so .eval() still draws dropout keys{effect}"
 )
+_BENCHMARK_HOST_VALUE_METRICS = {
+    "audio.SpectralMetric": "audio.py:67-69",
+    "audio.MelCepstralMetric": "audio.py:151",
+    "disentanglement.MutualInformationGapMetric": "disentanglement.py:103",
+    "disentanglement.SeparationMetric": "disentanglement.py:231",
+    "disentanglement.DisentanglementMetric": "disentanglement.py:329-334",
+    "geometric.PointCloudMetrics": "geometric.py:121-138",
+    "image.FIDMetric": "image.py:230-234",
+    "image.ISMetric": "image.py:595-598",
+    "image.LPIPSMetric": "image.py:381-382",
+    "image.SSIMMetric": "image.py:496-497",
+    "molecular_flows.MolecularFlowsMetrics": "molecular_flows.py:342-358",
+    "precision_recall.PrecisionRecallMetric": "precision_recall.py:204-208",
+    "protein_ligand.BindingAffinityMetric": "protein_ligand.py:68-73",
+    "protein_ligand.MolecularValidityMetric": "protein_ligand.py:170-175",
+    "protein_ligand.DrugLikenessMetric": "protein_ligand.py:359-364",
+    "style_metrics.StyleGANMetrics": "style_metrics.py:560",
+    "text.PerplexityMetric": "text.py:345",
+}
 
 VIEW_STORED_RNGS = (
     "R529 an nnx.Rngs is stored at .{path}, and nnx.view calls set_view on every node answering"
@@ -884,6 +904,21 @@ def _modalities() -> dict[tuple[str, str], str]:
     return failures
 
 
+def _benchmarks() -> dict[tuple[str, str], str]:
+    failures: dict[tuple[str, str], str] = {}
+    for name, where in _BENCHMARK_HOST_VALUE_METRICS.items():
+        defect = HOST_VALUES.format(
+            row="R545",
+            name=f"{name.rsplit('.', 1)[1]}.compute",
+            what="Python floats",
+            where=f"benchmarks/metrics/{where}",
+        )
+        failures |= {
+            (f"{_BENCHMARK_METRICS}.{name}", check): defect for check in _HOST_VALUE_CHECKS
+        }
+    return failures
+
+
 def _views() -> dict[tuple[str, str], str]:
     failures = {
         (f"{_GENERATIVE}.{module}", "view_matches_modes"): VIEW_STORED_RNGS.format(path=path)
@@ -912,5 +947,6 @@ KNOWN_FAILURES: dict[tuple[str, str], str] = (
     | _distributions()
     | _extensions()
     | _modalities()
+    | _benchmarks()
     | _views()
 )

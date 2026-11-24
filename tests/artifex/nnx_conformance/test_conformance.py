@@ -65,6 +65,15 @@ def test_no_check_is_both_a_known_failure_and_not_applicable() -> None:
     assert sorted(set(KNOWN_FAILURES) & set(NOT_APPLICABLE)) == []
 
 
+def test_every_nnx_module_in_the_package_has_a_case_or_an_exemption() -> None:
+    """A new module class is checked from the moment it exists, or says why it is not."""
+    classes = set(module_classes(artifex))
+
+    assert "artifex.generative_models.core.base.MLP" in classes
+    assert sorted(classes - set(CASES) - set(EXEMPT)) == []
+    assert sorted(set(CASES) & set(EXEMPT)) == []
+
+
 def test_every_case_and_exemption_names_a_class_of_its_own() -> None:
     """A case keyed by an alias (``ResidualBlock = Conv2DResidualBlock``) runs a class twice."""
     classes = set(module_classes(artifex))

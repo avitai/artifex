@@ -20,6 +20,7 @@ from tests.artifex.nnx_conformance.cases import (
     audio,
     autoregressive,
     backbones,
+    benchmarks,
     core,
     diffusion,
     distributions,
@@ -60,6 +61,7 @@ def all_cases() -> dict[str, Case]:
         **text_modality.cases(),
         **tabular_modality.cases(),
         **signal_modalities.cases(),
+        **benchmarks.cases(),
     }
 
 
@@ -78,6 +80,7 @@ EXEMPT: dict[str, str] = {
     **text_modality.EXEMPT,
     **tabular_modality.EXEMPT,
     **signal_modalities.EXEMPT,
+    **benchmarks.EXEMPT,
 }
 """Classes with no case of their own, each with the reason."""
 
