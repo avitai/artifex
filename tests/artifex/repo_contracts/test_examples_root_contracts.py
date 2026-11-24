@@ -7,16 +7,8 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[3]
 README_PATH = REPO_ROOT / "examples" / "README.md"
 GUIDE_PATH = REPO_ROOT / "examples" / "EXAMPLES_GUIDE.md"
-RUN_ALL_PATH = REPO_ROOT / "examples" / "run_all_examples.sh"
-VERIFY_PATH = REPO_ROOT / "examples" / "verify_examples.py"
 COMMAND_PATTERN = re.compile(r"uv run python (?P<path>examples/[\w./-]+\.py)")
 BARE_PYTHON_PATTERN = re.compile(r"(?m)^python examples/[\w./-]+\.py$")
-
-BROKEN_OR_NONCANONICAL_PATHS = {
-    "examples/generative_models/image/diffusion/diffusion_mnist_training.py",
-    "examples/utils/demo_utils.py",
-    "examples/verify_examples.py",
-}
 
 
 def _extract_uv_commands(contents: str) -> set[str]:
@@ -47,36 +39,6 @@ def test_root_example_doc_commands_resolve_to_real_files() -> None:
         assert (REPO_ROOT / relative_path).exists(), (
             f"Documented example path is missing: {relative_path}"
         )
-
-
-def test_run_all_helper_has_curated_scope() -> None:
-    """The run-all helper should target an explicit reviewed subset, not auto-discover the whole tree."""
-    contents = RUN_ALL_PATH.read_text(encoding="utf-8")
-    documented_paths = set(re.findall(r"examples/[\w./-]+\.py", contents))
-
-    assert "uv run python" in contents
-    assert "find examples" not in contents
-    assert documented_paths
-
-    for relative_path in documented_paths:
-        assert (REPO_ROOT / relative_path).exists(), (
-            f"run_all_examples.sh references missing file: {relative_path}"
-        )
-
-    for banned_path in BROKEN_OR_NONCANONICAL_PATHS:
-        assert banned_path not in contents
-
-
-def test_examples_verifier_derives_scope_from_live_readme() -> None:
-    """The retained verifier should read the live README and avoid backend forcing or overclaiming."""
-    contents = VERIFY_PATH.read_text(encoding="utf-8")
-
-    assert "README.md" in contents
-    assert "read_text" in contents
-    assert 'os.environ["JAX_PLATFORMS"]' not in contents
-    assert 'jax.config.update("jax_platforms"' not in contents
-    assert "All README examples are working correctly!" not in contents
-    assert "Complete verification script for README examples." not in contents
 
 
 def test_examples_resolve_outputs_outside_the_source_tree() -> None:

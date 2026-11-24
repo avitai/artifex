@@ -55,11 +55,6 @@ def test_protein_extension_docs_and_examples_use_typed_bundle_surface() -> None:
             "ProteinExtensionsConfig",
             "get_protein_extensions_config",
         ],
-        "examples/verify_examples.py": [
-            "ProteinExtensionsConfig",
-            "ProteinExtensionConfig",
-            "ProteinMixinConfig",
-        ],
     }
 
     banned_references = [

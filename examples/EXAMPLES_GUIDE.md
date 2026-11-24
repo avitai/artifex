@@ -36,41 +36,6 @@ uv run python examples/generative_models/geometric/simple_point_cloud_example.py
 uv run python examples/generative_models/energy/simple_ebm_example.py
 ```
 
-## Root Maintenance Helpers
-
-### `examples/run_all_examples.sh`
-
-This script runs a small curated smoke subset:
-
-- `examples/generative_models/framework_features_demo.py`
-- `examples/generative_models/image/vae/vae_mnist.py`
-- `examples/generative_models/geometric/simple_point_cloud_example.py`
-- `examples/generative_models/energy/simple_ebm_example.py`
-
-Run it from the repository root after activation:
-
-```bash
-./examples/run_all_examples.sh
-```
-
-The helper is intentionally narrow. It does not auto-discover every Python file
-under `examples/`, and it does not claim coverage for currently open or
-specialized example tiers. The diffusion MNIST demo stays in the quickstart
-list, but it is excluded from the smoke subset because its visualization path is
-longer-running on CPU.
-
-### `examples/verify_examples.py`
-
-The verifier reads the live root README, confirms that every documented
-`uv run python examples/...` command resolves to a real file, and then runs a
-small set of maintained API smoke checks that back the root examples contract.
-
-Run it with:
-
-```bash
-uv run python examples/verify_examples.py
-```
-
 ## Updating Tutorial Pairs
 
 Examples follow substrax's

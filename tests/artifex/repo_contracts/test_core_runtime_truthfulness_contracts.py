@@ -47,7 +47,6 @@ def test_blackjax_docs_and_examples_only_publish_live_wrapper_controls() -> None
         REPO_ROOT / "docs/examples/sampling/blackjax-integration-examples.md",
         REPO_ROOT / "docs/examples/sampling/blackjax-sampling-examples.md",
         REPO_ROOT / "examples/generative_models/sampling/blackjax_sampling_examples.py",
-        REPO_ROOT / "examples/generative_models/sampling/test_blackjax_integration.py",
     ]
     for path in dead_wrapper_control_paths:
         contents = path.read_text(encoding="utf-8")

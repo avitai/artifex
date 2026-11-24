@@ -9,15 +9,6 @@
       "qualname": "plot_samples",
       "rank": "D"
     },
-    "examples/utils/demo_utils.py:function:check_system_requirements": {
-      "complexity": 11,
-      "endline": 243,
-      "kind": "function",
-      "lineno": 163,
-      "path": "examples/utils/demo_utils.py",
-      "qualname": "check_system_requirements",
-      "rank": "C"
-    },
     "src/artifex/benchmarks/datasets/base.py:method:DatasetValidator.validate_data_quality": {
       "complexity": 13,
       "endline": 96,
