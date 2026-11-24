@@ -9,14 +9,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- `tests/artifex/nnx_conformance/` runs substrax's NNX conformance checks over 129 module
-  classes, one case module per family under `cases/`: the core layers and base networks, the
-  backbones, and the VAE, flow, GAN and diffusion families, 1,208 checks in all. Each class is
+- `tests/artifex/nnx_conformance/` runs substrax's NNX conformance checks over every NNX module
+  class in the package, one case module per family under `cases/`: the core layers and base
+  networks, the backbones, losses and distributions, the VAE, flow, GAN, diffusion,
+  autoregressive, energy, geometric and audio models, the extensions, the modalities and the
+  benchmark metrics, 2,076 checks over 243 classes. Each class is
   built with the capabilities it claims (dropout, batch statistics, independent rows), and a
   model with two directions runs both: a flow's forward and inverse, a GAN's discriminator and
   its generator on given latents, a denoiser with the x0 estimate and posterior its reverse step
-  uses. Ten classes are exempt with a written reason (base classes, private parts run through
-  their owner). The 188 checks they fail today are strict expected failures, each naming its
+  uses. A module whose tests call it one sample at a time is called per row. 37 classes are
+  exempt with a written reason (base classes, private parts run through their owner, modules
+  that take strings or need a trained generator), and a test fails for any concrete module with
+  neither a case nor an exemption. The 537 checks 157 classes fail today are strict expected
+  failures, each naming its
   defect and its row in the audit register, and each must fail with `ConformanceError` rather
   than crash: `.eval()` overridden by a `deterministic=False` default (transformers, positional
   encodings, EGNN, the DiT blocks, the CLIP text encoder), BatchNorm statistics that never update
@@ -26,10 +31,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   latent diffusion), a stored `Rngs` shared with a child module, which tree mode refuses (the UNet
   blocks, the diffusion models built on UNet1D, Stable Diffusion, the neural spline flow), a
   stored `Rngs` that `nnx.view` draws a key from, because its `default` stream answers the
-  `set_view` probe (40 classes: the UNet blocks and backbones, every diffusion, flow, GAN and VAE
-  model that keeps `self.rngs`), state created on the
+  `set_view` probe (75 classes: the UNet blocks and backbones, and every model, extension,
+  modality and metric that keeps `self.rngs`), state created on the
   first call (Glow, VQ-VAE), MADE hidden units with no input (MAF, IAF), and an `nnx.jit`
-  decorator on `SE3MolecularFlow.log_prob` that breaks an outer gradient. One cause is a flax
+  decorator on `SE3MolecularFlow.log_prob` that breaks an outer gradient, outputs that are host
+  values rather than arrays (metric and evaluation-suite floats, an extension's
+  `extension_type` string), outputs without a batch axis (`MeshModel`'s template faces, results
+  squeezed for a batch of one), a distribution's Python-int hash cached in `nnx.Cache`, and rows
+  coupled through batch-wide statistics. One cause is a flax
   defect rather than an artifex one, named as such: `nnx.Embed` fixes its dtype when built, where
   linen's `Embed` resolves it at call time, so a float64 copy looks up in float32 (`LabelEmbedder`,
   the CLIP token embedding, the SE(3) atom embedding). `cases.NOT_APPLICABLE` holds one check a
