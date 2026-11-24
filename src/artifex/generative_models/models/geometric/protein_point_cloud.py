@@ -73,12 +73,14 @@ class ProteinPointCloudModel(PointCloudModel):
         x: jax.Array | dict[str, jax.Array] | None = None,
         *,
         deterministic: bool = False,
+        rngs: nnx.Rngs | None = None,
     ) -> dict[str, Any]:
         """Forward pass through protein point cloud model.
 
         Args:
             x: Input data, either point cloud array or dictionary with keys.
             deterministic: Whether to run in deterministic mode.
+            rngs: Dropout keys for this call; ``None`` draws from the dropout layers' own streams.
 
         Returns:
             Dictionary of outputs.
@@ -126,7 +128,7 @@ class ProteinPointCloudModel(PointCloudModel):
                 x["features"] = aa_embeddings
 
         # Call parent class
-        outputs = super().__call__(x, deterministic=deterministic)
+        outputs = super().__call__(x, deterministic=deterministic, rngs=rngs)
 
         # Reshape positions to protein-specific format [batch, residues, atoms, 3]
         if "positions" in outputs:

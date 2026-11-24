@@ -213,8 +213,9 @@ def cases() -> dict[str, Case]:
                 _VOCAB, _TOKENS, 16, 2, 2, dropout_rate=0.5, rngs=r
             ),
             inputs=_tokens_and_mask,
-            call=lambda module, ids, mask: module(ids, attention_mask=mask),
+            call=lambda module, ids, mask, *, rngs: module(ids, attention_mask=mask, rngs=rngs),
             has_dropout=True,
+            rng_streams=("dropout",),
         ),
         f"{_DIFFUSION}.stable_diffusion.StableDiffusionModel": Case(
             build=lambda r: stable_diffusion.StableDiffusionModel(

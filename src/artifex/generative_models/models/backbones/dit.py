@@ -169,6 +169,7 @@ class LabelEmbedder(nnx.Module):
         *,
         deterministic: bool = False,
         force_drop_ids: jax.Array | None = None,
+        rngs: nnx.Rngs | None = None,
     ) -> jax.Array:
         """Embed class labels with optional dropout.
 
@@ -176,6 +177,7 @@ class LabelEmbedder(nnx.Module):
             labels: Class labels [batch_size]
             deterministic: Whether to apply dropout
             force_drop_ids: Force specific samples to be dropped (for CFG)
+            rngs: Dropout keys for this call; ``None`` draws from the dropout layers' own streams
 
         Returns:
             Label embeddings [batch_size, hidden_size]
@@ -185,7 +187,9 @@ class LabelEmbedder(nnx.Module):
             labels = jnp.where(force_drop_ids, self.num_classes, labels)
         elif self.dropout is not None and not deterministic:
             # Random dropout during training
-            drop_mask = self.dropout(jnp.ones(labels.shape), deterministic=deterministic) < 0.5
+            drop_mask = (
+                self.dropout(jnp.ones(labels.shape), deterministic=deterministic, rngs=rngs) < 0.5
+            )
             labels = jnp.where(drop_mask, self.num_classes, labels)
 
         return self.embedding_table(labels)
@@ -248,13 +252,21 @@ class DiTBlock(nnx.Module):
             nnx.Linear(hidden_size, 6 * hidden_size, rngs=rngs),
         )
 
-    def __call__(self, x: jax.Array, c: jax.Array, *, deterministic: bool = False) -> jax.Array:
+    def __call__(
+        self,
+        x: jax.Array,
+        c: jax.Array,
+        *,
+        deterministic: bool = False,
+        rngs: nnx.Rngs | None = None,
+    ) -> jax.Array:
         """Apply DiT block.
 
         Args:
             x: Input tensor [batch, seq_len, hidden_size]
             c: Conditioning tensor [batch, hidden_size]
             deterministic: Whether to apply dropout
+            rngs: Dropout keys for this call; ``None`` draws from the dropout layers' own streams
 
         Returns:
             Output tensor [batch, seq_len, hidden_size]
@@ -276,16 +288,16 @@ class DiTBlock(nnx.Module):
         norm_x = modulate(self.norm1(x), shift_msa, scale_msa)
         # For self-attention, inputs_q is the only required argument
         # The MultiHeadAttention will use it for key and value as well
-        attn_out = self.attn(inputs_q=norm_x, deterministic=deterministic)
+        attn_out = self.attn(inputs_q=norm_x, deterministic=deterministic, rngs=rngs)
         if self.dropout is not None:
-            attn_out = self.dropout(attn_out, deterministic=deterministic)
+            attn_out = self.dropout(attn_out, deterministic=deterministic, rngs=rngs)
         x = x + gate_msa * attn_out
 
         # MLP with adaLN
         norm_x = modulate(self.norm2(x), shift_mlp, scale_mlp)
         mlp_out = self.mlp(norm_x)
         if self.dropout is not None:
-            mlp_out = self.dropout(mlp_out, deterministic=deterministic)
+            mlp_out = self.dropout(mlp_out, deterministic=deterministic, rngs=rngs)
         x = x + gate_mlp * mlp_out
 
         return x
@@ -462,6 +474,7 @@ class DiffusionTransformer(nnx.Module):
         y: jax.Array | None = None,
         *,
         deterministic: bool = False,
+        rngs: nnx.Rngs | None = None,
     ) -> jax.Array:
         """Forward pass of Diffusion Transformer.
 
@@ -470,6 +483,7 @@ class DiffusionTransformer(nnx.Module):
             t: Timesteps [batch]
             y: Optional class labels [batch]
             deterministic: Whether to apply dropout
+            rngs: Dropout keys for this call; ``None`` draws from the dropout layers' own streams
 
         Returns:
             Predicted noise or learned mean/variance [batch, height, width, channels]
@@ -487,14 +501,14 @@ class DiffusionTransformer(nnx.Module):
         t_emb = self.time_embed(t)
 
         if self.label_embed is not None and y is not None:
-            y_emb = self.label_embed(y, deterministic=deterministic)
+            y_emb = self.label_embed(y, deterministic=deterministic, rngs=rngs)
             c = t_emb + y_emb
         else:
             c = t_emb
 
         # Apply transformer blocks
         for block in self.blocks:
-            x = block(x, c, deterministic=deterministic)
+            x = block(x, c, deterministic=deterministic, rngs=rngs)
 
         # Final layer
         x = self.final_layer(x, c)

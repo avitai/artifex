@@ -99,12 +99,14 @@ class MultiModalProcessor(nnx.Module):
         inputs: dict[str, jax.Array],
         *,
         deterministic: bool = False,
+        rngs: nnx.Rngs | None = None,
     ) -> jax.Array:
         """Process multi-modal inputs.
 
         Args:
             inputs: Dictionary of modality inputs
             deterministic: Whether to apply dropout
+            rngs: Dropout keys for this call; ``None`` draws from the dropout layer's own stream.
 
         Returns:
             Fused representation
@@ -124,7 +126,7 @@ class MultiModalProcessor(nnx.Module):
                 x = self.activation(x)
 
                 if self.dropout is not None and not deterministic:
-                    x = self.dropout(x, deterministic=deterministic)
+                    x = self.dropout(x, deterministic=deterministic, rngs=rngs)
 
                 encoded.append(x)
 
@@ -445,6 +447,7 @@ class CrossModalAttention(nnx.Module):
         value: jax.Array,
         *,
         deterministic: bool = False,
+        rngs: nnx.Rngs | None = None,
     ) -> jax.Array:
         """Apply cross-modal attention.
 
@@ -453,6 +456,7 @@ class CrossModalAttention(nnx.Module):
             key: Key features from another modality
             value: Value features
             deterministic: Whether to apply dropout
+            rngs: Dropout keys for this call; ``None`` draws from the dropout layers' own streams.
 
         Returns:
             Attended features
@@ -472,11 +476,12 @@ class CrossModalAttention(nnx.Module):
             value,
             decode=False,
             deterministic=deterministic,
+            rngs=rngs,
         )
 
         # Apply dropout if needed
         if self.dropout is not None and not deterministic:
-            attended = self.dropout(attended, deterministic=deterministic)
+            attended = self.dropout(attended, deterministic=deterministic, rngs=rngs)
 
         # Remove batch dimension if it was added
         if attended.shape[0] == 1:
@@ -625,12 +630,14 @@ class ModalityDropout(nnx.Module):
         inputs: dict[str, jax.Array],
         *,
         deterministic: bool = False,
+        rngs: nnx.Rngs | None = None,
     ) -> dict[str, jax.Array]:
         """Apply modality dropout.
 
         Args:
             inputs: Dictionary of modality features
             deterministic: Whether to apply dropout
+            rngs: Dropout keys for this call; ``None`` draws from the module's own ``nnx.Rngs``.
 
         Returns:
             Dictionary with some modalities potentially dropped
@@ -644,8 +651,9 @@ class ModalityDropout(nnx.Module):
             if modality in inputs:
                 # Randomly decide whether to keep this modality
                 keep_prob = 1.0 - self.dropout_rate
-                if "dropout" in self.rngs:
-                    key = self.rngs.dropout()
+                stream = rngs if rngs is not None else self.rngs
+                if "dropout" in stream:
+                    key = stream.dropout()
                 else:
                     key = jax.random.key(0)
 

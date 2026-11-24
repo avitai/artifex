@@ -480,7 +480,7 @@ class TestTransformerIntegration:
         """Test that gradients can be computed."""
         model = TransformerAutoregressiveModel(transformer_config, rngs=rngs)
 
-        def loss_fn(model, inputs, targets):
+        def loss_fn(model, rngs, inputs, targets):
             outputs = model(inputs, training=True, rngs=rngs)
             logits = outputs["logits"]
             return model.compute_loss(logits, targets)
@@ -488,8 +488,13 @@ class TestTransformerIntegration:
         inputs = jax.random.randint(jax.random.key(0), (2, 16), 0, 100)
         targets = jax.random.randint(jax.random.key(1), (2, 16), 0, 100)
 
-        # Compute gradients
-        loss, grads = nnx.value_and_grad(loss_fn)(model, inputs, targets)
+        # Compute gradients. The dropout keys are an argument, not a closure: nnx.value_and_grad
+        # lifts its arguments into the trace, and a draw from a closed-over Rngs would mutate state
+        # from outside it (flax raises TraceContextError). They are their own Rngs, not the one
+        # the model was built with, which the model also holds: one Rngs at two paths of the
+        # inputs is refused as inconsistent aliasing.
+        call_rngs = nnx.Rngs(dropout=jax.random.key(7))
+        loss, grads = nnx.value_and_grad(loss_fn)(model, call_rngs, inputs, targets)
 
         # Check loss and gradients are finite
         assert jnp.isfinite(loss)

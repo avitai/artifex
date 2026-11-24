@@ -470,14 +470,11 @@ class TransformerBlock(nnx.Module):
             x: Input tensor with shape [batch, num_points, embed_dim] or [num_points, embed_dim].
             mask: Optional attention mask with shape [batch, 1, 1, num_points].
             deterministic: Whether to run in deterministic mode.
-            rngs: Optional random number generators for stochastic operations.
+            rngs: Dropout keys for this call; ``None`` draws from the dropout layers' own streams.
 
         Returns:
             Processed tensor with same shape as input.
         """
-        # rngs parameter accepted for API compatibility but not currently used
-        # (dropout uses deterministic flag instead)
-        _ = rngs
         # Self-attention
         attention_output = self.attention(
             x,
@@ -485,6 +482,7 @@ class TransformerBlock(nnx.Module):
             x,
             mask=mask,
             deterministic=deterministic,
+            rngs=rngs,
         )
 
         # Add & norm
@@ -495,9 +493,9 @@ class TransformerBlock(nnx.Module):
         ffn_input = self.ffn_norm(x)
         ffn_output = self.ffn_linear1(ffn_input)
         ffn_output = nnx.gelu(ffn_output)
-        ffn_output = self.ffn_dropout1(ffn_output, deterministic=deterministic)
+        ffn_output = self.ffn_dropout1(ffn_output, deterministic=deterministic, rngs=rngs)
         ffn_output = self.ffn_linear2(ffn_output)
-        ffn_output = self.ffn_dropout2(ffn_output, deterministic=deterministic)
+        ffn_output = self.ffn_dropout2(ffn_output, deterministic=deterministic, rngs=rngs)
 
         # Add & norm
         x = x + ffn_output

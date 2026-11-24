@@ -496,6 +496,7 @@ class MLP(nnx.Module):
         self,
         x: jax.Array,
         layer_idx: int,
+        rngs: nnx.Rngs | None = None,
     ) -> jax.Array:
         """Forward pass through a single layer implementation.
 
@@ -504,6 +505,7 @@ class MLP(nnx.Module):
         Args:
             x: Input tensor.
             layer_idx: Index of the layer.
+            rngs: Dropout keys for this call; ``None`` draws from the dropout layer's own stream.
 
         Returns:
             Output tensor.
@@ -527,7 +529,7 @@ class MLP(nnx.Module):
         # Dropout (if applicable) - NNX handles training/eval mode automatically
         # Check if dropouts list exists and has elements.
         if len(self.dropouts) > 0 and layer_idx < len(self.dropouts):
-            x = self.dropouts[layer_idx](x)
+            x = self.dropouts[layer_idx](x, rngs=rngs)
 
         return x
 
@@ -535,39 +537,45 @@ class MLP(nnx.Module):
         self,
         x: jax.Array,
         layer_idx: int,
+        rngs: nnx.Rngs | None = None,
     ) -> jax.Array:
         """Forward pass through a single layer, with optional gradient checkpointing.
 
         Args:
             x: Input tensor.
             layer_idx: Index of the layer.
+            rngs: Dropout keys for this call; ``None`` draws from the dropout layer's own stream.
 
         Returns:
             Output tensor.
         """
         if self.use_gradient_checkpointing:
-            return self._forward_layer_checkpointed(x, layer_idx)
-        return self._forward_layer_impl(x, layer_idx)
+            return self._forward_layer_checkpointed(x, layer_idx, rngs)
+        return self._forward_layer_impl(x, layer_idx, rngs)
 
-    def _forward_layer_checkpointed(self, x: jax.Array, layer_idx: int) -> jax.Array:
+    def _forward_layer_checkpointed(
+        self, x: jax.Array, layer_idx: int, rngs: nnx.Rngs | None = None
+    ) -> jax.Array:
         """Forward pass through a single layer with gradient checkpointing.
 
         Uses ``nnx.remat`` (via :func:`apply_remat`) to correctly handle
-        NNX module state during recomputation.
+        NNX module state during recomputation. The dropout keys are an argument of the
+        rematerialised function, not captured by it, so ``nnx.remat`` sees the ``nnx.Rngs``.
 
         Args:
             x: Input tensor.
             layer_idx: Index of the layer.
+            rngs: Dropout keys for this call; ``None`` draws from the dropout layer's own stream.
 
         Returns:
             Output tensor.
         """
 
-        def forward_fn(x_in):
-            return self._forward_layer_impl(x_in, layer_idx)
+        def forward_fn(x_in: jax.Array, rngs_in: nnx.Rngs | None) -> jax.Array:
+            return self._forward_layer_impl(x_in, layer_idx, rngs_in)
 
         remated_fn = apply_remat(forward_fn, policy=self.checkpoint_policy)
-        return remated_fn(x)
+        return remated_fn(x, rngs)
 
     def __call__(
         self,
@@ -575,6 +583,7 @@ class MLP(nnx.Module):
         *,
         return_intermediates: bool = False,
         use_scan: bool = False,
+        rngs: nnx.Rngs | None = None,
     ) -> jax.Array | tuple[jax.Array, list[jax.Array]]:
         """Forward pass through the MLP.
 
@@ -583,6 +592,7 @@ class MLP(nnx.Module):
             return_intermediates: Whether to return intermediate activations
                 (useful for analysis but uses more memory).
             use_scan: Whether to use scan for memory-efficient deep networks.
+            rngs: Dropout keys for this call; ``None`` draws from the dropout layers' own streams.
 
         Returns:
             Output tensor of shape (batch_size, hidden_dims[-1]).
@@ -590,12 +600,12 @@ class MLP(nnx.Module):
         """
         # Use scan for deep networks (>= 8 layers) or when explicitly requested
         if use_scan or (len(self.layers) >= 8 and not return_intermediates):
-            return self._forward_sequential(x)
+            return self._forward_sequential(x, rngs)
 
         intermediates: list[jax.Array] | None = [] if return_intermediates else None
 
         for i in range(len(self.layers)):
-            x = self._forward_layer(x, i)
+            x = self._forward_layer(x, i, rngs)
 
             if return_intermediates and intermediates is not None:
                 intermediates.append(x)
@@ -604,17 +614,18 @@ class MLP(nnx.Module):
             return x, intermediates
         return x
 
-    def _forward_sequential(self, x: jax.Array) -> jax.Array:
+    def _forward_sequential(self, x: jax.Array, rngs: nnx.Rngs | None = None) -> jax.Array:
         """Sequential forward pass without storing intermediates.
 
         Args:
             x: Input tensor.
+            rngs: Dropout keys for this call; ``None`` draws from the dropout layers' own streams.
 
         Returns:
             Output tensor.
         """
         for i in range(len(self.layers)):
-            x = self._forward_layer_impl(x, i)
+            x = self._forward_layer_impl(x, i, rngs)
         return x
 
     def get_num_params(self) -> int:
@@ -792,11 +803,14 @@ class CNN(nnx.Module):
     def __call__(
         self,
         x: jax.Array,
+        *,
+        rngs: nnx.Rngs | None = None,
     ) -> jax.Array:
         """Apply CNN to input.
 
         Args:
             x: Input tensor.
+            rngs: Dropout keys for this call; ``None`` draws from the dropout layer's own stream.
 
         Returns:
             Output tensor.
@@ -813,6 +827,6 @@ class CNN(nnx.Module):
 
             # Apply dropout if needed - NNX handles training/eval mode automatically
             if self.dropout is not None:
-                x = self.dropout(x)
+                x = self.dropout(x, rngs=rngs)
 
         return x

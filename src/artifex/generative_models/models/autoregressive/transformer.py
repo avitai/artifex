@@ -131,11 +131,11 @@ class TransformerAutoregressiveModel(AutoregressiveModel):
 
         # Add positional encoding
         if self.use_positional_encoding:
-            embeddings = self.pos_encoding(embeddings, deterministic=not training)
+            embeddings = self.pos_encoding(embeddings, deterministic=not training, rngs=rngs)
 
         # Apply dropout
         if self.dropout_rate > 0:
-            embeddings = self.dropout(embeddings, deterministic=not training)
+            embeddings = self.dropout(embeddings, deterministic=not training, rngs=rngs)
 
         # Create attention mask for current sequence length
         seq_len = x.shape[1]
@@ -151,6 +151,7 @@ class TransformerAutoregressiveModel(AutoregressiveModel):
                 hidden_states,
                 mask=attention_mask,
                 deterministic=not training,
+                rngs=rngs,
             )
 
         # Layer normalization

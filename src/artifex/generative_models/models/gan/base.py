@@ -12,6 +12,7 @@ from artifex.generative_models.core.configuration.network_configs import (
     DiscriminatorConfig,
     GeneratorConfig,
 )
+from artifex.generative_models.core.keyword_routing import call_with_accepted_keywords
 from artifex.generative_models.core.losses import adversarial
 
 
@@ -85,7 +86,7 @@ class Generator(nnx.Module):
         else:
             self.dropout = None
 
-    def __call__(self, z: jax.Array) -> jax.Array:
+    def __call__(self, z: jax.Array, *, rngs: nnx.Rngs | None = None) -> jax.Array:
         """Forward pass through generator.
 
         Note: Use model.train() for training mode and model.eval() for evaluation mode.
@@ -93,6 +94,7 @@ class Generator(nnx.Module):
 
         Args:
             z: Latent vector of shape (batch_size, latent_dim)
+            rngs: Dropout keys for this call; ``None`` draws from the dropout layers' own streams.
 
         Returns:
             Generated output of shape (batch_size, *output_shape[1:])
@@ -112,7 +114,7 @@ class Generator(nnx.Module):
 
             # Apply dropout if enabled
             if self.dropout is not None:
-                x = self.dropout(x)
+                x = self.dropout(x, rngs=rngs)
 
         # Output layer with tanh activation
         x = self.output_layer(x)
@@ -199,7 +201,7 @@ class Discriminator(nnx.Module):
         else:
             self.dropout = None
 
-    def __call__(self, x: jax.Array) -> jax.Array:
+    def __call__(self, x: jax.Array, *, rngs: nnx.Rngs | None = None) -> jax.Array:
         """Forward pass through discriminator.
 
         Note: Use model.train() for training mode and model.eval() for evaluation mode.
@@ -207,6 +209,7 @@ class Discriminator(nnx.Module):
 
         Args:
             x: Input data of shape (batch_size, *features)
+            rngs: Dropout keys for this call; ``None`` draws from the dropout layers' own streams.
 
         Returns:
             Discriminator output of shape (batch_size, 1) in range [0, 1]
@@ -227,7 +230,7 @@ class Discriminator(nnx.Module):
 
             # Apply dropout if enabled
             if self.dropout is not None:
-                x = self.dropout(x)
+                x = self.dropout(x, rngs=rngs)
 
         # Output layer with sigmoid activation for [0,1] range
         x = self.output_layer(x)
@@ -311,7 +314,9 @@ class GAN(GenerativeModel):
             rngs=rngs,
         )
 
-    def __call__(self, x: jax.Array, **kwargs: Any) -> dict[str, Any]:
+    def __call__(
+        self, x: jax.Array, *, rngs: nnx.Rngs | None = None, **kwargs: Any
+    ) -> dict[str, Any]:
         """Forward pass through the GAN model.
 
         For a GAN, this runs data through the discriminator.
@@ -320,12 +325,13 @@ class GAN(GenerativeModel):
 
         Args:
             x: Input data of shape (batch_size, *data_shape)
+            rngs: Dropout keys for this call; ``None`` draws from the dropout layers' own streams.
             **kwargs: Additional keyword arguments
 
         Returns:
             Dict with model outputs including discriminator scores
         """
-        real_scores = self.discriminator(x)
+        real_scores = call_with_accepted_keywords(self.discriminator, x, rngs=rngs)
 
         # In regular forward pass, we don't generate fake samples
         # Those are only created in dedicated objective methods.
@@ -404,16 +410,25 @@ class GAN(GenerativeModel):
     def generator_objective(
         self,
         batch: dict[str, Any] | jax.Array,
+        *,
+        rngs: nnx.Rngs | None = None,
     ) -> dict[str, jax.Array]:
         """Compute the generator-only objective.
 
         GAN training has separate generator and discriminator optimization
         targets. This method exposes the generator target explicitly.
+
+        Args:
+            batch: Real data, or a dict holding it under ``"x"`` or ``"data"``.
+            rngs: Dropout keys for this call; ``None`` draws from the dropout layers' own streams.
+
+        Returns:
+            ``total_loss`` and ``generator_loss`` (the same value) and ``fake_scores_mean``.
         """
         real_data = self._extract_real_data(batch)
         z = self._sample_latents(real_data.shape[0])
-        fake_samples = self.generator(z)
-        fake_scores = self.discriminator(fake_samples)
+        fake_samples = call_with_accepted_keywords(self.generator, z, rngs=rngs)
+        fake_scores = call_with_accepted_keywords(self.discriminator, fake_samples, rngs=rngs)
         generator_loss = self._compute_generator_loss(fake_scores)
 
         return {
@@ -425,13 +440,26 @@ class GAN(GenerativeModel):
     def discriminator_objective(
         self,
         batch: dict[str, Any] | jax.Array,
+        *,
+        rngs: nnx.Rngs | None = None,
     ) -> dict[str, jax.Array]:
-        """Compute the discriminator-only objective."""
+        """Compute the discriminator-only objective.
+
+        Args:
+            batch: Real data, or a dict holding it under ``"x"`` or ``"data"``.
+            rngs: Dropout keys for this call; ``None`` draws from the dropout layers' own streams.
+
+        Returns:
+            ``total_loss`` and ``discriminator_loss`` (the same value), ``real_scores_mean`` and
+            ``fake_scores_mean``.
+        """
         real_data = self._extract_real_data(batch)
         z = self._sample_latents(real_data.shape[0])
-        fake_samples = jax.lax.stop_gradient(self.generator(z))
-        real_scores = self.discriminator(real_data)
-        fake_scores = self.discriminator(fake_samples)
+        fake_samples = jax.lax.stop_gradient(
+            call_with_accepted_keywords(self.generator, z, rngs=rngs)
+        )
+        real_scores = call_with_accepted_keywords(self.discriminator, real_data, rngs=rngs)
+        fake_scores = call_with_accepted_keywords(self.discriminator, fake_samples, rngs=rngs)
         discriminator_loss = self._compute_discriminator_loss(real_scores, fake_scores)
 
         return {

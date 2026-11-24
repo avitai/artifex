@@ -124,6 +124,7 @@ class CLIPTextEncoder(nnx.Module):
         input_ids: jnp.ndarray,
         *,
         attention_mask: jnp.ndarray | None = None,
+        rngs: nnx.Rngs | None = None,
     ) -> jnp.ndarray:
         """Encode text tokens to embeddings.
 
@@ -131,6 +132,7 @@ class CLIPTextEncoder(nnx.Module):
             input_ids: Token IDs [batch_size, seq_len]
             attention_mask: Optional attention mask [batch_size, seq_len]
                            1 for real tokens, 0 for padding
+            rngs: Dropout keys for this call; ``None`` draws from the dropout layers' own streams.
 
         Returns:
             Text embeddings [batch_size, seq_len, embedding_dim]
@@ -158,7 +160,7 @@ class CLIPTextEncoder(nnx.Module):
             attn_mask = None
 
         # Apply transformer encoder
-        x = self.transformer(x, mask=attn_mask)
+        x = self.transformer(x, mask=attn_mask, rngs=rngs)
 
         # Final layer normalization
         x = self.ln_final(x)

@@ -66,6 +66,7 @@ def cases() -> dict[str, Case]:
             build=mlp_energy,
             inputs=normal(_FEATURES),
             has_dropout=True,
+            rng_streams=("dropout",),
         ),
         f"{_ENERGY}.base.CNNEnergyFunction": Case(
             build=lambda r: base.CNNEnergyFunction([4, 6], input_channels=_CHANNELS, rngs=r),
@@ -75,6 +76,7 @@ def cases() -> dict[str, Case]:
             build=lambda r: base.EnergyBasedModel(mlp_energy(r), rngs=r),
             inputs=normal(_FEATURES),
             has_dropout=True,
+            rng_streams=("dropout",),
         ),
         f"{_ENERGY}.ebm.EnergyBlock": Case(
             build=lambda r: ebm.EnergyBlock(_CHANNELS, 4, rngs=r),
@@ -88,6 +90,7 @@ def cases() -> dict[str, Case]:
             build=lambda r: ebm.EBM(ebm_config, rngs=r),
             inputs=normal(_FEATURES),
             has_dropout=True,
+            rng_streams=("dropout",),
         ),
         f"{_ENERGY}.ebm.DeepEBM": Case(
             build=lambda r: ebm.DeepEBM(deep_config, rngs=r),

@@ -71,8 +71,13 @@ def cases() -> dict[str, Case]:
                 ["image", "text"], _HIDDEN, hidden_dims=[_HIDDEN], dropout_rate=0.5, rngs=r
             ),
             inputs=_image_and_text,
-            call=each_row(image_and_text),
+            call=each_row(
+                lambda module, image, text, *, rngs: module(
+                    {"image": image, "text": text}, rngs=rngs
+                )
+            ),
             has_dropout=True,
+            rng_streams=("dropout",),
         ),
         f"{_MULTI_MODAL}.representations.CrossModalProcessor": Case(
             build=lambda r: representations.CrossModalProcessor(
@@ -98,6 +103,7 @@ def cases() -> dict[str, Case]:
                 jax.random.normal(k, (BATCH, 3, _HIDDEN)) for k in jax.random.split(key, 3)
             ),
             has_dropout=True,
+            rng_streams=("dropout",),
         ),
         f"{_MULTI_MODAL}.representations.HierarchicalFusion": Case(
             build=lambda r: representations.HierarchicalFusion(
@@ -116,11 +122,12 @@ def cases() -> dict[str, Case]:
             # The three modalities its own test drops (test_multi_modal_modality.py:467-469).
             build=lambda r: representations.ModalityDropout(["image", "text", "audio"], rngs=r),
             inputs=_features(_HIDDEN, _HIDDEN, _HIDDEN),
-            call=lambda module, image, text, audio: module(
-                {"image": image, "text": text, "audio": audio}
+            call=lambda module, image, text, audio, *, rngs: module(
+                {"image": image, "text": text, "audio": audio}, rngs=rngs
             ),
             is_differentiable=False,
             has_dropout=True,
+            rng_streams=("dropout",),
         ),
         f"{_MULTI_MODAL}.adapters.MultiModalAdapter": Case(
             build=lambda r: adapters.MultiModalAdapter(adapter_config, rngs=r),

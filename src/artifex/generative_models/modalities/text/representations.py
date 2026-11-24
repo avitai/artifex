@@ -494,12 +494,15 @@ class SequenceAugmentationProcessor(nnx.Module):
         sequences: jax.Array,
         *,
         deterministic: bool = False,
+        rngs: nnx.Rngs | None = None,
     ) -> jax.Array:
         """Apply token dropout to sequences.
 
         Args:
             sequences: Token sequences
             deterministic: Whether to apply dropout
+            rngs: Dropout keys for this call; ``None`` draws from the processor's own
+                ``nnx.Rngs``.
 
         Returns:
             Sequences with token dropout applied
@@ -519,8 +522,9 @@ class SequenceAugmentationProcessor(nnx.Module):
             mask = mask & (sequences != token_id)
 
         # Apply dropout only to non-special tokens
-        if "dropout" in self.rngs:
-            key = self.rngs.dropout()
+        stream = rngs if rngs is not None else self.rngs
+        if "dropout" in stream:
+            key = stream.dropout()
         else:
             key = jax.random.key(0)
 

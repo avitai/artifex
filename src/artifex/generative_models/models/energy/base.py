@@ -13,6 +13,7 @@ import jax.numpy as jnp
 from flax import nnx
 
 from artifex.generative_models.core.base import GenerativeModel
+from artifex.generative_models.core.keyword_routing import call_with_accepted_keywords
 
 
 class EnergyFunction(nnx.Module):
@@ -37,6 +38,9 @@ class EnergyFunction(nnx.Module):
 
     def __call__(self, x: jax.Array) -> jax.Array:
         """Compute the energy of input data.
+
+        A subclass with dropout also takes ``rngs``, its dropout keys for the call; the model
+        passes them only to an energy function that declares them.
 
         Args:
             x: Input data of shape (batch_size, ...)
@@ -73,44 +77,47 @@ class EnergyBasedModel(GenerativeModel):
         super().__init__(rngs=rngs or nnx.Rngs(), precision=precision)
         self.energy_fn = energy_fn
 
-    def energy(self, x: jax.Array) -> jax.Array:
+    def energy(self, x: jax.Array, *, rngs: nnx.Rngs | None = None) -> jax.Array:
         """Compute energy E(x) for input data.
 
         Args:
             x: Input data of shape (batch_size, ...)
+            rngs: Dropout keys for this call; ``None`` draws from the dropout layers' own streams.
 
         Returns:
             Energy values of shape (batch_size,)
         """
-        return self.energy_fn(x)
+        return call_with_accepted_keywords(self.energy_fn, x, rngs=rngs)
 
-    def energy_outputs(self, x: jax.Array) -> dict[str, jax.Array]:
+    def energy_outputs(self, x: jax.Array, *, rngs: nnx.Rngs | None = None) -> dict[str, jax.Array]:
         """Compute energy function outputs including energy and unnormalized log prob.
 
         Args:
             x: Input data of shape (batch_size, ...)
+            rngs: Dropout keys for this call; ``None`` draws from the dropout layers' own streams.
 
         Returns:
             Dictionary containing:
                 - "energy": Energy values of shape (batch_size,)
                 - "unnormalized_log_prob": Unnormalized log probabilities -E(x)
         """
-        energy_values = self.energy(x)
+        energy_values = self.energy(x, rngs=rngs)
         return {
             "energy": energy_values,
             "unnormalized_log_prob": -energy_values,
         }
 
-    def unnormalized_log_prob(self, x: jax.Array) -> jax.Array:
+    def unnormalized_log_prob(self, x: jax.Array, *, rngs: nnx.Rngs | None = None) -> jax.Array:
         """Compute unnormalized log probability -E(x).
 
         Args:
             x: Input data of shape (batch_size, ...)
+            rngs: Dropout keys for this call; ``None`` draws from the dropout layers' own streams.
 
         Returns:
             Unnormalized log probabilities of shape (batch_size,)
         """
-        return -self.energy(x)
+        return -self.energy(x, rngs=rngs)
 
     def score(self, x: jax.Array) -> jax.Array:
         """Compute the score function ∇_x log p(x) = -∇_x E(x).
@@ -148,7 +155,8 @@ class EnergyBasedModel(GenerativeModel):
 
         Args:
             x: Input data of shape (batch_size, ...)
-            rngs: Random number generators (unused)
+            rngs: Dropout keys for the energy; ``None`` draws from the dropout layers' own
+                streams. The score runs in ``.eval()``, so it takes none.
             **kwargs: Additional keyword arguments
 
         Returns:
@@ -157,7 +165,7 @@ class EnergyBasedModel(GenerativeModel):
             - "unnormalized_log_prob": Unnormalized log probabilities -E(x)
             - "score": Score function values ∇_x log p(x)
         """
-        energy_vals = self.energy(x)
+        energy_vals = self.energy(x, rngs=rngs)
         log_prob_vals = -energy_vals
         score_vals = self.score(x)
 
@@ -172,6 +180,8 @@ class EnergyBasedModel(GenerativeModel):
         real_data: jax.Array,
         fake_data: jax.Array,
         alpha: float = 0.01,
+        *,
+        rngs: nnx.Rngs | None = None,
     ) -> dict[str, jax.Array]:
         """Compute contrastive divergence loss.
 
@@ -183,12 +193,13 @@ class EnergyBasedModel(GenerativeModel):
             real_data: Real data samples
             fake_data: Generated/fake data samples
             alpha: Regularization strength
+            rngs: Dropout keys for this call; ``None`` draws from the dropout layers' own streams.
 
         Returns:
             dictionary containing loss components
         """
-        real_energy = self.energy(real_data)
-        fake_energy = self.energy(fake_data)
+        real_energy = self.energy(real_data, rngs=rngs)
+        fake_energy = self.energy(fake_data, rngs=rngs)
 
         # Contrastive divergence loss
         cd_loss = real_energy.mean() - fake_energy.mean()
@@ -222,7 +233,7 @@ class EnergyBasedModel(GenerativeModel):
         Args:
             batch: Training batch containing real data
             model_outputs: Outputs from forward pass (unused)
-            rngs: Random number generators (unused)
+            rngs: Dropout keys for this call; ``None`` draws from the dropout layers' own streams.
             fake_samples: Generated samples for contrastive divergence
             alpha: Regularization strength
             **kwargs: Additional arguments
@@ -240,7 +251,7 @@ class EnergyBasedModel(GenerativeModel):
         real_data = self._extract_data_from_batch(batch)
 
         # Compute contrastive divergence loss
-        return self.contrastive_divergence_loss(real_data, fake_samples, alpha)
+        return self.contrastive_divergence_loss(real_data, fake_samples, alpha, rngs=rngs)
 
     def generate(
         self,
@@ -363,6 +374,8 @@ class MLPEnergyFunction(EnergyFunction):
     def __call__(
         self,
         x: jax.Array,
+        *,
+        rngs: nnx.Rngs | None = None,
     ) -> jax.Array:
         """Forward pass through MLP energy function.
 
@@ -370,6 +383,7 @@ class MLPEnergyFunction(EnergyFunction):
 
         Args:
             x: Input data of shape (batch_size, input_dim)
+            rngs: Dropout keys for this call; ``None`` draws from the dropout layer's own stream.
 
         Returns:
             Energy values of shape (batch_size,)
@@ -385,7 +399,7 @@ class MLPEnergyFunction(EnergyFunction):
 
             # Apply dropout using auto mode from model.train()/eval()
             if self.dropout is not None:
-                x = self.dropout(x)
+                x = self.dropout(x, rngs=rngs)
 
         # Output layer
         x = self.output_layer(x)
