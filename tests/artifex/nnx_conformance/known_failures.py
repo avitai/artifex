@@ -19,6 +19,7 @@ _AUTOREGRESSIVE = "artifex.generative_models.models.autoregressive"
 _ENERGY = "artifex.generative_models.models.energy"
 _GEOMETRIC = "artifex.generative_models.models.geometric"
 _AUDIO = "artifex.generative_models.models.audio"
+_LOSSES = f"{_CORE}.losses"
 
 _EVAL_OVERRIDE = "a deterministic=False default forwarded to {target} overrides .eval() ({where})"
 
@@ -174,6 +175,23 @@ WAVENET_AUDIO_EMBED = EMBED_LOOKUP.format(
 ) + (
     "; per parameter group in float64, only input_embedding's finite differences fail to"
     " converge (FD-AD -1.9e-1 at step 1e-6), while every convolution agrees to 1e-8"
+)
+PERCEPTUAL_WEIGHTS = (
+    "R024 PerceptualLoss stores layer_weights or {} (perceptual.py:316), so with no weights given"
+    " it passes an empty dict, not None, and feature_reconstruction_loss and style_loss weigh"
+    " every layer 0 instead of their default 1.0: the loss is 0 and its gradient is zero"
+    " everywhere, though the feature extractor has parameters (R089)"
+)
+SPECTRAL_NORM_LAZY = (
+    "R053 SpectralNormRegularization creates its power-iteration vector on the first call"
+    " (regularization.py:208), so a forward pass adds a Variable, changes the graph definition,"
+    " and nnx.jit traces again"
+)
+SPECTRAL_NORM_EVAL = (
+    "R533 SpectralNormRegularization writes its power-iteration vector back on every call"
+    " (regularization.py:215), .eval() included, so two .eval() calls differ; flax's"
+    " nnx.SpectralNorm updates it only when not use_running_average"
+    " (flax/nnx/nn/normalization.py:1339-1340, 1452)"
 )
 
 VIEW_STORED_RNGS = (
@@ -510,6 +528,19 @@ def _audio() -> dict[tuple[str, str], str]:
     }
 
 
+def _objectives() -> dict[tuple[str, str], str]:
+    spectral = f"{_LOSSES}.regularization.SpectralNormRegularization"
+    return {
+        **{
+            (f"{_LOSSES}.perceptual.PerceptualLoss", check): PERCEPTUAL_WEIGHTS
+            for check in ("gradient_finite", "gradient_matches_finite_differences")
+        },
+        (spectral, "state_structure"): SPECTRAL_NORM_LAZY,
+        (spectral, "jit_matches_eager"): SPECTRAL_NORM_LAZY,
+        (spectral, "eval_deterministic"): SPECTRAL_NORM_EVAL,
+    }
+
+
 def _views() -> dict[tuple[str, str], str]:
     failures = {
         (f"{_GENERATIVE}.{module}", "view_matches_modes"): VIEW_STORED_RNGS.format(path=path)
@@ -534,5 +565,6 @@ KNOWN_FAILURES: dict[tuple[str, str], str] = (
     | _energy()
     | _geometric()
     | _audio()
+    | _objectives()
     | _views()
 )
