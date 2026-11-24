@@ -91,11 +91,13 @@ def cases() -> dict[str, Case]:
             build=lambda r: dit.LabelEmbedder(4, 32, dropout_rate=0.5, rngs=r),
             inputs=lambda key: (labels(key, 4),),
             has_dropout=True,
+            rng_streams=("dropout",),
         ),
         f"{_BACKBONES}.dit.DiTBlock": Case(
             build=lambda r: dit.DiTBlock(32, 2, dropout_rate=0.5, rngs=r),
             inputs=arrays((4, 32), (32,)),
             has_dropout=True,
+            rng_streams=("dropout",),
         ),
         f"{_BACKBONES}.dit.FinalLayer": Case(
             build=lambda r: dit.FinalLayer(32, 2, 3, rngs=r),
@@ -115,6 +117,7 @@ def cases() -> dict[str, Case]:
             ),
             inputs=dit_inputs,
             has_dropout=True,
+            rng_streams=("dropout",),
         ),
         f"{_BACKBONES}.unet_1d.ConvBlock1D": Case(
             build=lambda r: unet_1d.ConvBlock1D(8, 16, time_embedding_dim=16, rngs=r),

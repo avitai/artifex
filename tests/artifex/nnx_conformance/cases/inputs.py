@@ -70,10 +70,14 @@ def each_row(call: Callable[..., PyTree]) -> Callable[..., PyTree]:
 
     For a module whose callers pass one sample at a time. A leaf that is not an array (a string,
     a host float) is kept as the list of its per-row values, so the checks still report it.
+    Keywords such as ``rngs`` go to every row's call; one ``nnx.Rngs`` advances from row to row,
+    so each row draws its own keys, as separate calls would.
     """
 
-    def rows(module: nnx.Module, *inputs: jax.Array) -> PyTree:
-        outputs = [call(module, *(x[i] for x in inputs)) for i in range(inputs[0].shape[0])]
+    def rows(module: nnx.Module, *inputs: jax.Array, **keywords: object) -> PyTree:
+        outputs = [
+            call(module, *(x[i] for x in inputs), **keywords) for i in range(inputs[0].shape[0])
+        ]
 
         def stack(*leaves: object) -> object:
             if all(isinstance(leaf, jax.Array) for leaf in leaves):

@@ -187,9 +187,13 @@ class GraphModel(GeometricModel):
         deterministic: bool = False,
         batch_size: int = 1,
     ) -> dict[str, Any]:
-        """Run the graph backbone without applying extensions."""
-        if rngs is None and hasattr(self, "rngs"):
-            rngs = self.rngs
+        """Run the graph backbone without applying extensions.
+
+        ``rngs`` is the caller's: its dropout keys reach the EGNN layers, and ``None`` leaves each
+        layer drawing from its own stream. Sampling starting positions falls back to the model's
+        stored ``rngs``.
+        """
+        sampling_rngs = rngs if rngs is not None else getattr(self, "rngs", None)
 
         # Default empty inputs if None provided
         if x is None:
@@ -198,8 +202,8 @@ class GraphModel(GeometricModel):
             num_nodes = int(getattr(self.config, "max_nodes"))
 
             # Generate random initial positions
-            if rngs is not None and hasattr(rngs, "params"):
-                key = rngs.params()
+            if sampling_rngs is not None and hasattr(sampling_rngs, "params"):
+                key = sampling_rngs.params()
             else:
                 key = jax.random.PRNGKey(0)
 
@@ -278,6 +282,7 @@ class GraphModel(GeometricModel):
                 edge_features=e,
                 mask=mask,
                 deterministic=deterministic,
+                rngs=rngs,
             )
 
         # Project node features back to original dimensions

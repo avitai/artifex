@@ -83,12 +83,14 @@ class EGNNBlock(nnx.Module):
         x: jax.Array,
         *,
         deterministic: bool = False,
+        rngs: nnx.Rngs | None = None,
     ) -> jax.Array:
         """Forward pass through the MLP block.
 
         Args:
             x: Input tensor.
             deterministic: If True, disable dropout.
+            rngs: Dropout keys for this call; ``None`` draws from the dropout layer's own stream.
 
         Returns:
             Output tensor after MLP transformation.
@@ -101,7 +103,7 @@ class EGNNBlock(nnx.Module):
                     x = self.norms[i](x)
                 x = nnx.relu(x)
                 if self.dropout is not None:
-                    x = self.dropout(x, deterministic=deterministic)
+                    x = self.dropout(x, deterministic=deterministic, rngs=rngs)
         return x
 
 
@@ -206,6 +208,7 @@ class EGNNLayer(nnx.Module):
         mask: jax.Array | None = None,
         *,
         deterministic: bool = False,
+        rngs: nnx.Rngs | None = None,
     ) -> tuple[jax.Array, jax.Array, jax.Array]:
         """Forward pass through the EGNN layer.
 
@@ -217,6 +220,8 @@ class EGNNLayer(nnx.Module):
                 [batch, num_nodes, num_nodes, edge_dim] or None.
             mask: Node mask [batch, num_nodes] or None.
             deterministic: Whether to run in deterministic mode.
+            rngs: Dropout keys for this call; ``None`` draws from the dropout layers' own
+                streams.
 
         Returns:
             Tuple of (node_features, coordinates, edge_features) with
@@ -248,7 +253,7 @@ class EGNNLayer(nnx.Module):
             edge_inputs = jnp.concatenate([node_i, node_j, squared_dist, zero_edge], axis=-1)
 
         # Step 3: Compute edge messages
-        edge_messages = self.edge_mlp(edge_inputs, deterministic=deterministic)
+        edge_messages = self.edge_mlp(edge_inputs, deterministic=deterministic, rngs=rngs)
         new_edge_features = edge_messages
 
         # Step 4: Apply attention if enabled
@@ -269,10 +274,10 @@ class EGNNLayer(nnx.Module):
 
         # Step 6: Update node features
         node_inputs = jnp.concatenate([node_features, node_messages], axis=-1)
-        new_node_features = self.node_update(node_inputs, deterministic=deterministic)
+        new_node_features = self.node_update(node_inputs, deterministic=deterministic, rngs=rngs)
 
         # Step 7: Compute coordinate updates
-        coord_messages = self.coord_mlp(node_messages, deterministic=deterministic)
+        coord_messages = self.coord_mlp(node_messages, deterministic=deterministic, rngs=rngs)
 
         # Normalize direction vectors
         norm = jnp.sqrt(jnp.sum(rel_pos**2, axis=-1, keepdims=True) + 1e-8)

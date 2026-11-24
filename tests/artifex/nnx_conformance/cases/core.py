@@ -119,11 +119,13 @@ def layer_cases() -> dict[str, Case]:
             build=lambda r: egnn.EGNNLayer(edge_dim=4, hidden_dim=8, dropout_rate=0.5, rngs=r),
             inputs=_egnn_inputs,
             has_dropout=True,
+            rng_streams=("dropout",),
         ),
         f"{_LAYERS}.egnn.EGNNBlock": Case(
             build=lambda r: egnn.EGNNBlock(8, 6, 16, dropout_rate=0.5, rngs=r),
             inputs=normal(5, 8),
             has_dropout=True,
+            rng_streams=("dropout",),
         ),
         f"{_LAYERS}.flash_attention.FlashMultiHeadAttention": Case(
             build=lambda r: flash_attention.FlashMultiHeadAttention(
@@ -131,6 +133,7 @@ def layer_cases() -> dict[str, Case]:
             ),
             inputs=normal(6, 16),
             has_dropout=True,
+            rng_streams=("dropout",),
         ),
         f"{_LAYERS}.positional.SinusoidalPositionalEncoding": Case(
             build=lambda r: positional.SinusoidalPositionalEncoding(
@@ -138,6 +141,7 @@ def layer_cases() -> dict[str, Case]:
             ),
             inputs=normal(6, 16),
             has_dropout=True,
+            rng_streams=("dropout",),
         ),
         f"{_LAYERS}.positional.LearnedPositionalEncoding": Case(
             build=lambda r: positional.LearnedPositionalEncoding(
@@ -145,6 +149,7 @@ def layer_cases() -> dict[str, Case]:
             ),
             inputs=normal(6, 16),
             has_dropout=True,
+            rng_streams=("dropout",),
         ),
         f"{_LAYERS}.positional.RotaryPositionalEncoding": Case(
             build=lambda r: positional.RotaryPositionalEncoding(
@@ -152,6 +157,7 @@ def layer_cases() -> dict[str, Case]:
             ),
             inputs=normal(6, 16),
             has_dropout=True,
+            rng_streams=("dropout",),
         ),
         f"{_LAYERS}.residual.Conv1DResidualBlock": Case(
             build=lambda r: residual.Conv1DResidualBlock(residual_channels=4, dilation=2, rngs=r),
@@ -183,6 +189,7 @@ def layer_cases() -> dict[str, Case]:
             ),
             inputs=normal(6, 16),
             has_dropout=True,
+            rng_streams=("dropout",),
         ),
         f"{_LAYERS}.transformers.TransformerEncoderBlock": Case(
             build=lambda r: transformers.TransformerEncoderBlock(
@@ -190,6 +197,7 @@ def layer_cases() -> dict[str, Case]:
             ),
             inputs=normal(6, 16),
             has_dropout=True,
+            rng_streams=("dropout",),
         ),
         f"{_LAYERS}.transformers.TransformerEncoder": Case(
             build=lambda r: transformers.TransformerEncoder(
@@ -202,6 +210,7 @@ def layer_cases() -> dict[str, Case]:
             ),
             inputs=normal(6, 16),
             has_dropout=True,
+            rng_streams=("dropout",),
         ),
         f"{_LAYERS}.transformers.TransformerDecoderBlock": Case(
             build=lambda r: transformers.TransformerDecoderBlock(
@@ -209,6 +218,7 @@ def layer_cases() -> dict[str, Case]:
             ),
             inputs=_decoder_inputs,
             has_dropout=True,
+            rng_streams=("dropout",),
         ),
         f"{_LAYERS}.transformers.TransformerDecoder": Case(
             build=lambda r: transformers.TransformerDecoder(
@@ -221,6 +231,7 @@ def layer_cases() -> dict[str, Case]:
             ),
             inputs=_decoder_inputs,
             has_dropout=True,
+            rng_streams=("dropout",),
         ),
         f"{_LAYERS}.kan.spline.DenseKANLayer": Case(
             build=lambda r: spline.DenseKANLayer(n_in=3, n_out=4, rngs=r),
@@ -275,10 +286,15 @@ def base_cases() -> dict[str, Case]:
             build=lambda r: base.MLP([8, 6], in_features=4, dropout_rate=0.5, rngs=r),
             inputs=normal(4),
             has_dropout=True,
+            rng_streams=("dropout",),
         ),
         f"{_CORE}.base.CNN": Case(
-            build=lambda r: base.CNN([4, 6], in_features=3, activation=nnx.silu, rngs=r),
+            build=lambda r: base.CNN(
+                [4, 6], in_features=3, activation=nnx.silu, dropout_rate=0.5, rngs=r
+            ),
             inputs=normal(8, 8, 3),
+            has_dropout=True,
+            rng_streams=("dropout",),
         ),
     }
 

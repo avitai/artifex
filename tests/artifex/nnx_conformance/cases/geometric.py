@@ -28,7 +28,12 @@ def _graph(key: jax.Array) -> tuple[jax.Array, ...]:
 
 
 def _call_graph(
-    module: nnx.Module, nodes: jax.Array, edges: jax.Array, coordinates: jax.Array
+    module: nnx.Module,
+    nodes: jax.Array,
+    edges: jax.Array,
+    coordinates: jax.Array,
+    *,
+    rngs: nnx.Rngs | None = None,
 ) -> PyTree:
     return module(
         {
@@ -37,7 +42,8 @@ def _call_graph(
             "coordinates": coordinates,
             "adjacency": jnp.ones((nodes.shape[0], _NODES, _NODES)),
             "mask": jnp.ones((nodes.shape[0], _NODES)),
-        }
+        },
+        rngs=rngs,
     )
 
 
@@ -50,8 +56,10 @@ def _protein(key: jax.Array) -> tuple[jax.Array, ...]:
     )
 
 
-def _call_protein(module: nnx.Module, aatype: jax.Array, positions: jax.Array) -> PyTree:
-    return module({"aatype": aatype, "atom_positions": positions})
+def _call_protein(
+    module: nnx.Module, aatype: jax.Array, positions: jax.Array, *, rngs: nnx.Rngs | None = None
+) -> PyTree:
+    return module({"aatype": aatype, "atom_positions": positions}, rngs=rngs)
 
 
 def _point_cloud(key: jax.Array) -> tuple[jax.Array, ...]:
@@ -158,20 +166,23 @@ def cases() -> dict[str, Case]:
             inputs=_graph,
             call=_call_graph,
             has_dropout=True,
+            rng_streams=("dropout",),
         ),
         f"{_GEOMETRIC}.protein_graph.ProteinGraphModel": Case(
             build=lambda r: protein_graph.ProteinGraphModel(protein_graph_config, rngs=r),
             inputs=_protein,
             call=_call_protein,
             has_dropout=True,
+            rng_streams=("dropout",),
         ),
         f"{_GEOMETRIC}.point_cloud.PointCloudModel": Case(
             build=lambda r: point_cloud.PointCloudModel(point_cloud_config, rngs=r),
             inputs=_point_cloud,
-            call=lambda module, positions, features: module(
-                {"positions": positions, "features": features}
+            call=lambda module, positions, features, *, rngs: module(
+                {"positions": positions, "features": features}, rngs=rngs
             ),
             has_dropout=True,
+            rng_streams=("dropout",),
         ),
         f"{_GEOMETRIC}.protein_point_cloud.ProteinPointCloudModel": Case(
             build=lambda r: protein_point_cloud.ProteinPointCloudModel(
@@ -180,6 +191,7 @@ def cases() -> dict[str, Case]:
             inputs=_protein,
             call=_call_protein,
             has_dropout=True,
+            rng_streams=("dropout",),
         ),
         f"{_GEOMETRIC}.mesh.SiLU": Case(
             build=lambda r: mesh.SiLU(),

@@ -279,13 +279,14 @@ class LSGANDiscriminator(Discriminator):
         else:
             self.lsgan_dropout = None
 
-    def __call__(self, x: jax.Array) -> jax.Array:
+    def __call__(self, x: jax.Array, *, rngs: nnx.Rngs | None = None) -> jax.Array:
         """Forward pass through LSGAN discriminator.
 
         Note: Use model.train() for training mode and model.eval() for evaluation mode.
 
         Args:
             x: Input images of shape (batch_size, channels, height, width)
+            rngs: Dropout keys for this call; ``None`` draws from the dropout layers' own streams.
 
         Returns:
             Discriminator scores (raw logits, no sigmoid for LSGAN)
@@ -306,7 +307,7 @@ class LSGANDiscriminator(Discriminator):
 
             # Apply dropout
             if self.lsgan_dropout is not None:
-                x = self.lsgan_dropout(x)  # Auto mode from model.train()/eval()
+                x = self.lsgan_dropout(x, rngs=rngs)  # Auto mode from model.train()/eval()
 
         # Flatten for output layer
         x = jnp.reshape(x, (x.shape[0], -1))
@@ -421,6 +422,8 @@ class LSGAN(nnx.Module):
         self,
         real_images: jax.Array,
         latent_vectors: jax.Array,
+        *,
+        rngs: nnx.Rngs | None = None,
     ) -> dict[str, jax.Array]:
         """Perform a single training step.
 
@@ -429,6 +432,7 @@ class LSGAN(nnx.Module):
         Args:
             real_images: Batch of real images
             latent_vectors: Batch of latent vectors
+            rngs: Dropout keys for this call; ``None`` draws from the dropout layers' own streams.
 
         Returns:
             Dictionary with loss values and generated images
@@ -437,8 +441,8 @@ class LSGAN(nnx.Module):
         fake_images = self.generator(latent_vectors)
 
         # Get discriminator scores
-        real_scores = self.discriminator(real_images)
-        fake_scores = self.discriminator(fake_images)
+        real_scores = self.discriminator(real_images, rngs=rngs)
+        fake_scores = self.discriminator(fake_images, rngs=rngs)
 
         # Compute losses
         gen_loss = self.generator_loss(fake_scores)

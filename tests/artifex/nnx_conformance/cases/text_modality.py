@@ -77,9 +77,10 @@ def cases() -> dict[str, Case]:
                 config, dropout_rate=0.5, rngs=r
             ),
             inputs=_tokens,
-            call=lambda module, tokens: module.apply_token_dropout(tokens),
+            call=lambda module, tokens, *, rngs: module.apply_token_dropout(tokens, rngs=rngs),
             is_differentiable=False,
             has_dropout=True,
+            rng_streams=("dropout",),
         ),
         f"{_TEXT}.evaluation.TextEvaluationSuite": Case(
             build=lambda r: evaluation.TextEvaluationSuite(config, rngs=r),

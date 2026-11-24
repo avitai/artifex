@@ -81,6 +81,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Breaking:** every module with dropout takes its dropout keys at call time,
+  `rngs: nnx.Rngs | None = None`, and passes them to each dropout layer it reaches, as flax's
+  `nnx.Dropout` and `nnx.MultiHeadAttention` take them (the explicit style flax's randomness guide
+  recommends). Before, several modules accepted `rngs` and ignored it, and the transformer,
+  point-cloud, graph, DiT, GAN, energy, multi-modal, CLIP and text-embedding paths drew from the
+  dropout layers' own streams whatever the caller passed. `None` still draws from those streams. A
+  caller that closes over an `nnx.Rngs` inside `nnx.grad`, `nnx.value_and_grad` or `nnx.jit` and
+  passes it to a model now gets flax's `TraceContextError`, because the model draws from it inside
+  the trace: pass it as an argument of the transformed function instead, as flax's examples do,
+  and not the `Rngs` the model was built with, which flax refuses as inconsistent aliasing. A
+  composite calling children of different kinds (a GAN's generator and discriminator, an energy
+  model's energy function) passes `rngs` only to a child whose signature accepts it, the rule
+  `nnx.Sequential` applies (`core.keyword_routing.call_with_accepted_keywords`), so a network
+  without dropout keeps a signature without `rngs`. `PatchGANDiscriminator.__call__` now runs the
+  shared `_call_without_conversion` after converting its input, instead of a second copy of it.
 - The Avitai siblings are pinned exactly at their latest releases: `calibrax==0.1.21`,
   `datarax==0.1.17` and `substrax==0.1.31`, the test extra's `substrax[testing]` included, so
   the latest versions always install together and each sibling release is followed by an artifex

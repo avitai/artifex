@@ -22,20 +22,47 @@ _CYCLE_IMAGE = (8, 8, 3)
 _STYLE_DIM, _STYLE_RESOLUTION = 8, 8
 
 
-def _scores_and_samples(module: nnx.Module, x: jax.Array, z: jax.Array) -> PyTree:
+def _scores_and_samples(
+    module: nnx.Module, x: jax.Array, z: jax.Array, *, rngs: nnx.Rngs | None = None
+) -> PyTree:
     """Run both networks of a GAN: the discriminator on data and the generator on latents."""
-    return module.discriminator(x), module.generator(z)
+    from artifex.generative_models.core.keyword_routing import (  # noqa: PLC0415
+        call_with_accepted_keywords,
+    )
+
+    return (
+        call_with_accepted_keywords(module.discriminator, x, rngs=rngs),
+        call_with_accepted_keywords(module.generator, z, rngs=rngs),
+    )
 
 
-def _gan_forward_and_samples(module: nnx.Module, x: jax.Array, z: jax.Array) -> PyTree:
+def _gan_forward_and_samples(
+    module: nnx.Module, x: jax.Array, z: jax.Array, *, rngs: nnx.Rngs | None = None
+) -> PyTree:
     """The GAN's own forward pass, which only discriminates, and its generator on latents."""
-    return module(x), module.generator(z)
+    from artifex.generative_models.core.keyword_routing import (  # noqa: PLC0415
+        call_with_accepted_keywords,
+    )
+
+    return module(x, rngs=rngs), call_with_accepted_keywords(module.generator, z, rngs=rngs)
 
 
 def _conditioned_scores_and_samples(
-    module: nnx.Module, x: jax.Array, z: jax.Array, labels: jax.Array
+    module: nnx.Module,
+    x: jax.Array,
+    z: jax.Array,
+    labels: jax.Array,
+    *,
+    rngs: nnx.Rngs | None = None,
 ) -> PyTree:
-    return module.discriminator(x, labels), module.generator(z, labels)
+    from artifex.generative_models.core.keyword_routing import (  # noqa: PLC0415
+        call_with_accepted_keywords,
+    )
+
+    return (
+        call_with_accepted_keywords(module.discriminator, x, labels, rngs=rngs),
+        call_with_accepted_keywords(module.generator, z, labels, rngs=rngs),
+    )
 
 
 def _translations(module: nnx.Module, a: jax.Array, b: jax.Array) -> PyTree:
@@ -261,12 +288,14 @@ def cases() -> dict[str, Case]:
             build=lambda r: base.Generator(_dense_generator(), rngs=r),
             inputs=normal(_GAN_LATENT),
             has_dropout=True,
+            rng_streams=("dropout",),
             has_batch_stats=True,
         ),
         f"{_GAN}.base.Discriminator": Case(
             build=lambda r: base.Discriminator(_dense_discriminator(), rngs=r),
             inputs=normal(*_GAN_FLAT[1:]),
             has_dropout=True,
+            rng_streams=("dropout",),
             has_batch_stats=True,
         ),
         f"{_GAN}.base.GAN": Case(
@@ -276,6 +305,7 @@ def cases() -> dict[str, Case]:
             inputs=_data_and_latents(_GAN_FLAT[1:]),
             call=_gan_forward_and_samples,
             has_dropout=True,
+            rng_streams=("dropout",),
             has_batch_stats=True,
         ),
         f"{_GAN}.dcgan.DCGANGenerator": Case(
@@ -337,6 +367,7 @@ def cases() -> dict[str, Case]:
             ),
             inputs=normal(*_GAN_IMAGE),
             has_dropout=True,
+            rng_streams=("dropout",),
             has_batch_stats=True,
         ),
         f"{_GAN}.lsgan.LSGAN": Case(
@@ -351,6 +382,7 @@ def cases() -> dict[str, Case]:
             inputs=_data_and_latents(_GAN_IMAGE),
             call=_scores_and_samples,
             has_dropout=True,
+            rng_streams=("dropout",),
             has_batch_stats=True,
         ),
         f"{_GAN}.conditional.ConditionalGenerator": Case(
@@ -364,6 +396,7 @@ def cases() -> dict[str, Case]:
             ),
             inputs=lambda key: _labelled_data_and_latents(key)[::2],
             has_dropout=True,
+            rng_streams=("dropout",),
         ),
         f"{_GAN}.conditional.ConditionalGAN": Case(
             build=lambda r: conditional.ConditionalGAN(
@@ -375,6 +408,7 @@ def cases() -> dict[str, Case]:
             inputs=_labelled_data_and_latents,
             call=_conditioned_scores_and_samples,
             has_dropout=True,
+            rng_streams=("dropout",),
             has_batch_stats=True,
         ),
         f"{_GAN}.cyclegan.CycleGANGenerator": Case(
@@ -401,6 +435,7 @@ def cases() -> dict[str, Case]:
             ),
             inputs=normal(*_GAN_IMAGE),
             has_dropout=True,
+            rng_streams=("dropout",),
             has_batch_stats=True,
         ),
         f"{_GAN}.patchgan.MultiScalePatchGANDiscriminator": Case(
@@ -412,6 +447,7 @@ def cases() -> dict[str, Case]:
             ),
             inputs=normal(*_MULTISCALE_IMAGE),
             has_dropout=True,
+            rng_streams=("dropout",),
             has_batch_stats=True,
         ),
         f"{_GAN}.stylegan3.MappingNetwork": Case(

@@ -108,8 +108,8 @@ class FeedForwardNetwork(nnx.Module):
         Args:
             x: Input tensor of shape [batch, ..., in_features].
             deterministic: Whether to apply dropout.
-            rngs: Optional RNGs (kept for API compatibility, not used as
-                Dropout uses internal state).
+            rngs: Dropout keys for this call; ``None`` draws from the dropout layer's own
+                stream.
 
         Returns:
             Output tensor of shape [batch, ..., out_features].
@@ -120,14 +120,14 @@ class FeedForwardNetwork(nnx.Module):
 
         # Apply dropout after first layer if needed
         if self.dropout is not None and not deterministic:
-            x = self.dropout(x)
+            x = self.dropout(x, rngs=rngs)
 
         # Second layer
         x = self.fc2(x)
 
         # Apply dropout after second layer if needed
         if self.dropout is not None and not deterministic:
-            x = self.dropout(x)
+            x = self.dropout(x, rngs=rngs)
 
         return x
 
@@ -301,7 +301,7 @@ class TransformerEncoderBlock(nnx.Module):
 
         # Apply dropout if needed
         if self.dropout is not None and not deterministic:
-            x = self.dropout(x)
+            x = self.dropout(x, rngs=rngs)
 
         # Add residual connection
         x = residual + x
@@ -487,7 +487,7 @@ class TransformerDecoderBlock(nnx.Module):
 
         # Apply dropout if needed
         if self.dropout is not None and not deterministic:
-            x = self.dropout(x)
+            x = self.dropout(x, rngs=rngs)
 
         # Add residual connection
         x = residual + x
@@ -506,7 +506,7 @@ class TransformerDecoderBlock(nnx.Module):
 
         # Apply dropout if needed
         if self.dropout is not None and not deterministic:
-            x = self.dropout(x)
+            x = self.dropout(x, rngs=rngs)
 
         # Add residual connection
         x = residual + x

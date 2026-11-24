@@ -214,11 +214,10 @@
       "PTH123": 3
     },
     "src/artifex/generative_models/core/base.py": {
-      "ANN001": 2,
+      "ANN001": 1,
       "ANN002": 1,
       "ANN003": 9,
       "ANN201": 2,
-      "ANN202": 1,
       "ANN204": 4,
       "PLR0913": 2,
       "RET506": 1
@@ -366,7 +365,6 @@
     },
     "src/artifex/generative_models/core/layers/transformers.py": {
       "ANN204": 5,
-      "ARG002": 1,
       "B008": 5,
       "PLR0913": 8,
       "RET504": 4
@@ -788,7 +786,7 @@
       "ANN002": 1,
       "ANN003": 6,
       "ANN204": 1,
-      "ARG002": 5,
+      "ARG002": 4,
       "C901": 1,
       "PLR0912": 1,
       "PLR0913": 2,
@@ -888,7 +886,7 @@
       "ANN003": 3,
       "ANN202": 1,
       "ANN204": 4,
-      "ARG002": 6,
+      "ARG002": 4,
       "PLR0913": 2,
       "RET504": 1
     },
@@ -1019,8 +1017,6 @@
       "ANN003": 1,
       "ANN204": 1,
       "B009": 1,
-      "C901": 1,
-      "PLR0912": 1,
       "RET504": 1
     },
     "src/artifex/generative_models/models/geometric/mesh.py": {

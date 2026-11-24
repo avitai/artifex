@@ -81,6 +81,7 @@ def cases() -> dict[str, Case]:
             build=lambda r: transformer.TransformerAutoregressiveModel(transformer_config, rngs=r),
             inputs=_tokens,
             has_dropout=True,
+            rng_streams=("dropout",),
         ),
         f"{_AUTOREGRESSIVE}.wavenet.CausalConv1D": Case(
             build=lambda r: wavenet.CausalConv1D(_CHANNELS, 3, kernel_size=2, dilation=2, rngs=r),

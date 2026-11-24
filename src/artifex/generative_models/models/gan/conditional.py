@@ -321,7 +321,7 @@ class ConditionalDiscriminator(Discriminator):
         )
 
     def __call__(  # type: ignore[override]
-        self, x: jax.Array, labels: jax.Array | None = None
+        self, x: jax.Array, labels: jax.Array | None = None, *, rngs: nnx.Rngs | None = None
     ) -> jax.Array:
         """Discriminate samples with label conditioning.
 
@@ -330,6 +330,7 @@ class ConditionalDiscriminator(Discriminator):
         Args:
             x: Input samples of shape (batch_size, channels, height, width).
             labels: One-hot encoded labels of shape (batch_size, num_classes).
+            rngs: Dropout keys for this call; ``None`` draws from the dropout layers' own streams.
 
         Returns:
             Discrimination scores of shape (batch_size,).
@@ -385,7 +386,7 @@ class ConditionalDiscriminator(Discriminator):
             x = nnx.leaky_relu(x, negative_slope=self.leaky_relu_slope)
             # Use inherited dropout from base class (only if dropout was created)
             if hasattr(self, "dropout") and self.dropout is not None:
-                x = self.dropout(x)  # Auto mode from model.train()/eval()
+                x = self.dropout(x, rngs=rngs)  # Auto mode from model.train()/eval()
 
         # Final output layer
         x = self.output_conv(x)
@@ -500,6 +501,8 @@ class ConditionalGAN(nnx.Module):
         fake_samples: jax.Array,
         real_labels: jax.Array,
         fake_labels: jax.Array,
+        *,
+        rngs: nnx.Rngs | None = None,
     ) -> jax.Array:
         """Compute conditional discriminator loss.
 
@@ -508,13 +511,14 @@ class ConditionalGAN(nnx.Module):
             fake_samples: Generated fake samples.
             real_labels: Labels for real samples.
             fake_labels: Labels for fake samples.
+            rngs: Dropout keys for this call; ``None`` draws from the dropout layers' own streams.
 
         Returns:
             Discriminator loss value.
         """
         # Get discriminator outputs for real and fake samples with their labels
-        real_validity = self.discriminator(real_samples, real_labels)
-        fake_validity = self.discriminator(fake_samples, fake_labels)
+        real_validity = self.discriminator(real_samples, real_labels, rngs=rngs)
+        fake_validity = self.discriminator(fake_samples, fake_labels, rngs=rngs)
 
         # Standard GAN discriminator loss
         real_loss = -jnp.mean(jnp.log(nnx.sigmoid(real_validity) + 1e-12))
@@ -522,18 +526,21 @@ class ConditionalGAN(nnx.Module):
 
         return real_loss + fake_loss
 
-    def generator_loss(self, fake_samples: jax.Array, fake_labels: jax.Array) -> jax.Array:
+    def generator_loss(
+        self, fake_samples: jax.Array, fake_labels: jax.Array, *, rngs: nnx.Rngs | None = None
+    ) -> jax.Array:
         """Compute conditional generator loss.
 
         Args:
             fake_samples: Generated fake samples.
             fake_labels: Labels for fake samples.
+            rngs: Dropout keys for this call; ``None`` draws from the dropout layers' own streams.
 
         Returns:
             Generator loss value.
         """
         # Get discriminator output for fake samples with their labels
-        fake_validity = self.discriminator(fake_samples, fake_labels)
+        fake_validity = self.discriminator(fake_samples, fake_labels, rngs=rngs)
 
         # Standard GAN generator loss (fool the discriminator)
         gen_loss = -jnp.mean(jnp.log(nnx.sigmoid(fake_validity) + 1e-12))

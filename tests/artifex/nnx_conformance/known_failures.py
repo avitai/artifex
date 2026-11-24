@@ -56,13 +56,6 @@ SHARED_RNGS = (
     " parent's Rngs share one RngCount (.block1.rngs, .block2.rngs) and tree mode refuses the"
     " module"
 )
-EMBED_DTYPE = (
-    " With R154 fixed this check still fails: R518 flax's nnx.Embed fixes its dtype when built"
-    " (flax/nnx/nn/linear.py:1278 at 204a819c, self.dtype = dtype or self.embedding.dtype), so"
-    " the float64 copy of LabelEmbedder looks up in float32. An upstream defect: linen's Embed"
-    " resolves the same default at call time, and an nnx.Embed cast to bfloat16 after build"
-    " returns float32 where linen returns bfloat16 (backbones/dit.py:155)"
-)
 VAE_SAMPLING = (
     "R520 VAE.__call__ draws its reparameterisation noise from the Rngs the module stores"
     " (vae/base.py:127, reparameterize), so .eval() calls draw keys and differ; flax's VAE takes"
@@ -249,11 +242,6 @@ MOLECULAR_FEATURES_HOST = (
     "R398 MolecularFeatures computes its descriptors as host Python floats (chemical/features.py"
     ":150, 238-245), so its outputs are not arrays and nnx.jit cannot trace it"
 )
-TEXT_EMBEDDINGS_EVAL = (
-    "R539 TextEmbeddings.__call__ forwards a deterministic=False default to its dropout"
-    " (nlp/embeddings.py:609, 238), so .eval() still draws dropout keys, here from inside the"
-    " gradient's trace"
-)
 TEXT_EMBEDDINGS_RNGS = (
     "R390/R440 TextEmbeddings stores self.rngs (nlp/embeddings.py:185) beside the _rngs the"
     " Extension base stores, one RngCount at two paths, so tree mode refuses the module"
@@ -412,12 +400,31 @@ LDM_VIEW_OUTPUTS = (
 )
 
 _EVAL_CASCADE = ("gradient_finite", "gradient_matches_finite_differences", "rows_independent")
-"""Checks that run in ``.eval()``: a module still drawing keys there fails each."""
+"""Checks that run in ``.eval()``: a module drawing from, or writing, state it holds fails each,
+because a transform's trace refuses the write."""
+
+EVAL_DROPOUT_ROWS = (
+    "{defect}; with dropout still on, a row mapped alone draws a mask of its own shape from the"
+    " call's key, so it differs from its slice of the batched call"
+)
 
 
-def _eval_override(
-    name: str, defect: str, draws: str = "dropout keys"
-) -> dict[tuple[str, str], str]:
+def _eval_dropout_on(name: str, defect: str) -> dict[tuple[str, str], str]:
+    """A forwarded mode flag keeps dropout on after ``.eval()``, its keys given at call time.
+
+    Only ``eval_deterministic`` follows from the flag alone: the gradient checks pass, since the
+    call's key fixes the mask and nothing held is drawn inside the trace. A module whose rows
+    then differ adds its ``rows_independent`` entry with :data:`EVAL_DROPOUT_ROWS`.
+    """
+    return {(name, "eval_deterministic"): defect}
+
+
+def _eval_draws_held_keys(name: str, defect: str, draws: str) -> dict[tuple[str, str], str]:
+    """``.eval()`` still draws ``draws`` from an ``nnx.Rngs`` the module stores.
+
+    The draw advances held state inside each transform's trace, so every check of
+    :data:`_EVAL_CASCADE` fails with it.
+    """
     inherited = f".eval() still draws {draws}: " + defect
     return {
         (name, "eval_deterministic"): defect,
@@ -433,7 +440,13 @@ def _transformers() -> dict[tuple[str, str], str]:
         "TransformerDecoderBlock",
         "TransformerDecoder",
     ):
-        failures |= _eval_override(f"{_LAYERS}.transformers.{block}", TRANSFORMERS)
+        failures |= _eval_dropout_on(f"{_LAYERS}.transformers.{block}", TRANSFORMERS)
+    # The blocks' rows agree: their eval-time dropout is the attention's, whose mask flax
+    # broadcasts over the batch (broadcast_dropout=True). The stacks add positional encodings.
+    for stack in ("TransformerEncoder", "TransformerDecoder"):
+        failures[(f"{_LAYERS}.transformers.{stack}", "rows_independent")] = (
+            EVAL_DROPOUT_ROWS.format(defect=TRANSFORMERS + " and R010 in its positional encoding")
+        )
     return failures
 
 
@@ -444,14 +457,20 @@ def _positional() -> dict[tuple[str, str], str]:
         ("LearnedPositionalEncoding", 238),
         ("RotaryPositionalEncoding", 353),
     ):
-        failures |= _eval_override(f"{_LAYERS}.positional.{encoding}", POSITIONAL.format(line=line))
+        name = f"{_LAYERS}.positional.{encoding}"
+        defect = POSITIONAL.format(line=line)
+        failures |= _eval_dropout_on(name, defect)
+        failures[(name, "rows_independent")] = EVAL_DROPOUT_ROWS.format(defect=defect)
     return failures
 
 
 def _egnn() -> dict[tuple[str, str], str]:
-    return _eval_override(f"{_LAYERS}.egnn.EGNNLayer", EGNN) | _eval_override(
-        f"{_LAYERS}.egnn.EGNNBlock", EGNN
-    )
+    failures: dict[tuple[str, str], str] = {}
+    for module in ("EGNNLayer", "EGNNBlock"):
+        name = f"{_LAYERS}.egnn.{module}"
+        failures |= _eval_dropout_on(name, EGNN)
+        failures[(name, "rows_independent")] = EVAL_DROPOUT_ROWS.format(defect=EGNN)
+    return failures
 
 
 def _clifford() -> dict[tuple[str, str], str]:
@@ -484,10 +503,14 @@ def _base() -> dict[tuple[str, str], str]:
 def _backbones() -> dict[tuple[str, str], str]:
     failures: dict[tuple[str, str], str] = {}
     for module in ("DiTBlock", "LabelEmbedder", "DiffusionTransformer"):
-        failures |= _eval_override(f"{_BACKBONES}.dit.{module}", DIT)
-    for module in ("LabelEmbedder", "DiffusionTransformer"):
-        key = (f"{_BACKBONES}.dit.{module}", "gradient_matches_finite_differences")
-        failures[key] += EMBED_DTYPE
+        failures |= _eval_dropout_on(f"{_BACKBONES}.dit.{module}", DIT)
+        failures[(f"{_BACKBONES}.dit.{module}", "rows_independent")] = EVAL_DROPOUT_ROWS.format(
+            defect=DIT
+        )
+    for module, owner in (("LabelEmbedder", ""), ("DiffusionTransformer", "its LabelEmbedder's ")):
+        failures[(f"{_BACKBONES}.dit.{module}", "gradient_matches_finite_differences")] = (
+            EMBED_LOOKUP.format(embed=f"{owner}embedding_table (backbones/dit.py:157)")
+        )
     for module in (
         "unet.DownBlock",
         "unet.UpBlock",
@@ -528,7 +551,7 @@ def _vae() -> dict[tuple[str, str], str]:
         "beta_vae.BetaVAEWithCapacity",
         "conditional.ConditionalVAE",
     ):
-        failures |= _eval_override(f"{_VAE}.{module}", VAE_SAMPLING, draws="sampling keys")
+        failures |= _eval_draws_held_keys(f"{_VAE}.{module}", VAE_SAMPLING, draws="sampling keys")
     for check in ("state_structure", "jit_matches_eager"):
         failures[(f"{_VAE}.vq_vae.VQVAE", check)] = VQ_AUX
     return failures
@@ -580,14 +603,13 @@ def _diffusion() -> dict[tuple[str, str], str]:
         failures |= {(model, check): defect for check in shared}
 
     clip = f"{_DIFFUSION}.clip_text_encoder.CLIPTextEncoder"
-    failures |= _eval_override(clip, CLIP_TRANSFORMER)
-    failures[(clip, "gradient_matches_finite_differences")] += (
-        ". With R005 fixed this check still fails: "
-        + EMBED_LOOKUP.format(embed="its token_embedding (clip_text_encoder.py:88)")
+    failures |= _eval_dropout_on(clip, CLIP_TRANSFORMER)
+    failures[(clip, "gradient_matches_finite_differences")] = EMBED_LOOKUP.format(
+        embed="its token_embedding (clip_text_encoder.py:88)"
     )
 
     ldm = f"{_DIFFUSION}.latent.LDMModel"
-    failures |= _eval_override(ldm, LDM_SAMPLING, draws="sampling keys")
+    failures |= _eval_draws_held_keys(ldm, LDM_SAMPLING, draws="sampling keys")
     failures |= {(ldm, check): DIFFUSION_SHARED_RNGS for check in shared}
     failures[(ldm, "state_holds_arrays")] = INHERITED_HYPERPARAMETERS.format(
         backbone="MLP", lines="448-451"
@@ -642,9 +664,10 @@ def _geometric() -> dict[tuple[str, str], str]:
         name = f"{_GEOMETRIC}.{model}"
         defect = GRAPH_EVAL.format(where=where)
         failures[(name, "eval_deterministic")] = defect
-        for check in ("gradient_finite", "gradient_matches_finite_differences"):
-            failures[(name, check)] = ".eval() still draws dropout keys: " + defect
         failures[(name, "rows_independent")] = GRAPH_COUPLED_ROWS.format(moved=moved)
+    failures[
+        (f"{_GEOMETRIC}.protein_graph.ProteinGraphModel", "gradient_matches_finite_differences")
+    ] = EMBED_LOOKUP.format(embed="its aatype_embedding (protein_graph.py:67)")
     for model, spread in (
         ("point_cloud.PointCloudModel", "+1.6e-2, -1.6e-1"),
         ("protein_point_cloud.ProteinPointCloudModel", "-9.2e-2, -1.4e-2"),
@@ -758,8 +781,7 @@ def _extensions() -> dict[tuple[str, str], str]:
         - {"train_dropout_varies", "gradient_finite", "gradient_matches_finite_differences"},
         "chemical.constraints.ChemicalConstraints": string_checks
         - {"train_dropout_varies", "gradient_finite", "gradient_matches_finite_differences"},
-        "nlp.embeddings.TextEmbeddings": string_checks
-        - {"gradient_finite", "gradient_matches_finite_differences"},
+        "nlp.embeddings.TextEmbeddings": string_checks - {"gradient_matches_finite_differences"},
         "nlp.tokenization.AdvancedTokenization": string_checks
         - {
             "rows_independent",
@@ -787,7 +809,6 @@ def _extensions() -> dict[tuple[str, str], str]:
         )
         failures |= {(f"{_EXTENSIONS}.{name}", check): defect for check in checks}
     embeddings = f"{_EXTENSIONS}.nlp.embeddings.TextEmbeddings"
-    failures[(embeddings, "gradient_finite")] = TEXT_EMBEDDINGS_EVAL
     failures[(embeddings, "gradient_matches_finite_differences")] = TEXT_EMBEDDINGS_RNGS
     features = f"{_EXTENSIONS}.chemical.features.MolecularFeatures"
     for check in (
@@ -856,10 +877,6 @@ def _modalities() -> dict[tuple[str, str], str]:
         failures[(f"{mm}.{name}", "eval_deterministic")] = MULTI_MODAL_EVAL.format(
             name=name, where=where, effect=""
         )
-        for check in ("gradient_finite", "gradient_matches_finite_differences"):
-            failures[(f"{mm}.{name}", check)] = MULTI_MODAL_EVAL.format(
-                name=name, where=where, effect=", here from inside the gradient's trace"
-            )
     failures[(f"{mm}.MultiModalProcessor", "rows_independent")] = MULTI_MODAL_EVAL.format(
         name="MultiModalProcessor", where="101, 126", effect=", so rows draw other masks"
     )
@@ -867,16 +884,12 @@ def _modalities() -> dict[tuple[str, str], str]:
         row="R543",
         name="CrossModalAttention",
         where="multi_modal/representations.py:482-483",
-        extra="; and R544, .eval() still draws dropout keys",
+        extra="; and R544, with dropout still on a row mapped alone draws its own mask",
     )
     modality_dropout = "R307 ModalityDropout {what} (multi_modal/representations.py:{where})"
     failures[(f"{mm}.ModalityDropout", "eval_deterministic")] = modality_dropout.format(
         what="drops modalities under .eval(): its deterministic=False default overrides the mode",
         where="627",
-    )
-    failures[(f"{mm}.ModalityDropout", "rows_independent")] = modality_dropout.format(
-        what="drops modalities under .eval(), so rows mapped one at a time keep other modalities",
-        where="627, 654",
     )
     failures[(f"{mm}.ModalityDropout", "jit_matches_eager")] = modality_dropout.format(
         what="branches in Python on a traced keep decision (if keep:)", where="654"

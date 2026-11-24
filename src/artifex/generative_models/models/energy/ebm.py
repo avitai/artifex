@@ -104,11 +104,15 @@ class EBM(EnergyBasedModel):
     def train_step(
         self,
         batch: dict[str, jax.Array],
+        *,
+        rngs: nnx.Rngs | None = None,
     ) -> dict[str, Any]:
         """Perform one training step with persistent contrastive divergence.
 
         Args:
             batch: Training batch
+            rngs: Dropout keys for the loss; ``None`` draws from the dropout layers' own streams.
+                The MCMC chains draw from the model's ``noise`` and ``sample`` streams.
 
         Returns:
             Dictionary containing loss and metrics
@@ -152,6 +156,7 @@ class EBM(EnergyBasedModel):
             real_data=real_data,
             fake_data=fake_data,
             alpha=self.alpha,
+            rngs=rngs,
         )
 
         return loss_dict

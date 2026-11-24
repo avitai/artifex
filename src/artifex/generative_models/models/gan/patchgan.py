@@ -141,13 +141,14 @@ class PatchGANDiscriminator(Discriminator):
         if config.dropout_rate > 0:
             self.patchgan_dropout = nnx.Dropout(rate=config.dropout_rate, rngs=rngs)
 
-    def __call__(self, x: jax.Array) -> list[jax.Array]:
+    def __call__(self, x: jax.Array, *, rngs: nnx.Rngs | None = None) -> list[jax.Array]:
         """Forward pass through PatchGAN discriminator.
 
         Note: Use model.train() for training mode and model.eval() for evaluation mode.
 
         Args:
             x: Input image tensor of shape (batch, height, width, channels)
+            rngs: Dropout keys for this call; ``None`` draws from the dropout layer's own stream.
 
         Returns:
             List of intermediate features, with the last element being the final output.
@@ -156,44 +157,18 @@ class PatchGANDiscriminator(Discriminator):
         # Convert from (B, C, H, W) to (B, H, W, C) for JAX convolutions
         if x.ndim == 4 and x.shape[1] in [1, 3]:  # Likely channel-first format
             x = jnp.transpose(x, (0, 2, 3, 1))
+        return self._call_without_conversion(x, rngs=rngs)
 
-        features = [x]
-
-        # Initial convolution (no batch norm)
-        x = self.initial_conv(x)
-        x = self.patchgan_activation_fn(x)
-        features.append(x)
-
-        # Intermediate layers
-        for i, conv_layer in enumerate(self.patchgan_conv_layers):
-            x = conv_layer(x)
-
-            # Apply batch norm (if enabled)
-            if self.batch_norm and i < len(self.patchgan_batch_norm_layers):
-                x = self.patchgan_batch_norm_layers[i](x)  # Auto mode from model.train()/eval()
-
-            x = self.patchgan_activation_fn(x)
-
-            # Apply dropout if specified
-            if hasattr(self, "patchgan_dropout"):
-                x = self.patchgan_dropout(x)  # Auto mode from model.train()/eval()
-
-            features.append(x)
-
-        # Final output layer (no activation)
-        x = self.final_conv(x)
-        features.append(x)
-
-        # Return all intermediate features for potential feature matching loss
-        return features[1:]  # Exclude input image from features
-
-    def _call_without_conversion(self, x: jax.Array) -> list[jax.Array]:
+    def _call_without_conversion(
+        self, x: jax.Array, *, rngs: nnx.Rngs | None = None
+    ) -> list[jax.Array]:
         """Forward pass without input format conversion (for multi-scale use).
 
         Note: Use model.train() for training mode and model.eval() for evaluation mode.
 
         Args:
             x: Input image tensor already in (B, H, W, C) format
+            rngs: Dropout keys for this call; ``None`` draws from the dropout layer's own stream.
 
         Returns:
             List of intermediate features, with the last element being the final output.
@@ -217,7 +192,7 @@ class PatchGANDiscriminator(Discriminator):
 
             # Apply dropout if specified
             if hasattr(self, "patchgan_dropout"):
-                x = self.patchgan_dropout(x)  # Auto mode from model.train()/eval()
+                x = self.patchgan_dropout(x, rngs=rngs)  # Auto mode from model.train()/eval()
 
             features.append(x)
 
@@ -351,13 +326,16 @@ class MultiScalePatchGANDiscriminator(nnx.Module):
             padding="VALID",
         ) / (factor * factor)
 
-    def __call__(self, x: jax.Array) -> tuple[list[jax.Array], list[list[jax.Array]]]:
+    def __call__(
+        self, x: jax.Array, *, rngs: nnx.Rngs | None = None
+    ) -> tuple[list[jax.Array], list[list[jax.Array]]]:
         """Forward pass through multi-scale discriminator.
 
         Note: Use model.train() for training mode and model.eval() for evaluation mode.
 
         Args:
             x: Input image tensor (either B,C,H,W or B,H,W,C)
+            rngs: Dropout keys for this call; ``None`` draws from the dropout layers' own streams.
 
         Returns:
             Tuple of (outputs, intermediate_features):
@@ -381,7 +359,7 @@ class MultiScalePatchGANDiscriminator(nnx.Module):
             # Get features from this discriminator
             # Note: discriminator input is already in (B, H, W, C) format,
             # so we need to bypass its format conversion
-            features = discriminator._call_without_conversion(disc_input)
+            features = discriminator._call_without_conversion(disc_input, rngs=rngs)
 
             # Last feature is the output, others are intermediate
             outputs.append(features[-1])

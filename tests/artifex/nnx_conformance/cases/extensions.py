@@ -162,8 +162,9 @@ def cases() -> dict[str, Case]:
             # R534: the config cannot set the sizes, so this builds the defaults (50,000 x 512).
             build=lambda r: embeddings.TextEmbeddings(plain, rngs=r),
             inputs=integers(0, 100, 6),
-            call=lambda module, tokens: module({"tokens": tokens}, {}),
+            call=lambda module, tokens, *, rngs: module({"tokens": tokens}, {}, rngs=rngs),
             has_dropout=True,
+            rng_streams=("dropout",),
         ),
         f"{_EXTENSIONS}.nlp.tokenization.AdvancedTokenization": Case(
             build=lambda r: tokenization.AdvancedTokenization(plain, rngs=r),

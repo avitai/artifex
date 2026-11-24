@@ -209,6 +209,7 @@ class TextEmbeddings(ModelExtension):
         position_ids: jax.Array | None = None,
         *,
         deterministic: bool = False,
+        rngs: nnx.Rngs | None = None,
     ) -> jax.Array:
         """Embed token sequences.
 
@@ -216,6 +217,7 @@ class TextEmbeddings(ModelExtension):
             tokens: Token sequences [batch_size, seq_length]
             position_ids: Position IDs [batch_size, seq_length]
             deterministic: Whether to disable dropout
+            rngs: Dropout keys for this call; ``None`` draws from the dropout layer's own stream.
 
         Returns:
             Embedded sequences [batch_size, seq_length, embedding_dim]
@@ -235,7 +237,7 @@ class TextEmbeddings(ModelExtension):
 
         # Apply dropout
         if self.dropout is not None:
-            embeddings = self.dropout(embeddings, deterministic=deterministic)
+            embeddings = self.dropout(embeddings, deterministic=deterministic, rngs=rngs)
 
         return embeddings
 
@@ -501,6 +503,7 @@ class TextEmbeddings(ModelExtension):
         *,
         deterministic: bool = False,
         base: float = 10000.0,
+        rngs: nnx.Rngs | None = None,
     ) -> jax.Array:
         """Embed tokens with fixed sinusoidal positional encodings.
 
@@ -511,6 +514,7 @@ class TextEmbeddings(ModelExtension):
             tokens: Token sequences [batch_size, seq_length].
             deterministic: Whether to disable dropout.
             base: Base for the exponential frequency scaling.
+            rngs: Dropout keys for this call; ``None`` draws from the dropout layer's own stream.
 
         Returns:
             Embedded sequences [batch_size, seq_length, embedding_dim].
@@ -531,7 +535,7 @@ class TextEmbeddings(ModelExtension):
 
         # Apply dropout
         if self.dropout is not None:
-            embeddings = self.dropout(embeddings, deterministic=deterministic)
+            embeddings = self.dropout(embeddings, deterministic=deterministic, rngs=rngs)
 
         return embeddings
 
@@ -541,6 +545,7 @@ class TextEmbeddings(ModelExtension):
         *,
         deterministic: bool = False,
         base: float = 10000.0,
+        rngs: nnx.Rngs | None = None,
     ) -> jax.Array:
         """Embed tokens with Rotary Position Embeddings (RoPE).
 
@@ -552,6 +557,7 @@ class TextEmbeddings(ModelExtension):
             tokens: Token sequences [batch_size, seq_length].
             deterministic: Whether to disable dropout.
             base: Base for the exponential frequency scaling.
+            rngs: Dropout keys for this call; ``None`` draws from the dropout layer's own stream.
 
         Returns:
             Embedded sequences with RoPE applied [batch_size, seq_length, embedding_dim].
@@ -564,7 +570,7 @@ class TextEmbeddings(ModelExtension):
 
         # Apply dropout
         if self.dropout is not None:
-            embeddings = self.dropout(embeddings, deterministic=deterministic)
+            embeddings = self.dropout(embeddings, deterministic=deterministic, rngs=rngs)
 
         return embeddings
 
@@ -591,7 +597,9 @@ class TextEmbeddings(ModelExtension):
         Args:
             inputs: Original inputs to the model.
             model_outputs: Outputs from the model.
-            **kwargs: Additional keyword arguments.
+            **kwargs: Additional keyword arguments, including ``deterministic`` and ``rngs``,
+                the dropout keys for this call (``None`` draws from the dropout layer's own
+                stream).
 
         Returns:
             dictionary of extension outputs including embedding features.
@@ -609,7 +617,9 @@ class TextEmbeddings(ModelExtension):
             deterministic = kwargs.get("deterministic", False)
 
             # Embed tokens
-            embeddings = self.embed(tokens, position_ids_array, deterministic=deterministic)
+            embeddings = self.embed(
+                tokens, position_ids_array, deterministic=deterministic, rngs=kwargs.get("rngs")
+            )
             results["input_embeddings"] = embeddings
 
             # Extract sentence embeddings if requested

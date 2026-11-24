@@ -10,7 +10,9 @@ not owe by design, each skipped with its reason. The checks are ``substrax.testi
 from __future__ import annotations
 
 import pytest
-from substrax.testing.nnx_conformance import CHECKS, ConformanceError, module_classes
+from flax import nnx
+from substrax.rng import rngs_from_seed
+from substrax.testing.nnx_conformance import CHECKS, ConformanceError, module_classes, STREAMS
 
 import artifex
 from tests.artifex.nnx_conformance.cases import all_cases, EXEMPT, NOT_APPLICABLE
@@ -80,3 +82,24 @@ def test_every_case_and_exemption_names_a_class_of_its_own() -> None:
 
     assert "artifex.generative_models.core.base.MLP" in classes
     assert sorted((set(CASES) | set(EXEMPT)) - classes) == []
+
+
+def _holds_dropout(module: nnx.Module) -> bool:
+    return any(isinstance(node, nnx.Dropout) for _, node in nnx.iter_graph(module))
+
+
+def test_a_module_with_dropout_takes_its_dropout_key_at_call_time() -> None:
+    """Dropout follows the caller's key, so the checks can tell a leaf the key never reaches.
+
+    The built module is asked, not its class name: a dropout leaf reached through a child a
+    factory builds counts too.
+    """
+    owed = [
+        name
+        for name, case in sorted(CASES.items())
+        if case.has_dropout or _holds_dropout(case.build(rngs_from_seed(0, streams=STREAMS)))
+    ]
+    undeclared = [name for name in owed if "dropout" not in CASES[name].rng_streams]
+
+    assert "artifex.generative_models.core.base.MLP" in owed
+    assert undeclared == []
