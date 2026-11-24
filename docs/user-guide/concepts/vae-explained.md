@@ -300,35 +300,74 @@ import jax.numpy as jnp
 from flax import nnx
 import optax
 
+from artifex.generative_models.core.configuration import (
+    DecoderConfig,
+    EncoderConfig,
+    VAEConfig,
+)
+from artifex.generative_models.models.vae import VAE
+
+# A small MLP VAE on 8x8 single-channel images
+latent_dim = 4
+vae = VAE(
+    VAEConfig(
+        name="vae",
+        encoder=EncoderConfig(
+            name="encoder", hidden_dims=(32,), latent_dim=latent_dim,
+            activation="relu", input_shape=(8, 8, 1),
+        ),
+        decoder=DecoderConfig(
+            name="decoder", hidden_dims=(32,), latent_dim=latent_dim,
+            activation="relu", output_shape=(8, 8, 1),
+        ),
+        encoder_type="dense",
+    ),
+    rngs=nnx.Rngs(0),
+)
+
+rng_key, data_key = jax.random.split(jax.random.key(0))
+data = jax.random.uniform(data_key, (64, 8, 8, 1))
+dataloader = [data[i:i + 16] for i in range(0, 64, 16)]
+epochs = range(2)
+
 # Create optimizer (wrt=nnx.Param required in NNX 0.11.0+)
 optimizer = nnx.Optimizer(vae, optax.adam(1e-3), wrt=nnx.Param)
 
+
+def elbo_terms(vae, batch, key):
+    # Forward pass
+    mu, log_var = vae.encode(batch)
+
+    # Reparameterization trick
+    epsilon = jax.random.normal(key, mu.shape)
+    z = mu + jnp.exp(0.5 * log_var) * epsilon
+
+    # Decode
+    x_recon = vae.decode(z)
+
+    # ELBO terms — use a *consistent reduction*: sum over non-batch
+    # axes (pixels for recon, latent dims for KL), then mean over the
+    # batch axis. Mixing jnp.mean for recon with jnp.sum for KL is the
+    # single most common bug in VAE code: it leaves the two terms on
+    # wildly different scales and the KL silently dominates.
+    recon_loss = jnp.mean(
+        jnp.sum((x_recon - batch) ** 2, axis=tuple(range(1, batch.ndim)))
+    )
+    kl_per_sample = -0.5 * jnp.sum(
+        1 + log_var - mu ** 2 - jnp.exp(log_var), axis=-1
+    )
+    kl_loss = jnp.mean(kl_per_sample)
+
+    return recon_loss, kl_loss
+
+
 for epoch in epochs:
     for batch in dataloader:
+        # A fresh key per step: reusing one key draws the same epsilon every step
+        rng_key, eps_key = jax.random.split(rng_key)
+
         def loss_fn(vae):
-            # Forward pass
-            mu, log_var = vae.encoder(batch)
-
-            # Reparameterization trick
-            epsilon = jax.random.normal(rng_key, mu.shape)
-            z = mu + jnp.exp(0.5 * log_var) * epsilon
-
-            # Decode
-            x_recon = vae.decoder(z)
-
-            # ELBO terms — use a *consistent reduction*: sum over non-batch
-            # axes (pixels for recon, latent dims for KL), then mean over the
-            # batch axis. Mixing jnp.mean for recon with jnp.sum for KL is the
-            # single most common bug in VAE code: it leaves the two terms on
-            # wildly different scales and the KL silently dominates.
-            recon_loss = jnp.mean(
-                jnp.sum((x_recon - batch) ** 2, axis=tuple(range(1, batch.ndim)))
-            )
-            kl_per_sample = -0.5 * jnp.sum(
-                1 + log_var - mu ** 2 - jnp.exp(log_var), axis=-1
-            )
-            kl_loss = jnp.mean(kl_per_sample)
-
+            recon_loss, kl_loss = elbo_terms(vae, batch, eps_key)
             return recon_loss + kl_loss
 
         # Gradient update (NNX 0.11.0+ API)
@@ -720,15 +759,16 @@ A well-trained VAE has a **continuous latent space** where:
 
 ```python
 # Encode two images
-z1 = encoder(x1)[0]  # Take mean, ignore variance
-z2 = encoder(x2)[0]
+x1, x2 = data[:1], data[1:2]
+z1 = vae.encode(x1)[0]  # Take mean, ignore variance: [1, latent_dim]
+z2 = vae.encode(x2)[0]
 
 # Interpolate
-alphas = jnp.linspace(0, 1, num=10)
-z_interp = [(1-α)*z1 + α*z2 for α in alphas]
+alphas = jnp.linspace(0, 1, num=10)[:, None]
+z_interp = (1 - alphas) * z1 + alphas * z2  # [10, latent_dim]
 
 # Decode interpolated points
-x_interp = [decoder(z) for z in z_interp]
+x_interp = vae.decode(z_interp)  # [10, 8, 8, 1]
 ```
 
 ### Disentanglement: Independent Factors of Variation
@@ -850,7 +890,7 @@ graph TD
 
 **For Images (MNIST, CIFAR-10, CelebA):**
 
-```python
+```text
 # Encoder (using Flax NNX)
 nnx.Conv(3, 32, kernel_size=(4, 4), strides=2) → nnx.BatchNorm → nnx.relu
 nnx.Conv(32, 64, kernel_size=(4, 4), strides=2) → nnx.BatchNorm → nnx.relu
@@ -866,7 +906,7 @@ nnx.ConvTranspose(32, 3, kernel_size=(4, 4), strides=2) → nnx.sigmoid
 
 **For Text/Sequential Data:**
 
-```python
+```text
 # Encoder (using Flax NNX)
 nnx.Embed(vocab_size, embed_dim) → Bidirectional nnx.LSTM/nnx.GRU (2-3 layers)
 → Take final hidden state → nnx.Linear(latent_dim × 2)
@@ -908,6 +948,9 @@ Repeat latent vector for each timestep
 1. **KL Annealing** (CRITICAL for text, helpful for images):
 
    ```python
+   # The two ELBO terms for the current batch, as in the training loop above
+   recon_loss, kl_loss = elbo_terms(vae, batch, eps_key)
+
    # Linear annealing
    beta = min(1.0, epoch / 40)
    loss = recon_loss + beta * kl_loss
@@ -924,6 +967,8 @@ Repeat latent vector for each timestep
 2. **Numerical Stability:**
 
    ```python
+   log_var_raw = vae.encode(batch)[1]  # The encoder's unconstrained output
+
    # Clip the raw log-variance to a safe range. log_var ∈ [-7, 7] keeps
    # σ²  ∈ [9e-4, 1.1e3] — wide enough for any realistic posterior, narrow
    # enough that exp(log_var) cannot overflow during training.
@@ -936,12 +981,18 @@ Repeat latent vector for each timestep
    #   log_var = 2.0 * jnp.log(sigma)
 
    # Global gradient-norm clip is more stable than element-wise clip.
-   grads = optax.clip_by_global_norm(1.0).update(grads, optax.EmptyState())[0]
+   tx = optax.chain(optax.clip_by_global_norm(1.0), optax.adam(1e-3))
+   optimizer = nnx.Optimizer(vae, tx, wrt=nnx.Param)
    ```
 
 3. **Loss Balancing — match reductions across terms:**
 
    ```python
+   x = batch
+   outputs = vae(x)
+   x_recon, mu, log_var = outputs["reconstructed"], outputs["mean"], outputs["log_var"]
+   kl_per_dim = -0.5 * (1 + log_var - mu ** 2 - jnp.exp(log_var))
+
    # Reduce both terms the same way: sum over non-batch axes, mean over batch.
    recon_per_sample = jnp.sum((x_recon - x) ** 2, axis=tuple(range(1, x.ndim)))
    kl_per_sample = jnp.sum(kl_per_dim, axis=-1)
