@@ -551,12 +551,38 @@ In well-trained GANs, the latent space exhibits desirable properties:
 - **Sampling** generates coherent new samples
 
 ```python
+import jax
+import jax.numpy as jnp
+from flax import nnx
+
+from artifex.generative_models.core.configuration import GeneratorConfig
+from artifex.generative_models.models.gan import Generator
+
+# A small (untrained) artifex MLP generator: 16-d latent -> 8x8 single-channel image
+latent_dim = 16
+generator = Generator(
+    GeneratorConfig(
+        name="generator",
+        latent_dim=latent_dim,
+        hidden_dims=(32, 64),
+        output_shape=(1, 8, 8, 1),  # leading batch dimension, then (H, W, C)
+        activation="relu",
+    ),
+    rngs=nnx.Rngs(0),
+)
+generator.eval()
+
+
+def sample_latent(key):
+    return jax.random.normal(key, (1, latent_dim))  # z ~ N(0, I)
+
+
 # Interpolation between two points
-z1 = sample_latent()
-z2 = sample_latent()
-alphas = np.linspace(0, 1, 10)
-z_interp = [(1-α)*z1 + α*z2 for α in alphas]
-images = [generator(z) for z in z_interp]
+z1 = sample_latent(jax.random.key(1))
+z2 = sample_latent(jax.random.key(2))
+alphas = jnp.linspace(0, 1, 10)[:, None]
+z_interp = (1 - alphas) * z1 + alphas * z2  # [10, latent_dim]
+images = generator(z_interp)  # [10, 8, 8, 1]
 ```
 
 ### Semantic Vector Arithmetic

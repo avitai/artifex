@@ -121,18 +121,31 @@ E_\theta(x) = \text{MLP}_\theta(x) \in \mathbb{R}
 $$
 
 ```python
+import jax
+import jax.numpy as jnp
+import optax
+from flax import nnx
+
+import artifex.generative_models.models.energy as ebm
+
+
 class MLPEnergyFunction(nnx.Module):
     def __init__(self, hidden_dims, input_dim, *, rngs):
-        self.layers = []
+        layers = []
         for dim in hidden_dims:
-            self.layers.append(nnx.Linear(input_dim, dim, rngs=rngs))
+            layers.append(nnx.Linear(input_dim, dim, rngs=rngs))
             input_dim = dim
+        self.layers = nnx.List(layers)
         self.output = nnx.Linear(input_dim, 1, rngs=rngs)
 
     def __call__(self, x):
         for layer in self.layers:
             x = nnx.relu(layer(x))
         return self.output(x).squeeze(-1)  # Scalar energy
+
+
+energy_fn = MLPEnergyFunction([32, 32], input_dim=2, rngs=nnx.Rngs(0))
+energies = energy_fn(jnp.ones((4, 2)))  # [4]: one energy per input
 ```
 
 **Convolutional Energy (for images):**
@@ -144,21 +157,25 @@ $$
 ```python
 class CNNEnergyFunction(nnx.Module):
     def __init__(self, hidden_dims, input_channels, *, rngs):
-        self.conv_layers = []
+        conv_layers = []
         for out_channels in hidden_dims:
-            self.conv_layers.append(
+            conv_layers.append(
                 nnx.Conv(input_channels, out_channels,
-                        kernel_size=(3, 3), rngs=rngs)
+                         kernel_size=(3, 3), rngs=rngs)
             )
             input_channels = out_channels
-        self.global_pool = lambda x: jnp.mean(x, axis=(1, 2))
+        self.conv_layers = nnx.List(conv_layers)
         self.output = nnx.Linear(hidden_dims[-1], 1, rngs=rngs)
 
     def __call__(self, x):
         for conv in self.conv_layers:
             x = nnx.relu(conv(x))
-        x = self.global_pool(x)
+        x = jnp.mean(x, axis=(1, 2))  # Global average pool
         return self.output(x).squeeze(-1)
+
+
+cnn_energy_fn = CNNEnergyFunction([8, 16], input_channels=1, rngs=nnx.Rngs(0))
+image_energies = cnn_energy_fn(jnp.ones((4, 8, 8, 1)))  # [4]
 ```
 
 **Key properties:**
@@ -270,16 +287,19 @@ def persistent_contrastive_divergence(
     batch_size = real_samples.shape[0]
     sample_shape = real_samples.shape[1:]
 
+    # Independent keys for the buffer draw and the chain's noise
+    buffer_key, chain_key = jax.random.split(rng_key)
+
     # Sample initial points from buffer
-    init_samples = sample_buffer.sample_initial(batch_size, rng_key, sample_shape)
+    init_samples = sample_buffer.sample_initial(batch_size, buffer_key, sample_shape)
 
     # Run MCMC chain
     final_samples = langevin_dynamics(
-        energy_fn, init_samples, n_mcmc_steps, step_size, noise_scale, rng_key
+        energy_fn, init_samples, n_mcmc_steps, step_size, noise_scale, chain_key
     )
 
     # Update buffer with new samples
-    sample_buffer.push(final_samples)
+    sample_buffer.update_buffer(final_samples)
 
     return init_samples, final_samples
 ```
@@ -322,10 +342,10 @@ def langevin_dynamics(
         # Compute energy gradient
         energy_grad = jax.grad(lambda x: jnp.sum(energy_fn(x)))(x)
 
-        # Gradient descent step
-        x = x - (step_size / 2) * energy_grad
+        # Gradient descent step: -eta * grad E, with eta = step_size
+        x = x - step_size * energy_grad
 
-        # Add noise
+        # Add noise: sigma * xi, with sigma = noise_scale
         rng_key, noise_key = jax.random.split(rng_key)
         noise = jax.random.normal(noise_key, x.shape) * noise_scale
         x = x + noise
@@ -334,6 +354,14 @@ def langevin_dynamics(
         x = jnp.clip(x, -1.0, 1.0)
 
     return x
+
+
+# One PCD step on 2-D data, with artifex's persistent buffer
+real_samples = jax.random.uniform(jax.random.key(0), (8, 2), minval=-1.0, maxval=1.0)
+sample_buffer = ebm.SampleBuffer(capacity=64, reinit_prob=0.05)
+init_samples, final_samples = persistent_contrastive_divergence(
+    energy_fn, real_samples, sample_buffer, jax.random.key(1), n_mcmc_steps=10
+)
 ```
 
 **Convergence**: As $n_{\text{steps}} \to \infty$ and $\epsilon \to 0$, Langevin dynamics samples from $p_\theta(x)$ exactly. In practice, finite steps and step sizes introduce bias.
@@ -546,30 +574,19 @@ Recent work has substantially stabilised JEM — see [Recent Advances → Founda
 ### MLP Energy Function (Tabular Data)
 
 ```python
-class MLPEnergyFunction(nnx.Module):
-    def __init__(
-        self, hidden_dims, input_dim, activation=nnx.gelu,
-        dropout_rate=0.0, *, rngs
-    ):
-        super().__init__(rngs=rngs)
-        self.layers = []
+# artifex's MLP energy: Linear -> activation -> Dropout per hidden layer, then a scalar output
+tabular_energy_fn = ebm.MLPEnergyFunction(
+    [64, 64], input_dim=8, activation=nnx.gelu, dropout_rate=0.1, rngs=nnx.Rngs(0)
+)
+x = jax.random.normal(jax.random.key(0), (16, 8))
 
-        for dim in hidden_dims:
-            self.layers.append(nnx.Linear(input_dim, dim, rngs=rngs))
-            if dropout_rate > 0:
-                self.layers.append(nnx.Dropout(dropout_rate, rngs=rngs))
-            input_dim = dim
+# Training mode: dropout is active and takes its keys at call time
+tabular_energy_fn.train()
+train_energies = tabular_energy_fn(x, rngs=nnx.Rngs(dropout=1))
 
-        self.output_layer = nnx.Linear(input_dim, 1, rngs=rngs)
-        self.activation = activation
-
-    def __call__(self, x, *, deterministic=True):
-        for layer in self.layers:
-            if isinstance(layer, nnx.Linear):
-                x = self.activation(layer(x))
-            elif isinstance(layer, nnx.Dropout):
-                x = layer(x, deterministic=deterministic)
-        return self.output_layer(x).squeeze(-1)
+# Evaluation (and MCMC sampling): dropout is off, no keys needed
+tabular_energy_fn.eval()
+eval_energies = tabular_energy_fn(x)
 ```
 
 **Use cases**: Tabular data, low-to-moderate dimensional problems (< 1000 dimensions)
@@ -577,65 +594,13 @@ class MLPEnergyFunction(nnx.Module):
 ### CNN Energy Function (Images)
 
 ```python
-class CNNEnergyFunction(nnx.Module):
-    def __init__(
-        self, hidden_dims, input_channels=3,
-        activation=nnx.silu, *, rngs
-    ):
-        super().__init__(rngs=rngs)
-        self.conv_blocks = []
-
-        in_channels = input_channels
-        for out_channels in hidden_dims:
-            self.conv_blocks.append(EnergyBlock(
-                in_channels, out_channels, activation=activation, rngs=rngs
-            ))
-            in_channels = out_channels
-
-        self.global_pool = lambda x: jnp.mean(x, axis=(1, 2))
-        self.fc_layers = [
-            nnx.Linear(hidden_dims[-1], hidden_dims[-1]//2, rngs=rngs),
-            nnx.Linear(hidden_dims[-1]//2, 1, rngs=rngs),
-        ]
-        self.activation = activation
-
-    def __call__(self, x, *, deterministic=True):
-        for block in self.conv_blocks:
-            x = block(x)
-        x = self.global_pool(x)
-        for i, fc in enumerate(self.fc_layers):
-            x = fc(x)
-            if i < len(self.fc_layers) - 1:
-                x = self.activation(x)
-        return x.squeeze(-1)
-
-class EnergyBlock(nnx.Module):
-    """Residual block with GroupNorm for energy function."""
-    def __init__(
-        self, in_channels, out_channels,
-        kernel_size=3, stride=2,
-        use_residual=False, activation=nnx.silu, *, rngs
-    ):
-        super().__init__()
-        self.conv = nnx.Conv(
-            in_channels, out_channels,
-            kernel_size=(kernel_size, kernel_size),
-            strides=(stride, stride), padding="SAME", rngs=rngs
-        )
-        self.norm = nnx.GroupNorm(
-            min(32, out_channels), out_channels, rngs=rngs
-        )
-        self.activation = activation
-        self.use_residual = use_residual and (in_channels == out_channels) and (stride == 1)
-
-    def __call__(self, x):
-        residual = x
-        x = self.conv(x)
-        x = self.norm(x)
-        x = self.activation(x)
-        if self.use_residual:
-            x = x + residual
-        return x
+# artifex's image energy: a stack of EnergyBlocks (Conv -> GroupNorm -> SiLU, stride 2 except
+# the last), global average pooling, then an MLP head down to one scalar per image
+image_energy_fn = ebm.DeepCNNEnergyFunction(
+    [16, 32], input_channels=3, use_residual=False, rngs=nnx.Rngs(params=0)
+)
+images = jax.random.uniform(jax.random.key(0), (4, 8, 8, 3), minval=-1.0, maxval=1.0)
+image_energies = image_energy_fn(images)  # [4]
 ```
 
 **Use cases**: Image data (MNIST, CIFAR-10, CelebA), spatial data
@@ -645,16 +610,12 @@ class EnergyBlock(nnx.Module):
 For complex distributions, deeper architectures with residual blocks and explicit normalization improve stability:
 
 ```python
-class DeepCNNEnergyFunction(nnx.Module):
-    def __init__(
-        self, hidden_dims, input_channels=3,
-        use_residual=True, *, rngs
-    ):
-        super().__init__(rngs=rngs)
-        # Build deeper architecture (8-12 layers)
-        # Use residual connections where dimensions match
-        # Normalize intermediate activations for stable MCMC training
-        ...
+# Deeper stack: GroupNorm after every convolution keeps activations well-scaled during
+# MCMC, and a block whose input and output shapes match adds a residual connection
+deep_energy_fn = ebm.DeepCNNEnergyFunction(
+    [16, 32, 32, 32], input_channels=3, use_residual=True, rngs=nnx.Rngs(params=0)
+)
+deep_energies = deep_energy_fn(images)  # [4]
 ```
 
 **Benefits**:
@@ -680,38 +641,24 @@ class DeepCNNEnergyFunction(nnx.Module):
 **Buffer operations**:
 
 ```python
-class SampleBuffer:
-    def __init__(self, capacity=8192, reinit_prob=0.05):
-        self.capacity = capacity
-        self.reinit_prob = reinit_prob
-        self.buffer = []
+# artifex's SampleBuffer keeps the most recent `capacity` chain end-points
+buffer = ebm.SampleBuffer(capacity=8192, reinit_prob=0.05)
+sample_shape = (2,)
+init_key, chain_key, next_key = jax.random.split(jax.random.key(0), 3)
 
-    def sample_initial(self, batch_size, rng_key, sample_shape):
-        """Sample starting points for MCMC."""
-        if len(self.buffer) < batch_size:
-            # Not enough samples - return random noise
-            return jax.random.normal(rng_key, (batch_size, *sample_shape))
+# Empty buffer: every chain starts from uniform noise in [-1, 1]
+init_samples = buffer.sample_initial(16, init_key, sample_shape)
 
-        # Sample from buffer
-        indices = jax.random.choice(rng_key, len(self.buffer), (batch_size,))
-        samples = jnp.array([self.buffer[i] for i in indices])
+# Run the chains, then store their end-points for the next iteration
+final_samples = langevin_dynamics(energy_fn, init_samples, 10, 0.01, 0.005, chain_key)
+buffer.update_buffer(final_samples)
 
-        # Reinitialize some samples with noise
-        reinit_mask = jax.random.uniform(rng_key, (batch_size,)) < self.reinit_prob
-        noise = jax.random.normal(rng_key, samples.shape)
-        samples = jnp.where(reinit_mask[:, None, None, None], noise, samples)
-
-        return samples
-
-    def push(self, samples):
-        """Add new samples to buffer."""
-        for sample in samples:
-            if len(self.buffer) >= self.capacity:
-                self.buffer.pop(0)  # Remove oldest
-            self.buffer.append(sample)
+# Later draws restart each chain from a stored sample, except a fraction
+# reinit_prob (on average) that restarts from fresh noise
+init_samples = buffer.sample_initial(16, next_key, sample_shape)
 ```
 
-**Reinitialiation probability**: Setting $p_{\text{reinit}} = 0.05$ helps escape local minima.
+**Reinitialization probability**: Setting $p_{\text{reinit}} = 0.05$ helps escape local minima.
 
 ### Hyperparameter Guidelines
 
@@ -793,27 +740,51 @@ class SampleBuffer:
 4. **Gradient norms**: Should be stable, not exploding
 
 ```python
-def training_step_with_diagnostics(model, batch, rngs):
-    # Forward pass
+def training_step_with_diagnostics(
+    model, optimizer, batch, buffer, rng_key, *, alpha=0.01, n_mcmc_steps=10
+):
     real_data = batch['x']
-    real_energy = model.energy(real_data).mean()
+    buffer_key, chain_key = jax.random.split(rng_key)
 
-    # Generate samples
-    fake_data = generate_samples_via_mcmc(model, batch_size, rngs)
-    fake_energy = model.energy(fake_data).mean()
+    # Generate samples: short Langevin chains started from the persistent buffer
+    init_samples = buffer.sample_initial(real_data.shape[0], buffer_key, real_data.shape[1:])
+    fake_data = langevin_dynamics(
+        model.energy, init_samples, n_mcmc_steps, 0.01, 0.005, chain_key
+    )
+    buffer.update_buffer(fake_data)
 
-    # Compute loss
-    loss = real_energy - fake_energy + alpha * (real_energy**2).mean()
+    def loss_fn(model):
+        real_energies = model.energy(real_data)
+        real_energy = real_energies.mean()
+        fake_energy = model.energy(fake_data).mean()
+        # Contrastive loss plus alpha * E[E(x)^2], which keeps energies bounded
+        loss = real_energy - fake_energy + alpha * jnp.mean(real_energies**2)
+        return loss, (real_energy, fake_energy)
 
-    # Diagnostics
-    energy_gap = fake_energy - real_energy
+    (loss, (real_energy, fake_energy)), grads = nnx.value_and_grad(
+        loss_fn, has_aux=True
+    )(model)
+    optimizer.update(model, grads)
 
-    print(f"Real Energy: {real_energy:.3f}, "
-          f"Fake Energy: {fake_energy:.3f}, "
-          f"Gap: {energy_gap:.3f}, "
-          f"Loss: {loss:.3f}")
+    # Diagnostics to log or plot
+    diagnostics = {
+        "loss": loss,
+        "real_energy": real_energy,
+        "fake_energy": fake_energy,
+        "energy_gap": fake_energy - real_energy,  # should stay positive and stable
+        "grad_norm": optax.global_norm(grads),  # should stay bounded
+    }
+    return diagnostics
 
-    return loss
+
+model = ebm.create_simple_ebm(
+    input_dim=2, hidden_dims=(32, 32), dropout_rate=0.0, rngs=nnx.Rngs(params=0)
+)
+optimizer = nnx.Optimizer(model, optax.adam(1e-4), wrt=nnx.Param)
+batch = {"x": jax.random.uniform(jax.random.key(0), (16, 2), minval=-1.0, maxval=1.0)}
+diagnostics = training_step_with_diagnostics(
+    model, optimizer, batch, ebm.SampleBuffer(capacity=256), jax.random.key(1)
+)
 ```
 
 ---

@@ -1032,6 +1032,8 @@ Typical $\gamma = 5$. Achieves **3.4× faster convergence** by preventing over-w
 **Optimizer Configuration**:
 
 ```python
+import optax
+
 tx = optax.adamw(
     learning_rate=1e-4,
     b1=0.9,

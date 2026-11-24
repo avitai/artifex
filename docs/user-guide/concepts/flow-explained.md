@@ -502,13 +502,36 @@ Proper preprocessing proves **essential for successful training**:
 Discrete data (e.g., uint8 images) create delta peaks in continuous space, allowing flows to assign arbitrarily high likelihood to exact discrete values while ignoring intermediate regions.
 
 ```python
-# Uniform dequantization
-rng, noise_key = jax.random.split(rng)
-x_dequantized = x + jax.random.uniform(noise_key, x.shape, dtype=x.dtype) / 256.0
+import warnings
 
-# Variational dequantization (more sophisticated)
-noise = flow_model_for_noise(x)
-x_dequantized = x + noise / 256.0
+import jax
+import jax.numpy as jnp
+import optax
+from flax import nnx
+
+from artifex.generative_models.core.configuration import (
+    CouplingNetworkConfig,
+    GlowConfig,
+    RealNVPConfig,
+)
+from artifex.generative_models.models.flow import RealNVP
+from artifex.generative_models.models.flow.glow import ActNormLayer
+
+
+# Uniform dequantization: integer level k becomes a point in [k/256, (k+1)/256)
+def dequantize(images_uint8, key):
+    x = images_uint8.astype(jnp.float32)
+    return (x + jax.random.uniform(key, x.shape)) / 256.0
+
+
+rng = jax.random.key(0)
+rng, data_key, noise_key = jax.random.split(rng, 3)
+images_uint8 = jax.random.randint(data_key, (8, 4, 4, 1), 0, 256).astype(jnp.uint8)
+x_dequantized = dequantize(images_uint8, noise_key)
+
+# Variational dequantization (more sophisticated, Flow++): draw the noise u in
+# [0, 1) from a learned conditional flow q(u | x) instead of a uniform, then
+#   x_dequantized = (x + u) / 256
 ```
 
 **2. Logit Transform:**
@@ -516,12 +539,15 @@ x_dequantized = x + noise / 256.0
 Maps bounded $[0,1]$ data to unbounded $(-\infty, +\infty)$ space matching Gaussian priors:
 
 ```python
-# Add small constant for numerical stability
-alpha = 0.05
-x = alpha + (1 - 2*alpha) * x
+def logit_transform(x, alpha=0.05):
+    # Add small constant for numerical stability: [0, 1] -> [alpha, 1 - alpha]
+    x = alpha + (1 - 2*alpha) * x
 
-# Apply logit transform
-x_logit = jnp.log(x) - jnp.log1p(-x)
+    # Apply logit transform
+    return jnp.log(x) - jnp.log1p(-x)
+
+
+x_logit = logit_transform(x_dequantized, alpha=0.05)
 ```
 
 !!!warning "Critical Importance"
@@ -534,9 +560,14 @@ x_logit = jnp.log(x) - jnp.log1p(-x)
 Never compute $\det(J)$ directly—immediate overflow/underflow:
 
 ```python
+# A 200x200 lower-triangular Jacobian with diagonal 2: det = 2**200, beyond float32's ~3.4e38
+jacobian = 2.0 * jnp.eye(200) + jnp.tril(
+    0.01 * jax.random.normal(jax.random.key(1), (200, 200)), k=-1
+)
+
 # WRONG
 det_J = jnp.linalg.det(jacobian)
-log_det = jnp.log(det_J)  # Overflow!
+log_det = jnp.log(det_J)  # Overflow! (inf)
 
 # CORRECT
 sign, log_det = jnp.linalg.slogdet(jacobian)
@@ -560,9 +591,13 @@ tx = optax.chain(
 Batch normalization or ActNorm stabilizes intermediate representations:
 
 ```python
-# ActNorm: data-dependent initialization
-scale, bias = compute_initial_stats(first_batch)
-# Then treat as learnable parameters
+# ActNorm: data-dependent initialization. The first forward pass sets the per-channel
+# bias to -mean and the log-scale to -log(std) of that batch, so it comes out with zero
+# mean and unit variance
+first_batch = x_logit  # [batch, height, width, channels]
+actnorm = ActNormLayer(num_channels=1, rngs=nnx.Rngs(0))
+y, log_det = actnorm.forward(first_batch)
+# Then treat as learnable parameters (actnorm.bias, actnorm.logs are nnx.Param)
 ```
 
 **4. Learning Rate Schedules:**
@@ -570,10 +605,16 @@ scale, bias = compute_initial_stats(first_batch)
 Polynomial decay with warmup improves convergence:
 
 ```python
-# Warmup: 2-10 epochs linear increase
-# Main training: polynomial decay from 1e-3 to 1e-4
-scheduler = PolynomialDecay(optimizer, warmup_steps=1000,
-                           total_steps=100000)
+# Warmup: 2-10 epochs linear increase (here 1000 steps)
+# Main training: polynomial decay from 1e-3 to 1e-4 over the remaining 99000 steps
+schedule = optax.join_schedules(
+    [
+        optax.linear_schedule(0.0, 1e-3, transition_steps=1000),
+        optax.polynomial_schedule(1e-3, 1e-4, power=1.0, transition_steps=99000),
+    ],
+    boundaries=[1000],
+)
+tx = optax.chain(optax.clip_by_global_norm(1.0), optax.adam(learning_rate=schedule))
 ```
 
 ### Monitoring Training
@@ -586,8 +627,24 @@ Watch these metrics:
 4. **Bits per dimension**: For images, $\text{bpd} = \frac{\text{NLL}}{D \cdot \log 2}$
 
 ```python
-# Invertibility check
-x_reconstructed = flow.inverse(flow.forward(x))
+# A small artifex RealNVP over flattened 4x4 images
+flow = RealNVP(
+    RealNVPConfig(
+        name="realnvp-small",
+        input_dim=16,
+        num_coupling_layers=4,
+        coupling_network=CouplingNetworkConfig(
+            name="realnvp-coupling", hidden_dims=(32, 32), activation="relu"
+        ),
+    ),
+    rngs=nnx.Rngs(0),
+)
+x = x_logit.reshape(x_logit.shape[0], -1)  # [batch, 16]
+
+# Invertibility check: forward maps data to latent, inverse maps back;
+# each returns (output, log_det)
+z, log_det_forward = flow.forward(x)
+x_reconstructed, log_det_inverse = flow.inverse(z)
 recon_error = jnp.mean(jnp.abs(x - x_reconstructed))
 assert recon_error < 1e-5, f"Poor invertibility: {recon_error}"
 ```
@@ -1097,34 +1154,36 @@ graph TD
 **Image Flows (Artifex Glow / RealNVP):**
 
 ```python
-glow_config = {
-    "image_shape": (32, 32, 3),
-    "blocks_per_scale": 6-8,
-    "coupling_hidden_dims": [512, 512],
-    "batch_size": 32-64,
-    "learning_rate": 1e-3,
-    "lr_decay": "polynomial",  # decay to 1e-4
-    "preprocessing": ["dequantize", "logit_transform"],
-}
+coupling_network = CouplingNetworkConfig(
+    name="image-coupling", hidden_dims=(512, 512), activation="relu"
+)
 
-realnvp_config = {
-    "input_dim": 32 * 32 * 3,
-    "num_coupling_layers": 8-12,
-    "coupling_hidden_dims": [512, 512],
-    "batch_size": 64-128,
-    "learning_rate": 1e-3,
-    "lr_decay": "polynomial",  # decay to 1e-4
-    "preprocessing": ["dequantize", "logit_transform"],
-}
+glow_config = GlowConfig(
+    name="glow-cifar10",
+    input_dim=32 * 32 * 3,
+    image_shape=(32, 32, 3),
+    blocks_per_scale=6,  # 6-8
+    coupling_network=coupling_network,
+)
+
+realnvp_config = RealNVPConfig(
+    name="realnvp-cifar10",
+    input_dim=32 * 32 * 3,
+    num_coupling_layers=8,  # 8-12
+    coupling_network=coupling_network,
+)
+
+# Training for both: batch size 32-64 (Glow) or 64-128 (RealNVP), learning rate 1e-3
+# with polynomial decay to 1e-4, and dequantize + logit_transform preprocessing
 ```
 
 **Density Estimation on Tabular Data (MAF/Neural Spline Flows):**
 
 ```python
 config = {
-    "num_transforms": 5-10,
+    "num_transforms": 8,  # 5-10
     "hidden_dims": [512, 512],  # Match or exceed data dimensionality
-    "num_bins": 8-16,  # For spline flows
+    "num_bins": 8,  # 8-16, for spline flows
     "batch_size": 256,
     "learning_rate": 5e-4,
     "preprocessing": ["standardization"],
@@ -1135,7 +1194,7 @@ config = {
 
 ```python
 config = {
-    "num_steps": 4-8,
+    "num_steps": 4,  # 4-8
     "hidden_dims": [256, 256],
     "base_distribution": "gaussian",  # Learned mean/std
     "learning_rate": 1e-3,
@@ -1148,8 +1207,8 @@ config = {
 ```python
 flow_matching_config = {
     "backbone": "DiT",                       # or MMDiT for text-to-image
-    "hidden_dim": 1024 - 4096,
-    "num_layers": 28 - 38,
+    "hidden_dim": 1024,                      # 1024-4096
+    "num_layers": 28,                        # 28-38
     "patch_size": 2,                         # for latent diffusion
     "interpolant": "linear",                 # x_t = (1-t) x_0 + t x_1
     "coupling": "ot_minibatch",              # OT-CFM (Tong et al. 2024)
@@ -1175,12 +1234,13 @@ For *one-step* generation without distillation, use the **MeanFlow** recipe ([Ge
 
     ```python
     # WRONG: Direct training on uint8 images
-    flow.train(images_uint8)
+    raw = images_uint8.astype(jnp.float32).reshape(8, -1)
+    nll = -jnp.mean(flow.log_prob(raw))
 
     # CORRECT: Dequantize + logit transform
-    images = dequantize(images_uint8)
+    images = dequantize(images_uint8, noise_key)
     images = logit_transform(images, alpha=0.05)
-    flow.train(images)
+    nll = -jnp.mean(flow.log_prob(images.reshape(8, -1)))
     ```
 
 - :material-bug: **Computing Determinants Directly**
@@ -1203,12 +1263,13 @@ For *one-step* generation without distillation, use the **MeanFlow** recipe ([Ge
     ---
 
     ```python
-    # Monitor reconstruction error
-    x_reconstructed = flow.inverse(flow.forward(x))
+    # Monitor reconstruction error (forward and inverse return (output, log_det))
+    z, _ = flow.forward(x)
+    x_reconstructed, _ = flow.inverse(z)
     error = jnp.mean(jnp.abs(x - x_reconstructed))
 
     # Should be < 1e-5 for numerical stability
-    if error > 1e-3:
+    if error > 1e-5:
         warnings.warn(f"Poor invertibility: {error}")
     ```
 
@@ -1218,10 +1279,14 @@ For *one-step* generation without distillation, use the **MeanFlow** recipe ([Ge
 
     ```python
     # WRONG: Too deep coupling networks
-    coupling = MLP([512, 512, 512, 512, 512])  # Overkill!
+    coupling = CouplingNetworkConfig(
+        name="coupling", hidden_dims=(512, 512, 512, 512, 512), activation="relu"
+    )  # Overkill!
 
-    # CORRECT: 2-3 layers sufficient
-    coupling = MLP([512, 512, output_dim])
+    # CORRECT: 2-3 layers sufficient (two hidden layers, then the output layer)
+    coupling = CouplingNetworkConfig(
+        name="coupling", hidden_dims=(512, 512), activation="relu"
+    )
     ```
 
 </div>

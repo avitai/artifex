@@ -182,6 +182,25 @@ graph TD
 **Causal Masking** (for sequences):
 
 ```python
+import jax
+import jax.numpy as jnp
+import optax
+from flax import nnx
+
+from artifex.generative_models.core.configuration import (
+    PixelCNNConfig,
+    TransformerConfig,
+    TransformerNetworkConfig,
+    WaveNetConfig,
+)
+from artifex.generative_models.models.autoregressive import (
+    PixelCNN,
+    TransformerAutoregressiveModel,
+    WaveNet,
+)
+
+seq_len = 8
+
 # Attention mask preventing position i from attending to positions > i
 mask = jnp.tril(jnp.ones((seq_len, seq_len)))  # Lower triangular
 ```
@@ -220,17 +239,21 @@ $$
 ```python
 class AutoregressiveRNN(nnx.Module):
     def __init__(self, vocab_size, hidden_dim, *, rngs):
-        super().__init__()
         self.embedding = nnx.Embed(vocab_size, hidden_dim, rngs=rngs)
-        self.rnn = nnx.RNN(hidden_dim, hidden_dim, rngs=rngs)
+        self.rnn = nnx.RNN(nnx.GRUCell(hidden_dim, hidden_dim, rngs=rngs))
         self.output = nnx.Linear(hidden_dim, vocab_size, rngs=rngs)
 
-    def __call__(self, x, *, rngs=None):
+    def __call__(self, x):
         # x: [batch, seq_len]
         embeddings = self.embedding(x)  # [batch, seq_len, hidden_dim]
         hidden_states = self.rnn(embeddings)  # [batch, seq_len, hidden_dim]
         logits = self.output(hidden_states)  # [batch, seq_len, vocab_size]
         return {"logits": logits}
+
+
+vocab_size = 16
+model = AutoregressiveRNN(vocab_size, hidden_dim=32, rngs=nnx.Rngs(0))
+logits = model(jnp.zeros((2, seq_len), dtype=jnp.int32))["logits"]  # [2, seq_len, vocab_size]
 ```
 
 **Advantages**:
@@ -258,15 +281,15 @@ class AutoregressiveRNN(nnx.Module):
 ```python
 class MaskedConv2D(nnx.Module):
     def __init__(self, in_channels, out_channels, kernel_size, mask_type, *, rngs):
-        super().__init__()
+        self.kernel_size = kernel_size
+        self.mask_type = mask_type
         self.conv = nnx.Conv(in_channels, out_channels,
-                            kernel_size=kernel_size, padding="SAME", rngs=rngs)
-        self.mask = self._create_mask(kernel_size, mask_type)
+                             kernel_size=kernel_size, padding="SAME", rngs=rngs)
 
-    def _create_mask(self, kernel_size, mask_type):
+    def _create_mask(self, in_channels, out_channels):
         """Create autoregressive mask for convolution."""
-        kh, kw = kernel_size
-        mask = jnp.ones((kh, kw, self.in_channels, self.out_channels))
+        kh, kw = self.kernel_size
+        mask = jnp.ones((kh, kw, in_channels, out_channels))
 
         center_h, center_w = kh // 2, kw // 2
 
@@ -275,16 +298,30 @@ class MaskedConv2D(nnx.Module):
         mask = mask.at[center_h, center_w + 1:, :, :].set(0)
 
         # For mask type A (first layer), also mask center
-        if mask_type == "A":
+        if self.mask_type == "A":
             mask = mask.at[center_h, center_w, :, :].set(0)
 
         return mask
 
     def __call__(self, x):
-        masked_kernel = self.conv.kernel * self.mask
+        kernel = self.conv.kernel[...]  # [kh, kw, in_channels, out_channels]
+        masked_kernel = kernel * self._create_mask(*kernel.shape[2:])
         # Apply masked convolution
-        ...
+        y = jax.lax.conv_general_dilated(
+            x, masked_kernel, window_strides=(1, 1), padding="SAME",
+            dimension_numbers=("NHWC", "HWIO", "NHWC"),
+        )
+        return y + self.conv.bias[...]
+
+
+# Changing pixel (2, 1) must not change any output at or before (2, 1) in raster order
+layer = MaskedConv2D(1, 4, kernel_size=(3, 3), mask_type="A", rngs=nnx.Rngs(0))
+image = jax.random.normal(jax.random.key(1), (1, 4, 4, 1))
+changed = jnp.abs(layer(image.at[0, 2, 1, 0].add(1.0)) - layer(image)).max(axis=-1)[0] > 0
+assert not changed[:2].any() and not changed[2, :2].any()
 ```
+
+artifex ships this layer as `MaskedConv2D` in `artifex.generative_models.models.autoregressive.pixel_cnn`.
 
 **Architecture**:
 
@@ -344,7 +381,6 @@ This ensures position $i$ only attends to positions $\leq i$.
 ```python
 class CausalSelfAttention(nnx.Module):
     def __init__(self, hidden_dim, num_heads, *, rngs):
-        super().__init__()
         self.num_heads = num_heads
         self.head_dim = hidden_dim // num_heads
 
@@ -380,6 +416,10 @@ class CausalSelfAttention(nnx.Module):
         output = self.output(attn_output)
 
         return output
+
+
+attention = CausalSelfAttention(hidden_dim=32, num_heads=4, rngs=nnx.Rngs(0))
+attended = attention(jnp.ones((2, seq_len, 32)))  # [2, seq_len, 32]
 ```
 
 **GPT Architecture** (Generative Pre-trained Transformer):
@@ -493,6 +533,7 @@ Autoregressive models are trained via **maximum likelihood estimation** using **
 **Training loop**:
 
 ```python
+@nnx.jit
 def train_step(model, batch, optimizer):
     # batch['sequences']: [batch_size, seq_len] ground truth sequences
 
@@ -505,17 +546,21 @@ def train_step(model, batch, optimizer):
         shifted_logits = logits[:, :-1, :]  # Remove last position
         shifted_targets = batch['sequences'][:, 1:]  # Remove first position
 
-        # Cross-entropy loss
-        log_probs = nnx.log_softmax(shifted_logits, axis=-1)
-        one_hot_targets = nnx.one_hot(shifted_targets, vocab_size)
-        loss = -jnp.mean(jnp.sum(log_probs * one_hot_targets, axis=-1))
-
-        return loss
+        # Cross-entropy loss, averaged over batch and positions
+        return optax.softmax_cross_entropy_with_integer_labels(
+            shifted_logits, shifted_targets
+        ).mean()
 
     loss, grads = nnx.value_and_grad(loss_fn)(model)
     optimizer.update(model, grads)  # NNX 0.11.0+ API
 
     return loss
+
+
+optimizer = nnx.Optimizer(model, optax.adam(1e-3), wrt=nnx.Param)
+batch = {"sequences": jax.random.randint(jax.random.key(0), (4, seq_len), 0, vocab_size)}
+for step in range(3):
+    loss = train_step(model, batch, optimizer)
 ```
 
 **Why teacher forcing?**
@@ -563,20 +608,25 @@ $$
 **Log-space computation**: Always work in log-space to prevent underflow:
 
 ```python
-# WRONG: Can underflow
-probs = softmax(logits)
-loss = -jnp.mean(jnp.log(probs[targets]))
+logits = jax.random.normal(jax.random.key(0), (4, seq_len, vocab_size))
+targets = jax.random.randint(jax.random.key(1), (4, seq_len), 0, vocab_size)
 
-# CORRECT: Numerically stable
-log_probs = nnx.log_softmax(logits)
-loss = -jnp.mean(log_probs[targets])
+# WRONG: Can underflow (a probability that rounds to 0 gives log(0) = -inf)
+probs = nnx.softmax(logits, axis=-1)
+target_probs = jnp.take_along_axis(probs, targets[..., None], axis=-1)[..., 0]
+loss = -jnp.mean(jnp.log(target_probs))
+
+# CORRECT: Numerically stable, computed from log_softmax(logits)
+loss = optax.softmax_cross_entropy_with_integer_labels(logits, targets).mean()
 ```
 
 **Gradient clipping**: Prevent exploding gradients in deep models:
 
 ```python
-# Clip gradient norm to max value
-grads = jax.tree_map(lambda g: jnp.clip(g, -clip_value, clip_value), grads)
+# Rescale the gradients whenever their global norm exceeds max_norm
+max_norm = 1.0
+tx = optax.chain(optax.clip_by_global_norm(max_norm), optax.adam(1e-3))
+optimizer = nnx.Optimizer(model, tx, wrt=nnx.Param)
 ```
 
 **Learning rate schedules**: Use warmup + decay for Transformers:
@@ -592,11 +642,10 @@ def lr_schedule(step, warmup_steps=4000, d_model=512):
 **Label smoothing**: Reduce overconfidence:
 
 ```python
-def label_smoothing(one_hot_labels, smoothing=0.1):
-    num_classes = one_hot_labels.shape[-1]
-    smooth_labels = one_hot_labels * (1 - smoothing)
-    smooth_labels += smoothing / num_classes
-    return smooth_labels
+# Move 10% of each target's probability mass to a uniform distribution over the vocabulary
+one_hot_targets = jax.nn.one_hot(targets, vocab_size)
+smooth_targets = optax.smooth_labels(one_hot_targets, alpha=0.1)
+loss = optax.softmax_cross_entropy(logits, smooth_targets).mean()
 ```
 
 ---
@@ -612,17 +661,21 @@ x_t = \arg\max_{x} p_\theta(x \mid x_{<t})
 $$
 
 ```python
-def greedy_generation(model, max_length, *, rngs):
+def greedy_generation(model, max_length):
+    # Position 0 holds the start token (0); logits[:, t - 1] predict token t
     sequence = jnp.zeros((1, max_length), dtype=jnp.int32)
 
-    for t in range(max_length):
-        outputs = model(sequence, rngs=rngs)
-        logits = outputs['logits'][:, t, :]  # [1, vocab_size]
+    for t in range(1, max_length):
+        outputs = model(sequence)
+        logits = outputs['logits'][:, t - 1, :]  # [1, vocab_size]
 
         next_token = jnp.argmax(logits, axis=-1)
         sequence = sequence.at[:, t].set(next_token)
 
     return sequence
+
+
+greedy = greedy_generation(model, max_length=8)
 ```
 
 **Pros**: Deterministic, fast
@@ -646,15 +699,18 @@ def temperature_sampling(model, max_length, temperature=1.0, *, rngs):
     sequence = jnp.zeros((1, max_length), dtype=jnp.int32)
     sample_key = rngs.sample()
 
-    for t in range(max_length):
-        outputs = model(sequence, rngs=rngs)
-        logits = outputs['logits'][:, t, :] / temperature
+    for t in range(1, max_length):
+        outputs = model(sequence)
+        logits = outputs['logits'][:, t - 1, :] / temperature
 
         sample_key, subkey = jax.random.split(sample_key)
         next_token = jax.random.categorical(subkey, logits, axis=-1)
         sequence = sequence.at[:, t].set(next_token)
 
     return sequence
+
+
+sampled = temperature_sampling(model, max_length=8, temperature=0.8, rngs=nnx.Rngs(sample=0))
 ```
 
 ### Top-k Sampling
@@ -670,9 +726,9 @@ def top_k_sampling(model, max_length, k=40, temperature=1.0, *, rngs):
     sequence = jnp.zeros((1, max_length), dtype=jnp.int32)
     sample_key = rngs.sample()
 
-    for t in range(max_length):
-        outputs = model(sequence, rngs=rngs)
-        logits = outputs['logits'][:, t, :] / temperature
+    for t in range(1, max_length):
+        outputs = model(sequence)
+        logits = outputs['logits'][:, t - 1, :] / temperature
 
         # Get top-k
         top_k_logits, top_k_indices = jax.lax.top_k(logits, k)
@@ -687,6 +743,9 @@ def top_k_sampling(model, max_length, k=40, temperature=1.0, *, rngs):
         sequence = sequence.at[:, t].set(next_token)
 
     return sequence
+
+
+top_k = top_k_sampling(model, max_length=8, k=5, rngs=nnx.Rngs(sample=0))
 ```
 
 **Typical $k$ values**: 10-50 for text, 40 is common.
@@ -704,9 +763,9 @@ def top_p_sampling(model, max_length, p=0.9, temperature=1.0, *, rngs):
     sequence = jnp.zeros((1, max_length), dtype=jnp.int32)
     sample_key = rngs.sample()
 
-    for t in range(max_length):
-        outputs = model(sequence, rngs=rngs)
-        logits = outputs['logits'][:, t, :] / temperature
+    for t in range(1, max_length):
+        outputs = model(sequence)
+        logits = outputs['logits'][:, t - 1, :] / temperature
 
         # Sort by probability
         probs = nnx.softmax(logits, axis=-1)
@@ -716,9 +775,9 @@ def top_p_sampling(model, max_length, p=0.9, temperature=1.0, *, rngs):
         # Cumulative probabilities
         cumulative_probs = jnp.cumsum(sorted_probs, axis=-1)
 
-        # Find nucleus (keep at least one token)
-        cutoff_mask = cumulative_probs <= p
-        cutoff_mask = cutoff_mask.at[:, 0].set(True)
+        # Find nucleus: keep each token whose predecessors hold less than p,
+        # so the token that takes the total to p or beyond is included
+        cutoff_mask = (cumulative_probs - sorted_probs) < p
 
         # Mask and renormalize
         masked_probs = jnp.where(cutoff_mask, sorted_probs, 0.0)
@@ -731,6 +790,9 @@ def top_p_sampling(model, max_length, p=0.9, temperature=1.0, *, rngs):
         sequence = sequence.at[:, t].set(next_token)
 
     return sequence
+
+
+nucleus = top_p_sampling(model, max_length=8, p=0.9, rngs=nnx.Rngs(sample=0))
 ```
 
 **Typical $p$ values**: 0.9-0.95.
@@ -747,15 +809,16 @@ def top_p_sampling(model, max_length, p=0.9, temperature=1.0, *, rngs):
 4. Return highest-scoring sequence at the end
 
 ```python
-def beam_search(model, max_length, beam_size=5, *, rngs):
+def beam_search(model, max_length, beam_size=5):
     # Initialize with start token
     sequences = jnp.zeros((beam_size, max_length), dtype=jnp.int32)
     scores = jnp.zeros(beam_size)
     scores = scores.at[1:].set(-1e9)  # Only first beam is active initially
 
-    for t in range(max_length):
-        outputs = model(sequences, rngs=rngs)
-        logits = outputs['logits'][:, t, :]  # [beam_size, vocab_size]
+    for t in range(1, max_length):
+        outputs = model(sequences)
+        logits = outputs['logits'][:, t - 1, :]  # [beam_size, vocab_size]
+        vocab_size = logits.shape[-1]
         log_probs = nnx.log_softmax(logits, axis=-1)
 
         # Expand: [beam_size, vocab_size]
@@ -777,6 +840,9 @@ def beam_search(model, max_length, beam_size=5, *, rngs):
     # Return best sequence
     best_idx = jnp.argmax(scores)
     return sequences[best_idx:best_idx+1]
+
+
+best = beam_search(model, max_length=8, beam_size=3)
 ```
 
 **Beam size** $B$: Typical values 3-10. Larger = better likelihood, more computation.
@@ -1074,30 +1140,23 @@ The throughline: **autoregression is no longer just "next-token prediction"**. I
 ### Basic Autoregressive Model
 
 ```python
-from flax import nnx
+# Separate streams: "params" initialises weights, "dropout" and "sample" are drawn at call time
+rngs = nnx.Rngs(params=0, dropout=1, sample=2)
 
-from artifex.generative_models.core.configuration import (
-    TransformerConfig,
-    TransformerNetworkConfig,
-)
-from artifex.generative_models.models.autoregressive import (
-    TransformerAutoregressiveModel,
-)
-
-rngs = nnx.Rngs(0)
-
+# A small configuration that runs in seconds on a CPU; a real text model uses
+# e.g. vocab_size=10000, sequence_length=512, num_layers=6, embed_dim=512, num_heads=8
 config = TransformerConfig(
     name="text-transformer-ar",
-    vocab_size=10000,
-    sequence_length=512,
-    num_layers=6,
+    vocab_size=64,
+    sequence_length=8,
+    num_layers=2,
     dropout_rate=0.1,
     network=TransformerNetworkConfig(
         name="text-transformer-network",
-        hidden_dims=(512,),
+        hidden_dims=(32,),
         activation="gelu",
-        embed_dim=512,
-        num_heads=8,
+        embed_dim=32,
+        num_heads=4,
         mlp_ratio=4.0,
     ),
 )
@@ -1106,14 +1165,15 @@ config = TransformerConfig(
 model = TransformerAutoregressiveModel(config, rngs=rngs)
 
 # Training
+sequences = jax.random.randint(jax.random.key(0), (4, 8), 0, config.vocab_size)
 batch = {"sequences": sequences}  # [batch_size, seq_len]
 outputs = model(batch["sequences"], rngs=rngs, training=True)
 loss_dict = model.loss_fn(batch, outputs, rngs=rngs)
 
 # Generation
 samples = model.generate(
-    n_samples=10,
-    max_length=256,
+    n_samples=2,
+    max_length=4,
     temperature=0.8,
     top_p=0.9,
     rngs=rngs
@@ -1123,32 +1183,30 @@ samples = model.generate(
 ### PixelCNN for Images
 
 ```python
-from flax import nnx
+rngs = nnx.Rngs(params=0, sample=1)
 
-from artifex.generative_models.core.configuration import PixelCNNConfig
-from artifex.generative_models.models.autoregressive import PixelCNN
-
-rngs = nnx.Rngs(0)
-
+# A small configuration; for MNIST use image_shape=(28, 28, 1), num_layers=7,
+# hidden_channels=128, num_residual_blocks=5
 config = PixelCNNConfig(
     name="mnist-pixelcnn",
-    image_shape=(28, 28, 1),
-    num_layers=7,
-    hidden_channels=128,
-    num_residual_blocks=5,
+    image_shape=(3, 3, 1),
+    num_layers=2,
+    hidden_channels=16,
+    num_residual_blocks=1,
 )
 
-# Create PixelCNN for MNIST (28×28 grayscale)
+# Create PixelCNN for small grayscale images
 model = PixelCNN(config, rngs=rngs)
 
 # Training
-batch = {"images": images}  # [batch_size, 28, 28, 1], values in [0, 255]
+images = jax.random.randint(jax.random.key(0), (2, 3, 3, 1), 0, 256)
+batch = {"images": images}  # [batch_size, 3, 3, 1], values in [0, 255]
 outputs = model(batch["images"], rngs=rngs, training=True)
 loss_dict = model.loss_fn(batch, outputs, rngs=rngs)
 
 # Generation
 generated_images = model.generate(
-    n_samples=16,
+    n_samples=2,
     temperature=1.0,
     rngs=rngs
 )
@@ -1157,35 +1215,33 @@ generated_images = model.generate(
 ### WaveNet for Audio
 
 ```python
-from flax import nnx
+rngs = nnx.Rngs(params=0, sample=1)
 
-from artifex.generative_models.core.configuration import WaveNetConfig
-from artifex.generative_models.models.autoregressive import WaveNet
-
-rngs = nnx.Rngs(0)
-
+# A small configuration; one second of 16 kHz audio uses sequence_length=16000,
+# residual_channels=128, skip_channels=512, num_blocks=3, layers_per_block=10
 config = WaveNetConfig(
     name="audio-wavenet",
     vocab_size=256,
-    sequence_length=16000,
-    residual_channels=128,
-    skip_channels=512,
-    num_blocks=3,
-    layers_per_block=10,
+    sequence_length=8,
+    residual_channels=16,
+    skip_channels=32,
+    num_blocks=1,
+    layers_per_block=3,
 )
 
 # Create WaveNet for audio
 model = WaveNet(config, rngs=rngs)
 
-# Training
-batch = {"waveform": waveform}  # [batch_size, time_steps]
-outputs = model(batch["waveform"], rngs=rngs)
+# Training: 8-bit (mu-law) quantised samples, one token per time step
+waveform = jax.random.randint(jax.random.key(0), (2, 8), 0, config.vocab_size)
+batch = {"sequences": waveform}  # [batch_size, time_steps]
+outputs = model(batch["sequences"], rngs=rngs)
 loss_dict = model.loss_fn(batch, outputs, rngs=rngs)
 
 # Generation
 generated_audio = model.generate(
     n_samples=1,
-    max_length=16000,  # 1 second at 16kHz
+    max_length=8,  # 16000 for one second at 16 kHz
     temperature=0.9,
     rngs=rngs
 )
