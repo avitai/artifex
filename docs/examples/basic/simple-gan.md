@@ -451,8 +451,6 @@ In this tutorial, you learned:
 
     Explore normalizing flows for exact likelihood
 
-- :material-star-shooting: **[Advanced GAN](../advanced/advanced-gan.md)**
-
     ---
 
     DCGAN, conditional GAN, and more advanced techniques

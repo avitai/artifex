@@ -87,15 +87,7 @@ def test_data_docs_and_examples_use_current_protein_dataset_contract() -> None:
             "from artifex.data.protein import ProteinDataset, ProteinDatasetConfig",
             "ProteinDatasetConfig(",
         ],
-        "docs/examples/protein/protein-diffusion-example.md": [
-            "from artifex.data.protein import ProteinDataset, ProteinDatasetConfig",
-            "ProteinDatasetConfig(",
-        ],
         "examples/generative_models/protein/protein_point_cloud_example.py": [
-            "from artifex.data.protein import (",
-            "ProteinDatasetConfig",
-        ],
-        "examples/generative_models/protein/protein_diffusion_example.py": [
             "from artifex.data.protein import (",
             "ProteinDatasetConfig",
         ],

@@ -64,4 +64,3 @@ viewer = ProteinVisualizer.visualize_structure(atom_positions, atom_mask)
 ## Related Pages
 
 - [Protein Viz](protein_viz.md)
-- [Protein Diffusion Example](../examples/protein/protein-diffusion-example.md)

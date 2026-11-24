@@ -9,8 +9,7 @@ ship runnable example pairs for them.
 ## Advanced Diffusion And Flow
 
 - Advanced diffusion: guidance-heavy, distillation, and super-resolution
-  workflows beyond the standalone [Simple Diffusion](../examples/diffusion/simple-diffusion.md)
-  concept walkthrough and the retained [DiT Demo](../examples/diffusion/dit-demo.md).
+  workflows beyond the retained [DiT Demo](../examples/diffusion/dit-demo.md).
 - Advanced flow: continuous flows, FFJORD, flow matching, and neural spline
   architectures beyond the retained [Flow on MNIST](../examples/basic/flow-mnist.md).
 
@@ -32,10 +31,8 @@ Available now:
 - Cross-modal retrieval
 - Multimodal generation
 
-Available now as standalone concept walkthroughs:
+Available now:
 
-- [Simple Text Generation](../examples/text/simple-text-generation.md)
-- [Simple Image-Text](../examples/multimodal/simple-image-text.md)
 - [Text Modality Guide](../user-guide/modalities/text.md)
 - [Multimodal Modality Guide](../user-guide/modalities/multimodal.md)
 - [Autoregressive Guide](../user-guide/models/autoregressive-guide.md)

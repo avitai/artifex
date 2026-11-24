@@ -1376,12 +1376,6 @@ Autoregressive models decompose joint distributions via the chain rule, enabling
 
     Complete API documentation for Transformers, PixelCNN, and WaveNet
 
-- :material-school:{ .lg .middle } **[Text Tutorial](../../examples/text/simple-text-generation.md)**
-
-    ---
-
-    Hands-on walkthrough for the retained text generation example
-
 - :material-map-outline:{ .lg .middle } **[Planned Example Topics](../../roadmap/planned-examples.md#text-and-multimodal)**
 
     ---

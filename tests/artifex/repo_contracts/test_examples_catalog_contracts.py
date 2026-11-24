@@ -32,30 +32,7 @@ RUNTIME_BACKED_TUTORIAL_PAGES = {
     "vae/multi-beta-vae-benchmark-demo.md": "examples/generative_models/vae/multi_beta_vae_benchmark_demo",
 }
 
-STANDALONE_TUTORIAL_PAGES = {
-    "audio/simple-audio-generation.md": "examples/generative_models/audio/simple_audio_generation",
-    "diffusion/simple-diffusion.md": "examples/generative_models/diffusion/simple_diffusion_example",
-    "multimodal/simple-image-text.md": "examples/generative_models/multimodal/simple_image_text",
-    "text/simple-text-generation.md": "examples/generative_models/text/simple_text_generation",
-}
-
-EXPLORATORY_TUTORIAL_PAGES = {
-    "advanced/advanced-gan.md": "examples/generative_models/image/gan/advanced_gan",
-    "protein/protein-diffusion-example.md": "examples/generative_models/protein/protein_diffusion_example",
-}
-
-VALIDATION_TUTORIAL_PAGES = {
-    "protein/protein-diffusion-tech-validation.md": (
-        "examples/generative_models/protein/protein_diffusion_tech_validation"
-    ),
-}
-
-PUBLISHED_EXAMPLE_PAGES = (
-    RUNTIME_BACKED_TUTORIAL_PAGES
-    | STANDALONE_TUTORIAL_PAGES
-    | EXPLORATORY_TUTORIAL_PAGES
-    | VALIDATION_TUTORIAL_PAGES
-)
+PUBLISHED_EXAMPLE_PAGES = RUNTIME_BACKED_TUTORIAL_PAGES
 
 ROADMAP_ONLY_PAGES = {
     "advanced/advanced-ar.md",

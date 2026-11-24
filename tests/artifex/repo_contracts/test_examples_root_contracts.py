@@ -13,14 +13,7 @@ COMMAND_PATTERN = re.compile(r"uv run python (?P<path>examples/[\w./-]+\.py)")
 BARE_PYTHON_PATTERN = re.compile(r"(?m)^python examples/[\w./-]+\.py$")
 
 BROKEN_OR_NONCANONICAL_PATHS = {
-    "examples/generative_models/audio/simple_audio_generation.py",
-    "examples/generative_models/diffusion/simple_diffusion_example.py",
     "examples/generative_models/image/diffusion/diffusion_mnist_training.py",
-    "examples/generative_models/image/gan/advanced_gan.py",
-    "examples/generative_models/multimodal/simple_image_text.py",
-    "examples/generative_models/protein/protein_diffusion_example.py",
-    "examples/generative_models/protein/protein_diffusion_tech_validation.py",
-    "examples/generative_models/text/simple_text_generation.py",
     "examples/utils/demo_utils.py",
     "examples/verify_examples.py",
 }
