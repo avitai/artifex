@@ -377,7 +377,6 @@ assert image_size % patch_size == 0, "Image size must be divisible by patch size
 
 ## Related Examples
 
-- [Simple Diffusion](simple-diffusion.md) - Diffusion basics
 - [Simple EBM](../energy/simple-ebm.md) - Energy-based models
 - [Diffusion Guide](../../user-guide/models/diffusion-guide.md) - Retained diffusion runtime and training reference
 

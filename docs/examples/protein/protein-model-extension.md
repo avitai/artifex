@@ -438,14 +438,6 @@ Explore related examples to deepen your understanding:
 
     [:octicons-arrow-right-24: protein_point_cloud_example.py](protein-point-cloud-example.md)
 
-- :material-wave:{ .lg .middle } **Protein Diffusion**
-
-    ---
-
-    Use diffusion models for protein structure generation with extensions.
-
-    [:octicons-arrow-right-24: protein_diffusion_example.py](protein-diffusion-example.md)
-
 - :material-flask:{ .lg .middle } **Protein Benchmarks**
 
     ---

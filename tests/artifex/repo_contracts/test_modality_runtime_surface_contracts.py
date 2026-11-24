@@ -249,10 +249,7 @@ def test_protein_geometric_examples_use_extension_bundle_contract() -> None:
     example_paths = [
         "examples/generative_models/protein/protein_point_cloud_example.py",
         "examples/generative_models/protein/protein_point_cloud_example.ipynb",
-        "examples/generative_models/protein/protein_diffusion_example.py",
-        "examples/generative_models/protein/protein_diffusion_example.ipynb",
         "docs/examples/protein/protein-point-cloud-example.md",
-        "docs/examples/protein/protein-diffusion-example.md",
     ]
     banned_references = [
         "ProteinConstraintConfig",

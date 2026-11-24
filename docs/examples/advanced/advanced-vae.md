@@ -833,14 +833,6 @@ Each variant offers different trade-offs:
 
 <div class="grid cards" markdown>
 
-- :material-creation:{ .lg .middle } **Advanced GANs**
-
-    ---
-
-    Explore StyleGAN and Progressive GAN techniques
-
-    [:octicons-arrow-right-24: Advanced GANs](advanced-gan.md)
-
 - :material-blur:{ .lg .middle } **Diffusion Guide**
 
     ---

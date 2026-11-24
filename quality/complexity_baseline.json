@@ -1,14 +1,5 @@
 {
   "entries": {
-    "examples/generative_models/image/gan/advanced_gan.py:function:train_gan_model": {
-      "complexity": 14,
-      "endline": 498,
-      "kind": "function",
-      "lineno": 246,
-      "path": "examples/generative_models/image/gan/advanced_gan.py",
-      "qualname": "train_gan_model",
-      "rank": "C"
-    },
     "examples/generative_models/sampling/blackjax_integration_examples.py:function:plot_samples": {
       "complexity": 23,
       "endline": 204,

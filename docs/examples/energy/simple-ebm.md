@@ -332,6 +332,5 @@ After understanding this example:
 
 ## Related Examples
 
-- [Simple Diffusion](../diffusion/simple-diffusion.md) - Diffusion models basics
 - [BlackJAX Sampling](../../core/mcmc.md) - Advanced MCMC methods
 - [DiT Demo](../diffusion/dit-demo.md) - Transformer-based generation

@@ -346,7 +346,7 @@ Each section is self-contained and can be run independently.
 
     Understand diffusion models
 
-    [:octicons-arrow-right-24: Simple Diffusion](../diffusion/simple-diffusion.md)
+    [:octicons-arrow-right-24: DiT Demo](../diffusion/dit-demo.md)
 
 - :material-arrow-right: **Loss Examples**
 
@@ -435,7 +435,6 @@ rngs = nnx.Rngs(
 
 - [Loss Examples](../losses/loss-examples.md) - Complete loss function showcase
 - [VAE MNIST Tutorial](../basic/vae-mnist.md) - Step-by-step VAE implementation
-- [Simple Diffusion](../diffusion/simple-diffusion.md) - Diffusion model basics
 
 ### Papers
 

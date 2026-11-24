@@ -1065,7 +1065,6 @@ config.update("jax_enable_x64", False)
 - [Autoregressive Explained](../concepts/autoregressive-explained.md) - Theoretical foundations
 - [AR API Reference](../../api/models/autoregressive.md) - Complete API documentation
 - [Training Guide](../training/training-guide.md) - General training workflows
-- [Examples](../../examples/text/simple-text-generation.md) - More AR examples
 
 ---
 
