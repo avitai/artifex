@@ -7,7 +7,7 @@ import jax.numpy as jnp
 from flax import nnx
 from substrax.testing.nnx_conformance import Case
 
-from tests.artifex.nnx_conformance.cases.inputs import BATCH, normal
+from tests.artifex.nnx_conformance.cases.inputs import BATCH, normal, uniform
 
 
 _CORE = "artifex.generative_models.core"
@@ -256,7 +256,7 @@ def layer_cases() -> dict[str, Case]:
         ),
         f"{_LAYERS}.kan.grids.BSplineBasis": Case(
             build=lambda r: grids.BSplineBasis(k=3),
-            inputs=lambda key: (jax.random.uniform(key, (BATCH, 3), minval=-1.0, maxval=1.0),),
+            inputs=uniform((3,), minval=-1.0, maxval=1.0),
             call=lambda module, x: module(
                 x, grids.EfficientKANGrid(n_nodes=3, k=3, grid_intervals=3).knots[...]
             ),
