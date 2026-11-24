@@ -30,8 +30,6 @@ uv run python examples/generative_models/protein/protein_extensions_example.py
   notebook from the script.
 - Reader-facing example docs belong under `docs/examples/` only when the pair
   exists.
-- Verification or maintenance scripts such as `examples/verify_examples.py` are
-  utilities, not canonical tutorial examples.
 
 ## Choosing A Starting Point
 

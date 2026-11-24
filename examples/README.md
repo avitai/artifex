@@ -45,27 +45,6 @@ uv run python examples/generative_models/geometric/simple_point_cloud_example.py
 For the broader tutorial catalog, start from
 [`docs/examples/index.md`](../docs/examples/index.md).
 
-## Maintained Root Helpers
-
-### Curated Smoke Subset
-
-```bash
-./examples/run_all_examples.sh
-```
-
-This helper runs a curated CPU-safe smoke subset of reviewed examples. It is not
-an auto-discovery runner for every file under `examples/`.
-
-### Root Contract Smoke Checks
-
-```bash
-uv run python examples/verify_examples.py
-```
-
-This verifier reads the live `examples/README.md`, checks that documented root
-example commands resolve to real files, and then runs a small set of maintained
-API smoke checks. It does not claim to execute the entire example catalog.
-
 ## Authoring And Maintenance
 
 - Examples follow substrax's
