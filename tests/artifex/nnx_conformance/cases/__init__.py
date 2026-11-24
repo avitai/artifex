@@ -28,7 +28,12 @@ from tests.artifex.nnx_conformance.cases import (
     flow,
     gan,
     geometric,
+    image_modality,
+    multi_modal,
     objectives,
+    signal_modalities,
+    tabular_modality,
+    text_modality,
     vae,
 )
 
@@ -50,6 +55,11 @@ def all_cases() -> dict[str, Case]:
         **objectives.cases(),
         **distributions.cases(),
         **extensions.cases(),
+        **image_modality.cases(),
+        **multi_modal.cases(),
+        **text_modality.cases(),
+        **tabular_modality.cases(),
+        **signal_modalities.cases(),
     }
 
 
@@ -63,6 +73,11 @@ EXEMPT: dict[str, str] = {
     **objectives.EXEMPT,
     **distributions.EXEMPT,
     **extensions.EXEMPT,
+    **image_modality.EXEMPT,
+    **multi_modal.EXEMPT,
+    **text_modality.EXEMPT,
+    **tabular_modality.EXEMPT,
+    **signal_modalities.EXEMPT,
 }
 """Classes with no case of their own, each with the reason."""
 

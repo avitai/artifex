@@ -22,6 +22,7 @@ _AUDIO = "artifex.generative_models.models.audio"
 _LOSSES = f"{_CORE}.losses"
 _DISTRIBUTIONS = f"{_CORE}.distributions"
 _EXTENSIONS = "artifex.generative_models.extensions"
+_MODALITIES = "artifex.generative_models.modalities"
 
 _EVAL_OVERRIDE = "a deterministic=False default forwarded to {target} overrides .eval() ({where})"
 
@@ -261,6 +262,44 @@ AUGMENTATION_EVAL = (
     " module's mode (vision/augmentation.py:54-57), so .eval() still augments, drawing from the"
     " Rngs it stores (line 40); {effect}"
 )
+HOST_VALUES = (
+    "{row} {name} returns host values ({what}, {where}), not arrays, so it cannot run under"
+    " nnx.jit, nnx.vmap or jax.grad"
+)
+_HOST_VALUE_CHECKS = (
+    "eval_deterministic",
+    "jit_matches_eager",
+    "state_structure",
+    "tree_mode_split",
+    "view_matches_modes",
+)
+_HOST_VALUE_SITES = {
+    "image.evaluation.MSEMetric": ("float(...)", "image/evaluation.py:78"),
+    "image.evaluation.PSNRMetric": ("float(...)", "image/evaluation.py:105"),
+    "image.evaluation.SSIMMetric": ("float(...)", "image/evaluation.py:164"),
+    "image.evaluation.MSSSIMMetric": ("float(...)", "image/evaluation.py:191"),
+    "image.evaluation.VendiScoreMetric": ("float(...)", "image/evaluation.py:219"),
+    "image.evaluation.PerceptualDistanceMetric": ("float(...)", "image/evaluation.py:298"),
+    "image.evaluation.ImageEvaluationSuite": ("its metrics' floats", "image/evaluation.py:364"),
+    "tabular.evaluation.TabularEvaluationSuite": ("float(...)", "tabular/evaluation.py:176, 321"),
+    "timeseries.evaluation.TimeseriesEvaluationSuite": (
+        "Python floats",
+        "timeseries/evaluation.py:274",
+    ),
+    "multi_modal.evaluation.MultiModalEvaluationSuite": (
+        "Python floats",
+        "multi_modal/evaluation.py:182-183",
+    ),
+    "text.evaluation.TextEvaluationSuite": ("a TextMetrics dataclass", "text/evaluation.py:371"),
+}
+BATCH_OF_ONE = (
+    "{row} {name} drops the batch axis for a batch of one ({where}), so a row mapped alone has"
+    " another rank than the batched output{extra}"
+)
+MULTI_MODAL_EVAL = (
+    "R544 {name} forwards a deterministic=False call default to its dropout"
+    " (multi_modal/representations.py:{where}), so .eval() still draws dropout keys{effect}"
+)
 
 VIEW_STORED_RNGS = (
     "R529 an nnx.Rngs is stored at .{path}, and nnx.view calls set_view on every node answering"
@@ -273,6 +312,15 @@ _VIEW_RNGS_PATHS = {
     "models.audio.diffusion.AudioDiffusionModel": "backbone.time_embedding.rngs",
     "core.distributions.continuous.Beta": "_rngs",
     "extensions.base.extensions.SamplingExtension": "_rngs",
+    "modalities.audio.base.AudioModality": "rngs",
+    "modalities.image.base.ImageModality": "rngs",
+    "modalities.image.representations.AugmentationProcessor": "rngs",
+    "modalities.image.representations.ImageProcessor": "rngs",
+    "modalities.image.representations.MultiScaleProcessor": "rngs",
+    "modalities.multi_modal.representations.ModalityDropout": "rngs",
+    "modalities.text.representations.SequenceAugmentationProcessor": "rngs",
+    "modalities.text.representations.TextProcessor": "rngs",
+    "modalities.timeseries.representations.TimeseriesProcessor": "rngs",
     "core.distributions.continuous.Normal": "_rngs",
     "core.distributions.discrete.Bernoulli": "_rngs",
     "core.distributions.discrete.Categorical": "_rngs",
@@ -748,6 +796,94 @@ def _extensions() -> dict[tuple[str, str], str]:
     return failures
 
 
+def _modalities() -> dict[tuple[str, str], str]:
+    failures: dict[tuple[str, str], str] = {}
+    for name, (what, where) in _HOST_VALUE_SITES.items():
+        defect = HOST_VALUES.format(
+            row="R542", name=name.rsplit(".", 1)[1], what=what, where=f"modalities/{where}"
+        )
+        failures |= {(f"{_MODALITIES}.{name}", check): defect for check in _HOST_VALUE_CHECKS}
+
+    failures[(f"{_MODALITIES}.image.base.ImageModality", "rows_independent")] = BATCH_OF_ONE.format(
+        row="R430", name="ImageModality.process", where="image/base.py:255-257", extra=""
+    )
+    failures[(f"{_MODALITIES}.text.base.TextModality", "rows_independent")] = BATCH_OF_ONE.format(
+        row="R543", name="TextModality.process", where="text/base.py:343-344", extra=""
+    )
+    failures[
+        (
+            f"{_MODALITIES}.text.representations.PositionEncodingProcessor",
+            "gradient_matches_finite_differences",
+        )
+    ] = EMBED_LOOKUP.format(
+        embed="PositionEncodingProcessor's pos_embedding (text/representations.py:384)"
+    ) + (
+        "; only that table's finite differences fail to converge (FD-AD -2.5e-2 at step 1e-5,"
+        " -7.9e-1 at 1e-7)"
+    )
+    augmentation = f"{_MODALITIES}.text.representations.SequenceAugmentationProcessor"
+    token_dropout = (
+        "R378 apply_token_dropout takes deterministic=False by default"
+        " (text/representations.py:496, 507), so .eval() still drops tokens{effect}"
+    )
+    failures[(augmentation, "eval_deterministic")] = token_dropout.format(effect="")
+    failures[(augmentation, "rows_independent")] = token_dropout.format(
+        effect=", and rows mapped one at a time draw other masks"
+    )
+
+    mm = f"{_MODALITIES}.multi_modal.representations"
+    for name, where in (("MultiModalProcessor", "101, 126"), ("CrossModalAttention", "447, 478")):
+        failures[(f"{mm}.{name}", "eval_deterministic")] = MULTI_MODAL_EVAL.format(
+            name=name, where=where, effect=""
+        )
+        for check in ("gradient_finite", "gradient_matches_finite_differences"):
+            failures[(f"{mm}.{name}", check)] = MULTI_MODAL_EVAL.format(
+                name=name, where=where, effect=", here from inside the gradient's trace"
+            )
+    failures[(f"{mm}.MultiModalProcessor", "rows_independent")] = MULTI_MODAL_EVAL.format(
+        name="MultiModalProcessor", where="101, 126", effect=", so rows draw other masks"
+    )
+    failures[(f"{mm}.CrossModalAttention", "rows_independent")] = BATCH_OF_ONE.format(
+        row="R543",
+        name="CrossModalAttention",
+        where="multi_modal/representations.py:482-483",
+        extra="; and R544, .eval() still draws dropout keys",
+    )
+    modality_dropout = "R307 ModalityDropout {what} (multi_modal/representations.py:{where})"
+    failures[(f"{mm}.ModalityDropout", "eval_deterministic")] = modality_dropout.format(
+        what="drops modalities under .eval(): its deterministic=False default overrides the mode",
+        where="627",
+    )
+    failures[(f"{mm}.ModalityDropout", "rows_independent")] = modality_dropout.format(
+        what="drops modalities under .eval(), so rows mapped one at a time keep other modalities",
+        where="627, 654",
+    )
+    failures[(f"{mm}.ModalityDropout", "jit_matches_eager")] = modality_dropout.format(
+        what="branches in Python on a traced keep decision (if keep:)", where="654"
+    )
+
+    audio = f"{_MODALITIES}.audio.representations"
+    failures[(f"{audio}.WaveformProcessor", "rows_independent")] = (
+        "R370 WaveformProcessor normalises by the largest magnitude in the whole batch"
+        " (audio/representations.py:69-70), so a row's output depends on the others"
+    )
+    failures[(f"{audio}.SpectrogramProcessor", "rows_independent")] = (
+        "R431 SpectrogramProcessor's Griffin-Lim draws its initial phase from the literal key 0"
+        " over the whole batch's shape (audio/representations.py:203), so a row mapped alone"
+        " starts from row 0's phase (forward transform: rows agree exactly; inverse: 4.5)"
+    )
+    failures[
+        (
+            f"{_MODALITIES}.timeseries.representations.TrendDecompositionProcessor",
+            "jit_matches_eager",
+        )
+    ] = (
+        "R294 (reopened 2026-11-23) _extract_seasonal_pattern branches in Python on"
+        " jnp.sum(mask) > 0 (timeseries/representations.py:425), which jit traces"
+    )
+    return failures
+
+
 def _views() -> dict[tuple[str, str], str]:
     failures = {
         (f"{_GENERATIVE}.{module}", "view_matches_modes"): VIEW_STORED_RNGS.format(path=path)
@@ -775,5 +911,6 @@ KNOWN_FAILURES: dict[tuple[str, str], str] = (
     | _objectives()
     | _distributions()
     | _extensions()
+    | _modalities()
     | _views()
 )
