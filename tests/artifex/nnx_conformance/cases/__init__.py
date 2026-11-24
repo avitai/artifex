@@ -24,6 +24,7 @@ from tests.artifex.nnx_conformance.cases import (
     diffusion,
     distributions,
     energy,
+    extensions,
     flow,
     gan,
     geometric,
@@ -48,6 +49,7 @@ def all_cases() -> dict[str, Case]:
         **audio.cases(),
         **objectives.cases(),
         **distributions.cases(),
+        **extensions.cases(),
     }
 
 
@@ -60,6 +62,7 @@ EXEMPT: dict[str, str] = {
     **audio.EXEMPT,
     **objectives.EXEMPT,
     **distributions.EXEMPT,
+    **extensions.EXEMPT,
 }
 """Classes with no case of their own, each with the reason."""
 
