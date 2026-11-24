@@ -21,6 +21,7 @@ _GEOMETRIC = "artifex.generative_models.models.geometric"
 _AUDIO = "artifex.generative_models.models.audio"
 _LOSSES = f"{_CORE}.losses"
 _DISTRIBUTIONS = f"{_CORE}.distributions"
+_EXTENSIONS = "artifex.generative_models.extensions"
 
 _EVAL_OVERRIDE = "a deterministic=False default forwarded to {target} overrides .eval() ({where})"
 
@@ -225,6 +226,41 @@ MIXTURE_NO_PARAMS = (
     "R085 MixtureOfGaussians keeps locs, scales and weights as plain arrays"
     " (mixture.py:45-55), so it has no nnx.Param and its parameters cannot be trained"
 )
+EXTENSION_STRINGS = (
+    "R456 {name} returns its kind as a string among its outputs ('extension_type',"
+    " extensions/{where}), which nnx.jit and nnx.vmap cannot return; every check reports the"
+    " string before it reaches the module's other properties"
+)
+_EXTENSION_TYPE_LINES = {
+    "audio_processing.spectral.SpectralAnalysis": "audio_processing/spectral.py:426",
+    "audio_processing.temporal.TemporalAnalysis": "audio_processing/temporal.py:425",
+    "chemical.constraints.ChemicalConstraints": "chemical/constraints.py:287",
+    "nlp.embeddings.TextEmbeddings": "nlp/embeddings.py:602",
+    "nlp.tokenization.AdvancedTokenization": "nlp/tokenization.py:372",
+    "protein.backbone.BondLengthExtension": "protein/backbone.py:81",
+    "protein.backbone.BondAngleExtension": "protein/backbone.py:306",
+    "protein.constraints.ProteinBackboneConstraint": "protein/constraints.py:179",
+    "protein.constraints.ProteinDihedralConstraint": "protein/constraints.py:870",
+    "protein.mixin.ProteinMixinExtension": "protein/mixin.py:70",
+}
+MOLECULAR_FEATURES_HOST = (
+    "R398 MolecularFeatures computes its descriptors as host Python floats (chemical/features.py"
+    ":150, 238-245), so its outputs are not arrays and nnx.jit cannot trace it"
+)
+TEXT_EMBEDDINGS_EVAL = (
+    "R539 TextEmbeddings.__call__ forwards a deterministic=False default to its dropout"
+    " (nlp/embeddings.py:609, 238), so .eval() still draws dropout keys, here from inside the"
+    " gradient's trace"
+)
+TEXT_EMBEDDINGS_RNGS = (
+    "R390/R440 TextEmbeddings stores self.rngs (nlp/embeddings.py:185) beside the _rngs the"
+    " Extension base stores, one RngCount at two paths, so tree mode refuses the module"
+)
+AUGMENTATION_EVAL = (
+    "R540 AdvancedImageAugmentation.augment decides by its deterministic=False flag, not the"
+    " module's mode (vision/augmentation.py:54-57), so .eval() still augments, drawing from the"
+    " Rngs it stores (line 40); {effect}"
+)
 
 VIEW_STORED_RNGS = (
     "R529 an nnx.Rngs is stored at .{path}, and nnx.view calls set_view on every node answering"
@@ -236,6 +272,7 @@ _GENERATIVE = "artifex.generative_models"
 _VIEW_RNGS_PATHS = {
     "models.audio.diffusion.AudioDiffusionModel": "backbone.time_embedding.rngs",
     "core.distributions.continuous.Beta": "_rngs",
+    "extensions.base.extensions.SamplingExtension": "_rngs",
     "core.distributions.continuous.Normal": "_rngs",
     "core.distributions.discrete.Bernoulli": "_rngs",
     "core.distributions.discrete.Categorical": "_rngs",
@@ -633,6 +670,84 @@ def _distributions() -> dict[tuple[str, str], str]:
     return failures
 
 
+def _extensions() -> dict[tuple[str, str], str]:
+    failures: dict[tuple[str, str], str] = {}
+    string_checks = {
+        "eval_deterministic",
+        "jit_matches_eager",
+        "rows_independent",
+        "state_structure",
+        "tree_mode_split",
+        "view_matches_modes",
+        "train_dropout_varies",
+        "gradient_finite",
+        "gradient_matches_finite_differences",
+    }
+    measured = {
+        "audio_processing.spectral.SpectralAnalysis": string_checks
+        - {"train_dropout_varies", "gradient_finite", "gradient_matches_finite_differences"},
+        "audio_processing.temporal.TemporalAnalysis": string_checks
+        - {"train_dropout_varies", "gradient_finite", "gradient_matches_finite_differences"},
+        "chemical.constraints.ChemicalConstraints": string_checks
+        - {"train_dropout_varies", "gradient_finite", "gradient_matches_finite_differences"},
+        "nlp.embeddings.TextEmbeddings": string_checks
+        - {"gradient_finite", "gradient_matches_finite_differences"},
+        "nlp.tokenization.AdvancedTokenization": string_checks
+        - {
+            "rows_independent",
+            "train_dropout_varies",
+            "gradient_finite",
+            "gradient_matches_finite_differences",
+        },
+        "protein.mixin.ProteinMixinExtension": string_checks - {"train_dropout_varies"},
+    }
+    for name in (
+        "protein.backbone.BondLengthExtension",
+        "protein.backbone.BondAngleExtension",
+        "protein.constraints.ProteinBackboneConstraint",
+        "protein.constraints.ProteinDihedralConstraint",
+    ):
+        measured[name] = string_checks - {
+            "rows_independent",
+            "train_dropout_varies",
+            "gradient_finite",
+            "gradient_matches_finite_differences",
+        }
+    for name, checks in measured.items():
+        defect = EXTENSION_STRINGS.format(
+            name=name.rsplit(".", 1)[1], where=_EXTENSION_TYPE_LINES[name]
+        )
+        failures |= {(f"{_EXTENSIONS}.{name}", check): defect for check in checks}
+    embeddings = f"{_EXTENSIONS}.nlp.embeddings.TextEmbeddings"
+    failures[(embeddings, "gradient_finite")] = TEXT_EMBEDDINGS_EVAL
+    failures[(embeddings, "gradient_matches_finite_differences")] = TEXT_EMBEDDINGS_RNGS
+    features = f"{_EXTENSIONS}.chemical.features.MolecularFeatures"
+    for check in (
+        "eval_deterministic",
+        "jit_matches_eager",
+        "rows_independent",
+        "state_structure",
+        "tree_mode_split",
+        "view_matches_modes",
+    ):
+        failures[(features, check)] = MOLECULAR_FEATURES_HOST
+    augmentation = f"{_EXTENSIONS}.vision.augmentation.AdvancedImageAugmentation"
+    failures[(augmentation, "eval_deterministic")] = AUGMENTATION_EVAL.format(
+        effect="two .eval() calls differ"
+    )
+    failures[(augmentation, "rows_independent")] = AUGMENTATION_EVAL.format(
+        effect="rows mapped one at a time draw other angles and factors"
+    )
+    failures[(augmentation, "view_matches_modes")] = AUGMENTATION_EVAL.format(
+        effect="a view and .eval() draw different augmentations"
+    )
+    failures[(augmentation, "tree_mode_split")] = (
+        "R540 AdvancedImageAugmentation stores self.rngs (vision/augmentation.py:40) beside the"
+        " _rngs the Extension base stores (the R390 pattern), so tree mode refuses the module"
+    )
+    return failures
+
+
 def _views() -> dict[tuple[str, str], str]:
     failures = {
         (f"{_GENERATIVE}.{module}", "view_matches_modes"): VIEW_STORED_RNGS.format(path=path)
@@ -659,5 +774,6 @@ KNOWN_FAILURES: dict[tuple[str, str], str] = (
     | _audio()
     | _objectives()
     | _distributions()
+    | _extensions()
     | _views()
 )
