@@ -206,36 +206,15 @@ docs/
 
 ## Creating Examples
 
-When contributing new examples, use the templates in `docs/examples/templates/`:
-
-- `example_template.py` - Python script with Jupytext markers
-- `example_template.ipynb` - Jupyter notebook version
-
-The canonical authoring guide is the
-[Example Documentation Design Guide](docs/development/example-documentation-design.md).
-Use it as the standard for example structure, device labeling, docs layout, and
-sync workflow.
-
-### Example Guidelines
-
-1. **Use dual-format for tutorials**: Reader-facing tutorial examples should ship as `.py` and `.ipynb` Jupytext pairs. Verification or maintenance scripts under `examples/` may remain `.py` only.
-2. **Follow the template structure**: Include learning objectives, prerequisites, step-by-step implementation, and exercises
-3. **Use Flax NNX patterns**: Follow the module initialization and RNG handling patterns shown in the template
-4. **Add educational content**: Explain concepts, not just code
-5. **Use current repo workflows**: Show `source ./activate.sh` and `uv run ...` commands
-6. **Sync dual-format examples with the repo tool**: Regenerate paired notebooks with `scripts/jupytext_converter.py`
-
-### Running Examples
+Examples follow substrax's [Writing examples](https://substrax.readthedocs.io/en/latest/guides/writing-examples/) guide, starting from its
+template. The script is the only file you author; `substrax-notebooks` writes its notebook and
+its page:
 
 ```bash
-# Activate the repo environment
 source ./activate.sh
-
-# Run as Python script
-uv run python examples/path/to/example.py
-
-# Sync the paired notebook for dual-format tutorial examples
-uv run python scripts/jupytext_converter.py sync examples/path/to/example.py
+uv run substrax-notebooks convert examples/<topic>/<name>.py   # its clean notebook
+uv run substrax-notebooks page examples/<topic>/<name>.py      # run it and write its page
+uv run substrax-notebooks test                                 # the shared example tests
 ```
 
 ## Pull Request Guidelines

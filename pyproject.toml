@@ -247,8 +247,9 @@ test = [
   "pytest-split>=0.11",
   "pytest-timeout>=2.1",
   "pytest-xdist>=3.6",
-  # The substrax pytest plugin, fresh-interpreter helpers and NNX checks the suite runs on.
-  "substrax[testing]==0.1.36"
+  # The substrax pytest plugin, fresh-interpreter helpers and NNX checks the suite runs on; the
+  # notebooks extra is substrax-notebooks, which writes, checks, pages and runs the examples.
+  "substrax[notebooks,testing]==0.1.36"
 ]
 
 [project.scripts]
@@ -472,7 +473,11 @@ XLA_CLIENT_MEM_FRACTION = "0.75"
 XLA_PYTHON_CLIENT_PREALLOCATE = {skip_if_set = true, value = "false"}
 
 [tool.ruff]
+# An example's notebook is written by `substrax-notebooks convert` alone; a ruff fix applied to it
+# would leave it out of step with its script. force-exclude also skips one a hook names directly.
+extend-exclude = ["examples/**/*.ipynb"]
 extend-include = ["*.ipynb"]
+force-exclude = true
 # Canonical value lives in [tool.artifex.repo_standards].
 line-length = 100
 src = []
@@ -772,6 +777,13 @@ max-complexity = 10
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"
+
+[tool.substrax.examples]
+# PROVISIONAL: substrax's documented example value. Replaced in this series, before it lands, by the
+# budgets measured in announced quiet windows, each with its measurement beside it.
+budget_seconds = 600
+# Where a generated page links its example's script and notebook.
+source_url = "https://github.com/avitai/artifex/blob/main"
 
 [tool.uv]
 python-preference = "only-managed"

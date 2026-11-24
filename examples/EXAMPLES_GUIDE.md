@@ -73,16 +73,16 @@ uv run python examples/verify_examples.py
 
 ## Updating Tutorial Pairs
 
-Reader-facing tutorial examples remain dual-format `.py` / `.ipynb` pairs.
-Update them through the documented Jupytext workflow:
+Examples follow substrax's
+[Writing examples](https://substrax.readthedocs.io/en/latest/guides/writing-examples/)
+guide. The script is the only file you author; `substrax-notebooks` writes its
+notebook and its page:
 
 ```bash
-uv run python scripts/jupytext_converter.py sync examples/path/to/example.py
-uv run python scripts/jupytext_converter.py validate examples/path/to/
+uv run substrax-notebooks convert examples/<topic>/<name>.py   # its clean notebook
+uv run substrax-notebooks page examples/<topic>/<name>.py      # run it and write its page
+uv run substrax-notebooks test                                 # the shared example tests
 ```
-
-See the full authoring rules in
-[`docs/development/example-documentation-design.md`](../docs/development/example-documentation-design.md).
 
 ## Troubleshooting
 

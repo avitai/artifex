@@ -24,8 +24,10 @@ uv run python examples/generative_models/protein/protein_extensions_example.py
 
 ## Working With Example Pairs
 
-- The Python source is the review surface. Regenerate the notebook from it with
-  `uv run python scripts/jupytext_converter.py sync examples/path/to/example.py`.
+- The Python source is the review surface. Examples follow substrax's
+  [Writing examples](https://substrax.readthedocs.io/en/latest/guides/writing-examples/)
+  guide; `uv run substrax-notebooks convert examples/<topic>/<name>.py` writes the
+  notebook from the script.
 - Reader-facing example docs belong under `docs/examples/` only when the pair
   exists.
 - Verification or maintenance scripts such as `examples/verify_examples.py` are

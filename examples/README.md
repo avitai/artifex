@@ -68,16 +68,17 @@ API smoke checks. It does not claim to execute the entire example catalog.
 
 ## Authoring And Maintenance
 
-- Reader-facing tutorial examples are maintained as `.py` / `.ipynb` pairs.
-- Contributor-facing design rules live in
-  [`docs/development/example-documentation-design.md`](../docs/development/example-documentation-design.md).
-- Use the Jupytext sync workflow from that guide when you update a tutorial pair.
+- Examples follow substrax's
+  [Writing examples](https://substrax.readthedocs.io/en/latest/guides/writing-examples/)
+  guide. The script is the only file you author; `substrax-notebooks` writes its
+  notebook and its page.
 
 Useful maintenance commands:
 
 ```bash
-uv run python scripts/jupytext_converter.py sync examples/path/to/example.py
-uv run python scripts/jupytext_converter.py validate examples/path/to/
+uv run substrax-notebooks convert examples/<topic>/<name>.py   # its clean notebook
+uv run substrax-notebooks page examples/<topic>/<name>.py      # run it and write its page
+uv run substrax-notebooks test                                 # the shared example tests
 ```
 
 ## Catalog Boundaries

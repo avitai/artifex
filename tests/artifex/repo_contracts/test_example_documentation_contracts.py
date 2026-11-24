@@ -5,60 +5,34 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[3]
 
 
-def test_example_authoring_guide_exists_and_matches_artifex_contract() -> None:
-    """Artifex should ship a dedicated example authoring guide with current workflows."""
-    guide = (REPO_ROOT / "docs/development/example-documentation-design.md").read_text()
-
-    required_references = [
-        "Artifex Example Documentation Design Guide",
-        "source ./activate.sh",
-        "uv run python",
-        "uv run python scripts/jupytext_converter.py sync",
-        "scripts/verify_gpu_setup.py --require-gpu",
-        "docs/examples/templates/example_template.py",
-        "artifex.configs",
-        "Flax NNX",
-    ]
-
-    for reference in required_references:
-        assert reference in guide
-
-    banned_references = [
-        "source activate.sh",
-        "jupytext --to notebook",
-        "uv pip install -e .",
-        "Pydantic",
-        "cuda,cpu",
-        "/usr/local/cuda",
-    ]
-
-    for reference in banned_references:
-        assert reference not in guide
+SUBSTRAX_EXAMPLE_GUIDE = "https://substrax.readthedocs.io/en/latest/guides/writing-examples/"
+CONTRIBUTOR_EXAMPLE_DOCS = (
+    "CONTRIBUTING.md",
+    "docs/community/contributing.md",
+    "examples/README.md",
+    "examples/EXAMPLES_GUIDE.md",
+)
 
 
-def test_contributor_docs_link_to_example_authoring_guide() -> None:
-    """Contributor entry points should direct authors to the dedicated example guide."""
-    docs_contributing = (REPO_ROOT / "docs/community/contributing.md").read_text()
-    repo_contributing = (REPO_ROOT / "CONTRIBUTING.md").read_text()
-    mkdocs = (REPO_ROOT / "mkdocs.yml").read_text()
+def test_contributor_docs_send_example_authors_to_substrax_guide_and_tools() -> None:
+    """Examples follow substrax's shared guide; substrax-notebooks writes notebooks and pages."""
+    for relative_path in CONTRIBUTOR_EXAMPLE_DOCS:
+        contents = (REPO_ROOT / relative_path).read_text()
+        assert SUBSTRAX_EXAMPLE_GUIDE in contents, relative_path
+        assert "substrax-notebooks convert" in contents, relative_path
+        assert "jupytext_converter" not in contents, relative_path
+        assert "example-documentation-design" not in contents, relative_path
 
-    assert "development/example-documentation-design.md" in mkdocs
-    assert "Example Documentation Design Guide" in docs_contributing
-    assert "Example Documentation Design Guide" in repo_contributing
 
-
-def test_example_template_and_examples_readme_use_current_setup_commands() -> None:
+def test_examples_readme_uses_current_setup_commands() -> None:
     """Contributor-facing example scaffolding should match the current repo setup contract."""
-    template = (REPO_ROOT / "docs/examples/templates/example_template.py").read_text()
     examples_readme = (REPO_ROOT / "examples/README.md").read_text()
 
-    for contents in (template, examples_readme):
-        assert "source ./activate.sh" in contents
-        assert "source activate.sh" not in contents
-        assert "uv run python" in contents
-        assert "jupytext --to notebook" not in contents
-        assert "uv pip install -e ." not in contents
-
+    assert "source ./activate.sh" in examples_readme
+    assert "source activate.sh" not in examples_readme
+    assert "uv run python" in examples_readme
+    assert "jupytext --to notebook" not in examples_readme
+    assert "uv pip install -e ." not in examples_readme
     assert "JAX_PLATFORMS=cpu" not in examples_readme
 
 

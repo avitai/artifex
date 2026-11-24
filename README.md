@@ -201,7 +201,7 @@ For the full walkthrough, see the [Quickstart Guide](docs/getting-started/quicks
 
 - [Contributing Guide](CONTRIBUTING.md) - Setup, workflow, and contribution expectations
 - [Testing Guide](TESTING.md) - Supported pytest workflow and backend guidance
-- [Example Documentation Design](docs/development/example-documentation-design.md) - Reader-facing example standards
+- [Writing examples](https://substrax.readthedocs.io/en/latest/guides/writing-examples/) - substrax's guide, which artifex's examples follow
 - [Planned Modules](docs/roadmap/planned-modules.md) - Areas that remain intentionally unshipped or planned
 
 ## Architecture

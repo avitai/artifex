@@ -250,15 +250,17 @@ Use the root `TESTING.md` file as the source of truth for commands, markers, and
 
 ### Creating or Updating Examples
 
-Use the dedicated
-[Example Documentation Design Guide](../development/example-documentation-design.md)
-when you add or revise examples. It defines:
+Examples follow substrax's
+[Writing examples](https://substrax.readthedocs.io/en/latest/guides/writing-examples/)
+guide, starting from its template. The script is the only file you author;
+`substrax-notebooks` writes its notebook and its page:
 
-- where example source, notebook, and docs files should live
-- how to label CPU-safe, GPU-optional, and GPU-required examples
-- how to sync `.py` and `.ipynb` pairs with `scripts/jupytext_converter.py`
-- how to write Artifex-specific example docs around `uv`, Flax NNX, and
-  `artifex.configs`
+```bash
+source ./activate.sh
+uv run substrax-notebooks convert examples/<topic>/<name>.py   # its clean notebook
+uv run substrax-notebooks page examples/<topic>/<name>.py      # run it and write its page
+uv run substrax-notebooks test                                 # the shared example tests
+```
 
 ### Building Documentation
 
