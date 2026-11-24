@@ -20,6 +20,7 @@ _ENERGY = "artifex.generative_models.models.energy"
 _GEOMETRIC = "artifex.generative_models.models.geometric"
 _AUDIO = "artifex.generative_models.models.audio"
 _LOSSES = f"{_CORE}.losses"
+_DISTRIBUTIONS = f"{_CORE}.distributions"
 
 _EVAL_OVERRIDE = "a deterministic=False default forwarded to {target} overrides .eval() ({where})"
 
@@ -198,6 +199,32 @@ SPECTRAL_NORM_EVAL = (
     " nnx.SpectralNorm updates it only when not use_running_average"
     " (flax/nnx/nn/normalization.py:1339-1340, 1452)"
 )
+DISTRIBUTION_HASH = (
+    "R098 Distribution.entropy caches a Python-int hash of the parameters in nnx.Cache"
+    " (distributions/base.py:110-123), which starts as None (base.py:28-30); {effect}"
+)
+DISTRIBUTION_HASH_EFFECTS = {
+    "state_structure": "an entropy call replaces the None with an int",
+    "jit_matches_eager": "nnx.jit cannot turn the int into an int32 array (OverflowError)",
+    "rows_independent": "nnx.vmap cannot turn the int into an int32 array (OverflowError)",
+    "gradient_finite": "under jax.grad the call writes the cache from inside the trace",
+    "gradient_matches_finite_differences": (
+        "under jax.grad the call writes the cache from inside the trace"
+    ),
+}
+DISTRIBUTION_PYTHON_STATE = (
+    "R098 Distribution keeps its caches as Python values in nnx.Cache (distributions/base.py:28-30)"
+    "{extra}"
+)
+DISTRIBUTION_ALIASED_RNGS = (
+    "R084 Distribution stores the Rngs it is given (distributions/base.py:25), and {holder},"
+    " built from the same Rngs, stores it too, so one RngCount sits at two paths and tree mode"
+    " refuses the module"
+)
+MIXTURE_NO_PARAMS = (
+    "R085 MixtureOfGaussians keeps locs, scales and weights as plain arrays"
+    " (mixture.py:45-55), so it has no nnx.Param and its parameters cannot be trained"
+)
 
 VIEW_STORED_RNGS = (
     "R529 an nnx.Rngs is stored at .{path}, and nnx.view calls set_view on every node answering"
@@ -208,6 +235,15 @@ VIEW_STORED_RNGS = (
 _GENERATIVE = "artifex.generative_models"
 _VIEW_RNGS_PATHS = {
     "models.audio.diffusion.AudioDiffusionModel": "backbone.time_embedding.rngs",
+    "core.distributions.continuous.Beta": "_rngs",
+    "core.distributions.continuous.Normal": "_rngs",
+    "core.distributions.discrete.Bernoulli": "_rngs",
+    "core.distributions.discrete.Categorical": "_rngs",
+    "core.distributions.discrete.OneHotCategorical": "_rngs",
+    "core.distributions.mixture.Mixture": "_rngs",
+    "core.distributions.mixture.MixtureOfGaussians": "_rngs",
+    "core.distributions.transformations.AffineTransform": "_rngs",
+    "core.distributions.transformations.TransformedDistribution": "_rngs",
     "models.audio.wavenet.WaveNetAudioModel": "rngs",
     "models.autoregressive.pixel_cnn.PixelCNN": "_rngs",
     "models.energy.base.CNNEnergyFunction": "rngs",
@@ -547,6 +583,56 @@ def _objectives() -> dict[tuple[str, str], str]:
     }
 
 
+def _distributions() -> dict[tuple[str, str], str]:
+    failures: dict[tuple[str, str], str] = {}
+    entropy_cases = (
+        "continuous.Normal",
+        "continuous.Beta",
+        "discrete.Bernoulli",
+        "discrete.Categorical",
+        "discrete.OneHotCategorical",
+    )
+    for name in entropy_cases:
+        for check, effect in DISTRIBUTION_HASH_EFFECTS.items():
+            failures[(f"{_DISTRIBUTIONS}.{name}", check)] = DISTRIBUTION_HASH.format(effect=effect)
+    extras = {
+        "continuous.Normal": (
+            "; R082 Normal also keeps its trainable_loc and trainable_scale flags there"
+            " (continuous.py:58-59)"
+        ),
+        "transformations.AffineTransform": (
+            "; R085 AffineTransform's _dist is the sentinel True (transformations.py:42)"
+        ),
+        "transformations.TransformedDistribution": (
+            "; R085 TransformedDistribution's _dist is the sentinel True (transformations.py:81)"
+        ),
+    }
+    for name in (*entropy_cases, "mixture.Mixture", "mixture.MixtureOfGaussians"):
+        failures[(f"{_DISTRIBUTIONS}.{name}", "state_holds_arrays")] = (
+            DISTRIBUTION_PYTHON_STATE.format(extra=extras.get(name, ""))
+        )
+    for name in ("transformations.AffineTransform", "transformations.TransformedDistribution"):
+        failures[(f"{_DISTRIBUTIONS}.{name}", "state_holds_arrays")] = (
+            DISTRIBUTION_PYTHON_STATE.format(extra=extras[name])
+        )
+    for name, holder in (
+        ("discrete.OneHotCategorical", "its categorical (discrete.py:179)"),
+        ("mixture.Mixture", "each of its components (mixture.py:100)"),
+        ("transformations.AffineTransform", "its base_distribution (transformations.py:38)"),
+        (
+            "transformations.TransformedDistribution",
+            "its base_distribution (transformations.py:79)",
+        ),
+    ):
+        defect = DISTRIBUTION_ALIASED_RNGS.format(holder=holder)
+        failures[(f"{_DISTRIBUTIONS}.{name}", "tree_mode_split")] = defect
+        failures[(f"{_DISTRIBUTIONS}.{name}", "gradient_matches_finite_differences")] = defect
+    mog = f"{_DISTRIBUTIONS}.mixture.MixtureOfGaussians"
+    failures[(mog, "gradient_finite")] = MIXTURE_NO_PARAMS
+    failures[(mog, "gradient_matches_finite_differences")] = MIXTURE_NO_PARAMS
+    return failures
+
+
 def _views() -> dict[tuple[str, str], str]:
     failures = {
         (f"{_GENERATIVE}.{module}", "view_matches_modes"): VIEW_STORED_RNGS.format(path=path)
@@ -572,5 +658,6 @@ KNOWN_FAILURES: dict[tuple[str, str], str] = (
     | _geometric()
     | _audio()
     | _objectives()
+    | _distributions()
     | _views()
 )
