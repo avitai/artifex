@@ -78,7 +78,6 @@ def test_paired_notebooks_are_accounted_for_in_docs_contract() -> None:
     nav_paths = set(_flatten_nav(config["nav"]))
 
     assert "*.ipynb" in exclude_docs
-    assert "examples/templates/example_template.ipynb" in nav_paths
     assert "getting-started/quickstart.ipynb" in nav_paths
 
 

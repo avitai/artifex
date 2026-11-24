@@ -27,7 +27,7 @@ repos:
     rev: v5.0.0
     hooks:
       - id: trailing-whitespace
-        exclude: &repo_non_source_exclude ^(?:m[^/]*ry-bank|documents|custom_modes|\.[^/]*sor|notebooks)/
+        exclude: &repo_non_source_exclude ^(?:m[^/]*ry-bank|documents|custom_modes|\.[^/]*sor|notebooks|docs/examples)/
       - id: end-of-file-fixer
         exclude: *repo_non_source_exclude
       - id: check-yaml
@@ -186,7 +186,8 @@ repos:
     rev: 1.9.1
     hooks:
       - id: nbqa-ruff
-        exclude: *repo_non_source_exclude
+        # An example's notebook is written by substrax-notebooks convert alone.
+        exclude: ^(?:m[^/]*ry-bank|documents|custom_modes|\.[^/]*sor|notebooks|docs/examples|examples)/
         args: [--fix]
 
   # Artifex-inspired shell script quality

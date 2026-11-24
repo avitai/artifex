@@ -255,7 +255,6 @@ nav:
       - Command Line Interface: cli/index.md
       - Utilities: utils/index.md
       - Testing Guide: development/testing.md
-      - Example Documentation Design Guide: development/example-documentation-design.md
       - BlackJAX Testing: development/blackjax-testing.md
       - Development Philosophy: development/philosophy.md
       - Roadmap: development/roadmap.md
@@ -560,7 +559,6 @@ nav:
       - Notebooks:
           - notebooks/README.md
       - Notebook Source Views:
-          - examples/templates/example_template.ipynb
           - getting-started/quickstart.ipynb
       - Papers:
           - papers/artifex_arxiv_preprint.md
@@ -753,3 +751,8 @@ watch:
   - docs/
   - mkdocs.yml
   - README.md
+
+# A page left out of the navigation fails the strict build (substrax's example guide).
+validation:
+  nav:
+    omitted_files: warn

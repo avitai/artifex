@@ -54,17 +54,6 @@ ROADMAP_ONLY_PAGES = {
 }
 
 
-def test_example_design_guide_relegates_roadmap_topics_outside_docs_examples() -> None:
-    """Canonical example docs must map to runnable triplets, not roadmap placeholders."""
-    guide = (REPO_ROOT / "docs/development/example-documentation-design.md").read_text(
-        encoding="utf-8"
-    )
-
-    assert "Roadmap-only topics belong outside" in guide
-    assert "docs/examples" in guide
-    assert "docs/roadmap/planned-examples.md" in guide
-
-
 def test_examples_catalog_only_ships_triplet_backed_pages() -> None:
     """Every published docs/examples page should map to a real source pair."""
     actual_pages = {

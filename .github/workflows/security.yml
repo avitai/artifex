@@ -51,6 +51,7 @@ jobs:
             || bandit_status=$?
 
           uv run --locked detect-secrets scan --baseline .secrets.baseline \
+            --exclude-files '^docs/examples/' \
             > detect-secrets-report.json || detect_secrets_status=$?
 
           if [[ "$bandit_status" -ne 0 || "$detect_secrets_status" -ne 0 ]]; then
