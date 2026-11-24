@@ -165,6 +165,11 @@ PROTEIN_AA_PROJ = (
     " a forward pass adds two nnx.Param leaves, changes the graph definition, and nnx.jit traces"
     " again"
 )
+MESH_FACES = (
+    "R547 MeshModel returns the template faces (int32, no batch axis) beside batched vertices"
+    " (geometric/mesh.py:164, 207), so its output is not vmap-consistent: vmap over single samples"
+    " gives faces of shape (B, F, 3) where the batched call gives (F, 3)"
+)
 VOXEL_BATCH_NORM = (
     "R286 VoxelModel calls its BatchNorm with use_running_average=deterministic (voxel.py:176),"
     " whose False default overrides .eval(), so an .eval() forward normalises with batch"
@@ -517,6 +522,7 @@ def _geometric() -> dict[tuple[str, str], str]:
         "rows_independent",
     ):
         failures[(f"{_GEOMETRIC}.voxel.VoxelModel", check)] = VOXEL_BATCH_NORM
+    failures[(f"{_GEOMETRIC}.mesh.MeshModel", "rows_independent")] = MESH_FACES
     return failures
 
 
