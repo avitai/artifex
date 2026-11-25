@@ -12,6 +12,10 @@ import yaml
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 SETUP_ACTION = "./.github/actions/setup-artifex"
+REUSABLE_WORKFLOW = re.compile(r"^avitai/substrax/\.github/workflows/[\w-]+\.yml@[0-9a-f]{40}$")
+# substrax's examples workflow takes the gate's answer as an input and stands its job down only
+# on 'true' (`if: ${{ inputs.already-tested != 'true' }}`), the rule this file holds ci.yml to.
+GATE_PASSTHROUGH = "${{ needs.already_tested.outputs.skip }}"
 
 
 def _load_pyproject() -> dict[str, object]:
@@ -49,6 +53,7 @@ def test_pyproject_declares_reviewed_ci_roles() -> None:
         ".github/workflows/security.yml",
     ]
     assert policy["informational_workflows"] == [
+        ".github/workflows/examples-nightly.yml",
         ".github/workflows/quality-checks.yml",
         ".github/workflows/upstream-compat.yml",
     ]
@@ -89,6 +94,11 @@ def test_policy_workflows_use_checked_in_setup_action_instead_of_inline_bootstra
         assert "uv pip install -e" not in contents
 
         for name, job in workflow["jobs"].items():
+            if "steps" not in job:
+                # A job calling a shared reusable workflow sets up in that workflow, which is
+                # substrax's and pinned by commit, as every other shared action here is.
+                assert REUSABLE_WORKFLOW.match(job.get("uses", "")), f"{relative_path}: {name}"
+                continue
             setup_steps = [step for step in job["steps"] if step.get("uses") == SETUP_ACTION]
             runs_uv = any("uv " in step.get("run", "") for step in job["steps"])
             # A job that needs no Python (the already-tested gate reads git and gh) sets up none.
@@ -547,6 +557,10 @@ def test_an_unanswered_gate_leaves_the_work_running() -> None:
             continue
         assert GATE_JOB in _needs(job), name
         assert job.get("if") in (None, GATE_CONDITION), f"{name} runs only when {job.get('if')}"
+        if REUSABLE_WORKFLOW.match(job.get("uses", "")):
+            # The gate's answer passes through unchanged; the called workflow compares it.
+            assert job.get("with", {}).get("already-tested") == GATE_PASSTHROUGH, name
+            continue
 
         pattern = rf"needs\.{GATE_JOB}\.outputs\.skip\s*(==|!=)\s*'([a-z]+)'"
         compared = set(re.findall(pattern, yaml.safe_dump(job, width=10_000)))

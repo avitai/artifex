@@ -1,0 +1,21 @@
+name: Examples (nightly)
+
+# The shared example guide runs every example on a schedule, so a change outside artifex that
+# breaks one (a dataset, a runner image) is found without a change here. The same workflow runs
+# on pull requests and pushes from ci.yml.
+on:
+  schedule:
+    - cron: "17 4 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+jobs:
+  examples:
+    # Pinned by commit (substrax v0.1.37).
+    uses: avitai/substrax/.github/workflows/examples.yml@d748d3c67a60548a89023803ecf822c17ff36e87

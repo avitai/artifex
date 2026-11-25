@@ -43,6 +43,15 @@ jobs:
         if: github.event_name == 'push'
         uses: avitai/substrax/.github/actions/already-tested@a61235ad7f851081efca508285b660a9d7f921ea
 
+  # The examples, run as substrax's example guide runs them: on a pull request the examples the
+  # change reaches, on any other event every example. [tool.substrax.examples] pending examples
+  # are skipped with their reasons, never run. Pinned by commit (substrax v0.1.37).
+  examples:
+    needs: [already_tested]
+    uses: avitai/substrax/.github/workflows/examples.yml@d748d3c67a60548a89023803ecf822c17ff36e87
+    with:
+      already-tested: ${{ needs.already_tested.outputs.skip }}
+
   # Not gated on already_tested: every job waits on it, including the main-only
   # performance job, and a skipped dependency would take that job down with it.
   quality:

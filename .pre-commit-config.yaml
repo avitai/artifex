@@ -191,6 +191,14 @@ repos:
         args: [--fix]
 
   # Artifex-inspired shell script quality
+  # Each changed example, script or notebook, against substrax's example guide
+  # (substrax-notebooks check, through the repository's locked substrax); pending examples
+  # report their reason instead.
+  - repo: https://github.com/avitai/substrax
+    rev: v0.1.37
+    hooks:
+      - id: example-conformance
+
   - repo: https://github.com/shellcheck-py/shellcheck-py
     rev: v0.10.0.1
     hooks:
