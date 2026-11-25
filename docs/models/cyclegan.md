@@ -39,9 +39,11 @@ Supported directions:
 - `"a_to_b"`
 - `"b_to_a"`
 
-### `generator_objective(batch)`
+### `generator_objective(batch, *, rngs=None)`
 
-Returns the generator-side optimization target and metrics. The result includes:
+Returns the generator-side optimization target and metrics. `rngs` carries the
+discriminators' dropout keys; a training call with discriminator dropout needs
+it. The result includes:
 
 - `total_loss`
 - `generator_loss`
@@ -51,9 +53,11 @@ Returns the generator-side optimization target and metrics. The result includes:
 - `cycle_loss`
 - `identity_loss`
 
-### `discriminator_objective(batch)`
+### `discriminator_objective(batch, *, rngs=None)`
 
-Returns the discriminator-side optimization target and metrics. The result includes:
+Returns the discriminator-side optimization target and metrics. `rngs` carries
+the discriminators' dropout keys, as for `generator_objective`. The result
+includes:
 
 - `total_loss`
 - `discriminator_loss`
@@ -63,8 +67,10 @@ Returns the discriminator-side optimization target and metrics. The result inclu
 ## Training Example
 
 ```python
-generator_metrics = cyclegan.generator_objective(batch)
-discriminator_metrics = cyclegan.discriminator_objective(batch)
+# One key per step; it matters only when the discriminators use dropout
+step_rngs = nnx.Rngs(dropout=jax.random.fold_in(base_key, step))
+generator_metrics = cyclegan.generator_objective(batch, rngs=step_rngs)
+discriminator_metrics = cyclegan.discriminator_objective(batch, rngs=step_rngs)
 
 generator_loss = generator_metrics["total_loss"]
 discriminator_loss = discriminator_metrics["total_loss"]
