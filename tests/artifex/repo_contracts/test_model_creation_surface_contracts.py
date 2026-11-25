@@ -31,7 +31,7 @@ CURATED_MODEL_CREATION_FILES = {
     "docs/user-guide/training/overview.md",
     "docs/user-guide/training/training-guide.md",
     "docs/tutorials/framework/framework-features-demo.md",
-    "docs/tutorials/advanced/advanced-training.md",
+    "docs/examples/generative_models/advanced_training_example.md",
     "examples/generative_models/geometric/geometric_models_demo.py",
     "examples/generative_models/framework_features_demo.py",
     "examples/generative_models/advanced_training_example.py",

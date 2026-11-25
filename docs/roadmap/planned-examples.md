@@ -44,7 +44,7 @@ Available now:
 
 Available now:
 
-- [Advanced Training](../tutorials/advanced/advanced-training.md)
+- [Advanced Training](../examples/generative_models/advanced_training_example.md)
 - [Training Guide](../user-guide/training/training-guide.md)
 - [Advanced Features](../user-guide/training/advanced-features.md)
 - [Inference Overview](../user-guide/inference/overview.md)

@@ -175,7 +175,7 @@ nav:
           - Diffusion MNIST Training: tutorials/basic/diffusion-mnist-demo.md
           - Flow on MNIST: tutorials/basic/flow-mnist.md
       - Advanced Tutorials:
-          - Advanced Training: tutorials/advanced/advanced-training.md
+          - Advanced Training: examples/generative_models/advanced_training_example.md
           - Advanced VAE: tutorials/advanced/advanced-vae.md
       - VAE Models:
           - Multi-Beta VAE Benchmark: tutorials/vae/multi-beta-vae-benchmark-demo.md

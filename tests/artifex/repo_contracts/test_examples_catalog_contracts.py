@@ -7,7 +7,6 @@ DOCS_ROOT = REPO_ROOT / "docs" / "tutorials"
 STANDALONE_TUTORIALS = {"protein-modeling.md"}
 
 RUNTIME_BACKED_TUTORIAL_PAGES = {
-    "advanced/advanced-training.md": "examples/generative_models/advanced_training_example",
     "advanced/advanced-vae.md": "examples/generative_models/image/vae/advanced_vae",
     "basic/diffusion-mnist-demo.md": "examples/generative_models/image/diffusion/diffusion_mnist",
     "basic/diffusion-mnist.md": "examples/generative_models/image/diffusion/diffusion_mnist_training",
