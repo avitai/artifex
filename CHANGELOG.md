@@ -78,6 +78,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `check_rows_independent`. The timing test's own `atol=1e-6` equality
   held only for identical rows; batched and single-row float32 matmuls differ by up to
   17.5 eps on varied rows.
+- The theory pages' code blocks (`docs/user-guide/concepts/*-explained.md`) run, joined in page
+  order in a fresh interpreter, which a contract test now checks; all six pages failed it. Where
+  the code contradicted the page's mathematics, the code follows the page: autoregressive decoding
+  fills token t from the logits at t - 1, top-p keeps the token that crosses p, the EBM
+  regulariser is alpha times the mean squared energy, the Langevin step matches artifex's, and the
+  VAE loop draws a fresh key each step.
 
 ### Changed
 
@@ -146,6 +152,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The macOS jobs that pushes to `main` add to CI and the package build run on `macos-15`.
   GitHub retires the `macos-14` image on 2026-11-02 (actions/runner-images#13518), and its
   scheduled brownouts already cancel jobs that ask for it.
+- Examples follow substrax's [example guide](https://substrax.readthedocs.io/en/latest/guides/writing-examples/)
+  and its `substrax-notebooks` tooling: the script is the one file written by hand, and
+  `convert` and `page` write its notebook and its page under `docs/examples/`. The hand-written
+  example pages moved to `docs/tutorials/`, since `docs/examples/` holds generated pages only.
+  The `example-conformance` hook checks each changed example, CI runs the examples a change
+  reaches and every example nightly, and examples pass ruff and pyright with only the guide's four
+  exemptions. 25 examples whose features carry defects the NNX audit proved are listed under
+  `[tool.substrax.examples] pending`, each with the register rows and fix branch it waits on, and
+  are skipped with that reason until rebuilt; `advanced_training_example` is rebuilt, showing
+  `create_scheduler` and `create_optimizer` from typed configs, call-time dropout keys and
+  evaluation in eval mode. Removed: the seven examples that showed no artifex (`advanced_gan`,
+  `protein_diffusion_example`, `protein_diffusion_tech_validation` and the standalone audio,
+  diffusion, multimodal and text examples), `protein_model_extension` (folded into the
+  protein-extensions example), the checker scripts `run_all_examples.sh` and
+  `verify_examples.py`, `sampling/test_blackjax_integration.py`, `utils/demo_utils.py`, the
+  example templates and design guide, and seven empty example packages.
 
 ## [0.1.15] - 2026-09-25
 
