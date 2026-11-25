@@ -96,6 +96,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   ready (`jax.block_until_ready`). `test_every_benchmark_waits_for_its_result` fails when a
   benchmark in the file is called without that wait. The sampling benchmark had warmed up at 2
   samples and timed 8; it now warms at 8.
+- `test_vae_training_step_performance` timed one eager forward pass and loss, with no gradient,
+  no update and no wait. It now times `VAETrainer.train_step` under `nnx.jit`, gradient and
+  optimizer update included, with calibrax's `time_calls`, against the same 1 s budget.
+  `test_model_compilation_time` timed model construction plus one eager call, which compiled no
+  whole program. It now builds the model first and times only `lower(...).compile()` of the
+  jitted encoder, which XLA compiles once and the next call reuses, against the same 10 s budget.
 
 ### Changed
 
