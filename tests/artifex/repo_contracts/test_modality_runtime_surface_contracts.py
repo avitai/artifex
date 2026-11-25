@@ -221,7 +221,7 @@ def test_protein_modality_docs_teach_generic_factory_boundary() -> None:
         REPO_ROOT / "src/artifex/generative_models/modalities/protein/__init__.py"
     ).read_text()
     example_contents = (
-        REPO_ROOT / "docs/examples/protein/protein-model-with-modality.md"
+        REPO_ROOT / "docs/tutorials/protein/protein-model-with-modality.md"
     ).read_text()
     example_source = (
         REPO_ROOT / "examples/generative_models/protein/protein_model_with_modality.py"
@@ -249,7 +249,7 @@ def test_protein_geometric_examples_use_extension_bundle_contract() -> None:
     example_paths = [
         "examples/generative_models/protein/protein_point_cloud_example.py",
         "examples/generative_models/protein/protein_point_cloud_example.ipynb",
-        "docs/examples/protein/protein-point-cloud-example.md",
+        "docs/tutorials/protein/protein-point-cloud-example.md",
     ]
     banned_references = [
         "ProteinConstraintConfig",
@@ -277,7 +277,7 @@ def test_protein_geometric_examples_use_extension_bundle_contract() -> None:
 
 def test_molecular_constraint_docs_use_typed_extension_config() -> None:
     """The molecular example surface should teach the typed chemical constraint path."""
-    contents = (REPO_ROOT / "docs/examples/protein/protein-ligand-benchmark-demo.md").read_text()
+    contents = (REPO_ROOT / "docs/tutorials/protein/protein-ligand-benchmark-demo.md").read_text()
 
     banned_references = [
         '"use_chemical_constraints": True',

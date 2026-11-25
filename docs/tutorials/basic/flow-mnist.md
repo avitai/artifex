@@ -518,19 +518,19 @@ In this tutorial, you learned:
 
 <div class="grid cards" markdown>
 
-- :material-vector-circle: **[Simple GAN](./simple-gan.md)**
+- :material-vector-circle: **[Simple GAN](simple-gan.md)**
 
     ---
 
     Compare flow with GAN approach on 2D data
 
-- :material-blur: **[Diffusion on MNIST](./diffusion-mnist.md)**
+- :material-blur: **[Diffusion on MNIST](diffusion-mnist.md)**
 
     ---
 
     Learn about diffusion models for image generation
 
-- :material-cube-outline: **[VAE on MNIST](./vae-mnist.md)**
+- :material-cube-outline: **[VAE on MNIST](vae-mnist.md)**
 
     ---
 

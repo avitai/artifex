@@ -764,25 +764,25 @@ In this tutorial, you learned:
 
 <div class="grid cards" markdown>
 
-- :material-chart-bell-curve: **[VAE MNIST](./vae-mnist.md)**
+- :material-chart-bell-curve: **[VAE MNIST](vae-mnist.md)**
 
     ---
 
     Compare diffusion with Variational Autoencoders
 
-- :material-sword-cross: **[GAN MNIST](./simple-gan.md)**
+- :material-sword-cross: **[GAN MNIST](simple-gan.md)**
 
     ---
 
     Learn adversarial training for image generation
 
-- :material-shuffle-variant: **[Flow MNIST](./flow-mnist.md)**
+- :material-shuffle-variant: **[Flow MNIST](flow-mnist.md)**
 
     ---
 
     Explore normalizing flows with exact likelihoods
 
-- :material-eye: **[Diffusion Demo](./diffusion-mnist-demo.md)**
+- :material-eye: **[Diffusion Demo](diffusion-mnist-demo.md)**
 
     ---
 

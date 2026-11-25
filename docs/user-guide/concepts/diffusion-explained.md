@@ -1919,13 +1919,13 @@ Diffusion models in 2026 are no longer a single algorithmic family — they are 
 
     Complete API documentation for DDPM, DDIM, Latent Diffusion, and variants
 
-- :material-school:{ .lg .middle } **[MNIST Tutorial](../../examples/basic/diffusion-mnist.md)**
+- :material-school:{ .lg .middle } **[MNIST Tutorial](../../tutorials/basic/diffusion-mnist.md)**
 
     ---
 
     Step-by-step hands-on tutorial: train a diffusion model on MNIST from scratch
 
-- :material-flask:{ .lg .middle } **[Advanced Examples](../../examples/index.md)**
+- :material-flask:{ .lg .middle } **[Advanced Examples](../../tutorials/index.md)**
 
     ---
 
@@ -2433,4 +2433,4 @@ Diffusion models in 2026 are no longer a single algorithmic family — they are 
 
 ---
 
-**Ready to build with diffusion models?** Start with the [Diffusion User Guide](../models/diffusion-guide.md) for practical implementations, check the [API Reference](../../api/models/diffusion.md) for complete documentation, or dive into the [MNIST Tutorial](../../examples/basic/diffusion-mnist.md) to train your first diffusion model from scratch!
+**Ready to build with diffusion models?** Start with the [Diffusion User Guide](../models/diffusion-guide.md) for practical implementations, check the [API Reference](../../api/models/diffusion.md) for complete documentation, or dive into the [MNIST Tutorial](../../tutorials/basic/diffusion-mnist.md) to train your first diffusion model from scratch!

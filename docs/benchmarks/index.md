@@ -12,9 +12,9 @@ There is no supported public benchmark CLI runner, and several retained suites n
 
 ## Retained Demo Walkthroughs
 
-- [Geometric Benchmark Demo](../examples/geometric/geometric-benchmark-demo.md)
-- [Protein-Ligand Benchmark Demo](../examples/protein/protein-ligand-benchmark-demo.md)
-- [Multi-β VAE Benchmark Demo](../examples/vae/multi-beta-vae-benchmark-demo.md)
+- [Geometric Benchmark Demo](../tutorials/geometric/geometric-benchmark-demo.md)
+- [Protein-Ligand Benchmark Demo](../tutorials/protein/protein-ligand-benchmark-demo.md)
+- [Multi-β VAE Benchmark Demo](../tutorials/vae/multi-beta-vae-benchmark-demo.md)
 
 ## CLI Status
 

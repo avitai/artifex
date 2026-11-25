@@ -1101,13 +1101,13 @@ GANs revolutionized generative modeling through adversarial training, achieving 
 
     Complete API documentation for DCGAN, WGAN, StyleGAN, and variants
 
-- :material-school:{ .lg .middle } **[MNIST Tutorial](../../examples/basic/simple-gan.md)**
+- :material-school:{ .lg .middle } **[MNIST Tutorial](../../tutorials/basic/simple-gan.md)**
 
     ---
 
     Step-by-step hands-on tutorial: train a GAN on MNIST from scratch
 
-- :material-flask:{ .lg .middle } **[Advanced Examples](../../examples/index.md)**
+- :material-flask:{ .lg .middle } **[Advanced Examples](../../tutorials/index.md)**
 
     ---
 

@@ -6,7 +6,7 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 EXAMPLE_PATH = REPO_ROOT / "examples" / "generative_models" / "image" / "vae" / "advanced_vae.py"
-DOC_PATH = REPO_ROOT / "docs" / "examples" / "advanced" / "advanced-vae.md"
+DOC_PATH = REPO_ROOT / "docs" / "tutorials" / "advanced" / "advanced-vae.md"
 
 
 def test_advanced_vae_surface_exports_capacity_model_and_uses_real_perplexity() -> None:

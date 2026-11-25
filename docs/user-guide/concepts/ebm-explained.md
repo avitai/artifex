@@ -1073,13 +1073,13 @@ Energy-Based Models provide a principled framework for learning probability dist
 
     Complete API documentation for EBM, DeepEBM, and JEM classes
 
-- :material-school:{ .lg .middle } **[EBM Tutorial](../../examples/energy/simple-ebm.md)**
+- :material-school:{ .lg .middle } **[EBM Tutorial](../../tutorials/energy/simple-ebm.md)**
 
     ---
 
     Step-by-step hands-on tutorial: train an EBM on MNIST from scratch
 
-- :material-flask:{ .lg .middle } **[Advanced Examples](../../examples/index.md)**
+- :material-flask:{ .lg .middle } **[Advanced Examples](../../tutorials/index.md)**
 
     ---
 
@@ -1207,4 +1207,4 @@ Energy-Based Models provide a principled framework for learning probability dist
 
 ---
 
-**Ready to explore Energy-Based Models?** Start with the [EBM User Guide](../models/ebm-guide.md) for practical implementations, check the [API Reference](../../api/models/ebm.md) for complete documentation, or run the [Simple EBM Example](../../examples/energy/simple-ebm.md) for a retained working walkthrough.
+**Ready to explore Energy-Based Models?** Start with the [EBM User Guide](../models/ebm-guide.md) for practical implementations, check the [API Reference](../../api/models/ebm.md) for complete documentation, or run the [Simple EBM Example](../../tutorials/energy/simple-ebm.md) for a retained working walkthrough.

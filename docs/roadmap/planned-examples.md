@@ -9,9 +9,9 @@ ship runnable example pairs for them.
 ## Advanced Diffusion And Flow
 
 - Advanced diffusion: guidance-heavy, distillation, and super-resolution
-  workflows beyond the retained [DiT Demo](../examples/diffusion/dit-demo.md).
+  workflows beyond the retained [DiT Demo](../tutorials/diffusion/dit-demo.md).
 - Advanced flow: continuous flows, FFJORD, flow matching, and neural spline
-  architectures beyond the retained [Flow on MNIST](../examples/basic/flow-mnist.md).
+  architectures beyond the retained [Flow on MNIST](../tutorials/basic/flow-mnist.md).
 
 Available now:
 
@@ -44,7 +44,7 @@ Available now:
 
 Available now:
 
-- [Advanced Training](../examples/advanced/advanced-training.md)
+- [Advanced Training](../tutorials/advanced/advanced-training.md)
 - [Training Guide](../user-guide/training/training-guide.md)
 - [Advanced Features](../user-guide/training/advanced-features.md)
 - [Inference Overview](../user-guide/inference/overview.md)
@@ -57,5 +57,5 @@ Available now:
 
 Available now:
 
-- [Simple EBM](../examples/energy/simple-ebm.md)
+- [Simple EBM](../tutorials/energy/simple-ebm.md)
 - [EBM Guide](../user-guide/models/ebm-guide.md)

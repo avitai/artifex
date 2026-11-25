@@ -5,7 +5,7 @@ contributor guide for running, verifying, and updating the checked-in examples
 from a source checkout.
 
 For the reader-facing tutorial catalog, use
-[`docs/examples/index.md`](../docs/examples/index.md). For relevant but unshipped
+[`docs/tutorials/index.md`](../docs/tutorials/index.md). For relevant but unshipped
 or deferred tutorial themes, use
 [`docs/roadmap/planned-examples.md`](../docs/roadmap/planned-examples.md).
 

@@ -11,7 +11,7 @@
 
 From Latin "artifex": craftsman, artist, maker.
 
-[Documentation](https://artifex.readthedocs.io/en/latest/) • [Getting Started](docs/getting-started/installation.md) • [Examples](docs/examples/index.md) • [Contributing](CONTRIBUTING.md)
+[Documentation](https://artifex.readthedocs.io/en/latest/) • [Getting Started](docs/getting-started/installation.md) • [Examples](docs/tutorials/index.md) • [Contributing](CONTRIBUTING.md)
 
 </div>
 
@@ -190,7 +190,7 @@ For the full walkthrough, see the [Quickstart Guide](docs/getting-started/quicks
 
 ### User and API Guides
 
-- [Examples Catalog](docs/examples/index.md) - Executable and documented example inventory
+- [Examples Catalog](docs/tutorials/index.md) - Executable and documented example inventory
 - [Benchmarks](docs/benchmarks/index.md) - Evaluation suites and benchmark guidance
 - [Model Guides](docs/user-guide/models/vae-guide.md) - User-facing guides across model families
 - [Core API](docs/api/core/base.md) - Core runtime and protocol surfaces

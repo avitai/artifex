@@ -39,8 +39,8 @@ def test_mnist_training_examples_use_live_datarax_tfds_helper() -> None:
 def test_mnist_training_docs_and_landing_page_use_live_datarax_tfds_helper() -> None:
     """The retained MNIST tutorial pages should teach the same current TFDS API."""
     paths = [
-        REPO_ROOT / "docs/examples/basic/diffusion-mnist.md",
-        REPO_ROOT / "docs/examples/basic/flow-mnist.md",
+        REPO_ROOT / "docs/tutorials/basic/diffusion-mnist.md",
+        REPO_ROOT / "docs/tutorials/basic/flow-mnist.md",
     ]
 
     for path in paths:
@@ -59,11 +59,11 @@ def test_diffusion_mnist_docs_point_to_the_correct_example_pairs() -> None:
     """The diffusion demo page and the training page should link to their actual paired sources."""
     expected_links = {
         REPO_ROOT
-        / "docs/examples/basic/diffusion-mnist-demo.md": "examples/generative_models/image/diffusion/diffusion_mnist",
+        / "docs/tutorials/basic/diffusion-mnist-demo.md": "examples/generative_models/image/diffusion/diffusion_mnist",
         REPO_ROOT
-        / "docs/examples/basic/diffusion-mnist.md": "examples/generative_models/image/diffusion/diffusion_mnist_training",
+        / "docs/tutorials/basic/diffusion-mnist.md": "examples/generative_models/image/diffusion/diffusion_mnist_training",
         REPO_ROOT
-        / "docs/examples/basic/flow-mnist.md": "examples/generative_models/image/flow/flow_mnist",
+        / "docs/tutorials/basic/flow-mnist.md": "examples/generative_models/image/flow/flow_mnist",
     }
 
     for path, stem in expected_links.items():

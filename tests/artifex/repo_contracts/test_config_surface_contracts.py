@@ -415,7 +415,7 @@ def test_docs_do_not_refer_to_removed_config_shim_imports() -> None:
         "docs/configs/inference.md",
         "docs/configs/templates.md",
         "docs/configs/training.md",
-        "docs/examples/protein/protein-extensions-with-config.md",
+        "docs/tutorials/protein/protein-extensions-with-config.md",
         "docs/user-guide/advanced/distributed.md",
     ]
 
@@ -570,9 +570,9 @@ def test_user_facing_docs_and_package_readmes_use_current_config_contract() -> N
         "docs/guides/configuration.md",
         "docs/user-guide/modalities/text.md",
         "docs/user-guide/data/overview.md",
-        "docs/examples/protein/protein-ligand-benchmark-demo.md",
-        "docs/examples/protein/protein-model-with-modality.md",
-        "docs/examples/framework/framework-features-demo.md",
+        "docs/tutorials/protein/protein-ligand-benchmark-demo.md",
+        "docs/tutorials/protein/protein-model-with-modality.md",
+        "docs/tutorials/framework/framework-features-demo.md",
         "docs/getting-started/core-concepts.md",
     ]
     banned_references = [
@@ -736,7 +736,7 @@ def test_protein_config_examples_match_supported_runtime_contract() -> None:
     ]
 
     example_paths = [
-        "docs/examples/protein/protein-extensions-with-config.md",
+        "docs/tutorials/protein/protein-extensions-with-config.md",
         "examples/generative_models/protein/protein_extensions_with_config.py",
         "examples/generative_models/protein/protein_extensions_with_config.ipynb",
     ]

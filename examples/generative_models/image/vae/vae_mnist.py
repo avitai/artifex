@@ -706,7 +706,7 @@ print(f"  ✅ Results saved to {output_path}")  # noqa: T201
 **Documentation:**
 - Artifex VAE Documentation: `docs/models/vae.md`
 - Flax NNX Guide: https://flax.readthedocs.io/en/latest/nnx/index.html
-- VAE Tutorial: `docs/examples/basic/vae-mnist.md`
+- VAE Tutorial: `docs/tutorials/basic/vae-mnist.md`
 
 **Related Examples:**
 - `advanced_vae.py`: β-VAE, Conditional VAE, VQ-VAE, Hierarchical VAE

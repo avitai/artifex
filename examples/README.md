@@ -2,7 +2,7 @@
 
 This directory is the contributor-facing root contract for the checked-in example
 surface. The reader-facing tutorial catalog lives in
-[`docs/examples/index.md`](../docs/examples/index.md), and still-relevant topics
+[`docs/tutorials/index.md`](../docs/tutorials/index.md), and still-relevant topics
 that are not shipped as runnable pairs belong in
 [`docs/roadmap/planned-examples.md`](../docs/roadmap/planned-examples.md).
 
@@ -43,7 +43,7 @@ uv run python examples/generative_models/geometric/simple_point_cloud_example.py
 ```
 
 For the broader tutorial catalog, start from
-[`docs/examples/index.md`](../docs/examples/index.md).
+[`docs/tutorials/index.md`](../docs/tutorials/index.md).
 
 ## Authoring And Maintenance
 

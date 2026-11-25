@@ -1472,7 +1472,7 @@ log_prob = model.log_prob(data, rngs=rngs)
 
 - **User Guide**: [Flow Models Guide](../../user-guide/models/flow-guide.md) for practical examples
 - **Concepts**: [Flow Explained](../../user-guide/concepts/flow-explained.md) for theory
-- **Tutorial**: [Flow MNIST Example](../../examples/basic/flow-mnist.md) for hands-on learning
+- **Tutorial**: [Flow MNIST Example](../../tutorials/basic/flow-mnist.md) for hands-on learning
 
 ---
 

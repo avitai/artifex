@@ -26,9 +26,9 @@ def test_core_losses_public_surface_does_not_export_suite_builders() -> None:
 def test_loss_docs_do_not_teach_deleted_suite_builders() -> None:
     """User-facing docs should teach explicit objectives instead of suite facades."""
     docs_to_check = [
-        PROJECT_ROOT / "docs" / "examples" / "losses" / "loss-examples.md",
+        PROJECT_ROOT / "docs" / "tutorials" / "losses" / "loss-examples.md",
         PROJECT_ROOT / "docs" / "api" / "core" / "losses.md",
-        PROJECT_ROOT / "docs" / "examples" / "framework" / "framework-features-demo.md",
+        PROJECT_ROOT / "docs" / "tutorials" / "framework" / "framework-features-demo.md",
         PROJECT_ROOT / "docs" / "core" / "index.md",
         PROJECT_ROOT / "docs" / "core" / "architecture.md",
         PROJECT_ROOT / "examples" / "EXAMPLES_GUIDE.md",
@@ -154,7 +154,7 @@ def test_model_loss_examples_and_docs_use_total_loss_contract() -> None:
             'loss_outputs["loss"]',
             "loss_outputs['loss']",
         ),
-        PROJECT_ROOT / "docs" / "examples" / "advanced" / "advanced-vae.md": (
+        PROJECT_ROOT / "docs" / "tutorials" / "advanced" / "advanced-vae.md": (
             "output['loss']",
             'output["loss"]',
             '"loss": total_loss',
@@ -163,7 +163,7 @@ def test_model_loss_examples_and_docs_use_total_loss_contract() -> None:
             "metrics['loss']",
             'metrics["loss"]',
         ),
-        PROJECT_ROOT / "docs" / "examples" / "energy" / "simple-ebm.md": (
+        PROJECT_ROOT / "docs" / "tutorials" / "energy" / "simple-ebm.md": (
             "loss_dict['loss']",
             'loss_dict["loss"]',
         ),
@@ -251,7 +251,7 @@ def test_geometric_docs_and_examples_only_teach_runtime_backed_loss_owners() -> 
                 "VoxelConfig(",
             ),
         },
-        PROJECT_ROOT / "docs" / "examples" / "geometric" / "geometric-losses-demo.md": {
+        PROJECT_ROOT / "docs" / "tutorials" / "geometric" / "geometric-losses-demo.md": {
             "forbidden": (
                 'loss_type="chamfer"',
                 'loss_type="earth_mover"',
@@ -267,7 +267,7 @@ def test_geometric_docs_and_examples_only_teach_runtime_backed_loss_owners() -> 
                 "get_mesh_loss",
             ),
         },
-        PROJECT_ROOT / "docs" / "examples" / "geometric" / "geometric-models-demo.md": {
+        PROJECT_ROOT / "docs" / "tutorials" / "geometric" / "geometric-models-demo.md": {
             "forbidden": (
                 'loss_type="chamfer"',
                 '"loss_type": "emd"',

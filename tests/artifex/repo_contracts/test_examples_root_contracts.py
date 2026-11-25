@@ -47,6 +47,7 @@ def test_examples_resolve_outputs_outside_the_source_tree() -> None:
         *sorted((REPO_ROOT / "examples").rglob("*.py")),
         *sorted((REPO_ROOT / "examples").rglob("*.ipynb")),
         *sorted((REPO_ROOT / "docs" / "examples").rglob("*.md")),
+        *sorted((REPO_ROOT / "docs" / "tutorials").rglob("*.md")),
     ]
     offenders = [
         str(path.relative_to(REPO_ROOT))

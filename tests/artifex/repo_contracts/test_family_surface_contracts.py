@@ -55,7 +55,7 @@ def test_dit_direct_forward_docs_do_not_teach_cfg_scale() -> None:
             "__call__(x, t, y=None, *, deterministic=False, cfg_scale=None)",
             "cfg_scale (`float | None`): Classifier-free guidance scale",
         ),
-        PROJECT_ROOT / "docs" / "examples" / "diffusion" / "dit-demo.md": (
+        PROJECT_ROOT / "docs" / "tutorials" / "diffusion" / "dit-demo.md": (
             "output = model(x, t, y, deterministic=True, cfg_scale=3.0)",
         ),
         PROJECT_ROOT / "examples" / "generative_models" / "diffusion" / "dit_demo.py": (
@@ -72,7 +72,7 @@ def test_dit_direct_forward_docs_do_not_teach_cfg_scale() -> None:
 def test_point_cloud_examples_do_not_teach_dead_temperature_control() -> None:
     """Point-cloud example surfaces should not teach the removed temperature knob."""
     files_and_banned_terms = {
-        PROJECT_ROOT / "docs" / "examples" / "geometric" / "simple-point-cloud-example.md": (
+        PROJECT_ROOT / "docs" / "tutorials" / "geometric" / "simple-point-cloud-example.md": (
             "temperature=0.8",
             "temperature=0.6",
             "temperature=1.2",
@@ -101,7 +101,7 @@ def test_point_cloud_examples_do_not_teach_dead_temperature_control() -> None:
 def test_geometric_mesh_surfaces_do_not_teach_removed_num_faces_knob() -> None:
     """Mesh example surfaces should stay on the retained sphere-template contract."""
     files_and_banned_terms = {
-        PROJECT_ROOT / "docs" / "examples" / "geometric" / "geometric-models-demo.md": (
+        PROJECT_ROOT / "docs" / "tutorials" / "geometric" / "geometric-models-demo.md": (
             "num_faces=1024",
             "- `num_faces`:",
             '"num_faces": 2048',
@@ -133,7 +133,7 @@ def test_voxel_surfaces_do_not_teach_removed_conditioning_aliases_or_generated_d
             "model_type",
             "`resolution`:",
         ),
-        PROJECT_ROOT / "docs" / "examples" / "geometric" / "geometric-models-demo.md": (
+        PROJECT_ROOT / "docs" / "tutorials" / "geometric" / "geometric-models-demo.md": (
             "Voxel Model with Conditioning",
             "Creating voxel model with conditioning",
             "resolution=16",
@@ -174,7 +174,7 @@ def test_energy_docs_and_examples_do_not_teach_removed_spectral_norm_or_internal
             "len(model.sample_buffer.buffer)",
             "model.sample_buffer.buffer = []",
         ),
-        PROJECT_ROOT / "docs" / "examples" / "energy" / "simple-ebm.md": (
+        PROJECT_ROOT / "docs" / "tutorials" / "energy" / "simple-ebm.md": (
             "use_spectral_norm=",
             "buffer.add(",
             "Spectral normalization",

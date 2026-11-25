@@ -112,7 +112,7 @@ refer to the checked-in executable pair under `docs/getting-started/quickstart.p
 
     Working examples for all model types and use cases
 
-    [:octicons-arrow-right-24: Examples](examples/index.md)
+    [:octicons-arrow-right-24: Examples](tutorials/index.md)
 
 </div>
 
@@ -126,7 +126,7 @@ refer to the checked-in executable pair under `docs/getting-started/quickstart.p
 | __Flow__           | Exact likelihood, density estimation              | [Flow Guide](user-guide/concepts/flow-explained.md)           |
 | __EBM__            | Compositional generation, constraints             | [EBM Guide](user-guide/concepts/ebm-explained.md)             |
 | __Autoregressive__ | Text, sequential data                             | [AR Guide](user-guide/concepts/autoregressive-explained.md)   |
-| __Geometric__      | Proteins, molecules, 3D structures                | [Examples](examples/geometric/geometric-models-demo.md)       |
+| __Geometric__      | Proteins, molecules, 3D structures                | [Examples](tutorials/geometric/geometric-models-demo.md)       |
 
 ## Architecture
 

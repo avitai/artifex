@@ -39,7 +39,7 @@ def test_examples_readme_uses_current_setup_commands() -> None:
 def test_example_pages_link_to_shipped_python_and_notebook_pairs() -> None:
     """Example docs should expose clickable links to their shipped source pairs."""
     link_pattern = re.compile(r"\[[^\]]+\]\(([^)]+)\)")
-    docs_root = REPO_ROOT / "docs" / "examples"
+    docs_root = REPO_ROOT / "docs" / "tutorials"
     examples_root = REPO_ROOT / "examples"
 
     for path in sorted(docs_root.rglob("*.md")):

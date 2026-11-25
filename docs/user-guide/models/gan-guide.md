@@ -1345,5 +1345,5 @@ This guide covered:
 
 - **Theory**: See [GAN Concepts](../concepts/gan-explained.md) for mathematical foundations
 - **API Reference**: Check [GAN API Documentation](../../api/models/gan.md) for detailed specifications
-- **Example**: Follow [MNIST GAN Tutorial](../../examples/basic/simple-gan.md) for hands-on training
+- **Example**: Follow [MNIST GAN Tutorial](../../tutorials/basic/simple-gan.md) for hands-on training
 - **Advanced**: Explore StyleGAN and Progressive GAN for higher-fidelity image synthesis
