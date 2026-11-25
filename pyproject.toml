@@ -400,8 +400,36 @@ skip-checking-short-docstrings = true
 style = "google"
 
 [tool.pyright]
-exclude = ["tests"]
-include = ["src"]
+exclude = [
+  "tests",
+  # The examples [tool.substrax.examples] pending holds back, until they are rebuilt to the guide.
+  "examples/benchmarks/protein_benchmark_example.py",
+  "examples/benchmarks/run_protein_benchmarks.py",
+  "examples/generative_models/diffusion/dit_demo.py",
+  "examples/generative_models/energy/simple_ebm_example.py",
+  "examples/generative_models/framework_features_demo.py",
+  "examples/generative_models/geometric/geometric_benchmark_demo.py",
+  "examples/generative_models/geometric/geometric_losses_demo.py",
+  "examples/generative_models/geometric/geometric_models_demo.py",
+  "examples/generative_models/geometric/simple_point_cloud_example.py",
+  "examples/generative_models/image/diffusion/diffusion_mnist.py",
+  "examples/generative_models/image/diffusion/diffusion_mnist_training.py",
+  "examples/generative_models/image/flow/flow_mnist.py",
+  "examples/generative_models/image/gan/simple_gan.py",
+  "examples/generative_models/image/vae/advanced_vae.py",
+  "examples/generative_models/image/vae/vae_mnist.py",
+  "examples/generative_models/loss_examples.py",
+  "examples/generative_models/protein/protein_extensions_example.py",
+  "examples/generative_models/protein/protein_extensions_with_config.py",
+  "examples/generative_models/protein/protein_ligand_benchmark_demo.py",
+  "examples/generative_models/protein/protein_model_with_modality.py",
+  "examples/generative_models/protein/protein_point_cloud_example.py",
+  "examples/generative_models/sampling/blackjax_example.py",
+  "examples/generative_models/sampling/blackjax_integration_examples.py",
+  "examples/generative_models/sampling/blackjax_sampling_examples.py",
+  "examples/generative_models/vae/multi_beta_vae_benchmark_demo.py"
+]
+include = ["examples", "src"]
 # Canonical values live in [tool.artifex.repo_standards.interpreter] and
 # [tool.artifex.repo_standards.typing].
 pythonVersion = "3.12"
@@ -541,7 +569,37 @@ select = [
 "conftest.py" = ["ANN", "ARG", "B", "C90", "PLR", "PTH", "RET", "TRY"]
 "deploy/**/*.py" = ["T201", "BLE001", "ANN", "ARG", "B", "C90", "PLR", "PTH", "RET", "TRY"] # Remote GPU launchers and probes report to stdout and deliberately catch whatever a backend raises
 "docs/**/*.py" = ["D", "T201", "ANN", "ARG", "B", "C90", "PLR", "PTH", "RET", "TRY"] # Docs examples are tutorial sources; Ruff D is enforced on maintained src/ APIs
-"examples/**/*.py" = ["D", "T201", "BLE001", "ANN", "ARG", "B", "C90", "PLR", "PTH", "RET", "TRY"] # Examples are executable tutorials with user-facing output and demo error wrappers
+# substrax's example guide exempts examples from the four rules its format breaks: the first
+# markdown cell is the module docstring opening with the title (D212, D415), imports follow
+# markdown cells (E402), and main() prints (T201).
+"examples/**/*.py" = ["D212", "D415", "E402", "T201"]
+# The examples [tool.substrax.examples] pending holds back keep the old tutorial exemptions until
+# they are rebuilt to the guide; each entry goes with its pending entry.
+"examples/benchmarks/protein_benchmark_example.py" = ["D", "T201", "BLE001", "ANN", "ARG", "B", "C90", "PLR", "PTH", "RET", "TRY"]
+"examples/benchmarks/run_protein_benchmarks.py" = ["D", "T201", "BLE001", "ANN", "ARG", "B", "C90", "PLR", "PTH", "RET", "TRY"]
+"examples/generative_models/diffusion/dit_demo.py" = ["D", "T201", "BLE001", "ANN", "ARG", "B", "C90", "PLR", "PTH", "RET", "TRY"]
+"examples/generative_models/energy/simple_ebm_example.py" = ["D", "T201", "BLE001", "ANN", "ARG", "B", "C90", "PLR", "PTH", "RET", "TRY"]
+"examples/generative_models/framework_features_demo.py" = ["D", "T201", "BLE001", "ANN", "ARG", "B", "C90", "PLR", "PTH", "RET", "TRY"]
+"examples/generative_models/geometric/geometric_benchmark_demo.py" = ["D", "T201", "BLE001", "ANN", "ARG", "B", "C90", "PLR", "PTH", "RET", "TRY"]
+"examples/generative_models/geometric/geometric_losses_demo.py" = ["D", "T201", "BLE001", "ANN", "ARG", "B", "C90", "PLR", "PTH", "RET", "TRY"]
+"examples/generative_models/geometric/geometric_models_demo.py" = ["D", "T201", "BLE001", "ANN", "ARG", "B", "C90", "PLR", "PTH", "RET", "TRY"]
+"examples/generative_models/geometric/simple_point_cloud_example.py" = ["D", "T201", "BLE001", "ANN", "ARG", "B", "C90", "PLR", "PTH", "RET", "TRY"]
+"examples/generative_models/image/diffusion/diffusion_mnist.py" = ["D", "T201", "BLE001", "ANN", "ARG", "B", "C90", "PLR", "PTH", "RET", "TRY"]
+"examples/generative_models/image/diffusion/diffusion_mnist_training.py" = ["D", "T201", "BLE001", "ANN", "ARG", "B", "C90", "PLR", "PTH", "RET", "TRY"]
+"examples/generative_models/image/flow/flow_mnist.py" = ["D", "T201", "BLE001", "ANN", "ARG", "B", "C90", "PLR", "PTH", "RET", "TRY"]
+"examples/generative_models/image/gan/simple_gan.py" = ["D", "T201", "BLE001", "ANN", "ARG", "B", "C90", "PLR", "PTH", "RET", "TRY"]
+"examples/generative_models/image/vae/advanced_vae.py" = ["D", "T201", "BLE001", "ANN", "ARG", "B", "C90", "PLR", "PTH", "RET", "TRY"]
+"examples/generative_models/image/vae/vae_mnist.py" = ["D", "T201", "BLE001", "ANN", "ARG", "B", "C90", "PLR", "PTH", "RET", "TRY"]
+"examples/generative_models/loss_examples.py" = ["D", "T201", "BLE001", "ANN", "ARG", "B", "C90", "PLR", "PTH", "RET", "TRY"]
+"examples/generative_models/protein/protein_extensions_example.py" = ["D", "T201", "BLE001", "ANN", "ARG", "B", "C90", "PLR", "PTH", "RET", "TRY"]
+"examples/generative_models/protein/protein_extensions_with_config.py" = ["D", "T201", "BLE001", "ANN", "ARG", "B", "C90", "PLR", "PTH", "RET", "TRY"]
+"examples/generative_models/protein/protein_ligand_benchmark_demo.py" = ["D", "T201", "BLE001", "ANN", "ARG", "B", "C90", "PLR", "PTH", "RET", "TRY"]
+"examples/generative_models/protein/protein_model_with_modality.py" = ["D", "T201", "BLE001", "ANN", "ARG", "B", "C90", "PLR", "PTH", "RET", "TRY"]
+"examples/generative_models/protein/protein_point_cloud_example.py" = ["D", "T201", "BLE001", "ANN", "ARG", "B", "C90", "PLR", "PTH", "RET", "TRY"]
+"examples/generative_models/sampling/blackjax_example.py" = ["D", "T201", "BLE001", "ANN", "ARG", "B", "C90", "PLR", "PTH", "RET", "TRY"]
+"examples/generative_models/sampling/blackjax_integration_examples.py" = ["D", "T201", "BLE001", "ANN", "ARG", "B", "C90", "PLR", "PTH", "RET", "TRY"]
+"examples/generative_models/sampling/blackjax_sampling_examples.py" = ["D", "T201", "BLE001", "ANN", "ARG", "B", "C90", "PLR", "PTH", "RET", "TRY"]
+"examples/generative_models/vae/multi_beta_vae_benchmark_demo.py" = ["D", "T201", "BLE001", "ANN", "ARG", "B", "C90", "PLR", "PTH", "RET", "TRY"]
 "scripts/**/*.py" = ["ANN", "ARG", "B", "C90", "PLR", "PTH", "RET", "TRY"] # Developer tooling; not shipped as library API
 "tests/**/*.py" = ["D", "E501", "T201", "BLE001", "ANN", "ARG", "B", "C90", "PLR", "PTH", "RET", "TRY"] # Tests allow readable fixture names, debugging output, broad assertion wrappers, and long fixtures
 "tests/*.py" = ["D", "E501", "T201", "BLE001", "ANN", "ARG", "B", "C90", "PLR", "PTH", "RET", "TRY"] # Tests allow readable fixture names, debugging output, broad assertion wrappers, and long fixtures

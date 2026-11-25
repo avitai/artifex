@@ -147,7 +147,14 @@ def test_ruff_per_file_policy_keeps_blocking_lint_focused_on_maintained_runtime_
 
     assert set(policy["*.ipynb"]) >= {"F821", "F541", "T201", "UP006", "UP035", "BLE001"}
     assert set(policy["docs/**/*.py"]) >= {"T201"}
-    assert set(policy["examples/**/*.py"]) >= {"T201", "BLE001"}
+    # substrax's example guide exempts examples from the four rules its format breaks, and no more.
+    assert set(policy["examples/**/*.py"]) == {"D212", "D415", "E402", "T201"}
+    # The examples held back as pending keep their old exemptions until they are rebuilt; no other
+    # example has an entry of its own, so rebuilding one removes both its pending entry and these.
+    pending = set(pyproject["tool"]["substrax"]["examples"]["pending"])
+    exempt_examples = {key for key in policy if key.startswith("examples/")} - {"examples/**/*.py"}
+    assert len(pending) > 0
+    assert exempt_examples == pending
     assert set(policy["tests/*.py"]) >= {"E501", "T201", "BLE001"}
     assert set(policy["tests/**/*.py"]) >= {"E501", "T201", "BLE001"}
 
@@ -155,6 +162,16 @@ def test_ruff_per_file_policy_keeps_blocking_lint_focused_on_maintained_runtime_
     assert all(path.startswith("src/") and "*" not in path for path in baseline)
     assert "T201" not in pyproject["tool"]["ruff"]["lint"]["ignore"]
     assert "BLE001" not in pyproject["tool"]["ruff"]["lint"]["ignore"]
+
+
+def test_pyright_reads_every_example_but_the_pending_ones() -> None:
+    """Examples pass pyright like other code; only the pending ones wait for their rebuild."""
+    pyproject = _load_pyproject()
+    pyright = pyproject["tool"]["pyright"]
+    pending = set(pyproject["tool"]["substrax"]["examples"]["pending"])
+
+    assert "examples" in pyright["include"]
+    assert {path for path in pyright["exclude"] if path.startswith("examples/")} == pending
 
 
 def test_pytest_coverage_sources_name_directories() -> None:
