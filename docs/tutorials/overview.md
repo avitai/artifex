@@ -36,5 +36,5 @@ uv run python examples/generative_models/protein/protein_extensions_example.py
 - New to Artifex: start with [VAE on MNIST](basic/vae-mnist.md) or
   [Simple GAN](basic/simple-gan.md).
 - Interested in current training workflows: start with
-  [Advanced Training](advanced/advanced-training.md) and the
+  [Advanced Training](../examples/generative_models/advanced_training_example.md) and the
   [Training Guide](../user-guide/training/training-guide.md).

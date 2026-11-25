@@ -1,704 +1,272 @@
-#!/usr/bin/env python
-# ---
-# jupyter:
-#   jupytext:
-#     formats: py:percent,ipynb
-#     text_representation:
-#       extension: .py
-#       format_name: percent
-#       format_version: '1.3'
-# ---
-
 # %% [markdown]
-r"""# Advanced Training Example.
+"""
+# Training a Classifier from Artifex's Optimizer and Scheduler Configs
 
-**Author:** Artifex Team
-**Last Updated:** 2025-10-22
-**Difficulty:** Intermediate
-**Runtime:** ~2 minutes
-**Format:** Dual (.py script | .ipynb notebook)
+| Metadata | Value |
+| --- | --- |
+| **Tier** | Tutorial |
+| **Devices** | CPU-compatible |
+| **Prerequisites** | Flax NNX modules, optax optimizers |
 
 ## Overview
 
-This complete example demonstrates production-ready training patterns using the
-Artifex framework. Learn how to implement robust training loops, manage optimizer
-configurations, track metrics, and implement checkpointing strategies.
+Artifex describes an optimizer and its learning-rate schedule as typed configurations,
+`OptimizerConfig` and `SchedulerConfig`, and builds them with `create_scheduler` and
+`create_optimizer`. This example builds AdamW with decoupled weight decay and global-norm gradient
+clipping, under a schedule that warms up linearly and then follows a cosine, trains a small
+classifier on synthetic data with a jitted step, and evaluates it in eval mode.
 
-## Learning Objectives
+## Learning Goals
 
-After completing this example, you will understand:
-
-- [ ] How to implement a complete training pipeline with proper validation
-- [ ] Optimizer and learning rate scheduler configuration
-- [ ] Metrics tracking and visualization during training
-- [ ] Checkpoint management and model persistence
-- [ ] Best practices for training loop organization
-
-## Prerequisites
-
-- Basic understanding of neural network training
-- Familiarity with JAX and Flax NNX
-- Understanding of gradient descent and backpropagation
-- Knowledge of learning rate scheduling concepts
-
-## Key Concepts
-
-### Training Loop Components
-
-A production training loop requires several key components:
-
-1. **Data Management**: Efficient batching and shuffling
-2. **Optimization**: Gradient computation and parameter updates
-3. **Metrics Tracking**: Monitor training and validation performance
-4. **Checkpointing**: Save model state for recovery and deployment
-5. **Validation**: Monitor generalization to unseen data
-
-### Learning Rate Scheduling
-
-Learning rate schedules improve training by:
-
-- **Warmup**: Gradual increase to avoid instability
-- **Decay**: Reduce learning rate as training progresses
-- **Cosine Annealing**: Smooth decrease with periodic restarts
-
-The formula for cosine decay is:
-
-$$
-\\eta_t = \\eta_{\\text{min}} + \\frac{1}{2}(\\eta_{\\text{max}} - \\eta_{\\text{min}})
-\\left(1 + \\cos\\left(\\frac{t}{T}\\pi\\right)\\right)
-$$
-
-where $\\eta_t$ is the learning rate at step $t$, and $T$ is the total number of steps.
-
-## Installation
-
-This example requires the Artifex library with standard dependencies:
-
-```bash
-pip install avitai-artifex
-```
-
-## Usage
-
-Run the Python script directly:
-
-```bash
-source ./activate.sh
-uv run python examples/generative_models/advanced_training_example.py
-```
-
-Or open the notebook:
-
-```bash
-source ./activate.sh
-uv run jupyter notebook examples/generative_models/advanced_training_example.ipynb
-```
+1. Describe an optimizer and a learning-rate schedule with artifex's typed configurations
+2. Build the schedule and the optimizer from them, and check the schedule's values
+3. Train with dropout keys passed at call time, and evaluate in eval mode
 """
 
 # %% [markdown]
-"""## Imports and Setup.
-
-Import required modules from JAX, Flax NNX, and Artifex.
+"""
+## Setup
 """
 
 # %%
-import logging
-from dataclasses import dataclass
-from pathlib import Path
-
 import jax
 import jax.numpy as jnp
-import matplotlib.pyplot as plt
-import numpy as np
 import optax
 from flax import nnx
-from substrax.artifacts import resolve_output_dir
-from substrax.runtime import configure_entry_point_logging
 
-from artifex.generative_models.core.configuration import (
-    OptimizerConfig,
-    SchedulerConfig,
-    TrainingConfig,
+from artifex.generative_models.core.configuration import OptimizerConfig, SchedulerConfig
+from artifex.generative_models.training import create_optimizer, create_scheduler
+
+
+# %% [markdown]
+"""
+## Core Concepts
+
+The `cosine` schedule with `warmup_steps > 0` rises linearly from 0 to the peak learning rate over
+`warmup_steps`, then decays along a cosine to `min_lr_ratio` times the peak at step
+`cycle_length`. `create_optimizer` hands the optimizer configuration to substrax, which applies
+the weight decay decoupled from the gradient (AdamW) and clips each update's gradients to a global
+norm of `gradient_clip_norm` before the step.
+
+## Implementation
+
+### Step 1: Describe the optimizer and the schedule
+"""
+
+# %%
+STEPS = 300
+PEAK_LEARNING_RATE = 3e-3
+
+optimizer_config = OptimizerConfig(
+    name="adamw",
+    optimizer_type="adamw",
+    learning_rate=PEAK_LEARNING_RATE,
+    weight_decay=1e-4,
+    gradient_clip_norm=1.0,
+)
+scheduler_config = SchedulerConfig(
+    name="warmup_cosine",
+    scheduler_type="cosine",
+    warmup_steps=30,
+    cycle_length=STEPS,
+    min_lr_ratio=0.1,
 )
 
 
-if __name__ == "__main__":
-    configure_entry_point_logging()
-LOGGER = logging.getLogger(__name__)
-
-
-def echo(message: object = "") -> None:
-    """Emit example output through the standard example logger."""
-    LOGGER.info("%s", message)
-
-
-@dataclass(frozen=True, slots=True, kw_only=True)
-class ClassifierConfig:
-    """Local config for the toy classifier used in this training-loop example."""
-
-    name: str = "classifier"
-    input_dim: int = 784
-    hidden_dims: tuple[int, ...] = (256, 128)
-    output_dim: int = 10
-    dropout_rate: float = 0.1
-
-
 # %% [markdown]
-"""## Data Utilities.
+"""
+### Step 2: Make a dataset
 
-Create synthetic datasets and data loaders for demonstration purposes.
+Four classes of 16 features, each class a Gaussian cloud around its own centre, drawn from a typed
+key so every run sees the same data.
 """
 
 
 # %%
-def create_synthetic_dataset(num_samples=1000, input_dim=784, num_classes=10):
-    """Create synthetic dataset for demonstration.
+def make_dataset(key: jax.Array, count: int) -> tuple[jax.Array, jax.Array]:
+    """Draw labelled points from four Gaussian clouds.
 
     Args:
-        num_samples: Number of samples
-        input_dim: Input dimension
-        num_classes: Number of classes for classification
+        key: The typed key the draw uses.
+        count: The number of points.
 
     Returns:
-        Tuple of (train_data, val_data, test_data)
+        The features, shaped ``(count, 16)``, and the integer labels, shaped ``(count,)``.
     """
-    key = jax.random.key(42)
-
-    keys = jax.random.split(key, 6)
-
-    # Create train/val/test splits
-    train_x = jax.random.normal(keys[0], (num_samples, input_dim))
-    train_y = jax.random.randint(keys[1], (num_samples,), 0, num_classes)
-
-    val_x = jax.random.normal(keys[2], (num_samples // 5, input_dim))
-    val_y = jax.random.randint(keys[3], (num_samples // 5,), 0, num_classes)
-
-    test_x = jax.random.normal(keys[4], (num_samples // 5, input_dim))
-    test_y = jax.random.randint(keys[5], (num_samples // 5,), 0, num_classes)
-
-    return (train_x, train_y), (val_x, val_y), (test_x, test_y)
-
-
-# %%
-def create_data_loader(data, batch_size=32, shuffle=True):
-    """Create a simple data loader.
-
-    Args:
-        data: Tuple of (features, labels)
-        batch_size: Batch size
-        shuffle: Whether to shuffle data
-
-    Yields:
-        Batches of data
-    """
-    x, y = data
-
-    num_samples = len(x)
-    indices = jnp.arange(num_samples)
-
-    if shuffle:
-        key = jax.random.key(np.random.randint(0, 10000))
-        indices = jax.random.permutation(key, indices)
-
-    for i in range(0, num_samples, batch_size):
-        batch_indices = indices[i : i + batch_size]
-        yield x[batch_indices], y[batch_indices]
+    centres_key, labels_key, noise_key = jax.random.split(key, 3)
+    centres = 2.0 * jax.random.normal(centres_key, (4, 16))
+    labels = jax.random.randint(labels_key, (count,), 0, 4)
+    features = centres[labels] + jax.random.normal(noise_key, (count, 16))
+    return features, labels
 
 
 # %% [markdown]
-"""## Metrics Tracker.
+"""
+### Step 3: Define the classifier
 
-Track and visualize training and validation metrics over time.
+The dropout layer holds no key of its own: a training call passes `rngs`, and `.eval()` turns
+dropout off.
 """
 
 
 # %%
-class TrainingMetrics:
-    """Simple metrics tracker for training."""
+class Classifier(nnx.Module):
+    """A two-layer classifier with dropout between the layers."""
 
-    def __init__(self):
-        """Initialize the metrics tracker."""
-        self.history = {
-            "train_loss": [],
-            "val_loss": [],
-            "train_acc": [],
-            "val_acc": [],
-        }
-
-    def update(self, metrics: dict[str, float]):
-        """Update metrics."""
-        for key, value in metrics.items():
-            if key in self.history:
-                self.history[key].append(float(value))
-
-    def plot(self, save_path=None):
-        """Plot training curves."""
-        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 4))
-
-        # Plot loss
-        if self.history["train_loss"]:
-            ax1.plot(self.history["train_loss"], label="Train")
-        if self.history["val_loss"]:
-            ax1.plot(self.history["val_loss"], label="Validation")
-        ax1.set_xlabel("Epoch")
-        ax1.set_ylabel("Loss")
-        ax1.set_title("Training Loss")
-        ax1.legend()
-        ax1.grid(True, alpha=0.3)
-
-        # Plot accuracy
-        if self.history["train_acc"]:
-            ax2.plot(self.history["train_acc"], label="Train")
-        if self.history["val_acc"]:
-            ax2.plot(self.history["val_acc"], label="Validation")
-        ax2.set_xlabel("Epoch")
-        ax2.set_ylabel("Accuracy")
-        ax2.set_title("Training Accuracy")
-        ax2.legend()
-        ax2.grid(True, alpha=0.3)
-
-        plt.tight_layout()
-
-        if save_path:
-            plt.savefig(save_path)
-
-        return fig
-
-
-# %% [markdown]
-"""## Model Definition.
-
-Define a simple classifier using Flax NNX for demonstration.
-"""
-
-
-# %%
-class SimpleClassifier(nnx.Module):
-    """Simple classifier for demonstration."""
-
-    def __init__(self, input_dim, hidden_dims, num_classes, *, rngs: nnx.Rngs):
-        """Initialize the classifier.
+    def __init__(self, *, rngs: nnx.Rngs) -> None:
+        """Build the layers.
 
         Args:
-            input_dim: Input dimension.
-            hidden_dims: List of hidden layer dimensions.
-            num_classes: Number of output classes.
-            rngs: Random number generators.
+            rngs: Keys for the parameters' initialisation.
         """
-        super().__init__()
+        self.hidden = nnx.Linear(16, 64, rngs=rngs)
+        self.dropout = nnx.Dropout(0.2)
+        self.out = nnx.Linear(64, 4, rngs=rngs)
 
-        layers: list[nnx.Module] = []
-        prev_dim = input_dim
-
-        # Build hidden layers
-        for hidden_dim in hidden_dims:
-            layers.append(nnx.Linear(prev_dim, hidden_dim, rngs=rngs))
-            layers.append(nnx.relu)
-            layers.append(nnx.Dropout(rate=0.1, rngs=rngs))
-            prev_dim = hidden_dim
-
-        # Output layer
-        layers.append(nnx.Linear(prev_dim, num_classes, rngs=rngs))
-
-        self.net = nnx.Sequential(*layers)
-
-    def __call__(self, x, *, training=False):
-        """Forward pass through the classifier.
+    def __call__(self, x: jax.Array, *, rngs: nnx.Rngs | None = None) -> jax.Array:
+        """Return the class logits.
 
         Args:
-            x: Input tensor.
-            training: Whether in training mode.
+            x: The features, shaped ``(batch, 16)``.
+            rngs: Dropout keys for this call; required to train with dropout.
 
         Returns:
-            Logits for each class.
+            The logits, shaped ``(batch, 4)``.
         """
-        # Note: In real code, you'd properly handle dropout training mode.
-
-        return self.net(x)
+        return self.out(self.dropout(nnx.relu(self.hidden(x)), rngs=rngs))
 
 
 # %% [markdown]
-"""## Optimizer and Scheduler Creation.
+"""
+### Step 4: Build the schedule and the optimizer, then train
 
-Create optimizers and learning rate schedulers from configuration objects.
+Each step draws its dropout key by folding the step number into one base key, so the jitted step
+sees a new key every call.
 """
 
 
 # %%
-def create_optimizer(config: OptimizerConfig):
-    """Create optimizer from configuration.
+@nnx.jit
+def train_step(
+    model: Classifier, optimizer: nnx.Optimizer, x: jax.Array, y: jax.Array, key: jax.Array
+) -> jax.Array:
+    """Take one optimizer step on a batch and return its loss.
 
     Args:
-        config: Optimizer configuration
+        model: The classifier, in train mode.
+        optimizer: The optimizer that updates its parameters.
+        x: The batch's features.
+        y: The batch's labels.
+        key: The dropout key for this step.
 
     Returns:
-        Optax optimizer
-    """
-    if config.optimizer_type == "adam":
-        return optax.adam(
-            learning_rate=config.learning_rate,
-            b1=config.beta1,
-            b2=config.beta2,
-        )
-    elif config.optimizer_type == "sgd":
-        return optax.sgd(
-            learning_rate=config.learning_rate,
-            momentum=config.momentum,
-        )
-    else:
-        raise ValueError(f"Unknown optimizer: {config.optimizer_type}")
-
-
-# %%
-def create_scheduler(base_optimizer, scheduler_config: SchedulerConfig):
-    """Create learning rate scheduler.
-
-    Args:
-        base_optimizer: Base optimizer
-        scheduler_config: Scheduler configuration
-
-    Returns:
-        Optimizer with scheduler
-    """
-    if scheduler_config is None:
-        return base_optimizer
-
-    if scheduler_config.scheduler_type == "cosine":
-        schedule = optax.cosine_decay_schedule(
-            init_value=1.0,
-            decay_steps=scheduler_config.total_steps or 10000,
-        )
-    elif scheduler_config.scheduler_type == "exponential":
-        schedule = optax.exponential_decay(
-            init_value=1.0,
-            transition_steps=scheduler_config.decay_steps,
-            decay_rate=scheduler_config.decay_rate,
-        )
-    else:
-        return base_optimizer
-
-    # Combine with base optimizer
-    return optax.chain(
-        optax.scale_by_schedule(schedule),
-        base_optimizer,
-    )
-
-
-# %% [markdown]
-"""## Training and Evaluation Functions.
-
-Implement the core training step and evaluation logic.
-"""
-
-
-# %%
-def train_step(model, optimizer, batch_x, batch_y, loss_fn):
-    """Single training step.
-
-    Args:
-        model: Model to train
-        optimizer: Optimizer
-        batch_x: Input batch
-        batch_y: Target batch
-        loss_fn: Loss function
-
-    Returns:
-        Tuple of (loss, accuracy)
+        The batch's mean cross-entropy.
     """
 
-    def compute_loss(model):
-        logits = model(batch_x, training=True)
+    def loss_fn(model: Classifier) -> jax.Array:
+        logits = model(x, rngs=nnx.Rngs(dropout=key))
+        return optax.softmax_cross_entropy_with_integer_labels(logits, y).mean()
 
-        # Cross-entropy loss
-        loss = optax.softmax_cross_entropy_with_integer_labels(logits, batch_y)
-        loss = jnp.mean(loss)
-
-        # Accuracy
-        predictions = jnp.argmax(logits, axis=-1)
-        accuracy = jnp.mean(predictions == batch_y)
-
-        return loss, accuracy
-
-    (loss, accuracy), grads = nnx.value_and_grad(compute_loss, has_aux=True)(model)
+    loss, grads = nnx.value_and_grad(loss_fn)(model)
     optimizer.update(model, grads)
+    return loss
 
-    return loss, accuracy
 
-
-# %%
-def evaluate(model, data_loader):
-    """Evaluate model on dataset.
+def accuracy(model: Classifier, x: jax.Array, y: jax.Array) -> float:
+    """Return the fraction of points the model labels correctly, in eval mode.
 
     Args:
-        model: Model to evaluate
-        data_loader: Data loader
+        model: The classifier.
+        x: The features.
+        y: The labels.
 
     Returns:
-        Tuple of (average_loss, average_accuracy)
+        The accuracy.
     """
-    total_loss = 0
-
-    total_acc = 0
-    num_batches = 0
-
-    for batch_x, batch_y in data_loader:
-        logits = model(batch_x, training=False)
-
-        # Loss
-        loss = optax.softmax_cross_entropy_with_integer_labels(logits, batch_y)
-        loss = jnp.mean(loss)
-
-        # Accuracy
-        predictions = jnp.argmax(logits, axis=-1)
-        accuracy = jnp.mean(predictions == batch_y)
-
-        total_loss += loss
-        total_acc += accuracy
-        num_batches += 1
-
-    return total_loss / num_batches, total_acc / num_batches
+    model.eval()
+    return float(jnp.mean(jnp.argmax(model(x), axis=-1) == y))
 
 
 # %% [markdown]
-"""## Checkpointing.
+"""
+## Results
 
-Save model checkpoints during training for recovery and deployment.
+### Schedule, loss and accuracy
+
+`main()` checks the schedule against its closed form at three steps (start, end of warmup, end of
+the cycle), trains for `STEPS` steps in batches of 64, and reports the first and last batch losses
+and the held-out accuracy in eval mode.
 """
 
 
 # %%
-def save_checkpoint(model, optimizer, epoch, checkpoint_dir):
-    """Save training checkpoint.
+def main() -> dict[str, float]:
+    """Run the example and return its results.
 
-    Args:
-        model: Model to save
-        optimizer: Optimizer state
-        epoch: Current epoch
-        checkpoint_dir: Directory to save checkpoint
+    Returns:
+        The learning rate at the start, the end of warmup and the end of the cycle, the first and
+        last training losses, and the held-out accuracy.
     """
-    checkpoint_dir = Path(checkpoint_dir)
+    schedule = create_scheduler(scheduler_config, base_lr=optimizer_config.learning_rate)
+    rates = {
+        "lr_start": float(jnp.asarray(schedule(0))),
+        "lr_warmup_end": float(jnp.asarray(schedule(scheduler_config.warmup_steps))),
+        "lr_cycle_end": float(jnp.asarray(schedule(scheduler_config.cycle_length))),
+    }
+    print(f"learning rate at steps 0, 30, 300: {rates}")
+    print(f"closed form: 0, {PEAK_LEARNING_RATE}, {PEAK_LEARNING_RATE * 0.1:.6g}")
 
-    checkpoint_dir.mkdir(parents=True, exist_ok=True)
+    data_key, model_key, dropout_key = jax.random.split(jax.random.key(0), 3)
+    features, labels = make_dataset(data_key, 2048)
+    train_x, test_x = features[:1536], features[1536:]
+    train_y, test_y = labels[:1536], labels[1536:]
 
-    # In real implementation, you'd use orbax or similar
-    echo(f"Checkpoint saved at epoch {epoch} to {checkpoint_dir}")
+    model = Classifier(rngs=nnx.Rngs(params=model_key))
+    optimizer = nnx.Optimizer(
+        model, create_optimizer(model, optimizer_config, schedule), wrt=nnx.Param
+    )
+
+    model.train()
+    losses = []
+    for step in range(STEPS):
+        start = (step * 64) % train_x.shape[0]
+        batch = slice(start, start + 64)
+        key = jax.random.fold_in(dropout_key, step)
+        losses.append(float(train_step(model, optimizer, train_x[batch], train_y[batch], key)))
+
+    test_accuracy = accuracy(model, test_x, test_y)
+    print(f"loss at the first and last step: {losses[0]:.4f}, {losses[-1]:.4f}")
+    print(f"held-out accuracy in eval mode: {test_accuracy:.4f}")
+    return {**rates, "first_loss": losses[0], "last_loss": losses[-1], "accuracy": test_accuracy}
+
+
+if __name__ == "__main__":
+    main()
 
 
 # %% [markdown]
-"""## Main Training Loop.
-
-Execute the complete training pipeline with all components integrated.
 """
+## Troubleshooting
 
+### `ValueError: cycle_length must be specified for cosine scheduler`
 
-# %%
-def main():
-    """Run the advanced training example."""
-    echo("=" * 60)
-    echo("Advanced Training Example")
-    echo("=" * 60)
+Symptom: `create_scheduler` raises before training. Cause: the `cosine` schedule decays over
+`cycle_length` steps and has no default. Solution: set `cycle_length` to the number of training
+steps.
 
-    # Configuration
-    echo()
-    echo("1. Setting up configuration...")
+### `ValueError` naming a weight decay on `adam`
 
-    # Model configuration
-    model_config = ClassifierConfig(
-        name="classifier",
-        input_dim=784,
-        hidden_dims=(256, 128),
-        output_dim=10,
-        dropout_rate=0.1,
-    )
+Symptom: `create_optimizer` refuses the configuration. Cause: plain Adam has no decoupled weight
+decay. Solution: use `optimizer_type="adamw"`, or set `weight_decay=0.0`.
 
-    # Optimizer configuration
-    optimizer_config = OptimizerConfig(
-        name="training_optimizer",
-        optimizer_type="adam",
-        learning_rate=1e-3,
-        beta1=0.9,
-        beta2=0.999,
-        weight_decay=1e-4,
-    )
+## Next Steps
 
-    # Scheduler configuration
-    scheduler_config = SchedulerConfig(
-        name="cosine_scheduler",
-        scheduler_type="cosine",
-        total_steps=1000,
-        warmup_steps=100,
-    )
-
-    # Training configuration
-    training_config = TrainingConfig(
-        name="training",
-        batch_size=32,
-        num_epochs=10,
-        optimizer=optimizer_config,
-        scheduler=scheduler_config,
-        checkpoint_dir="./checkpoints/advanced_example",
-        save_frequency=5,
-    )
-
-    echo(f"  Model: {model_config.name}")
-    echo(f"  Optimizer: {optimizer_config.optimizer_type}")
-    echo(f"  Scheduler: {scheduler_config.scheduler_type}")
-    echo(f"  Epochs: {training_config.num_epochs}")
-    echo(f"  Batch size: {training_config.batch_size}")
-
-    # Create dataset
-    echo()
-    echo("2. Creating synthetic dataset...")
-    train_data, val_data, test_data = create_synthetic_dataset(
-        num_samples=1000, input_dim=784, num_classes=10
-    )
-    echo(f"  Train samples: {len(train_data[0])}")
-    echo(f"  Validation samples: {len(val_data[0])}")
-    echo(f"  Test samples: {len(test_data[0])}")
-
-    # Create model
-    echo()
-    echo("3. Creating model...")
-    key = jax.random.key(42)
-    rngs = nnx.Rngs(params=key, dropout=key)
-
-    model = SimpleClassifier(
-        input_dim=model_config.input_dim,
-        hidden_dims=list(model_config.hidden_dims),
-        num_classes=model_config.output_dim,
-        rngs=rngs,
-    )
-    echo(f"  Model created with {len(model_config.hidden_dims)} hidden layers")
-
-    # Create optimizer
-    echo()
-    echo("4. Setting up optimizer and scheduler...")
-    base_optimizer = create_optimizer(optimizer_config)
-    optimizer_with_schedule = create_scheduler(base_optimizer, scheduler_config)
-    optimizer = nnx.Optimizer(model, optimizer_with_schedule, wrt=nnx.All(nnx.Param))
-
-    # Training metrics
-    metrics = TrainingMetrics()
-
-    # Training loop
-    echo()
-    echo("5. Starting training...")
-    echo("-" * 40)
-
-    for epoch in range(training_config.num_epochs):
-        # Training
-        train_loss = 0
-        train_acc = 0
-        num_train_batches = 0
-
-        train_loader = create_data_loader(
-            train_data, batch_size=training_config.batch_size, shuffle=True
-        )
-
-        for batch_x, batch_y in train_loader:
-            loss, acc = train_step(model, optimizer, batch_x, batch_y, None)
-            train_loss += loss
-            train_acc += acc
-            num_train_batches += 1
-
-        train_loss /= num_train_batches
-        train_acc /= num_train_batches
-
-        # Validation
-        val_loader = create_data_loader(
-            val_data, batch_size=training_config.batch_size, shuffle=False
-        )
-        val_loss, val_acc = evaluate(model, val_loader)
-
-        # Update metrics
-        metrics.update(
-            {
-                "train_loss": train_loss,
-                "train_acc": train_acc,
-                "val_loss": val_loss,
-                "val_acc": val_acc,
-            }
-        )
-
-        # Print progress
-        echo(f"Epoch {epoch + 1}/{training_config.num_epochs}")
-        echo(f"  Train - Loss: {train_loss:.4f}, Acc: {train_acc:.4f}")
-        echo(f"  Val   - Loss: {val_loss:.4f}, Acc: {val_acc:.4f}")
-
-        # Save checkpoint
-        if (epoch + 1) % training_config.save_frequency == 0:
-            save_checkpoint(model, optimizer, epoch + 1, training_config.checkpoint_dir)
-
-    echo("-" * 40)
-
-    # Final evaluation on test set
-    echo()
-    echo("6. Evaluating on test set...")
-    test_loader = create_data_loader(
-        test_data, batch_size=training_config.batch_size, shuffle=False
-    )
-    test_loss, test_acc = evaluate(model, test_loader)
-    echo(f"  Test Loss: {test_loss:.4f}")
-    echo(f"  Test Accuracy: {test_acc:.4f}")
-
-    # Plot training curves
-    echo()
-    echo("7. Plotting training curves...")
-    output_dir = resolve_output_dir("advanced_training_example").path
-
-    metrics.plot(save_path=f"{output_dir}/training_curves.png")
-    echo(f"  Training curves saved to {output_dir}/training_curves.png")
-
-    echo()
-    echo("=" * 60)
-    echo("✅ Advanced training example completed successfully!")
-    echo("=" * 60)
-
-    echo()
-    echo("Key takeaways:")
-    echo("- Use configuration objects for all settings")
-    echo("- Implement proper training and validation loops")
-    echo("- Track metrics throughout training")
-    echo("- Save checkpoints regularly")
-    echo("- Evaluate on held-out test set")
-
-
-# %% [markdown]
-"""## Summary and Next Steps.
-
-### Key Takeaways
-
-This example demonstrated:
-
-1. **Configuration Management**: Use Pydantic configuration objects for all settings
-2. **Training Pipeline**: Implement proper training and validation loops
-3. **Metrics Tracking**: Monitor performance throughout training
-4. **Checkpointing**: Save model state regularly for recovery
-5. **Learning Rate Scheduling**: Apply adaptive learning rate strategies
+- [The shared example guide](https://substrax.readthedocs.io/en/latest/guides/writing-examples/)
+- [Training guide](https://artifex.readthedocs.io/en/latest/user-guide/training/training-guide/)
 
 ### Experiments to Try
 
-1. **Different Optimizers**: Compare Adam, SGD, AdamW performance
-2. **Scheduler Variations**: Test exponential decay vs cosine annealing
-3. **Architecture Changes**: Experiment with different hidden layer sizes
-4. **Regularization**: Add L2 regularization or different dropout rates
-5. **Early Stopping**: Implement early stopping based on validation loss
-
-### Next Steps
-
-- Explore more advanced models (VAEs, GANs, Diffusion Models)
-- Learn about distributed training strategies
-- Study advanced optimization techniques (gradient clipping, mixed precision)
-- Implement custom callbacks and monitoring tools
-
-### Additional Resources
-
-- [Artifex Documentation](https://docs.artifex.ai)
-- [Flax NNX Guide](https://flax.readthedocs.io/en/latest/)
-- [Optax Documentation](https://optax.readthedocs.io/)
-- [JAX Training Best Practices](https://jax.readthedocs.io/en/latest/notebooks/thinking_in_jax.html)
+- Set `warmup_steps=0` and compare the first losses.
+- Raise `gradient_clip_norm` to 10 and watch the early loss curve.
+- Change `scheduler_type` to `"linear"` with `total_steps=STEPS`.
 """
-
-# %%
-if __name__ == "__main__":
-    main()

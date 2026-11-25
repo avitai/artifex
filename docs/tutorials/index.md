@@ -123,7 +123,7 @@ Topics](../roadmap/planned-examples.md).
 
 <div class="example-card" data-tags="training,optimizer,scheduler,checkpointing,intermediate">
 <div class="card-header">
-<h3><a href="advanced/advanced-training.md">Advanced Training Pipeline</a></h3>
+<h3><a href="../examples/generative_models/advanced_training_example.md">Advanced Training Pipeline</a></h3>
 <span class="difficulty intermediate">Intermediate</span>
 </div>
 <p>Production-ready training with optimizers, schedulers, and checkpointing</p>
