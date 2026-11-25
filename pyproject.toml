@@ -785,5 +785,35 @@ budget_seconds = 600
 # Where a generated page links its example's script and notebook.
 source_url = "https://github.com/avitai/artifex/blob/main"
 
+# Examples held back until the fix each shows lands, each with the NNX audit's register rows it
+# waits on and the branch that rebuilds it. An entry goes when its example is rebuilt to the
+# guide; substrax-notebooks fails a pending example that conforms.
+[tool.substrax.examples.pending]
+"examples/benchmarks/protein_benchmark_example.py" = "R552 protein adapter, R572 constant metrics (metrics branch); merges with run_protein_benchmarks"
+"examples/benchmarks/run_protein_benchmarks.py" = "R552 protein adapter, R572 constant metrics (metrics branch); merges with protein_benchmark_example"
+"examples/generative_models/diffusion/dit_demo.py" = "R127, R128, R228, R229, R564: DiT sampler schedule, jit, pos-embed, init, class dropout (F6 diffusion)"
+"examples/generative_models/energy/simple_ebm_example.py" = "R203, R205, R208: Langevin noise, PCD key reuse, DeepEBM config (energy branch); R558 generate rngs (F1.3)"
+"examples/generative_models/framework_features_demo.py" = "R101/R216, R520, R561, R562 (losses, F1.3 VAE, trainer W4); merges into the quickstart example"
+"examples/generative_models/geometric/geometric_benchmark_demo.py" = "R277, R321, R323, R404 (geometric and protein, metrics); R553 Trainer API (W3b)"
+"examples/generative_models/geometric/geometric_losses_demo.py" = "R288, R567, R568: EMD, batched mesh edges, voxel shapes (losses); R285, R287 voxel model (geometric)"
+"examples/generative_models/geometric/geometric_models_demo.py" = "R278, R282, R547: unseeded sampling, degenerate mesh template (geometric and protein)"
+"examples/generative_models/geometric/simple_point_cloud_example.py" = "R278: point-cloud sampling ignores the caller's key (geometric and protein, F1.3)"
+"examples/generative_models/image/diffusion/diffusion_mnist.py" = "R123, R118, R232, R004, R059 (F6, F4); R484, R565 (trainer W3b-W5); R556 MNIST loading; merges with diffusion_mnist_training"
+"examples/generative_models/image/diffusion/diffusion_mnist_training.py" = "R123, R118, R232, R004, R059 (F6, F4); R484, R565 (trainer W3b-W5); R556 MNIST loading; merges with diffusion_mnist"
+"examples/generative_models/image/flow/flow_mnist.py" = "R161, R163, R566: mask, init, coupling activations (F5 flow); R556 MNIST loading"
+"examples/generative_models/image/gan/simple_gan.py" = "R458/R262 sigmoid critic under the WGAN loss (GAN branch); R554 n_critic (W5)"
+"examples/generative_models/image/vae/advanced_vae.py" = "R520 stored-key reparameterisation (F1.3 VAE); R141, R211, R217 (VAE branch); R556 dataset loading"
+"examples/generative_models/image/vae/vae_mnist.py" = "R520: reparameterisation draws a stored key (F1.3 VAE)"
+"examples/generative_models/loss_examples.py" = "R024, R051/R361, R091: PerceptualLoss weights, Laplacian term, degenerate edges (losses)"
+"examples/generative_models/protein/protein_extensions_example.py" = "R260, R277, R396, R569, R570 (geometric and protein); merges with protein_extensions_with_config"
+"examples/generative_models/protein/protein_extensions_with_config.py" = "R260, R277, R396, R569, R570 (geometric and protein); merges with protein_extensions_example"
+"examples/generative_models/protein/protein_ligand_benchmark_demo.py" = "R412, R571: validity and drug-likeness mocks; deleted after W8 (drug-discovery plan)"
+"examples/generative_models/protein/protein_model_with_modality.py" = "R358 atom positions ignored, R551 no num_points check (geometric and protein)"
+"examples/generative_models/protein/protein_point_cloud_example.py" = "R256, R258/R259, R279, R358 dihedral sign and loss, lazy state, atom positions; R555 (geometric and protein)"
+"examples/generative_models/sampling/blackjax_example.py" = "R497: nuts_sampling never adapts its step (F13 samplers); the three BlackJAX examples merge into one"
+"examples/generative_models/sampling/blackjax_integration_examples.py" = "R497: nuts_sampling never adapts its step (F13 samplers); the three BlackJAX examples merge into one"
+"examples/generative_models/sampling/blackjax_sampling_examples.py" = "R497: nuts_sampling never adapts its step (F13 samplers); the three BlackJAX examples merge into one"
+"examples/generative_models/vae/multi_beta_vae_benchmark_demo.py" = "R556 CelebA loading, R559 LPIPS key (metrics); R560 suite calls the VAE with rngs (F1.3 VAE)"
+
 [tool.uv]
 python-preference = "only-managed"
