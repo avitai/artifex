@@ -13,6 +13,7 @@ from typing import TypeGuard
 
 import jax
 import jax.numpy as jnp
+import optax
 import pytest
 from calibrax.profiling import CompilationProfiler, time_calls
 from flax import nnx
@@ -494,13 +495,22 @@ class TestRegressionBenchmarks:
     """Regression tests to ensure performance doesn't degrade."""
 
     def test_vae_training_step_performance(self):
-        """Test VAE training step performance baseline."""
+        """One compiled VAE training step, gradient and optimizer update included, within 1 s.
+
+        The step is ``VAETrainer.train_step`` under ``nnx.jit``, the form its docstring gives.
+        ``time_calls`` warms it up, so compilation is outside the timing, and waits for each
+        step's whole result; the parameter update belongs to the same compiled program, so it is
+        finished when the loss is.
+        """
         try:
             from artifex.generative_models.factory import create_model
+            from artifex.generative_models.training.trainers import (
+                VAETrainer,
+                VAETrainingConfig,
+            )
         except ImportError:
             pytest.skip("VAE model not available")
 
-        # Setup
         rng = jax.random.key(42)
         config = _create_vae_config(
             name="test_vae",
@@ -510,38 +520,32 @@ class TestRegressionBenchmarks:
         )
 
         model = create_model(config, rngs=nnx.Rngs(params=rng, sample=rng))
-        batch_size = 8
-        test_batch = jnp.ones((batch_size, 32, 32, 3))
+        optimizer = nnx.Optimizer(model, optax.adam(1e-3), wrt=nnx.Param)
+        train_step = nnx.jit(VAETrainer(VAETrainingConfig()).train_step)
+        batch = {"image": jnp.ones((8, 32, 32, 3))}
 
-        # Warm up
-        for _ in range(3):
-            warmup_outputs = model(test_batch)
-            _ = model.loss_fn(test_batch, warmup_outputs)
+        timing = time_calls(lambda: train_step(model, optimizer, batch), warmup=3, iterations=10)
+        loss, metrics = train_step(model, optimizer, batch)
 
-        # Time training step
-        start_time = time.time()
-        model_outputs = model(test_batch)
-        loss_dict = model.loss_fn(test_batch, model_outputs)
-        step_time = time.time() - start_time
-
-        # Performance baseline: should complete within reasonable time
         max_step_time = 1.0  # 1 second max for small model
-        assert step_time < max_step_time, f"Training step too slow: {step_time:.3f}s"
-
-        # Verify outputs
-        assert jnp.isfinite(loss_dict["total_loss"])
-        assert "reconstruction_loss" in loss_dict
-        assert "kl_loss" in loss_dict
+        assert timing.median_sec < max_step_time, (
+            f"Training step too slow: {timing.median_sec:.3f}s"
+        )
+        assert jnp.isfinite(loss)
+        assert "reconstruction_loss" in metrics
+        assert "kl_loss" in metrics
 
     def test_model_compilation_time(self):
-        """Test that model compilation doesn't take too long."""
+        """Compiling the VAE encoder takes under 10 s.
+
+        The clock covers tracing, lowering and XLA compilation only: JAX's ahead-of-time
+        ``lower(...).compile()`` compiles without running the program, and the model is built
+        before the clock starts.
+        """
         try:
             from artifex.generative_models.factory import create_model
         except ImportError:
             pytest.skip("VAE model not available")
-
-        # Time model creation and first forward pass
-        start_time = time.time()
 
         rng = jax.random.key(42)
         config = _create_vae_config(
@@ -553,11 +557,11 @@ class TestRegressionBenchmarks:
 
         model = create_model(config, rngs=nnx.Rngs(params=rng, sample=rng))
         test_batch = jnp.ones((4, 32, 32, 3))
+        encode = nnx.jit(lambda model, x: model.encode(x))
 
-        # First forward pass (includes compilation)
-        _ = model.encode(test_batch)
-
-        compilation_time = time.time() - start_time
+        start_time = time.perf_counter()
+        encode.lower(model, test_batch).compile()
+        compilation_time = time.perf_counter() - start_time
 
         # Should compile within reasonable time
         max_compilation_time = 10.0  # 10 seconds max
