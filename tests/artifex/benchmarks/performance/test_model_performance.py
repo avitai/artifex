@@ -14,7 +14,7 @@ from typing import TypeGuard
 import jax
 import jax.numpy as jnp
 import pytest
-from calibrax.profiling import CompilationProfiler
+from calibrax.profiling import CompilationProfiler, time_calls
 from flax import nnx
 from substrax.testing.nnx_conformance import Case, check_rows_independent
 
@@ -455,44 +455,33 @@ class TestMemoryUsage:
         items individually. The speedup scales roughly linearly with batch size
         as the overhead of kernel launches is amortized.
 
-        The ratio is wall-clock time, so it measures the machine's load as well as the model:
-        alone on CPU a batch of 16 measured 14.7-16.1x, and the same code measured 7.98x in a
-        unit leg run eight tests at a time under coverage. It is ``slow``, so it runs in the
-        performance leg, one test at a time without coverage. The unit leg holds the property
-        it rests on with ``test_batched_encoding_is_one_vectorized_computation``.
+        The ratio is wall-clock time, so it measures the machine's load as well as the model.
+        This test's compiled encoder, median of 15 waited calls, alone on one 24-thread CPU host
+        (jax 0.11.1, three runs each) measured 3.90-4.05x at a batch of 4, 7.73-8.12x at 8,
+        15.73-21.40x at 16 and 22.26-32.91x at 32. The batched call took about 0.7 ms at every
+        size, so at these shapes the ratio is mostly per-call overhead the batch amortizes. It is
+        ``slow``, so it runs in the performance leg, one test at a time without coverage. The unit
+        leg holds the property it rests on with
+        ``test_batched_encoding_is_one_vectorized_computation``.
         """
         # Time at float32 matmul precision, the precision this ratio was measured at.
         with jax.default_matmul_precision("float32"):
             self._run_batch_efficiency_test(batch_size, min_speedup)
 
     def _run_batch_efficiency_test(self, batch_size: int, min_speedup: float) -> None:
-        """Implementation of batch efficiency test."""
+        """Compare the compiled encoder on the batch with the same rows encoded one at a time.
+
+        ``time_calls`` warms each form up at its own shape, so compilation is outside both
+        timings, waits for each call's whole result, and reports the median.
+        """
         model = _batch_vae()
-
-        # Create test data
         test_batch = jnp.ones((batch_size, 32, 32, 3))
-        individual_items = [test_batch[i : i + 1] for i in range(batch_size)]
+        rows = [test_batch[i : i + 1] for i in range(batch_size)]
 
-        # Warmup runs to trigger JIT compilation for both batch sizes
-        _ = model.encode(test_batch)
-        _ = model.encode(individual_items[0])
+        batched = time_calls(lambda: _encode(model, test_batch), warmup=3, iterations=15)
+        per_row = time_calls(lambda: [_encode(model, row) for row in rows], warmup=3, iterations=15)
 
-        # Time batch processing (multiple runs for stability)
-        n_runs = 5
-        start_time = time.time()
-        for _ in range(n_runs):
-            model.encode(test_batch)
-        batch_time = (time.time() - start_time) / n_runs
-
-        # Time individual processing
-        start_time = time.time()
-        for _ in range(n_runs):
-            for item in individual_items:
-                model.encode(item)
-        individual_time = (time.time() - start_time) / n_runs
-
-        # Batch processing should be significantly more efficient than individual processing
-        efficiency_ratio = individual_time / batch_time
+        efficiency_ratio = per_row.median_sec / batched.median_sec
         assert efficiency_ratio > min_speedup, (
             f"Batch processing not efficient enough for batch_size={batch_size}: "
             f"{efficiency_ratio:.2f}x (expected >{min_speedup}x)"
