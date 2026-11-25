@@ -111,8 +111,9 @@ class TestConditionalDiscriminatorDropout:
         discriminator_with_dropout.train()
 
         # Run multiple times in training mode - outputs should vary due to dropout
-        output1 = discriminator_with_dropout(x, labels)
-        output2 = discriminator_with_dropout(x, labels)
+        call_rngs = nnx.Rngs(dropout=3)
+        output1 = discriminator_with_dropout(x, labels, rngs=call_rngs)
+        output2 = discriminator_with_dropout(x, labels, rngs=call_rngs)
 
         # In training mode with dropout, outputs should be different
         # (stochastic due to random dropout masks)
@@ -144,9 +145,10 @@ class TestConditionalDiscriminatorDropout:
 
         # With dropout_rate=0.5, approximately half the activations should be zeroed
         # We can verify dropout is being applied by running multiple times
+        call_rngs = nnx.Rngs(dropout=3)
         outputs = []
         for _ in range(10):
-            output = discriminator_with_dropout(x, labels)
+            output = discriminator_with_dropout(x, labels, rngs=call_rngs)
             outputs.append(output)
 
         outputs_array = jnp.stack(outputs)

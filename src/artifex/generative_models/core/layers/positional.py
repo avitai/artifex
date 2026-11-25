@@ -51,7 +51,7 @@ class PositionalEncoding(nnx.Module):
 
         # Initialize dropout if needed
         if self.dropout_rate > 0:
-            self.dropout = nnx.Dropout(rate=self.dropout_rate, rngs=rngs)
+            self.dropout = nnx.Dropout(rate=self.dropout_rate)
         else:
             self.dropout = None
 

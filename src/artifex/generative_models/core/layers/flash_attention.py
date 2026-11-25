@@ -301,6 +301,7 @@ class FlashMultiHeadAttention(nnx.MultiHeadAttention):
         *,
         causal: bool = False,
         attention_fn: Callable[..., Array] | None = None,
+        keep_rngs: bool = False,
         **kwargs: Any,
     ) -> None:
         """Initialise the module.
@@ -315,6 +316,9 @@ class FlashMultiHeadAttention(nnx.MultiHeadAttention):
                 fused kernel skips the masked region rather than computing and
                 discarding it.
             attention_fn: Override for the attention kernel.
+            keep_rngs: Whether to hold a dropout stream. ``False`` by default, unlike
+                :class:`flax.nnx.MultiHeadAttention`: the dropout key is passed at call
+                time, so a training call without one raises instead of drawing silently.
             **kwargs: Forwarded to :class:`flax.nnx.MultiHeadAttention`.
         """
         super().__init__(
@@ -326,6 +330,7 @@ class FlashMultiHeadAttention(nnx.MultiHeadAttention):
             attention_fn=(
                 attention_fn if attention_fn is not None else flash_dot_product_attention
             ),
+            keep_rngs=keep_rngs,
             **kwargs,
         )
         self.causal = causal

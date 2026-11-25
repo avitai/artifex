@@ -443,15 +443,16 @@ class TransformerBlock(nnx.Module):
             qkv_features=embed_dim,
             out_features=embed_dim,
             attention_fn=flash_dot_product_attention,
+            keep_rngs=False,
             rngs=rngs,
         )
 
         # Feed-forward network components
         self.ffn_norm = nnx.LayerNorm(num_features=embed_dim, rngs=rngs)
         self.ffn_linear1 = nnx.Linear(in_features=embed_dim, out_features=embed_dim * 4, rngs=rngs)
-        self.ffn_dropout1 = nnx.Dropout(dropout, rngs=rngs)
+        self.ffn_dropout1 = nnx.Dropout(dropout)
         self.ffn_linear2 = nnx.Linear(in_features=embed_dim * 4, out_features=embed_dim, rngs=rngs)
-        self.ffn_dropout2 = nnx.Dropout(dropout, rngs=rngs)
+        self.ffn_dropout2 = nnx.Dropout(dropout)
 
         # Layer normalization
         self.layer_norm = nnx.LayerNorm(num_features=embed_dim, rngs=rngs)
@@ -470,7 +471,7 @@ class TransformerBlock(nnx.Module):
             x: Input tensor with shape [batch, num_points, embed_dim] or [num_points, embed_dim].
             mask: Optional attention mask with shape [batch, 1, 1, num_points].
             deterministic: Whether to run in deterministic mode.
-            rngs: Dropout keys for this call; ``None`` draws from the dropout layers' own streams.
+            rngs: Dropout keys for this call; required to train with dropout.
 
         Returns:
             Processed tensor with same shape as input.

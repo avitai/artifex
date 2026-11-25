@@ -80,7 +80,7 @@ class ProteinPointCloudModel(PointCloudModel):
         Args:
             x: Input data, either point cloud array or dictionary with keys.
             deterministic: Whether to run in deterministic mode.
-            rngs: Dropout keys for this call; ``None`` draws from the dropout layers' own streams.
+            rngs: Dropout keys for this call; required to train with dropout.
 
         Returns:
             Dictionary of outputs.

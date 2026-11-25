@@ -489,7 +489,7 @@ class MLP(nnx.Module):
 
             # Dropout (if enabled)
             if dropout_rate > 0.0:
-                dropout = nnx.Dropout(rate=dropout_rate, rngs=rngs)
+                dropout = nnx.Dropout(rate=dropout_rate)
                 self.dropouts.append(dropout)
 
     def _forward_layer_impl(
@@ -505,7 +505,7 @@ class MLP(nnx.Module):
         Args:
             x: Input tensor.
             layer_idx: Index of the layer.
-            rngs: Dropout keys for this call; ``None`` draws from the dropout layer's own stream.
+            rngs: Dropout keys for this call; required to train with dropout.
 
         Returns:
             Output tensor.
@@ -544,7 +544,7 @@ class MLP(nnx.Module):
         Args:
             x: Input tensor.
             layer_idx: Index of the layer.
-            rngs: Dropout keys for this call; ``None`` draws from the dropout layer's own stream.
+            rngs: Dropout keys for this call; required to train with dropout.
 
         Returns:
             Output tensor.
@@ -565,7 +565,7 @@ class MLP(nnx.Module):
         Args:
             x: Input tensor.
             layer_idx: Index of the layer.
-            rngs: Dropout keys for this call; ``None`` draws from the dropout layer's own stream.
+            rngs: Dropout keys for this call; required to train with dropout.
 
         Returns:
             Output tensor.
@@ -592,7 +592,7 @@ class MLP(nnx.Module):
             return_intermediates: Whether to return intermediate activations
                 (useful for analysis but uses more memory).
             use_scan: Whether to use scan for memory-efficient deep networks.
-            rngs: Dropout keys for this call; ``None`` draws from the dropout layers' own streams.
+            rngs: Dropout keys for this call; required to train with dropout.
 
         Returns:
             Output tensor of shape (batch_size, hidden_dims[-1]).
@@ -619,7 +619,7 @@ class MLP(nnx.Module):
 
         Args:
             x: Input tensor.
-            rngs: Dropout keys for this call; ``None`` draws from the dropout layers' own streams.
+            rngs: Dropout keys for this call; required to train with dropout.
 
         Returns:
             Output tensor.
@@ -796,7 +796,7 @@ class CNN(nnx.Module):
         # Initialize dropout if needed following critical guidelines
         # Note: No type annotation here to avoid making it a static attribute
         if dropout_rate > 0:
-            self.dropout = nnx.Dropout(rate=dropout_rate, rngs=rngs)
+            self.dropout = nnx.Dropout(rate=dropout_rate)
         else:
             self.dropout = None
 
@@ -810,7 +810,7 @@ class CNN(nnx.Module):
 
         Args:
             x: Input tensor.
-            rngs: Dropout keys for this call; ``None`` draws from the dropout layer's own stream.
+            rngs: Dropout keys for this call; required to train with dropout.
 
         Returns:
             Output tensor.

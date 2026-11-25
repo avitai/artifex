@@ -331,8 +331,8 @@ class TestEBM:
         )
         ebm = EBM(config=config, rngs=energy_rngs)
 
-        # Test forward pass
-        energies = ebm.energy(energy_test_mlp_data)
+        # Test forward pass (train mode: dropout needs a key)
+        energies = ebm.energy(energy_test_mlp_data, rngs=nnx.Rngs(dropout=3))
         assert jnp.all(jnp.isfinite(energies))
 
 
@@ -629,7 +629,7 @@ class TestFactoryFunctions:
         key = jax.random.key(42)
         vector_data = jax.random.normal(key, (4, input_dim))
 
-        energies = ebm.energy(vector_data)
+        energies = ebm.energy(vector_data, rngs=nnx.Rngs(dropout=3))
         assert energies.shape == (4,)
         assert jnp.all(jnp.isfinite(energies))
 

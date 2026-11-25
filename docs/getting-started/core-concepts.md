@@ -901,11 +901,14 @@ from flax import nnx
 # A "default" stream — `rngs.sample()` falls back to it
 rngs = nnx.Rngs(42)
 
-# Named streams — needed by GANs, diffusion, dropout, etc.
-rngs = nnx.Rngs(params=0, dropout=1, sample=2)
+# Named streams — needed by GANs, diffusion, etc.
+rngs = nnx.Rngs(params=0, sample=2)
 
 # Models that draw stochastic samples must request a known stream
 key = rngs.sample()
+
+# No dropout layer holds a key: a training call passes its dropout keys
+outputs = model(x, rngs=nnx.Rngs(dropout=1))
 ```
 
 `nnx.Rngs(params=42)` creates **only** a `params` stream and does not

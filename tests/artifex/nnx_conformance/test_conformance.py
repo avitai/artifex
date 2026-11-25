@@ -85,7 +85,11 @@ def test_every_case_and_exemption_names_a_class_of_its_own() -> None:
 
 
 def _holds_dropout(module: nnx.Module) -> bool:
-    return any(isinstance(node, nnx.Dropout) for _, node in nnx.iter_graph(module))
+    return any(
+        isinstance(node, nnx.Dropout)
+        or (isinstance(node, nnx.MultiHeadAttention) and node.dropout_rate > 0)
+        for _, node in nnx.iter_graph(module)
+    )
 
 
 def test_a_module_with_dropout_takes_its_dropout_key_at_call_time() -> None:
@@ -103,3 +107,33 @@ def test_a_module_with_dropout_takes_its_dropout_key_at_call_time() -> None:
 
     assert "artifex.generative_models.core.base.MLP" in owed
     assert undeclared == []
+
+
+def _held_dropout_streams(module: nnx.Module) -> list[str]:
+    """Paths of the dropout and attention layers in ``module`` that hold a stream of their own.
+
+    flax's ``nnx.Dropout`` keeps one when built with ``rngs`` and ``nnx.MultiHeadAttention`` when
+    built with ``keep_rngs=True`` and a nonzero rate (flax 0.12.12 ``stochastic.py:85-90``,
+    ``attention.py:731``). Either then draws silently whenever a caller omits the key.
+    """
+    return [
+        "/".join(map(str, path))
+        for path, node in nnx.iter_graph(module)
+        if isinstance(node, nnx.Dropout | nnx.MultiHeadAttention) and node.rngs is not None
+    ]
+
+
+def test_no_dropout_or_attention_layer_holds_a_key_of_its_own() -> None:
+    """A training call without a key raises instead of drawing from a held stream.
+
+    With a held stream, a forgotten or misspelled key, or a composite that does not pass it
+    down, goes unnoticed; without one, flax raises (``stochastic.py:140-145``,
+    ``attention.py:891-896``).
+    """
+    holders = {
+        name: held
+        for name, case in sorted(CASES.items())
+        if (held := _held_dropout_streams(case.build(rngs_from_seed(0, streams=STREAMS))))
+    }
+
+    assert holders == {}

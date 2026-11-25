@@ -189,8 +189,8 @@ class GraphModel(GeometricModel):
     ) -> dict[str, Any]:
         """Run the graph backbone without applying extensions.
 
-        ``rngs`` is the caller's: its dropout keys reach the EGNN layers, and ``None`` leaves each
-        layer drawing from its own stream. Sampling starting positions falls back to the model's
+        ``rngs`` is the caller's: its dropout keys reach the EGNN layers, which hold none, so
+        training with dropout needs it. Sampling starting positions falls back to the model's
         stored ``rngs``.
         """
         sampling_rngs = rngs if rngs is not None else getattr(self, "rngs", None)

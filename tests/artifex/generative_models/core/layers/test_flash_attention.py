@@ -276,6 +276,19 @@ class TestDropout:
         x = make_inputs()
         assert jnp.array_equal(flash(x, deterministic=True), flash(x, deterministic=True))
 
+    def test_holds_no_dropout_key_so_a_training_call_without_one_raises(self) -> None:
+        """The dropout key comes at call time; none is held to fall back on silently.
+
+        ``nnx.MultiHeadAttention`` holds a forked stream by default (``keep_rngs=True``), so a
+        training call that forgets its key draws from it without complaint.
+        """
+        flash, _ = make_pair(dropout_rate=0.5)
+        x = make_inputs()
+
+        assert flash.rngs is None
+        with pytest.raises(ValueError, match="'rngs' must be provided"):
+            flash(x, deterministic=False)
+
 
 class TestSowWeights:
     """``sow_weights`` must actually sow, and sow the pre-dropout weights."""

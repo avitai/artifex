@@ -74,7 +74,7 @@ class EGNNBlock(nnx.Module):
         self.num_layers = num_layers
 
         if dropout_rate > 0.0:
-            self.dropout = nnx.Dropout(rate=dropout_rate, rngs=rngs)
+            self.dropout = nnx.Dropout(rate=dropout_rate)
         else:
             self.dropout = None
 
@@ -90,7 +90,7 @@ class EGNNBlock(nnx.Module):
         Args:
             x: Input tensor.
             deterministic: If True, disable dropout.
-            rngs: Dropout keys for this call; ``None`` draws from the dropout layer's own stream.
+            rngs: Dropout keys for this call; required to train with dropout.
 
         Returns:
             Output tensor after MLP transformation.
@@ -220,8 +220,7 @@ class EGNNLayer(nnx.Module):
                 [batch, num_nodes, num_nodes, edge_dim] or None.
             mask: Node mask [batch, num_nodes] or None.
             deterministic: Whether to run in deterministic mode.
-            rngs: Dropout keys for this call; ``None`` draws from the dropout layers' own
-                streams.
+            rngs: Dropout keys for this call; required to train with dropout.
 
         Returns:
             Tuple of (node_features, coordinates, edge_features) with

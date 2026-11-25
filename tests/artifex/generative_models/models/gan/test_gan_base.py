@@ -153,7 +153,7 @@ class TestGenerator:
 
         # Test forward pass works
         z = jnp.ones((2, 32))
-        output = generator(z)
+        output = generator(z, rngs=nnx.Rngs(dropout=3))
         assert output.shape == (2, 3, 32, 32)
 
 
@@ -192,7 +192,7 @@ class TestDiscriminator:
         discriminator = Discriminator(config=discriminator_config, rngs=rngs)
 
         # Forward pass
-        output = discriminator(input_data)
+        output = discriminator(input_data, rngs=nnx.Rngs(dropout=3))
 
         # Check output shape (should be batch_size x 1)
         assert output.shape == (input_data.shape[0], 1)
@@ -269,7 +269,7 @@ class TestGAN:
         gan = GAN(config=gan_config, rngs=rngs)
 
         # Forward pass
-        outputs = gan(input_data)
+        outputs = gan(input_data, rngs=nnx.Rngs(dropout=3))
 
         # Check output dictionary
         assert "real_scores" in outputs
@@ -322,7 +322,7 @@ class TestGAN:
         )
         gan = GAN(config=config, rngs=rngs)
 
-        result = gan.generator_objective(input_data)
+        result = gan.generator_objective(input_data, rngs=nnx.Rngs(dropout=3))
 
         loss = result["total_loss"]
         assert jnp.isscalar(loss) or loss.shape == ()
@@ -361,7 +361,7 @@ class TestGAN:
         )
         gan = GAN(config=config, rngs=rngs)
 
-        result = gan.discriminator_objective(input_data)
+        result = gan.discriminator_objective(input_data, rngs=nnx.Rngs(dropout=3))
 
         loss = result["total_loss"]
         assert jnp.isfinite(loss)
@@ -398,8 +398,8 @@ class TestGAN:
         )
         gan = GAN(config=config, rngs=rngs)
 
-        generator_result = gan.generator_objective(input_data)
-        discriminator_result = gan.discriminator_objective(input_data)
+        generator_result = gan.generator_objective(input_data, rngs=nnx.Rngs(dropout=3))
+        discriminator_result = gan.discriminator_objective(input_data, rngs=nnx.Rngs(dropout=3))
 
         assert jnp.isfinite(generator_result["total_loss"])
         assert jnp.isfinite(discriminator_result["total_loss"])
@@ -471,10 +471,10 @@ class TestDiscriminatorJIT:
         discriminator = Discriminator(config=discriminator_config, rngs=rngs)
 
         @nnx.jit
-        def jit_discriminate(model, x):
-            return model(x)
+        def jit_discriminate(model, x, rngs):
+            return model(x, rngs=rngs)
 
-        output = jit_discriminate(discriminator, input_data)
+        output = jit_discriminate(discriminator, input_data, nnx.Rngs(dropout=3))
 
         assert output.shape == (input_data.shape[0], 1)
         assert jnp.all((output >= 0.0) & (output <= 1.0))
@@ -488,10 +488,10 @@ class TestGANJIT:
         gan = GAN(config=gan_config, rngs=rngs)
 
         @nnx.jit
-        def jit_call(model, x):
-            return model(x)
+        def jit_call(model, x, rngs):
+            return model(x, rngs=rngs)
 
-        outputs = jit_call(gan, input_data)
+        outputs = jit_call(gan, input_data, nnx.Rngs(dropout=3))
 
         assert "real_scores" in outputs
         assert outputs["real_scores"].shape == (input_data.shape[0], 1)

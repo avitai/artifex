@@ -73,7 +73,7 @@ class MultiModalProcessor(nnx.Module):
 
         # Dropout
         if dropout_rate > 0:
-            self.dropout = nnx.Dropout(rate=dropout_rate, rngs=rngs)
+            self.dropout = nnx.Dropout(rate=dropout_rate)
         else:
             self.dropout: nnx.Dropout | None = None  # type: ignore
 
@@ -106,7 +106,7 @@ class MultiModalProcessor(nnx.Module):
         Args:
             inputs: Dictionary of modality inputs
             deterministic: Whether to apply dropout
-            rngs: Dropout keys for this call; ``None`` draws from the dropout layer's own stream.
+            rngs: Dropout keys for this call; required to train with dropout.
 
         Returns:
             Fused representation
@@ -291,6 +291,7 @@ class ModalityFusionProcessor(nnx.Module):
                 qkv_features=hidden_dim,
                 out_features=output_dim,
                 attention_fn=flash_dot_product_attention,
+                keep_rngs=False,
                 rngs=rngs,
             )
         elif fusion_method == "gated":
@@ -431,12 +432,13 @@ class CrossModalAttention(nnx.Module):
             qkv_features=query_dim,
             out_features=query_dim,
             attention_fn=flash_dot_product_attention,
+            keep_rngs=False,
             rngs=rngs,
         )
 
         # Dropout
         if dropout_rate > 0:
-            self.dropout = nnx.Dropout(rate=dropout_rate, rngs=rngs)
+            self.dropout = nnx.Dropout(rate=dropout_rate)
         else:
             self.dropout: nnx.Dropout | None = None  # type: ignore
 
@@ -456,7 +458,7 @@ class CrossModalAttention(nnx.Module):
             key: Key features from another modality
             value: Value features
             deterministic: Whether to apply dropout
-            rngs: Dropout keys for this call; ``None`` draws from the dropout layers' own streams.
+            rngs: Dropout keys for this call; required to train with dropout.
 
         Returns:
             Attended features

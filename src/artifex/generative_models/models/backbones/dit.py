@@ -159,7 +159,7 @@ class LabelEmbedder(nnx.Module):
         )
 
         if dropout_rate > 0:
-            self.dropout = nnx.Dropout(rate=dropout_rate, rngs=rngs)
+            self.dropout = nnx.Dropout(rate=dropout_rate)
         else:
             self.dropout = None
 
@@ -177,7 +177,7 @@ class LabelEmbedder(nnx.Module):
             labels: Class labels [batch_size]
             deterministic: Whether to apply dropout
             force_drop_ids: Force specific samples to be dropped (for CFG)
-            rngs: Dropout keys for this call; ``None`` draws from the dropout layers' own streams
+            rngs: Dropout keys for this call; required to train with dropout
 
         Returns:
             Label embeddings [batch_size, hidden_size]
@@ -229,6 +229,7 @@ class DiTBlock(nnx.Module):
             dropout_rate=dropout_rate,
             decode=False,
             attention_fn=flash_dot_product_attention,
+            keep_rngs=False,
             rngs=rngs,
         )
 
@@ -242,7 +243,7 @@ class DiTBlock(nnx.Module):
         )
 
         if dropout_rate > 0:
-            self.dropout = nnx.Dropout(rate=dropout_rate, rngs=rngs)
+            self.dropout = nnx.Dropout(rate=dropout_rate)
         else:
             self.dropout = None
 
@@ -266,7 +267,7 @@ class DiTBlock(nnx.Module):
             x: Input tensor [batch, seq_len, hidden_size]
             c: Conditioning tensor [batch, hidden_size]
             deterministic: Whether to apply dropout
-            rngs: Dropout keys for this call; ``None`` draws from the dropout layers' own streams
+            rngs: Dropout keys for this call; required to train with dropout
 
         Returns:
             Output tensor [batch, seq_len, hidden_size]
@@ -483,7 +484,7 @@ class DiffusionTransformer(nnx.Module):
             t: Timesteps [batch]
             y: Optional class labels [batch]
             deterministic: Whether to apply dropout
-            rngs: Dropout keys for this call; ``None`` draws from the dropout layers' own streams
+            rngs: Dropout keys for this call; required to train with dropout
 
         Returns:
             Predicted noise or learned mean/variance [batch, height, width, channels]

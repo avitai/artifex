@@ -88,11 +88,10 @@ class FeedForwardNetwork(nnx.Module):
             rngs=rngs,
         )
 
-        # A requested dropout rate is the only condition for building the layer.
-        # nnx.Rngs resolves an unknown stream name to its 'default' stream, so a
-        # plain nnx.Rngs(seed) is already a complete source for nnx.Dropout.
+        # A requested dropout rate is the only condition for building the layer. It holds
+        # no key: a training call passes its dropout keys as ``rngs``.
         if dropout_rate > 0:
-            self.dropout = nnx.Dropout(rate=dropout_rate, rngs=rngs)
+            self.dropout = nnx.Dropout(rate=dropout_rate)
         else:
             self.dropout: nnx.Dropout | None = None
 
@@ -108,8 +107,7 @@ class FeedForwardNetwork(nnx.Module):
         Args:
             x: Input tensor of shape [batch, ..., in_features].
             deterministic: Whether to apply dropout.
-            rngs: Dropout keys for this call; ``None`` draws from the dropout layer's own
-                stream.
+            rngs: Dropout keys for this call; required to train with dropout.
 
         Returns:
             Output tensor of shape [batch, ..., out_features].
@@ -240,6 +238,7 @@ class TransformerEncoderBlock(nnx.Module):
             decode=False,  # For encoder, decode is always False
             normalize_qk=normalize_qk,
             attention_fn=flash_dot_product_attention,
+            keep_rngs=False,
             rngs=rngs,
         )
 
@@ -259,10 +258,9 @@ class TransformerEncoderBlock(nnx.Module):
         self.norm1 = nnx.LayerNorm(num_features=hidden_dim, rngs=rngs)
         self.norm2 = nnx.LayerNorm(num_features=hidden_dim, rngs=rngs)
 
-        # See FeedForwardNetwork: nnx.Rngs falls back to its 'default' stream, so
-        # the requested rate alone decides whether dropout exists.
+        # See FeedForwardNetwork: the requested rate alone decides whether dropout exists.
         if dropout_rate > 0:
-            self.dropout = nnx.Dropout(rate=dropout_rate, rngs=rngs)
+            self.dropout = nnx.Dropout(rate=dropout_rate)
         else:
             self.dropout: nnx.Dropout | None = None
 
@@ -380,6 +378,7 @@ class TransformerDecoderBlock(nnx.Module):
             decode=True,  # For decoder, decode can be True
             normalize_qk=normalize_qk,
             attention_fn=flash_dot_product_attention,
+            keep_rngs=False,
             rngs=rngs,
         )
 
@@ -397,6 +396,7 @@ class TransformerDecoderBlock(nnx.Module):
             decode=False,  # Cross-attention doesn't use autoregressive cache
             normalize_qk=normalize_qk,
             attention_fn=flash_dot_product_attention,
+            keep_rngs=False,
             rngs=rngs,
         )
 
@@ -417,10 +417,9 @@ class TransformerDecoderBlock(nnx.Module):
         self.norm2 = nnx.LayerNorm(num_features=hidden_dim, rngs=rngs)
         self.norm3 = nnx.LayerNorm(num_features=hidden_dim, rngs=rngs)
 
-        # See FeedForwardNetwork: nnx.Rngs falls back to its 'default' stream, so
-        # the requested rate alone decides whether dropout exists.
+        # See FeedForwardNetwork: the requested rate alone decides whether dropout exists.
         if dropout_rate > 0:
-            self.dropout = nnx.Dropout(rate=dropout_rate, rngs=rngs)
+            self.dropout = nnx.Dropout(rate=dropout_rate)
         else:
             self.dropout: nnx.Dropout | None = None
 

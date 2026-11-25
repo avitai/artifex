@@ -82,7 +82,7 @@ class EnergyBasedModel(GenerativeModel):
 
         Args:
             x: Input data of shape (batch_size, ...)
-            rngs: Dropout keys for this call; ``None`` draws from the dropout layers' own streams.
+            rngs: Dropout keys for this call; required to train with dropout.
 
         Returns:
             Energy values of shape (batch_size,)
@@ -94,7 +94,7 @@ class EnergyBasedModel(GenerativeModel):
 
         Args:
             x: Input data of shape (batch_size, ...)
-            rngs: Dropout keys for this call; ``None`` draws from the dropout layers' own streams.
+            rngs: Dropout keys for this call; required to train with dropout.
 
         Returns:
             Dictionary containing:
@@ -112,7 +112,7 @@ class EnergyBasedModel(GenerativeModel):
 
         Args:
             x: Input data of shape (batch_size, ...)
-            rngs: Dropout keys for this call; ``None`` draws from the dropout layers' own streams.
+            rngs: Dropout keys for this call; required to train with dropout.
 
         Returns:
             Unnormalized log probabilities of shape (batch_size,)
@@ -155,8 +155,8 @@ class EnergyBasedModel(GenerativeModel):
 
         Args:
             x: Input data of shape (batch_size, ...)
-            rngs: Dropout keys for the energy; ``None`` draws from the dropout layers' own
-                streams. The score runs in ``.eval()``, so it takes none.
+            rngs: Dropout keys for the energy; required to train with dropout. The score runs in
+                ``.eval()``, so it takes none.
             **kwargs: Additional keyword arguments
 
         Returns:
@@ -193,7 +193,7 @@ class EnergyBasedModel(GenerativeModel):
             real_data: Real data samples
             fake_data: Generated/fake data samples
             alpha: Regularization strength
-            rngs: Dropout keys for this call; ``None`` draws from the dropout layers' own streams.
+            rngs: Dropout keys for this call; required to train with dropout.
 
         Returns:
             dictionary containing loss components
@@ -233,7 +233,7 @@ class EnergyBasedModel(GenerativeModel):
         Args:
             batch: Training batch containing real data
             model_outputs: Outputs from forward pass (unused)
-            rngs: Dropout keys for this call; ``None`` draws from the dropout layers' own streams.
+            rngs: Dropout keys for this call; required to train with dropout.
             fake_samples: Generated samples for contrastive divergence
             alpha: Regularization strength
             **kwargs: Additional arguments
@@ -367,7 +367,7 @@ class MLPEnergyFunction(EnergyFunction):
 
         # Dropout layer
         if dropout_rate > 0:
-            self.dropout = nnx.Dropout(rate=dropout_rate, rngs=rngs)
+            self.dropout = nnx.Dropout(rate=dropout_rate)
         else:
             self.dropout = None
 
@@ -383,7 +383,7 @@ class MLPEnergyFunction(EnergyFunction):
 
         Args:
             x: Input data of shape (batch_size, input_dim)
-            rngs: Dropout keys for this call; ``None`` draws from the dropout layer's own stream.
+            rngs: Dropout keys for this call; required to train with dropout.
 
         Returns:
             Energy values of shape (batch_size,)

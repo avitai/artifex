@@ -71,7 +71,7 @@ Each optional field corresponds to one extension in the resulting collection.
 # %%
 key = jax.random.key(42)
 key, params_key, dropout_key = jax.random.split(key, 3)
-rngs = nnx.Rngs(params=params_key, dropout=dropout_key)
+rngs = nnx.Rngs(params=params_key)  # dropout_key is passed at call time, below
 if __name__ == "__main__":
     configure_entry_point_logging()
 
@@ -160,7 +160,7 @@ batch = {
 """
 
 # %%
-outputs = model(batch)
+outputs = model(batch, rngs=nnx.Rngs(dropout=dropout_key))  # train mode: dropout needs a key
 show(f"Model output shape: {outputs['atom_positions'].shape}")
 
 loss_fn = model.get_loss_fn()
