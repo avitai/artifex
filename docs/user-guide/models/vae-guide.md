@@ -1032,6 +1032,6 @@ This guide covered:
 
 - **[VAE Concepts](../concepts/vae-explained.md)** — Deep dive into theory
 - **[VAE API Reference](../../api/models/vae.md)** — Complete API documentation
-- **[VAE MNIST Example](../../examples/basic/vae-mnist.md)** — Hands-on tutorial
+- **[VAE MNIST Example](../../tutorials/basic/vae-mnist.md)** — Hands-on tutorial
 - **[Trainer API](../../api/training/trainer.md)** — Low-level trainer interface
 - **[Benchmarking](../../benchmarks/index.md)** — Evaluate your models

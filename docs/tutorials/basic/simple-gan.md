@@ -433,19 +433,19 @@ In this tutorial, you learned:
 
 <div class="grid cards" markdown>
 
-- :material-image: **[VAE on MNIST](./vae-mnist.md)**
+- :material-image: **[VAE on MNIST](vae-mnist.md)**
 
     ---
 
     Compare GAN with VAE generative approach
 
-- :material-blur: **[Diffusion on MNIST](./diffusion-mnist.md)**
+- :material-blur: **[Diffusion on MNIST](diffusion-mnist.md)**
 
     ---
 
     Learn about diffusion models for image generation
 
-- :material-water: **[Flow on MNIST](./flow-mnist.md)**
+- :material-water: **[Flow on MNIST](flow-mnist.md)**
 
     ---
 

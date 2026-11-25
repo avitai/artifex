@@ -1470,7 +1470,7 @@ Normalizing flows provide a unique combination of exact likelihood computation, 
 
     Complete API documentation for RealNVP, Glow, MAF, IAF, and Neural Spline Flows
 
-- :material-school:{ .lg .middle } **[MNIST Tutorial](../../examples/basic/flow-mnist.md)**
+- :material-school:{ .lg .middle } **[MNIST Tutorial](../../tutorials/basic/flow-mnist.md)**
 
     ---
 

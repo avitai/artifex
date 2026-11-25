@@ -31,9 +31,9 @@ def test_core_runtime_docs_publish_explicit_estimation_and_sampling_contracts() 
 def test_blackjax_docs_and_examples_only_publish_live_wrapper_controls() -> None:
     explicit_rng_docs = [
         REPO_ROOT / "docs/core/blackjax_samplers.md",
-        REPO_ROOT / "docs/examples/sampling/blackjax-example.md",
-        REPO_ROOT / "docs/examples/sampling/blackjax-integration-examples.md",
-        REPO_ROOT / "docs/examples/sampling/blackjax-sampling-examples.md",
+        REPO_ROOT / "docs/tutorials/sampling/blackjax-example.md",
+        REPO_ROOT / "docs/tutorials/sampling/blackjax-integration-examples.md",
+        REPO_ROOT / "docs/tutorials/sampling/blackjax-sampling-examples.md",
     ]
     for path in explicit_rng_docs:
         contents = normalized_text(path)
@@ -43,9 +43,9 @@ def test_blackjax_docs_and_examples_only_publish_live_wrapper_controls() -> None
 
     dead_wrapper_control_paths = [
         REPO_ROOT / "docs/core/blackjax_samplers.md",
-        REPO_ROOT / "docs/examples/sampling/blackjax-example.md",
-        REPO_ROOT / "docs/examples/sampling/blackjax-integration-examples.md",
-        REPO_ROOT / "docs/examples/sampling/blackjax-sampling-examples.md",
+        REPO_ROOT / "docs/tutorials/sampling/blackjax-example.md",
+        REPO_ROOT / "docs/tutorials/sampling/blackjax-integration-examples.md",
+        REPO_ROOT / "docs/tutorials/sampling/blackjax-sampling-examples.md",
         REPO_ROOT / "examples/generative_models/sampling/blackjax_sampling_examples.py",
     ]
     for path in dead_wrapper_control_paths:

@@ -83,7 +83,7 @@ def test_user_facing_docs_reference_explicit_cuda12_install() -> None:
         "docs/getting-started/installation.md",
         "docs/index.md",
         "docs/user-guide/inference/overview.md",
-        "docs/examples/basic/flow-mnist.md",
+        "docs/tutorials/basic/flow-mnist.md",
     ]
 
     for relative_path in files_to_check:

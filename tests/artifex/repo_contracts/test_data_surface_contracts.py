@@ -83,7 +83,7 @@ def test_data_docs_and_examples_use_current_protein_dataset_contract() -> None:
             "ProteinDatasetConfig(",
             "ProteinDataset(",
         ],
-        "docs/examples/protein/protein-point-cloud-example.md": [
+        "docs/tutorials/protein/protein-point-cloud-example.md": [
             "from artifex.data.protein import ProteinDataset, ProteinDatasetConfig",
             "ProteinDatasetConfig(",
         ],
@@ -119,7 +119,7 @@ def test_data_docs_and_examples_use_current_protein_dataset_contract() -> None:
             "pdb_dir=",
             "with_constraints=True",
         ],
-        "docs/examples/protein/protein-point-cloud-example.md": [
+        "docs/tutorials/protein/protein-point-cloud-example.md": [
             "backbone_only=True",
             "artifex.data.protein.dataset",
         ],

@@ -5,9 +5,9 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 
 
 BENCHMARK_DOCS = [
-    REPO_ROOT / "docs" / "examples" / "geometric" / "geometric-benchmark-demo.md",
-    REPO_ROOT / "docs" / "examples" / "protein" / "protein-ligand-benchmark-demo.md",
-    REPO_ROOT / "docs" / "examples" / "vae" / "multi-beta-vae-benchmark-demo.md",
+    REPO_ROOT / "docs" / "tutorials" / "geometric" / "geometric-benchmark-demo.md",
+    REPO_ROOT / "docs" / "tutorials" / "protein" / "protein-ligand-benchmark-demo.md",
+    REPO_ROOT / "docs" / "tutorials" / "vae" / "multi-beta-vae-benchmark-demo.md",
 ]
 
 

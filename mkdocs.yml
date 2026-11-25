@@ -163,43 +163,43 @@ nav:
           - Data Loaders: api/data/loaders.md
 
   - Examples:
-      - Overview: examples/overview.md
+      - Overview: tutorials/overview.md
       - Diffusion Models:
-          - DiT Demo: examples/diffusion/dit-demo.md
+          - DiT Demo: tutorials/diffusion/dit-demo.md
       - Energy-Based Models:
-          - Simple EBM: examples/energy/simple-ebm.md
+          - Simple EBM: tutorials/energy/simple-ebm.md
       - Basic Tutorials:
-          - VAE on MNIST: examples/basic/vae-mnist.md
-          - Simple GAN (2D): examples/basic/simple-gan.md
-          - Diffusion on MNIST: examples/basic/diffusion-mnist.md
-          - Diffusion MNIST Training: examples/basic/diffusion-mnist-demo.md
-          - Flow on MNIST: examples/basic/flow-mnist.md
+          - VAE on MNIST: tutorials/basic/vae-mnist.md
+          - Simple GAN (2D): tutorials/basic/simple-gan.md
+          - Diffusion on MNIST: tutorials/basic/diffusion-mnist.md
+          - Diffusion MNIST Training: tutorials/basic/diffusion-mnist-demo.md
+          - Flow on MNIST: tutorials/basic/flow-mnist.md
       - Advanced Tutorials:
-          - Advanced Training: examples/advanced/advanced-training.md
-          - Advanced VAE: examples/advanced/advanced-vae.md
+          - Advanced Training: tutorials/advanced/advanced-training.md
+          - Advanced VAE: tutorials/advanced/advanced-vae.md
       - VAE Models:
-          - Multi-Beta VAE Benchmark: examples/vae/multi-beta-vae-benchmark-demo.md
+          - Multi-Beta VAE Benchmark: tutorials/vae/multi-beta-vae-benchmark-demo.md
       - Protein Modeling:
-          - Protein Extensions Example: examples/protein/protein-extensions-example.md
-          - Protein Model Extension: examples/protein/protein-model-extension.md
-          - Protein Model with Modality: examples/protein/protein-model-with-modality.md
-          - Protein Point Cloud Example: examples/protein/protein-point-cloud-example.md
-          - Protein Extensions with Config: examples/protein/protein-extensions-with-config.md
-          - Protein Ligand Benchmark: examples/protein/protein-ligand-benchmark-demo.md
+          - Protein Extensions Example: tutorials/protein/protein-extensions-example.md
+          - Protein Model Extension: tutorials/protein/protein-model-extension.md
+          - Protein Model with Modality: tutorials/protein/protein-model-with-modality.md
+          - Protein Point Cloud Example: tutorials/protein/protein-point-cloud-example.md
+          - Protein Extensions with Config: tutorials/protein/protein-extensions-with-config.md
+          - Protein Ligand Benchmark: tutorials/protein/protein-ligand-benchmark-demo.md
       - Geometric Models:
-          - Geometric Models Demo: examples/geometric/geometric-models-demo.md
-          - Geometric Losses Demo: examples/geometric/geometric-losses-demo.md
-          - Simple Point Cloud: examples/geometric/simple-point-cloud-example.md
-          - Geometric Benchmark Demo: examples/geometric/geometric-benchmark-demo.md
+          - Geometric Models Demo: tutorials/geometric/geometric-models-demo.md
+          - Geometric Losses Demo: tutorials/geometric/geometric-losses-demo.md
+          - Simple Point Cloud: tutorials/geometric/simple-point-cloud-example.md
+          - Geometric Benchmark Demo: tutorials/geometric/geometric-benchmark-demo.md
       - Framework Features:
-          - Framework Features Demo: examples/framework/framework-features-demo.md
+          - Framework Features Demo: tutorials/framework/framework-features-demo.md
       - Loss Functions:
-          - Loss Examples: examples/losses/loss-examples.md
+          - Loss Examples: tutorials/losses/loss-examples.md
       - Sampling Methods:
-          - BlackJAX Integration: examples/sampling/blackjax-example.md
-          - BlackJAX Sampling Examples: examples/sampling/blackjax-sampling-examples.md
-          - BlackJAX Integration Examples: examples/sampling/blackjax-integration-examples.md
-      - All Examples: examples/index.md
+          - BlackJAX Integration: tutorials/sampling/blackjax-example.md
+          - BlackJAX Sampling Examples: tutorials/sampling/blackjax-sampling-examples.md
+          - BlackJAX Integration Examples: tutorials/sampling/blackjax-integration-examples.md
+      - All Examples: tutorials/index.md
 
   - Generative Models:
       - Model Zoo: zoo/index.md

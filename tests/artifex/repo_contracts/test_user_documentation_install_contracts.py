@@ -16,7 +16,7 @@ def test_examples_readme_uses_source_checkout_uv_workflow() -> None:
         "./setup.sh --backend cpu",
         "source ./activate.sh",
         "uv run python",
-        "docs/examples/index.md",
+        "docs/tutorials/index.md",
     ]
     for reference in required_references:
         assert reference in contents
@@ -34,7 +34,7 @@ def test_examples_readme_uses_source_checkout_uv_workflow() -> None:
 
 def test_user_example_pages_do_not_require_uv_or_activation() -> None:
     """Reader-facing example pages should use plain example commands, not contributor-only uv launchers."""
-    example_docs_root = REPO_ROOT / "docs" / "examples"
+    example_docs_root = REPO_ROOT / "docs" / "tutorials"
 
     for path in example_docs_root.rglob("*.md"):
         if "templates" in path.parts or path.name == "overview.md":

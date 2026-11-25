@@ -1107,13 +1107,13 @@ VAEs are powerful generative models that combine deep learning with variational 
 
     Complete API documentation for VAE, β-VAE, CVAE, and VQ-VAE classes
 
-- :material-school:{ .lg .middle } **[MNIST Tutorial](../../examples/basic/vae-mnist.md)**
+- :material-school:{ .lg .middle } **[MNIST Tutorial](../../tutorials/basic/vae-mnist.md)**
 
     ---
 
     Step-by-step hands-on tutorial: train a VAE on MNIST from scratch
 
-- :material-flask:{ .lg .middle } **[Advanced Examples](../../examples/index.md)**
+- :material-flask:{ .lg .middle } **[Advanced Examples](../../tutorials/index.md)**
 
     ---
 
@@ -1347,4 +1347,4 @@ VAEs are powerful generative models that combine deep learning with variational 
 
 ---
 
-**Ready to implement VAEs?** Start with the [VAE User Guide](../models/vae-guide.md) for practical usage, check the [API Reference](../../api/models/vae.md) for complete documentation, or dive into the [MNIST Tutorial](../../examples/basic/vae-mnist.md) for hands-on experience!
+**Ready to implement VAEs?** Start with the [VAE User Guide](../models/vae-guide.md) for practical usage, check the [API Reference](../../api/models/vae.md) for complete documentation, or dive into the [MNIST Tutorial](../../tutorials/basic/vae-mnist.md) for hands-on experience!

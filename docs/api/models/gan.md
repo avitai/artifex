@@ -1407,5 +1407,5 @@ This API reference covered all GAN model classes:
 
 - [GAN Concepts](../../user-guide/concepts/gan-explained.md): Theory and mathematical foundations
 - [GAN User Guide](../../user-guide/models/gan-guide.md): Practical usage examples
-- [GAN MNIST Example](../../examples/basic/simple-gan.md): Complete training tutorial
+- [GAN MNIST Example](../../tutorials/basic/simple-gan.md): Complete training tutorial
 - [Adversarial Losses](../core/losses.md#adversarial-losses): Loss function reference

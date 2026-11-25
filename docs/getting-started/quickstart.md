@@ -263,4 +263,4 @@ The Jupyter notebook (`quickstart.ipynb`) is auto-generated from the
 - Learn the architecture in [Core Concepts](core-concepts.md)
 - Deep dive into latent models in the [VAE Guide](../user-guide/models/vae-guide.md)
 - Explore additional public model families in [Model Implementations](../models/index.md)
-- Browse runnable examples in [Examples](../examples/index.md)
+- Browse runnable examples in [Examples](../tutorials/index.md)

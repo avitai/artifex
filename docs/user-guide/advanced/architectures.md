@@ -1416,7 +1416,7 @@ Key principles:
 
     See complete examples of custom architectures in action
 
-    [:octicons-arrow-right-24: View examples](../../examples/advanced/advanced-vae.md)
+    [:octicons-arrow-right-24: View examples](../../tutorials/advanced/advanced-vae.md)
 
 - :material-chart-line:{ .lg .middle } **Distributed Training**
 

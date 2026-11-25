@@ -895,7 +895,7 @@ print("Training complete!")
 - [EBM Explained](../concepts/ebm-explained.md) - Theoretical foundations
 - [EBM API Reference](../../api/models/ebm.md) - Complete API documentation
 - [Training Guide](../training/training-guide.md) - General training workflows
-- [Examples](../../examples/energy/simple-ebm.md) - More EBM examples
+- [Examples](../../tutorials/energy/simple-ebm.md) - More EBM examples
 
 ---
 

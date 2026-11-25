@@ -25,7 +25,7 @@ path across VAE, GAN, diffusion, and flow-family models.
 Use the registry-backed molecular modality when you need typed chemical
 extension configuration and family-based adapter lookup.
 
-[:octicons-arrow-right-24: Protein-Ligand Benchmark Example](../examples/protein/protein-ligand-benchmark-demo.md)
+[:octicons-arrow-right-24: Protein-Ligand Benchmark Example](../tutorials/protein/protein-ligand-benchmark-demo.md)
 
 ### Protein
 
@@ -101,4 +101,4 @@ register_modality('custom', CustomModality)
 - [Model Factory](../factory/index.md)
 - [Image Modality Guide](../user-guide/modalities/image.md)
 - [Protein Modeling Guide](../guides/protein-modeling.md)
-- [Protein-Ligand Benchmark Example](../examples/protein/protein-ligand-benchmark-demo.md)
+- [Protein-Ligand Benchmark Example](../tutorials/protein/protein-ligand-benchmark-demo.md)

@@ -98,7 +98,7 @@ def test_generic_trainer_docs_require_explicit_loss_fn_in_examples() -> None:
         PROJECT_ROOT / "docs" / "user-guide" / "training" / "training-guide.md",
         PROJECT_ROOT / "docs" / "user-guide" / "training" / "logging.md",
         PROJECT_ROOT / "docs" / "user-guide" / "training" / "profiling.md",
-        PROJECT_ROOT / "docs" / "examples" / "framework" / "framework-features-demo.md",
+        PROJECT_ROOT / "docs" / "tutorials" / "framework" / "framework-features-demo.md",
         PROJECT_ROOT / "docs" / "community" / "faq.md",
         PROJECT_ROOT / "docs" / "models" / "index.md",
         PROJECT_ROOT / "docs" / "user-guide" / "advanced" / "architectures.md",

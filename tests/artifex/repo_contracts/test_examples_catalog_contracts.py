@@ -2,7 +2,9 @@ from pathlib import Path
 
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
-DOCS_ROOT = REPO_ROOT / "docs" / "examples"
+DOCS_ROOT = REPO_ROOT / "docs" / "tutorials"
+# Tutorials written on their own, with no example script behind them.
+STANDALONE_TUTORIALS = {"protein-modeling.md"}
 
 RUNTIME_BACKED_TUTORIAL_PAGES = {
     "advanced/advanced-training.md": "examples/generative_models/advanced_training_example",
@@ -55,11 +57,13 @@ ROADMAP_ONLY_PAGES = {
 
 
 def test_examples_catalog_only_ships_triplet_backed_pages() -> None:
-    """Every published docs/examples page should map to a real source pair."""
+    """Every published docs/tutorials example page should map to a real source pair."""
     actual_pages = {
         path.relative_to(DOCS_ROOT).as_posix()
         for path in DOCS_ROOT.rglob("*.md")
-        if path.name not in {"index.md", "overview.md"} and "templates" not in path.parts
+        if path.name not in {"index.md", "overview.md"}
+        and "templates" not in path.parts
+        and path.relative_to(DOCS_ROOT).as_posix() not in STANDALONE_TUTORIALS
     }
 
     assert actual_pages == set(PUBLISHED_EXAMPLE_PAGES)
@@ -79,12 +83,12 @@ def test_examples_nav_and_catalog_only_publish_retained_triplet_pages() -> None:
     )[0]
 
     for page in PUBLISHED_EXAMPLE_PAGES:
-        published_path = f"examples/{page}"
+        published_path = f"tutorials/{page}"
         assert published_path in examples_nav
         assert page in index_contents
 
     for page in ROADMAP_ONLY_PAGES:
-        published_path = f"examples/{page}"
+        published_path = f"tutorials/{page}"
         assert published_path not in examples_nav
         assert page not in index_contents
 

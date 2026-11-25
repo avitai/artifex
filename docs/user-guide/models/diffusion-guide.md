@@ -1171,7 +1171,7 @@ samples = model.generate(n_samples=16)
 
     Complete API documentation for all classes
 
-- :material-school:{ .lg .middle } **[MNIST Tutorial](../../examples/basic/diffusion-mnist.md)**
+- :material-school:{ .lg .middle } **[MNIST Tutorial](../../tutorials/basic/diffusion-mnist.md)**
 
     ---
 

@@ -1338,7 +1338,7 @@ anomalies = test_log_probs < threshold
 
 - **Theory**: See [Flow Concepts](../concepts/flow-explained.md) for mathematical foundations
 - **API Reference**: Check [Flow API](../../api/models/flow.md) for complete documentation
-- **Tutorial**: Follow [Flow MNIST Example](../../examples/basic/flow-mnist.md) for hands-on practice
+- **Tutorial**: Follow [Flow MNIST Example](../../tutorials/basic/flow-mnist.md) for hands-on practice
 
 ## References
 
