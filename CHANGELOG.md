@@ -168,6 +168,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   protein-extensions example), the checker scripts `run_all_examples.sh` and
   `verify_examples.py`, `sampling/test_blackjax_integration.py`, `utils/demo_utils.py`, the
   example templates and design guide, and seven empty example packages.
+- The `docs` extra drops `mkdocs-ipynb` and `mkdocs-jupyter`, which no plugin in `mkdocs.yml`
+  uses: the `ipynb` plugin left the site configuration earlier, and notebooks are excluded from
+  the build. The lock removes those two packages and nothing else.
 
 ## [0.1.15] - 2026-09-25
 
