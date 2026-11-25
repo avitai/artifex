@@ -285,22 +285,6 @@ Topics](../roadmap/planned-examples.md).
 </div>
 </div>
 
-<div class="example-card" data-tags="protein,extensions,pointcloud,intermediate">
-<div class="card-header">
-<h3><a href="protein/protein-model-extension.md">Protein Model Extension</a></h3>
-<span class="difficulty intermediate">Intermediate</span>
-</div>
-<p>Combine point cloud models with protein extensions</p>
-<div class="tags">
-<span class="tag">Protein</span>
-<span class="tag">Extensions</span>
-<span class="tag">Point Cloud</span>
-</div>
-<div class="card-footer">
-<span class="time">⏱ 10 min</span>
-</div>
-</div>
-
 <div class="example-card" data-tags="protein,modality,factory,intermediate">
 <div class="card-header">
 <h3><a href="protein/protein-model-with-modality.md">Protein Model with Modality</a></h3>
