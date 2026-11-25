@@ -164,8 +164,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `create_scheduler` and `create_optimizer` from typed configs, call-time dropout keys and
   evaluation in eval mode. Removed: the seven examples that showed no artifex (`advanced_gan`,
   `protein_diffusion_example`, `protein_diffusion_tech_validation` and the standalone audio,
-  diffusion, multimodal and text examples), `protein_model_extension` (folded into the
-  protein-extensions example), the checker scripts `run_all_examples.sh` and
+  diffusion, multimodal and text examples), `protein_model_extension` (its subject joins the
+  protein-extensions example when that is rebuilt), the checker scripts `run_all_examples.sh` and
   `verify_examples.py`, `sampling/test_blackjax_integration.py`, `utils/demo_utils.py`, the
   example templates and design guide, and seven empty example packages.
 - The `docs` extra drops `mkdocs-ipynb` and `mkdocs-jupyter`, which no plugin in `mkdocs.yml`
