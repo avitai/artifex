@@ -266,6 +266,7 @@ blocking_workflows = [
 ]
 compatibility_python = ["3.12", "3.13"]
 informational_workflows = [
+  ".github/workflows/examples-nightly.yml",
   ".github/workflows/quality-checks.yml",
   ".github/workflows/upstream-compat.yml"
 ]
@@ -837,9 +838,10 @@ max-complexity = 10
 convention = "google"
 
 [tool.substrax.examples]
-# PROVISIONAL: substrax's documented example value. Replaced in this series, before it lands, by the
-# budgets measured in announced quiet windows, each with its measurement beside it.
-budget_seconds = 600
+# Bazel's "short" test timeout. The one example that runs, advanced_training_example, took 3.5 and
+# 3.7 s on one CPU as its notebook, kernel start included (its page, 2026-11-24), under the 30 s
+# floor of "moderate". A rebuilt example needing more gets its own budgets entry.
+budget_seconds = 60
 # Where a generated page links its example's script and notebook.
 source_url = "https://github.com/avitai/artifex/blob/main"
 
