@@ -161,10 +161,11 @@ class CycleGANGenerator(nnx.Module):
             rngs=rngs,
         )
 
-        # Dropout layer
-        self.dropout = None
-        if self.dropout_rate > 0:
-            self.dropout = nnx.Dropout(rate=self.dropout_rate)
+        # Dropout layer, assigned once: assigning None first would make the attribute static and
+        # the Dropout assignment after it raise.
+        self.dropout: nnx.Dropout | None = (
+            nnx.Dropout(rate=self.dropout_rate) if self.dropout_rate > 0 else None
+        )
 
     def __call__(
         self,
@@ -303,15 +304,17 @@ class CycleGANDiscriminator(nnx.Module):
             rngs=rngs,
         )
 
-        # Dropout layer
-        self.dropout = None
-        if self.dropout_rate > 0:
-            self.dropout = nnx.Dropout(rate=self.dropout_rate)
+        # Dropout layer, assigned once: assigning None first would make the attribute static and
+        # the Dropout assignment after it raise.
+        self.dropout: nnx.Dropout | None = (
+            nnx.Dropout(rate=self.dropout_rate) if self.dropout_rate > 0 else None
+        )
 
     def __call__(
         self,
         x: jax.Array,
-        **kwargs,
+        *,
+        rngs: nnx.Rngs | None = None,
     ) -> jax.Array:
         """Forward pass through discriminator.
 
@@ -319,7 +322,7 @@ class CycleGANDiscriminator(nnx.Module):
 
         Args:
             x: Input image tensor.
-            **kwargs: Additional keyword arguments for interface compatibility.
+            rngs: Dropout keys for this call; required to train with dropout.
 
         Returns:
             Discriminator scores (patch-wise).
@@ -336,7 +339,7 @@ class CycleGANDiscriminator(nnx.Module):
             h = self.activation(h)
 
             if self.dropout is not None:
-                h = self.dropout(h)  # Auto mode from model.train()/eval()
+                h = self.dropout(h, rngs=rngs)  # Off in eval mode; needs keys in train mode
 
         # Final classification — returns patch-level predictions
         h = self.final_conv(h)  # Shape: (batch, H', W', 1)
@@ -520,8 +523,19 @@ class CycleGAN(GenerativeModel):
     def generator_objective(
         self,
         batch: dict[str, Any],
+        *,
+        rngs: nnx.Rngs | None = None,
     ) -> dict[str, jax.Array]:
-        """Compute the generator-side CycleGAN objective."""
+        """Compute the generator-side CycleGAN objective.
+
+        Args:
+            batch: Real images under ``"domain_a"`` and ``"domain_b"``.
+            rngs: Dropout keys for the discriminators; required to train with dropout.
+
+        Returns:
+            ``total_loss`` and ``generator_loss`` (the same value), and its adversarial, cycle and
+            identity terms.
+        """
         real_a = batch["domain_a"]
         real_b = batch["domain_b"]
 
@@ -529,11 +543,11 @@ class CycleGAN(GenerativeModel):
         fake_a = self.generator_b_to_a(real_b)
 
         generator_a_to_b_loss = adversarial.generator_loss(
-            self.discriminator_b(fake_b),
+            self.discriminator_b(fake_b, rngs=rngs),
             loss_type=self.loss_type,
         )
         generator_b_to_a_loss = adversarial.generator_loss(
-            self.discriminator_a(fake_a),
+            self.discriminator_a(fake_a, rngs=rngs),
             loss_type=self.loss_type,
         )
 
@@ -560,8 +574,19 @@ class CycleGAN(GenerativeModel):
     def discriminator_objective(
         self,
         batch: dict[str, Any],
+        *,
+        rngs: nnx.Rngs | None = None,
     ) -> dict[str, jax.Array]:
-        """Compute the discriminator-side CycleGAN objective."""
+        """Compute the discriminator-side CycleGAN objective.
+
+        Args:
+            batch: Real images under ``"domain_a"`` and ``"domain_b"``.
+            rngs: Dropout keys for the discriminators; required to train with dropout.
+
+        Returns:
+            ``total_loss`` and ``discriminator_loss`` (the same value), and each discriminator's
+            loss.
+        """
         real_a = batch["domain_a"]
         real_b = batch["domain_b"]
 
@@ -569,13 +594,13 @@ class CycleGAN(GenerativeModel):
         fake_a = jax.lax.stop_gradient(self.generator_b_to_a(real_b))
 
         discriminator_a_loss = adversarial.discriminator_loss(
-            self.discriminator_a(real_a),
-            self.discriminator_a(fake_a),
+            self.discriminator_a(real_a, rngs=rngs),
+            self.discriminator_a(fake_a, rngs=rngs),
             loss_type=self.loss_type,
         )
         discriminator_b_loss = adversarial.discriminator_loss(
-            self.discriminator_b(real_b),
-            self.discriminator_b(fake_b),
+            self.discriminator_b(real_b, rngs=rngs),
+            self.discriminator_b(fake_b, rngs=rngs),
             loss_type=self.loss_type,
         )
         total_loss = discriminator_a_loss + discriminator_b_loss

@@ -44,12 +44,6 @@ def _discriminator_with_dropout() -> CycleGANDiscriminator:
     return CycleGANDiscriminator(config=config, rngs=nnx.Rngs(0))
 
 
-_STATIC_DROPOUT = (
-    "R453 self.dropout is first assigned None, which makes it a static attribute, so assigning"
-    " the Dropout raises"
-)
-
-
 @pytest.mark.parametrize(
     "build",
     [
@@ -57,32 +51,94 @@ _STATIC_DROPOUT = (
             _generator_with_dropout,
             marks=pytest.mark.xfail(
                 strict=True,
-                raises=ValueError,
+                raises=AssertionError,
                 reason=(
-                    f"{_STATIC_DROPOUT} (cyclegan.py:165-167); built, its __call__ still never"
-                    " applies the dropout (cyclegan.py:169-213)"
+                    "R524 CycleGANGenerator.__call__ never applies its dropout"
+                    " (cyclegan.py:169-213), so the call-time dropout key changes nothing"
                 ),
             ),
             id="generator",
         ),
-        pytest.param(
-            _discriminator_with_dropout,
-            marks=pytest.mark.xfail(
-                strict=True, raises=ValueError, reason=f"{_STATIC_DROPOUT} (cyclegan.py:307-309)"
-            ),
-            id="discriminator",
-        ),
+        pytest.param(_discriminator_with_dropout, id="discriminator"),
     ],
 )
 def test_dropout_rate_applies_dropout_in_train_mode_only(build):
-    """A module configured with dropout builds, drops units in train mode, and not in eval."""
+    """A module configured with dropout builds; its training output follows the dropout key.
+
+    In train mode the same call-time key gives the same output and a different key a different
+    one; in eval mode the module takes no key and drops nothing.
+    """
     module = build()
     x = jax.random.normal(jax.random.key(1), (2, *_DROPOUT_IMAGE))
 
     module.train()
-    assert not jnp.array_equal(module(x), module(x))
+    first = module(x, rngs=nnx.Rngs(dropout=0))
+    assert jnp.array_equal(first, module(x, rngs=nnx.Rngs(dropout=0)))
+    assert not jnp.array_equal(first, module(x, rngs=nnx.Rngs(dropout=1)))
     module.eval()
     assert jnp.array_equal(module(x), module(x))
+
+
+def test_discriminator_training_call_without_dropout_keys_raises():
+    """A training call must bring its dropout keys: the layer holds none to fall back on."""
+    discriminator = _discriminator_with_dropout()
+    discriminator.train()
+    x = jax.random.normal(jax.random.key(1), (2, *_DROPOUT_IMAGE))
+
+    with pytest.raises(ValueError, match="no `rngs` argument was provided to Dropout"):
+        discriminator(x)
+
+
+def _patch_discriminator(name: str, dropout_rate: float) -> PatchGANDiscriminatorConfig:
+    return PatchGANDiscriminatorConfig(
+        name=name,
+        input_shape=_DROPOUT_IMAGE,
+        hidden_dims=(4, 8),
+        activation="leaky_relu",
+        batch_norm=False,
+        dropout_rate=dropout_rate,
+    )
+
+
+def _resnet_generator(name: str) -> CycleGANGeneratorConfig:
+    return CycleGANGeneratorConfig(
+        name=name,
+        latent_dim=0,
+        input_shape=_DROPOUT_IMAGE,
+        output_shape=_DROPOUT_IMAGE,
+        hidden_dims=(4, 8),
+        n_residual_blocks=1,
+        activation="relu",
+        batch_norm=False,
+        dropout_rate=0.0,
+    )
+
+
+def test_discriminator_objective_follows_the_call_time_dropout_key():
+    """CycleGAN's objectives pass the caller's dropout keys to the discriminators."""
+    config = CycleGANConfig(
+        name="cyclegan_with_discriminator_dropout",
+        generator={"a_to_b": _resnet_generator("a_to_b"), "b_to_a": _resnet_generator("b_to_a")},
+        discriminator={
+            "disc_a": _patch_discriminator("disc_a", 0.5),
+            "disc_b": _patch_discriminator("disc_b", 0.5),
+        },
+        input_shape_a=_DROPOUT_IMAGE,
+        input_shape_b=_DROPOUT_IMAGE,
+    )
+    cyclegan = CycleGAN(config=config, rngs=nnx.Rngs(params=0, sample=1))
+    batch = {
+        "domain_a": jax.random.normal(jax.random.key(2), (2, *_DROPOUT_IMAGE)),
+        "domain_b": jax.random.normal(jax.random.key(3), (2, *_DROPOUT_IMAGE)),
+    }
+    cyclegan.train()
+
+    for objective in (cyclegan.discriminator_objective, cyclegan.generator_objective):
+        first = objective(batch, rngs=nnx.Rngs(dropout=0))["total_loss"]
+        assert first == objective(batch, rngs=nnx.Rngs(dropout=0))["total_loss"]
+        assert first != objective(batch, rngs=nnx.Rngs(dropout=1))["total_loss"]
+        with pytest.raises(ValueError, match="no `rngs` argument was provided to Dropout"):
+            objective(batch)
 
 
 class TestCycleGANGenerator:

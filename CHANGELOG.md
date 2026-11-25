@@ -45,9 +45,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   module does not owe by design, VQ-VAE's straight-through gradient. A fix deletes its entries; an
   entry whose check passes fails the suite.
 - Strict expected failures guard two defects no conformance check reaches: `SE3EquivariantLayer`
-  with `in_features != out_features` raises, and a CycleGAN generator or discriminator configured
-  with dropout cannot be built, `self.dropout = None` having made the attribute static; the
-  generator, built, would never apply its dropout.
+  with `in_features != out_features` raises, and a CycleGAN generator configured with dropout
+  never applies it.
 
 ### Fixed
 
@@ -126,7 +125,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   flax raises rather than drawing from a stream the caller cannot see; `.eval()` turns dropout
   off, so an evaluation call needs none. A constructor's `rngs` now only initialises parameters
   (and, until a model's draws move to call time, its `sample` stream), so `nnx.Rngs(params=...)`
-  is enough to build any dropout-bearing module. Code that trains these modules without passing keys now raises, including in the sibling
+  is enough to build any dropout-bearing module. `CycleGANGenerator` and `CycleGANDiscriminator`
+  configured with dropout now build (assigning `self.dropout = None` first had made the
+  attribute static), and the discriminator's forward pass and CycleGAN's `generator_objective`
+  and `discriminator_objective` take `rngs`; the generator still never applies its dropout.
+  Code that trains these modules without passing keys now raises, including in the sibling
   packages that import `MLP`, `CNN`, the transformer blocks and the attention layers, once they
   pin this release.
 - The Avitai siblings are pinned exactly at their latest releases: `calibrax==0.1.21`,
