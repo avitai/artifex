@@ -132,7 +132,7 @@ class CLIPTextEncoder(nnx.Module):
             input_ids: Token IDs [batch_size, seq_len]
             attention_mask: Optional attention mask [batch_size, seq_len]
                            1 for real tokens, 0 for padding
-            rngs: Dropout keys for this call; ``None`` draws from the dropout layers' own streams.
+            rngs: Dropout keys for this call; required to train with dropout.
 
         Returns:
             Text embeddings [batch_size, seq_len, embedding_dim]

@@ -110,8 +110,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `nnx.Dropout` and `nnx.MultiHeadAttention` take them (the explicit style flax's randomness guide
   recommends). Before, several modules accepted `rngs` and ignored it, and the transformer,
   point-cloud, graph, DiT, GAN, energy, multi-modal, CLIP and text-embedding paths drew from the
-  dropout layers' own streams whatever the caller passed. `None` still draws from those streams. A
-  caller that closes over an `nnx.Rngs` inside `nnx.grad`, `nnx.value_and_grad` or `nnx.jit` and
+  dropout layers' own streams whatever the caller passed. A caller that closes over an `nnx.Rngs` inside `nnx.grad`, `nnx.value_and_grad` or `nnx.jit` and
   passes it to a model now gets flax's `TraceContextError`, because the model draws from it inside
   the trace: pass it as an argument of the transformed function instead, as flax's examples do,
   and not the `Rngs` the model was built with, which flax refuses as inconsistent aliasing. A
@@ -120,6 +119,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `nnx.Sequential` applies (`core.keyword_routing.call_with_accepted_keywords`), so a network
   without dropout keeps a signature without `rngs`. `PatchGANDiscriminator.__call__` now runs the
   shared `_call_without_conversion` after converting its input, instead of a second copy of it.
+- **Breaking:** no dropout or attention layer holds a key of its own. The 23 `nnx.Dropout`
+  layers are built `nnx.Dropout(rate)`, as flax's own examples build them, and the eight
+  `nnx.MultiHeadAttention` sites pass `keep_rngs=False`; `FlashMultiHeadAttention` defaults
+  `keep_rngs` to `False`. A call that applies dropout passes its keys as `rngs`, and without them
+  flax raises rather than drawing from a stream the caller cannot see; `.eval()` turns dropout
+  off, so an evaluation call needs none. A constructor's `rngs` now only initialises parameters
+  (and, until a model's draws move to call time, its `sample` stream), so `nnx.Rngs(params=...)`
+  is enough to build any dropout-bearing module. Code that trains these modules without passing keys now raises, including in the sibling
+  packages that import `MLP`, `CNN`, the transformer blocks and the attention layers, once they
+  pin this release.
 - The Avitai siblings are pinned exactly at their latest releases: `calibrax==0.1.21`,
   `datarax==0.1.17` and `substrax==0.1.31`, the test extra's `substrax[testing]` included, so
   the latest versions always install together and each sibling release is followed by an artifex

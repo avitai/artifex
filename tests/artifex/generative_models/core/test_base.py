@@ -255,10 +255,11 @@ class TestMLP:
         assert jnp.allclose(output1, output2)
 
         # train mode (non-deterministic) should give different outputs (with high probability)
-        # Note: NNX Dropout modules manage their own RNG state and should advance it
+        # The dropout key comes at call time; one Rngs advances between the two calls
+        call_rngs = nnx.Rngs(dropout=1)
         mlp.train()
-        output3 = mlp(x)
-        output4 = mlp(x)
+        output3 = mlp(x, rngs=call_rngs)
+        output4 = mlp(x, rngs=call_rngs)
 
         # With 50% dropout rate and reasonable tensor size, outputs should be different
         # Allow for the small possibility they could be the same by checking variance
@@ -268,7 +269,7 @@ class TestMLP:
         mlp.eval()
         deterministic_output = mlp(x)
         mlp.train()
-        non_deterministic_output = mlp(x)
+        non_deterministic_output = mlp(x, rngs=call_rngs)
 
         # At least one of these should be true:
         # 1. Two non-deterministic calls differ
@@ -727,8 +728,9 @@ class TestJITCompatibility:
         x = jnp.ones((4, 16))
 
         @jax.jit
-        def forward(model, x):
-            return model(x)
+        def forward(model, x, key=None):
+            # A plain jax.jit step takes a fresh key per call (a held stream would repeat)
+            return model(x, rngs=None if key is None else nnx.Rngs(dropout=key))
 
         # Test in eval mode (deterministic)
         mlp.eval()
@@ -738,7 +740,7 @@ class TestJITCompatibility:
 
         # Test in train mode (stochastic)
         mlp.train()
-        output3 = forward(mlp, x)
+        output3 = forward(mlp, x, jax.random.key(1))
         assert output3.shape == (4, 32)
 
     def test_mlp_jit_with_batch_norm(self, rngs):
@@ -775,8 +777,9 @@ class TestJITCompatibility:
         x = jnp.ones((4, 16))
 
         @jax.jit
-        def forward(model, x):
-            return model(x)
+        def forward(model, x, key=None):
+            # A plain jax.jit step takes a fresh key per call (a held stream would repeat)
+            return model(x, rngs=None if key is None else nnx.Rngs(dropout=key))
 
         # Test in eval mode (deterministic)
         mlp.eval()
@@ -788,7 +791,7 @@ class TestJITCompatibility:
 
         # Test in train mode
         mlp.train()
-        output3 = forward(mlp, x)
+        output3 = forward(mlp, x, jax.random.key(1))
         assert output3.shape == (4, 32)
 
     def test_cnn_jit_forward_pass(self, rngs):
@@ -941,8 +944,9 @@ class TestJITCompatibility:
         x = jnp.ones((2, 32, 32, 3))
 
         @jax.jit
-        def forward(model, x):
-            return model(x)
+        def forward(model, x, key=None):
+            # A plain jax.jit step takes a fresh key per call (a held stream would repeat)
+            return model(x, rngs=None if key is None else nnx.Rngs(dropout=key))
 
         # Test in eval mode (deterministic)
         cnn.eval()
@@ -954,7 +958,7 @@ class TestJITCompatibility:
 
         # Test in train mode
         cnn.train()
-        output3 = forward(cnn, x)
+        output3 = forward(cnn, x, jax.random.key(1))
         assert output3.shape[0] == 2
         assert output3.shape[-1] == 32
 
@@ -971,8 +975,9 @@ class TestJITCompatibility:
         x = jnp.ones((2, 32, 32, 3))
 
         @jax.jit
-        def forward(model, x):
-            return model(x)
+        def forward(model, x, key=None):
+            # A plain jax.jit step takes a fresh key per call (a held stream would repeat)
+            return model(x, rngs=None if key is None else nnx.Rngs(dropout=key))
 
         # Test in eval mode (deterministic)
         cnn.eval()
@@ -985,7 +990,7 @@ class TestJITCompatibility:
 
         # Test in train mode
         cnn.train()
-        output3 = forward(cnn, x)
+        output3 = forward(cnn, x, jax.random.key(1))
         assert output3.shape[0] == 2
         assert output3.shape[-1] == 32
 

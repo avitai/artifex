@@ -68,8 +68,8 @@ config = VAEConfig(
 )
 
 # Create model - type is inferred from config
-rngs = nnx.Rngs(params=42, dropout=43, sample=44)
-model = create_model(config, rngs=rngs)
+rngs = nnx.Rngs(params=42, sample=44)
+model = create_model(config, rngs=rngs)  # a training call passes its dropout keys as rngs
 ```
 
 ### Model Type Inference

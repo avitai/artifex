@@ -86,7 +86,7 @@ Artifex uses Flax NNX's `Rngs` class for managing random state.
 # We need separate keys for parameters and dropout
 key = jax.random.key(42)
 key, params_key, dropout_key = jax.random.split(key, 3)
-rngs = nnx.Rngs(params=params_key, dropout=dropout_key)
+rngs = nnx.Rngs(params=params_key)  # dropout_key is passed at call time, below
 
 
 def main():
@@ -286,7 +286,7 @@ for key, value in batch.items():
 # %%
 # Run forward pass
 print("\nRunning model forward pass...")
-outputs = model(batch)
+outputs = model(batch, rngs=nnx.Rngs(dropout=dropout_key))  # train mode: dropout needs a key
 
 print("\nOutput shapes:")
 for key, value in outputs.items():

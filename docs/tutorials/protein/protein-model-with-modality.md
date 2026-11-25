@@ -253,8 +253,9 @@ for key, value in outputs.items():
 
    ```python
    loss_fn = model.get_loss_fn()
-   for batch in data_loader:
-       outputs = model(batch)
+   for step, batch in enumerate(data_loader):
+       # Train mode applies dropout: each step passes a fresh dropout key
+       outputs = model(batch, rngs=nnx.Rngs(dropout=jax.random.fold_in(dropout_key, step)))
        loss = loss_fn(batch, outputs)
        # Update parameters
    ```
@@ -303,8 +304,9 @@ Missing RNG keys for stochastic operations.
 **Solution:**
 
 ```python
-# Ensure all required RNG keys are initialized
-rngs = nnx.Rngs(params=42, dropout=43, sample=44)
+# Ensure the streams the model draws from are initialized; dropout keys are
+# passed to each training call instead
+rngs = nnx.Rngs(params=42, sample=44)
 ```
 
 #### Shape mismatch errors

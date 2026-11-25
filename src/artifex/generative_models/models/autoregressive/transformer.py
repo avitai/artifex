@@ -84,7 +84,7 @@ class TransformerAutoregressiveModel(AutoregressiveModel):
 
         # Dropout
         if self.dropout_rate > 0:
-            self.dropout = nnx.Dropout(rate=self.dropout_rate, rngs=rngs)
+            self.dropout = nnx.Dropout(rate=self.dropout_rate)
 
         # Transformer layers
         self.transformer_layers = cast(list[TransformerEncoderBlock], nnx.List([]))

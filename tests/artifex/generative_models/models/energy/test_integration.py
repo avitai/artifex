@@ -292,7 +292,7 @@ class TestEnergyModelWorkflows:
         mnist_data = jnp.clip(mnist_data, -1, 1)
 
         batch = {"data": mnist_data, "batch_size": 4}
-        loss_dict = mnist_ebm.train_step(batch)
+        loss_dict = mnist_ebm.train_step(batch, rngs=nnx.Rngs(dropout=3))
         assert jnp.isfinite(loss_dict["total_loss"])
 
         # Test CIFAR EBM workflow
@@ -303,7 +303,7 @@ class TestEnergyModelWorkflows:
         cifar_data = jnp.clip(cifar_data, -1, 1)
 
         batch = {"data": cifar_data, "batch_size": 4}
-        loss_dict = cifar_ebm.train_step(batch)
+        loss_dict = cifar_ebm.train_step(batch, rngs=nnx.Rngs(dropout=3))
         assert jnp.isfinite(loss_dict["total_loss"])
 
         # Test simple EBM workflow
@@ -312,7 +312,7 @@ class TestEnergyModelWorkflows:
         # Create vector data
         vector_data = jax.random.normal(key, (4, 10))
         batch = {"data": vector_data, "batch_size": 4}
-        loss_dict = simple_ebm.train_step(batch)
+        loss_dict = simple_ebm.train_step(batch, rngs=nnx.Rngs(dropout=3))
         assert jnp.isfinite(loss_dict["total_loss"])
 
 

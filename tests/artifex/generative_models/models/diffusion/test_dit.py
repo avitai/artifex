@@ -86,7 +86,7 @@ class TestDiTComponents:
         emb_dropped = embedder(labels, force_drop_ids=force_drop)
 
         # Check that dropped labels use unconditional embedding
-        uncond_emb = embedder(jnp.array([num_classes]))
+        uncond_emb = embedder(jnp.array([num_classes]), deterministic=True)
         assert jnp.allclose(emb_dropped[0], uncond_emb[0])
         assert not jnp.allclose(emb_dropped[1], uncond_emb[0])
 

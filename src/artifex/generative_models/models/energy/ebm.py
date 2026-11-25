@@ -111,7 +111,7 @@ class EBM(EnergyBasedModel):
 
         Args:
             batch: Training batch
-            rngs: Dropout keys for the loss; ``None`` draws from the dropout layers' own streams.
+            rngs: Dropout keys for the loss; required to train with dropout.
                 The MCMC chains draw from the model's ``noise`` and ``sample`` streams.
 
         Returns:

@@ -164,7 +164,7 @@ class CycleGANGenerator(nnx.Module):
         # Dropout layer
         self.dropout = None
         if self.dropout_rate > 0:
-            self.dropout = nnx.Dropout(rate=self.dropout_rate, rngs=rngs)
+            self.dropout = nnx.Dropout(rate=self.dropout_rate)
 
     def __call__(
         self,
@@ -306,7 +306,7 @@ class CycleGANDiscriminator(nnx.Module):
         # Dropout layer
         self.dropout = None
         if self.dropout_rate > 0:
-            self.dropout = nnx.Dropout(rate=self.dropout_rate, rngs=rngs)
+            self.dropout = nnx.Dropout(rate=self.dropout_rate)
 
     def __call__(
         self,

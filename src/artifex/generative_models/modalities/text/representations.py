@@ -485,7 +485,7 @@ class SequenceAugmentationProcessor(nnx.Module):
         self.eos_token_id = text_params.get("eos_token_id", 3)
 
         if dropout_rate > 0:
-            self.dropout = nnx.Dropout(rate=dropout_rate, rngs=rngs)
+            self.dropout = nnx.Dropout(rate=dropout_rate)
         else:
             self.dropout = None  # type: ignore[assignment]
 

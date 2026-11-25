@@ -138,10 +138,12 @@ class TestFeedForwardNetwork:
 
         # An Rngs carrying only named streams has no 'dropout' stream and no
         # 'default' stream to fall back to, so it cannot supply dropout
-        # randomness. nnx.Dropout rejects it, and that rejection must surface
-        # rather than be swallowed into a silently disabled dropout layer.
+        # randomness. The dropout key is taken at call time, so nnx.Dropout
+        # rejects it there, and that rejection must surface rather than be
+        # swallowed into a silently disabled dropout layer.
+        ffn = FeedForwardNetwork(in_features=4, dropout_rate=0.1, rngs=rngs_params_only)
         with pytest.raises(KeyError, match="dropout"):
-            FeedForwardNetwork(in_features=4, dropout_rate=0.1, rngs=rngs_params_only)
+            ffn(x, deterministic=False, rngs=rngs_params_only)
 
         # The same Rngs is fine when no dropout is requested.
         ffn_no_dropout = FeedForwardNetwork(in_features=4, dropout_rate=0.0, rngs=rngs_params_only)
@@ -1161,9 +1163,10 @@ class TestDropoutStreamResolution:
         )
         x = jax.random.normal(rng_keys["extra"], (2, 8, 32))
 
+        rngs = nnx.Rngs(0)  # no named 'dropout' stream: the key falls back to 'default'
         block.train()
-        first = block(x, deterministic=False)
-        second = block(x, deterministic=False)
+        first = block(x, deterministic=False, rngs=rngs)
+        second = block(x, deterministic=False, rngs=rngs)
         block.eval()
         evaluated = block(x, deterministic=True)
 

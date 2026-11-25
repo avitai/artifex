@@ -106,7 +106,7 @@ class TestMLPEnergyFunction:
 
         # Forward pass in training mode (dropout active)
         mlp_energy.train()
-        energy_train = mlp_energy(energy_test_mlp_data)
+        energy_train = mlp_energy(energy_test_mlp_data, rngs=nnx.Rngs(dropout=3))
 
         # Forward pass in evaluation mode (dropout inactive)
         mlp_energy.eval()

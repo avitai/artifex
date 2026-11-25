@@ -9,23 +9,19 @@
 Transformer encoder and decoder implementations supporting several kinds of
 positional encoding, built on the Flax NNX API.
 
-## Dropout and RNG Streams
+## Dropout Keys
 
-Passing `dropout_rate > 0` builds a dropout layer, and a plain `nnx.Rngs(seed)`
-is enough to drive it: `nnx.Rngs` resolves an unknown stream name to its
-`default` stream, so no separately named `dropout` stream is required.
+Passing `dropout_rate > 0` builds a dropout layer that holds no key of its own.
+The `rngs` given to the constructor initialise the parameters; a training call
+passes its dropout keys as `rngs`, and `.eval()` turns dropout off, so an
+evaluation call needs none. A training call without them raises.
 
 ```python
 block = TransformerEncoderBlock(hidden_dim=32, num_heads=2, dropout_rate=0.1, rngs=nnx.Rngs(0))
-```
 
-An `nnx.Rngs` built only from named streams, such as `nnx.Rngs(params=key)`, has
-neither a `dropout` nor a `default` stream and so cannot supply dropout
-randomness. Constructing a dropout-bearing block from one raises rather than
-quietly disabling the dropout you asked for. Add a stream it can use:
-
-```python
-rngs = nnx.Rngs(params=params_key, dropout=dropout_key)
+y = block(x, rngs=nnx.Rngs(dropout=step_key))  # train mode: one new key per step
+block.eval()
+y = block(x)  # eval mode: no dropout, no key
 ```
 
 ## Autoregressive Decoding

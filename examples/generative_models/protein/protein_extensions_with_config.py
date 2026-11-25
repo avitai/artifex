@@ -123,7 +123,7 @@ show(
 # %%
 key = jax.random.key(123)
 key, params_key, dropout_key = jax.random.split(key, 3)
-rngs = nnx.Rngs(params=params_key, dropout=dropout_key)
+rngs = nnx.Rngs(params=params_key)  # dropout_key is passed at call time, below
 
 extensions = create_protein_extensions(custom_bundle, rngs=rngs)
 show(f"Created extensions: {', '.join(extensions.keys())}")
@@ -173,7 +173,7 @@ batch = {
     "atom_mask": atom_mask,
 }
 
-outputs = model(batch)
+outputs = model(batch, rngs=nnx.Rngs(dropout=dropout_key))  # train mode: dropout needs a key
 show(f"Model output shape: {outputs['atom_positions'].shape}")
 
 loss_fn = model.get_loss_fn()

@@ -82,7 +82,7 @@ class Generator(nnx.Module):
 
         # Create dropout layer if needed
         if self.dropout_rate > 0:
-            self.dropout = nnx.Dropout(rate=self.dropout_rate, rngs=rngs)
+            self.dropout = nnx.Dropout(rate=self.dropout_rate)
         else:
             self.dropout = None
 
@@ -94,7 +94,7 @@ class Generator(nnx.Module):
 
         Args:
             z: Latent vector of shape (batch_size, latent_dim)
-            rngs: Dropout keys for this call; ``None`` draws from the dropout layers' own streams.
+            rngs: Dropout keys for this call; required to train with dropout.
 
         Returns:
             Generated output of shape (batch_size, *output_shape[1:])
@@ -197,7 +197,7 @@ class Discriminator(nnx.Module):
 
         # Create dropout layer if needed
         if self.dropout_rate > 0:
-            self.dropout = nnx.Dropout(rate=self.dropout_rate, rngs=rngs)
+            self.dropout = nnx.Dropout(rate=self.dropout_rate)
         else:
             self.dropout = None
 
@@ -209,7 +209,7 @@ class Discriminator(nnx.Module):
 
         Args:
             x: Input data of shape (batch_size, *features)
-            rngs: Dropout keys for this call; ``None`` draws from the dropout layers' own streams.
+            rngs: Dropout keys for this call; required to train with dropout.
 
         Returns:
             Discriminator output of shape (batch_size, 1) in range [0, 1]
@@ -325,7 +325,7 @@ class GAN(GenerativeModel):
 
         Args:
             x: Input data of shape (batch_size, *data_shape)
-            rngs: Dropout keys for this call; ``None`` draws from the dropout layers' own streams.
+            rngs: Dropout keys for this call; required to train with dropout.
             **kwargs: Additional keyword arguments
 
         Returns:
@@ -420,7 +420,7 @@ class GAN(GenerativeModel):
 
         Args:
             batch: Real data, or a dict holding it under ``"x"`` or ``"data"``.
-            rngs: Dropout keys for this call; ``None`` draws from the dropout layers' own streams.
+            rngs: Dropout keys for this call; required to train with dropout.
 
         Returns:
             ``total_loss`` and ``generator_loss`` (the same value) and ``fake_scores_mean``.
@@ -447,7 +447,7 @@ class GAN(GenerativeModel):
 
         Args:
             batch: Real data, or a dict holding it under ``"x"`` or ``"data"``.
-            rngs: Dropout keys for this call; ``None`` draws from the dropout layers' own streams.
+            rngs: Dropout keys for this call; required to train with dropout.
 
         Returns:
             ``total_loss`` and ``discriminator_loss`` (the same value), ``real_scores_mean`` and

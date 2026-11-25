@@ -169,7 +169,7 @@ import jax
 # Initialize RNGs
 key = jax.random.key(42)
 key, params_key, dropout_key = jax.random.split(key, 3)
-rngs = nnx.Rngs(params=params_key, dropout=dropout_key)
+rngs = nnx.Rngs(params=params_key)  # dropout_key is passed at call time, below
 
 # Create model
 model = ProteinPointCloudModel(config, rngs=rngs)
@@ -216,8 +216,8 @@ dataset_config = ProteinDatasetConfig(
 dataset = ProteinDataset(dataset_config, "data/synthetic_proteins.pkl")
 batch = dataset.get_batch([0, 1, 2, 3])
 
-# Forward pass
-outputs = model(batch)
+# Forward pass (train mode: dropout needs a key)
+outputs = model(batch, rngs=nnx.Rngs(dropout=dropout_key))
 
 print("Outputs:")
 for key, value in outputs.items():

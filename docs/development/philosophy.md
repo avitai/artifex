@@ -96,14 +96,16 @@ Flax NNX requires explicit RNG streams:
 ```python
 from flax import nnx
 
-rngs = nnx.Rngs(params=42, dropout=43, sample=44)
+rngs = nnx.Rngs(params=42, sample=44)
 model = create_model(config, rngs=rngs)
+outputs = model(batch, rngs=nnx.Rngs(dropout=step_key))  # training call: dropout keys
 ```
 
 Different streams serve different purposes:
 
 - `params`: Parameter initialization
-- `dropout`: Dropout randomness
+- `dropout`: Dropout keys, passed to each training call; no dropout layer holds a key of
+  its own, and `.eval()` turns dropout off
 - `sample`: Generative sampling
 
 ## Testing Philosophy

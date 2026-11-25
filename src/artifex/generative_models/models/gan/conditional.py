@@ -330,7 +330,7 @@ class ConditionalDiscriminator(Discriminator):
         Args:
             x: Input samples of shape (batch_size, channels, height, width).
             labels: One-hot encoded labels of shape (batch_size, num_classes).
-            rngs: Dropout keys for this call; ``None`` draws from the dropout layers' own streams.
+            rngs: Dropout keys for this call; required to train with dropout.
 
         Returns:
             Discrimination scores of shape (batch_size,).
@@ -511,7 +511,7 @@ class ConditionalGAN(nnx.Module):
             fake_samples: Generated fake samples.
             real_labels: Labels for real samples.
             fake_labels: Labels for fake samples.
-            rngs: Dropout keys for this call; ``None`` draws from the dropout layers' own streams.
+            rngs: Dropout keys for this call; required to train with dropout.
 
         Returns:
             Discriminator loss value.
@@ -534,7 +534,7 @@ class ConditionalGAN(nnx.Module):
         Args:
             fake_samples: Generated fake samples.
             fake_labels: Labels for fake samples.
-            rngs: Dropout keys for this call; ``None`` draws from the dropout layers' own streams.
+            rngs: Dropout keys for this call; required to train with dropout.
 
         Returns:
             Generator loss value.

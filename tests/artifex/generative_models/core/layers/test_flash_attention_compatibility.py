@@ -193,14 +193,19 @@ class TestTransformations:
                 )
                 self.output_proj = nnx.Linear(DIM, 10, rngs=rngs)
 
-            def __call__(self, x: jax.Array, *, training: bool = True) -> jax.Array:
-                x = self.attention(x, deterministic=not training)
+            def __call__(
+                self, x: jax.Array, *, rngs: nnx.Rngs | None = None, training: bool = True
+            ) -> jax.Array:
+                x = self.attention(x, deterministic=not training, rngs=rngs)
                 return self.output_proj(jnp.mean(x, axis=1))
 
         model = SimpleModel(rngs)
         x = jax.random.normal(rngs(), (4, 32, DIM))
         y = jax.random.normal(rngs(), (4, 10))
-        loss, grads = nnx.value_and_grad(lambda m: jnp.mean((m(x) - y) ** 2))(model)
+        # The dropout key is an argument of the differentiated function, never captured
+        loss, grads = nnx.value_and_grad(lambda m, r: jnp.mean((m(x, rngs=r) - y) ** 2))(
+            model, nnx.Rngs(dropout=3)
+        )
 
         assert loss.shape == ()
         assert jnp.isfinite(loss)

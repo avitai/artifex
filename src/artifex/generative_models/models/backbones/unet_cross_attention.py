@@ -53,6 +53,7 @@ class CrossAttentionBlock(GenerativeModule):
             out_features=channels,
             decode=False,
             attention_fn=flash_dot_product_attention,
+            keep_rngs=False,
             rngs=rngs,
         )
 

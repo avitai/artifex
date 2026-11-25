@@ -275,7 +275,7 @@ class LSGANDiscriminator(Discriminator):
 
         # Dropout layer if needed
         if config.dropout_rate > 0:
-            self.lsgan_dropout = nnx.Dropout(rate=config.dropout_rate, rngs=rngs)
+            self.lsgan_dropout = nnx.Dropout(rate=config.dropout_rate)
         else:
             self.lsgan_dropout = None
 
@@ -286,7 +286,7 @@ class LSGANDiscriminator(Discriminator):
 
         Args:
             x: Input images of shape (batch_size, channels, height, width)
-            rngs: Dropout keys for this call; ``None`` draws from the dropout layers' own streams.
+            rngs: Dropout keys for this call; required to train with dropout.
 
         Returns:
             Discriminator scores (raw logits, no sigmoid for LSGAN)
@@ -432,7 +432,7 @@ class LSGAN(nnx.Module):
         Args:
             real_images: Batch of real images
             latent_vectors: Batch of latent vectors
-            rngs: Dropout keys for this call; ``None`` draws from the dropout layers' own streams.
+            rngs: Dropout keys for this call; required to train with dropout.
 
         Returns:
             Dictionary with loss values and generated images

@@ -21,9 +21,9 @@ from artifex.generative_models.core.losses.adversarial import (
     vanilla_discriminator_loss,
 )
 
-# Initialize RNGs (discriminator needs dropout stream)
-gen_rngs = nnx.Rngs(params=0, sample=1, dropout=2)
-disc_rngs = nnx.Rngs(params=3, dropout=4)
+# Initialize RNGs: params build the weights; dropout keys go to each training call
+gen_rngs = nnx.Rngs(params=0, sample=1)
+disc_rngs = nnx.Rngs(params=3)
 
 # Create generator config
 gen_config = GeneratorConfig(
@@ -125,8 +125,9 @@ discriminator.train()  # Set to training mode
 real_data = jnp.ones((batch_size, 32, 32, 3))
 fake_data = generator(z)
 
-real_scores = discriminator(real_data)  # Should be close to 1
-fake_scores = discriminator(fake_data)  # Should be close to 0
+# Training mode applies dropout, so each call passes its dropout keys
+real_scores = discriminator(real_data, rngs=nnx.Rngs(dropout=0))  # Should be close to 1
+fake_scores = discriminator(fake_data, rngs=nnx.Rngs(dropout=1))  # Should be close to 0
 ```
 
 **Key Parameters:**
@@ -180,7 +181,7 @@ gan_config = GANConfig(
 )
 
 # Create GAN
-rngs = nnx.Rngs(params=0, sample=1, dropout=2)
+rngs = nnx.Rngs(params=0, sample=1)
 gan = GAN(config=gan_config, rngs=rngs)
 
 # Generate samples
@@ -246,7 +247,7 @@ dcgan_config = DCGANConfig(
 )
 
 # Create DCGAN
-rngs = nnx.Rngs(params=0, sample=1, dropout=2)
+rngs = nnx.Rngs(params=0, sample=1)
 dcgan = DCGAN(config=dcgan_config, rngs=rngs)
 
 # Generate high-quality images

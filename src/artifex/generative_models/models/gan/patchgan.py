@@ -139,7 +139,7 @@ class PatchGANDiscriminator(Discriminator):
 
         # Dropout layer if needed
         if config.dropout_rate > 0:
-            self.patchgan_dropout = nnx.Dropout(rate=config.dropout_rate, rngs=rngs)
+            self.patchgan_dropout = nnx.Dropout(rate=config.dropout_rate)
 
     def __call__(self, x: jax.Array, *, rngs: nnx.Rngs | None = None) -> list[jax.Array]:
         """Forward pass through PatchGAN discriminator.
@@ -148,7 +148,7 @@ class PatchGANDiscriminator(Discriminator):
 
         Args:
             x: Input image tensor of shape (batch, height, width, channels)
-            rngs: Dropout keys for this call; ``None`` draws from the dropout layer's own stream.
+            rngs: Dropout keys for this call; required to train with dropout.
 
         Returns:
             List of intermediate features, with the last element being the final output.
@@ -168,7 +168,7 @@ class PatchGANDiscriminator(Discriminator):
 
         Args:
             x: Input image tensor already in (B, H, W, C) format
-            rngs: Dropout keys for this call; ``None`` draws from the dropout layer's own stream.
+            rngs: Dropout keys for this call; required to train with dropout.
 
         Returns:
             List of intermediate features, with the last element being the final output.
@@ -335,7 +335,7 @@ class MultiScalePatchGANDiscriminator(nnx.Module):
 
         Args:
             x: Input image tensor (either B,C,H,W or B,H,W,C)
-            rngs: Dropout keys for this call; ``None`` draws from the dropout layers' own streams.
+            rngs: Dropout keys for this call; required to train with dropout.
 
         Returns:
             Tuple of (outputs, intermediate_features):

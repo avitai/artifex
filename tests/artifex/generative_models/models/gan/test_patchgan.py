@@ -74,7 +74,7 @@ class TestPatchGANDiscriminator:
 
         # Forward pass
         patchgan_discriminator.train()
-        features = patchgan_discriminator(input_images)
+        features = patchgan_discriminator(input_images, rngs=nnx.Rngs(dropout=3))
 
         # Check that we get the expected number of features
         # Should have initial_conv + num_layers conv_layers + final_conv = 1 + 3 + 1 = 5 features
@@ -97,7 +97,7 @@ class TestPatchGANDiscriminator:
 
         # Get outputs in training and inference modes
         patchgan_discriminator.train()
-        features_train = patchgan_discriminator(input_images)
+        features_train = patchgan_discriminator(input_images, rngs=nnx.Rngs(dropout=3))
         patchgan_discriminator.eval()
         features_inference = patchgan_discriminator(input_images)
 
@@ -196,24 +196,25 @@ class TestPatchGANDiscriminator:
         batch_size = 2
         input_images = jax.random.normal(rng, (batch_size, *input_shape))
 
-        def loss_fn(model, x):
+        def loss_fn(model, x, rngs):
             """Simple loss function for gradient testing."""
-            features = model(x)
+            features = model(x, rngs=rngs)
             output = features[-1]
             return jnp.mean(output**2)
 
-        # Test gradient computation using NNX
+        # Test gradient computation using NNX; the dropout key is an argument, never captured
         @nnx.jit
-        def compute_loss(model, x):
-            return loss_fn(model, x)
+        def compute_loss(model, x, rngs):
+            return loss_fn(model, x, rngs)
 
-        loss = compute_loss(patchgan_discriminator, input_images)
+        call_rngs = nnx.Rngs(dropout=3)
+        loss = compute_loss(patchgan_discriminator, input_images, call_rngs)
         assert jnp.isfinite(loss)
         assert loss >= 0.0
 
         # Test gradients
         grad_fn = nnx.grad(loss_fn, argnums=0)
-        grads = grad_fn(patchgan_discriminator, input_images)
+        grads = grad_fn(patchgan_discriminator, input_images, call_rngs)
         assert grads is not None
 
     def test_patchgan_config_type_validation(self, rng, input_shape):

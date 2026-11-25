@@ -199,7 +199,7 @@ class TextEmbeddings(ModelExtension):
 
         # Dropout
         if self.dropout_rate > 0:
-            self.dropout = nnx.Dropout(rate=self.dropout_rate, rngs=self.rngs)
+            self.dropout = nnx.Dropout(rate=self.dropout_rate)
         else:
             self.dropout = None
 
@@ -217,7 +217,7 @@ class TextEmbeddings(ModelExtension):
             tokens: Token sequences [batch_size, seq_length]
             position_ids: Position IDs [batch_size, seq_length]
             deterministic: Whether to disable dropout
-            rngs: Dropout keys for this call; ``None`` draws from the dropout layer's own stream.
+            rngs: Dropout keys for this call; required to train with dropout.
 
         Returns:
             Embedded sequences [batch_size, seq_length, embedding_dim]
@@ -514,7 +514,7 @@ class TextEmbeddings(ModelExtension):
             tokens: Token sequences [batch_size, seq_length].
             deterministic: Whether to disable dropout.
             base: Base for the exponential frequency scaling.
-            rngs: Dropout keys for this call; ``None`` draws from the dropout layer's own stream.
+            rngs: Dropout keys for this call; required to train with dropout.
 
         Returns:
             Embedded sequences [batch_size, seq_length, embedding_dim].
@@ -557,7 +557,7 @@ class TextEmbeddings(ModelExtension):
             tokens: Token sequences [batch_size, seq_length].
             deterministic: Whether to disable dropout.
             base: Base for the exponential frequency scaling.
-            rngs: Dropout keys for this call; ``None`` draws from the dropout layer's own stream.
+            rngs: Dropout keys for this call; required to train with dropout.
 
         Returns:
             Embedded sequences with RoPE applied [batch_size, seq_length, embedding_dim].
@@ -598,8 +598,7 @@ class TextEmbeddings(ModelExtension):
             inputs: Original inputs to the model.
             model_outputs: Outputs from the model.
             **kwargs: Additional keyword arguments, including ``deterministic`` and ``rngs``,
-                the dropout keys for this call (``None`` draws from the dropout layer's own
-                stream).
+                the dropout keys for this call (required to train with dropout).
 
         Returns:
             dictionary of extension outputs including embedding features.

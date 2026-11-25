@@ -198,7 +198,7 @@ class TestLSGANDiscriminator:
 
         # Forward pass
         discriminator.train()
-        scores = discriminator(images)
+        scores = discriminator(images, rngs=nnx.Rngs(dropout=3))
 
         # Check output shape (should be scalar per sample)
         expected_shape = (batch_size, 1)
@@ -377,7 +377,7 @@ class TestLSGAN:
 
         # Perform training step
         lsgan.train()
-        results = lsgan.training_step(real_images, latent_vectors)
+        results = lsgan.training_step(real_images, latent_vectors, rngs=nnx.Rngs(dropout=3))
 
         # Check results structure
         assert "generator_loss" in results
@@ -505,8 +505,9 @@ class TestLSGANIntegration:
 
         # Perform multiple training steps
         lsgan.train()
+        call_rngs = nnx.Rngs(dropout=3)
         for step in range(3):
-            results = lsgan.training_step(real_images, latent_vectors)
+            results = lsgan.training_step(real_images, latent_vectors, rngs=call_rngs)
 
             # Verify all outputs are valid
             assert jnp.all(jnp.isfinite(results["generator_loss"]))
