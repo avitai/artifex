@@ -84,6 +84,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   fills token t from the logits at t - 1, top-p keeps the token that crosses p, the EBM
   regulariser is alpha times the mean squared energy, the Langevin step matches artifex's, and the
   VAE loop draws a fresh key each step.
+- The five model benchmarks in `tests/artifex/benchmarks/performance/test_model_performance.py`
+  (VAE encode and sample, DDPM noise prediction, DCGAN generator, RealNVP forward) called eager
+  models and returned without waiting. JAX dispatches asynchronously, so each round timed the
+  dispatch of the operations, not their run. Each now times one `nnx.jit` program, compiled at
+  the timed shape before the first round, and a round returns only once the whole result is
+  ready (`jax.block_until_ready`). `test_every_benchmark_waits_for_its_result` fails when a
+  benchmark in the file is called without that wait. The sampling benchmark had warmed up at 2
+  samples and timed 8; it now warms at 8.
 
 ### Changed
 
