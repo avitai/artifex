@@ -1,7 +1,15 @@
-"""Performance tests for model inference and training."""
+"""Performance tests for model inference and training.
 
+Every timed call is a compiled program, and every timing waits for the call's whole result. JAX
+dispatches asynchronously, so a clock stopped when the call returns measures only the dispatch.
+"""
+
+import ast
 import sys
 import time
+from collections.abc import Callable
+from pathlib import Path
+from typing import TypeGuard
 
 import jax
 import jax.numpy as jnp
@@ -9,6 +17,41 @@ import pytest
 from calibrax.profiling import CompilationProfiler
 from flax import nnx
 from substrax.testing.nnx_conformance import Case, check_rows_independent
+
+
+@nnx.jit
+def _encode(model: nnx.Module, x: jax.Array) -> tuple[jax.Array, jax.Array]:
+    """The VAE encoder as one compiled program: the latent mean and log-variance of ``x``."""
+    return model.encode(x)
+
+
+def _blocking(function: Callable[..., object], *args: object) -> Callable[[], object]:
+    """A zero-argument call to ``function`` that returns once its whole result is ready."""
+    return lambda: jax.block_until_ready(function(*args))
+
+
+def _is_name_call(node: ast.AST, name: str) -> TypeGuard[ast.Call]:
+    """Whether ``node`` calls the plain name ``name``."""
+    return isinstance(node, ast.Call) and isinstance(node.func, ast.Name) and node.func.id == name
+
+
+def test_every_benchmark_waits_for_its_result() -> None:
+    """Every benchmarked call goes through :func:`_blocking`, so no round stops at dispatch."""
+    tree = ast.parse(Path(__file__).read_text(encoding="utf-8"))
+    benchmarks = [
+        node
+        for node in ast.walk(tree)
+        if isinstance(node, ast.FunctionDef) and any(a.arg == "benchmark" for a in node.args.args)
+    ]
+    calls = [node for node in ast.walk(tree) if _is_name_call(node, "benchmark")]
+
+    assert benchmarks, "found no benchmark; the check is reading the wrong file"
+    assert len(calls) == len(benchmarks)
+    assert [
+        call.lineno
+        for call in calls
+        if not (call.args and _is_name_call(call.args[0], "_blocking"))
+    ] == []
 
 
 def _create_vae_config(
@@ -86,17 +129,10 @@ class TestModelPerformance:
         batch_size = 8
         test_batch = jnp.ones((batch_size, 32, 32, 3))
 
-        # Warm up
-        _ = model.encode(test_batch)
+        # Compile at the timed shape before the first round.
+        jax.block_until_ready(_encode(model, test_batch))
 
-        # Benchmark encoding
-        def encode_batch():
-            return model.encode(test_batch)
-
-        result = benchmark(encode_batch)
-
-        # Verify result shape
-        mu, logvar = result
+        mu, logvar = benchmark(_blocking(_encode, model, test_batch))
         assert mu.shape == (batch_size, 16)
         assert logvar.shape == (batch_size, 16)
 
@@ -118,15 +154,11 @@ class TestModelPerformance:
 
         model = create_model(config, rngs=nnx.Rngs(params=rng, sample=rng))
         n_samples = 8
+        # n_samples sets the output shape, so it is a Python constant of the compiled program.
+        sample = nnx.jit(lambda model: model.sample(n_samples=n_samples))
+        jax.block_until_ready(sample(model))
 
-        # Warm up
-        _ = model.sample(n_samples=2)
-
-        # Benchmark sampling
-        def sample_batch():
-            return model.sample(n_samples=n_samples)
-
-        result = benchmark(sample_batch)
+        result = benchmark(_blocking(sample, model))
 
         # Verify result shape
         assert result.shape == (n_samples, 32, 32, 3)
@@ -180,14 +212,10 @@ class TestModelPerformance:
         test_batch = jnp.ones((batch_size, 16, 16, 3))
         t = jnp.array([2, 4, 6, 8])
 
-        # Warm up
-        _ = model(test_batch, t)
+        predict_noise = nnx.jit(lambda model, x, t: model(x, t))
+        jax.block_until_ready(predict_noise(model, test_batch, t))
 
-        # Benchmark noise prediction
-        def predict_noise():
-            return model(test_batch, t)
-
-        result = benchmark(predict_noise)
+        result = benchmark(_blocking(predict_noise, model, test_batch, t))
 
         # Verify result shape (model returns dict with predicted_noise)
         assert result["predicted_noise"].shape == test_batch.shape
@@ -241,14 +269,10 @@ class TestModelPerformance:
         batch_size = 8
         z = jax.random.normal(rng, (batch_size, 16))
 
-        # Warm up
-        _ = model.generator(z)
+        generate = nnx.jit(lambda generator, z: generator(z))
+        jax.block_until_ready(generate(model.generator, z))
 
-        # Benchmark generation
-        def generate_batch():
-            return model.generator(z)
-
-        result = benchmark(generate_batch)
+        result = benchmark(_blocking(generate, model.generator, z))
 
         # Verify result shape - GAN models typically return (batch, channels, height, width)
         assert result.shape == (batch_size, 3, 32, 32)
@@ -289,14 +313,10 @@ class TestModelPerformance:
         batch_size = 8
         test_batch = jax.random.normal(rng, (batch_size, input_dim))
 
-        # Warm up
-        _ = model.forward(test_batch)
+        forward = nnx.jit(lambda model, x: model.forward(x))
+        jax.block_until_ready(forward(model, test_batch))
 
-        # Benchmark forward pass
-        def forward_pass():
-            return model.forward(test_batch)
-
-        z, log_det = benchmark(forward_pass)
+        z, log_det = benchmark(_blocking(forward, model, test_batch))
 
         # Verify result shapes
         assert z.shape == test_batch.shape
