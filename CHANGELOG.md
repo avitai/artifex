@@ -68,10 +68,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   the fix above, and on a GPU bfloat16 and float16 attention can use the fused cuDNN kernel.
   `CrossAttentionBlock` now passes the float64 gradient conformance check.
 - `test_batch_processing_efficiency` ran its wall-clock speedup ratio in the unit leg, where the
-  result depends on the machine's load: a batch of 16 measured 14.7-16.1x alone on CPU and
-  7.98x in a unit leg run eight tests at a time under coverage, against a required 8x. It is
-  marked `slow`, so it runs in the performance leg one test at a time without coverage. The
-  unit leg checks the property the ratio rests on with
+  result depends on the machine's load. It is marked `slow`, so it runs in the performance leg
+  one test at a time without coverage. It timed eager encoder calls with `time.time()` and
+  never waited for them, so it compared dispatch costs; it now times the compiled encoder with
+  calibrax's `time_calls`, which warms each form up at its own shape, waits for each call's
+  whole result and reports the median. Alone on CPU, three runs each, the batched call measured
+  3.90-4.05x the per-row loop at a batch of 4, 7.73-8.12x at 8, 15.73-21.40x at 16 and
+  22.26-32.91x at 32, against the unchanged floors of 2, 4, 8 and 16. The unit leg checks the
+  property the ratio rests on with
   `test_batched_encoding_is_one_vectorized_computation`: calibrax's `CompilationProfiler` counts
   the same 101 compiled kernels for a batch of `n` as of `2n` (from 2 to 64), against 121 to
   2,107 for a control encoder that loops over rows, and its rows pass substrax's
