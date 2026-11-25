@@ -1,1 +1,0 @@
-"""Example multimodal generative models."""
