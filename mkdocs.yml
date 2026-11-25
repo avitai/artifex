@@ -181,7 +181,6 @@ nav:
           - Multi-Beta VAE Benchmark: tutorials/vae/multi-beta-vae-benchmark-demo.md
       - Protein Modeling:
           - Protein Extensions Example: tutorials/protein/protein-extensions-example.md
-          - Protein Model Extension: tutorials/protein/protein-model-extension.md
           - Protein Model with Modality: tutorials/protein/protein-model-with-modality.md
           - Protein Point Cloud Example: tutorials/protein/protein-point-cloud-example.md
           - Protein Extensions with Config: tutorials/protein/protein-extensions-with-config.md

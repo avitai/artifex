@@ -25,7 +25,6 @@ RUNTIME_BACKED_TUTORIAL_PAGES = {
     "protein/protein-extensions-example.md": "examples/generative_models/protein/protein_extensions_example",
     "protein/protein-extensions-with-config.md": "examples/generative_models/protein/protein_extensions_with_config",
     "protein/protein-ligand-benchmark-demo.md": "examples/generative_models/protein/protein_ligand_benchmark_demo",
-    "protein/protein-model-extension.md": "examples/generative_models/protein/protein_model_extension",
     "protein/protein-model-with-modality.md": "examples/generative_models/protein/protein_model_with_modality",
     "protein/protein-point-cloud-example.md": "examples/generative_models/protein/protein_point_cloud_example",
     "sampling/blackjax-example.md": "examples/generative_models/sampling/blackjax_example",

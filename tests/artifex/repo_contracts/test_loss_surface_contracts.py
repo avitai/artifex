@@ -146,14 +146,6 @@ def test_model_loss_examples_and_docs_use_total_loss_contract() -> None:
             'loss_dict["loss"]',
             "loss_dict['loss']",
         ),
-        PROJECT_ROOT
-        / "examples"
-        / "generative_models"
-        / "protein"
-        / "protein_model_extension.py": (
-            'loss_outputs["loss"]',
-            "loss_outputs['loss']",
-        ),
         PROJECT_ROOT / "docs" / "tutorials" / "advanced" / "advanced-vae.md": (
             "output['loss']",
             'output["loss"]',
