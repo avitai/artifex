@@ -486,6 +486,57 @@ def _transitive_needs(name: str, jobs: dict[str, dict]) -> set[str]:
     return seen
 
 
+REQUIRED_JOB = "required"
+ALLS_GREEN = re.compile(r"^re-actors/alls-green@[0-9a-f]{40}$")
+ALLOWED_SKIPS = re.compile(
+    r"^\$\{\{ github\.event_name != 'pull_request' && '([^']*)' \|\| '([^']*)' \}\}$"
+)
+
+
+def _job_names(listed: str) -> set[str]:
+    return {name.strip() for name in listed.split(",") if name.strip()}
+
+
+def test_one_required_check_reports_every_ci_job() -> None:
+    """Branch protection names one check, and that check answers for every job of the run.
+
+    A ruleset that listed jobs would miss a job added later and would wait for ever on a
+    matrix leg that was renamed. ``required`` runs whatever the others did, needs each of
+    them, and hands their results to alls-green, pinned by commit.
+    """
+    jobs = _ci_jobs()
+    required = jobs[REQUIRED_JOB]
+    report = required["steps"]
+
+    assert required.get("name") == REQUIRED_JOB, "the ruleset matches the check by this name"
+    assert required.get("if") == "always()", "a failed or skipped job must still be reported"
+    assert set(_needs(required)) == set(jobs) - {REQUIRED_JOB}
+    assert [bool(ALLS_GREEN.match(step.get("uses", ""))) for step in report] == [True]
+    assert report[0]["with"]["jobs"] == "${{ toJSON(needs) }}"
+
+
+def test_a_pull_request_may_skip_only_what_runs_on_main() -> None:
+    """On a pull request a skipped job is a failure, unless the job never runs there.
+
+    A push to main may also skip what the gate stands down. The names are derived from each
+    job's own condition, so a job that gains or loses one changes what the check accepts.
+    """
+    jobs = _ci_jobs()
+    main_only = {name for name, job in jobs.items() if _runs_only_on_main(job)}
+    stood_down = {
+        name
+        for name, job in jobs.items()
+        if _skipped_by_the_gate(job)
+        or (REUSABLE_WORKFLOW.match(job.get("uses", "")) and _consults_the_gate(job))
+    }
+
+    expression = ALLOWED_SKIPS.match(jobs[REQUIRED_JOB]["steps"][0]["with"]["allowed-skips"])
+
+    assert expression, jobs[REQUIRED_JOB]["steps"][0]["with"]["allowed-skips"]
+    assert _job_names(expression.group(2)) == main_only, "what a pull request may skip"
+    assert _job_names(expression.group(1)) == main_only | stood_down, "what a push may skip"
+
+
 def test_the_gate_reports_a_skip_only_for_a_push() -> None:
     """A manual run re-measures the tree on purpose and must not be skipped."""
     gate = _ci_jobs()[GATE_JOB]
@@ -517,7 +568,7 @@ def test_a_job_that_repeats_the_pull_request_consults_the_gate() -> None:
     repeated = {
         name
         for name, job in jobs.items()
-        if name not in UNGATED_JOBS and not _runs_only_on_main(job)
+        if name not in UNGATED_JOBS | {REQUIRED_JOB} and not _runs_only_on_main(job)
     }
 
     ungated = sorted(name for name in repeated if not _consults_the_gate(jobs[name]))

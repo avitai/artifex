@@ -330,3 +330,27 @@ jobs:
           name: combined-coverage-report
           path: coverage.xml
         if: always()
+
+  required:
+    name: required
+    # The one check the main ruleset names. It runs whatever the jobs above did and fails unless
+    # each succeeded or was skipped on purpose: a pull request may skip only the job that runs on
+    # main alone, and a push may also skip what the already-tested gate stands down.
+    if: always()
+    needs:
+      - already_tested
+      - examples
+      - quality
+      - unit_tests
+      - unit_coverage
+      - integration_tests
+      - e2e_tests
+      - performance_tests
+      - coverage
+    runs-on: ubuntu-latest
+    steps:
+      - uses: re-actors/alls-green@b5b5b37504aa4183270bd3d855c52a67f212be35 # v1.3.0
+        with:
+          jobs: ${{ toJSON(needs) }}
+          # `&&` and `||` return an operand and '' is falsy, so both lists are non-empty.
+          allowed-skips: ${{ github.event_name != 'pull_request' && 'performance_tests, examples, integration_tests, e2e_tests, coverage' || 'performance_tests' }}
