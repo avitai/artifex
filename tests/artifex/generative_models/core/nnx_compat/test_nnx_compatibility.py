@@ -117,7 +117,7 @@ def test_distributions():
 
     # Test Bernoulli
     print("Testing Bernoulli...")
-    bern_dist = Bernoulli(probs=jnp.array(0.7), rngs=rngs)
+    bern_dist = Bernoulli(probs=jnp.array(0.7))
 
     try:
         samples = bern_dist.sample(sample_shape=(10,), rngs=rngs)
@@ -128,7 +128,7 @@ def test_distributions():
 
     # Test Categorical
     print("Testing Categorical...")
-    cat_dist = Categorical(probs=jnp.array([0.2, 0.3, 0.5]), rngs=rngs)
+    cat_dist = Categorical(probs=jnp.array([0.2, 0.3, 0.5]))
 
     try:
         samples = cat_dist.sample(sample_shape=(10,), rngs=rngs)
@@ -143,7 +143,6 @@ def test_distributions():
         locs=jnp.array([[0.0, 0.0], [5.0, 5.0]]),
         scales=jnp.array([[1.0, 1.0], [0.5, 0.5]]),
         weights=jnp.array([0.3, 0.7]),
-        rngs=rngs,
     )
 
     try:
@@ -156,13 +155,11 @@ def test_distributions():
     # Test Mixture with component distributions
     print("Testing Mixture...")
     # Create component distributions
-    bernoulli1 = Bernoulli(probs=jnp.array(0.3), rngs=rngs)
-    bernoulli2 = Bernoulli(probs=jnp.array(0.7), rngs=rngs)
+    bernoulli1 = Bernoulli(probs=jnp.array(0.3))
+    bernoulli2 = Bernoulli(probs=jnp.array(0.7))
 
     # Create the mixture distribution
-    mixture_dist = Mixture(
-        components=[bernoulli1, bernoulli2], weights=jnp.array([0.4, 0.6]), rngs=rngs
-    )
+    mixture_dist = Mixture(components=[bernoulli1, bernoulli2], weights=jnp.array([0.4, 0.6]))
 
     try:
         samples = mixture_dist.sample(sample_shape=(10,), rngs=rngs)

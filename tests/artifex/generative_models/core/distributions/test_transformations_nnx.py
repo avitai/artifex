@@ -5,7 +5,6 @@ import jax
 import jax.numpy as jnp
 import pytest
 from flax import nnx
-from substrax.rng import MissingRngStreamError
 
 from artifex.generative_models.core.distributions import (
     AffineTransform,
@@ -28,7 +27,6 @@ def test_affine_transform(seed):
     base_dist = Normal(
         loc=jnp.array(0.0),
         scale=jnp.array(1.0),
-        rngs=rngs,
     )
 
     # Create affine transform
@@ -38,7 +36,6 @@ def test_affine_transform(seed):
         base_distribution=base_dist,
         shift=shift,
         scale=scale,
-        rngs=rngs,
     )
 
     # Test sampling
@@ -74,7 +71,6 @@ def test_transformed_distribution_with_bijector(seed):
     base_dist = Normal(
         loc=jnp.array(0.0),
         scale=jnp.array(1.0),
-        rngs=rngs,
     )
 
     # Create a Sigmoid bijector (transforms R -> (0,1))
@@ -84,7 +80,6 @@ def test_transformed_distribution_with_bijector(seed):
     transformed_dist = TransformedDistribution(
         base_distribution=base_dist,
         bijector=bijector,
-        rngs=rngs,
     )
 
     # Test sampling
@@ -118,7 +113,6 @@ def test_affine_transform_edge_cases():
     base_dist = Normal(
         loc=jnp.array(0.0),
         scale=jnp.array(1.0),
-        rngs=rngs,
     )
 
     # Test with None shift and scale (should use defaults)
@@ -126,26 +120,22 @@ def test_affine_transform_edge_cases():
         base_distribution=base_dist,
         shift=None,
         scale=None,
-        rngs=rngs,
     )
 
-    # Test __call__ method with x=None (sampling)
-    sample = transformed_dist(x=None, rngs=rngs)
+    sample = transformed_dist.sample(rngs=rngs)
     assert sample.shape == ()
 
-    # Test __call__ method with x provided (log_prob)
     x = jnp.array(1.0)
-    log_prob = transformed_dist(x=x)
+    log_prob = transformed_dist.log_prob(x)
     assert log_prob.shape == ()
 
     # Test entropy method
     entropy = transformed_dist.entropy()
     assert entropy.shape == ()
 
-    # Test sampling with different RNG configurations
-    # Test with None rngs (should use internal)
-    sample_no_rngs = transformed_dist.sample(rngs=None)
-    assert sample_no_rngs.shape == ()
+    # A distribution holds no key: a missing nnx.Rngs is refused.
+    with pytest.raises(TypeError, match="rngs must be an nnx.Rngs"):
+        transformed_dist.sample(rngs=None)
 
     # Test with rngs that has "default" key instead of "sample"
     rngs_default = nnx.Rngs(default=jax.random.key(123))
@@ -166,7 +156,6 @@ def test_transformed_distribution_edge_cases():
     base_dist = Normal(
         loc=jnp.array(0.0),
         scale=jnp.array(1.0),
-        rngs=rngs,
     )
 
     # Create a simple bijector
@@ -176,26 +165,22 @@ def test_transformed_distribution_edge_cases():
     transformed_dist = TransformedDistribution(
         base_distribution=base_dist,
         bijector=bijector,
-        rngs=rngs,
     )
 
-    # Test __call__ method with x=None (sampling)
-    sample = transformed_dist(x=None, rngs=rngs)
+    sample = transformed_dist.sample(rngs=rngs)
     assert sample.shape == ()
 
-    # Test __call__ method with x provided (log_prob)
     x = jnp.array(5.0)
-    log_prob = transformed_dist(x=x)
+    log_prob = transformed_dist.log_prob(x)
     assert log_prob.shape == ()
 
     # Test entropy method
     entropy = transformed_dist.entropy()
     assert entropy.shape == ()
 
-    # Test sampling with different RNG configurations
-    # Test with None rngs (should use internal)
-    sample_no_rngs = transformed_dist.sample(rngs=None)
-    assert sample_no_rngs.shape == ()
+    # A distribution holds no key: a missing nnx.Rngs is refused.
+    with pytest.raises(TypeError, match="rngs must be an nnx.Rngs"):
+        transformed_dist.sample(rngs=None)
 
     # Test with rngs that has "default" key instead of "sample"
     rngs_default = nnx.Rngs(default=jax.random.key(456))
@@ -216,7 +201,6 @@ def test_affine_transform_with_batch_dimensions():
     base_dist = Normal(
         loc=jnp.array([0.0, 1.0, 2.0]),
         scale=jnp.array([1.0, 0.5, 2.0]),
-        rngs=rngs,
     )
 
     # Create affine transform with batch dimensions
@@ -226,7 +210,6 @@ def test_affine_transform_with_batch_dimensions():
         base_distribution=base_dist,
         shift=shift,
         scale=scale,
-        rngs=rngs,
     )
 
     # Test sampling
@@ -252,7 +235,6 @@ def test_error_conditions():
     base_dist = Normal(
         loc=jnp.array(0.0),
         scale=jnp.array(1.0),
-        rngs=rngs,
     )
 
     # Create transformed distribution
@@ -260,7 +242,6 @@ def test_error_conditions():
     transformed_dist = TransformedDistribution(
         base_distribution=base_dist,
         bijector=bijector,
-        rngs=rngs,
     )
 
     # Manually set _dist to None to test error condition
@@ -283,26 +264,24 @@ def test_error_conditions():
 
 
 def test_fallback_rng_handling():
-    """Test fallback RNG handling when no proper RNG is provided."""
+    """A missing nnx.Rngs, and one with neither the stream nor a default, are refused."""
     print("Testing fallback RNG handling...")
 
     # Create base distribution
     base_dist = Normal(
         loc=jnp.array(0.0),
-        scale=jnp.array(1.0),
-        rngs=None,  # No RNGs provided
+        scale=jnp.array(1.0),  # No RNGs provided
     )
 
     # Create transformed distribution
     transformed_dist = AffineTransform(
         base_distribution=base_dist,
         shift=jnp.array(5.0),
-        scale=jnp.array(2.0),
-        rngs=None,  # No RNGs provided
+        scale=jnp.array(2.0),  # No RNGs provided
     )
 
-    with pytest.raises(ValueError, match="rngs must be provided"):
+    with pytest.raises(TypeError, match="rngs must be an nnx.Rngs"):
         transformed_dist.sample(rngs=None)
 
-    with pytest.raises(MissingRngStreamError, match="distribution sampling"):
+    with pytest.raises(KeyError, match="No RngStream named 'sample'"):
         transformed_dist.sample(rngs=nnx.Rngs(params=jax.random.key(0)))

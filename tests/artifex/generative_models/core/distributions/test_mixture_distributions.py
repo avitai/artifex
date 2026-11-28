@@ -88,20 +88,6 @@ class TestMixtureOfGaussians:
         # Check weights influence (second component has higher weight)
         assert prob_y > prob_x
 
-    def test_call(self, mog_dist):
-        """Test __call__ method for MixtureOfGaussians."""
-        key = jax.random.PRNGKey(0)
-        rngs = nnx.Rngs(sample=key)
-
-        # Test with x provided (should return log_prob)
-        x = jnp.array([0.0, 0.0, 0.0])
-        result_x = mog_dist(x)
-        assert jnp.shape(result_x) == ()  # scalar log probability
-
-        # Test with x=None (should return sample)
-        result_sample = mog_dist(x=None, rngs=rngs)
-        assert result_sample.shape == (3,)  # Single sample
-
     def test_with_nnx_rng(self, mog_dist):
         """Test using nnx.Rngs for sampling."""
         rngs = nnx.Rngs(0)
@@ -185,20 +171,6 @@ class TestMixture:
 
         # Check that weights influence probabilities correctly
         assert prob_y > prob_x
-
-    def test_call(self, mixture_dist):
-        """Test __call__ method for Mixture."""
-        key = jax.random.PRNGKey(0)
-        rngs = nnx.Rngs(sample=key)
-
-        # Test with x provided (should return log_prob)
-        x = jnp.array(0.0)
-        result_x = mixture_dist(x)
-        assert jnp.shape(result_x) == ()  # scalar log probability
-
-        # Test with x=None (should return sample)
-        result_sample = mixture_dist(x=None, rngs=rngs)
-        assert result_sample.shape == ()  # Single sample (scalar)
 
     def test_with_categorical(self):
         """Test Mixture with a categorical component."""

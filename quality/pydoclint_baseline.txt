@@ -231,10 +231,6 @@ src/artifex/generative_models/core/distributions/discrete.py
     DOC501: Method `OneHotCategorical.mode` has raise statements, but the docstring does not have a "Raises" section
     DOC503: Method `OneHotCategorical.mode` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
 --------------------
-src/artifex/generative_models/core/distributions/mixture.py
-    DOC501: Method `Mixture._get_sample_key` has raise statements, but the docstring does not have a "Raises" section
-    DOC503: Method `Mixture._get_sample_key` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].
---------------------
 src/artifex/generative_models/core/evaluation/metrics/text/perplexity.py
     DOC501: Method `Perplexity.compute_log_probs` has raise statements, but the docstring does not have a "Raises" section
     DOC503: Method `Perplexity.compute_log_probs` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: []. Raised exceptions in the body: ['ValueError'].

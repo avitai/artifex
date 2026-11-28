@@ -17,5 +17,5 @@ concurrency:
 
 jobs:
   examples:
-    # Pinned by commit (substrax v0.1.37).
-    uses: avitai/substrax/.github/workflows/examples.yml@d748d3c67a60548a89023803ecf822c17ff36e87
+    # Pinned by commit (substrax v0.1.38).
+    uses: avitai/substrax/.github/workflows/examples.yml@d0c7a483f082e9e1b23bba1e245747bf5a463177

@@ -4,6 +4,7 @@ import distrax
 import jax
 import jax.numpy as jnp
 from flax import nnx
+from substrax.rng import SAMPLE_STREAM
 
 from .base import Distribution
 
@@ -20,7 +21,7 @@ class Bernoulli(Distribution):
         probs: jax.Array | None = None,
         logits: jax.Array | None = None,
         *,
-        rngs: nnx.Rngs | None = None,
+        rng_collection: str = SAMPLE_STREAM,
     ):
         """Initialize a Bernoulli distribution.
 
@@ -29,9 +30,9 @@ class Bernoulli(Distribution):
                 If None, will be initialized as a parameter.
             logits: Logits of success probability.
                 If None, will be initialized as a parameter.
-            rngs: Random number generators for initialization and sampling.
+            rng_collection: The ``nnx.Rngs`` stream ``sample`` draws its key from.
         """
-        super().__init__(rngs=rngs)
+        super().__init__(rng_collection=rng_collection)
 
         if probs is not None and logits is not None:
             raise ValueError("Cannot specify both probs and logits.")
@@ -76,7 +77,7 @@ class Categorical(Distribution):
         logits: jax.Array | None = None,
         num_classes: int | None = None,
         *,
-        rngs: nnx.Rngs | None = None,
+        rng_collection: str = SAMPLE_STREAM,
     ):
         """Initialize a Categorical distribution.
 
@@ -87,9 +88,9 @@ class Categorical(Distribution):
                 If None, will be initialized as a parameter.
             num_classes: Number of categories.
                 Only used when both probs and logits are None.
-            rngs: Random number generators for initialization and sampling.
+            rng_collection: The ``nnx.Rngs`` stream ``sample`` draws its key from.
         """
-        super().__init__(rngs=rngs)
+        super().__init__(rng_collection=rng_collection)
         self.num_classes = num_classes
 
         if probs is not None and logits is not None:
@@ -159,7 +160,7 @@ class OneHotCategorical(Distribution):
         logits: jax.Array | None = None,
         num_classes: int | None = None,
         *,
-        rngs: nnx.Rngs | None = None,
+        rng_collection: str = SAMPLE_STREAM,
     ):
         """Initialize a OneHotCategorical distribution.
 
@@ -170,14 +171,14 @@ class OneHotCategorical(Distribution):
                 If None, will be initialized as a parameter.
             num_classes: Number of categories.
                 Only used when both probs and logits are None.
-            rngs: Random number generators for initialization and sampling.
+            rng_collection: The ``nnx.Rngs`` stream ``sample`` draws its key from.
         """
-        super().__init__(rngs=rngs)
+        super().__init__(rng_collection=rng_collection)
         self.num_classes = num_classes
 
         # Create underlying categorical distribution
         self.categorical = Categorical(
-            probs=probs, logits=logits, num_classes=num_classes, rngs=rngs
+            probs=probs, logits=logits, num_classes=num_classes, rng_collection=rng_collection
         )
 
         # Get the number of classes from the categorical distribution
@@ -195,31 +196,12 @@ class OneHotCategorical(Distribution):
         # Note: We don't set self._dist here because OneHotCategorical delegates
         # all operations to self.categorical, which has its own _dist already wrapped
 
-    def __call__(
-        self, x: jax.Array | None = None, *, rngs: nnx.Rngs | None = None
-    ) -> jax.Array | tuple[jax.Array, jax.Array]:
-        """Compute log probability of x or sample if x is None.
-
-        Args:
-            x: Input tensor. If None, returns a sample.
-            rngs: Random number generators for sampling.
-                If None, uses the distribution's internal RNGs.
-
-        Returns:
-            If x is provided, returns log probability of x.
-            If x is None, returns a one-hot encoded sample.
-        """
-        if x is None:
-            return self.sample(sample_shape=(), rngs=rngs)
-        return self.log_prob(x)
-
-    def sample(self, sample_shape: tuple = (), *, rngs: nnx.Rngs | None = None) -> jax.Array:
+    def sample(self, sample_shape: tuple = (), *, rngs: nnx.Rngs) -> jax.Array:
         """Sample from the OneHotCategorical distribution.
 
         Args:
             sample_shape: Shape of the samples.
-            rngs: Random number generators for sampling.
-                If None, uses the distribution's internal RNGs.
+            rngs: Holds the ``rng_collection`` stream, or a ``default`` one.
 
         Returns:
             One-hot encoded samples from the distribution.

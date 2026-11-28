@@ -262,7 +262,6 @@
       "ANN002": 1,
       "ANN003": 1,
       "ANN202": 1,
-      "ANN204": 1,
       "ANN205": 1,
       "B905": 1,
       "C901": 2
@@ -275,9 +274,7 @@
       "RET505": 1
     },
     "src/artifex/generative_models/core/distributions/mixture.py": {
-      "ANN204": 2,
-      "B007": 1,
-      "B905": 1
+      "ANN204": 2
     },
     "src/artifex/generative_models/core/distributions/transformations.py": {
       "ANN204": 2
@@ -968,9 +965,9 @@
       "RET504": 1
     },
     "src/artifex/generative_models/models/gan/cyclegan.py": {
-      "ANN003": 2,
+      "ANN003": 1,
       "ANN204": 3,
-      "ARG002": 3,
+      "ARG002": 2,
       "B007": 3,
       "B905": 3,
       "C901": 1,

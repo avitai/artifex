@@ -13,14 +13,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   class in the package, one case module per family under `cases/`: the core layers and base
   networks, the backbones, losses and distributions, the VAE, flow, GAN, diffusion,
   autoregressive, energy, geometric and audio models, the extensions, the modalities and the
-  benchmark metrics, 2,076 checks over 243 classes. Each class is
+  benchmark metrics, 2,143 checks over 243 classes. Each class is
   built with the capabilities it claims (dropout, batch statistics, independent rows), and a
   model with two directions runs both: a flow's forward and inverse, a GAN's discriminator and
   its generator on given latents, a denoiser with the x0 estimate and posterior its reverse step
-  uses. A module whose tests call it one sample at a time is called per row. 37 classes are
+  uses. A distribution has a second case that draws samples with the key the check chooses, which
+  owes `output_follows_key` in place of `eval_deterministic`. A module whose tests call it one
+  sample at a time is called per row. 37 classes are
   exempt with a written reason (base classes, private parts run through their owner, modules
   that take strings or need a trained generator), and a test fails for any concrete module with
-  neither a case nor an exemption. The 537 checks 157 classes fail today are strict expected
+  neither a case nor an exemption. The 498 checks 157 classes fail today are strict expected
   failures, each naming its
   defect and its row in the audit register, and each must fail with `ConformanceError` rather
   than crash: `.eval()` overridden by a `deterministic=False` default (transformers, positional
@@ -31,7 +33,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   latent diffusion), a stored `Rngs` shared with a child module, which tree mode refuses (the UNet
   blocks, the diffusion models built on UNet1D, Stable Diffusion, the neural spline flow), a
   stored `Rngs` that `nnx.view` draws a key from, because its `default` stream answers the
-  `set_view` probe (75 classes: the UNet blocks and backbones, and every model, extension,
+  `set_view` probe (66 classes: the UNet blocks and backbones, and every model, extension,
   modality and metric that keeps `self.rngs`), state created on the
   first call (Glow, VQ-VAE), MADE hidden units with no input (MAF, IAF), and an `nnx.jit`
   decorator on `SE3MolecularFlow.log_prob` that breaks an outer gradient, outputs that are host
@@ -41,8 +43,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   coupled through batch-wide statistics. One cause is a flax
   defect rather than an artifex one, named as such: `nnx.Embed` fixes its dtype when built, where
   linen's `Embed` resolves it at call time, so a float64 copy looks up in float32 (`LabelEmbedder`,
-  the CLIP token embedding, the SE(3) atom embedding). `cases.NOT_APPLICABLE` holds one check a
-  module does not owe by design, VQ-VAE's straight-through gradient. A fix deletes its entries; an
+  the CLIP token embedding, the SE(3) atom embedding). `cases.NOT_APPLICABLE` holds the two checks
+  a module does not owe by design: VQ-VAE's straight-through gradient, and the finite-difference
+  check of a Beta draw, whose gradient is the implicit reparameterization gradient of its Gamma
+  draws rather than the derivative of the sampler at a fixed key. A fix deletes its entries; an
   entry whose check passes fails the suite.
 - Strict expected failures guard two defects no conformance check reaches: `SE3EquivariantLayer`
   with `in_features != out_features` raises, and a CycleGAN generator configured with dropout
@@ -132,12 +136,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Code that trains these modules without passing keys now raises, including in the sibling
   packages that import `MLP`, `CNN`, the transformer blocks and the attention layers, once they
   pin this release.
+- **Breaking:** a distribution takes its sampling key at call time and holds none. The
+  constructors of `Normal`, `Beta`, `Bernoulli`, `Categorical`, `OneHotCategorical`, `Mixture`,
+  `MixtureOfGaussians`, `AffineTransform` and `TransformedDistribution` no longer take `rngs`
+  (they build their parameters from values), and `sample(sample_shape, *, rngs)` requires an
+  `nnx.Rngs`. The draw uses the stream the instance names in the new keyword
+  `rng_collection` (`"sample"` by default, as flax's `nnx.Dropout(rng_collection=...)` names its
+  stream), falling back to `default`; anything but an `nnx.Rngs` raises `TypeError`, and an
+  `nnx.Rngs` with neither stream raises flax's `KeyError` (`substrax.rng.stream_key`).
+  `Distribution.__call__` is removed: call `log_prob(x)` or `sample(rngs=...)`. `Mixture.sample`
+  keeps its key scheme, one key split into the choice and one per component, and now traces
+  under `nnx.jit` (its sizes were read from traced values). The private `_get_rng_key`,
+  `_split_rng_key` and `_create_parallel_rngs` helpers are removed. With no stored `Rngs`, the
+  distributions split in tree mode and `nnx.view` no longer draws a key from them. opifex builds
+  `Normal(..., rngs=...)` in three tests and one documentation example, which break when it pins
+  this release.
 - The Avitai siblings are pinned exactly at their latest releases: `calibrax==0.1.21`,
   `datarax==0.1.17` and `substrax==0.1.31`, the test extra's `substrax[testing]` included, so
   the latest versions always install together and each sibling release is followed by an artifex
   release that only moves the pins. The lock moves calibrax from 0.1.20 to 0.1.21 and nothing
   else.
-- `substrax==0.1.37`, the test extra's `substrax[notebooks,testing]` included. From 0.1.32 its gradient
+- `substrax==0.1.38`, the test extra's `substrax[notebooks,testing]` included. From 0.1.32 its gradient
   checks take their float64 finite differences with a step of 1e-6 instead of `check_grads`'
   1e-4, and two correct gradients the old step failed now pass their conformance check,
   `SE3EquivariantLayer`'s (truncation error) and `StyleGAN3Generator`'s (a step across a
@@ -150,8 +169,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   without a batch axis. 0.1.36 runs `train_dropout_varies`'s same-key comparison with every PRNG
   key the module holds changed, so a dropout layer the call-time key does not reach, or noise
   from a stored stream, fails it. 0.1.37 adds `[tool.substrax.examples] pending`, which holds an
-  example back with a stated reason until the fix it waits on lands. The lock moves substrax
-  from 0.1.31 and nothing else.
+  example back with a stated reason until the fix it waits on lands. 0.1.38 adds
+  `substrax.rng.stream_key` and the stream-name constants, and a conformance case kind for calls
+  that draw (`Case(draws=True)`), checked by `output_follows_key`. The lock moves substrax from
+  0.1.31 and nothing else.
 - **Breaking:** `ModelTypeRegistry` is built on calibrax's `Registry`, so registering a model
   type twice raises calibrax's `DuplicateRegistrationError` (a `ValueError`, exported from
   `calibrax.core`) and keeps the builder registered first. `DuplicateBuilderError` is removed, and

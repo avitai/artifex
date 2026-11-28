@@ -40,7 +40,10 @@ from tests.artifex.nnx_conformance.cases import (
 
 
 def all_cases() -> dict[str, Case]:
-    """Return every case, by the qualified name of the class it builds."""
+    """Return every case, by the qualified name of the class it builds.
+
+    A class whose method draws has a further case for it, keyed ``<class>#<method>``.
+    """
     return {
         **core.layer_cases(),
         **core.base_cases(),
@@ -55,6 +58,7 @@ def all_cases() -> dict[str, Case]:
         **audio.cases(),
         **objectives.cases(),
         **distributions.cases(),
+        **distributions.draw_cases(),
         **extensions.cases(),
         **image_modality.cases(),
         **multi_modal.cases(),
@@ -84,7 +88,7 @@ EXEMPT: dict[str, str] = {
 }
 """Classes with no case of their own, each with the reason."""
 
-NOT_APPLICABLE: dict[tuple[str, str], str] = {**vae.NOT_APPLICABLE}
+NOT_APPLICABLE: dict[tuple[str, str], str] = {**vae.NOT_APPLICABLE, **distributions.NOT_APPLICABLE}
 """Checks a case's module does not owe, keyed like the known failures, each with the reason.
 
 A check belongs here when the method the module implements makes the property false by design.

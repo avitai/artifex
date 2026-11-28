@@ -7,6 +7,7 @@ like shifting, scaling, and more complex bijective transformations.
 import distrax
 import jax
 from flax import nnx
+from substrax.rng import SAMPLE_STREAM
 
 from .base import Distribution
 
@@ -24,7 +25,7 @@ class AffineTransform(Distribution):
         shift: jax.Array | None = None,
         scale: jax.Array | None = None,
         *,
-        rngs: nnx.Rngs | None = None,
+        rng_collection: str = SAMPLE_STREAM,
     ):
         """Initialize an affine transformed distribution.
 
@@ -32,9 +33,9 @@ class AffineTransform(Distribution):
             base_distribution: The base distribution to transform
             shift: Shift parameter (loc). If None, no shift is applied.
             scale: Scale parameter. If None, no scaling is applied.
-            rngs: Random number generators for initialization and sampling.
+            rng_collection: The ``nnx.Rngs`` stream ``sample`` draws its key from.
         """
-        super().__init__(rngs=rngs)
+        super().__init__(rng_collection=rng_collection)
         self.base_distribution = base_distribution
 
         self.shift = shift if shift is not None else 0.0
@@ -66,16 +67,16 @@ class TransformedDistribution(Distribution):
         base_distribution: Distribution,
         bijector: distrax.Bijector,
         *,
-        rngs: nnx.Rngs | None = None,
+        rng_collection: str = SAMPLE_STREAM,
     ):
         """Initialize a transformed distribution.
 
         Args:
             base_distribution: The base distribution to transform
             bijector: The bijector to apply to the distribution
-            rngs: Random number generators for initialization and sampling.
+            rng_collection: The ``nnx.Rngs`` stream ``sample`` draws its key from.
         """
-        super().__init__(rngs=rngs)
+        super().__init__(rng_collection=rng_collection)
         self.base_distribution = base_distribution
         self.bijector = nnx.data(bijector)
         self._dist = nnx.data(True)

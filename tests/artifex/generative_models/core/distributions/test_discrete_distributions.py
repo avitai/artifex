@@ -57,18 +57,6 @@ class TestBernoulli:
         # Check mean is approximately p
         assert jnp.allclose(jnp.mean(samples), 0.7, atol=0.1)
 
-    def test_call(self, rngs, bernoulli_probs):
-        """Test __call__ method."""
-        # Test sampling
-        samples = bernoulli_probs(rngs=rngs)
-        assert isinstance(samples, jax.Array)
-
-        # Test log probability computation
-        x = jnp.array([0.0, 1.0])
-        log_probs = bernoulli_probs(x)
-        assert log_probs.shape == (2,)
-        assert log_probs[1] > log_probs[0]
-
     def test_log_prob(self, bernoulli_probs):
         """Test log probability computation."""
         x = jnp.array([0.0, 1.0])
@@ -140,18 +128,6 @@ class TestCategorical:
         probs = counts / 1000
         probs_expected = jnp.array([0.2, 0.3, 0.5])
         assert jnp.allclose(probs, probs_expected, atol=0.1)
-
-    def test_call(self, rngs, categorical_probs):
-        """Test __call__ method."""
-        # Test sampling
-        samples = categorical_probs(rngs=rngs)
-        assert isinstance(samples, jax.Array)
-
-        # Test log probability computation
-        x = jnp.array([0, 1, 2])
-        log_probs = categorical_probs(x)
-        assert log_probs.shape == (3,)
-        assert jnp.allclose(jnp.exp(log_probs), jnp.array([0.2, 0.3, 0.5]))
 
     def test_log_prob(self, categorical_probs):
         """Test log probability computation."""
@@ -237,26 +213,6 @@ class TestOneHotCategorical:
         probs = counts / 1000
         probs_expected = jnp.array([0.2, 0.3, 0.5])
         assert jnp.allclose(probs, probs_expected, atol=0.1)
-
-    def test_call(self, rngs, onehot_probs):
-        """Test __call__ method."""
-        # Test sampling
-        samples = onehot_probs(rngs=rngs)
-        assert isinstance(samples, jax.Array)
-        assert samples.shape == (3,)
-        assert jnp.sum(samples) == 1
-
-        # Test log probability computation
-        x = jnp.array(
-            [
-                [1, 0, 0],  # one-hot for class 0
-                [0, 1, 0],  # one-hot for class 1
-                [0, 0, 1],  # one-hot for class 2
-            ]
-        )
-        log_probs = onehot_probs(x)
-        assert log_probs.shape == (3,)
-        assert jnp.allclose(jnp.exp(log_probs), jnp.array([0.2, 0.3, 0.5]))
 
     def test_log_prob(self, onehot_probs):
         """Test log probability computation."""

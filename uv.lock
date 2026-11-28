@@ -861,8 +861,8 @@ requires-dist = [
     { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.1.5" },
     { name = "scikit-learn", specifier = ">=1.6.1" },
     { name = "scipy", specifier = ">=1.12.1" },
-    { name = "substrax", specifier = "==0.1.37" },
-    { name = "substrax", extras = ["notebooks", "testing"], marker = "extra == 'test'", specifier = "==0.1.37" },
+    { name = "substrax", specifier = "==0.1.38" },
+    { name = "substrax", extras = ["notebooks", "testing"], marker = "extra == 'test'", specifier = "==0.1.38" },
     { name = "tensorboard", marker = "extra == 'dev'", specifier = ">=2.16" },
     { name = "tensorboard", marker = "extra == 'logging'", specifier = ">=2.16" },
     { name = "tqdm", specifier = ">=4.67" },
@@ -6114,7 +6114,7 @@ wheels = [
 
 [[package]]
 name = "substrax"
-version = "0.1.37"
+version = "0.1.38"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "etils", extra = ["epath"] },
@@ -6126,9 +6126,9 @@ dependencies = [
     { name = "orbax-checkpoint" },
     { name = "pydantic" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/22/24/4e4c065270b30b5ef40c55141e6b17551cb8c92f162d68bb92ca6cc57012/substrax-0.1.37.tar.gz", hash = "sha256:63599dd1bcb9b2f70f95eb5b59c3d96755e0a648ee56bb31ab49ecc46ab3ddd2", size = 223685, upload-time = "2026-11-25T01:05:59.749Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/e1/d4/4bff886f212de3821e2e2f0aed7d0a8b3851add38134cc29af6755195a06/substrax-0.1.38.tar.gz", hash = "sha256:23c01c8ac85e831c591a359beaa142fb2eb1f4d2b4b51f3fa3c94fcae27ba2f9", size = 225690, upload-time = "2026-11-27T22:00:32.583Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/40/cc/4588bdc50af1502f3068e7174c30d44530c02cd8773ea4f33022ea28b49a/substrax-0.1.37-py3-none-any.whl", hash = "sha256:8f8499fe11554ea91f928fb58b7e5f13b1b0e2a150dbb4f062279daa1e643aaa", size = 268782, upload-time = "2026-11-25T01:05:57.756Z" },
+    { url = "https://files.pythonhosted.org/packages/bd/ab/e3caece260e4650ef0375caac0f48bb69a494d628db0fefce1881b9b8bb9/substrax-0.1.38-py3-none-any.whl", hash = "sha256:70ded3543dd3b39693c6acd5e9d5412899a7f6cb16b60ac07aeff610075a4286", size = 270961, upload-time = "2026-11-27T22:00:30.8Z" },
 ]
 
 [package.optional-dependencies]

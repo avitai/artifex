@@ -72,7 +72,7 @@ dependencies = [
   "scipy>=1.12.1",
   # Device identity, meshes, SPMD helpers, checkpoint store, callbacks and trackers
   # shared across the Avitai libraries.
-  "substrax==0.1.37",
+  "substrax==0.1.38",
   "tqdm>=4.67",
   "psutil>=5.9.5",
   "typing_extensions>=4.5"
@@ -247,7 +247,7 @@ test = [
   "pytest-xdist>=3.6",
   # The substrax pytest plugin, fresh-interpreter helpers and NNX checks the suite runs on; the
   # notebooks extra is substrax-notebooks, which writes, checks, pages and runs the examples.
-  "substrax[notebooks,testing]==0.1.37"
+  "substrax[notebooks,testing]==0.1.38"
 ]
 
 [project.scripts]
@@ -662,10 +662,10 @@ max-complexity = 10
 "src/artifex/generative_models/core/configuration/gan_config.py" = ["C901", "PLR0912"]
 "src/artifex/generative_models/core/configuration/management/templates.py" = ["ANN204", "C901", "PLR0912", "TRY301"]
 "src/artifex/generative_models/core/configuration/management/versioning.py" = ["ANN204", "PTH103", "PTH123"]
-"src/artifex/generative_models/core/distributions/base.py" = ["ANN001", "ANN002", "ANN003", "ANN202", "ANN204", "ANN205", "B905", "C901"]
+"src/artifex/generative_models/core/distributions/base.py" = ["ANN001", "ANN002", "ANN003", "ANN202", "ANN205", "B905", "C901"]
 "src/artifex/generative_models/core/distributions/continuous.py" = ["ANN204"]
 "src/artifex/generative_models/core/distributions/discrete.py" = ["ANN204", "RET505"]
-"src/artifex/generative_models/core/distributions/mixture.py" = ["ANN204", "B007", "B905"]
+"src/artifex/generative_models/core/distributions/mixture.py" = ["ANN204"]
 "src/artifex/generative_models/core/distributions/transformations.py" = ["ANN204"]
 "src/artifex/generative_models/core/layers/attention_backend.py" = ["PLR0913"]
 "src/artifex/generative_models/core/layers/causal.py" = ["RET505"]
