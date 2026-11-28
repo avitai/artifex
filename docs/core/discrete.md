@@ -26,24 +26,6 @@ class OneHotCategorical
 
 ## Functions
 
-### **call**
-
-```python
-def __call__()
-```
-
-### **call**
-
-```python
-def __call__()
-```
-
-### **call**
-
-```python
-def __call__()
-```
-
 ### **init**
 
 ```python
@@ -149,5 +131,5 @@ def sample()
 ## Module Statistics
 
 - **Classes:** 3
-- **Functions:** 20
+- **Functions:** 17
 - **Imports:** 5

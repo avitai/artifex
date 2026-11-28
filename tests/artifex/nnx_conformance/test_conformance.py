@@ -22,6 +22,11 @@ from tests.artifex.nnx_conformance.known_failures import KNOWN_FAILURES
 CASES = all_cases()
 
 
+def _class_of(name: str) -> str:
+    """The qualified class name of a case: a method's case is keyed ``<class>#<method>``."""
+    return name.partition("#")[0]
+
+
 def _parameters() -> list[pytest.param]:
     parameters = []
     for name, case in sorted(CASES.items()):
@@ -72,8 +77,9 @@ def test_every_nnx_module_in_the_package_has_a_case_or_an_exemption() -> None:
     classes = set(module_classes(artifex))
 
     assert "artifex.generative_models.core.base.MLP" in classes
-    assert sorted(classes - set(CASES) - set(EXEMPT)) == []
-    assert sorted(set(CASES) & set(EXEMPT)) == []
+    covered = {_class_of(name) for name in CASES}
+    assert sorted(classes - covered - set(EXEMPT)) == []
+    assert sorted(covered & set(EXEMPT)) == []
 
 
 def test_every_case_and_exemption_names_a_class_of_its_own() -> None:
@@ -81,7 +87,7 @@ def test_every_case_and_exemption_names_a_class_of_its_own() -> None:
     classes = set(module_classes(artifex))
 
     assert "artifex.generative_models.core.base.MLP" in classes
-    assert sorted((set(CASES) | set(EXEMPT)) - classes) == []
+    assert sorted(({_class_of(name) for name in CASES} | set(EXEMPT)) - classes) == []
 
 
 def _holds_dropout(module: nnx.Module) -> bool:

@@ -20,18 +20,6 @@ class Normal
 
 ## Functions
 
-### **call**
-
-```python
-def __call__()
-```
-
-### **call**
-
-```python
-def __call__()
-```
-
 ### **init**
 
 ```python
@@ -107,5 +95,5 @@ def variance()
 ## Module Statistics
 
 - **Classes:** 2
-- **Functions:** 14
+- **Functions:** 12
 - **Imports:** 5

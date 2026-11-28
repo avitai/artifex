@@ -25,7 +25,6 @@ def test_mixture_of_gaussians():
         locs=jnp.array([[0.0, 0.0], [5.0, 5.0]]),  # [components, event_size]
         scales=jnp.array([[1.0, 1.0], [0.5, 0.5]]),
         weights=jnp.array([0.3, 0.7]),
-        rngs=rngs,
     )
 
     # Test sampling
@@ -57,15 +56,14 @@ def test_general_mixture():
 
     # Create component distributions
     components = [
-        Bernoulli(probs=jnp.array(0.2), rngs=rngs),
-        Bernoulli(probs=jnp.array(0.8), rngs=rngs),
+        Bernoulli(probs=jnp.array(0.2)),
+        Bernoulli(probs=jnp.array(0.8)),
     ]
 
     # Initialize mixture
     dist = Mixture(
         components=components,
         weights=jnp.array([0.4, 0.6]),
-        rngs=rngs,
     )
 
     # Test sampling

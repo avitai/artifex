@@ -10,7 +10,7 @@ Concrete shared base class for Artifex probability distributions.
 
 This module owns the reusable runtime behavior for:
 
-- sampling with `nnx.Rngs`
+- sampling with an `nnx.Rngs` given at call time
 - log-probability evaluation
 - entropy and KL caching
 - numerical-stability helpers
@@ -34,7 +34,9 @@ Shared concrete distribution foundation for Artifex distribution modules.
 def sample()
 ```
 
-Draw samples using the distribution's RNG-aware runtime.
+Draw samples with a key taken at call time: `sample(sample_shape, *, rngs)` requires an
+`nnx.Rngs` and draws from the stream the distribution names in `rng_collection` (`sample` by
+default, falling back to `default`). A distribution holds no key of its own.
 
 ### log_prob
 

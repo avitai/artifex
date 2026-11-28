@@ -27,18 +27,6 @@ class MixtureOfGaussians
 
 ## Functions
 
-### **call**
-
-```python
-def __call__()
-```
-
-### **call**
-
-```python
-def __call__()
-```
-
 ### **init**
 
 ```python
@@ -90,5 +78,5 @@ def sample()
 ## Module Statistics
 
 - **Classes:** 2
-- **Functions:** 10
+- **Functions:** 8
 - **Imports:** 5

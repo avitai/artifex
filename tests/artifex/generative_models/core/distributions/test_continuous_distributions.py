@@ -56,20 +56,6 @@ class TestNormal:
         assert jnp.allclose(jnp.mean(samples), 0.0, atol=0.1)
         assert jnp.allclose(jnp.std(samples), 1.0, atol=0.1)
 
-    def test_call(self, rngs, normal_fixed):
-        """Test __call__ method."""
-        # Test sampling
-        samples = normal_fixed(rngs=rngs)
-        assert isinstance(samples, jax.Array)
-
-        # Test log probability computation
-        x = jnp.array([-1.0, 0.0, 1.0])
-        log_probs = normal_fixed(x)
-        assert log_probs.shape == (3,)
-        # Check that log probability is highest at mean
-        assert log_probs[1] > log_probs[0]
-        assert log_probs[1] > log_probs[2]
-
     def test_log_prob(self, normal_fixed):
         """Test log probability computation."""
         x = jnp.array([-1.0, 0.0, 1.0])
@@ -126,19 +112,6 @@ class TestBeta:
         # Check mean is approximately alpha/(alpha+beta)
         assert jnp.allclose(jnp.mean(samples), 2.0 / 5.0, atol=0.1)
 
-    def test_call(self, rngs, beta_fixed):
-        """Test __call__ method."""
-        # Test sampling
-        samples = beta_fixed(rngs=rngs)
-        assert isinstance(samples, jax.Array)
-
-        # Test log probability computation
-        x = jnp.array([0.25, 0.5, 0.75])
-        log_probs = beta_fixed(x)
-        assert log_probs.shape == (3,)
-        # Check that log probability is finite
-        assert jnp.all(jnp.isfinite(log_probs))
-
     def test_log_prob(self, beta_fixed):
         """Test log probability computation."""
         x = jnp.array([0.25, 0.5, 0.75])
@@ -185,7 +158,7 @@ class TestJITCompatibility:
     def test_normal_jit_compatibility(self, rngs):
         """Test that Normal distribution methods are JIT-compatible."""
         # Create a Normal distribution
-        normal = Normal(loc=jnp.array(0.0), scale=jnp.array(1.0), rngs=rngs)
+        normal = Normal(loc=jnp.array(0.0), scale=jnp.array(1.0))
 
         # Test that methods can be JIT compiled using proper NNX pattern
         # NNX JIT requires functions that take the module as first argument
@@ -221,7 +194,7 @@ class TestJITCompatibility:
     def test_beta_jit_compatibility(self, rngs):
         """Test that Beta distribution methods are JIT-compatible."""
         # Create a Beta distribution
-        beta = Beta(concentration0=jnp.array(2.0), concentration1=jnp.array(3.0), rngs=rngs)
+        beta = Beta(concentration0=jnp.array(2.0), concentration1=jnp.array(3.0))
 
         key = jax.random.key(42)
 
@@ -246,32 +219,27 @@ class TestJITCompatibility:
         assert jnp.all((samples >= 0) & (samples <= 1))  # Beta samples in [0,1]
 
     def test_rng_handling_jit_compatibility(self, rngs):
-        """Test that RNG handling is JIT-compatible."""
-        normal = Normal(loc=jnp.array(0.0), scale=jnp.array(1.0), rngs=rngs)
+        """Two jitted draws on one nnx.Rngs use different keys."""
+        normal = Normal(loc=jnp.array(0.0), scale=jnp.array(1.0))
 
-        key = jax.random.key(123)
-
-        # Test JIT compilation with different RNG scenarios using proper NNX pattern
         @nnx.jit(static_argnames=["sample_shape"])
-        def jit_sample(dist, sample_shape, rngs=None):
+        def jit_sample(dist, sample_shape, rngs):
             return dist.sample(sample_shape=sample_shape, rngs=rngs)
 
-        # Test with explicit RNGs
-        test_rngs = nnx.Rngs(sample=key, default=key)
+        test_rngs = nnx.Rngs(sample=jax.random.key(123))
         samples1 = jit_sample(normal, sample_shape=(3,), rngs=test_rngs)
         assert samples1.shape == (3,)
         assert jnp.isfinite(samples1).all()
 
-        samples2 = normal.sample(sample_shape=(3,))
+        samples2 = jit_sample(normal, sample_shape=(3,), rngs=test_rngs)
         assert samples2.shape == (3,)
         assert jnp.isfinite(samples2).all()
+        assert not jnp.array_equal(samples1, samples2)
 
     def test_batch_operations_jit_compatibility(self, rngs):
         """Test that batch operations are JIT-compatible."""
         # Create batch Normal distributions
-        batch_normal = Normal(
-            loc=jnp.array([0.0, 1.0, -1.0]), scale=jnp.array([1.0, 0.5, 2.0]), rngs=rngs
-        )
+        batch_normal = Normal(loc=jnp.array([0.0, 1.0, -1.0]), scale=jnp.array([1.0, 0.5, 2.0]))
 
         key = jax.random.key(456)
 
@@ -323,8 +291,8 @@ class TestOptimizations:
 
     def test_parameter_caching(self, rngs):
         """Test that entropy and KL divergence are properly cached."""
-        normal1 = Normal(loc=jnp.array(0.0), scale=jnp.array(1.0), rngs=rngs)
-        normal2 = Normal(loc=jnp.array(1.0), scale=jnp.array(1.0), rngs=rngs)
+        normal1 = Normal(loc=jnp.array(0.0), scale=jnp.array(1.0))
+        normal2 = Normal(loc=jnp.array(1.0), scale=jnp.array(1.0))
 
         # First entropy computation
         entropy1 = normal1.entropy()
@@ -348,7 +316,6 @@ class TestOptimizations:
         normal_trainable = Normal(
             loc=jnp.array(0.0),
             scale=jnp.array(1.0),
-            rngs=rngs,
             trainable_loc=True,
             trainable_scale=True,
         )
@@ -361,7 +328,6 @@ class TestOptimizations:
         normal_static = Normal(
             loc=jnp.array(0.0),
             scale=jnp.array(1.0),
-            rngs=rngs,
             trainable_loc=False,
             trainable_scale=False,
         )
@@ -379,7 +345,7 @@ class TestOptimizations:
 
     def test_numerical_stability(self, rngs):
         """Test numerical stability features."""
-        normal = Normal(loc=jnp.array(0.0), scale=jnp.array(1.0), rngs=rngs)
+        normal = Normal(loc=jnp.array(0.0), scale=jnp.array(1.0))
 
         # Test safe_log utility
         x = jnp.array([1e-10, 1.0, 1e10])
@@ -400,27 +366,9 @@ class TestOptimizations:
         except ValueError:
             pytest.fail("Parameter validation failed for valid parameters")
 
-    def test_rng_handling_improvements(self, rngs):
-        """Test improved RNG handling with key splitting."""
-        normal = Normal(loc=jnp.array(0.0), scale=jnp.array(1.0), rngs=rngs)
-
-        # Test RNG key extraction
-        key = normal._get_rng_key(rngs, "sample")
-        assert key.shape == ()  # Scalar key
-
-        # Test key splitting
-        split_keys = normal._split_rng_key(key, 5)
-        assert len(split_keys) == 5
-        assert all(k.shape == () for k in split_keys)
-
-        # Test parallel RNG creation
-        parallel_rngs = normal._create_parallel_rngs(rngs, 3)
-        assert len(parallel_rngs) == 3
-        assert all(isinstance(r, nnx.Rngs) for r in parallel_rngs)
-
     def test_memory_efficiency(self, rngs):
         """Test memory efficiency utilities."""
-        normal = Normal(loc=jnp.array(0.0), scale=jnp.array(1.0), rngs=rngs)
+        normal = Normal(loc=jnp.array(0.0), scale=jnp.array(1.0))
 
         # Test efficient stacking
         arrays = [jnp.array([1.0, 2.0]), jnp.array([3.0, 4.0]), jnp.array([5.0, 6.0])]
@@ -438,12 +386,12 @@ class TestOptimizations:
 
         # Create mixture with multiple components
         components = [
-            Normal(loc=jnp.array(0.0), scale=jnp.array(1.0), rngs=rngs),
-            Normal(loc=jnp.array(2.0), scale=jnp.array(0.5), rngs=rngs),
-            Normal(loc=jnp.array(-1.0), scale=jnp.array(1.5), rngs=rngs),
+            Normal(loc=jnp.array(0.0), scale=jnp.array(1.0)),
+            Normal(loc=jnp.array(2.0), scale=jnp.array(0.5)),
+            Normal(loc=jnp.array(-1.0), scale=jnp.array(1.5)),
         ]
         weights = jnp.array([0.3, 0.5, 0.2])
-        mixture = Mixture(components=components, weights=weights, rngs=rngs)
+        mixture = Mixture(components=components, weights=weights)
 
         # Test vectorized sampling
         samples = mixture.sample(sample_shape=(100,), rngs=rngs)
@@ -465,7 +413,6 @@ class TestOptimizations:
         normal = Normal(
             loc=jnp.array(0.0),
             scale=jnp.array(1.0),
-            rngs=rngs,
             trainable_loc=False,  # Use static parameters for better JIT performance
             trainable_scale=False,
         )
@@ -480,8 +427,8 @@ class TestOptimizations:
             return dist.entropy(use_cache=use_cache)
 
         @nnx.jit(static_argnames=["sample_shape"])
-        def jit_sample(dist, sample_shape):
-            return dist.sample(sample_shape=sample_shape)
+        def jit_sample(dist, sample_shape, rngs):
+            return dist.sample(sample_shape=sample_shape, rngs=rngs)
 
         x = jnp.array([0.0, 1.0, -1.0])
 
@@ -493,14 +440,14 @@ class TestOptimizations:
         entropy = jit_entropy(normal, use_cache=False)  # Disable caching in JIT context
         assert jnp.isfinite(entropy)
 
-        samples = jit_sample(normal, sample_shape=(5,))
+        samples = jit_sample(normal, sample_shape=(5,), rngs=rngs)
         assert samples.shape == (5,)
         assert jnp.isfinite(samples).all()
 
     def test_cache_invalidation(self, rngs):
         """Test that caches are properly invalidated when parameters change."""
         # Create a normal distribution with mutable parameters
-        normal = Normal(loc=jnp.array(0.0), scale=jnp.array(1.0), rngs=rngs)
+        normal = Normal(loc=jnp.array(0.0), scale=jnp.array(1.0))
 
         # Compute entropy (should be cached)
         entropy1 = normal.entropy()
@@ -522,10 +469,10 @@ class TestDistributionValidation:
     """Validation should reject non-finite inputs and parameters."""
 
     def test_sample_requires_explicit_rng_when_distribution_has_no_internal_rng(self):
-        normal = Normal(loc=jnp.array(0.0), scale=jnp.array(1.0), rngs=None)
+        normal = Normal(loc=jnp.array(0.0), scale=jnp.array(1.0))
 
-        with pytest.raises(ValueError, match="rngs must be provided"):
-            normal.sample()
+        with pytest.raises(TypeError, match="missing 1 required keyword-only argument: 'rngs'"):
+            normal.sample()  # pyright: ignore[reportCallIssue]
 
     def test_log_prob_rejects_non_finite_inputs(self):
         normal = Normal(loc=jnp.array(0.0), scale=jnp.array(1.0))
@@ -538,3 +485,42 @@ class TestDistributionValidation:
 
         with pytest.raises(ValueError, match="location parameter contains non-finite"):
             normal.log_prob(jnp.array(0.0))
+
+
+class TestBetaSampleGradient:
+    """The gradient of a Beta draw in its concentrations is a pathwise gradient.
+
+    jax builds a Beta draw from Gamma draws whose gradient is the implicit reparameterization
+    gradient (Figurnov, Mohamed and Mnih 2018), not the derivative of the sampler at a fixed key,
+    so finite differences do not apply. As numpyro's ``test_pathwise_gradient`` does, the gradient
+    of a Monte Carlo moment is compared with the gradient of the exact moment. The bound is the
+    estimator's own standard error rather than a fitted tolerance: four standard errors, which a
+    correct gradient would exceed with probability 2 * Phi(-4), about 6.3e-5, for another key.
+    The key is fixed, so a run is deterministic.
+    """
+
+    DRAWS = 200_000
+    STANDARD_ERRORS = 4.0
+
+    def test_moment_gradient_matches_the_exact_moment_gradient(self):
+        concentrations = (jnp.array(2.0), jnp.array(3.0))
+        key = jax.random.key(0)
+
+        def moment_per_draw(params):
+            draws = Beta(*params).sample((self.DRAWS,), rngs=nnx.Rngs(sample=key))
+            return draws + draws**2
+
+        def exact_moment(params):
+            alpha, beta = params
+            mean = alpha / (alpha + beta)
+            variance = alpha * beta / ((alpha + beta) ** 2 * (alpha + beta + 1))
+            return mean + variance + mean**2
+
+        per_draw = jax.jacfwd(moment_per_draw)(concentrations)
+        exact = jax.grad(exact_moment)(concentrations)
+        for gradients, expected in zip(per_draw, exact, strict=True):
+            standard_error = jnp.std(gradients, ddof=1) / jnp.sqrt(self.DRAWS)
+            bound = self.STANDARD_ERRORS * standard_error
+            # The bound resolves a 1% error in the gradient, so agreement within it is a finding.
+            assert bound < 0.01 * jnp.abs(expected)
+            assert jnp.abs(jnp.mean(gradients) - expected) < bound

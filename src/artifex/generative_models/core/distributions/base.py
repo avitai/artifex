@@ -12,17 +12,26 @@ import jax.numpy as jnp
 import numpy as np
 from flax import nnx
 from jax import core as jax_core
-from substrax.rng import key_from
+from substrax.rng import SAMPLE_STREAM, stream_key
 
 
 class Distribution(nnx.Module):
     """Base class for all probability distributions."""
 
-    def __init__(self, *, rngs: nnx.Rngs | None = None):
-        """Initialize distribution state and caches."""
+    def __init__(self, *, rng_collection: str = SAMPLE_STREAM) -> None:
+        """Initialize distribution state and caches.
+
+        A distribution builds its parameters from values, so it takes no key and holds none:
+        ``sample`` takes its key at call time, from the stream named here.
+
+        Args:
+            rng_collection: The ``nnx.Rngs`` stream ``sample`` draws its key from. A name the
+                ``nnx.Rngs`` does not hold draws from its ``default`` stream, flax's fallback,
+                so a misspelled name is not refused.
+        """
         super().__init__()
+        self.rng_collection = rng_collection
         self._dist: Any | None = None
-        self._rngs = rngs
 
         self._enable_caching = True
         self._entropy_cache = cast(Any, nnx.Cache(None))
@@ -35,19 +44,22 @@ class Distribution(nnx.Module):
             raise ValueError("Distribution not initialized.")
         return self._dist
 
-    def __call__(
-        self, x: jax.Array | None = None, *, rngs: nnx.Rngs | None = None
-    ) -> jax.Array | tuple[jax.Array, jax.Array]:
-        """Evaluate or sample from the distribution."""
-        if x is None:
-            return self.sample(sample_shape=(), rngs=rngs)
-        return self.log_prob(x)
+    def sample(self, sample_shape: tuple = (), *, rngs: nnx.Rngs) -> jax.Array:
+        """Draw samples with the next key of this distribution's stream.
 
-    def sample(self, sample_shape: tuple = (), *, rngs: nnx.Rngs | None = None) -> jax.Array:
-        """Draw samples from the distribution."""
+        Anything but an ``nnx.Rngs`` is refused with ``TypeError``
+        (``substrax.rng.stream_key``).
+
+        Args:
+            sample_shape: Leading shape of the samples.
+            rngs: Holds the ``rng_collection`` stream, or a ``default`` one.
+
+        Returns:
+            Samples of shape ``sample_shape`` plus the batch and event shapes.
+        """
         dist = self._distribution()
-        sample_key = self._get_rng_key(rngs)
-        return dist.sample(seed=sample_key, sample_shape=sample_shape)
+        key = stream_key(rngs, self.rng_collection)
+        return dist.sample(seed=key, sample_shape=sample_shape)
 
     def _get_param_hash(self) -> int:
         try:
@@ -226,28 +238,6 @@ class Distribution(nnx.Module):
                 self._check_finite(dist_value.probs, "probability parameter")
         except AttributeError:
             pass
-
-    def _get_rng_key(self, rngs: nnx.Rngs | None = None, key_name: str = "sample") -> jax.Array:
-        source_rngs = rngs if rngs is not None else self._rngs
-        if source_rngs is None:
-            raise ValueError("rngs must be provided for sampling")
-        return key_from(
-            source_rngs,
-            streams=(key_name, "default"),
-            context="distribution sampling",
-        )
-
-    def _split_rng_key(self, key: jax.Array, num_splits: int) -> list[jax.Array]:
-        if num_splits <= 1:
-            return [key]
-        return list(jax.random.split(key, num_splits))
-
-    def _create_parallel_rngs(
-        self, base_rngs: nnx.Rngs | None, num_parallel: int
-    ) -> list[nnx.Rngs]:
-        base_key = self._get_rng_key(base_rngs, "sample")
-        split_keys = self._split_rng_key(base_key, num_parallel)
-        return [nnx.Rngs(sample=key, default=key) for key in split_keys]
 
     @staticmethod
     def _efficient_stack(arrays: list[jax.Array], axis: int = 0) -> jax.Array:

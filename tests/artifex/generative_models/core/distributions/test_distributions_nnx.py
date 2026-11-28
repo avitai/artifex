@@ -20,7 +20,7 @@ def test_bernoulli():
     rngs = nnx.Rngs(sample=sample_key)
 
     # Initialize with probability
-    dist = Bernoulli(probs=jnp.array(0.7), rngs=rngs)
+    dist = Bernoulli(probs=jnp.array(0.7))
 
     # Test sampling
     try:
@@ -49,7 +49,7 @@ def test_categorical():
     rngs = nnx.Rngs(sample=sample_key)
 
     # Initialize with probability
-    dist = Categorical(probs=jnp.array([0.2, 0.3, 0.5]), rngs=rngs)
+    dist = Categorical(probs=jnp.array([0.2, 0.3, 0.5]))
 
     # Test sampling
     try:

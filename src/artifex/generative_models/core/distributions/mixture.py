@@ -8,7 +8,7 @@ import distrax
 import jax
 import jax.numpy as jnp
 from flax import nnx
-from substrax.rng import key_from
+from substrax.rng import SAMPLE_STREAM, stream_key
 
 from .base import Distribution
 
@@ -26,7 +26,7 @@ class MixtureOfGaussians(Distribution):
         scales: jax.Array,
         weights: jax.Array | None = None,
         *,
-        rngs: nnx.Rngs | None = None,
+        rng_collection: str = SAMPLE_STREAM,
     ):
         """Initialize a Mixture of Gaussians distribution.
 
@@ -37,9 +37,9 @@ class MixtureOfGaussians(Distribution):
                 Shape [..., num_components, event_size]
             weights: Mixture weights for the components. If None, uniform weights
                 are used. Shape [..., num_components]
-            rngs: Random number generators for initialization and sampling.
+            rng_collection: The ``nnx.Rngs`` stream ``sample`` draws its key from.
         """
-        super().__init__(rngs=rngs)
+        super().__init__(rng_collection=rng_collection)
 
         # Check and set parameters
         self.locs = locs
@@ -85,7 +85,7 @@ class Mixture(Distribution):
         components: list[Distribution],
         weights: jax.Array | None = None,
         *,
-        rngs: nnx.Rngs | None = None,
+        rng_collection: str = SAMPLE_STREAM,
     ):
         """Initialize a mixture distribution.
 
@@ -93,9 +93,9 @@ class Mixture(Distribution):
             components: list of component distributions
             weights: Mixture weights for the components. If None, uniform weights
                 are used. Shape [num_components]
-            rngs: Random number generators for initialization and sampling.
+            rng_collection: The ``nnx.Rngs`` stream ``sample`` draws its key from.
         """
-        super().__init__(rngs=rngs)
+        super().__init__(rng_collection=rng_collection)
         # Wrap components list with nnx.List for NNX compatibility
         self.components = nnx.List(components)
         self.num_components = len(components)
@@ -110,103 +110,48 @@ class Mixture(Distribution):
         # Create the categorical distribution for component selection and wrap with nnx.data
         self._cat_dist = nnx.data(distrax.Categorical(probs=self.weights))
 
-    def __call__(
-        self, x: jax.Array | None = None, *, rngs: nnx.Rngs | None = None
-    ) -> jax.Array | tuple[jax.Array, jax.Array]:
-        """Compute log probability of x or sample if x is None.
+    def sample(self, sample_shape: tuple = (), *, rngs: nnx.Rngs) -> jax.Array:
+        """Sample by choosing a component per draw and taking that component's sample.
+
+        One key of this mixture's stream is split into a key for the choice and one per
+        component, so no key is used twice; every component is drawn and the chosen draws are
+        gathered. This is numpyro's ``MixtureGeneral`` (``sample_with_intermediates`` and
+        ``component_sample``). Each component draws from an ``nnx.Rngs`` holding its key as
+        ``default``, which serves whatever stream the component names.
+
+        The choice is a discrete draw, so a sample has no gradient in ``weights`` (numpyro marks
+        the same with ``has_rsample = False``); gradients reach the components' parameters.
 
         Args:
-            x: Input tensor. If None, returns a sample.
-            rngs: Random number generators for sampling.
-                If None, uses the distribution's internal RNGs.
+            sample_shape: Leading shape of the samples.
+            rngs: Holds the ``rng_collection`` stream, or a ``default`` one.
 
         Returns:
-            If x is provided, returns log probability of x.
-            If x is None, returns a sample from the distribution.
+            Samples of shape ``sample_shape`` plus the components' event shape.
         """
-        if x is None:
-            return self.sample(sample_shape=(), rngs=rngs)
-        return self.log_prob(x)
-
-    def _get_sample_key(self, rngs: nnx.Rngs | None = None) -> jax.Array:
-        """Extract a JAX random key from the input rngs.
-
-        Args:
-            rngs: Random number generators for sampling.
-                If None, uses the distribution's internal RNGs.
-
-        Returns:
-            A JAX random key for sampling.
-        """
-        source_rngs = rngs if rngs is not None else self._rngs
-        if source_rngs is None:
-            raise ValueError("rngs must be provided for sampling")
-        return key_from(
-            source_rngs,
-            streams=("sample", "default"),
-            context="mixture sampling",
-        )
-
-    def sample(self, sample_shape: tuple = (), *, rngs: nnx.Rngs | None = None) -> jax.Array:
-        """Sample from the mixture distribution using vectorized operations.
-
-        Args:
-            sample_shape: Shape of the samples
-            rngs: Random number generators for sampling.
-                If None, uses the distribution's internal RNGs.
-
-        Returns:
-            Samples from the distribution
-        """
-        # Convert sample_shape to a tuple if it's not already
         if not isinstance(sample_shape, tuple):
             sample_shape = (sample_shape,)
 
-        # Get the sample key
-        sample_key = self._get_sample_key(rngs)
+        # The first half of the split is the choice's key, as before this method took its
+        # key at call time, so a given key still gives the same draws.
+        key_choice, key_components = jax.random.split(stream_key(rngs, self.rng_collection))
+        component_keys = jax.random.split(key_components, self.num_components)
+        choice = self._cat_dist.sample(seed=key_choice, sample_shape=sample_shape)
 
-        # Split keys for component selection and sampling
-        key_select, key_sample = jax.random.split(sample_key)
-
-        # Split keys for each component to ensure independent sampling
-        num_components = len(self.components)
-        component_keys = jax.random.split(key_sample, num_components)
-
-        # Select components
-        component_indices = self._cat_dist.sample(seed=key_select, sample_shape=sample_shape)
-
-        # Sample from all components (can't use vmap with heterogeneous objects)
-        all_samples = []
-        for i, (component_key, component) in enumerate(zip(component_keys, self.components)):
-            component_rngs = nnx.Rngs(sample=component_key)
-            sample = component.sample(sample_shape=sample_shape, rngs=component_rngs)
-            all_samples.append(sample)
-
-        # Stack samples efficiently
-        all_samples = self._efficient_stack(all_samples, axis=0)
-
-        # Select samples based on component indices using advanced indexing
-        # all_samples shape: (num_components, *sample_shape, *event_shape)
-        # component_indices shape: (*sample_shape,)
-
-        # Create indices for advanced indexing
-        batch_indices = jnp.arange(jnp.prod(jnp.array(sample_shape))).reshape(sample_shape)
-        flat_component_indices = component_indices.flatten().astype(jnp.int32)
-        flat_batch_indices = batch_indices.flatten().astype(jnp.int32)
-
-        # Reshape all_samples for indexing: (num_components, batch_size, *event_shape)
-        original_shape = all_samples.shape
-        batch_size = int(jnp.prod(jnp.array(sample_shape)))
-        event_shape = original_shape[2:]  # Skip (num_components, *sample_shape)
-
-        reshaped_samples = all_samples.reshape((num_components, batch_size, *event_shape))
-
-        # Select samples using advanced indexing
-        selected_samples = reshaped_samples[flat_component_indices, flat_batch_indices]
-
-        # Reshape back to original sample shape
-        final_shape = sample_shape + event_shape
-        return selected_samples.reshape(final_shape)
+        # The components may be of different classes, so they are drawn one by one and stacked
+        # on a new axis after the sample axes: (*sample_shape, num_components, *event_shape).
+        mixture_axis = len(sample_shape)
+        samples = jnp.stack(
+            [
+                component.sample(sample_shape=sample_shape, rngs=nnx.Rngs(component_key))
+                for component_key, component in zip(component_keys, self.components, strict=True)
+            ],
+            axis=mixture_axis,
+        )
+        event_ndim = samples.ndim - mixture_axis - 1
+        indices = choice.reshape(choice.shape + (1,) * (event_ndim + 1))
+        selected = jnp.take_along_axis(samples, indices, axis=mixture_axis)
+        return jnp.squeeze(selected, axis=mixture_axis)
 
     def log_prob(self, x: jax.Array) -> jax.Array:
         """Compute log probability of x using vectorized operations.

@@ -4,6 +4,7 @@ import distrax
 import jax
 import jax.numpy as jnp
 from flax import nnx
+from substrax.rng import SAMPLE_STREAM
 
 from .base import Distribution
 
@@ -19,10 +20,10 @@ class Normal(Distribution):
         self,
         loc: jax.Array | None = None,
         scale: jax.Array | None = None,
-        *,
-        rngs: nnx.Rngs | None = None,
         trainable_loc: bool = True,
         trainable_scale: bool = True,
+        *,
+        rng_collection: str = SAMPLE_STREAM,
     ):
         """Initialize a Normal distribution with optimized variable types.
 
@@ -31,11 +32,11 @@ class Normal(Distribution):
                 will be initialized as a parameter.
             scale: Standard deviation of the distribution.
                 If None, will be initialized as a parameter.
-            rngs: Random number generators for initialization and sampling.
             trainable_loc: Whether location parameter should be trainable
             trainable_scale: Whether scale parameter should be trainable
+            rng_collection: The ``nnx.Rngs`` stream ``sample`` draws its key from.
         """
-        super().__init__(rngs=rngs)
+        super().__init__(rng_collection=rng_collection)
 
         # Initialize parameters with appropriate variable types
         if loc is not None:
@@ -101,7 +102,7 @@ class Beta(Distribution):
         concentration0: jax.Array | None = None,
         concentration1: jax.Array | None = None,
         *,
-        rngs: nnx.Rngs | None = None,
+        rng_collection: str = SAMPLE_STREAM,
     ):
         """Initialize a Beta distribution.
 
@@ -110,9 +111,9 @@ class Beta(Distribution):
                 If None, will be initialized as a parameter.
             concentration1: Second concentration parameter (beta).
                 If None, will be initialized as a parameter.
-            rngs: Random number generators for initialization and sampling.
+            rng_collection: The ``nnx.Rngs`` stream ``sample`` draws its key from.
         """
-        super().__init__(rngs=rngs)
+        super().__init__(rng_collection=rng_collection)
 
         # Initialize parameters
         self.concentration0 = nnx.Param(
